@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrom://ainspector/skin/ainspector.css" type="text/css"?>
+
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <script type="application/x-javascript" src="chrome://ainspector/content/jquery/jquery-1.2.6.min.js"/>
+    <script src="chrome://ainspector/content/jquery/ainspector.jQuery.js" type="text/javascript"/>
+
+    <!-- dependencies -->
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/lib/json2.js"></script>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/lib/beautify.js"></script>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/lib/fulljslint.js"></script>
+
+    <!-- ainspector core -->
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/ainspector.js"></script>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/controller.js"></script>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/util.js"></script>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/renderers.js"></script>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/tools.js"></script>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/resultset.js"></script>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/context.js"></script>
+    <script type="application/x-javascript" src="chrome://ainspector/content/grid.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/headingsGrid.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/imagesGrid.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/formsGrid.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/linksGrid.js"/>
+
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector-ff-pref.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/view.js"/>
+
+    <!-- Firebug plumbing -->
+    <script type="application/x-javascript" src="chrome://ainspector/content/exporter.js"></script>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector-firebug-net.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector-firebug.js"/>
+   
+    <!-- A11y & DOM+ Tabs -->
+    <script src="chrome://ainspector/content/ainspector/AllyModule.js" type="application/x-javascript"/> 
+    <script src="chrome://ainspector/content/ainspector/A11yPanel.js" type="application/x-javascript"/> 
+    
+    <!-- OAA Rules -->
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/oaa-a11y.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/nls/wcag20-ruleset_en-us.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/wai-aria/aria-definitions.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/scripts/util.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/scripts/colorUtil.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/doc-structure-rules.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/style-rules.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/text-equiv-rules.js"/>
+	<script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rulesets/wcag20-ruleset.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA_Nexus.js" />
+ 
+    <stringbundleset id="stringbundleset">
+        <stringbundle id="a11y_bundle" src="chrome://ainspector/locale/a11y.properties"/>
+        <stringbundle id="OAA_bundle"   src="chrome://ainspector/locale/OAA.properties"/>
+    </stringbundleset>
+
+</overlay>
