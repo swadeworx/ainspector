@@ -124,6 +124,20 @@ OpenAjax.a11y.addRuleset(
             		'toomanyh1' : {severityCode:'level.PotentialViolation', messageCode:'titles.msg.toomanyh1'}
  		    	}
 		    }, // 2.4.2 
+			  {
+                criterionNumber : '2.4.4',
+                criterionLevel : 'WCAG20.level.A',
+                criterionDesc : 'WCAG20.description.2_4_2',
+                requirementUrl: '#navigation-mechanisms',
+		        rules : {
+            		// defined in doc-structure-rules.js
+            		'linktooshort' : {severityCode:'level.Violation', messageCode:'links.msg.tooshort'},
+            		'sameURLdiffLinks' : {severityCode:'level.Violation', messageCode:'links.msg.sameURLdiffLinks'},
+            		'sameLinkdiffURL' : {severityCode:'level.PotentialViolation', messageCode:'links.msg.sameLinkdiffURL'},
+            		'imgTooSmall' : {severityCode:'level.PotentialViolation', messageCode:'links.msg.imgTooSmall'},
+            		'altequaltextcontent' : {severityCode:'level.PotentialViolation', messageCode:'links.msg.altequaltextcontent'}
+ 		    	}
+		    }, //2.4.4
 		
 		    {
 		        criterionNumber : '2.4.6',
@@ -177,4 +191,47 @@ OpenAjax.a11y.addRuleset(
 ]
     }
 );
+
+OpenAjax.a11y.addRuleset(
+	    {
+	        // basic info
+	    	id : "IITAA_1_0",
+	        nameCode : "IITAA10.name",
+	        descriptionCode : "IITAA10.description",
+	        
+	        // rulesetUrl - URL of the checklist/ruleset as a whole
+	        rulesetUrl : "http://www.dhs.state.il.us/IITAA/IITAAWebImplementationGuidelines.html",
+	        // baseReqUrl - used to resolve relative urls of requirementUrls only
+	        baseReqUrl : "http://www.dhs.state.il.us/IITAA/IITAAWebImplementationGuidelines.html",
+	        
+	        requirements : [ 
+	        {
+	                criterionNumber : '9.2',
+	                criterionLevel : 'IITAA10.level.A',
+	                criterionDesc : 'IITAA10.description.9_2',
+	                requirementUrl: '#navigation-mechanisms',
+			        rules : {
+	            		// defined in doc-structure-rules.js
+	        			'framemissingtitle' : {severityCode:'level.Violation', messageCode:'frames.msg.framemissingtitle'},           		
+	    				'frameduplicatetitle' : {severityCode:'level.Violation', messageCode:'frames.msg.frameduplicatetitle'},           		
+	            		'emptyframe' : {severityCode:'level.potentialViolation', messageCode:'frames.msg.emptyframe'}           		
+			    	}
+			    }, // 2.4.1 
+	        {
+	                criterionNumber : '9.1',
+	                criterionLevel : 'IITAA10.level.A',
+	                criterionDesc : 'IITAA10.description.9_1',
+	                requirementUrl: '#navigation-mechanisms',
+			        rules : {
+	            		// defined in doc-structure-rules.js
+	            		'linktooshort' : {severityCode:'level.Violation', messageCode:'links.msg.tooshort'},
+	            		'sameURLdiffLinks' : {severityCode:'level.Violation', messageCode:'links.msg.sameURLdiffLinks'},
+	            		'sameLinkdiffURL' : {severityCode:'level.PotentialViolation', messageCode:'links.msg.sameLinkdiffURL'},
+	            		'imgTooSmall' : {severityCode:'level.PotentialViolation', messageCode:'links.msg.imgTooSmall'},
+	            		'altequaltextcontent' : {severityCode:'level.PotentialViolation', messageCode:'links.msg.altequaltextcontent'}
+	 		    	}
+			    }, //2.4.4
+	        ] 
+});
+
         

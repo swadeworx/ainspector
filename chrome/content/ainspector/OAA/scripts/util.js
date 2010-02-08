@@ -39,21 +39,19 @@ if (typeof OpenAjax.a11y.util == "undefined") {
 			/*
 			 * gets all of the alt text of the children of the given node
 			 */
-			getDisplayableAlt : function(node) {
-				var retStr = "";
-				if (node.childNodes.length > 0) {
-					for (var cur = node.firstChild(); cur != null; cur = cur.nextSibling()) {
-					    if (cur.nodeType != node.TEXT_NODE && cur.hasAttribute) {
-					    	if (cur.hasAttribute('alt') && (accessext_canTagHaveAlt(cur.tagName))) {
-					            if (retStr != "") {
-					               retStr = retStr + " ";
-					            }
-					            retStr = retStr + cur.getAttribute('alt');
-					         } 
-					     }
-					}
+			getDisplayableAlt : function(node) { // 02/08/10 PKB modified getDisplayableAlt to be parallel with getNodeTextRecursively
+				var text = "";
+				for(var i = 0; i < node.childNodes.length; i++) {
+					var childNode = node.childNodes[i];
+					var name = childNode.nodeName.toLowerCase();
+					if(name == "img" ||  name == "applet" ||
+						name == "embed" || name == "area") {
+						text += childNode.getAttribute("alt") + " ";
+					} else if(childNode.hasChildNodes()) {
+						text += this.getDisplayableAlt(childNode) + "";
+					} 
 				}
-				return retStr.normalizeSpacing();
+				return text.normalizeSpacing();
 			},
 				
 			/*

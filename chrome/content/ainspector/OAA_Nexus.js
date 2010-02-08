@@ -5,7 +5,8 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 
     init: function() {
         try {
-	        AINSPECTOR.OAA_Nexus.addRuleset(); //rendered by reportcardView() in renderers.js
+	        AINSPECTOR.OAA_Nexus.addRuleset("WCAG_2_0"); //rendered by reportcardView() in renderers.js
+	        AINSPECTOR.OAA_Nexus.addRuleset("IITAA_1_0"); 
         } catch (err) {
             alert("AINSPECTOR.OAA_Nexus: " + err.message);
         }
@@ -156,7 +157,6 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 													added = true;
 												}
 											}
-											if (!added) FBTrace.sysout(rule.id + " NOT ADDED runDocContextRules loadArray ", loadArray);
 										}
 									}
 								}
@@ -433,7 +433,7 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 
 	},	
 	
-    addRuleset: function() {
+    addRuleset: function(rulesetID) {
         // first register our custom rules.
         //
         //WCAG 2.0 OAA common rules
@@ -443,7 +443,7 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
     	var gIndex = new Object();
     	if (typeof OpenAjax == "undefined" ) alert('typeof OpenAjax == "undefined"');
     	else if (typeof OpenAjax.a11y == "undefined") alert('typeof OpenAjax.a11y == "undefined"');
-    	var OAA = OpenAjax.a11y.getRuleset("WCAG_2_0");
+    	var OAA = OpenAjax.a11y.getRuleset(rulesetID);
     	for (var rs = 0; rs < OAA.requirements.length; rs++) {
         	try {
         		var eleProp = OAA.requirements[rs].criterionNumber;
@@ -471,7 +471,7 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 	    		FBTrace.sysout(e);
 	    	}
         }
-
+alert(OpenAjax.a11y.RULESET_CODES[OAA.nameCode])
     	// register the ruleset itself
         AINSPECTOR.registerRuleset({
         	id: OAA.id,
