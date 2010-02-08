@@ -1,0 +1,1364 @@
+/* ***** BEGIN LICENSE BLOCK *****
+ *
+ * Version: MPL 1.1
+ *
+ * The contents of this file are subject to the Mozilla Public License Version
+ * 1.1 (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at http://www.mozilla.org/MPL/
+ *
+ * Software distributed under the License is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
+ * for the specific language governing rights and limitations under the
+ * License.
+ *
+ * The Original Code is: YSlow 2
+ *
+ * The Initial Developer of the Original Code is Yahoo! Inc.
+ *
+ * Copyright (C) 2009, Yahoo! Inc. All Rights Reserved.
+ *
+ * Contributor(s):
+ *     Antonia Kwok
+ *
+ * ***** END LICENSE BLOCK ***** */
+#ainspectorDiv body, div, span, ul, li, h1, h2, h3, h4, h5, h6, hr, p, input, select, option, form, em, table, tr, td, img {
+/* FIX ME : the original, below, makes the twisty be under the text
+#ainspectorDiv div, #ainspectorDiv span, #ainspectorDiv ul, #ainspectorDiv li, #ainspectorDiv hr, #ainspectorDiv p, #ainspectorDiv form, #ainspectorDiv em, #ainspectorDiv table, #ainspectorDiv th, #ainspectorDiv tr, #ainspectorDiv td, #ainspectorDiv img, #ainspectorDiv label {
+*/
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: #fff;
+}
+
+#ainspectorDiv {
+    font-size: 8pt;
+    font-weight: bold;
+    font-family: Lucida Grande, Tahoma, sans-serif;
+    color: #565656; /* dark grey */
+    margin-right: 10px;
+    padding: 1px;
+    width: 100%;
+    text-align: center;
+    background: #ffffff;
+}
+
+#ainspectorDiv .font10 {
+    font-size: 10pt;
+}
+
+#ainspectorDiv table {
+    empty-cells: show;
+}
+
+#ainspectorDiv td, #ainspectorDiv th {
+    font-size: 8pt;
+}
+
+#ainspectorDiv input {
+    font-size: 9pt;
+}
+
+#ainspectorDiv input, 
+#ainspectorDiv select, 
+#ainspectorDiv option {
+    font-size: 8pt;
+    font-weight: bold;
+    font-family: Lucida Grande, Tahoma, sans-serif;
+    color: #565656; /* dark grey */
+    margin: 0;
+    padding: 0;
+}
+
+#ainspectorDiv .padding50 {
+    padding-left: 50px;
+}
+
+#ainspectorDiv .padding100 {
+    padding-left: 100px;
+}
+
+#ainspectorDiv h1, 
+#ainspectorDiv h2, 
+#ainspectorDiv h3, 
+#ainspectorDiv h4, 
+#ainspectorDiv h5, 
+#ainspectorDiv h6 {
+    font-weight: normal;
+    padding: 0;
+    margin: 0;
+}
+
+#ainspectorDiv h2 {
+    color: #89B31F;  /* green */
+    font-weight: bold;
+    font-size: 16pt;
+    margin: 0 0 0.4em;
+}
+
+#ainspectorDiv h3 {
+    color: #FF8800;   /* orange */
+    font-weight: bold;
+    font-size: 14pt;
+    margin: 1em 0 0.4em;
+}
+
+#ainspectorDiv h4 {
+    font-weight: bold;
+    color: #4f4f4f;
+    font-size: 10pt;
+    margin: 1em 0 0.4em;
+}
+
+#ainspectorDiv .floatRight {
+    float: right;
+}
+
+#ainspectorDiv .floatLeft {
+    float: left;
+}
+
+#ainspectorDiv em {
+    font-weight: bold;
+    font-size: 8pt;
+}
+
+#ainspectorDiv #dialogDiv {  
+    background: url(./img/overlay.png); 
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 998;
+}
+
+#ainspectorDiv #dialogDiv .dialog-box  {
+    z-index: 999;
+    position: absolute;
+    width: 389px;
+    left: 225px;
+    top: 80px;
+    font-size: 10pt;
+    color: #565656;
+}
+
+#ainspectorDiv #dialogDiv .dialog-box .dialog-text {
+    font-size: 11pt;
+    padding: 10px 28px 0 20px;
+    position: relative;
+    text-align: left;
+}
+
+#ainspectorDiv #dialogDiv .dialog-box .dialog-text input.text-input {
+    font-size: 11pt;
+    width: 100%;
+    margin-top: 10px;
+}
+
+#ainspectorDiv #dialogDiv .dialog-box div.gradient h1 {
+    position: relative;
+    font-weight: bold;
+    border-width: 0;
+}
+
+#ainspectorDiv #dialogDiv .dialog-box div.gradient h1 span {
+    position: absolute;
+    display: block;
+    background: url(./img/modal_top_24.png) no-repeat;
+    width: 100%;
+    height: 80px;
+}
+
+#ainspectorDiv #dialogDiv .dialog-box .buttons {
+    position: absolute;
+    width: 100%;
+}
+
+#ainspectorDiv #dialogDiv .dialog-box #middle {
+    height: 40px;
+    background: url(./img/modal_mid_24.png) repeat-y;
+}
+
+#ainspectorDiv #dialogDiv .dialog-box .dialog-more-text {
+    text-align: left;
+    padding: 0 20px;
+    width: 100%;
+    position: relative;
+    background: url(./img/modal_mid_24.png) repeat-y;
+}
+
+#ainspectorDiv #dialogDiv .dialog-box #bottom {
+    background: url(./img/modal_bot_24.png) no-repeat;
+    height: 20px;
+}
+
+#ainspectorDiv #dialogDiv .dialog-box .buttons {
+    text-align: center;
+}
+
+#ainspectorDiv #dialogDiv .dialog-box .error {
+    color: #ff0000;
+}
+
+#ainspectorDiv #dialogDiv .dialog-box .buttons input {
+    width: 80px;
+    margin: 10px 5px;
+}
+
+#ainspectorDiv #dialogDiv .dialog-more-text #printOptions {
+    padding-top: 10px;
+}
+
+#ainspectorDiv #dialogDiv .dialog-more-text #printOptions input {
+    margin: 0 5px;
+}
+
+#ainspectorDiv #dialogDiv .dialog-more-text #printOptions label {
+    font-size: 10pt;
+    padding-right: 10px;
+}
+
+#ainspectorDiv #tooltipDiv  {
+    z-index: 500;
+    position: absolute;
+    width: 400px;
+    left: 225px;
+    top: 80px;
+    font-size: 8pt;
+    background: #ffffff;
+    padding: 10px;
+    border: 1px solid #565656;
+    text-align: left;
+}
+
+/* BEGIN TOOLBAR */
+
+#toolbarLinks {
+    float: left;
+ }
+
+#ainspectorDiv #toolbarDiv {
+    width: 950px;
+    text-align: left;
+    margin-top: 5px;
+}
+
+#ainspectorDiv #toolbarDiv #toolbar-ruleset {
+    font-size: 8pt;
+    text-align: left;
+    color: #9b9b9b;
+    height: 20px;
+    margin-left: 40px;
+}
+
+#ainspectorDiv #toolbarDiv #toolbar-ruleset select {
+    margin: 0;
+    padding: 0;
+    height: 19px; 
+    top: 0;
+}
+
+#ainspectorDiv #toolbarDiv #toolbar-ruleset option {
+    margin: 2px 0;
+    padding: 2px 5px;
+}
+
+#ainspectorDiv #toolbarDiv #toolbar-ruleset option.firstInGroup {
+    border-top: 1px solid #9b9b9b;
+}
+
+#ainspectorDiv #toolbarDiv #toolbar-ruleset img { 
+    border: none;
+    margin: 0 5px 2px 5px;
+    vertical-align: middle;
+}
+
+#ainspectorDiv #toolbarDiv #toolbar-ruleset a { 
+    display: inline-block;
+    color: #565656;
+    margin-right: 5px;
+}
+
+#ainspectorDiv #toolbarDiv #toolbar-ruleset a em { 
+    font-style: normal;
+}
+
+#ainspectorDiv #toolbarDiv #toolbar-ruleset a:hover em { 
+    text-decoration: underline;
+}
+
+#ainspectorDiv #toolbarDiv #toolbar-ruleset ul {
+    display: inline;
+}
+
+#ainspectorDiv #toolbarDiv #toolbar-ruleset li {
+    display: inline;
+    list-style-image: none;
+    list-style-position: outside;
+    list-style-type: none;
+}
+
+#ainspectorDiv #toolbarDiv #toolbar-ruleset li.first {
+    border-right: 1px solid #9b9b9b;
+}
+
+#ainspectorDiv #toolbarDiv #helpDiv {
+    border: 1px solid #9b9b9b;
+    position: absolute;
+    top: 26px;
+    left: 827px;
+    font-size: 8pt;
+    z-index: 99;
+    background: #ffffff;
+}
+
+#ainspectorDiv #toolbarDiv #helpDiv a {
+    position: relative;
+    display: block;
+    padding: 5px 10px;
+    color: #565656;
+}
+
+#ainspectorDiv #toolbarDiv #helpDiv a:hover {
+    color: #ffffff;
+    background: #006ca2;
+}
+
+#ainspectorDiv #toolbarDiv #helpDiv .new-section {
+    border-top: 1px solid #9b9b9b;
+}
+
+#ainspectorDiv #toolbarDiv .yui-hidden {
+    display: none;
+}
+
+/* TabView */
+
+#ainspectorDiv #toolbarDiv #nav-menu {
+    border:solid #9b9b9b; /* color between tab list and content */
+    border-width:0 0 1px;
+    margin-top: 5px;
+}
+
+#ainspectorDiv #toolbarDiv #nav-menu li {
+    display: -moz-inline-stack;
+    display: inline-block;
+    font-weight: 600; /* semi-bold */
+    list-style-image: none;
+    list-style-position: outside;
+    list-style-type: none;
+    margin: 0;
+    padding:1px 0 0; /* gecko: make room for overflow */
+    -moz-user-select : none;
+}
+
+#ainspectorDiv #toolbarDiv #nav-menu .selected {
+    margin: 0 0 -1px 0; /* for overlap */
+}
+
+#ainspectorDiv #toolbarDiv #nav-menu li.selected {
+    border: solid #9b9b9b;
+    border-width: 1px 1px 1px 1px;
+    border-bottom: 1px solid #fff;
+}
+
+#ainspectorDiv #toolbarDiv #nav-menu li.first {
+    margin-left: 5px;
+}
+
+#ainspectorDiv #toolbarDiv #nav-menu li {
+    vertical-align: bottom;
+}
+
+#ainspectorDiv #toolbarDiv #nav-menu li em {
+    font-style: normal;
+}
+
+#ainspectorDiv #toolbarDiv #nav-menu li.selected span.pipe,
+#ainspectorDiv #toolbarDiv #nav-menu li.off span.pipe {
+    visibility: hidden;
+}
+
+#ainspectorDiv #toolbarDiv #nav-menu li span.pipe {
+    display: block;
+    height: 1.45em;
+    position: absolute;
+    right: -1px;
+    top: 1px;
+    width: 1px;
+    background: #9b9b9b;
+    border-right: 1px solid #fff;
+}
+
+#ainspectorDiv #toolbarDiv #nav-menu ul li {
+    background:#ffffff; /* tab background */
+    border: solid #9b9b9b;
+    border-width: 0;
+    color:#565656;
+    position:relative;
+    text-decoration:none;
+    padding: 0.35em 0.75em;
+}
+
+#ainspectorDiv #toolbarDiv #nav-menu li{
+    cursor:pointer;
+}
+
+#ainspectorDiv #toolbarDiv #nav-menu li:hover {
+    text-decoration: underline;
+}
+
+#ainspectorDiv #toolbarDiv #nav-menu .yui-content {
+    width: 100%;
+    border: solid #ff0000;
+    border-width: 1px 0 0 0;
+    margin-top: -1px;
+}
+
+/* END TOOLBAR */
+
+#ainspectorDiv #viewDiv {
+    min-width: 950px;
+    margin: 0px auto;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+#ainspectorDiv #viewDiv a {
+    color: #006CA2; /* blue */
+}
+
+#ainspectorDiv #viewDiv #summary {
+    display: inline;
+    white-space: nowrap;
+    color: #9b9b9b;
+}
+
+#ainspectorDiv #viewDiv #summary .view-title {
+    color: #9b9b9b;
+    font-size: 14pt;
+    font-weight: bolder;
+    padding-right: 25px;
+}
+
+#ainspectorDiv #viewDiv #summary .number,
+#ainspectorDiv #viewDiv .section-summary .number {
+    font-weight: bold;
+    font-size: 9pt;
+    color: #565656;
+}
+
+
+
+/* BEGIN splash screen */
+
+#ainspectorDiv #splashDiv {
+    width: 950px;
+    min-height: 226px;
+    margin: 20px 20px;
+    color: #565656;
+}
+
+#ainspectorDiv #splashDivLeft {
+    float: left;
+    width: 9px;
+    height: 249px;
+    background: url(./img/land_bg_left.jpg);
+}
+
+#ainspectorDiv #splashDivCenter {
+    background: url(./img/land_bg_mid.jpg) repeat-x;
+    height: 249px;
+    margin: 9px 9px;
+}
+
+#ainspectorDiv #splashDivRight {
+    float: right;
+    width: 9px;
+    height: 249px;
+    background: url(./img/land_bg_right.jpg);
+}
+
+#ainspectorDiv #splashDiv #left {
+    padding: 15px 10px 10px;
+    text-align: left;
+}
+
+#ainspectorDiv #splashDiv #left .footer {
+    font-size: 90%;
+}
+
+#ainspectorDiv #splashDiv #left .footer input {
+    margin-left: 0px;
+}
+
+#ainspectorDiv #splashDiv #left .footer .moreinfo {
+    float: right;
+    margin-right: 5px;
+}
+
+#ainspectorDiv #splashDiv #left .footer .moreinfo a:hover {
+    text-decoration: underline;
+}
+
+#ainspectorDiv #splashDiv #left #content img.logo {
+    margin-right: 8px;
+}
+
+#ainspectorDiv #splashDiv #left #content li {
+    list-style-position: inside;
+    padding: 2px 0;
+}
+
+#ainspectorDiv #splashDiv #left #bn_img {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+#ainspectorDiv #splashDiv #left #runtestDiv {
+    width: 70px;
+    height: 24px;
+    margin-top: 15px;
+    margin-bottom: 0px;
+}
+
+#ainspectorDiv #splashDiv #left #runtestLeft {
+    float: left;
+    width: 4px;
+    height: 24px;
+    background: url(./img/bn_yel_left.gif);
+}
+
+#ainspectorDiv #splashDiv #left #runtestCenter {
+    height: 24px;
+    margin: 4px 4px;
+    background: url(./img/bn_yel_mid.gif) repeat-x;
+    text-align: center;
+}
+
+#ainspectorDiv #splashDiv #left #runtestCenter a,
+#ainspectorDiv #splashDiv #left #runtestCenter a:hover,
+#ainspectorDiv #splashDiv #left #runtestCenter a:focus {
+    display: block;
+}
+
+#ainspectorDiv #splashDiv #left #runtestRight {
+    float: right;
+    width: 4px;
+    height: 24px;
+    background: url(./img/bn_yel_right.gif);
+}
+
+#ainspectorDiv #splashDiv #left #runtestCenter a,
+#ainspectorDiv #splashDiv #left #runtestCenter a:hover,
+#ainspectorDiv #splashDiv #left #runtestCenter a:focus,
+#ainspectorDiv #splashDiv #left #runtestCenter a:active,
+#ainspectorDiv #splashDiv #left #runtestCenter a:visited  {
+    height: 24px;
+    font-weight: bold;
+    color: #202020;
+    line-height: 24px;
+    border: none;
+}
+
+#ainspectorDiv #splashDiv #splashImg {
+    margin: 40px;
+    float: right;
+}
+
+#ainspectorDiv #splashDiv label input {
+    margin-top: 10px;
+    margin-right: 5px;
+}
+
+#ainspectorDiv #splashDiv label {
+    margin-top: 10px;
+}
+
+/* END splash screen */
+
+/* BEGIN grade screen */
+
+#ainspectorDiv #reportDiv {
+    margin: 0 20px 10px 20px;
+    /*padding: 10px;*/
+    background: #ffffff;
+    min-width: 950px;
+}
+
+#ainspectorDiv #reportDiv #summary table {
+    border-spacing: 0;
+}
+
+#ainspectorDiv #reportDiv #summary table td {
+    vertical-align: bottom;
+    font-weight: bolder;
+    color: #9b9b9b;
+}
+
+#ainspectorDiv #reportDiv #summary td.padding5 {
+    padding-left: 5px;
+}
+
+#ainspectorDiv #reportDiv #summary td.padding15 {
+    padding-left: 15px;
+}
+
+#ainspectorDiv #reportDiv #summary .bigFont {
+    font-size: 14pt;
+    height: 22px;
+}
+
+#ainspectorDiv #reportDiv #summary #overall-grade {
+    color: #fefefe;
+    padding: 0;
+    width: 22px;
+    height: 22px;
+    text-align: center;
+    background-image: url(./img/grade_mask.gif); 
+    background-repeat: no-repeat;
+    background-position: center;
+    border-width: 0;
+    font-size: 13pt;
+}
+
+#ainspectorDiv #reportDiv .grade-A {
+    background: #34a234;
+    border-color: #34a234;
+}
+
+#ainspectorDiv #reportDiv .grade-B {
+    background: #a4cb58;
+    border-color: #a4cb58;
+}
+
+#ainspectorDiv #reportDiv .grade-C {
+    background: #fadd3d;
+    border-color: #fadd3d;
+}
+
+#ainspectorDiv #reportDiv .grade-D {
+    background: #f5a249;
+    border-color: #f5a249;
+}
+
+#ainspectorDiv #reportDiv .grade-E {
+    background: #e46648;
+    border-color: #e46648;
+}
+
+#ainspectorDiv #reportDiv .grade-F {
+    background: #df4444;
+    border-color: #df4444;
+}
+
+#ainspectorDiv #reportDiv .grade-NA {
+    background: #8b8b8b;
+    border-color: #8b8b8b;
+}
+
+#ainspectorDiv #reportDiv #reportInnerDiv {
+    min-width: 950px;
+    margin: auto;
+    align: center;
+    margin-top: 20px
+}
+
+#ainspectorDiv #reportInnerDiv #filter {
+    font-size: 8pt;
+    margin-top: 8px;
+    padding-bottom: 10px;
+}
+
+#ainspectorDiv #reportInnerDiv #filter li a {
+    cursor: pointer;
+}
+
+#ainspectorDiv #reportInnerDiv #filter li a:hover {
+    text-decoration: underline;
+}
+
+#ainspectorDiv #reportInnerDiv #filter li.first {
+    border-left: medium none;
+    margin-left: 0,
+    padding-left: 0;
+}
+
+#ainspectorDiv #reportInnerDiv #filter li.selected {
+    text-decoration: underline;
+}
+
+#ainspectorDiv #reportInnerDiv #filter li.selected a {
+    color: #000000;
+}
+
+#ainspectorDiv #reportInnerDiv #filter li {
+    border-left: 1px solid #565656;
+    display: inline;
+    font-weight: bold;
+    list-style-image: none;
+    list-style-position: outside;
+    list-style-type: none;
+    margin-left: 5px;
+    padding-left: 8px;
+}
+
+#ainspectorDiv #reportInnerDiv .tab-label .desc {
+    text-align: center;
+    padding-left: 4px;
+}
+
+#ainspectorDiv #reportInnerDiv .result-tab {
+    padding: 10px 20px;
+    min-height: 200px;
+    background: #efefef;
+    width: 680px;
+}
+
+#ainspectorDiv #reportInnerDiv .result-tab ul {
+    padding-left: 45px;
+}
+
+#ainspectorDiv #reportInnerDiv .result-tab li {
+    list-style-position: outside;
+    padding: 5px 0;
+}
+
+#ainspectorDiv #reportInnerDiv .result-tab p {
+    padding: 10px 30px 10px 30px;
+}
+
+#ainspectorDiv #reportInnerDiv .result-tab hr {
+    margin: 0 30px;
+}
+
+#ainspectorDiv #reportInnerDiv .result-tab a:hover {
+    text-decoration: underline;
+}
+
+#ainspectorDiv #reportInnerDiv #result #copyright2 {
+    padding: 10px 0 10px 15px;
+    font-weight: normal;
+    font-size: 85%;
+}
+
+/* tab view */
+#ainspectorDiv #reportInnerDiv .yui-navset .yui-navset-left .yui-nav,
+#ainspectorDiv #reportInnerDiv .yui-navset-left .yui-nav { width:260px; }
+
+#ainspectorDiv #reportInnerDiv .yui-navset .yui-navset-left,
+#ainspectorDiv #reportInnerDiv .yui-navset-left { padding:0 0 0 260px; } /* map to nav width */
+
+#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav ,
+#ainspectorDiv #reportInnerDiv .yui-navset .yui-navset-left .yui-nav {
+    border-color: #ffffff;
+    border-width: 0 0 1px;
+}
+
+#ainspectorDiv #reportInnerDiv .yui-navset .yui-content, 
+#ainspectorDiv #reportInnerDiv .yui-navset-left .yui-content {
+    background: #ffffff;
+    border: 1px solid #9b9b9b;
+    border-width: 0;
+    color: #9b9b9b;
+}
+
+#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav li.first {
+    border-top: 1px solid #9b9b9b;
+}
+
+#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav li.selected {
+    border-top: none;
+}
+
+#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav li,
+#ainspectorDiv #reportInnerDiv .yui-navset .yui-navset-left .yui-nav li {
+    margin-bottom: 0;
+    border: solid #9b9b9b;
+    border-width: 0 0 1px 0;
+}
+
+#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav li span {
+    display: -moz-inline-box;
+    -moz-box-orient: vertical;
+    display: inline-block;
+    padding: 5px 0;
+}
+
+#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav li span.grade {
+    -moz-box-align: center;
+    display: inline-block;
+    text-align: center;
+    width: 30px;
+    color: #565656; /* dark grey */
+    font-size: 10pt;
+    font-weight: bold;
+}
+
+#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav li a:hover span.desc {
+    text-decoration: underline;
+}
+
+#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav li.selected a:hover span.desc {
+    text-decoration: none;
+}
+
+#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav a,
+#ainspectorDiv #reportInnerDiv .yui-navset .yui-navset-left .yui-nav a {
+    background: #ffffff;  /* tab background */
+    border-width: 0 0 0 5px;
+    border-right: 1px solid #9b9b9b;
+    position:relative;
+    text-decoration:none;
+}
+
+#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav .selected a,
+#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav .selected a:focus, /* no focus effect for selected */
+#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav .selected a:hover { /* no hover effect for selected */
+    background: #efefef;
+    color: #000000;
+}
+
+#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav a:hover,
+#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav a:focus {
+    background:#ffffff; /* selected tab background */
+}
+
+#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav .selected a,
+#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav .selected a em {
+    border-width: 0 0 0 5px;
+    border-right: 1px solid #efefef;
+}
+
+/* END grade screen */
+
+/* START stats screen */
+#ainspectorDiv #statsDiv {
+    min-height: 300px;
+    width: 950px;
+    margin: 0 20px 10px 20px;
+    color: #9b9b9b;
+}
+
+#ainspectorDiv #statsDiv .section-header {
+    font-size: 10pt;
+    color: #565656;
+    border-bottom: 1px solid #9b9b9b;
+    padding-top: 20px;
+}
+
+#ainspectorDiv #statsDiv .stats-graph {
+    margin: 10px 0;
+    padding: 5px 0;
+}
+
+#ainspectorDiv #statsDiv .stats-graph .canvas-title {
+    text-align: center;
+    padding-bottom: 5px;
+}
+
+#ainspectorDiv #statsDiv #primed-cache,
+#ainspectorDiv #statsDiv #empty-cache {
+    width: 435px;
+    margin: 10px 0 20px 0;
+}
+
+#ainspectorDiv #statsDiv #empty-cache {
+    margin-left: 15px;
+    float: left;
+    border-right: 1px solid #9b9b9b;
+    padding-left: 10px;
+}
+
+#ainspectorDiv #statsDiv #primed-cache {
+    margin-right: 15px;
+}
+
+#ainspectorDiv #statsDiv #stats-detail {
+    margin-left: 180px;
+}
+
+#ainspectorDiv #statsDiv #stats-detail .summary-row, 
+#ainspectorDiv #statsDiv #stats-detail .summary-row-2 {
+    font-weight: bold;
+    font-size: 10pt;
+    color: #565656;
+    padding: 5px 0;
+}
+
+#ainspectorDiv #statsDiv #stats-detail #stats-table {
+    margin-right: 20px;
+    font-size: 9pt;
+    border-spacing: 0;
+}
+
+#ainspectorDiv #statsDiv #stats-detail #stats-table tr {
+    height: 18px;
+    border-top: 1px solid #9b9b9b;
+}
+
+#ainspectorDiv #statsDiv #stats-detail #stats-table tr {
+    border-top: 1px solid #9b9b9b;
+}
+
+#ainspectorDiv #statsDiv #stats-detail #stats-table td {
+    height: 18px;
+    border-top: 1px solid #9b9b9b;
+    margin: 2px 2px;
+    color: #9b9b9b;
+    font-weight: bolder;
+}
+
+#ainspectorDiv #statsDiv #stats-detail #stats-table td.legend {
+    width: 22px;
+}
+
+#ainspectorDiv #statsDiv #stats-detail #stats-table td .stats-legend {
+    width: 10px;
+    height: 10px;
+    margin: 6px 6px;
+}
+
+#ainspectorDiv #statsDiv #stats-detail #stats-table td.count {
+    width: 28px;
+    text-align: right;
+}
+
+#ainspectorDiv #statsDiv #stats-detail #stats-table td.type {
+    width: 100px;
+    padding-left: 5px;
+}
+
+#ainspectorDiv #statsDiv #stats-detail #stats-table td.size {
+    width: 50px;
+    text-align: right;
+}
+
+
+/* END stats screen */
+
+/* START components screen */
+#ainspectorDiv #componentsDiv {
+    min-height: 200px;
+    margin: 0 20px 10px 20px;
+    color: #9b9b9b;
+}
+
+#ainspectorDiv #componentsDiv a:hover {
+    text-decoration: underline;
+}
+
+#ainspectorDiv #componentsDiv .legend {
+    font-size: 8pt;
+}
+
+#ainspectorDiv #componentsDiv #expand-all {
+    text-align: right;
+}
+
+#ainspectorDiv #componentsDiv #components {
+    width: 100%;
+}
+
+#ainspectorDiv #componentsDiv #components table {
+    border: solid #9b9b9b;
+    border-width: 0 1px 1px 0;
+    border-spacing: 0;
+    margin: 10px 0;
+    width: 100%;
+}
+
+#ainspectorDiv #componentsDiv #components th {
+    background: #dfdfdf url(./img/header_bg.gif) repeat-x;
+    color:  #006CA2;
+    border: solid #9b9b9b;
+    border-width: 1px 0 0 1px;
+    text-align: center;
+    padding: 5px;
+}
+
+#ainspectorDiv #componentsDiv #components th div.paddingLeft11 {
+    padding-left: 11px;
+}
+
+#ainspectorDiv #componentsDiv #components th div.sortDesc {
+    background: url(./img/arrowDown.png) no-repeat;
+    background-position: center left;
+}
+
+#ainspectorDiv #componentsDiv #components th div.sortAsc {
+    background: url(./img/arrowUp.png) no-repeat;
+    background-position: center left;
+}
+
+#ainspectorDiv #componentsDiv #components th div.spacer {
+    width: 11px;
+    height: 7px;
+}
+
+#ainspectorDiv #componentsDiv #components th div {
+    display: -moz-inline-box;
+    -moz-box-orient: horizontal;
+    display: inline-block;
+    *display: inline; /* IE */
+    vertical-align: middle;
+}
+
+#ainspectorDiv #componentsDiv #components th.sortBy a {
+    color:  #565656;
+    text-decoration: underline;
+}
+
+#ainspectorDiv #componentsDiv #components td {
+    padding: 2px 5px;
+    border: solid #9b9b9b;
+    border-width: 1px 0 0 1px;
+    height: 30px;
+    color: #9b9b9b;
+    font-weight: bolder;
+}
+
+#ainspectorDiv #componentsDiv #components tr.type-summary td span {
+    padding-left: 16px;
+    background-repeat: no-repeat;
+    background-position: center left;
+}
+
+#ainspectorDiv #componentsDiv #components tr.type-summary td span.expand {
+    background-image: url(./img/ico_expand.gif);
+}
+
+#ainspectorDiv #componentsDiv #components tr.type-summary td span.collapse {
+    background-image: url(./img/ico_collapse.gif);
+}
+
+
+#ainspectorDiv #componentsDiv #components .expand {
+    background: url(./img/ico_expand.gif);
+    background-repeat: no-repeat;
+}
+
+#ainspectorDiv #componentsDiv #components .collapse {
+    background: url(./img/ico_collapse.gif);
+    background-repeat: no-repeat;
+}
+
+#ainspectorDiv #componentsDiv #components tr.odd {
+    background: #ffffff;
+}
+
+#ainspectorDiv #componentsDiv #components tr.even {
+    background: #f8f8f8; 
+}
+
+#ainspectorDiv #componentsDiv #components td.type {
+    padding-left: 22px;
+}
+
+#ainspectorDiv #componentsDiv #components td.size,
+#ainspectorDiv #componentsDiv #components td.gzip,
+#ainspectorDiv #componentsDiv #components td.set-cookie,
+#ainspectorDiv #componentsDiv #components td.cookie,
+#ainspectorDiv #componentsDiv #components td.respTime {
+    text-align: right;
+    padding: 2px 10px;
+}
+
+#ainspectorDiv #componentsDiv #components td.headers,
+#ainspectorDiv #componentsDiv #components td.action {
+    text-align: center;
+}
+
+#ainspectorDiv #componentsDiv #components td a img {
+    border: 0;
+}
+
+#ainspectorDiv #componentsDiv #components tr.compError td {
+    color: #f00;
+}
+
+#ainspectorDiv #componentsDiv #components tr.afteronload td {
+    font-weight: lighter;
+}
+
+#ainspectorDiv #componentsDiv #components tr.headers table tr.respHeaders td,
+#ainspectorDiv #componentsDiv #components tr.headers table tr.reqHeaders td {
+    border-bottom: 1px solid #9b9b9b;
+    padding-top: 5px;
+}
+
+#ainspectorDiv #componentsDiv #components tr.headers table {
+    border: 0;
+    padding: 0;
+}
+
+#ainspectorDiv #componentsDiv #components tr.headers table tr {
+    padding: 0;
+}
+
+#ainspectorDiv #componentsDiv #components tr.headers table td {
+    padding: 3px 0;
+    border: 0;
+    height: auto;
+}
+
+#ainspectorDiv #componentsDiv #components tr.headers table td.param-name {
+    text-align: right;
+    vertical-align: top;
+    padding-right: 10px;
+    color: #565656;
+}
+
+#ainspectorDiv #componentsDiv #components tr.headers table td.param-value {
+    max-width: 500px;
+}
+
+#ainspectorDiv #componentsDiv #components tr.headers table td.param-value p {
+    overflow: hidden;
+}
+
+#ainspectorDiv #dialogDiv .smushItResult {
+    font-size: 10pt;
+}
+
+/* END components screen */
+
+/* START Tool screen */
+
+#ainspectorDiv #toolsDiv {
+    min-height: 200px;
+    width: 950px;
+    margin: 0 20px 10px 20px;
+    color: #9b9b9b;
+}
+
+#ainspectorDiv #toolsDiv a:hover {
+    text-decoration: underline;
+}
+
+#ainspectorDiv #toolsDiv table {
+    margin-left: 30px;
+}
+
+#ainspectorDiv #toolsDiv td {
+    padding: 5px;
+    font-size: 11pt;
+    color: #9b9b9b;
+    font-weight: bolder;
+}
+
+#ainspectorDiv #toolsDiv td.name {
+    color: #006CA2;
+    text-align: right;
+}
+
+#ainspectorDiv #toolsDiv td.launch-tool {
+    font-size: 8pt;
+    color: #006CA2;
+}
+
+#ainspectorDiv #toolsDiv td.launch-tool a {
+    cursor: pointer;
+}
+
+/* END Tool Screen */
+
+/* START RulesetEdit screen */
+
+#ainspectorDiv #rulesetEditDiv {
+    min-height: 200px;
+    width: 950px;
+    margin: 0 20px;
+    color: #9b9b9b;
+    padding-bottom: 10px;
+}
+
+#ainspectorDiv #rulesetEditDiv td {
+    vertical-align: top;
+}
+
+#ainspectorDiv #rulesetEditDiv .column1,
+#ainspectorDiv #rulesetEditDiv .column2,
+#ainspectorDiv #rulesetEditDiv .column3 {
+    margin: 10px 7px;
+    vertical-align: top;
+}
+
+#ainspectorDiv #rulesetEditDiv input {
+    margin: 5px 5px 5px 0;
+}
+
+#ainspectorDiv #rulesetEditDiv #settingsDiv {
+    margin-top: 15px;
+}
+
+
+#ainspectorDiv #rulesetEditDiv #settingsDiv .rulesColumns {
+    padding: 10px 20px 5px 20px;
+}
+
+#ainspectorDiv #rulesetEditDiv #settingsDiv .buttons {
+    padding: 0 20px 10px 20px;
+}
+
+#ainspectorDiv #rulesetEditDiv #settingsDiv .buttons input {
+    width: 125px;
+}
+
+#ainspectorDiv #rulesetEditDiv #settingsDiv .buttons input.btn_delete {
+    margin-left: 50px;
+}
+
+#ainspectorDiv #rulesetEditDiv #settingsDiv form a {
+    padding: 0 5px;
+}
+
+#ainspectorDiv #rulesetEditDiv #settingsDiv form a:hover {
+    text-decoration: underline;
+}
+
+#ainspectorDiv #rulesetEditDiv #settingsDiv .yui-content h4 {
+    font-size: 11pt;
+    margin-left: 10px;
+}
+
+#ainspectorDiv #rulesetEditDiv .yui-navset .yui-navset-left .yui-nav,
+#ainspectorDiv #rulesetEditDiv .yui-navset-left .yui-nav { width:140px; }
+
+#ainspectorDiv #rulesetEditDiv .yui-navset .yui-navset-left,
+#ainspectorDiv #rulesetEditDiv .yui-navset-left { padding:0 0 0 140px; } /* map to nav width */
+
+#ainspectorDiv #rulesetEditDiv .yui-navset .yui-nav,
+#ainspectorDiv #rulesetEditDiv .yui-navset-left .yui-nav {
+    border-color: #9b9b9b;
+    border-width: 0;
+}
+
+#ainspectorDiv #rulesetEditDiv .yui-navset .yui-content, 
+#ainspectorDiv #rulesetEditDiv .yui-navset-left .yui-content {
+    width: auto;
+    background: #efefef url(./img/gradient_bg.jpg) repeat-y;
+    border: 1px solid #9b9b9b;
+    padding-right: 10px;
+}
+
+#ainspectorDiv #rulesetEditDiv .yui-navset .yui-nav li.new-section {
+    border: solid #9b9b9b;
+    border-width: 1px 0 0 0;
+}
+
+#ainspectorDiv #rulesetEditDiv .yui-navset .yui-nav li.header {
+    padding: 5px 0;
+}
+
+#ainspectorDiv #rulesetEditDiv .yui-navset .yui-nav li.create-ruleset {
+    padding: 5px 15px;
+}
+
+#ainspectorDiv #rulesetEditDiv .yui-navset .yui-nav li.create-ruleset input {
+    width: 80px;
+}
+
+#ainspectorDiv #rulesetEditDiv .yui-navset .yui-nav a {
+    background: #ffffff;  /* tab background */
+    border:solid #9b9b9b;
+    border-width:0;
+    position:relative;
+    text-decoration:none;
+    padding: 5px 10px; 
+}
+
+#ainspectorDiv #rulesetEditDiv .yui-navset .yui-nav .selected a,
+#ainspectorDiv #rulesetEditDiv .yui-navset .yui-nav .selected a:focus, /* no focus effect for selected */
+#ainspectorDiv #rulesetEditDiv .yui-navset .yui-nav .selected a:hover { /* no hover effect for selected */
+    background: #efefef url(./img/gradient_bg.jpg) repeat-y;
+    color: #000000;
+}
+
+#ainspectorDiv #rulesetEditDiv .yui-navset .yui-nav a:hover,
+#ainspectorDiv #rulesetEditDiv .yui-navset .yui-nav a:focus {
+    background:#ffffff; /* selected tab background */
+}
+
+#ainspectorDiv #rulesetEditDiv .yui-navset .yui-nav .selected a em {
+    padding:0.35em 0.75em; /* raise selected tab */
+}
+
+#ainspectorDiv #rulesetEditDiv .yui-navset .yui-nav .selected a,
+#ainspectorDiv #rulesetEditDiv .yui-navset .yui-nav .selected a em {
+    border: 1px solid #9b9b9b; /* selected tab border color */
+    border-width: 1px 1px 1px 5px;
+    border-right: 2px solid transparent;
+    right: -1px;
+    padding-left: 5px;
+}
+
+#ainspectorDiv #rulesetEditDiv .yui-navset .yui-nav a:hover {
+    text-decoration: underline;
+}
+
+#ainspectorDiv #rulesetEditDiv .yui-navset .yui-nav .selected a:hover {
+    text-decoration: none;
+}
+
+/* END RulesetEdit screen */
+
+#ainspectorDiv #progressDiv {
+    margin: 0 20px 10px 30px;
+    font-family: Arial,Helvetica;
+}
+
+#ainspectorDiv #progressDiv p {
+    color: #565656; font-size: 13pt;
+    /*font-family: Lucida Grande, Tahoma, sans-serif;*/
+    margin: 10px 0;
+}
+
+#ainspectorDiv #progressDiv #progbar,
+#ainspectorDiv #progressDiv #progbar2 {
+    position:absolute; top:0px; left:0px; 
+    height: 20px; width: 700px; 
+    font-size: 0px; background-color: #FFFFFF;
+}
+
+#ainspectorDiv #progressDiv #progtext,
+#ainspectorDiv #progressDiv #progtext2 {
+    color: #565656; font-size: 8pt; 
+    /*font-family: Lucida Grande, Tahoma, sans-serif;*/
+    margin: 5px 0;
+}
+
+#ainspectorDiv #progressDiv #peelprogress,
+#ainspectorDiv #progressDiv #fetchprogress {
+    position:relative; 
+    height: 20px; width: 700px; 
+    vertical-align: middle; background-color: #CCC; 
+    border: 1px solid #666666; 
+}
+
+#ainspectorDiv #fetch {
+    margin-top: 20px;
+}
+
+#ainspectorDiv #tooltipDiv {
+    font-weight: normal;
+}
+
+#yslowDiv #copyrightDiv {
+    padding: 0 30px 10px 30px;
+    text-align: left;
+    font-weight: normal;
+    font-size: 85%;
+}
+a:focus, li:focus, select:focus {
+    outline: 2px solid #FF9933;
+    -moz-outline-radius: 5px;
+}
+
+#nav-menu li:focus {
+     outline-offset: -5px;
+}
