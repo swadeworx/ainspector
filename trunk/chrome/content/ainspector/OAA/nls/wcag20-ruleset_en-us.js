@@ -34,7 +34,35 @@ OpenAjax.a11y.RULESET_CODES = {
 	'3.1.1' : '3.3.1 Language of Page',
 	'WCAG20.description.3_1_1' : 'The default human language of each Web page can be programmatically determined. ',	
 	'3.3.2' : '3.3.2 Labels or Instructions',
-	'WCAG20.description.3_3_2' : 'Labels or instructions are provided when content requires user input. '	
+	'WCAG20.description.3_3_2' : 'Labels or instructions are provided when content requires user input. ' ,
+	
+	'IITAA10.name' : 'IITAA 1.0',
+	'IITAA10.description' : 'Illinois Information Technology Accessibility Act Implementation Guidelines for Web-Based Information and Applications 1.0',
+	
+//	'1.1.1' : '1.1.1 Non-text Content - Decoration, Formatting, Invisible',
+//	'IITAA10.description.1_1_1' : 'All non-text content that is presented to the user has a text alternative that serves the equivalent purpose.',
+//	'1.3.1' : '1.3.1 Info and Relationships',
+//	'IITAA10.description.1_3_1' : 'Information, structure, and relationships conveyed through presentation can be programmatically determined or are available in text.',
+//	'2.1.1' : '2.1.1 Keyboard accessible',
+//	'IITAA10.description.2_1_1' : 'All functionality of the content is operable through a keyboard interface without requiring specific timings for individual keystrokes, except where the underlying function requires input that depends on the path of the users movement and not just the endpoints.',
+//	'2.1.3' : '2.1.3 Keyboard (No Exception)',
+//	'IITAA10.description.2_1_3' : 'All functionality of the content is operable through a keyboard interface without requiring specific timings for individual keystrokes.',
+//	'2.2.2' : '2.2.2 Pause, Stop, Hide',
+//	'IITAA10.description.2_2_2' : 'For any moving, blinking or scrolling information that (1) starts automatically, (2) lasts more than five seconds, and (3) is presented in parallel with other content, there is a mechanism for the user to pause, stop, or hide it unless the movement, blinking, or scrolling is part of an activity where it is essential.',
+	'9.2' : '9.2 Provide a means of skipping past repetitive navigation links',
+	'IITAA10.description.9_2' : ' A mechanism is available to bypass blocks of content that are repeated on multiple Web pages. .',
+//	'2.4.2' : '2.4.2 Page Titled',
+//	'IITAA10.description.2_4_2' : 'Web pages have titles that describe topic or purpose.',
+//	'2.4.6' : '2.4.6 Headings and Labels',
+//	'IITAA10.description.2_4_6' : 'Headings and labels describe topic or purpose.',
+	'9.1' : '9.1 & 9.3 Ensure that links are understandable out of context, Avoid using small links',
+	'IITAA10.description.9_1' : '9.1 Link Purpose (In Context): The purpose of each link can be determined from the link text alone or from the link text together with its programmatically determined link context, except where the purpose of the link would be ambiguous to users in general.<br><br>2.4.9 Link Purpose (Link Only): A mechanism is available to allow the purpose of each link to be identified from link text alone, except where the purpose of the link would be ambiguous to users in general. '
+//	'3.1.1' : '3.3.1 Language of Page',
+//	'IITAA10.description.3_1_1' : 'The default human language of each Web page can be programmatically determined. ',	
+//	'3.3.2' : '3.3.2 Labels or Instructions',
+//	'IITAA10.description.3_3_2' : 'Labels or instructions are provided when content requires user input. '	
+
+	
 
 };
 	

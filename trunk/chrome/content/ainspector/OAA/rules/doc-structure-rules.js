@@ -526,6 +526,120 @@ with (OpenAjax.a11y) {
 	        }
 	    },
 	    // -------- 
+	    // Links
+	    // --------
+        {
+            id : "linktooshort",
+            context : "a",
+	  	    validateParams : {
+	        	max_text_length : {value:4, type:"integer"}
+	        },
+	  	    validate : function (ruleContext) {
+	  	    	var passed = util.getNodeTextRecursively(ruleContext).length > this.validateParams.max_text_length.value;
+	  	        return new ValidationResult(passed, [ruleContext], [], '', []);
+	  	    }
+
+        },
+        {
+            id : "sameURLdiffLinks",
+            context : "document",
+            validate : function (ruleContext) {
+            	var passed = true;
+            	var loadArray = new Array();
+            	var retArray = new Array();
+        		for (var j = 0; j < ruleContext.links.length; j++) {
+ 	        		var link4Cmp = ruleContext.links[j].href.toLowerCase();
+					link4Cmp = link4Cmp.replace(/\bdefault.[a-z]*|\bindex.[a-z]*/,'');
+					var obj = {node: ruleContext.links[j],
+							text: util.getNodeTextRecursively(ruleContext.links[j]).toLowerCase(),
+							link4Cmp: link4Cmp}
+					loadArray[loadArray.length] = obj;
+				}
+				for (var j = 0; j < loadArray.length; j++) {
+					for (var k = j + 1; k < loadArray.length; k++) {
+						if (loadArray[j].link4Cmp == loadArray[k].link4Cmp && loadArray[j].text != loadArray[k].text) {
+							loadArray[j].sameURLdiffLinks = true;
+							loadArray[k].sameURLdiffLinks = true;
+							passed = false;
+						}
+					}
+				}
+				for (var j = 0; j < loadArray.length; j++) {
+					if (loadArray[j].sameURLdiffLinks) { 
+						retArray.push(loadArray[j])
+					}
+				}
+   				return new ValidationResult(passed, retArray, '', '', []); 
+	    	}
+        },
+        {
+            id : "sameLinkdiffURL",
+            context : "document",
+            validate : function (ruleContext) {
+            	var passed = true;
+            	var loadArray = new Array();
+            	var retArray = new Array();
+        		for (var j = 0; j < ruleContext.links.length; j++) {
+ 	        		var link4Cmp = ruleContext.links[j].href.toLowerCase();
+					link4Cmp = link4Cmp.replace(/\bdefault.[a-z]*|\bindex.[a-z]*/,'');
+					var obj = {node: ruleContext.links[j],
+							text: util.getNodeTextRecursively(ruleContext.links[j]).toLowerCase(),
+							link4Cmp: link4Cmp}
+					loadArray[loadArray.length] = obj;
+				}
+            	for (var j = 0; j < loadArray.length; j++) {
+					for (var k = j + 1; k < loadArray.length; k++) {
+						if (loadArray[j].text == loadArray[k].text && loadArray[j].link4Cmp != loadArray[k].link4Cmp) {
+							loadArray[j].sameLinkdiffURL = true;
+							loadArray[k].sameLinkdiffURL = true;
+							passed = false;
+						}
+				}
+				for (var j = 0; j < loadArray.length; j++) {
+					if (loadArray[j].sameLinkdiffURL) { 
+						retArray.push(loadArray[j])
+					}
+				}
+				
+			}
+   				return new ValidationResult(passed, retArray, '', '', []); 
+	    	}
+        },
+        {
+            id : "imgTooSmall",
+            context : "a",
+            validate : function (ruleContext) {
+            	var passed = true;
+   				if(ruleContext.childNodes && !ruleContext.textContent) {
+			      for(var i=0; i<ruleContext.childNodes.length; i++) {
+				  	if(ruleContext.childNodes[i].tagName) {
+						if (ruleContext.childNodes[i].tagName.toLowerCase() == "img") {
+							if (ruleContext.childNodes[i].clientWidth < 16 || ruleContext.childNodes[i].clientHeight < 16) {
+								passed = false;
+							}
+						}	
+					}	
+			      }
+   				}
+   				return new ValidationResult(passed, [ruleContext], '', '', []); 
+	    	}
+	    	
+        },
+        {
+            id : "altequaltextcontent",
+            context : "a",
+            validate : function (ruleContext) {
+            	var passed = true;
+ 	            var linkText = ruleContext.textContent.normalizeSpacing();
+	 		    var alt = util.getDisplayableAlt(ruleContext);
+	 		   	if((alt != '') && (linkText.toLowerCase() == alt.toLowerCase())) {
+					passed = false;
+     			}
+   				return new ValidationResult(passed, [ruleContext], '', '', []); 
+	    	}
+        },	      		
+ 			    
+	    // -------- 
 	    // Language
 	    // --------
         {
