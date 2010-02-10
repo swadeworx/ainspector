@@ -471,7 +471,6 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 	    		FBTrace.sysout(e);
 	    	}
         }
-alert(OpenAjax.a11y.RULESET_CODES[OAA.nameCode])
     	// register the ruleset itself
         AINSPECTOR.registerRuleset({
         	id: OAA.id,
