@@ -44,7 +44,18 @@ OpenAjax.a11y.addRuleset(
 		            'invalidIDREF' : {severityCode:'level.recommendation', messageCode:'dataTables.msg.invalidIDREF'}
             	}
             }, // 1.3.1
-
+            {
+                criterionNumber : '1.3.2',
+                criterionLevel : 'WCAG20.level.A',
+                criterionDesc : 'WCAG20.description.1_3_2',
+                requirementUrl: '#text-equiv',
+		        rules : {
+		            // defined in text-equiv-rules.js    
+		    	    'missinglayouttable' : {severityCode:'level.violation', messageCode:'layoutTables.msg.missingtable'},
+		            'missingCSS' : {severityCode:'level.violation', messageCode:'layoutTables.msg.missingCSS'},
+		            'useCSSproperties' : {severityCode:'level.violation', messageCode:'layoutTables.msg.isdeeptable'}
+            	}
+            }, // 1.3.2
 		    {
                 criterionNumber : '1.4.3',
                 criterionLevel : 'WCAG20.level.A',
@@ -124,7 +135,7 @@ OpenAjax.a11y.addRuleset(
             		'toomanyh1' : {severityCode:'level.PotentialViolation', messageCode:'titles.msg.toomanyh1'}
  		    	}
 		    }, // 2.4.2 
-			  {
+			{
                 criterionNumber : '2.4.4',
                 criterionLevel : 'WCAG20.level.A',
                 criterionDesc : 'WCAG20.description.2_4_2',
@@ -187,6 +198,18 @@ OpenAjax.a11y.addRuleset(
 		    		'duplicateFormEleID' : {severityCode:'level.PotentialViolation', messageCode:'forms.msg.duplicateFormEleID'} 
 			    }
 			}, // 3.3.2 
+			{
+                criterionNumber : '4.1.1',
+                criterionLevel : 'WCAG20.level.A',
+                criterionDesc : 'WCAG20.description.4_1_1',
+                requirementUrl: '#navigation-mechanisms',
+		        rules : {
+            		// defined in style-rules.js
+            		'useBoldAttr' : {severityCode:'level.Violation', messageCode:'textstyling.msg.bold'},
+            		'useItalicAttr' : {severityCode:'level.Violation', messageCode:'textstyling.msg.italics'},
+            		'useUnderline' : {severityCode:'level.Violation', messageCode:'textstyling.msg.underline'}
+ 		    	}
+		    }, //4.1.1
 
 ]
     }
