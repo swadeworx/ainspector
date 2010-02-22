@@ -15,6 +15,8 @@ OpenAjax.a11y.RULESET_CODES = {
 	'WCAG20.description.1_1_1' : 'All non-text content that is presented to the user has a text alternative that serves the equivalent purpose.',
 	'1.3.1' : '1.3.1 Info and Relationships',
 	'WCAG20.description.1_3_1' : 'Information, structure, and relationships conveyed through presentation can be programmatically determined or are available in text.',
+	'1.3.2' : '1.3.2 Meaningful Sequence',
+	'WCAG20.description.1_3_2' : 'When the sequence in which content is presented affects its meaning, a correct reading sequence can be programmatically determined.',
 	'1.4.3' : '1.4.3 Contrast (Minimum)',
 	'WCAG20.description.1_4_3' : 'The visual presentation of text and images of text has a contrast ratio of at least 4.5:1.',
 	'2.1.1' : '2.1.1 Keyboard accessible',
@@ -35,6 +37,8 @@ OpenAjax.a11y.RULESET_CODES = {
 	'WCAG20.description.3_1_1' : 'The default human language of each Web page can be programmatically determined. ',	
 	'3.3.2' : '3.3.2 Labels or Instructions',
 	'WCAG20.description.3_3_2' : 'Labels or instructions are provided when content requires user input. ' ,
+	'4.1.1' : '4.1.1 Deprecated Elements',
+	'WCAG20.description.4_1_1' : 'In content implemented using markup languages, elements have complete start and end tags, elements are nested according to their specifications, elements do not contain duplicate attributes, and any IDs are unique, except where the specifications allow these features. ' ,
 	
 	'IITAA10.name' : 'IITAA 1.0',
 	'IITAA10.description' : 'Illinois Information Technology Accessibility Act Implementation Guidelines for Web-Based Information and Applications 1.0',
@@ -141,6 +145,14 @@ OpenAjax.a11y.MESSAGE_CODES = {
     	'forms.msg.emptylable' : 'Each label element must have text content. ',
     	'forms.msg.emptylegend' : 'Each legend element must have text content. ',
     	'forms.msg.emptytitle' : 'If the title attribute is defined for an input, select, textarea or button element it must also contain content since it will be used by assistive technologies as part of the effective label for the form control.',
-    	'forms.msg.duplicateFormEleID' : 'ID (%1$S) is not unique. If a form control has an id attribute its value must be unique on the page. '
+    	'forms.msg.duplicateFormEleID' : 'ID (%1$S) is not unique. If a form control has an id attribute its value must be unique on the page. ',
+    	
+    	//Textstyling warning strings
+		'textstyling.title' : 'Text Styling.',
+		'textstyling.msg.bold' : 'The b element should not be used to bold text content.',
+		'textstyling.msg.blink' : 'The blink and marquee elements must not be used.', 
+		'textstyling.msg.italics' : 'The i element must not be used to italicize text content.',
+		'textstyling.msg.underline' : 'The u element must not be used to underline text content. '
+    	
     	
 };
