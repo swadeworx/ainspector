@@ -30,7 +30,62 @@ with (OpenAjax.a11y) {
 	    		var passed = false;
 	            return new ValidationResult(passed, [ruleContext], '', '', []);
 	        }
+	    },
+	    {
+	        id : "useBoldAttr",
+	        context : "document",
+	        validate : function (ruleContext) {
+	    		var passed = true;
+	    		var loadArray = new Array();
+	    		//var	xp = "//b|//blink|//i|//marquee|//u";
+	    		var xpathResult = ruleContext.evaluate("//b", ruleContext, OpenAjax.a11y.util.defaultNSResolver, XPathResult.ANY_TYPE, null);
+				var r = xpathResult.iterateNext();
+				//FBTrace.sysout('xpathResult: '+ xpathResult);
+				while (r) {
+					loadArray[loadArray.length] = {node: r,
+					text: util.getNodeTextRecursively(r).toLowerCase()};
+					r = xpathResult.iterateNext();
+					passed = r!= null;
+				}
+				return new ValidationResult(passed, loadArray, '', '', []);
+	        }
+	    },
+	    
+	   {
+	        id : "useItalicAttr",
+	        context : "document",
+	        validate : function (ruleContext) {
+	    		var passed = true;
+	    		var loadArray = new Array();
+	    		var xpathResult = ruleContext.evaluate("//i", ruleContext, OpenAjax.a11y.util.defaultNSResolver, XPathResult.ANY_TYPE, null);
+				var r = xpathResult.iterateNext();
+				while (r) {
+					loadArray[loadArray.length] = {node: r,
+					text: util.getNodeTextRecursively(r).toLowerCase()};
+					r = xpathResult.iterateNext();
+					passed = r!= null;
+				}
+				return new ValidationResult(passed, loadArray, '', '', []);
+	        }
+	    },
+	    {
+	        id : "useUnderline",
+	        context : "document",
+	        validate : function (ruleContext) {
+	    		var passed = true;
+	    		var loadArray = new Array();
+	    		var xpathResult = ruleContext.evaluate("//u", ruleContext, OpenAjax.a11y.util.defaultNSResolver, XPathResult.ANY_TYPE, null);
+				var r = xpathResult.iterateNext();
+				while (r) {
+					loadArray[loadArray.length] = {node: r,
+					text: util.getNodeTextRecursively(r).toLowerCase()};
+					r = xpathResult.iterateNext();
+					passed = r!= null;
+				}
+				return new ValidationResult(passed, loadArray, '', '', []);
+	        }
 	    }
+	    
 	    
 		]);
 }
