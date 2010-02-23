@@ -5,12 +5,12 @@
   <RDF:Description RDF:about="urn:mozilla:install-manifest"
                    em:id="AInspector@cita.uiuc.edu"
                    em:name="Firebug Accessibility Inspector"
-                   em:version="1.0.03"
+                   em:version="1.0.04"
                    em:description="Firebug Accessibility Inspector"
                    em:iconURL="chrome://AInspector/content/ainspector/img/logo_32x32.png">
-    <em:targetApplication RDF:resource="rdf:#$tRz+i3"/>
+    <em:targetApplication RDF:resource="rdf:#$D9ugY2"/>
   </RDF:Description>
-  <RDF:Description RDF:about="rdf:#$tRz+i3"
+  <RDF:Description RDF:about="rdf:#$D9ugY2"
                    em:id="{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"
                    em:minVersion="1"
                    em:maxVersion="3.*" />
