@@ -40,6 +40,14 @@ OpenAjax.a11y.RULESET_CODES = {
 	'4.1.1' : '4.1.1 Deprecated Elements',
 	'WCAG20.description.4_1_1' : 'In content implemented using markup languages, elements have complete start and end tags, elements are nested according to their specifications, elements do not contain duplicate attributes, and any IDs are unique, except where the specifications allow these features. ' ,
 	
+	'ARIA10.name' : 'ARIA 1.0',
+	'ARIA10.description' : 'Aria 1.0 Validator',
+	
+	'AriaAttValid' : 'ARIA Attribute Validator',
+	'AriaAttValid.description' : 'Validate ARIA coding practices have been followed.',
+	'AriaKBAccess' : 'ARIA Keyboard Accessible',
+	'AriaKBAccess.description' : 'All non-text content that is presented to the user has a text alternative that serves the equivalent purpose.',
+	
 	'IITAA10.name' : 'IITAA 1.0',
 	'IITAA10.description' : 'Illinois Information Technology Accessibility Act Implementation Guidelines for Web-Based Information and Applications 1.0',
 	

@@ -248,7 +248,6 @@ with (OpenAjax.a11y) {
 	              validate : function (node) {
 	              	var r,c;
 					var idarray = new Array();
-					var invalidIDREF = '';
 					var notfoundarray = new Array();
 				 	for (r=0; r < node.rows.length; r++) { 
 						for (c=0; c < node.rows[r].cells.length; c++) {
@@ -794,7 +793,6 @@ with (OpenAjax.a11y) {
 	        id : "duplicatelabel",
 	        context : "document",
 	        validate : function (ruleContext) {
-	    		/* SMF TODO */
 	    		var dataarray = new Array();
 	            var xp = "//button|//input|//textarea|//select";
 	            var xpathResult = ruleContext.evaluate(xp, ruleContext, util.defaultNSResolver, XPathResult.ANY_TYPE, null);
@@ -802,16 +800,6 @@ with (OpenAjax.a11y) {
 		    	while (r) {
 		    		var formObj = { node: r, label: util.parseLabel(r).label, legend: null, duplicatelabel: false }
 		    		formObj.legend = util.getFieldSetNodeLegendForElement(r);
-		/*    		var fieldSetNode = util.getFieldSetNodeForElement(r);
-					if (fieldSetNode != null) {
-						for (var i = 0; i < fieldSetNode.childNodes.length; i++) {
-							if (fieldSetNode.childNodes[i].tagName &&
-								fieldSetNode.childNodes[i].tagName.toLowerCase() == 'legend') {
-								formObj.legend = fieldSetNode.childNodes[i].textContent;
-								break;
-							}
-						}
-					} */
 					if (formObj.label != null) formObj.label = formObj.label.toLowerCase();
 					if (formObj.legend != null) formObj.legend = formObj.legend.toLowerCase(); 
 					dataarray.push(formObj);

@@ -40,13 +40,15 @@
     <!-- OAA Rules -->
     <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/oaa-a11y.js"/>
     <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/nls/wcag20-ruleset_en-us.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/wai-aria/aria-definitions.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/wai-aria/wai-aria-definitions.js"/>
     <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/scripts/util.js"/>
     <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/scripts/colorUtil.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/ariavalidation-rules.js"/>
     <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/doc-structure-rules.js"/>
     <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/style-rules.js"/>
     <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/text-equiv-rules.js"/>
 	<script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rulesets/wcag20-ruleset.js"/>
+	<script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rulesets/ariavalidation-ruleset.js"/>
     <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA_Nexus.js" />
  
     <stringbundleset id="stringbundleset">

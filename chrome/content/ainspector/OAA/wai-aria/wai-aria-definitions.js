@@ -11,8 +11,8 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
 		globalProperties : [
             "aria-atomic", "aria-busy", "aria-controls", "aria-describedby",
             "aria-disabled", "aria-dropeffect", "aria-flowto", "aria-grabbed",
-            "aria-haspopup", "aria-hidden", "aria-invalid", "aria-label", "aria-labelledby",
-            "aria-live", "aria-owns", "aria-relevant", "aria-required"
+            "aria-haspopup", "aria-hidden", "aria-invalid", "aria-label",
+            "aria-labelledby", "aria-live", "aria-owns", "aria-relevant"
         ],
 	
         /*
@@ -131,7 +131,18 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          		type : "http://www.w3.org/2001/XMLSchema#string"
          	}
         },
-
+        
+        /*
+         * list of abstract roles - used to support the WAI-ARIA role taxonomy and 
+         * not to be used by content authors
+         * @see http://www.w3.org/TR/wai-aria/roles#isAbstract
+         */
+        abstractRoles : [
+            "composite", "input", "landmark", "range",
+            "roletype", "section", "sectionhead", "select",
+            "structure", "widget", "window"
+        ],
+                         
           /*
            * design patterns for concrete WAI-ARIA roles
            * legitimate keys for each role include:
@@ -141,7 +152,7 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
            * - reqProps: required states or properties for this role
            * - reqChildren: required children for this role
            * - htmlEquiv: HTML equivalent for this role
-           * - roleType: one of widget, landmark, or 
+           * - roleType: one of widget, landmark, or null 
            */
         designPatterns : {
          		
@@ -207,25 +218,25 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	
              "columnheader" : {
          		container : ["row"],
-         		props : ["aria-expanded", "aria-sort", "aria-readonly", "aria-selected", "aria-level"],
+         		props : ["aria-expanded", "aria-sort", "aria-readonly", "aria-selected", "aria-required"],
          		reqProps : null,
          		reqChildren : null,
-         		htmlEquiv : null
+         		htmlEquiv : "th"
          	},
          	
          	"combobox" : {
          		container : null,
-         		props : ["aria-expanded", "aria-activedescendant"],
-         		reqProps : null,
+         		props : ["aria-required", "aria-activedescendant"],
+         		reqProps : ["aria-expanded"],
          		reqChildren : ["listbox", "textbox"],
-         		htmlEquiv : null,
+         		htmlEquiv : "select",
          		roleType : "widget"
          	},
          	
          	"complementry" : {
          		container : null,
-         		props : ["aria-expanded"],
-         		reqProps : null,
+         		props : ["aria-required"],
+         		reqProps : ["aria-expanded"],
          		reqChildren : ["aria-labelledby"],
          		htmlEquiv : null,
          		roleType : "landmark"
@@ -277,7 +288,7 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          		props : ["aria-expanded"],
          		reqProps : ["aria-labelledby"],
          		reqChildren : null,
-         		htmlEquiv : null,
+         		htmlEquiv : "form",
          		roleType : "landmark"
          	},	
          	
@@ -285,16 +296,16 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          		container : null,
          		props : ["aria-level", "aria-multiselectable", "aria-readonly", "aria-activedescendant", "aria-expanded"],
          		reqProps : null,
-         		reqChildren : ["row"],
-         		htmlEquiv : null
+         		reqChildren : ["row", "rowgroup"],
+         		htmlEquiv : "table"
          	},
          	
          	"gridcell" : {
          		container : ["row"],
-         		props : ["aria-level", "aria-readonly", "aria-selected", "aria-expanded"],
+         		props : ["aria-readonly", "aria-selected", "aria-expanded", "aria-required"],
          		reqProps : null,
          		reqChildren : null,
-         		htmlEquiv : null
+         		htmlEquiv : "td"
          	},
          	
          	"group" : {
@@ -302,7 +313,7 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          		props : ["aria-activedescendant", "aria-expanded"],
          		reqProps : null,
          		reqChildren : null,
-         		htmlEquiv : null
+         		htmlEquiv : "fieldset"
          	},
          	
          	"heading" : {
@@ -335,15 +346,15 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          		props : ["aria-expanded"],
          		reqProps : null,
          		reqChildren : ["group", "listitem"],
-         		htmlEquiv : null
+         		htmlEquiv : "ul | ol"
          	},
          	
          	"listbox" : {
          		container : null,
-         		props : ["aria-expanded", "aria-activedescendant", "aria-multiselectable"],
+         		props : ["aria-expanded", "aria-activedescendant", "aria-multiselectable", "aria-required"],
          		reqProps : null,
          		reqChildren : ["option"],
-         		htmlEquiv : null
+         		htmlEquiv : "select"
          	},
          	
          	"listitem" : {
@@ -351,7 +362,7 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          		props : ["aria-expanded", "aria-level", "aria-posinset", "aria-setsize"],
          		reqProps : null,
          		reqChildren : null,
-         		htmlEquiv : null
+         		htmlEquiv : "li"
          	},
          	
          	"log" : {
@@ -449,7 +460,7 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	
          	"option" : {
          		container : ["listbox"],
-         		props : ["aria-expanded", "aria-checked", "aria-selected"],
+         		props : ["aria-expanded", "aria-checked", "aria-selected", "aria-posinset", "aria-setsize"],
          		reqProps : null,
          		reqChildren : null,
          		htmlEquiv : null,
@@ -475,7 +486,7 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	
          	"radio" : {
          		container : null,
-         		props : ["aria-selected"],
+         		props : ["aria-selected", "aria-posinset", "aria-setsize"],
          		reqProps : ["aria-checked"],
          		reqChildren : null,
          		htmlEquiv : "input[@type='radio']",
@@ -484,7 +495,7 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	
          	"radiogroup" : {
          		container : null,
-         		props : ["aria-activedescendant", "aria-expanded"],
+         		props : ["aria-activedescendant", "aria-expanded", "aria-required"],
          		reqProps : ["aria-labelledby"],
          		reqChildren : ["radio"],
          		htmlEquiv : null
@@ -495,29 +506,37 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          		props : ["aria-expanded"],
          		reqProps : null,
          		reqChildren : null,
-         		htmlEquiv : null
+         		htmlEquiv : "frame"
          	},
          	
          	"row" : {
-         		container : ["grid", "treegrid"],
+         		container : ["grid", "treegrid", "rowgroup"],
          		props : ["aria-level", "aria-selected", "aria-activedescendant", "aria-expanded"],
          		reqProps : null,
-         		reqChildren : ["gridcell"],
+         		reqChildren : ["gridcell", "rowheader", "columnheader"],
          		htmlEquiv : "tr"
+         	},
+         	
+         	"rowgroup" : {
+         		container : ["grid"],
+         		props : ["aria-expanded", "aria-activedescendant"],
+         		reqProps : null,
+         		reqChildren : ["row"],
+         		htmlEquiv : "thead | tfoot | tbody"
          	},
          	
          	"rowheader" : {
          		container : ["row"],
-         		props : ["aria-expanded", "aria-sort", "aria-level", "aria-readonly", "aria-selected"],
+         		props : ["aria-expanded", "aria-sort", "aria-required", "aria-readonly", "aria-selected"],
          		reqProps : null,
          		reqChildren : null,
-         		htmlEquiv : null
+         		htmlEquiv : "th"
          	},
          	
          	"scrollbar" : {
          		container : null,
-         		props : null,
-         		reqProps : ["aria-orientation", "aria-valuenow", "aria-valuemax", "aria-valuemin"],
+         		props : ["aria-valuetext"],
+         		reqProps : ["aria-controls", "aria-orientation", "aria-valuenow", "aria-valuemax", "aria-valuemin"],
          		reqChildren : null,
          		htmlEquiv : null,
          		roleType : "widget"
@@ -534,7 +553,7 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	
          	"separator" : {
          		container : null,
-         		props : ["aria-expanded"],
+         		props : ["aria-expanded", "aria-orientation"],
          		reqProps : null,
          		reqChildren : null,
          		htmlEquiv : null
@@ -542,7 +561,7 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	
          	"slider" : {
          		container : null,
-         		props : ["aria-valuetext"],
+         		props : ["aria-orientation", "aria-valuetext"],
          		reqProps : ["aria-valuemax", "aria-valuenow", "aria-valuemin"],
          		reqChildren : null,
          		htmlEquiv : null,
@@ -551,7 +570,7 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	
          	"spinbutton" : {
          		container : null,
-         		props : ["aria-activedescendant", "aria-valuetext"],
+         		props : ["aria-required", "aria-activedescendant", "aria-valuetext"],
          		reqProps : ["aria-valuemax", "aria-valuenow", "aria-valuemin"],
          		reqChildren : null,
          		htmlEquiv : null,
@@ -574,14 +593,6 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          		htmlEquiv : null
          	},
          	
-         	"tabpanel" : {
-         		container : null,
-         		props : ["aria-expanded"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null
-         	},
-         	
          	"tablist" : {
          		container : null,
          		props : ["aria-activedescendant", "aria-expanded"],
@@ -590,12 +601,20 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          		htmlEquiv : null
          	},
          	
-         	"textbox" : {
+         	"tabpanel" : {
          		container : null,
-         		props : ["aria-autocomplete", "aria-multiline", "aria-readonly"],
+         		props : ["aria-expanded"],
          		reqProps : null,
          		reqChildren : null,
-         		htmlEquiv : "input[@type='text']",
+         		htmlEquiv : null
+         	},
+         	
+         	"textbox" : {
+         		container : null,
+         		props : ["aria-autocomplete", "aria-multiline", "aria-readonly", "aria-required"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : "input[@type='text'] | textarea",
          		roleType : "widget"
          	},
          	
@@ -625,15 +644,15 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	
          	"tree" : {
          		container : ["tablist"],
-         		props : ["aria-multiselectable", "aria-activedescendant", "aria-expanded"],
+         		props : ["aria-multiselectable", "aria-activedescendant", "aria-expanded", "aria-required"],
          		reqProps : null,
-         		reqChildren : ["treeitem"],
+         		reqChildren : ["group", "treeitem"],
          		htmlEquiv : null
          	},
          	
          	"treegrid" : {
          		container : null,
-         		props : ["aria-activedescendant", "aria-expanded", "aria-level", "aria-multiselectable", "aria-readonly"],
+         		props : ["aria-activedescendant", "aria-expanded", "aria-level", "aria-multiselectable", "aria-readonly", "aria-required"],
          		reqProps : null,
          		reqChildren : ["row"],
          		htmlEquiv : null
@@ -646,6 +665,8 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          		reqChildren : null,
          		htmlEquiv : null
             }
-        }
+         	
+        } // end designPatterns
+        
     };	                	                	                	                	                
 }
