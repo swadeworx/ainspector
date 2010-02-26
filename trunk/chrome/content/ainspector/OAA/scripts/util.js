@@ -250,7 +250,7 @@ if (typeof OpenAjax.a11y.util == "undefined") {
             		return false;
             	},	
 				
-            	dataTable: function (doc, notused){
+            	dataTable: function (doc, notused){ // can be used as a context .dataTable
             		var retArray = new Array();
                		var tableEleArr = OpenAjax.a11y.getCollectionViaDom('table', doc);
             		for (var i =0; i < tableEleArr.length; i++ ) {
@@ -259,7 +259,7 @@ if (typeof OpenAjax.a11y.util == "undefined") {
             		return retArray;
             	}, 
             	
-            	complexDataTable: function (doc, notused){
+            	complexDataTable: function (doc, notused){ // can be used as a context .complexDataTable
             		var retArray = new Array();
                		var tableEleArr = OpenAjax.a11y.getCollectionViaDom('table', doc);
             		for (var i =0; i < tableEleArr.length; i++ ) {
@@ -320,6 +320,45 @@ if (typeof OpenAjax.a11y.util == "undefined") {
 						}
 						return false;
 				},
+				
+				/*
+				 * ARIA Validation utilities
+				 */
+            	containsAriaAttrIDREF: function (doc, notused){ // can be used as a context .containsAriaAttrIDREF
+            		var retArray = new Array();
+					var docElements = doc.getElementsByTagName("*");
+            		for (var i=0; i < docElements.length; i++) {
+            			for (var j=0; j < docElements[i].attributes.length; j++) {
+         	    			var attrName = docElements[i].attributes[j].name;
+            				if (attrName.substring(0, 5) == 'aria-') {
+            	    	    	var dataTypes = OpenAjax.a11y.aria.propertyDataTypes[attrName];
+             	    			if (dataTypes && dataTypes.type && (dataTypes.type == "http://www.w3.org/2001/XMLSchema#idref" || dataTypes.type == "http://www.w3.org/2001/XMLSchema#idrefs")) {      					
+             	    				retArray.push(docElements[i]); 
+                    				j = docElements[i].attributes.length;
+            	    			}
+            				}
+            			}
+            		}
+            		return retArray;
+            	}, 
+             	
+				nonExistantIDs: function(node, targetids) {
+						var returnnotfoundids = '';
+						if (targetids.normalizeSpacing().length < 1) return returnnotfoundids;
+						
+						var targetArray = targetids.split(" ");
+						for(var i=0; i< targetArray.length; i++) {
+		    	            var xp = "//*[@id='" + targetArray[i] + "']";  
+		    	            var xpathResult = node.evaluate(xp, node, this.defaultNSResolver, XPathResult.ANY_TYPE, null);
+		        	    	var r = xpathResult.iterateNext();
+		        	    	if (!r) returnnotfoundids += targetArray[i] + ', ';
+						}
+						if (returnnotfoundids.normalizeSpacing().length >= 2) 
+							returnnotfoundids = returnnotfoundids.substring(0, returnnotfoundids.length-2); 
+						else 
+							returnnotfoundids = '';
+						return returnnotfoundids;
+				}
 				
 				/*
 				 * Event utilities

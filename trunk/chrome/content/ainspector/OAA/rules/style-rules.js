@@ -6,21 +6,29 @@ with (OpenAjax.a11y) {
 	    
 	    {
 	        id : "belowminimal",
-	        context : "*", //need a get all visible nodes with textContent function
+	        context : "*", //SMF TODO (need #text) need a get all visible nodes with textContent function
 	        validate : function (ruleContext) {
-				var contrastObj = OpenAjax.a11y.colorUtil.createContrastElement(ruleContext);
-	    		var passed = contrastObj.luminosity > 3;
-	            return new ValidationResult(passed, [ruleContext], '', '', [contrastObj.hexFGColor, contrastObj.hexBGColor, contrastObj.luminosity]);
+	    		if (ruleContext.ownerDocument.defaultView.getComputedStyle) {
+	    			var contrastObj = OpenAjax.a11y.colorUtil.createContrastElement(ruleContext);
+	    			var passed = contrastObj.luminosity > 3;
+	    			return new ValidationResult(passed, [ruleContext], '', '', [contrastObj.hexFGColor, contrastObj.hexBGColor, contrastObj.luminosity]);
+	    		} else { //getComputedStyle does not exist
+	    			return new ValidationResult(-1, [ruleContext], '', '', []);
+	    		}
 	        }
 	    },
 	    {
 	        id : "belowoptimal",
-	        context : "*", //need a get all visible nodes with textContent function
+	        context : "*", //SMF TODO (need #text) need a get all visible nodes with textContent function
   	        dependencies : ["belowminimal"],
 	        validate : function (ruleContext) {
-				var contrastObj = OpenAjax.a11y.colorUtil.createContrastElement(ruleContext);
-	    		var passed = contrastObj.luminosity > 4.5;
-	            return new ValidationResult(passed, [ruleContext], '', '', [contrastObj.hexFGColor, contrastObj.hexBGColor, contrastObj.luminosity]);
+	    		if (ruleContext.ownerDocument.defaultView.XXXgetComputedStyle) {
+					var contrastObj = OpenAjax.a11y.colorUtil.createContrastElement(ruleContext);
+		    		var passed = contrastObj.luminosity > 4.5;
+		            return new ValidationResult(passed, [ruleContext], '', '', [contrastObj.hexFGColor, contrastObj.hexBGColor, contrastObj.luminosity]);
+	    		} else { //getComputedStyle does not exist
+	    			return new ValidationResult(-1, [ruleContext], '', '', []);
+	    		}
 	        }
 	    },
 	    {

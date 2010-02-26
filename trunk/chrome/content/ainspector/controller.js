@@ -87,7 +87,7 @@ AINSPECTOR.controller = {
  //       FBTrace.sysout('rules', this.rules);
  //       FBTrace.sysout('rulesets', this.rulesets);
  //   	var OAA = OpenAjax.a11y.getRuleset("WCAG_2_0");
- //       FBTrace.sysout('OAA', OAA);
+ //       FBTrace.sysout('AINSPECTOR', AINSPECTOR);
       
         if (typeof yscontext == 'undefined') return;
         

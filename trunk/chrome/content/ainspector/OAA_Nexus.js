@@ -1,3 +1,5 @@
+/* See license.txt for terms of usage */
+
 AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
     urls: {},
 
@@ -7,6 +9,7 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
         try {
 	        AINSPECTOR.OAA_Nexus.addRuleset("WCAG_2_0"); //rendered by reportcardView() in renderers.js
 	        AINSPECTOR.OAA_Nexus.addRuleset("IITAA_1_0"); 
+	        AINSPECTOR.OAA_Nexus.addRuleset("ARIA_1_0"); 
         } catch (err) {
             alert("AINSPECTOR.OAA_Nexus: " + err.message);
         }
@@ -92,13 +95,20 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 								if (!dependencies) {
 									ruleRet = rule.validate(node);
 									ruleResArray[rule.id] = ruleRet.result;
-									if (!ruleRet.result) {
+									if (ruleRet.result == false) { //!ruleRet.result
 										retStruct.id.push(rule.id);
 										retStruct.msg.push(FBL.$STR(ruleset[rule.id].severityCode.toLowerCase(), 'OAA_bundle') + ': ' + FBL.$STRF(ruleset[rule.id].messageCode, ruleRet.msgArgs, 'OAA_bundle'));
 										retStruct.attr.push(ruleRet.attrs);
 										retStruct.severityCode.push(ruleset[rule.id].severityCode.toLowerCase());
-				//						FBTrace.sysout(rule.id +  " @@ retStruct " , retStruct);
+									}  
+									/* rule did not run successfully -  SMF This produces too much noise.
+									else if (ruleRet.result == -1) {
+										retStruct.id.push(rule.id);
+										retStruct.msg.push(FBL.$STR('level.manual', 'OAA_bundle') + ': ' + FBL.$STRF(ruleset[rule.id].messageCode, ruleRet.msgArgs, 'OAA_bundle'));
+										retStruct.attr.push(ruleRet.attrs);
+										retStruct.severityCode.push('level.manual');
 									}
+									*/
 								} 
 							}
 						}
@@ -205,7 +215,7 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 				var virginArray = (loadArray.length == 0);
 				var OAA = getRuleset(AINSPECTOR.controller.default_ruleset_id);
 				var ruleMapping = rulesByContext();
-//				FBTrace.sysout("ruleMapping " , ruleMapping);
+				//FBTrace.sysout("ruleMapping " , ruleMapping);
 				
 				var ruleset = null;
 				for (var r = 0; r < OAA.requirements.length && ruleset == null; ++r) { 
@@ -252,7 +262,7 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 									ruleResArray[rule.id][i] = ruleRet.result;
 		//							if (rule.id == 'titleMissingH1Words')FBTrace.sysout(rule.id + " ruleRet ", ruleRet);							
 
-									if (!ruleRet.result) {
+									if (ruleRet.result == false) {
 										if (!loadArray[ruleIndex].stickyResult) {
 											loadArray[ruleIndex].result = false;
 											if (ruleRet.nodes) { 
@@ -261,10 +271,16 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 //											if (expr == "document" && typeof ruleRet.msgArgs != 'undefined') loadArray[ruleIndex].msgArgs = ruleRet.msgArgs;
 											if (typeof ruleRet.msgArgs != 'undefined') loadArray[ruleIndex].msgArgs = ruleRet.msgArgs; //duplicateID is not a document rule
 										}
-	 								} else { //if test passed & document level & no result nodes do not let other frames change the fact that a test passed 
+	 								} else if (ruleRet.result == true){ //if test passed & document level & no result nodes do not let other frames change the fact that a test passed 
 										if (expr == "document" && typeof loadArray.nodes == 'undefined') {
 											loadArray[ruleIndex].result = true;
 											loadArray[ruleIndex].stickyResult = true; //do not allow this the be changed in the future
+										}
+									} else if (ruleRet.result == -1) { //rule did not run successfully
+										if (!loadArray[ruleIndex].stickyResult) {
+											loadArray[ruleIndex].result = false;
+											loadArray[ruleIndex].severityCode = 'level.manual';
+											if (typeof ruleRet.msgArgs != 'undefined') loadArray[ruleIndex].msgArgs = ruleRet.msgArgs;
 										}
 									}
 								} 
@@ -275,7 +291,7 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 						}
 					}
 				}
-				//FBTrace.sysout("loadArray " , loadArray);
+		//		FBTrace.sysout("loadArray " , loadArray);
 			}
 		} catch (ex) {
 			FBTrace.sysout('runRuleGroup exception: ', ex);

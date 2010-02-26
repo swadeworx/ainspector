@@ -20,9 +20,9 @@
 		// match an attribute name (possibly namespaced)
 		var _attrNameExpr = "[\\w\\-\\:]+";
 		// match single element name or * for inclusive context
-		var _inclusiveElementExpr = "((\\*\\B)|([\\-\\w]+))";
+		var _inclusiveElementExpr = "((\\*\\B)|([#\\-\\w]+))";
 		// match multiple attribute predicates for inclusive context
-		var _inclusiveAttrsExpr = "((\\[@[^\\]]+\\])*)";
+		var _inclusiveAttrsExpr = "((\\[(@|#)[^\\]]+\\])*)";
 		// match single disjunct of inclusive context
 		var _inclusiveDisjunctMatcher = new RegExp(_inclusiveElementExpr + _inclusiveAttrsExpr);
 		
@@ -46,13 +46,14 @@
 		);
 		
 		/*
-		 * used by parseContextExpression(contextExpr) to parse predicates for inclusive contexts
+		 * used by parseContextExpression(contextExpr) to parse predicates for inclusive contexts. Note that a preciate
+		 * may be iether a standard attribute predicate or '#text'. to indciate a text node test.
 		 * 
-		 * [1] = attribute name
-		 * [3] = operator
-		 * [7] = attribute value
+		 * [1] = '@' + attribute name | '#text'
+		 * [5] = operator
+		 * [9] = attribute value
 		 */
-var _predicateMatcher = new RegExp("\\[@(" + _attrNameExpr + ")(\\s*((==)|(!=))\\s*(\'|\")([^\'\"]+)(\'|\"))?\\]");
+var _predicateMatcher = new RegExp("\\[((#text)|(@" + _attrNameExpr + "))(\\s*((==)|(!=))\\s*(\'|\")([^\'\"]+)(\'|\"))?\\]");
 					
 		/*
 		 * legal comparitive operations for attribute comparisons
@@ -157,11 +158,12 @@ var _contextMap = {};
 								if (parsed[4]) {
 									// contains a predicate set for attribute presence/value specification
 									var predicateExpr = parsed[4];
-									var predicate;
+									var predicate, tmpName;
 									while ((predicate  = predicateExpr.match(_predicateMatcher)) != null) {
-										names.push(predicate[1]);
-										ops.push(predicate[3] && predicate[3].trim().length > 0 ? predicate[3].trim() : "");
-										values.push(predicate[7]);
+										tmpName = predicate[1][0] == '@' ? predicate[1].substr(1, predicate[1].length) : predicate[1];
+										names.push(tmpName);
+										ops.push(predicate[5] && predicate[5].trim().length > 0 ? predicate[5].trim() : "");
+										values.push(predicate[9]);
 										predicateExpr = predicateExpr.substring(predicate[0].length);
 									}
 								}
@@ -221,7 +223,7 @@ var _contextMap = {};
 								remainder = remainder.substring(parsed[0].length + offset);
 							}
 						} else {
-							if (contextExpr.indexOf('.') != -1 ) { //is a function in OpenAjax.a11y.util
+							if (contextExpr[0] == '.') { //is a function in OpenAjax.a11y.util
 								var context = contextExpr.substring(1, contextExpr.length) ;
 								if (OpenAjax.a11y.util[context]) {						
 									result.push({
@@ -270,26 +272,37 @@ var _contextMap = {};
 						var satisfied = true;
 						for (var i = 0; satisfied && i < parsedContext.length; ++i) {
 							// case-insensitive check
-							satisfied &= (parsedContext[i].tagName != node.tagName.toLowerCase());
+							satisfied &= (parsedContext[i].tagName != node.nodeName.toLowerCase());
 						}
 						result = satisfied;
 					} else { // non-exclusiveElemContext
 						var tagNameMatch = false, predicateMatch = true;
 						var parsed, i;
 						for (i = 0; !(tagNameMatch & predicateMatch) && i < parsedContext.length; ++i) {
+							predicateMatch = true;
 							parsed = parsedContext[i];
-							// case-insensitive match
-							tagNameMatch =parsed.tagName == '*' || parsed.tagName == node.tagName.toLowerCase();
+                            // case-insensitive match
+							tagNameMatch =(parsed.tagName == '*' && node.nodeType != 3) || parsed.tagName == node.nodeName.toLowerCase();
 							if (tagNameMatch && parsed.attrNames.length > 0) {
 								// check the attribute predicates
 								// could be either inclusive or exclusive in nature
 								for (var p = 0; p < parsed.attrNames.length; ++p) {
-									if (typeof _operatorFn[parsed.operators[p]] == "function" && parsed.attrValues[p]) {
+									if (typeof _operatorFn[parsed.operators[p]] == "function" && parsed.attrValues[p] && node.getAttribute) {
 										// operator specified with value
 										predicateMatch &= _operatorFn[parsed.operators[p]](node.getAttribute(parsed.attrNames[p]), parsed.attrValues[p]);
 									} else if (parsed.attrNames[p]) {
-										// only attribute name specified so check is only for existence or nonexistence
-										predicateMatch &= (parsed.exclusiveAttrContext != node.hasAttribute(parsed.attrNames[p]));
+										// only attribute name specified so check is for either existence or nonexistence
+										// of attribute or for #text
+										if (parsed.attrNames[p] == "#text") {
+											var tmpResult = false;
+											var children = node.childNodes;
+											for (var c = 0; !tmpResult && c < children.length; ++c) {
+												tmpResult = children[c].nodeType == 3;
+											}
+											predicateMatch &= tmpResult;
+										} else if (node.hasAttribute) {
+											predicateMatch &= (parsed.exclusiveAttrContext != node.hasAttribute(parsed.attrNames[p]));
+										}
 									}
 								} // next predicate
 							} // unsuccessful tag name match or no predicates
@@ -356,7 +369,9 @@ var _contextMap = {};
 							}
 						} // next parsed context result
 					}
-				} 
+				}  else if (typeof context == "function") {
+					result = context(doc, null);
+				}
 				return result;
 			},
 			
@@ -397,19 +412,22 @@ var _contextMap = {};
 				
 				if (contextExpr == "document") {
 					xpath = '/';
+                } else if (contextExpr == "#text") {
+                    xpath = '//text()';
 				} else if (contextExpr.match(_inclusiveContextMatcher) != null) {
 					// same as _inclusiveDisjunctMatcher, but with 'g' flag
 					var re = new RegExp(_inclusiveElementExpr + _inclusiveAttrsExpr, "g");
-					contextExpr = contextExpr.replace("==", "=");
+					contextExpr = contextExpr.replace(/==/g, "=");
+					contextExpr = contextExpr.replace(/#text/g, "text()");
 					contextExpr = contextExpr.replace(re, function(str, offset, s) {
 						return start + str;
 					});
 					
 					// same as _predicateMatcher, but with 'g' flag and looking only for != operator
 					// transform "@attr != 'value'" to "not(@attr) or @attr != 'value'"
-					var predMatcher = new RegExp("@(" + _attrNameExpr + ")(\\s*(!=)\\s*(\'|\")([^\'\"]+)(\'|\"))?");
+					var predMatcher = new RegExp("((#text)|(@" + _attrNameExpr + "))(\\s*(!=)\\s*(\'|\")([^\'\"]+)(\'|\"))?");
 					xpath = contextExpr.replace(predMatcher, function(str, role, p2, p3, delim, value, p6, offset, s) {
-						return value ? "not(@" + role + ") or " + str : str;
+						return value ? "not(" + role + ") or " + str : str;
 					});
 				} else if (contextExpr.match(_exclusiveElemContextMatcher) != null) {
 					// add the self axis to each element tag name specified
@@ -473,9 +491,9 @@ var _contextMap = {};
 				if (doc.evaluate && XPathResult) {
 					var xpath = this.contextAsXPath(context);
 					result = doc.evaluate(xpath, node, OpenAjax.a11y.util.defaultNSResolver, XPathResult.ANY_TYPE, null);
-				} else {
-					throw "No XPath evaluation functionality available via document.evaluate";
 				}
+				
+				return result;
 			},
 			
 			/*
@@ -610,14 +628,14 @@ var _contextMap = {};
 			 * initializer for a result from an application of the validate function of a rule
 			 * object in a ruleContext
 			 * 
-			 * @param result whether or not the rule executed successfully (true or false, respectively)
+			 * @param result whether or not the rule executed successfully, or if rule could not execute (true, false -1, respectively)
 			 * @param nodes array of offending nodes
 			 * @param attrs array of offending attributes
 			 * @param textContent offending text content of an element
 			 * @param msgArgs message arguments to be used in localized message strings
 			 */
 			ValidationResult : function (result, nodes, attrs, text, msgArgs) {
-				this.result = typeof result == "boolean" ? result : Boolean(result);
+				this.result = result;
 				this.nodes = nodes;
 				this.attrs = attrs;
 				this.textContent = text;
