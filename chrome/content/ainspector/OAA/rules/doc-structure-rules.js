@@ -715,16 +715,8 @@ with (OpenAjax.a11y) {
 	    },
 	    {
 	        id : "missinglabelandtitle",
-//	        context : "input[@type == 'text' | 'password' | 'checkbox'| 'radio'| 'file'] | textarea | select", 
-	        context : "input[@type] | textarea | select", /* SMF TODO */
+	        context : "input[@type == 'text'] | input[@type == 'password'] | input[@type == 'checkbox'] | input[@type == 'radio'] | input[@type == 'file'] | textarea | select",
 	        validate : function (ruleContext) {
-	    		if (ruleContext.tagName.toLowerCase() == 'input') {
-		        	var type = ruleContext.getAttribute('type').toLowerCase();
-		        	if (type != 'text' && type != 'password' && type != 'checkbox' && type != 'radio' && type != 'file') {
-		        		return new ValidationResult(true, [ruleContext], [], '', []);	    			
-		    		}
-	    		} 
-		        
 		        var retStruct = util.parseLabel(ruleContext);
 		        var passed = (retStruct.label != null);	
 		        return new ValidationResult(passed, [ruleContext], [], '', []);
@@ -741,16 +733,8 @@ with (OpenAjax.a11y) {
 	    },
 	    {
 	        id : "missingvalueandtitle",
-//	        context : "input[@type == 'button' | 'submit' | 'reset'] ", 
-//	        context : "input[@type == 'button'] | input[@type == 'submit'] | input[@type == 'reset']",
-	        context : "input[@type]", /* SMF TODO */
+	        context : "input[@type == 'button'] | input[@type == 'submit'] | input[@type == 'reset']",
 	        validate : function (ruleContext) {
-	    		if (ruleContext.tagName.toLowerCase() == 'input') {
-		        	var type = ruleContext.getAttribute('type').toLowerCase();
-		        	if (type != 'button' && type != 'submit' && type != 'reset' ) {
-		        		return new ValidationResult(true, [ruleContext], [], '', []);	    			
-		    		}
-	    		} 
 	        	var retStruct = util.parseLabel(ruleContext);
 	        	var passed = (retStruct.label != null);	
 	            return new ValidationResult(passed, [ruleContext], [], '', []);

@@ -41,7 +41,7 @@ OpenAjax.a11y.addRuleset(
 	            		// defined in doc-structure-rules.js
 	            		'missingrole' : {severityCode:'level.Violation', messageCode:'ariaKBAccessible.msg.missingrole'},
 	            		'missingkeyequiv' : {severityCode:'level.Violation', messageCode:'ariaKBAccessible.msg.missingkeyequiv'},
-	            		'invalidtabindex' : {severityCode:'level.PotentialViolation', messageCode:'ariaKBAccessible.msg.invalidtabindex='},
+	            		'invalidtabindex' : {severityCode:'level.PotentialViolation', messageCode:'ariaKBAccessible.msg.invalidtabindex'},
 	            		'missingfocusablechild' : {severityCode:'level.PotentialViolation', messageCode:'ariaKBAccessible.msg.missingfocusablechild'},
 	            		'missingkeyevent' : {severityCode:'level.PotentialViolation', messageCode:'ariaKBAccessible.msg.missingkeyevent'}
 	 		    	}

@@ -155,6 +155,27 @@ OpenAjax.a11y.MESSAGE_CODES = {
     	'forms.msg.emptytitle' : 'If the title attribute is defined for an input, select, textarea or button element it must also contain content since it will be used by assistive technologies as part of the effective label for the form control.',
     	'forms.msg.duplicateFormEleID' : 'ID (%1$S) is not unique. If a form control has an id attribute its value must be unique on the page. ',
     	
+    	//Links Widget warnings
+    	'links.msg.tooshort' : 'Avoid using text links that are shorter than four 4 characters in length.',
+    	'links.msg.sameURLdiffLinks' : 'Ensure that links that point to the same HREF use the same link text.',
+    	'links.msg.sameLinkdiffURL' : 'Ensure that links that point to different HREFs use different link text.',
+    	'links.msg.imgTooSmall' : 'Avoid using images that are smaller than 16 pixels by 16 pixels as links.',
+    	'links.msg.altequaltextcontent' : 'If a link includes an img element and text content, and the words in the alt attribute content of the img element match the words in the text content of the link, then the alt attribute content should be set to be empty.',
+
+    	//ARIA Widget warnings
+    	'ariavalidation.msg.unsupportedstate' : 'attribute %1$S is not defined for use with widget %2$S.',
+    	'ariavalidation.msg.invalidAttributeValue' : 'attribute %1$S must use a predetermined value %2$S.',
+    	'ariavalidation.msg.invalidIDREF' : 'The ID %1$S referred to by attribute %2$S was not found on this page.',
+    	'ariavalidation.msg.emptyIDREF' : 'The attribute %1$S must contain an idref.',
+    	'ariavalidation.msg.toomanyIDREF' : 'The attribute %1$S supports only one ID, you have indicated more than one ID.',
+    	'ariavalidation.msg.invalidGlobalStatesProps' : '%1$S is not a global aria state/property, it may only be used in conjunction with certain roles.',
+    	'ariavalidation.msg.missingMustContain' : 'The role %1$S must contain role %2$S.',
+    	'ariavalidation.msg.missingContainedBy' : 'The role %1$S must be contained by an element with role %2$S.',
+    	'ariavalidation.msg.missingReqAttribute' : 'The role %1$S must have property %2$S.',
+    	'ariavalidation.msg.emptyReqAttribute' : 'The attribute %1$S must contain a value.',
+    	'ariavalidation.msg.invalidRole' : 'The value %1$S is not a valid role.',
+    	'ariavalidation.msg.unknownAriaAttr' : 'The attribute %1$S is not a recognized ARIA attribute.',
+    	
     	//Textstyling warning strings
 		'textstyling.title' : 'Text Styling.',
 		'textstyling.msg.bold' : 'The b element should not be used to bold text content.',

@@ -374,7 +374,7 @@ AINSPECTOR.view = function(panel, yscontext) {
             
             rulesetSelect : SELECT({id : "toolbar-rulesetList", name : "rulesets", onchange : "$onRulesetChange"},
                 FOR("ruleset", "$rulesets", 
-                    OPTION({}, "$ruleset")
+                    OPTION({id: "$ruleset.id", "$ruleset.selected" : "" }, "$ruleset.id") /* SMF TODO $ruleset.selected is never examined thus a ruleset is never selected */
                 )
             ),
             
@@ -746,8 +746,14 @@ AINSPECTOR.view.prototype = {
     getRulesetArray : function() {
         var rulesets = AINSPECTOR.controller.getRegisteredRuleset();
         var rulesetsArray = [];
+		var selectedRulesetId = AINSPECTOR.util.Preference.getPref("defaultRuleset", 'WCAG_2_0');
         for (var id in rulesets) {
-            rulesetsArray.push(rulesets[id].id)
+         	var retStruct = {
+				id: rulesets[id].id,
+				name: rulesets[id].name,
+				selected: (rulesets[id].id == selectedRulesetId) ? 'selected' : '',
+			}
+            rulesetsArray.push(retStruct)
         }
         return rulesetsArray;
     },
