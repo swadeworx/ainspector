@@ -342,6 +342,21 @@ if (typeof OpenAjax.a11y.util == "undefined") {
             		return retArray;
             	}, 
              	
+            	containsAriaAttr: function (doc, notused){ // can be used as a context .containsAriaAttrIDREF
+            		var retArray = new Array();
+					var docElements = doc.getElementsByTagName("*");
+            		for (var i=0; i < docElements.length; i++) {
+            			for (var j=0; j < docElements[i].attributes.length; j++) {
+         	    			var attrName = docElements[i].attributes[j].name;
+            				if (attrName.substring(0, 5) == 'aria-') {
+             	    			retArray.push(docElements[i]); 
+                    			j = docElements[i].attributes.length;
+            				}
+            			}
+            		}
+            		return retArray;
+            	}, 
+             	
 				nonExistantIDs: function(node, targetids) {
 						var returnnotfoundids = '';
 						if (targetids.normalizeSpacing().length < 1) return returnnotfoundids;
@@ -358,49 +373,61 @@ if (typeof OpenAjax.a11y.util == "undefined") {
 						else 
 							returnnotfoundids = '';
 						return returnnotfoundids;
-				}
+				},
 				
 				/*
 				 * Event utilities
 				 */
-/*				ParseDocumentForEvents: function(node, loadArray) {		
-					var i;
-					var found = false;
+				/* SMF TODO On some nodes, I suspect we are retrieving events to FB has placed  */
+            	getEvents: function (node){ 
+					var _events=new Array("blur","click","dblclick","focus","keydown","keypress","keyup",
+							"mousedown","mouseup","mousemove","mouseout","mouseover","resize","load", "change");
 					var eventNames = new Array();
 					var listener = Components.classes["@mozilla.org/eventlistenerservice;1"];
 					if (listener != null && listener != undefined && node.tagName) {
 						var els = listener.createInstance(Components.interfaces.nsIEventListenerService); 
 			    		var infos = els.getListenerInfoFor(node, {});
 					
-						for (i = 0; i < infos.length; ++i) {
+						for (var i = 0; i < infos.length; ++i) {
 							var info = infos[i].QueryInterface(Components.interfaces.nsIEventListenerInfo);
-							for (j = 0; j < _events.length; j ++) if (info.type == _events[j]) eventNames.push(_events[j]);
+							for (j = 0; j < _events.length; j ++) if (info.type == _events[j] && !info.inSystemEventGroup && info.allowsUntrusted) eventNames.push(_events[j]);
 						}
-						if (eventNames.length > 0) loadArray[loadArray.length] = new eventObject(loadArray.length + 1, node, eventNames);
 					} else {  // does not pick up dynamically added events
 						if(node.getAttribute) {
-							for (i = 0; i < _events.length && !found; i ++) {
+							for (var i = 0; i < _events.length; i ++) {
 								if (node.hasAttribute('on' + _events[i])) {
 									for(j in _events) 	{
 										var e ='on' + _events[j];
 										if (node.hasAttribute(e)) {
-											var attrValue = cleanSpaces(GetValueFromAttributes(node,[e],""));
+											var attrValue = GetValueFromAttributes(node,[e],"").normalizeSpacing();
 											if (attrValue != '') eventNames.push(e);
 										}
 									}
-									found = true;
-									loadArray[loadArray.length] = new eventObject(loadArray.length + 1, node, eventNames);
 								}
 							}
 						}
 					}
-							
-					if(node.childNodes) {
-						for(var i = 0; i < node.childNodes.length; i ++)
-							ParseDocumentForEvents(node.childNodes[i], loadArray);
-					}
+					return eventNames;
+            	},
+           	
+            	// renamed ParseDocumentForEvents()
+				nonfocusableElementsContainingEvents: function(doc, notused) {		// can be used as a context .nonfocusableElementsContainingEvents
+            		var focusableElements = ['input','select','button','textarea','option','area','a', 'html']; //html is ignored since it always has keydown
+             		var retArray = new Array();
+					var docElements = doc.getElementsByTagName("*");
+            		for (var i=0; i < docElements.length; i++) {
+                   		if (focusableElements.indexOf(docElements[i].tagName.toLowerCase()) == -1) {
+ 	            			var role = docElements[i].hasAttribute('role') ? docElements[i].getAttribute("role") : '';
+	            			if (role == '') {
+	            				var eventNames = this.getEvents(docElements[i]);
+	            				if (eventNames.length > 0) {retArray.push(docElements[i]);
+	            				}
+	            			}
+            			}
+            		}
+            		return retArray;
 				}
-*/				
+				
 			
 				
 	}

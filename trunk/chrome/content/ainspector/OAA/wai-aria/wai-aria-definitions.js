@@ -74,6 +74,9 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	"aria-label" : {
          		type : "http://www.w3.org/2001/XMLSchema#string"
          	},
+         	"aria-labelledby" : {
+         		type : "http://www.w3.org/2001/XMLSchema#idrefs"
+         	},
          	"aria-level" : {
          		type : "http://www.w3.org/2001/XMLSchema#int"
          	},
@@ -668,5 +671,18 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	
         } // end designPatterns
         
-    };	                	                	                	                	                
+    };	     
+  	if (!OpenAjax.a11y.aria.containers) {
+      	var containerArray = new Array();
+			
+      	for (roleDesign in OpenAjax.a11y.aria.designPatterns) {
+      		var container = OpenAjax.a11y.aria.designPatterns[roleDesign].container;
+      		if (container != null) {
+      			for (var j=0; j < container.length; j++) 
+      				if (containerArray.indexOf(container[j])== -1) containerArray.push(container[j]);
+      		}
+      	}
+      	OpenAjax.a11y.aria.containers = containerArray;
+  	}
+
 }

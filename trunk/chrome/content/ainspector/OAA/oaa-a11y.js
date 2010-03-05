@@ -325,12 +325,12 @@ var _contextMap = {};
 			 * @return array of nodes in the document that satisfy the context
 			 */
 			getCollectionViaDom : function (context, currentDoc) {
-				var result = [];
+				var totalResults = [];
 				
 				if (typeof context == "string") {
 					var parsedContexts = this.parseContextExpression(context);
 					var doc = currentDoc ? currentDoc : this.getHtmlDocument();
-					if (context.indexOf('.') != -1 ) { //is a function in OpenAjax.a11y.util
+					if (context[0] == '.') { //is a function in OpenAjax.a11y.util
 						context = context.substring(1, context.length) ;
 						result = OpenAjax.a11y.util[context](doc, null);
 						return result;
@@ -344,35 +344,59 @@ var _contextMap = {};
 						}
 						for (var e = 0; e < docElements.length; ++e) {
 							if (excludeNames.indexOf(docElements[e].tagName.toLowerCase()) == -1) {
-								result.push(docElements[e]);
+								totalResults.push(docElements[e]);
 							}
 						}
 					} else {
 						// not exclusive element context
 						for (var p = 0; p < parsedContexts.length; ++p) {
 							var parsed = parsedContexts[p];
-							var elements = doc.getElementsByTagName(parsed.tagName);
-							
+							var tagName = parsed.tagName;
+							var ctxResults = [];
 							if (parsed.attrNames.length == 0) {
-								// only element name specified - simply add elements
-								// from getElementsByTagName call to result list
-								for (var e = 0; e < elements.length; ++e) {
-									result.push(elements[e]);
+								if (tagName == "#text") {
+									// use NodeIterator to retrieve text nodes of document
+									// only valid in FF
+									if (doc.createNodeIterator) {
+										var filter = {
+											acceptNode : function(n) {
+												return n.nodeValue && n.nodeValue.trim().length > 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+											}
+										};
+										var tw = doc.createNodeIterator(doc, NodeFilter.SHOW_TEXT, filter, true);
+										while ((node = tw.nextNode()) != null) {
+											ctxResults.push(node);
+										}
+									} else {
+										// for IE or browsers not supporting traversal feature
+									}
+								} else {
+									// only element name specified - simply add elements
+									// from getElementsByTagName call to result list
+									var elements = doc.getElementsByTagName(tagName);
+									for (var e = 0; e < elements.length; ++e) {
+										ctxResults.push(elements[e]);
+									}
 								}
 							} else {
 								// attribute predicates present
-								for (var i = 0; i < elements.length; ++i) {
-									if (this.satisfiesContext(parsedContexts, elements[i])) {
-										result.push(elements[i]);
+								var elements = doc.getElementsByTagName(tagName);
+								for (var e = 0; e < elements.length; ++e) {
+									if (this.satisfiesContext(parsedContexts, elements[e]) && totalResults.indexOf(elements[e]) == -1) {
+										ctxResults.push(elements[e]);
 									}
 								}
+							}
+							if (ctxResults.length > 0) {
+								totalResults = totalResults.concat(ctxResults);
 							}
 						} // next parsed context result
 					}
 				}  else if (typeof context == "function") {
-					result = context(doc, null);
+					totalResults = context(doc, null);
 				}
-				return result;
+				
+				return totalResults;
 			},
 			
 			/*

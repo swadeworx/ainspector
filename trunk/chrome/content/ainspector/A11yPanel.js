@@ -238,6 +238,9 @@ const DirTablePlate = domplate(Firebug.Rep,
     rowTag:
         FOR("member", "$members", RowTag),
 
+    //fulltext: SPAN({class: "objectBox objectBox-$className", role : "presentation"}, "&quot;$member&quot;"), 
+    fulltext: DIV({class: "", role : "presentation"}, "&quot;$member.value&quot;"), 
+    
     memberIterator: function(object, level)
     {
         return getMembers(object, level);
@@ -1217,6 +1220,8 @@ function addMember(type, props, name, value, level, order)
 	    (valueType == "function" || (valueType == "object" && value != null)
 	    || (valueType == "string" && value.length > Firebug.stringCropLength));
 	
+//	if (name == 'issues') tag = rep.fulltext;
+		
 	props.push({
 	    name: name,
 	    value: value,
