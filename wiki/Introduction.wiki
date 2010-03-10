@@ -10,5 +10,7 @@ The Firebug Accessibility Inspector is designed to bring accessibility checking 
 
 == Accessibility Guidelines and Standards ==
 * [http://www.w3.org/TR/WCAG W3C Web Content Accessibility Guidelines]
+* [http://www.access-board.gov/sec508/standards.htm Section 508 Electronic and Information Technology Accessibility Standards ]
+* [http://www.dhs.state.il.us/IITAA/IITAAWebImplementationGuidelines.html Illinois Information Technology Accessibility Act (IITAA) Web Accessibility Standards]
 
 == Keyboard Support ==
