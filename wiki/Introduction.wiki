@@ -2,12 +2,10 @@
 
 = Introduction =
 
-Add your content here.
+The Firebug Accessibility Inspector is designed to bring accessibility checking into main stream web development tools and will help web developers learn about how to design their web resources to be more accessible to people with disabilities.
 
+== Related Links ==
 
-= Details =
+* [http://www.openajax.org/member/wiki/Accessibility OpenAjax Alliance Accessibility Task Force]
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+== Keyboard Support ==
