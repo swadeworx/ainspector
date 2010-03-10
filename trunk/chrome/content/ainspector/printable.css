@@ -65,17 +65,17 @@ body {
     color: #006CA2; /* blue */
 }
 
-#ainspectorDiv #summary {
+#ainspectorDiv .summary {
     display: inline;
     white-space: nowrap;
     color: #565656;
 }
 
-#ainspectorDiv #summary .view-title {
+#ainspectorDiv .summary .view-title {
     display: none;
 }
 
-#ainspectorDiv #summary .number,
+#ainspectorDiv .summary .number,
 #ainspectorDiv .section-summary .number {
     font-weight: bold;
     color: #565656;
