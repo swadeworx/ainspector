@@ -460,7 +460,7 @@ AINSPECTOR.registerRenderer({
                         DIV({class : "bigFont"}, "$status.title")
                     ),
                     TD({class : "padding5"},
-                        DIV({class : "overall-grade", class : "grade-$status.overallGrade"}, "$status.overallGrade")
+                        DIV({class : "overall-grade grade-$status.overallGrade"}, "$status.overallGrade")
                     ),
                     TD({class : "padding15"},"Overall performance score: $status.overallScore"),
                     TD({class : "padding15"},"Ruleset applied: $status.appliedRulesetName"),

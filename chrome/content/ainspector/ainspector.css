@@ -432,20 +432,20 @@ body {
     color: #006CA2; /* blue */
 }
 
-#ainspectorDiv #viewDiv #summary {
+#ainspectorDiv #viewDiv .summary {
     display: inline;
     white-space: nowrap;
     color: #9b9b9b;
 }
 
-#ainspectorDiv #viewDiv #summary .view-title {
+#ainspectorDiv #viewDiv .summary .view-title {
     color: #9b9b9b;
     font-size: 14pt;
     font-weight: bolder;
     padding-right: 25px;
 }
 
-#ainspectorDiv #viewDiv #summary .number,
+#ainspectorDiv #viewDiv .summary .number,
 #ainspectorDiv #viewDiv .section-summary .number {
     font-weight: bold;
     font-size: 9pt;
@@ -591,36 +591,36 @@ body {
     min-width: 950px;
 }
 
-#ainspectorDiv #reportDiv #summary table {
+#ainspectorDiv #reportDiv .summary table {
     border-spacing: 0;
 }
 
-#ainspectorDiv #reportDiv #summary table td {
+#ainspectorDiv #reportDiv .summary table td {
     vertical-align: bottom;
     font-weight: bolder;
     color: #9b9b9b;
 }
 
-#ainspectorDiv #reportDiv #summary td.padding5 {
+#ainspectorDiv #reportDiv .summary td.padding5 {
     padding-left: 5px;
 }
 
-#ainspectorDiv #reportDiv #summary td.padding15 {
+#ainspectorDiv #reportDiv .summary td.padding15 {
     padding-left: 15px;
 }
 
-#ainspectorDiv #reportDiv #summary .bigFont {
+#ainspectorDiv #reportDiv .summary .bigFont {
     font-size: 14pt;
     height: 22px;
 }
 
-#ainspectorDiv #reportDiv #summary .overall-grade {
+#ainspectorDiv #reportDiv .summary .overall-grade {
     color: #fefefe;
     padding: 0;
     width: 22px;
     height: 22px;
     text-align: center;
-    background-image: url(./img/grade_mask.gif); 
+    background-image: url(./img/grade_mask.gif) !important; 
     background-repeat: no-repeat;
     background-position: center;
     border-width: 0;
@@ -686,33 +686,58 @@ body {
 }
 
 #ainspectorDiv #reportDiv .grade-B {
-    
     border-left-color: #a4cb58;
 }
 
 #ainspectorDiv #reportDiv .grade-C {
- 
     border-left-color: #fadd3d;
 }
 
 #ainspectorDiv #reportDiv .grade-D {
- 
     border-left-color: #f5a249;
 }
 
 #ainspectorDiv #reportDiv .grade-E {
- 
     border-left-color: #e46648;
 }
 
 #ainspectorDiv #reportDiv .grade-F {
- 
     border-left-color: #df4444;
 }
 
 #ainspectorDiv #reportDiv .grade-NA {
     border-left-color: #8b8b8b;
 }
+
+
+#ainspectorDiv #reportDiv .summary .grade-A {
+    background-color: #34a234;
+}
+
+#ainspectorDiv #reportDiv .summary .grade-B {
+    background-color: #a4cb58;
+}
+
+#ainspectorDiv #reportDiv .summary .grade-C {
+    background-color: #fadd3d;
+}
+
+#ainspectorDiv #reportDiv .summary .grade-D {
+    background-color: #f5a249;
+}
+
+#ainspectorDiv #reportDiv .summary .grade-E {
+    background-color: #e46648;
+}
+
+#ainspectorDiv #reportDiv .summary .grade-F {
+    background-color: #df4444;
+}
+
+#ainspectorDiv #reportDiv .summary .grade-NA {
+    background-color: #8b8b8b;
+}
+
 
 #ainspectorDiv #reportDiv .reportInnerDiv {
     min-width: 950px;
