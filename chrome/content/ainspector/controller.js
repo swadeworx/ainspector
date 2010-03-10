@@ -79,7 +79,8 @@ AINSPECTOR.controller = {
         if (!doc || ! doc.location || doc.location.href.indexOf("about:") == 0 ||
             "undefined" === typeof doc.location.hostname) {
             if (!autorun) {
-                alert("Please enter a valid website address before running AInspector.");
+                if (FBTrace.DBG_AINSPECTOR)
+                    FBTrace.sysout("Ainspector.controller.run FAILS: Please enter a valid website address before running AInspector.");
             }
             return;
         }

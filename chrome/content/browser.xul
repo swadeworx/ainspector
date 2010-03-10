@@ -61,19 +61,17 @@
                 onclick="if(!event.button) { AINSPECTOR.firefox.onClickStatusIcon() }"
                 />
             <label id="ainspector_status_grade" label="" onclick="if(!event.button) { AINSPECTOR.firefox.onClickStatusGrade() }" />
-            <label id="ainspector_status_size" label="" onclick="if(!event.button) { AINSPECTOR.firefox.onClickStatusSize() }" />
+            <!--<label id="ainspector_status_size" label="" onclick="if(!event.button) { AINSPECTOR.firefox.onClickStatusSize() }" />-->
             <label id="ainspector_status_time" label="" onclick="if(!event.button) { AINSPECTOR.firefox.onClickStatusIcon() }" />
         </statusbarpanel>
 
         <menupopup id="ainspectorStatusContextMenu" onpopupshowing="FirebugChrome.onOptionsShowing(this)">
-        	<menuitem label="AInspector Home" oncommand="AINSPECTOR.firefox.ainspectorHelp(this)"/>
-        	<menuseparator/>
         	<menuitem label="Autorun" type="checkbox"
                       oncommand="FirebugChrome.onToggleOption(this)" option="ainspector.autorun"/>
         	<menuitem label="Hide Statusbar Info" type="checkbox"
                       oncommand="FirebugChrome.onToggleOption(this)" option="ainspector.hidestatusbar"/>
             <menuseparator/>
-            <menuitem label="Run Once" oncommand="AINSPECTOR.firefox.ainspectorOnload(true)" />
+            <!--<menuitem label="Run Once" oncommand="Firebug.AInspector.ainspectorOnload(true)" />-->
         </menupopup>
 
     </statusbar>

@@ -236,7 +236,7 @@ body {
 
 /* BEGIN TOOLBAR */
 
-#toolbarLinks {
+.toolbarLinks {
     float: left;
  }
 
@@ -337,13 +337,13 @@ body {
 
 /* TabView */
 
-#ainspectorDiv #toolbarDiv #nav-menu {
+#ainspectorDiv #toolbarDiv .nav-menu {
     border:solid #9b9b9b; /* color between tab list and content */
     border-width:0 0 1px;
     margin-top: 5px;
 }
 
-#ainspectorDiv #toolbarDiv #nav-menu li {
+#ainspectorDiv #toolbarDiv .nav-menu li {
     display: -moz-inline-stack;
     display: inline-block;
     font-weight: 600; /* semi-bold */
@@ -355,34 +355,34 @@ body {
     -moz-user-select : none;
 }
 
-#ainspectorDiv #toolbarDiv #nav-menu .selected {
+#ainspectorDiv #toolbarDiv .nav-menu .selected {
     margin: 0 0 -1px 0; /* for overlap */
 }
 
-#ainspectorDiv #toolbarDiv #nav-menu li.selected {
+#ainspectorDiv #toolbarDiv .nav-menu li.selected {
     border: solid #9b9b9b;
     border-width: 1px 1px 1px 1px;
     border-bottom: 1px solid #fff;
 }
 
-#ainspectorDiv #toolbarDiv #nav-menu li.first {
+#ainspectorDiv #toolbarDiv .nav-menu li.first {
     margin-left: 5px;
 }
 
-#ainspectorDiv #toolbarDiv #nav-menu li {
+#ainspectorDiv #toolbarDiv .nav-menu li {
     vertical-align: bottom;
 }
 
-#ainspectorDiv #toolbarDiv #nav-menu li em {
+#ainspectorDiv #toolbarDiv .nav-menu li em {
     font-style: normal;
 }
 
-#ainspectorDiv #toolbarDiv #nav-menu li.selected span.pipe,
-#ainspectorDiv #toolbarDiv #nav-menu li.off span.pipe {
+#ainspectorDiv #toolbarDiv .nav-menu li.selected span.pipe,
+#ainspectorDiv #toolbarDiv .nav-menu li.off span.pipe {
     visibility: hidden;
 }
 
-#ainspectorDiv #toolbarDiv #nav-menu li span.pipe {
+#ainspectorDiv #toolbarDiv .nav-menu li span.pipe {
     display: block;
     height: 1.45em;
     position: absolute;
@@ -393,7 +393,7 @@ body {
     border-right: 1px solid #fff;
 }
 
-#ainspectorDiv #toolbarDiv #nav-menu ul li {
+#ainspectorDiv #toolbarDiv .nav-menu ul li {
     background:#ffffff; /* tab background */
     border: solid #9b9b9b;
     border-width: 0;
@@ -403,15 +403,15 @@ body {
     padding: 0.35em 0.75em;
 }
 
-#ainspectorDiv #toolbarDiv #nav-menu li{
+#ainspectorDiv #toolbarDiv .nav-menu li{
     cursor:pointer;
 }
 
-#ainspectorDiv #toolbarDiv #nav-menu li:hover {
+#ainspectorDiv #toolbarDiv .nav-menu li:hover {
     text-decoration: underline;
 }
 
-#ainspectorDiv #toolbarDiv #nav-menu .yui-content {
+#ainspectorDiv #toolbarDiv .nav-menu .yui-content {
     width: 100%;
     border: solid #ff0000;
     border-width: 1px 0 0 0;
@@ -613,7 +613,7 @@ body {
     height: 22px;
 }
 
-#ainspectorDiv #reportDiv #summary #overall-grade {
+#ainspectorDiv #reportDiv #summary .overall-grade {
     color: #fefefe;
     padding: 0;
     width: 22px;
@@ -626,77 +626,129 @@ body {
     font-size: 13pt;
 }
 
+.gradeResult span {
+    padding: 5px 0;
+    display: -moz-inline-box;
+    -moz-box-orient: vertical;
+    display: inline-block;
+}
+
+.gradeResult span.grade {
+    -moz-box-align: center;
+    text-align: center;
+    width: 30px;
+    color: #565656; /* dark grey */
+    font-size: 10pt;
+    font-weight: bold;
+}
+
+#ainspectorDiv .reportInnerDiv .yui-navset .yui-nav li:hover span.desc {
+    text-decoration: underline;
+}
+
+#ainspectorDiv #reportDiv #tab-label-list li {
+    border-width: 0px 1px 1px 0px;
+    border-style: solid;
+    border-color: #BBBBBB;
+    margin: 0px;
+}
+
+#ainspectorDiv #reportDiv #tab-label-list li:first-child {
+    border-top-width: 1px;    
+}
+ 
+#ainspectorDiv #reportDiv #tab-label-list .desc {
+    color: #006CA2; /* blue */
+    font-weight: bold;
+    text-decoration: underline
+}
+
+#ainspectorDiv #reportDiv #tab-label-list li.selected .desc{
+    color: #000000; /* blue */
+    text-decoration: none;
+}
+
+#ainspectorDiv #reportDiv #tab-label-list li.selected{ 
+    background: #efefef;
+    border-right-width: 0px !important;
+    border-top-color: #FFFFFF;
+}
+
+#ainspectorDiv #reportDiv #tab-label-list li .gradeResult {
+    border-left-width: 5px;
+    border-left-style: solid; 
+}
+
+
 #ainspectorDiv #reportDiv .grade-A {
-    background: #34a234;
-    border-color: #34a234;
+    border-left-color: #34a234;
 }
 
 #ainspectorDiv #reportDiv .grade-B {
-    background: #a4cb58;
-    border-color: #a4cb58;
+    
+    border-left-color: #a4cb58;
 }
 
 #ainspectorDiv #reportDiv .grade-C {
-    background: #fadd3d;
-    border-color: #fadd3d;
+ 
+    border-left-color: #fadd3d;
 }
 
 #ainspectorDiv #reportDiv .grade-D {
-    background: #f5a249;
-    border-color: #f5a249;
+ 
+    border-left-color: #f5a249;
 }
 
 #ainspectorDiv #reportDiv .grade-E {
-    background: #e46648;
-    border-color: #e46648;
+ 
+    border-left-color: #e46648;
 }
 
 #ainspectorDiv #reportDiv .grade-F {
-    background: #df4444;
-    border-color: #df4444;
+ 
+    border-left-color: #df4444;
 }
 
 #ainspectorDiv #reportDiv .grade-NA {
-    background: #8b8b8b;
-    border-color: #8b8b8b;
+    border-left-color: #8b8b8b;
 }
 
-#ainspectorDiv #reportDiv #reportInnerDiv {
+#ainspectorDiv #reportDiv .reportInnerDiv {
     min-width: 950px;
     margin: auto;
     align: center;
     margin-top: 20px
 }
 
-#ainspectorDiv #reportInnerDiv #filter {
+#ainspectorDiv .reportInnerDiv #filter {
     font-size: 8pt;
     margin-top: 8px;
     padding-bottom: 10px;
 }
 
-#ainspectorDiv #reportInnerDiv #filter li a {
+#ainspectorDiv .reportInnerDiv #filter li a {
     cursor: pointer;
 }
 
-#ainspectorDiv #reportInnerDiv #filter li a:hover {
+#ainspectorDiv .reportInnerDiv #filter li a:hover {
     text-decoration: underline;
 }
 
-#ainspectorDiv #reportInnerDiv #filter li.first {
+#ainspectorDiv .reportInnerDiv #filter li.first {
     border-left: medium none;
     margin-left: 0,
     padding-left: 0;
 }
 
-#ainspectorDiv #reportInnerDiv #filter li.selected {
+#ainspectorDiv .reportInnerDiv #filter li.selected {
     text-decoration: underline;
 }
 
-#ainspectorDiv #reportInnerDiv #filter li.selected a {
+#ainspectorDiv .reportInnerDiv #filter li.selected a {
     color: #000000;
 }
 
-#ainspectorDiv #reportInnerDiv #filter li {
+#ainspectorDiv .reportInnerDiv #filter li {
     border-left: 1px solid #565656;
     display: inline;
     font-weight: bold;
@@ -707,134 +759,66 @@ body {
     padding-left: 8px;
 }
 
-#ainspectorDiv #reportInnerDiv .tab-label .desc {
+#ainspectorDiv .reportInnerDiv .tab-label .desc {
     text-align: center;
     padding-left: 4px;
 }
 
-#ainspectorDiv #reportInnerDiv .result-tab {
+#ainspectorDiv .reportInnerDiv .result-tab {
     padding: 10px 20px;
     min-height: 200px;
     background: #efefef;
     width: 680px;
 }
 
-#ainspectorDiv #reportInnerDiv .result-tab ul {
+#ainspectorDiv .reportInnerDiv .result-tab ul {
     padding-left: 45px;
 }
 
-#ainspectorDiv #reportInnerDiv .result-tab li {
+#ainspectorDiv .reportInnerDiv .result-tab li {
     list-style-position: outside;
     padding: 5px 0;
 }
 
-#ainspectorDiv #reportInnerDiv .result-tab p {
+#ainspectorDiv .reportInnerDiv .result-tab p {
     padding: 10px 30px 10px 30px;
 }
 
-#ainspectorDiv #reportInnerDiv .result-tab hr {
+#ainspectorDiv .reportInnerDiv .result-tab hr {
     margin: 0 30px;
 }
 
-#ainspectorDiv #reportInnerDiv .result-tab a:hover {
+#ainspectorDiv .reportInnerDiv .result-tab a:hover {
     text-decoration: underline;
 }
 
-#ainspectorDiv #reportInnerDiv #result #copyright2 {
+#ainspectorDiv .reportInnerDiv .result #copyright2 {
     padding: 10px 0 10px 15px;
     font-weight: normal;
     font-size: 85%;
 }
 
 /* tab view */
-#ainspectorDiv #reportInnerDiv .yui-navset .yui-navset-left .yui-nav,
-#ainspectorDiv #reportInnerDiv .yui-navset-left .yui-nav { width:260px; }
+#ainspectorDiv .reportInnerDiv .yui-navset .yui-navset-left .yui-nav,
+#ainspectorDiv .reportInnerDiv .yui-navset-left .yui-nav { width:260px; }
 
-#ainspectorDiv #reportInnerDiv .yui-navset .yui-navset-left,
-#ainspectorDiv #reportInnerDiv .yui-navset-left { padding:0 0 0 260px; } /* map to nav width */
+#ainspectorDiv .reportInnerDiv .yui-navset .yui-navset-left,
+#ainspectorDiv .reportInnerDiv .yui-navset-left { padding:0 0 0 260px; } /* map to nav width */
 
-#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav ,
-#ainspectorDiv #reportInnerDiv .yui-navset .yui-navset-left .yui-nav {
+#ainspectorDiv .reportInnerDiv .yui-navset .yui-nav ,
+#ainspectorDiv .reportInnerDiv .yui-navset .yui-navset-left .yui-nav {
     border-color: #ffffff;
     border-width: 0 0 1px;
 }
 
-#ainspectorDiv #reportInnerDiv .yui-navset .yui-content, 
-#ainspectorDiv #reportInnerDiv .yui-navset-left .yui-content {
+#ainspectorDiv .reportInnerDiv .yui-navset .yui-content, 
+#ainspectorDiv .reportInnerDiv .yui-navset-left .yui-content {
     background: #ffffff;
     border: 1px solid #9b9b9b;
     border-width: 0;
     color: #9b9b9b;
 }
 
-#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav li.first {
-    border-top: 1px solid #9b9b9b;
-}
-
-#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav li.selected {
-    border-top: none;
-}
-
-#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav li,
-#ainspectorDiv #reportInnerDiv .yui-navset .yui-navset-left .yui-nav li {
-    margin-bottom: 0;
-    border: solid #9b9b9b;
-    border-width: 0 0 1px 0;
-}
-
-#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav li span {
-    display: -moz-inline-box;
-    -moz-box-orient: vertical;
-    display: inline-block;
-    padding: 5px 0;
-}
-
-#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav li span.grade {
-    -moz-box-align: center;
-    display: inline-block;
-    text-align: center;
-    width: 30px;
-    color: #565656; /* dark grey */
-    font-size: 10pt;
-    font-weight: bold;
-}
-
-#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav li a:hover span.desc {
-    text-decoration: underline;
-}
-
-#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav li.selected a:hover span.desc {
-    text-decoration: none;
-}
-
-#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav a,
-#ainspectorDiv #reportInnerDiv .yui-navset .yui-navset-left .yui-nav a {
-    background: #ffffff;  /* tab background */
-    border-width: 0 0 0 5px;
-    border-right: 1px solid #9b9b9b;
-    position:relative;
-    text-decoration:none;
-}
-
-#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav .selected a,
-#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav .selected a:focus, /* no focus effect for selected */
-#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav .selected a:hover { /* no hover effect for selected */
-    background: #efefef;
-    color: #000000;
-}
-
-#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav a:hover,
-#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav a:focus {
-    background:#ffffff; /* selected tab background */
-}
-
-#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav .selected a,
-#ainspectorDiv #reportInnerDiv .yui-navset .yui-nav .selected a em {
-    border-width: 0 0 0 5px;
-    border-right: 1px solid #efefef;
-}
-
-/* END grade screen */
 
 /* START stats screen */
 #ainspectorDiv #statsDiv {
@@ -1359,6 +1343,6 @@ a:focus, li:focus, select:focus {
     -moz-outline-radius: 5px;
 }
 
-#nav-menu li:focus {
+.nav-menu li:focus {
      outline-offset: -5px;
 }
