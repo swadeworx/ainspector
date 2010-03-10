@@ -667,10 +667,14 @@ AINSPECTOR.registerRenderer({
         var columns = header.getElementsByTagName("td");
         var html = '<div id="reportDiv"><table summary="' + topGridTable.getAttribute('summary') + '"><tr class="header">';
         for (var i=0; i<columns.length; i++) {
-            if (hiddenCols.indexOf(columns[i].getAttribute("id")) == -1) html += '<th>' + columns[i].textContent + '</th>';
-            else skip += i + ' ';
+            if (hiddenCols.indexOf(columns[i].getAttribute("id")) == -1) {
+              html += '<th>' + columns[i].textContent + '</th>';
+            } else {
+              skip += i + ' ';
+            }  // endif   
         }
 	    html += '</tr>';
+	    
 /*        for (var i=0; i<columns.length; i++)
         {
             var col = columns[i];
@@ -685,17 +689,35 @@ AINSPECTOR.registerRenderer({
         } */
   //      var allTRTags=panel.document.getElementsByTagName("tr");
 
+        var cn = "odd"; 
+        var row_count = 0
+        var headers = header.getElementsByTagName("td");
         var allTRTags = topGridTable.getElementsByTagName('tr');
+        
         for (var r=1; r<allTRTags.length; r++) {
 	        var columns = allTRTags[r].getElementsByTagName("td");
-		    html += '<tr>';
+
+            row_count++;
+	        if( row_count > 5 ) {
+	          if( cn == "even" ) {
+  	            cn = "odd"; 
+  	          } else {
+  	            cn = "even";   	          
+  	          } // endif
+  	          row_count = 1;
+	        } // endif
+	        
+	        FBTrace.sysout("Class Name" + cn + " Row count " + row_count, row_count );
+	        
+		    html += '<tr class=' + cn + '>';
 		    for (var i=0; i<columns.length; i++) {
 		    	if (skip.indexOf(i + ' ') == -1) {
-		    		html += '<td>' + columns[i].textContent.replace('<','&#60') + '</td>';
+		    		html += '<td class=' + headers[i].textContent.toLowerCase() + '>' + columns[i].textContent.replace('<','&#60') + '</td>';
 		    	}
 		    }
 		    html += '</tr>';
-         }
+         } // endfor
+         
        html += '</table></div>';
        return html;
 	},
@@ -708,7 +730,13 @@ AINSPECTOR.registerRenderer({
         var allTRTags = topGridTable.getElementsByTagName('tr');
         for (var r=0; r<allTRTags.length; r++) {
 	        var columns = allTRTags[r].getElementsByTagName("td");
-		    html += '<tr>';
+
+            var cn = "even";
+	        if( r%2 ) {
+	          cn = "odd";
+	        } // endif
+	        	        
+		    html += '<tr class=' + cn + '>';
 		    for (var i=0; i<columns.length; i++) {
 		        var style = columns[i].getAttribute("style");
 		    	html += '<td style = "' + style + '"><div>' + columns[i].textContent.replace('<','&#60') + '</div></td>';
