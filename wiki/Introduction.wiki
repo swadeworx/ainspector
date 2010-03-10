@@ -8,4 +8,7 @@ The Firebug Accessibility Inspector is designed to bring accessibility checking 
 
 * [http://www.openajax.org/member/wiki/Accessibility OpenAjax Alliance Accessibility Task Force]
 
+== Accessibility Guidelines and Standards ==
+* [http://www.w3.org/TR/WCAG W3C Web Content Accessibility Guidelines]
+
 == Keyboard Support ==
