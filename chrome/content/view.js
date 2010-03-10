@@ -363,7 +363,7 @@ AINSPECTOR.view = function(panel, yscontext) {
          //       A({onclick : "$onEditRulesetsClick", role : "button", href : "#"},
          //           IMG({src : "chrome://ainspector/content/ainspector/img/bn_edit.gif", alt : "edit rulesets"})
          //       ),
-                BUTTON({onclick : "$onRerunRuleset", role : "button", title : "Update results"}, "Update"),
+                BUTTON({onclick : "$onRerunRuleset", role : "button", title : "Update report"}, "Update Report"),
                 BUTTON({onclick : "$onEditRulesetsClick", role : "button", title : "Configure rulesets"}, "Configure"),
                 SPAN({class : "padding100", role : "separator"}),
                 A({role : "button", href : "#", onclick : "$onPrintableViewClick"},
@@ -617,7 +617,7 @@ AINSPECTOR.view.prototype = {
 
                     + '<div id="left"><h2>Grade your web pages with A11y Inspector</h2>'
                     + '<div id="content" class="padding50">'
-                    + '<h3><img width="18" height="18" src="chrome://ainspector/content/ainspector/img/land_logo.gif">&nbsp;A11y Inspector gives you:</h3>'
+                    + '<h3><img width="18" height="18" src="chrome://ainspector/content/ainspector/img/land_logo.png">&nbsp;A11y Inspector gives you:</h3>'
                     + '<ul><li>Grades based on rule compliance </li>'
                //     + '<li>Summary of the Components in the page</li>'
                //     + '<li>Chart with statistics</li><li>Tools including JSLint</li></ul>'
@@ -631,12 +631,13 @@ AINSPECTOR.view.prototype = {
         }
 
         sHtml += '> Auto run test every time you launch AInspector</label>'
-                    + '<div id="runtestDiv"><div id="runtestLeft"></div><div id="runtestRight"></div>'
-                    + '<div id="runtestCenter"><a id="bn_runtest" href="javascript:document.ysview.runTest()" tabindex="0">Run Test</a>'
-                    + '</div></div>'
-
+                    + '<div id="runtestDiv">'
+                    + '  <div id="runtestLeft"></div>'
+                    + '  <div id="runtestRight"></div>'
+                    + '  <div id="runtestCenter"><a id="bn_runtest" href="javascript:document.ysview.runTest()" tabindex="0">Create Report</a></div>'
+                    + '</div>'
                     + '<div class="footer">'
-                    + '<div class="moreinfo"><a href="" onclick="return false;"><b>&#187;</b>Learn more about AInspector and YDN</a></div>'
+                    + '<div class="moreinfo"><a href="http://code.google.com/p/ainspector/" onclick="return false;"><b>&#187;</b>Learn more about AInspector</a></div>'
                  + '</div>' /* END footer */
                  + '</div>' /* END content */
                  + '</div>' /* END left */
@@ -1044,7 +1045,7 @@ AINSPECTOR.view.prototype = {
         
         // ask if want to rerun test with the selected ruleset.
         var line1 = 'Do you want to run the selected ruleset now?';
-        var left_button_label = 'Run Test';
+        var left_button_label = 'Create Report';
         var left_button_func = function(e) {
         	try {
         	this.ruleset_id = option.value;

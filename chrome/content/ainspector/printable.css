@@ -258,22 +258,38 @@ body {
 #reportDiv table {
     border-spacing: 0;
     width: 100%;
-    font-size: 10pt;
+    font-size: 120%;
+    border: black thin solid;
 }
 
 #reportDiv tr.header {
     font-weigth: bold;
-    background: #9b9b9b;
+    background: #DDDDDD;
 }
 
-#reportDiv tr.header td {
-    border: none;
+#reportDiv tr.header th {
+    border: solid black thin;
+    padding: .25em;
 }
 
 #reportDiv td {
-    border: solid #9b9b9b;
-    padding: 5px 5px;
+    border: solid black thin;
+    padding: .25em;
+    padding-left: .75em;
 }
+
+#reportDiv tr td.order,
+#reportDiv tr td.level
+{
+  text-align: center;
+    padding: .25em;
+}
+
+#reportDiv tr.even td
+{
+  background-color: #EEEEEE;
+}
+
 
 #reportDiv td.grade {
     width: 30px;
