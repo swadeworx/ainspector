@@ -62,7 +62,7 @@ AINSPECTOR.firefox = {
         AINSPECTOR.util.event.addListener("componentFetchProgress", this.showFetchProgress, this);
         AINSPECTOR.util.event.addListener("componentFetchDone", this.onFetchDone, this);
         
-//        AINSPECTOR.view.toggleStatusBar(AINSPECTOR.util.Preference.getPref("extensions.ainspector.hidestatusbar"));
+        AINSPECTOR.view.toggleStatusBar(AINSPECTOR.util.Preference.getPref("extensions.firebug.ainspector.hidestatusbar"));
     },
 
     startup: function(wmode) {
@@ -175,7 +175,7 @@ AINSPECTOR.firefox = {
 
         // fire onload event.
         AINSPECTOR.util.event.fire('onload', {'time': now, 'window': win});
-        if (AINSPECTOR.util.Preference.getPref("extensions.ainspector.autorun", false)) {
+        if (AINSPECTOR.util.Preference.getPref("extensions.firebug.ainspector.autorun", false)) {
         	AINSPECTOR.controller.run(win, ainspector_Context, true);
         }
      	
@@ -265,7 +265,7 @@ AINSPECTOR.firefox = {
 
     onClickStatusSize: function() {
         if (typeof FirebugContext !== "undefined") {
-            Firebug.AINSPECTOR.onClickStatusSize();
+            Firebug.AInspector.onClickStatusSize();
             return;
         }
 
@@ -276,7 +276,7 @@ AINSPECTOR.firefox = {
 
     onClickStatusGrade: function() {
         if (typeof FirebugContext !== "undefined") {
-            Firebug.AINSPECTOR.onClickStatusGrade();
+            Firebug.AInspector.onClickStatusGrade();
             return;
         }
 
@@ -852,7 +852,10 @@ AINSPECTOR.firefox.Panel = function() {
         this.document.ainspector_context = new AINSPECTOR.context(window.top.content.document, window.top.content);
 
         this.ysview = new AINSPECTOR.view(this, this.document.ainspector_context);
-        this.ysview.setSplashView();
+        if (AINSPECTOR.util.Preference.getPref("extensions.firebug.ainspector.autorun", true))
+            this.ysview.runTest();
+        else 
+            this.ysview.setSplashView();
     }
 
 };

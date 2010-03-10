@@ -8,8 +8,8 @@
  
 	<prefpane id="ainspector_PrefPane" label="Rengine Options">
 		<preferences>
-			<preference id="pref_Autorun" name="extensions.ainspector.autorun" type="bool"/>
-			<preference id="pref_HideStatusbar" name="extensions.ainspector.hidestatusbar" type="bool"/>
+			<preference id="pref_Autorun" name="extensions.firebug.ainspector.autorun" type="bool"/>
+			<preference id="pref_HideStatusbar" name="extensions.firebug.ainspector.hidestatusbar" type="bool"/>
 		</preferences>
 	 
 		<vbox align="left">

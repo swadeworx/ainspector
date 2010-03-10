@@ -1,3 +1,5 @@
+with (FBL) {
+
 AINSPECTOR.renderer = {
 
     sortBy: 'type',
@@ -445,61 +447,191 @@ AINSPECTOR.registerRenderer({
         return html;
     },
 
-    reportcardView: function(resultset, uniqueID) {  
-        var html = '<div id="reportDiv">';
+    reportCardViewRep : domplate({ 
+        outerDiv : DIV({id : "reportDiv"},
+            TAG("$gradeStatusTag", {status : "$status"}),
+            TAG("$innerDiv", {results : "$results"})
+        ), 
+        
+        gradeStatusTag : DIV({class : "summary", role : "status"},
+            TABLE({role : 'presentation'},
+                TR(
+                    TD({class : "padding5"},
+                        DIV({class : "bigFont"}, "$status.title")
+                    ),
+                    TD({class : "padding5"},
+                        DIV({class : "overall-grade", class : "grade-$status.overallGrade"}, "$status.overallGrade")
+                    ),
+                    TD({class : "padding15"},"Overall performance score: $status.overallScore"),
+                    TD({class : "padding15"},"Ruleset applied: $status.appliedRulesetName"),
+                    TD({class : "padding15"},"URL: $status.briefURL")
+                )
+            )
+        ),
+        innerDiv : DIV({class : "reportInnerDiv"},
+            // add filter list here
+            DIV({class : "result yui-navset yui-navset-left"},
+              
+                UL({class : "focusTabList yui-nav", id : "tab-label-list", role : "tablist", onkeypress : "$onKeyPress"},
+                    FOR("result", "$results",  
+                        TAG("$resultTab", {result : "$result"})
+                    )
+                ),
+                DIV({class : "aInspectorReportPanels yui-content"}, 
+                    FOR("result", "$results",  
+                        TAG("$resultTabPanel", {result : "$result"})
+                    )
+                )
+            )
+        ),
+    
+        //javascript:document.ysview.onclickResult(event)
+        resultTab : LI({class : "tab-$result.index $result.tabClass focusTab", role : "tab", tabindex : "$result.index|getTabIndex", onfocus : "$onFocus"},
+            DIV({class : "gradeResult $result.gradeClass"},
+                DIV({class : "tab-label"},
+                    SPAN({class : "grade" },
+                        "$result.grade"
+                    ),
+                    SPAN({class : "desc"}, 
+                        "$result.name"
+                    )
+                )
+            )
+        ),
+        
+        resultTabPanel : DIV({role : "tabpanel", class : "panel-$result.index result-tab", "$yui-hidden" : "$result.index|isNotFirst"},
+            "<h4>Grade $result.grade on $result.name</h4>",
+            P({class : "rule-info"},
+                "$result.ruleInfo",
+                BR(),
+                A({href : "javascript:document.ysview.openLink('$result.ruleURL')"},
+                    STRONG("Read More")
+                )
+            ),
+            HR(),
+            DIV({id : "$result.uniqueId"})
+        ),
+
+        getTabIndex : function(index) {
+            return this.isFirst(index) ? "0" : "-1";
+        },
+        
+        isFirst : function(index) {
+            return index - 1 === 0;
+        },
+        
+        isNotFirst : function(index) {
+            return index - 1 !== 0;
+        },
+        
+        selectTab : function(elem) {
+            if (!elem)
+                return;
+            var tabList = getAncestorByClass(elem, "focusTabList");
+            if (tabList) {
+                var oldTab = getElementByClass(tabList, "selected");
+                if (oldTab) {
+                    oldTab.setAttribute("aria-selected", "false");
+                    oldTab.setAttribute("aria-expanded", "false");
+                    oldTab.setAttribute("tabindex", "-1")
+                    removeClass(oldTab, "selected");   
+                }
+                var tabIndex = getClassValue(elem, "tab");
+                var oldTabIndex = getClassValue(oldTab, "tab");
+                var panelSet = getNextByClass(tabList, "aInspectorReportPanels");
+                if (!tabIndex && !panelSet)
+                    return;
+                
+                var oldPanel = getChildByClass(panelSet, "panel-" + oldTabIndex);
+                if (oldPanel)
+                    setClass(oldPanel, "yui-hidden");
+            }
+            elem.setAttribute("aria-selected", "true");
+            elem.setAttribute("aria-expanded", "true");
+            elem.setAttribute("tabindex", "0")
+            setClass(elem, "selected");
+            
+            var newPanel = getChildByClass(panelSet, "panel-" + tabIndex);
+            if (newPanel) {
+                removeClass(newPanel, "yui-hidden");
+            }
+        },
+        
+        getSelectedState : function (obj) {
+            return obj.selected ? "true" : "false";
+        },
+        onFocus : function(event) {
+            this.selectTab(event.target);
+        },
+        
+        onKeyPress : function(event) {
+            var key = event.keyCode;
+            switch(key) {
+                case KeyEvent.DOM_VK_LEFT:
+                case KeyEvent.DOM_VK_RIGHT:
+                case KeyEvent.DOM_VK_UP:
+                case KeyEvent.DOM_VK_DOWN:
+                    event.stopPropagation();
+                    var forward = key == KeyEvent.DOM_VK_RIGHT || key == KeyEvent.DOM_VK_DOWN;
+                    var tabList = getAncestorByClass(event.target, "focusTabList");
+                    var tabs = tabList.getElementsByClassName("focusTab");
+                    var currentIndex = Array.indexOf(tabs, event.target);
+                    if (currentIndex != -1) {
+                        var newIndex = forward ? ++currentIndex : --currentIndex;
+                        newIndex = newIndex < 0 ? tabs.length -1 : (newIndex >= tabs.length ? 0 : newIndex);
+                        if (tabs[newIndex])
+                            tabs[newIndex].focus();
+                    }
+                    
+                    break;
+            }
+        },
+
+    }),
+    
+    reportcardView: function(resultset, uniqueId) {  
+        
+        var statusObj = {};
         var appliedRuleset = resultset.getRulesetApplied();
+        
         var results = resultset.getResults();
         var url = resultset.url;
-        var title = 'Grade';
+        
+        statusObj.title = 'Grade';
+        statusObj.overallGrade = AINSPECTOR.util.prettyScore(resultset.getOverallScore());
+        statusObj.overallScore = parseInt(resultset.getOverallScore(), 10);
+        statusObj.appliedRuleset = appliedRuleset.name;       
+        statusObj.briefURL = AINSPECTOR.util.briefUrl(url, 100);
 
         if (AINSPECTOR.doc){
             if (AINSPECTOR.doc.view_names && AINSPECTOR.doc.view_names.grade) {
-                title = AINSPECTOR.doc.view_names.grade;
+                statusObj.title = AINSPECTOR.doc.view_names.grade;
             }
         }
-
-        var overall_grade = AINSPECTOR.util.prettyScore(resultset.getOverallScore());
-
+        
         if (AINSPECTOR.renderer.bPrintable) {
-            return this.reportcardPrintableView(results, overall_grade, appliedRuleset);
+            return this.reportcardPrintableView(results,  statusObj.overallGrade, appliedRuleset);
         }
-
-        html += '<div id="summary"><table><tr><td><div class="bigFont">' + title + '</div></td>' +
-            '<td class="padding5"><div id="overall-grade" class="grade-' + overall_grade + '">' + overall_grade + '</div></td>' +
-            '<td class="padding15">Overall performance score ' + parseInt(resultset.getOverallScore(), 10) + '</td>' +
-            '<td class="padding15">Ruleset applied: ' + appliedRuleset.name + '</td>' +
-            '<td class="padding15">URL: ' + AINSPECTOR.util.briefUrl(url, 100) + '</td>' +
-            '</tr></table></div>';
-
-
-        var tab_label_html = '';
-        var tab_html = '';
         var categories = {};
-
+        var resultsObj = [], result, resultObj;
+        
         for (var i = 0; i < results.length; i++) {
-            var result = results[i];
+            result = results[i];
+            resultObj = {};
             if (typeof result === "object") {
-                var grade = AINSPECTOR.util.prettyScore(result.score);
-                var index = i + 1;
-                var sClass = '';
-                var grade_class = 'grade-' + (grade == "N/A" ? 'NA' : grade);
-                var score = parseInt(result.score, 10);
-                if (isNaN(score) || result.score === -1) {
-                    score = "n/a";
-                } else {
-                    score += "%";
-                }
-
-                tab_label_html += '<li' + ' id="label' + index + '"';
-                if (i === 0) {
-                    sClass += "first selected";
-                }
+                resultObj.grade = AINSPECTOR.util.prettyScore(result.score); 
+                resultObj.index = i + 1;
+                resultObj.gradeClass = 'grade-' + (resultObj.grade == "N/A" ? 'NA' : resultObj.grade);
+                resultObj.score = parseInt(result.score, 10);
+                resultObj.score = isNaN(resultObj.score) || result.score === -1 ? "n/a" : resultObj.score += "%";
+                resultObj.name = result.name;
+                resultObj.uniqueId = uniqueId + "_" + result.rule_id;
+                resultObj.tabClass = "";
+                if (i == 0) 
+                resultObj.tabClass += " first selected";
                 if (result.category) {
                     for (var k = 0; k < result.category.length; k++) {
-                        if (sClass.length > 0) {
-                            sClass += ' ';
-                        }
-                        sClass += result.category[k];
+                        resultObj.tabClass += " " +result.category[k];
                         // update filter categories
                         if (categories[result.category[k]] === undefined) {
                             categories[result.category[k]] = 0;
@@ -507,72 +639,21 @@ AINSPECTOR.registerRenderer({
                         categories[result.category[k]]++;
                     }
                 }
-                if (sClass.length > 0) {
-                    tab_label_html += ' class="' + sClass + '"';
-                }
-                tab_label_html += ' onclick="javascript:document.ysview.onclickResult(event)">' +
-                    '<a href="#" class="' + grade_class + '">' +
-                    '<div class="tab-label">' +
-                    '<span class="grade" title="' + score + '">' + grade + '</span>' +
-                    '<span class="desc">' + result.name + '</span></div></a></li>';
-
-                tab_html += '<div id="tab' + index + '" class="result-tab';
-                if (i !== 0) {
-                    tab_html += ' yui-hidden';
+                var rule = AINSPECTOR.controller.getRule(result.rule_id);
+                resultObj.ruleInfo = resultObj.ruleURL = "";
+                resultObj.readMore = "";
+                if (rule) {
+                    resultObj.ruleInfo = rule.info ? rule.info : '** To be added **';
+                    if (rule.url !== undefined) {
+                        resultObj.ruleURL = rule.url;
+                    }    
                 }
                 
-                // SMF modification for displaying A11y and IITAA rule sets 
-                // SMF added uniqueID[used to track context] parameter to AINSPECTOR.renderer.reportcardView() & AINSPECTOR.controller.render()                 
-         //       if (appliedRuleset.id == 'OAAWCAG20' || appliedRuleset.id == 'WCAG_2_0' || appliedRuleset.id == 'IITAA' || appliedRuleset.id == 'icita07'|| appliedRuleset.id == 'icita08') {
-                    tab_html += '"><h4>Grade ' + grade + ' on ' + result.name + '</h4>' + '<p>'
-   	                //put in a place holder that will be accessed in view.js AINSPECTOR.view.show()
-    	                tab_html += '<div id="' + uniqueID + "_" + result.rule_id + '"></div>'; 
-    	/*        } else {                
-	                var messages = result.message.split('\n');
-	                if (messages) {
-	                    result.message = messages.join('<br>');
-	                }
-	                tab_html += '"><h4>Grade ' + grade + ' on ' + result.name + '</h4><p>' + result.message + '<br>';
-	
-	                if (result.components && result.components.length > 0) {
-	                    tab_html += '<ul class="comps-list">';
-	                    for (var j = 0; j < result.components.length; j++) {
-	                        if (typeof result.components[j] === "string") {
-	                            tab_html += '<li>' + result.components[j] + '</li>';
-	                        } else if (result.components[j].url !== undefined) {
-	                            tab_html += '<li>' + AINSPECTOR.util.prettyAnchor(result.components[j].url, result.components[j].url, undefined, true, 120, undefined, result.components[j].type) + '</li>';
-	                        }
-	                    }
-	                    tab_html += '</ul><br>';
-	                }
-	                tab_html += '</p>';
-    	        } //SMF end modification for displaying A11y and IITAA rule sets 
-         */       
-                var rule = AINSPECTOR.controller.getRule(result.rule_id);
-
-                if (rule) {
-                    tab_html += '<hr><p class="rule-info">' + (rule.info ? rule.info : '** To be added **' ) + '</p>';
-
-                    if (rule.url !== undefined) {
-                        tab_html += '<p class="more-info"><a href="javascript:document.ysview.openLink(\'' +
-                            rule.url + '\')"><b>&#187;</b>Read More</a></p>';
-
-                    }
-                }
-
-                tab_html += '</div>';
+                resultsObj.push(resultObj);
             }
         }
-
-        html += '<div id="reportInnerDiv">' + this.getFilterCode(categories, results.length) +
-            '<div id="result" class="yui-navset yui-navset-left">' +
-            '<ul class="yui-nav" id="tab-label-list">' + tab_label_html + '</ul>' +
-            '<div class="yui-content">' + tab_html + '</div>' +
-    //        '<div id="copyright2">' + AINSPECTOR.doc.copyright + '</div>' +
-            '</div></div></div>';
-
-        return html;
-     	
+        var doc = FirebugContext.getPanel("AInspector").document;
+        return this.reportCardViewRep.outerDiv.replace({ status : statusObj ,results : resultsObj}, doc.ysview.getButtonView("ysPerfButton"), this.reportCardViewRep);
 	},
 	
     gridTabPrintableView: function(tabName, tabData, titleText, ruleset, uniqueID) {
@@ -647,8 +728,8 @@ AINSPECTOR.registerRenderer({
 
     	var sText = '';
 
-        sText += '<div id="statsDiv">'
-              + '<div id="summary"><span class="view-title">' + titleText + '</span></div>';
+        sText += '<div class="statsDiv">'
+              + '<h4><span class="view-title">' + titleText + '</span></h4>';
 
         //SMF put in a place holder that will be accessed in view.js AINSPECTOR.view.show()
         sText += '<div id="' + uniqueID + tabName + '"></div>'; 
@@ -1007,3 +1088,4 @@ AINSPECTOR.registerRenderer({
     }
 
 });
+}

@@ -343,13 +343,13 @@ AINSPECTOR.view = function(panel, yscontext) {
 	
     with (FBL) {
         this.viewRep = domplate(this, {
-            toolbar : DIV({id : "nav-menu"},
+            toolbar : DIV({class : "nav-menu"},
                 TAG("$toolbarButtons", {categories : "$categories"}),
                 TAG("$rulesetList", {rulesets : "$rulesets"}),
                 DIV({style : "clear: both"})
             ),
             
-            toolbarButtons : UL ({class : "yui-nav focusTabList", id : "toolbarLinks", role : "tablist", onkeypress : "$onToolbarKeyPress", "aria-label" :  "Rule Categories"},
+            toolbarButtons : UL ({class : "yui-nav focusTabList toolbarLinks", role : "tablist", onkeypress : "$onToolbarKeyPress", "aria-label" :  "Rule Categories"},
                 FOR("obj", "$categories", 
                     LI({class : "$obj|getToolbarButtonClass focusTab", tabindex : "$obj|getTabIndex", role : "tab", "aria-selected" : "$obj|getSelectedState", onfocus : "$onToolbarFocus"},
                         "$obj.name"
@@ -379,6 +379,7 @@ AINSPECTOR.view = function(panel, yscontext) {
             ),
             
             selectTab : function(elem) {
+                
                 if (!elem)
                     return;
                 var category = getClassValue(elem, "ruleCategory");
@@ -399,10 +400,12 @@ AINSPECTOR.view = function(panel, yscontext) {
                     elem.setAttribute("tabindex", "0")
                     setClass(elem, "selected");
                     var currentView = this.panel_doc.ysview;
+                    
                     if (currentView && typeof currentView["show" + category] == "function") {
-                        currentView["show" + category]();
+                        currentView["show" + category]();                        
                     }
                 }
+                
             },
             
             getSelectedState : function (obj) {
@@ -464,8 +467,8 @@ AINSPECTOR.view = function(panel, yscontext) {
                         event.stopPropagation();
                         break;
                 }
-            }
-        
+            },
+            viewContainer : DIV({style : "display:none"})
         })
     };
 
@@ -551,7 +554,7 @@ AINSPECTOR.view.prototype = {
             }
             if (yscontext.PAGE.totalSize) {
                 var size = AINSPECTOR.util.kbSize(yscontext.PAGE.totalSize);
-                AINSPECTOR.view.setStatusBar(size, "ainspector_status_size");
+                //AINSPECTOR.view.setStatusBar(size, "ainspector_status_size");
             }
             if (yscontext.PAGE.t_done) {
                 var t_done = yscontext.PAGE.t_done/1000 + "s";
@@ -562,13 +565,6 @@ AINSPECTOR.view.prototype = {
 
     addButtonView: function(sButtonId, sHtml) {
         var btnView = this.getButtonView(sButtonId);
-        if ( ! btnView ) {
-            btnView = this.panel_doc.createElement("div");
-            btnView.style.display = "none";
-            this.viewNode.appendChild(btnView);
-            this.buttonViews[sButtonId] = btnView;
-        }
-
         btnView.innerHTML = sHtml;
         this.showButtonView(sButtonId);
     },
@@ -580,20 +576,23 @@ AINSPECTOR.view.prototype = {
             AINSPECTOR.util.dump("ERROR: AINSPECTOR.view.showButtonView: Couldn't find ButtonView '" + sButtonId + "'.");
             return;
         }
-
         // Hide all the other button views.
         for ( var sId in this.buttonViews ) {
             if ( this.buttonViews.hasOwnProperty(sId) && sId != sButtonId ) {
                 this.buttonViews[sId].style.display = "none";
             }
         }
-
         btnView.style.display = "block";
         this.curButtonId = sButtonId;
     },
 
     getButtonView: function(sButtonId) {
-        return ( this.buttonViews.hasOwnProperty(sButtonId) ? this.buttonViews[sButtonId] : undefined );
+        var btnView = ( this.buttonViews.hasOwnProperty(sButtonId) ? this.buttonViews[sButtonId] : undefined );
+        if ( ! btnView ) {
+            btnView = this.viewRep.viewContainer.append({}, this.viewNode, this.viewRep)
+            this.buttonViews[sButtonId] = btnView;
+        }
+        return btnView;
     },
 
     setButtonView: function(sButtonId, sHtml) {
@@ -627,7 +626,7 @@ AINSPECTOR.view.prototype = {
                     + '<label>'
                     + '<input type="checkbox" name="autorun" onclick="javascript:document.ysview.setAutorun(event)"  tabindex="0"';
 
-        if (AINSPECTOR.util.Preference.getPref("extensions.ainspector.autorun", true)) {
+        if (AINSPECTOR.util.Preference.getPref("extensions.firebug.ainspector.autorun", true)) {
             sHtml += 'checked';
         }
 
@@ -657,7 +656,7 @@ AINSPECTOR.view.prototype = {
 	var sBody = '<div class="about"><p style="margin: 0px 0px 2px 0px; ' + textStyle + '">\n'
             + 'Finding components in the page:<br>\n'
             + '<div id="peelprogress" style="' + outerbarStyle + '">\n'
-            + '  <div id="progbar" style="' + progbarStyle + '"></div>\n'
+            + '  <div id="progbar" role="progressbar" aria-value-min="0" aria-value-max="100" aria-value-now="0" style="' + progbarStyle + '"></div>\n'
             + '</div>\n'
             + '<div id="progtext" style="' + progTextStyle + '"></div>'
             + '<p style="margin: 10px 0px 2px 0px; ' + textStyle + '">\n'
@@ -709,6 +708,7 @@ AINSPECTOR.view.prototype = {
             var left = maxwidth - parseInt(width);
             progbar.style["width"] = parseInt(width) + "px";
             progbar.style["left"] = parseInt(left) + "px";
+            probar.setAttribute("aria-valuenow", percent);
         } else {
             AINSPECTOR.util.dump("AINSPECTOR.view.UpdateProgressView: Can't find progress bar elements");
         }
@@ -733,8 +733,7 @@ AINSPECTOR.view.prototype = {
             var score = this.yscontext.PAGE.overallScore;
             var grade = AINSPECTOR.util.prettyScore(score, false, true);
 
-            AINSPECTOR.view.setStatusBar(grade, "ainspector_status_grade");
-            AINSPECTOR.view.setStatusBar(size, "ainspector_status_size");
+            //AINSPECTOR.view.setStatusBar(size, "ainspector_status_size");
 
 	    // Send a beacon.
 	    if ( AINSPECTOR.util.Preference.getPref("optinBeacon", false) ) {
@@ -800,7 +799,7 @@ AINSPECTOR.view.prototype = {
     },
 
     show: function(sView, force) {
-    	if ( force === undefined ) force = false;  //SMF added force reload
+        if ( force === undefined ) force = false;  //SMF added force reload
         sView = sView || this.defaultview;
   /*      if ("ysPerfButton" == sView && this.yscontext.component_set === null) {
             FBTrace.sysout('need to run peeler first.');
@@ -809,11 +808,11 @@ AINSPECTOR.view.prototype = {
             this.defaultview = sView;
         } else */{
         	if (this.yscontext.ruleset_id) AINSPECTOR.controller.setDefaultRuleset(this.yscontext.ruleset_id);
-
             var stext = "";
             var panel = FirebugContext.getPanel("AInspector");
             var btnView = this.getButtonView(sView);
-            if ( this.getButtonView(sView) && !force && btnView.innerHTML != '') {
+            var panel = FirebugContext.getPanel("AInspector"); 
+            if (btnView && !force && btnView.innerHTML != '') {
                 // This view already exists, just toggle to it.
             	if ("ysHeadingsButton" == sView) panel.table = panel.headingsTable;
             	else if ("ysFormsButton" == sView) panel.table = panel.formsTable;
@@ -886,9 +885,9 @@ AINSPECTOR.view.prototype = {
             }
             else {           	
                 // Default is Performance.
-                stext += this.yscontext.genPerformance();
-                this.addButtonView("ysPerfButton", stext);
-                
+                this.yscontext.genPerformance();
+                this.showButtonView("ysPerfButton");
+                //this.addButtonView("ysPerfButton", stext);
                 /* SMF addition for displaying A11y and IITAA rule sets */
 	           try {  
 	                var panel = FirebugContext.getPanel("AInspector");
@@ -964,7 +963,7 @@ AINSPECTOR.view.prototype = {
             break;
         }
 
-        var ul_elem = this.getElementByTagNameAndId(this.panelNode, 'ul', 'toolbarLinks');
+        var ul_elem = getElementByClassName(this.panelNode, 'toolbarLinks');
         var child = ul_elem.firstChild;
         while (child) {
             if (child.id !== this.curButtonId && child.className.indexOf("selected") !== -1) {
@@ -1015,7 +1014,7 @@ AINSPECTOR.view.prototype = {
 
     setAutorun: function(event) {
         var checkbox = event.currentTarget;
-        AINSPECTOR.util.Preference.setPref("extensions.ainspector.autorun", checkbox.checked);
+        AINSPECTOR.util.Preference.setPref("extensions.firebug.ainspector.autorun", checkbox.checked);
     },
     
     onRerunRuleset: function(event) {
@@ -1553,7 +1552,7 @@ AINSPECTOR.view.setStatusBar = function(text, sId) {
 AINSPECTOR.view.clearStatusBar = function() {
     this.setStatusBar("", "ainspector_status_time");
     this.setStatusBar("", "ainspector_status_grade");
-    this.setStatusBar("", "ainspector_status_size");
+    //this.setStatusBar("", "ainspector_status_size");
 };
 
 /**
@@ -1568,7 +1567,7 @@ AINSPECTOR.view.restoreStatusBar = function(yscontext) {
         }
         if (yscontext.PAGE.totalSize) {
             var size = AINSPECTOR.util.kbSize(yscontext.PAGE.totalSize);
-            this.setStatusBar(size, "ainspector_status_size");
+            //this.setStatusBar(size, "ainspector_status_size");
         }
         if (yscontext.PAGE.t_done) {
             var t_done = yscontext.PAGE.t_done/1000 + "s";

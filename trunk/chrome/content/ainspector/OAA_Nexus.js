@@ -471,7 +471,7 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 				    name: OpenAjax.a11y.RULESET_CODES[OAA.requirements[rs].criterionNumber], // the bundle has not been loaded yet FBL.$STR(OAA.requirements[rs].criterionNumber, 'OAA_bundle'), 
 				    info: OpenAjax.a11y.RULESET_CODES[OAA.requirements[rs].criterionDesc], // the bundle has not been loaded yet
 				    category: ['content'],
-				    url: OAA.requirements[rs].baseReqUrl + OAA.requirements[rs].requirementUrl,
+				    url: OAA.baseReqUrl + OAA.requirements[rs].requirementUrl,
 				    formatParseEleResults: AINSPECTOR.OAA_Nexus.formatNoChange,
 				    conifg: {
 				    },

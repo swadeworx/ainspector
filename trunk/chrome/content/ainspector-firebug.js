@@ -21,7 +21,7 @@ FBL.ns(function() { with (FBL) {
             AINSPECTOR.util.event.addListener("componentFetchProgress", this.ysShowFetchProgress, this);
             AINSPECTOR.util.event.addListener("componentFetchDone", this.ysOnFetchDone, this);
             
- //           AINSPECTOR.view.toggleStatusBar(AINSPECTOR.util.Preference.getPref("extensions.ainspector.hidestatusbar"));
+            AINSPECTOR.view.toggleStatusBar(AINSPECTOR.util.Preference.getPref("extensions.firebug.ainspector.hidestatusbar"));
        },
 
         showContext: function(context) {
@@ -85,6 +85,7 @@ FBL.ns(function() { with (FBL) {
         },
 
         ainspectorOnload: function(event) {
+            return;
             var now = Number(new Date());
             var win = event.currentTarget;
             var fbcontext;
@@ -116,7 +117,7 @@ FBL.ns(function() { with (FBL) {
                 AINSPECTOR.view.setStatusBar( fbcontext.ainspector_context.PAGE.t_done/1000 + "s", "ainspector_status_time" );
             }
 
-            if (AINSPECTOR.util.Preference.getPref("extensions.ainspector.autorun", true)) {
+            if (AINSPECTOR.util.Preference.getPref("extensions.firebug.ainspector.autorun", true)) {
                 AINSPECTOR.controller.run(win, fbcontext.ainspector_context, true);
             }
         },
@@ -197,13 +198,6 @@ FBL.ns(function() { with (FBL) {
         editable: false,
 
         initialize: function(context, doc) {
-            this.context = context;
-            this.document = doc;
-            this.panelNode = doc.createElement("div");
-            this.panelNode.ownerPanel = this;
-            this.panelNode.id = "ainspectorDiv";
-            setClass(this.panelNode, "panelNode panelNode-" + this.name);
-            doc.body.appendChild(this.panelNode);
             
             var hcr = gridHeaderColumnResizer;
             this.onMouseClick = bind(hcr.onMouseClick, hcr);
@@ -211,38 +205,46 @@ FBL.ns(function() { with (FBL) {
             this.onMouseMove = bind(hcr.onMouseMove, hcr);
             this.onMouseUp = bind(hcr.onMouseUp, hcr);
             this.onMouseOut = bind(hcr.onMouseOut, hcr);
-             this.initializeNode(this.panelNode);
+            Firebug.Panel.initialize.apply(this, arguments);
         },
+        
 
         initializeNode: function() {
+            this.panelNode.id = "ainspectorDiv";
             if (this.document.ainspector_context) {
-                AINSPECTOR.util.dump("AInspectorFBPanel.initializeNode: FirebugContenxt.ainspector_context already exists.");
-            } else {
-            	this.document.ainspector_context = new AINSPECTOR.context(this.context.window.document, window.top.content);
+                FBTrace.sysout("ainspector_context already exists");
+                return;
             }
+                
+            this.document.ainspector_context = new AINSPECTOR.context(this.context.window.document, window.top.content);
+                
             // Save a pointer back to this object from the iframe's document.
             this.document.ainspector_panel = this;
-
+            
             this.document.ainspector_context.ruleset_id = AINSPECTOR.controller.default_ruleset_id;
             this.ysview = new AINSPECTOR.view(this, this.document.ainspector_context);
-            this.ysview.setSplashView();
-            
+            if (AINSPECTOR.util.Preference.getPref("extensions.firebug.ainspector.autorun", true)) {
+                this.createProgressBar();
+                setTimeout(bindFixed(function(){this.ysview.runTest();}, this), 50);
+            }
+            else 
+                this.ysview.setSplashView();
             // Register event handlers for table column resizing.
-            this.document.addEventListener("click", this.onMouseClick, true);
-            this.document.addEventListener("mousedown", this.onMouseDown, true);
-            this.document.addEventListener("mousemove", this.onMouseMove, true);
-            this.document.addEventListener("mouseup", this.onMouseUp, true);
-            this.document.addEventListener("mouseout", this.onMouseOut, true);
-
+            this.panelNode.addEventListener("click", this.onMouseClick, true);
+            this.panelNode.addEventListener("mousedown", this.onMouseDown, true);
+            this.panelNode.addEventListener("mousemove", this.onMouseMove, true);
+            this.panelNode.addEventListener("mouseup", this.onMouseUp, true);
+            this.panelNode.addEventListener("mouseout", this.onMouseOut, true);
+            return;
         },
         
         destroyNode: function()
         {
-            this.document.removeEventListener("mouseclick", this.onMouseClick, true);
-            this.document.removeEventListener("mousedown", this.onMouseDown, true);
-            this.document.removeEventListener("mousemove", this.onMouseMove, true);
-            this.document.removeEventListener("mouseup", this.onMouseUp, true);
-            this.document.removeEventListener("mouseout", this.onMouseOut, true);
+            this.panelNode.removeEventListener("click", this.onMouseClick, true);
+            this.panelNode.removeEventListener("mousedown", this.onMouseDown, true);
+            this.panelNode.removeEventListener("mousemove", this.onMouseMove, true);
+            this.panelNode.removeEventListener("mouseup", this.onMouseUp, true);
+            this.panelNode.removeEventListener("mouseout", this.onMouseOut, true);
         },
         
         show: function() {

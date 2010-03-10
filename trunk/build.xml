@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<project name="ainspector" default="createxpi">
+    <property name="build_dir" location="./build" />
+	<property name="version" value="1.0.04" />
+
+    <target name="createjar">
+        <delete file="chrome/ainspector.jar" />
+        <zip destfile="chrome/ainspector.jar" basedir="chrome" 
+            includes="**" />
+    </target>
+
+    <target name="createxpi" depends="createjar">
+        <delete file="build/ainspector-${version}.xpi" />
+        <zip destfile="${build_dir}/ainspector-${version}.xpi">
+            <zipfileset dir="chrome/" includes="ainspector.jar" 
+            prefix="chrome" />
+            <zipfileset dir="." includes="install.rdf" />
+        	<zipfileset dir="." includes="license.txt" />
+            <zipfileset dir="." includes="jarred.manifest" fullpath="chrome.manifest"/>
+            <zipfileset dir="defaults" />
+        </zip>
+        <delete file="chrome/wat_toolbar.jar" />
+    </target>
+</project>
