@@ -52,7 +52,12 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
     
     nodeSatisfiesContext : function (node, context) {
 		with (OpenAjax.a11y) {
-	    	if (typeof context == "string") { // what about typeof context == "function" (getCollectionViaDom() same issue?)
+	    	if (typeof context == "string") { 
+	    		if (context[0] == '.') { //is a function in OpenAjax.a11y.util
+	    			context = context.substring(1, context.length) ;
+	    			var result = OpenAjax.a11y.util[context](node, null); 
+	    			return (result.length > 0); 
+	    			} 
 				var parsedContexts = parseContextExpression(context);
 				if (satisfiesContext(parsedContexts, node))  return true;
 	    	}
