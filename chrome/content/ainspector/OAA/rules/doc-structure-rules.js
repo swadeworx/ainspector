@@ -243,7 +243,7 @@ with (OpenAjax.a11y) {
 	              }
 	          },
 	          {
-	              id : "invalidIDREF",
+	              id : "invalidThIDREF",
 	              context : ".complexDataTable",
 	              validate : function (node) {
 	              	var r,c;
@@ -276,49 +276,52 @@ with (OpenAjax.a11y) {
 				// --------
 				{
 				     id : "missingonfocus",
-				     context : "*[@onmouseover]",
+				     context : ".focusableMouseover",
 				     validate : function (ruleContext) {
-			    		var passed = true;
+			    		var passed = util.pairCheck(ruleContext,"mouseover","focus");
 					    return new ValidationResult(passed, [ruleContext], '', '', []);
 				     }
 				 },
 				{
 				     id : "missingonblur",
-				     context : "*[@onmouseout]",
+				     context : ".focusableMouseout",
 				     validate : function (ruleContext) {
-			    		var passed = true;
+					 	var passed = util.pairCheck(ruleContext,"onmouseout","blur");
 					    return new ValidationResult(passed, [ruleContext], '', '', []);
 				     }
 				 },
 				{
 				     id : "nonfocusableonclick",
-				     context : "*[@onclick]",
+				     context : ".nonFocusableOnclick",
 				     validate : function (ruleContext) {
-			    		var passed = true;
+			    		var passed = false;
 					    return new ValidationResult(passed, [ruleContext], '', '', []);
 				     }
 				 },
-				{
+			/*	 SMF the existing logic does not make sense in light of the associated text
+			     Recommendation: The functionality provided by onmousedown, onmouseup and onmousemove event handlers should have keyboard equivalents to perform the same functions that can be achieved with the mouse actions. 
+			  	{ 
 				     id : "nonfocusableonmouse",
-				     context : "*[@onmouseover | onmouseout]",
+				     context : ".nonFocusableOnmouse",
 				     validate : function (ruleContext) {
-			    		var passed = true;
+			    		var passed = util.pairCheck(ruleContext,"mouseover","mouseout");
 					    return new ValidationResult(passed, [ruleContext], '', '', []);
 				     }
-				 },
+				 }, */
 				{
 				     id : "selectonchange",
-				     context : "select[@onchange]",
+				     context : "*", //select[@onchange]
 				     validate : function (ruleContext) {
 			    		var passed = true;
 					    return new ValidationResult(passed, [ruleContext], '', '', []);
 				     }
 				 },
 				{
-				     id : "missingkeyequiv",
-				     context : "*[@onmousedown | onmouseup | onmousemove]",
+				     id : "missingkeyboardequiv",
+				     context : ".mouseUpDownMove",
 				     validate : function (ruleContext) {
-			    		var passed = true;
+					 	var eventNames = util.getEvents(ruleContext);
+			    		var passed = (util.hasEvent(eventNames,"keydown") || util.hasEvent(eventNames,"keypress"));
 					    return new ValidationResult(passed, [ruleContext], '', '', []);
 				     }
 				 },

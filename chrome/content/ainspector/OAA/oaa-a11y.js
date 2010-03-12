@@ -554,6 +554,9 @@ var _contextMap = {};
 							_ruleMapping[rule.id] = rule;
 						}
 					} // interface not satisfied
+					else {
+						alert('Note to developer - Rule: ' + rule.id + ' could not be added; duplicate ID -OR- missing required properties: ' + _requiredRuleProperties.toString());
+					}
 				} // next rule
 			},
 			

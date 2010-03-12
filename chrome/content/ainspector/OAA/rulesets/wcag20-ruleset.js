@@ -41,7 +41,7 @@ OpenAjax.a11y.addRuleset(
 		            'thmissingID' : {severityCode:'level.potentialViolation', messageCode:'dataTables.msg.thmissingID'},
 		            'duplicateTHEleID' : {severityCode:'level.potentialViolation', messageCode:'dataTables.msg.duplicateTHEleID'},
 		            'tdmissingheaders' : {severityCode:'level.recommendation', messageCode:'dataTables.msg.tdmissingheaders'},
-		            'invalidIDREF' : {severityCode:'level.recommendation', messageCode:'dataTables.msg.invalidIDREF'}
+		            'invalidThIDREF' : {severityCode:'level.recommendation', messageCode:'dataTables.msg.invalidIDREF'}
             	}
             }, // 1.3.1
             {
@@ -79,9 +79,9 @@ OpenAjax.a11y.addRuleset(
         			'missingonfocus' : {severityCode:'level.potentialViolation', messageCode:'events.msg.missingonfocus'},           		
     				'missingonblur' : {severityCode:'level.potentialViolation', messageCode:'events.msg.missingonblur'},           		
             		'nonfocusableonclick' : {severityCode:'level.potentialViolation', messageCode:'events.msg.nonfocusableonclick'},           		
-        			'nonfocusableonmouse' : {severityCode:'level.potentialViolation', messageCode:'events.msg.nonfocusableonmouse'},           		
+        		//	'nonfocusableonmouse' : {severityCode:'level.potentialViolation', messageCode:'events.msg.nonfocusableonmouse'},           		
     				'selectonchange' : {severityCode:'level.recommendation', messageCode:'events.msg.selectonchange'},           		
-    				'missingkeyequiv' : {severityCode:'level.recommendation', messageCode:'events.msg.missingkeyequiv'}           		
+    				'missingkeyboardequiv' : {severityCode:'level.recommendation', messageCode:'events.msg.missingkeyequiv'}           		
 		    	}
 		    }, // 2.1.1 
           
@@ -257,7 +257,7 @@ OpenAjax.a11y.addRuleset(
 		            'thmissingID' : {severityCode:'level.potentialViolation', messageCode:'dataTables.msg.thmissingID'},
 		            'duplicateTHEleID' : {severityCode:'level.potentialViolation', messageCode:'dataTables.msg.duplicateTHEleID'},
 		            'tdmissingheaders' : {severityCode:'level.recommendation', messageCode:'dataTables.msg.tdmissingheaders'},
-		            'invalidIDREF' : {severityCode:'level.recommendation', messageCode:'dataTables.msg.invalidIDREF'}
+		            'invalidThIDREF' : {severityCode:'level.recommendation', messageCode:'dataTables.msg.invalidIDREF'}
             	}
             }, // 1.3.1
 	        {
@@ -270,9 +270,9 @@ OpenAjax.a11y.addRuleset(
         			'missingonfocus' : {severityCode:'level.potentialViolation', messageCode:'events.msg.missingonfocus'},           		
     				'missingonblur' : {severityCode:'level.potentialViolation', messageCode:'events.msg.missingonblur'},           		
             		'nonfocusableonclick' : {severityCode:'level.potentialViolation', messageCode:'events.msg.nonfocusableonclick'},           		
-        			'nonfocusableonmouse' : {severityCode:'level.potentialViolation', messageCode:'events.msg.nonfocusableonmouse'},           		
+        //			'nonfocusableonmouse' : {severityCode:'level.potentialViolation', messageCode:'events.msg.nonfocusableonmouse'},           		
     				'selectonchange' : {severityCode:'level.recommendation', messageCode:'events.msg.selectonchange'},           		
-    				'missingkeyequiv' : {severityCode:'level.recommendation', messageCode:'events.msg.missingkeyequiv'}           		
+    				'missingkeyboardequiv' : {severityCode:'level.recommendation', messageCode:'events.msg.missingkeyequiv'}           		
 		    	}
 		    }, // 2.1.1 
 	        {

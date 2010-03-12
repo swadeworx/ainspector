@@ -249,25 +249,35 @@ if (typeof OpenAjax.a11y.util == "undefined") {
             		if (k >= idarray.length) {idarray[idarray.length] = id; return true;} 
             		return false;
             	},	
-				
-            	dataTable: function (doc, notused){ // can be used as a context .dataTable
+			
+            	dataTable: function (obj, notused){ // can be used as a context .dataTable
             		var retArray = new Array();
-               		var tableEleArr = OpenAjax.a11y.getCollectionViaDom('table', doc);
-            		for (var i =0; i < tableEleArr.length; i++ ) {
-            		   if (this.isDataTable(tableEleArr[i])) retArray.push(tableEleArr[i]);
+            		function main(ele) {
+            			if (OpenAjax.a11y.util.isDataTable(ele)) retArray.push(ele);
             		}
+            		if (obj.tagName === undefined) {
+	              		var tableEleArr = OpenAjax.a11y.getCollectionViaDom('table', obj);
+	            		for (var i =0; i < tableEleArr.length; i++ ) {
+	            			main(tableEleArr[i]);
+	            		}
+            		} else if (obj.tagName.toLowerCase() == 'table') main(obj);
             		return retArray;
             	}, 
-            	
-            	complexDataTable: function (doc, notused){ // can be used as a context .complexDataTable
+               	
+            	complexDataTable: function (obj, notused){ // can be used as a context .complexDataTable
             		var retArray = new Array();
-               		var tableEleArr = OpenAjax.a11y.getCollectionViaDom('table', doc);
-            		for (var i =0; i < tableEleArr.length; i++ ) {
-            		   if (this.isComplexDataTable(tableEleArr[i])) retArray.push(tableEleArr[i]);
+            		function main(ele) {
+            			if (OpenAjax.a11y.util.isComplexDataTable(ele)) retArray.push(ele);
             		}
+            		if (obj.tagName === undefined) {
+	               		var tableEleArr = OpenAjax.a11y.getCollectionViaDom('table', obj);
+	            		for (var i =0; i < tableEleArr.length; i++ ) {
+	            		   main(tableEleArr[i]);
+	            		}
+            		} else if (obj.tagName.toLowerCase() == 'table') main(obj);
             		return retArray;
             	}, 
-            	
+         	
 				isDataTable: function(tablenode) {
  					   var r, c;
 					   if(tablenode.rows.length<2) return false;
@@ -324,36 +334,46 @@ if (typeof OpenAjax.a11y.util == "undefined") {
 				/*
 				 * ARIA Validation utilities
 				 */
-            	containsAriaAttrIDREF: function (doc, notused){ // can be used as a context .containsAriaAttrIDREF
+            	containsAriaAttrIDREF: function (obj, notused){ // can be used as a context .containsAriaAttrIDREF
             		var retArray = new Array();
-					var docElements = doc.getElementsByTagName("*");
-            		for (var i=0; i < docElements.length; i++) {
-            			for (var j=0; j < docElements[i].attributes.length; j++) {
-         	    			var attrName = docElements[i].attributes[j].name;
+            		function main(ele) {
+            			for (var j=0; j < ele.attributes.length; j++) {
+         	    			var attrName = ele.attributes[j].name;
             				if (attrName.substring(0, 5) == 'aria-') {
             	    	    	var dataTypes = OpenAjax.a11y.aria.propertyDataTypes[attrName];
              	    			if (dataTypes && dataTypes.type && (dataTypes.type == "http://www.w3.org/2001/XMLSchema#idref" || dataTypes.type == "http://www.w3.org/2001/XMLSchema#idrefs")) {      					
-             	    				retArray.push(docElements[i]); 
-                    				j = docElements[i].attributes.length;
+             	    				retArray.push(ele); 
+                    				j = ele.attributes.length;
             	    			}
             				}
             			}
             		}
+            		if (obj.tagName === undefined) {
+						var docElements = obj.getElementsByTagName("*");
+	            		for (var i=0; i < docElements.length; i++) {
+	            			main(docElements[i]);
+	            		}
+            		} else main(obj);
             		return retArray;
             	}, 
              	
-            	containsAriaAttr: function (doc, notused){ // can be used as a context .containsAriaAttrIDREF
+            	containsAriaAttr: function (obj, notused){ // can be used as a context .containsAriaAttrIDREF
             		var retArray = new Array();
-					var docElements = doc.getElementsByTagName("*");
-            		for (var i=0; i < docElements.length; i++) {
-            			for (var j=0; j < docElements[i].attributes.length; j++) {
-         	    			var attrName = docElements[i].attributes[j].name;
+             		function main(ele) {
+            			for (var j=0; j < ele.attributes.length; j++) {
+         	    			var attrName = ele.attributes[j].name;
             				if (attrName.substring(0, 5) == 'aria-') {
-             	    			retArray.push(docElements[i]); 
-                    			j = docElements[i].attributes.length;
+             	    			retArray.push(ele); 
+                    			j = ele.attributes.length;
             				}
             			}
-            		}
+             		}
+            		if (obj.tagName === undefined) {
+						var docElements = obj.getElementsByTagName("*");
+	            		for (var i=0; i < docElements.length; i++) {
+	            			main(docElements[i]);
+	            		} 
+            		} else main(obj);
             		return retArray;
             	}, 
              	
@@ -379,9 +399,12 @@ if (typeof OpenAjax.a11y.util == "undefined") {
 				 * Event utilities
 				 */
 				/* SMF TODO On some nodes, I suspect we are retrieving events to FB has placed  */
-            	getEvents: function (node){ 
-					var _events=new Array("blur","click","dblclick","focus","keydown","keypress","keyup",
+            	getEvents: function (node, targetEvents){ 
+					var _events;
+					if (targetEvents === undefined)
+						_events=new Array("blur","click","dblclick","focus","keydown","keypress","keyup",
 							"mousedown","mouseup","mousemove","mouseout","mouseover","resize","load", "change");
+					else _events = targetEvents;
 					var eventNames = new Array();
 					var listener = Components.classes["@mozilla.org/eventlistenerservice;1"];
 					if (listener != null && listener != undefined && node.tagName) {
@@ -390,7 +413,7 @@ if (typeof OpenAjax.a11y.util == "undefined") {
 					
 						for (var i = 0; i < infos.length; ++i) {
 							var info = infos[i].QueryInterface(Components.interfaces.nsIEventListenerInfo);
-							for (j = 0; j < _events.length; j ++) if (info.type == _events[j] && !info.inSystemEventGroup && info.allowsUntrusted) eventNames.push(_events[j]);
+							for (j = 0; j < _events.length; j ++) if (info.type == _events[j] && !info.inSystemEventGroup && info.allowsUntrusted) eventNames.push(_events[j]); 
 						}
 					} else {  // does not pick up dynamically added events
 						if(node.getAttribute) {
@@ -410,24 +433,113 @@ if (typeof OpenAjax.a11y.util == "undefined") {
 					return eventNames;
             	},
            	
-            	// renamed ParseDocumentForEvents()
-				nonfocusableElementsContainingEvents: function(doc, notused) {		// can be used as a context .nonfocusableElementsContainingEvents
+				nonfocusableElementsContainingEvents: function(obj, notused) {		// can be used as a context .nonfocusableElementsContainingEvents
             		var focusableElements = ['input','select','button','textarea','option','area','a', 'html']; //html is ignored since it always has keydown
              		var retArray = new Array();
-					var docElements = doc.getElementsByTagName("*");
-            		for (var i=0; i < docElements.length; i++) {
-                   		if (focusableElements.indexOf(docElements[i].tagName.toLowerCase()) == -1) {
- 	            			var role = docElements[i].hasAttribute('role') ? docElements[i].getAttribute("role") : '';
+             		function main(ele) {
+                   		if (focusableElements.indexOf(ele.tagName.toLowerCase()) == -1) {
+ 	            			var role = ele.hasAttribute('role') ? ele.getAttribute("role") : '';
 	            			if (role == '') {
-	            				var eventNames = this.getEvents(docElements[i]);
-	            				if (eventNames.length > 0) {retArray.push(docElements[i]);
-	            				}
+	            				var eventNames = OpenAjax.a11y.util.getEvents(ele);
+	            				if (eventNames.length > 0) retArray.push(ele); 
 	            			}
             			}
-            		}
-            		return retArray;
-				}
+             		}
+             		if (obj.tagName === undefined) {
+						var docElements = obj.getElementsByTagName("*");
+	            		for (var i=0; i < docElements.length; i++) {
+	            			main(docElements[i]);
+	            		}
+             		} else main(obj);
+             		return retArray;
+				},
 				
+				is_focusable : function(node) {
+					var focusableElements = ['input','select','button','textarea','option','area'];
+					if (node.nodeName.toLowerCase() == "a" && typeof node.href != "undefined") return true;
+					if (node.nodeName.toLowerCase() == "area" && typeof node.href != "undefined") return true;
+					if (node.hasAttribute('tabindex') && node.getAttribute('tabindex').isInteger()) return true;
+					if (focusableElements.indexOf(node.nodeName.toLowerCase()) != -1) return true;		
+					return false;
+				},
+
+				elementsContainingEvents: function(obj, targetEvents, needFocusable) {		
+              		var retArray = new Array();
+             		function main(ele) {
+             			if (typeof needFocusable === undefined || OpenAjax.a11y.util.is_focusable(ele) == needFocusable) {
+              				var eventNames = OpenAjax.a11y.util.getEvents(ele, targetEvents);
+              				if (eventNames.length > 0) retArray.push(ele);
+             			}
+             		}
+              		if (obj.tagName === undefined) {
+						var docElements = obj.getElementsByTagName("*");
+	            		for (var i=0; i < docElements.length; i++) {
+	            			main(docElements[i]);
+	            		}
+	            	} else  main(obj); 
+            		return retArray;
+				},
+				
+				focusableMouseover: function(obj, notused) {		// can be used as a context .focusableMouseover
+					var targetEvents=new Array("mouseover");
+					var retArray = this.elementsContainingEvents(obj, targetEvents, true);
+             		return retArray;
+				},
+				
+				focusableMouseout: function(obj, notused) {		// can be used as a context .focusableMouseout
+					var targetEvents=new Array("mouseout");
+					var retArray = this.elementsContainingEvents(obj, targetEvents, true);
+             		return retArray;
+				},
+				
+				nonFocusableOnclick: function(obj, notused) {		// can be used as a context .nonFocusableOnclick
+					var targetEvents=new Array("click");
+					var retArray = this.elementsContainingEvents(obj, targetEvents, false);
+             		return retArray;
+				},
+				
+				/*	 SMF the existing logic does not make sense in light of the associated text
+			     Recommendation: The functionality provided by onmousedown, onmouseup and onmousemove event handlers should have keyboard equivalents to perform the same functions that can be achieved with the mouse actions. 
+				nonFocusableOnmouse: function(obj, notused) {		// can be used as a context .nonfocusableonmouse
+				//	var targetEvents=new Array("mouseover","mouseout");
+					var targetEvents=new Array("mouseup","mousedown","mousemove");
+					var retArray = this.elementsContainingEvents(obj, targetEvents, false);
+             		return retArray;
+				},
+				*/
+				selectOnchange: function(obj, notused) {		// can be used as a context .mouseupDownMove
+					var targetEvents=new Array("change");
+					var retArray=new Array("change");
+            		function main(ele) {
+    					retArray = push(OpenAjax.a11y.util.elementsContainingEvents(ele, targetEvents));
+             		}
+              		if (obj.tagName === undefined) {
+						var docElements = obj.getElementsByTagName("select");
+	            		for (var i=0; i < docElements.length; i++) {
+	            			main(docElements[i]);
+	            		}
+	            	} else  main(obj); 
+             		return retArray;
+				},
+				
+				mouseUpDownMove: function(obj, notused) {		// can be used as a context .mouseupDownMove
+					var targetEvents=new Array("mouseup","mousedown","mousemove");
+					var retArray = this.elementsContainingEvents(obj, targetEvents);
+             		return retArray;
+				},
+
+				hasEvent : function (eventNames,a,b) {
+					if (eventNames.indexOf(a) != -1 || eventNames.indexOf('on' + a) != -1)return true;	
+					return false;
+				},
+
+				pairCheck : function (ele,a,b) {
+					var eventNames = this.getEvents(ele);
+					if (this.hasEvent(eventNames,a) && this.hasEvent(eventNames,b)) return true;
+					else if (this.hasEvent(eventNames,'on' + a) && this.hasEvent(eventNames,'on' + b)) return true;
+					return false;
+				}
+
 			
 				
 	}
