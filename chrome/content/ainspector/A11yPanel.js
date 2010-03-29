@@ -3,6 +3,26 @@
 FBL.ns(function() { with (FBL) {
 	var BaseModule = Firebug.ActivableModule ? Firebug.ActivableModule : Firebug.Module;
 	
+	/* PBK addition for overriding the cropMultipleLines() to 
+		1. Avoid "..." in error messages from DOM+ & A11Y panels
+		2. Add "..." in A11Y Inspector panel if length of nodetext > 200 
+	 */
+	FBL.cropMultipleLines = function(text, limit)
+	{
+    	/*if (Firebug.showFullTextNodes) {
+    		return text;
+    	} else {
+     		return escapeNewLines(this.cropString(text, limit));
+    	}*/
+    	//alert("Inside overrided cropMultipleLines");
+    	if(text.indexOf(":") == -1 && text.length > 200) {
+    		return escapeNewLines(this.cropString(text, limit));
+    	} else {
+    		return text;
+    	}
+    	
+	};
+	
 	Firebug.A11yModule = extend(BaseModule, {
 		// Module life-cycle 
 		initialize : function() {
