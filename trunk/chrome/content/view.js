@@ -112,7 +112,9 @@ AINSPECTOR.view = function(panel, yscontext) {
       	          },
       	          
       	          getDisplayableText: function (node) {
-      	    		return OpenAjax.a11y.util.getNodeTextRecursively(node);
+      	          	var nodeText = OpenAjax.a11y.util.getNodeTextRecursively(node);
+      	          	return cropMultipleLines(nodeText, 80);
+      	    	//return OpenAjax.a11y.util.getNodeTextRecursively(node);
        			  },   			
 
 				  loop:
