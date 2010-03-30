@@ -249,6 +249,7 @@ AINSPECTOR.view = function(panel, yscontext) {
 				       TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px"},
 				       TAG("$member.node|getNaturalTag", {object: "$member.node"})
 				      ),
+				       TD({class: "memberLabelCell"}, "$member."),
 				       TD({class: "memberLabelCell"},
 				    		   FOR('issue', '$member.issues',	DIV('$issue') )   
 						      )
@@ -1667,6 +1668,7 @@ AINSPECTOR.view.getEleByType = function(doc, whichTab)
 	    	    else this.displayName += Left(getNodeTextRecursively(node), 256);
 	    	    	
 	     		this.issuesObj = AINSPECTOR.controller.callAllParseNode(node);
+	     		this.ariaAttributes = 'test';
 			}
     	}
 
@@ -1675,6 +1677,7 @@ AINSPECTOR.view.getEleByType = function(doc, whichTab)
     		displayName: '',
     		subNodes: null,
     		issuesObj: null,
+    		ariaAttributes: null,
     	}
     	
     	function AddAsSubNode(parentNode, node) {

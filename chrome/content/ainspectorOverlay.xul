@@ -12,10 +12,10 @@
           <toolbox>
               <toolbar id="ainspector-TopBar" align="center" flex="0">
                   <toolbarbutton id="ainspector-TopBarButton-Peel" 
-                  label="Run AInspector" tooltiptext="Run Slow"
+                  label="Open Accessibility Inspector" tooltiptext="Open Firebug Accessibility Inspector"
                   command="cmd_ainspector_run"/>
                   <toolbarbutton id="ainspector-TopBarButton-Close"
-                  label="Close" tooltiptext="Close"
+                  label="Close Accessibility Inspector" tooltiptext="Close Firebug Accessibility Inspector "
                   command="cmd_ainspector_close" />
               </toolbar>
           </toolbox>
