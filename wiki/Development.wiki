@@ -1,4 +1,4 @@
-#Coordination and Plans for Development
+#summary Coordination and Plans for Development
 
 = Development Coordination and Planning =
 
@@ -7,4 +7,3 @@
   * JG: Jon Gunderson
   * PB: Prasanna Bale
   * HH: Hans Hillen
-
