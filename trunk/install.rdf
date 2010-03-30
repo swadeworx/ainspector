@@ -5,7 +5,7 @@
   <RDF:Description RDF:about="urn:mozilla:install-manifest"
                    em:id="AInspector@cita.uiuc.edu"
                    em:name="Firebug Accessibility Inspector"
-                   em:version="0.90.0"
+                   em:version="0.80.0"
                    em:creator="Jon Gunderson"
                    em:description="Firebug Accessibility Inspector"
                    em:homepageURL="http://code.google.com/p/ainspector/"

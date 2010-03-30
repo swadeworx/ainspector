@@ -57,7 +57,7 @@
         <statusbarpanel id="ainspector-status-bar" insertafter="statusbar-progresspanel" context="ainspectorStatusContextMenu">
             <image id="ainspector-statusicon" style="cursor:pointer;"
                 src="chrome://ainspector/content/ainspector/img/logo_16x16.png"
-                tooltiptext="Run AInspector"
+                tooltiptext="Open Firebug Accessibility Inspector"
                 onclick="if(!event.button) { AINSPECTOR.firefox.onClickStatusIcon() }"
                 />
             <label id="ainspector_status_grade" label="" onclick="if(!event.button) { AINSPECTOR.firefox.onClickStatusGrade() }" />
