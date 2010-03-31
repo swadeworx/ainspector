@@ -1,5 +1,9 @@
 /**
- *  AINSPECTOR.view
+ *  AINSPECTOR.view manages all of the tabs on the screen
+ *  
+ * @param (panel)     
+ * @param (yscontent) 
+ * 
  */
 
 AINSPECTOR.view = function(panel, yscontext) {
@@ -18,33 +22,6 @@ AINSPECTOR.view = function(panel, yscontext) {
         return false;
     };
 
-//duplicate of what is in accessext.js    
-(function($){
-    $.fn.canTagHaveAlt = function(E) {
-      	return ($.nodeName(E, 'img') || $.nodeName(E, 'area') || $.nodeName(E, 'applet') || $.nodeName(E, 'input'));
-    };
-    $.fn.textWithAlt = function( text ) {
-    	if (typeof text !== "object" && text != null)
-    		return this.empty().append((this[0] && this[0].ownerDocument || document).createTextNode(text));
-
-    	var ret = "";
-    	$.each(text || this, function() {
-    		$.each(this.childNodes, function() {
-    			if (this.nodeType != 8) { 
-    			   if (this.nodeType == 1) {
-    				   if ($(this).is('[alt]') && $(this).canTagHaveAlt(this)) {
-    				      if (ret != "") ret += " ";
-    				      ret += $(this).attr('alt');
-    				   } 
-    				}
-    				ret += this.nodeType != 1 ? this.nodeValue : jQuery.fn.text([this]);
-    			}
-    		});
-    	});
-    	return ret;
-      };
-})(jQuery);
-   
     /* SMF addition for displaying A11y and IITAA rule sets */
 	with (FBL) {
 		this.msgTreeRep = domplate(Firebug.Rep,
@@ -1022,14 +999,20 @@ AINSPECTOR.view.prototype = {
         this.show('ysRuleEditButton');
     },
 
+    // This is used to run the rules
+
     runTest: function() {
         AINSPECTOR.controller.run(window.top.content, this.yscontext,false);
     },
+
+    // This sets a preference and can be viewed about:config
 
     setAutorun: function(event) {
         var checkbox = event.currentTarget;
         AINSPECTOR.util.Preference.setPref("extensions.firebug.ainspector.autorun", checkbox.checked);
     },
+    
+    // This function runs the current rule set
     
     onRerunRuleset: function(event) {
         var select = event.currentTarget; //tried target, explicitOriginalTarget; //
@@ -1039,6 +1022,14 @@ AINSPECTOR.view.prototype = {
         for (sView in doc.ysview.buttonViews) doc.ysview.setButtonView(sView, ''); //clear the old data out
         doc.ysview.show(curButtonId, true);  //SMF to get the screen refreshed with the new results
     },
+
+    /*
+     * Changes the rule set
+     *
+     * @param (event)  The event includes the ID of the new rule set
+     *  
+     * @return none
+    */  
 
     onChangeRuleset: function(event) {
         var select = event.currentTarget; //tried target, explicitOriginalTarget; //
@@ -1056,37 +1047,16 @@ AINSPECTOR.view.prototype = {
         doc.ysview.show(curButtonId, true);  //SMF to get the screen refreshed with the new results
         return;
         
-        // ask if want to rerun test with the selected ruleset.
-        var line1 = 'Do you want to run the selected ruleset now?';
-        var left_button_label = 'Create Report';
-        var left_button_func = function(e) {
-        	try {
-        	this.ruleset_id = option.value;
-            var  curButtonId = doc.ainspector_panel.ysview.curButtonId;
-            doc.ysview.closeDialog(doc);
-    //        if (doc.ainspector_context.component_set === null) { /* SMF - so it would stop crashing if the first thing you did was pick a new rule set */
-    //         	AINSPECTOR.controller.run(doc.ainspector_context.document.defaultView, doc.ainspector_context, false);
-    //        }
-    //     	AINSPECTOR.controller.lint(doc.ainspector_context.document, doc.ainspector_context);
-
-    //        var stext = doc.ainspector_context.genPerformance('html');
-    //        doc.ysview.addButtonView("ysPerfButton", stext);
-    //        doc.ysview.panelNode.scrollTop = 0;
-    //        doc.ysview.panelNode.scrollLeft = 0;
-            // update score in status bar.
-            AINSPECTOR.view.restoreStatusBar(doc.ainspector_context);
-            doc.ysview.updateToolbarSelection();
-            doc.ysview.yscontext.result_set = null; //clear the old data out
-            for (sView in doc.ysview.buttonViews) doc.ysview.setButtonView(sView, ''); //clear the old data out
-            doc.ysview.show(curButtonId, true);  //SMF to get the screen refreshed with the new results
-        	} catch (exc) {
-            	FBTrace.sysout(exc.message);
-        	}
-        };
-        this.openDialog(doc, 389, 150, line1, undefined, left_button_label, left_button_func);
     },
 
-    /* TabView */
+    /* 
+     * TabView 
+     *
+     * @param (event) 
+     *
+     * @return false
+     *
+    */
     onclickTabLabel: function(event) {
         var li_elem = event.currentTarget;
         var ul_elem = li_elem.parentNode;
@@ -1094,7 +1064,8 @@ AINSPECTOR.view.prototype = {
 
         if (li_elem.className.indexOf('selected') !== -1 || li_elem.id.indexOf('label') === -1) {
             return false;
-        }
+        }  // endif
+        
         if (ul_elem) {
             var child = ul_elem.firstChild;
             var tab;
