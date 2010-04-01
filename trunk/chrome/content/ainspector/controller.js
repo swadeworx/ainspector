@@ -227,7 +227,7 @@ AINSPECTOR.controller = {
                 var css;
                 if (typeof result.css == "undefined") {
                     // use default.
-                    var URI = 'chrome://ainspector/content/ainspector/tool.css';
+                    var URI = 'chrome://ainspector/content/ainspector/css/tool.css';
                     var req2 = new XMLHttpRequest();
                     req2.open('GET', URI, false);
                     req2.send(null);
