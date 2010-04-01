@@ -519,11 +519,11 @@ AINSPECTOR.view.prototype = {
      * @param {Document} doc Document to load the CSS files.
      */
     loadCSS: function(doc) {
-    	AINSPECTOR.util.loadCSS("chrome://ainspector/content/ainspector/yui/fonts-min.css", this.panel_doc);
-        AINSPECTOR.util.loadCSS("chrome://ainspector/content/ainspector/yui/tabview.css", this.panel_doc);
-   	    AINSPECTOR.util.loadCSS("chrome://ainspector/content/ainspector/ainspector.css", this.panel_doc);
-   	    AINSPECTOR.util.loadCSS("chrome://ainspector/content/ainspector/allyGrade.css", this.panel_doc);
-   	    AINSPECTOR.util.loadCSS("chrome://ainspector/content/ainspector/grid.css", this.panel_doc); //net.css
+    	AINSPECTOR.util.loadCSS("chrome://ainspector/content/ainspector/css/fonts-min.css", this.panel_doc);
+        AINSPECTOR.util.loadCSS("chrome://ainspector/content/ainspector/css/tabview.css", this.panel_doc);
+   	    AINSPECTOR.util.loadCSS("chrome://ainspector/content/ainspector/css/ainspector.css", this.panel_doc);
+   	    AINSPECTOR.util.loadCSS("chrome://ainspector/content/ainspector/css/allyGrade.css", this.panel_doc);
+   	    AINSPECTOR.util.loadCSS("chrome://ainspector/content/ainspector/css/grid.css", this.panel_doc); //net.css
     },
 
     restoreView: function(yscontext) {
