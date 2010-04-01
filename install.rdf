@@ -3,13 +3,13 @@
          xmlns:NC="http://home.netscape.com/NC-rdf#"
          xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
   <RDF:Description RDF:about="urn:mozilla:install-manifest"
-                   em:id="AInspector@cita.uiuc.edu"
+                   em:id="ainspector@cita.uiuc.edu"
                    em:name="Firebug Accessibility Inspector"
                    em:version="0.80.0"
                    em:creator="Jon Gunderson"
                    em:description="Firebug Accessibility Inspector"
                    em:homepageURL="http://code.google.com/p/ainspector/"
-                   em:iconURL="chrome://AInspector/content/ainspector/img/logo_32x32.png">
+                   em:iconURL="chrome://ainspector/content/ainspector/img/logo_32x32.png">
     <em:contributor>Sandy Foltz</em:contributor>
     <em:contributor>Hans Hiilen</em:contributor>
     <em:contributor>Prasanna Bale</em:contributor>
