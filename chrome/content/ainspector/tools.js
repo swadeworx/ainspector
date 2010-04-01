@@ -195,14 +195,14 @@ AINSPECTOR.Tools = {
         AINSPECTOR.renderer.bPrintable = false;
 
         // add styling
-        var URI = 'chrome://ainspector/content/ainspector/printable.css';
+        var URI = 'chrome://ainspector/content/ainspector/css/printable.css';
         var req2 = new XMLHttpRequest();
         req2.open('GET', URI, false);
         req2.overrideMimeType('text/css');
         req2.send(null);
         var css = req2.responseText;
         //SMF format for A11y Grade Printable View - look at contentBefore
-        req2.open('GET', 'chrome://ainspector/content/ainspector/allyGrade.css', false);
+        req2.open('GET', 'chrome://ainspector/content/ainspector/css/allyGrade.css', false);
         req2.overrideMimeType('text/css');
         req2.send(null);
         css += req2.responseText;
