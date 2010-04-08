@@ -15,7 +15,7 @@ FBL.ns(function() { with (FBL) {
      		return escapeNewLines(this.cropString(text, limit));
     	}*/
     	//alert("Inside overrided cropMultipleLines");
-    	if(text.indexOf(":") == -1 && text.length > 200) {
+    	if(text.indexOf("Recommendation:") == -1 && text.length > 200) {
     		return escapeNewLines(this.cropString(text, limit));
     	} else {
     		return text;
@@ -1532,7 +1532,12 @@ function getAccessibleObjs(object, level)
 	    	for(var i=0; i < object.attributes.length; i++) {
 	 			var detailsObj = new Firebug.A11yModule.A11yObject(object, i, AEObj);
 	 			if (detailsObj.issues) {
-	 				addMember("rule", heading, object.attributes[i].name, detailsObj, level);
+	 			/*if (detailsObj.issues.length > 1) {
+	 				for(var j=0; j< detailsObj.issues.length; j++)
+	 					addMember("rule", heading, object.attributes[i].name, detailsObj.issues[j], level);
+	 				} else{*/
+	 					addMember("rule", heading, object.attributes[i].name, detailsObj, level);
+	 				//}
 	 			} else {
 	 				addMember("dom", heading, object.attributes[i].name, detailsObj, level);
 	 			}
