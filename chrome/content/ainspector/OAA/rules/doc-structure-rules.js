@@ -167,7 +167,7 @@ with (OpenAjax.a11y) {
 	                return new ValidationResult(passed, [ruleContext], '', '', []);
 	              }
 	          },
-	          {
+	         {
 	              id : "duplicatesummary",
 	              context : "table[@summary]",
 	              dependencies : ["missingsummary"], 
@@ -641,6 +641,31 @@ with (OpenAjax.a11y) {
 	    	}
         },	      		
  			    
+	    // ------------ 
+	    // Layout Tables
+	    // ------------ 
+	   {
+	    	id : "useCSSproperties",
+          	context : "document",
+          	validate : function (ruleContext) {
+		        var passed = true;
+	       		var loadArray = new Array();
+		        var arrayObj = util.dataTable(ruleContext, null);
+		        if (arrayObj.length <= 0) {
+					var xpathResult = ruleContext.evaluate("//table", ruleContext, OpenAjax.a11y.util.defaultNSResolver, XPathResult.ANY_TYPE,null);
+		       		var r = xpathResult.iterateNext();
+					while (r) {
+						loadArray[loadArray.length] = {node: r,
+					text: util.getNodeTextRecursively(r).toLowerCase()};
+						r = xpathResult.iterateNext();
+						passed = r!= null; 
+					}
+		        }
+		         return new ValidationResult(passed, loadArray, '', '', []);
+			}
+	           
+	    },
+	    
 	    // -------- 
 	    // Language
 	    // --------

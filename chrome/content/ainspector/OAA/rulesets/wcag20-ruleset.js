@@ -53,7 +53,7 @@ OpenAjax.a11y.addRuleset(
 		            // defined in text-equiv-rules.js    
 		    	    'missinglayouttable' : {severityCode:'level.violation', messageCode:'layoutTables.msg.missingtable'},
 		            'missingCSS' : {severityCode:'level.violation', messageCode:'layoutTables.msg.missingCSS'},
-		            'useCSSproperties' : {severityCode:'level.violation', messageCode:'layoutTables.msg.isdeeptable'}
+		            'useCSSproperties' : {severityCode:'level.violation', messageCode:'layoutTables.msg.issubtable'}
             	}
             }, // 1.3.2
 		    {
