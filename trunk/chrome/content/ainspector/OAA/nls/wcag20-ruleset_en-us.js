@@ -183,5 +183,4 @@ OpenAjax.a11y.MESSAGE_CODES = {
 		'textstyling.msg.italics' : 'The i element must not be used to italicize text content.',
 		'textstyling.msg.underline' : 'The u element must not be used to underline text content. '
     	
-    	
 };
