@@ -5,6 +5,13 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 
     lastLoadTimestamp: undefined,
 
+    /*
+    * init
+    * Check which rule sets are available and add them to the available rules
+    *
+    * @return nothing
+    */
+
     init: function() {
         try {
 	        AINSPECTOR.OAA_Nexus.addRuleset("WCAG_2_0"); //rendered by reportcardView() in renderers.js
@@ -14,6 +21,15 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
             alert("AINSPECTOR.OAA_Nexus: " + err.message);
         }
     },
+
+    /*
+    * calculateScore
+    * 
+    * @param (integer) numEle
+    * @param (array of integers) severitySum
+    *
+    * @return (integer) 
+    */
 
     calculateScore: function (numEle, severitySum) {
     	var score;
@@ -37,32 +53,58 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
         }
      	return score;
     },
-    
+
+    /*
+    * onFocusTrap
+    * 
+    * @param (event object) event 
+    *
+    * @return nothing
+    */
+
     onFocusTrap: function(event) {
         try {
         	var rc = AINSPECTOR.controller.callAllParseNode(event.target);
         	if (rc.msg != '') {
         		Firebug.Console.log(rc.msg);
         //		FBTrace.sysout(event.target.nodeName + ' onFocusTrap rc.msg: ' +  rc.msg, event.target);
-        	}
+        	}  // endif
         } catch (err) {
         	FBTrace.sysout('onFocusTrap: ' + err.message);
-        }
+        } // endtry
     },
     
+    /*
+    * nodeSatisfiesContext ??
+    * 
+    * @param (DOM node) node 
+    * @param (string) context 
+    *
+    * @return (boolean)
+    */
+
     nodeSatisfiesContext : function (node, context) {
 		with (OpenAjax.a11y) {
 	    	if (typeof context == "string") { 
-	    		if (context[0] == '.') { //is a function in OpenAjax.a11y.util
+	    	
+	    		if (context[0] == '.') { 
+	    		    // is a function in OpenAjax.a11y.util
 	    			context = context.substring(1, context.length) ;
 	    			var result = OpenAjax.a11y.util[context](node, null); 
 	    			return (result.length > 0); 
-	    			} 
+	    		} // endif
+	    		
 				var parsedContexts = parseContextExpression(context);
-				if (satisfiesContext(parsedContexts, node))  return true;
-	    	}
+				
+				if (satisfiesContext(parsedContexts, node))  {
+				  return true;
+				} // endif
+				  
+	    	} // endif
+	    	
 	    	return false;
-		}
+	    	
+		} // endwith
     },
  
     OAAParseEle: function(criterionNumber, node) {
@@ -127,16 +169,28 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 		}
 	},
 	
-	/* run runRuleGroup and return the results in the same format as OAAParseEle	*/
+	/** 
+	* run runRuleGroup and 
+	*
+	* @param () criterionNumber
+	* @param () doc
+	* @param () loadArray 
+	* 
+	* @return (retStruct) retStruct formatted as a OAAParseEle	
+	*/ 
+	
     runDocContextRules: function(criterionNumber, doc, loadArray) {
 		try { 
 			with (OpenAjax.a11y) {
+			    // Create structure to store the results of the rule processing
 				var retStruct = {
 						id: new Array(),
 						msg: new Array(),
 						attr: new Array(),
 						severityCode: new Array()
 					}
+					
+				// Get rule set to run on document using 	
 
 				var OAA = getRuleset(AINSPECTOR.controller.default_ruleset_id);
 				if (OAA == null) return null; // OAA rule set is not active 
@@ -220,7 +274,7 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 				var virginArray = (loadArray.length == 0);
 				var OAA = getRuleset(AINSPECTOR.controller.default_ruleset_id);
 				var ruleMapping = rulesByContext();
-				//FBTrace.sysout("ruleMapping " , ruleMapping);
+				FBTrace.sysout("ruleMapping " , ruleMapping);
 				
 				var ruleset = null;
 				for (var r = 0; r < OAA.requirements.length && ruleset == null; ++r) { 
@@ -229,7 +283,7 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 				}
 				var ruleResArray = new Object();
 				for (var expr in  ruleset) ruleResArray[expr] = new Array();;
-//				FBTrace.sysout(" ruleResArray ", ruleResArray);
+				FBTrace.sysout(" ruleResArray ", ruleResArray);
 				
 				for (var expr in ruleMapping) {
 					var ele = getCollectionViaDom(expr, doc);
@@ -426,28 +480,52 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 		}
 	},
 	
+	/* 
+	*  formatAEParseNodeResults
+	*
+	* @param (object) issueObj 
+	* @param (object) retStruct
+	*
+	* @return nothing
+	*/
+	
     formatAEParseNodeResults: function(issueObj, retStruct) {
 		try {
 			var issueObjArray = retStruct.msg; 
 			var issueObjAttrArray = retStruct.attr; 
 			var attrNames = null;
 			var issueNames = issueObj.displayDetails.accessIssuesDataElementNames;
+			
+			//
+			
 			if (issueObj.displayDetails.accessIssuesAttrNames) {
 			    attrNames = issueObj.displayDetails.accessIssuesAttrNames;
-			}
+			}  // endif
+			
 			for (j = 0; j < issueNames.length; j++) {
+			
 				if (issueObj[issueNames[j]]) {
+				
 					var unenforced = FBL.$STR('msg.unenforced', 'OAA_bundle');
 					var accessIssuesMsg = issueObj.displayDetails.accessIssuesMessages[j];
 					var severity = AINSPECTOR.OAA_Nexus.AccessExt.getErrMsgSeverity(accessIssuesMsg, AINSPECTOR.controller.default_ruleset_id);
+					
 					if (severity != unenforced) {
 						issueObjArray.push(severity + ': ' + FBL.$STR(accessIssuesMsg, 'OAA_bundle'));
-						if (attrNames != null) issueObjAttrArray.push(attrNames[j]);
-						else issueObjAttrArray.push('');
-					}
-				}
-			}
+						
+						if (attrNames != null) {
+						  issueObjAttrArray.push(attrNames[j]);
+						} else {
+						  issueObjAttrArray.push('');
+						} // endif
+						
+					} // endif
+					
+				} // endif
+			}  // endfor
+			
 			return;
+			
 		} catch (exc){
 			FBTrace.sysout(exc);
 		}

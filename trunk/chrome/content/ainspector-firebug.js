@@ -190,6 +190,7 @@ FBL.ns(function() { with (FBL) {
     });
 
     function AInspectorFBPanel() {}
+    
     AInspectorFBPanel.prototype = extend(Firebug.Panel, {
 
         name: "AInspector",
