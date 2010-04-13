@@ -68,7 +68,8 @@ AINSPECTOR.controller = {
     /**
      * Run controller to start peeler.
      *
-     * @param window object
+     * @param win window object
+     * @param yscontent ????
      * @param boolean value to indicate if triggered by autorun
      */
     run: function(win, yscontext, autorun) {
@@ -99,7 +100,8 @@ AINSPECTOR.controller = {
         }
 
         AINSPECTOR.util.event.fire("peelStart", undefined);
-//12/21/9        cset = AINSPECTOR.peeler.peel(doc, this.onloadTimestamp);
+        // Why was this line was commented out???
+//        cset = AINSPECTOR.peeler.peel(doc, this.onloadTimestamp);
         // need to set yscontext_component_set before firing peelComplete,
         // otherwise, may run into infinite loop.
         yscontext.component_set = cset;
@@ -435,9 +437,21 @@ AINSPECTOR.controller = {
         }
     },
 
+    /* 
+    * Returns the ID of the default ruleset
+    *
+    * @return (string) id of the default rule set
+    */
+
     getDefaultRuleset: function() {
         return this.rulesets[this.default_ruleset_id];
     },
+
+    /* 
+    * Returns the ID of the default ruleset
+    *
+    * @return (string) id of the default rule set
+    */
 
     getDefaultRulesetId: function() {
         return this.default_ruleset_id;

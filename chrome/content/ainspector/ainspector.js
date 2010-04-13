@@ -48,6 +48,14 @@ AINSPECTOR.registerRuleset = function(ruleset) {
 };
 
 
+/**
+ *
+ * Adds a new renderer
+ *
+ *
+ * @param {renderer} ruleset The new ruleset object to be registered
+ */
+
 AINSPECTOR.registerRenderer = function(renderer) {
     AINSPECTOR.controller.addRenderer(renderer);
 };
