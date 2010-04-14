@@ -1,20 +1,15 @@
-/* See license.txt for terms of usage 
- *
- * This file is for translating OAA rules and rules sets objects into the AInspector objects
- *
-*/
+/* See license.txt for terms of usage */
 
 AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
-
     urls: {},
 
     lastLoadTimestamp: undefined,
 
     /*
-    * init: Load rule sets that will be available to users
+    * init
+    * Check which rule sets are available and add them to the available rules
     *
     * @return nothing
-    *
     */
 
     init: function() {
@@ -24,7 +19,7 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 	        AINSPECTOR.OAA_Nexus.addRuleset("ARIA_1_0"); 
         } catch (err) {
             alert("AINSPECTOR.OAA_Nexus: " + err.message);
-        }
+        } // endtry
     },
 
     /*
@@ -55,7 +50,7 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
            	else if (warnSum != 0) score = 69;
            	else if (checkSum != 0) score = 89;
            	else score = 100;
-        }
+        }  // endif
      	return score;
     },
 
@@ -82,37 +77,25 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
     /*
     * nodeSatisfiesContext ??
     * 
-    * @param (DOM node) node   node can be an element or a document
-    * @param (string) context, the string is from the rule context property, examples include element, [attribute], element[attribute], .my_function = function()
+    * @param (DOM node) node 
+    * @param (string) context 
     *
-    * @return (boolean) Returns true if the node satisfies the context; else false
+    * @return (boolean)
     */
 
     nodeSatisfiesContext : function (node, context) {
 		with (OpenAjax.a11y) {
-		
-		    // Check to make sure it is a string, can only process strings    
 	    	if (typeof context == "string") { 
 	    	
-	    	    // check to see if the context is a function and not a set of element/attribute selectors
-	    	    
 	    		if (context[0] == '.') { 
-	    		
-	    		    // Strip out the period
+	    		    // is a function in OpenAjax.a11y.util
 	    			context = context.substring(1, context.length) ;
-	    			
-	    			// Call the function and store the result
 	    			var result = OpenAjax.a11y.util[context](node, null); 
-	    			
-	    			// if there is a result the function is good and return result
 	    			return (result.length > 0); 
-	    			
 	    		} // endif
 	    		
-	    		// Get array of element/attribute selectors to test with the node
 				var parsedContexts = parseContextExpression(context);
 				
-				// Check the node for the context
 				if (satisfiesContext(parsedContexts, node))  {
 				  return true;
 				} // endif
@@ -123,95 +106,48 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 	    	
 		} // endwith
     },
-
-    /*
-    * OAAParseEle
-    * 
-    * @param (String) criterionNumber  is uniquely defined for each requirement in a ruleset 
-    * @param (DOM node) node can be a document or an element
-    *
-    * @return (boolean)
-    */
-    
+ 
     OAAParseEle: function(criterionNumber, node) {
 		try {
 			with (OpenAjax.a11y) {
-			
-			    // This is the data structure we need for AInspector view rendering
-			
 				var retStruct = {
 						id: new Array(),
 						msg: new Array(),
 						attr: new Array(),
 						severityCode: new Array()
-					} // endobject
+					}
 
 				var OAA = getRuleset(AINSPECTOR.controller.default_ruleset_id);
-				
-				// Get information about what rules go with what elements
-				
 				var ruleMapping = rulesByContext();
-				
-				// Get rules associated with a criterionNumber
 				
 				var ruleset = null;
 				for (var r = 0; r < OAA.requirements.length && ruleset == null; ++r) { 
-				
-					if (OAA.requirements[r].criterionNumber == criterionNumber) {
-					  ruleset = OAA.[r].rules;
-					} // endif
-					
-				} // endfor
-				
-				// Setup rules result array 
-				
-				var ruleResArray = new Object();
-				for (var expr in ruleset) {
-				  ruleResArray[expr] = new Array();
-				} // endfor
+					if (OAA.requirements[r].criterionNumber == criterionNumber) ruleset = OAA.requirements[r].rules;
 
-                //
+				}
+				var ruleResArray = new Object();
+				for (var expr in  ruleset) ruleResArray[expr] = new Array();;
 
 				for (var expr in ruleMapping) {
-				
-				    // Get elements associated with rule mapping
-				    
 					var eleRules = ruleMapping[expr];
-					
-					if (expr != "document") {
-					
+					if (expr != "document"){
 						for (var r = 0; r < eleRules.length; ++r) {
-						
-						    // get a rule object 
 							var rule = eleRules[r];
-							
 				//			if (ruleset[rule.id]) FBTrace.sysout(rule.id + " nodeSatisfiesContext: " + this.nodeSatisfiesContext(node, rule.context));
-				
 							if (ruleset[rule.id] && this.nodeSatisfiesContext(node, rule.context)) {
-							
 								var dependencies = false;
-								
-								if (rule.dependencies) {
-								    for (var d = 0; d < rule.dependencies.length && !dependencies; ++d) {
-									  dependencies = (ruleResArray[rule.dependencies[d]] == false);
-								    } // endfor
-								} // endif
-								
-								// Check to see if this node applies to the rule
-								
+								if (rule.dependencies) for (var d = 0; d < rule.dependencies.length && !dependencies; ++d) {
+									dependencies = (ruleResArray[rule.dependencies[d]] == false);
+								}
 								if (!dependencies) {
-								
 									ruleRet = rule.validate(node);
 									ruleResArray[rule.id] = ruleRet.result;
-									
-									if (ruleRet.result == false) { 
-									    // !ruleRet.result
+									if (ruleRet.result == false) { //!ruleRet.result
 										retStruct.id.push(rule.id);
 										retStruct.msg.push(FBL.$STR(ruleset[rule.id].severityCode.toLowerCase(), 'OAA_bundle') + ': ' + FBL.$STRF(ruleset[rule.id].messageCode, ruleRet.msgArgs, 'OAA_bundle'));
 										retStruct.attr.push(ruleRet.attrs);
 										retStruct.severityCode.push(ruleset[rule.id].severityCode.toLowerCase());
-									}  // endif
-									
+									}  
 									/* rule did not run successfully -  SMF This produces too much noise.
 									else if (ruleRet.result == -1) {
 										retStruct.id.push(rule.id);
@@ -220,26 +156,25 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 										retStruct.severityCode.push('level.manual');
 									}
 									*/
-									
-								} // endif
-							} // endif
-						} // endfor
-					} // endif
-				} // endfor
+								} 
+							}
+						}
+					}
+				}
 		//		FBTrace.sysout("retStruct " , retStruct);
 				return (retStruct.msg.length > 0) ? retStruct : null;
-			} // endwith
+			}
 		} catch (ex) {
 			FBTrace.sysout('runRuleGroup exception: ', ex);
-		} // endtry
+		}
 	},
 	
 	/** 
-	*  runDocContextRules
+	* run runRuleGroup and 
 	*
-	* @param (string "P.G.SC") criterionNumber
-	* @param (object) doc
-	* @param (array) loadArray 
+	* @param () criterionNumber
+	* @param () doc
+	* @param () loadArray 
 	* 
 	* @return (retStruct) retStruct formatted as a OAAParseEle	
 	*/ 
@@ -255,30 +190,16 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 						severityCode: new Array()
 					}
 					
-				// Get ruleset to run on document using 	
+				// Get rule set to run on document using 	
 
 				var OAA = getRuleset(AINSPECTOR.controller.default_ruleset_id);
-				
-				// if OAA rule set is not active return null
-				
-				if (OAA == null) {
-				  return null; 
-				} // endif 
-				
-				// Get the rule mapping for rules that have been added
-				
+				if (OAA == null) return null; // OAA rule set is not active 
 				var ruleMapping = rulesByContext();
-				
-				// 
 				
 				var ruleset = null;
 				for (var r = 0; r < OAA.requirements.length && ruleset == null; ++r) { 
-					if (OAA.requirements[r].criterionNumber == criterionNumber) {
-					   ruleset = OAA.requirements[r].rules;
-					} // endif
-				} // endfor
-				
-				
+					if (OAA.requirements[r].criterionNumber == criterionNumber) ruleset = OAA.requirements[r].rules;
+				}
 				if (ruleset == null) return null; // user specified a criterion number which is invalid or has no rules
 
 				for (var expr in ruleMapping) {
@@ -319,111 +240,59 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 			FBTrace.sysout('runDocContextRules exception: ', ex);
 		}
 	},
-
-	/** 
-	*  runRule
-	*
-	* @param (string) ruleID is the ID property of an OAA rule
-	* @param (object) doc  the document to run the rules against
-	* 
-	* @return (retStruct) retStruct formatted as a OAAParseEle	
-	*/ 
 	
     runRule: function(ruleID, doc) {
 		try {
 			with (OpenAjax.a11y) {
 				var broken = new Array();
 				var rule = getRule(ruleID);
-				
-				if (rule.dependencies) { 
-				    for (var d = 0; d < rule.dependencies.length; ++d) {
-				    
-					   var ruleRetArr = this.runRule(rule.dependencies[d], doc);
-					
-    				    if (ruleRetArr.length != 0) {
-    //	   					FBTrace.sysout(rule.id + " dependencies " + rule.dependencies  + ' failed ' + rule.dependencies[d]);
-						  return ruleRetArr;
-					    } // endif
-					    
-					} // endfor
-					
-				} // endif
-				
-				if (rule.dependencies) { 
-				  FBTrace.sysout(rule.id + " dependencies " + rule.dependencies + ' PASSED ');
-				}  // endif
-				
+				if (rule.dependencies) for (var d = 0; d < rule.dependencies.length; ++d) {
+					var ruleRetArr = this.runRule(rule.dependencies[d], doc);
+					if (ruleRetArr.length != 0) {
+						FBTrace.sysout(rule.id + " dependencies " + rule.dependencies  + ' failed ' + rule.dependencies[d]);
+						return ruleRetArr;
+					}
+				}
+				if (rule.dependencies) FBTrace.sysout(rule.id + " dependencies " + rule.dependencies + ' PASSED ');
 				var ele = getCollectionViaDom(rule.context, doc);
-				if (rule.context == "document") {
-				  ele[0] = doc;
-				} // endif
-				
+				if (rule.context == "document") ele[0] = doc;
 				for (var i = 0; i < ele.length && broken.length == 0; ++i) {
 					var ruleRet = rule.validate(ele[i]);
 					ruleRet.ruleId = ruleID;
-					
-                    if (!ruleRet.result) {
-					  broken.push(ruleRet);
-			        } // endif
-			        
-				} // endfor
-				
+					if (!ruleRet.result) broken.push(ruleRet);
+				}
 				return broken;
-			} // endwith 
+			} 
 		} catch (ex) {
 			FBTrace.sysout('runRule exception: ', ex);
-		} // endtry
+		}
 	},
-
-	/** 
-	*  runRuleGroup
-	*
-	* @param (string) criterionNumber is defined 
-	* @param (object) doc  the document to run the rules against
-	* @param (object) loadArray  
-	* 
-	* @return (retStruct) retStruct formatted as a OAAParseEle	
-	*/ 
-	
+  
     runRuleGroup: function(criterionNumber, doc, loadArray) {
 		try {
 			with (OpenAjax.a11y) {
 				var virginArray = (loadArray.length == 0);
 				var OAA = getRuleset(AINSPECTOR.controller.default_ruleset_id);
-				
 				var ruleMapping = rulesByContext();
+				FBTrace.sysout("ruleMapping " , ruleMapping);
 				
-//				FBTrace.sysout("ruleMapping " , ruleMapping);
-				
-				// Get rules associated with this criterionNumber
 				var ruleset = null;
 				for (var r = 0; r < OAA.requirements.length && ruleset == null; ++r) { 
-					if (OAA.requirements[r].criterionNumber == criterionNumber) { 
-					  ruleset = OAA.requirements[r].rules;
-					} // endif  
-				}  // endfor
-				
-				// Set up place to store results
-				var ruleResArray = new Object();
-				for (var expr in  ruleset) {
-				  ruleResArray[expr] = new Array();
-                } // endfor
+					if (OAA.requirements[r].criterionNumber == criterionNumber) ruleset = OAA.requirements[r].rules;
 
-//              FBTrace.sysout(" ruleResArray ", ruleResArray);
+				}
+				var ruleResArray = new Object();
+				for (var expr in  ruleset) ruleResArray[expr] = new Array();;
+				FBTrace.sysout(" ruleResArray ", ruleResArray);
 				
 				for (var expr in ruleMapping) {
 					var ele = getCollectionViaDom(expr, doc);
 					var eleRules = ruleMapping[expr];
-					
-					if (expr == "document") {
-					  ele[0] = doc;
-					} // endif
-					
+					if (expr == "document") ele[0] = doc;
 					for (var r = 0; r < eleRules.length; ++r) {
 						var rule = eleRules[r];
 						if (ruleset[rule.id]) {
 							if (virginArray) { 
-							
 								var retStruct = {
 									stickyResult: false,
 									result: true,
@@ -431,8 +300,7 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 									severityCode: ruleset[rule.id].severityCode.toLowerCase(),
 									messageCode: ruleset[rule.id].messageCode,
 									msgArgs: []
-								} // endObject
-								
+								}
 								ruleIndex = loadArray.length;
 								loadArray.push(retStruct);
 								nodes = new Array();
@@ -440,19 +308,13 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 								ruleIndex = -1;
 								for (var i = 0; i < loadArray.length && ruleIndex == -1; ++i) if(loadArray[i].id == rule.id) ruleIndex = i; 
 								if (typeof loadArray[ruleIndex].nodes != 'undefined') nodes = loadArray[ruleIndex].nodes; else nodes = new Array();
-							}  // endif
-							
+							}
 							for (var i = 0; i < ele.length; ++i) {
 								var dependencies = false;
 								if (rule.dependencies) for (var d = 0; d < rule.dependencies.length && !dependencies; ++d) {
 									dependencies = (ruleResArray[rule.dependencies[d]][i] == false);
-								} // endif
-
-/*
-								if (rule.dependencies) {
-								  FBTrace.sysout(rule.id + " dependencies " + rule.dependencies + 'dependencies' + dependencies, ruleResArray);
-								} // endif
-*/								
+								}
+//								if (rule.dependencies) FBTrace.sysout(rule.id + " dependencies " + rule.dependencies + 'dependencies' + dependencies, ruleResArray);
 
 								if (!dependencies) {			                	
 									var ruleRet = rule.validate(ele[i]);
@@ -669,15 +531,6 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 		}
 
 	},	
-	/*
-	* addRuleset: Adds rules and rule set in Ainspector rule object
-	*             Called for each rule set 
-	*
-	* @param (string) rulesetID is defined in a ruleset
-	*
-	* @returns nothing
-	*
-	*/
 	
     addRuleset: function(rulesetID) {
         // first register our custom rules.
@@ -687,30 +540,15 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
     	var ele = new Object();
     	var weights = new Object();
     	var gIndex = new Object();
-
-        // Id one of these does not load it means there is a problem in the OpenAjax files
-    	// Check to see if OpenAjax is properly loaded and available  	
-    	if (typeof OpenAjax == "undefined" ) {
-    	  alert('typeof OpenAjax == "undefined"');
-    	} else {
-    	  // Check to see if OpenAjax.a11y is properly loaded and available
-    	  if (typeof OpenAjax.a11y == "undefined") { 
-    	    alert('typeof OpenAjax.a11y == "undefined"');
-    	  } // endif
-    	} // endif
-    	
-    	// Get the rules in the OpenAjax object structure
+    	if (typeof OpenAjax == "undefined" ) alert('typeof OpenAjax == "undefined"');
+    	else if (typeof OpenAjax.a11y == "undefined") alert('typeof OpenAjax.a11y == "undefined"');
     	var OAA = OpenAjax.a11y.getRuleset(rulesetID);
-    	
-    	// translate OpenAjax objects to the AInspector objects
     	for (var rs = 0; rs < OAA.requirements.length; rs++) {
         	try {
         		var eleProp = OAA.requirements[rs].criterionNumber;
-        		// This is an array indexed by OAA defined criterian numbers
                 ele[eleProp] = {};
                 weights[eleProp] = 1;
                 
-                // Add rule to the array of rules
  		        AINSPECTOR.registerRule({
 		        	id: OAA.requirements[rs].criterionNumber,
 				    name: OpenAjax.a11y.RULESET_CODES[OAA.requirements[rs].criterionNumber], // the bundle has not been loaded yet FBL.$STR(OAA.requirements[rs].criterionNumber, 'OAA_bundle'), 
@@ -732,7 +570,7 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 	    		FBTrace.sysout(e);
 	    	}
         }
-    	// Register the ruleset itself in Ainspector object
+    	// register the ruleset itself
         AINSPECTOR.registerRuleset({
         	id: OAA.id,
         	name: OpenAjax.a11y.RULESET_CODES[OAA.nameCode],

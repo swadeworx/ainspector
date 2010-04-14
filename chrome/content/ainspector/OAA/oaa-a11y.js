@@ -587,7 +587,7 @@ var _contextMap = {};
 			 * - rules: an associative array keyed by rule ids that defines additional properties 
 			 * for rules in the ruleset
 			 * 
-			 * @param (object) ruleset to be added
+			 * @param ruleset to be added
 			 */
 			addRuleset : function (ruleset) {
 				if (ruleset && this.satisfiesInterface(ruleset, _requiredRulesetProperties)
