@@ -43,6 +43,11 @@
     background: #959595 url(chrome://firebug/skin/tableHeaderActive.gif) repeat-x;
 }
 
+.gridHeaderCell:focus {
+	outline:none;
+    background: #959595 url(../img/tableHeaderFocus.gif) bottom left repeat-x;
+}
+
 .gridHeaderSorted {
     background: #7D93B2 url(chrome://firebug/skin/tableHeaderSorted.gif) repeat-x;
 }
