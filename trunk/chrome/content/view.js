@@ -41,7 +41,7 @@ AINSPECTOR.view = function(panel, yscontext) {
 	      					SPAN({class: "nodeValue editable"}, "$attr.nodeValue"), "&quot;"
 	      		  ),
 				  tag:
-				    TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, onclick: "$onClick"},
+				    TABLE({class: "domTable", cellpadding: 0, cellspacing: 0},
 				      TBODY(
 				        FOR("member", "$object|memberIterator",
 				          TAG("$row", {member: "$member"}))
@@ -55,9 +55,9 @@ AINSPECTOR.view = function(panel, yscontext) {
 				      )
 				  ),	
 	              strTag : DIV({class: "treeLabel"},"$member.name"),   
-	              strTagFail : DIV({class: "treeLabel failMsgTxt"},"$member.name"),   
-	              strTagWarn : DIV({class: "treeLabel warnMsgTxt"},"$member.name"),   
-	              strTagSuggestion : DIV({class: "treeLabel suggestionMsgTxt"},"$member.name"),   
+	              strTagFail : DIV({class: "treeLabel failMsgTxt", tabindex: "0", onclick: "$onLinkClick", onkeypress: "$onLinkClick"},"$member.name"),   
+	              strTagWarn : DIV({class: "treeLabel warnMsgTxt", tabindex: "0", onclick: "$onLinkClick", onkeypress: "$onLinkClick"},"$member.name"),   
+	              strTagSuggestion : DIV({class: "treeLabel suggestionMsgTxt", tabindex: "0", onclick: "$onClick", onkeypress: "$onLinkClick"},"$member.name"),   
 	              strTagPass : DIV({class: "treeLabel passMsgTxt"},"$member.name"),   
 	              
 	              /* not used */
@@ -67,12 +67,13 @@ AINSPECTOR.view = function(panel, yscontext) {
                   
                   onLinkClick : function(event)
                   {
-                    var target = event.target
-                    if (target.domObj)
-                    {
-                      console.log('You clicked on %o!', target.domObj);
-                      //console.dirxml(target.domObj);
-                    }
+	                // Also support enter key for sorting
+		        if (!isLeftClick(event) && !(event.type == "keypress" && event.keyCode == 13))
+			    return;
+			var row = getAncestorByClass(event.target, "treeRow");
+			var label = getAncestorByClass(event.target, "treeLabel");
+			if (label && hasClass(row, "hasChildren"))
+			  this.toggleRow(row);		
                   },    
 	              /* end of not used */
 

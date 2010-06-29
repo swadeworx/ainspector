@@ -28,11 +28,17 @@
 .suggestionMsgTxt:first-letter {color: brown; font-size: large;}
 .passMsgTxt:first-letter {color: green; font-size: large;}
 
-.treeRow.hasChildren .treeLabel:hover {
+.treeRow.hasChildren .treeLabel:hover, .treeRow.hasChildren .treeLabel:focus {
     color: blue;
     cursor: pointer;
     text-decoration: underline;
 }
+
+.treeRow.hasChildren .treeLabel:focus {
+    outline: 2px solid #FF9933;
+    -moz-outline-radius: 5px;    
+}
+
 /* END A11y Grade screen */
 
 .treeitem {  margin-right: .6em;}
