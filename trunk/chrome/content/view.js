@@ -41,7 +41,7 @@ AINSPECTOR.view = function(panel, yscontext) {
 	      					SPAN({class: "nodeValue editable"}, "$attr.nodeValue"), "&quot;"
 	      		  ),
 				  tag:
-				    TABLE({class: "domTable", cellpadding: 0, cellspacing: 0},
+				    TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, tabindex: "0", onclick: "$onLinkClick", onkeypress: "$onKeyPressedTable"},
 				      TBODY(
 				        FOR("member", "$object|memberIterator",
 				          TAG("$row", {member: "$member"}))
@@ -55,28 +55,68 @@ AINSPECTOR.view = function(panel, yscontext) {
 				      )
 				  ),	
 	              strTag : DIV({class: "treeLabel"},"$member.name"),   
-	              strTagFail : DIV({class: "treeLabel failMsgTxt", tabindex: "0", onclick: "$onLinkClick", onkeypress: "$onLinkClick"},"$member.name"),   
-	              strTagWarn : DIV({class: "treeLabel warnMsgTxt", tabindex: "0", onclick: "$onLinkClick", onkeypress: "$onLinkClick"},"$member.name"),   
-	              strTagSuggestion : DIV({class: "treeLabel suggestionMsgTxt", tabindex: "0", onclick: "$onClick", onkeypress: "$onLinkClick"},"$member.name"),   
-	              strTagPass : DIV({class: "treeLabel passMsgTxt"},"$member.name"),   
+	              strTagFail : DIV({class: "treeLabel failMsgTxt", tabindex: "-1", onkeypress: "$onKeyPressedRow"},"$member.name"),   
+	              strTagWarn : DIV({class: "treeLabel warnMsgTxt", tabindex: "-1", onkeypress: "$onKeyPressedRow"},"$member.name"),   
+	              strTagSuggestion : DIV({class: "treeLabel suggestionMsgTxt", tabindex: "-1", onkeypress: "$onKeyPressedRow"},"$member.name"),   
+	              strTagPass : DIV({class: "treeLabel passMsgTxt", tabindex: "-1", onkeypress: "$onKeyPressedRow"},"$member.name"),   
 	              
 	              /* not used */
 				  myObjectTag : DIV({class: "treeLabel"}, "$member.name"),  
 				  myLinkTag : A({class: "treeLabel", _domObj : "$member.value", onclick : "$onLinkClick"}, "$member.name"),  
                   myNumberTag : DIV({class: "treeLabel"},"$member.name", ": ", "$member.value"), 
-                  
-                  onLinkClick : function(event)
-                  {
+                  		  
+                  onLinkClick : function(event) {
 	                // Also support enter key for sorting
-		        if (!isLeftClick(event) && !(event.type == "keypress" && event.keyCode == 13))
+		        if (!isLeftClick(event))
 			    return;
 			var row = getAncestorByClass(event.target, "treeRow");
 			var label = getAncestorByClass(event.target, "treeLabel");
 			if (label && hasClass(row, "hasChildren"))
 			  this.toggleRow(row);		
-                  },    
+		    },    
 	              /* end of not used */
 
+		    onKeyPressedTable: function(event) {
+			switch(event.keyCode) {
+			    case 39: //right
+				event.stopPropagation();
+				var label = findNextDown(event.target, this.isTreeLabel);
+				label.focus();
+				break;
+			}
+		    },
+		    
+		    isTreeLabel: function(node) {
+			return hasClass(node, "treeLabel");
+		    },
+
+		    onKeyPressedRow: function(event) {
+			event.stopPropagation();
+			var row = getAncestorByClass(event.target, "treeRow");
+			switch(event.keyCode) {
+			    case 37: //left
+				if (hasClass(row, "opened")) { // if open
+				    this.closeRow(row); // close
+				} else {
+				    var table = getAncestorByClass(event.target, "domTable");
+				    table.focus(); // focus parent;
+				}
+				break;
+			    case 38: //up
+				var label = findPrevious(event.target, this.isTreeLabel, false);
+				label.focus();
+				break;
+			    case 39: //right
+				if (hasClass(row, "hasChildren"))
+				  this.openRow(row);		
+				break;
+			    case 40: //down
+				var label = findNext(event.target, this.isTreeLabel, false);
+				label.focus();
+				break;
+			}
+		    },
+		    
       	          getAllAttribs : function(elem) {
       				var attribDetails = [];
       				var attrib;
@@ -115,33 +155,39 @@ AINSPECTOR.view = function(panel, yscontext) {
 				      this.toggleRow(row);
 				  },
 
+				    closeRow: function(row) {
+					if (hasClass(row, "opened")) {
+					    var level = parseInt(row.getAttribute("level"));
+					    removeClass(row, "opened");
+					    var tbody = row.parentNode;
+					    for (var firstRow = row.nextSibling; firstRow; firstRow = row.nextSibling) {
+					        if (parseInt(firstRow.getAttribute("level")) <= level)
+					            break;
+						tbody.removeChild(firstRow);
+					    }
+					}
+				    },
+				    
+				    openRow: function(row) {
+				    	if (!hasClass(row, "opened")) {
+					    var level = parseInt(row.getAttribute("level"));
+					    setClass(row, "opened");
+					    var repObject = row.repObject;
+					    if (repObject) {
+						var members = this.getMembers(repObject.value, level+1);
+						if (members)
+						    this.loop.insertRows({members: members}, row);
+					    }
+					}
+				    },
+				    
 				  toggleRow: function(row)
 				  {
-				    var level = parseInt(row.getAttribute("level"));
 
-				    if (hasClass(row, "opened"))
-				    {
-				      removeClass(row, "opened");
-
-				      var tbody = row.parentNode;
-				      for (var firstRow = row.nextSibling; firstRow;
-				           firstRow = row.nextSibling)
-				      {
-				        if (parseInt(firstRow.getAttribute("level")) <= level)
-				          break;
-				        tbody.removeChild(firstRow);
-				      }
-				    }
-				    else
-				    {
-				      setClass(row, "opened");
-
-				      var repObject = row.repObject;
-				      if (repObject) {
-				        var members = this.getMembers(repObject.value, level+1);
-				        if (members)
-				          this.loop.insertRows({members: members}, row);
-				      }
+				    if (hasClass(row, "opened")) {
+					this.closeRow(row);
+				    } else {
+					this.openRow(row);
 				    }
 				  },
 
@@ -197,7 +243,7 @@ AINSPECTOR.view = function(panel, yscontext) {
 					  label: hasChildren ? "" : value,
 				      value: value,
 				      level: level,
-				      indent: level*16,
+				      indent: level*32,
 				      hasChildren: hasChildren,
 					  tag: tag
 				    };
