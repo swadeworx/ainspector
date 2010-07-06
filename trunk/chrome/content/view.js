@@ -261,24 +261,30 @@ AINSPECTOR.view = function(panel, yscontext) {
 				    TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, onclick: "$onClick"},
 				      TBODY(
 				        FOR("member", "$object|memberIterator",
-				          TAG("$row", {member: "$member"}))
+					    TAG("$row", {member: "$member"}))
 				      )
 				  ),
+				    
 				  row:
 				    TR({class: "treeRow", $hasChildren: "$member.hasChildren",
 				       _repObject: "$member", level: "$member.level"},
-				       TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px"},
-				       TAG("$member.tag", {'member' :"$member", 'object': "$member.value"})
-				      ),
-				       TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px"},
-				       TAG("$member.node|getNaturalTag", {object: "$member.node"})
-				      ),
-				       TD({class: "memberLabelCell"}, "$member."),
-				       TD({class: "memberLabelCell"},
-				    		   FOR('issue', '$member.issues',	DIV('$issue') )   
-						      )
+					TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px"},
+					    TAG("$member.tag",
+						{'member' :"$member", 'object': "$member.value"}
+					    )
+					),
+					TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px"},
+					    TAG("$member.node|getNaturalTag",
+						{object: "$member.node"}
+					    )
+					),
+	    				TD({class: "memberLabelCell"},
+				    	    FOR('issue', '$member.issues',
+						DIV('$issue')
+					    )   
+					)
+				    ),
 
-				  ),				    
 	              strTag : DIV({class: "treeLabel"},"$member.name"),   
 
 	              getNaturalTag: function(value)
@@ -353,8 +359,8 @@ AINSPECTOR.view = function(panel, yscontext) {
 				  {
 					//  FBTrace.sysout(' createMember : ', value);
 					return {
-				      name: value.displayName, //name,
-					  label: (value.subNodes != null) ? "" : value,
+				      name: value.ariaAttributes, //name,
+				      label: (value.subNodes != null) ? "" : value,
 				      value: (value != null) ? value :'',
 				      node: (value.node) ? value.node : 'NO NAME',
 				      subNodes: (value.subNodes) ? value.subNodes : 'NO subNodes',
@@ -883,9 +889,9 @@ AINSPECTOR.view.prototype = {
             else if ( "ysRolesButton" == sView) {
                 stext += this.yscontext.genTab('roles');
                 this.addButtonView("ysRolesButton", stext);
-                
-                //SMF append to the appropriate DOMPlate        	    
+                //SMF append to the appropriate DOMPlate
                  if (this.yscontext.roles_set.length > 0) {
+			Firebug.Console.log(this.yscontext.roles_set);
                 	var parentNode = panel.document.getElementById(this.yscontext.uniqueID + 'roles');
                 	this.landmarkTreeRep.tag.append({object: this.yscontext.roles_set}, parentNode, this.landmarkTreeRep);  
                  } else {
@@ -1686,7 +1692,7 @@ AINSPECTOR.view.getEleByType = function(doc, whichTab)
 	    	    else this.displayName += Left(getNodeTextRecursively(node), 256);
 	    	    	
 	     		this.issuesObj = AINSPECTOR.controller.callAllParseNode(node);
-	     		this.ariaAttributes = 'test';
+	     		this.ariaAttributes = role;
 			}
     	}
 
