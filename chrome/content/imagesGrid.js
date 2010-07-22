@@ -14,52 +14,54 @@ AINSPECTOR.view.imagesTable = domplate(Firebug.Rep, new Firebug.Listener(),
 
         TABLE({"class": "netTable", cellpadding: 0, cellspacing: 0, id: "", hiddenCols: "", "role": "treegrid"},
             TBODY({"class": "netTableBody", "role" : "presentation"},
-                TR({"class": "gridHeaderRow gridRow focusRow outerFocusRow", id: "imagesTableHeader", onclick: "$AINSPECTOR.grid.onClickHeader", "role": "row"},
+                TR({"class": "gridHeaderRow gridRow focusRow outerFocusRow", id: "imagesTableHeader",
+					onclick: "$AINSPECTOR.grid.onClickHeader", "role": "row", tabindex: "0",
+					onkeypress: "$AINSPECTOR.grid.onKeyRow" },
 
-                    TD({id: "imgOrderCol", "class": "gridHeaderCell a11yFocus",
-                        "role": "columnheader", tabindex: "0", onkeypress: "$AINSPECTOR.grid.onClickHeader"},
+                    TD({id: "imgOrderCol", "class": "gridHeaderCell gridCell a11yFocus",
+                        "role": "columnheader", tabindex: "-1", onkeypress: "$AINSPECTOR.grid.onKeyHeadingCell"},
                         DIV({"class": "gridHeaderCellBox",
                         title: $STR("imgGrid.header.order Tooltip", "a11y_bundle")},
                         $STR("imgGrid.header.order", "a11y_bundle"))
                     ),
-                    TD({id: "imgTextCol", "class": "gridHeaderCell alphaValue a11yFocus",
-                        "role": "columnheader", tabindex: "0", onkeypress: "$AINSPECTOR.grid.onClickHeader"},
+                    TD({id: "imgTextCol", "class": "gridHeaderCell gridCell alphaValue a11yFocus",
+                        "role": "columnheader", tabindex: "-1", onkeypress: "$AINSPECTOR.grid.onKeyHeadingCell"},
                         DIV({"class": "gridHeaderCellBox",
                         title: $STR("imgGrid.header.text Tooltip", "a11y_bundle")},
                         $STR("imgGrid.header.text", "a11y_bundle"))
                     ),
-                    TD({id: "imgLinkCol", "class": "gridHeaderCell alphaValue a11yFocus",
-                        "role": "columnheader", tabindex: "0", onkeypress: "$AINSPECTOR.grid.onClickHeader"},
+                    TD({id: "imgLinkCol", "class": "gridHeaderCell gridCell alphaValue a11yFocus",
+                        "role": "columnheader", tabindex: "-1", onkeypress: "$AINSPECTOR.grid.onKeyHeadingCell"},
                         DIV({"class": "gridHeaderCellBox",
                         title: $STR("imgGrid.header.link Tooltip", "a11y_bundle")},
                         $STR("imgGrid.header.link", "a11y_bundle"))
                     ),
-                    TD({id: "imgWidthCol", "class": "gridHeaderCell a11yFocus",
-                        "role": "columnheader", tabindex: "0", onkeypress: "$AINSPECTOR.grid.onClickHeader"},
+                    TD({id: "imgWidthCol", "class": "gridHeaderCell gridCell a11yFocus",
+                        "role": "columnheader", tabindex: "-1", onkeypress: "$AINSPECTOR.grid.onKeyHeadingCell"},
                         DIV({"class": "gridHeaderCellBox",
                         title: $STR("imgGrid.header.width Tooltip", "a11y_bundle")},
                         $STR("imgGrid.header.width", "a11y_bundle"))
                     ),
-                    TD({id: "imgHeightCol", "class": "gridHeaderCell a11yFocus",
-                        "role": "columnheader", tabindex: "0", onkeypress: "$AINSPECTOR.grid.onClickHeader"},
+                    TD({id: "imgHeightCol", "class": "gridHeaderCell gridCell a11yFocus",
+                        "role": "columnheader", tabindex: "-1", onkeypress: "$AINSPECTOR.grid.onKeyHeadingCell"},
                         DIV({"class": "gridHeaderCellBox",
                         title: $STR("imgGrid.header.height Tooltip", "a11y_bundle")},
                         $STR("imgGrid.header.height", "a11y_bundle"))
                     ),
-                    TD({id: "imgRatioCol", "class": "gridHeaderCell a11yFocus",
-                        "role": "columnheader", tabindex: "0", onkeypress: "$AINSPECTOR.grid.onClickHeader"},
+                    TD({id: "imgRatioCol", "class": "gridHeaderCell gridCell a11yFocus",
+                        "role": "columnheader", tabindex: "-1", onkeypress: "$AINSPECTOR.grid.onKeyHeadingCell"},
                         DIV({"class": "gridHeaderCellBox",
                         title: $STR("imgGrid.header.ratio Tooltip", "a11y_bundle")},
                         $STR("imgGrid.header.ratio", "a11y_bundle"))
                     ),
-                    TD({id: "imgLongdescCol", "class": "gridHeaderCell alphaValue a11yFocus",
-                        "role": "columnheader", tabindex: "0", onkeypress: "$AINSPECTOR.grid.onClickHeader"},
+                    TD({id: "imgLongdescCol", "class": "gridHeaderCell gridCell alphaValue a11yFocus",
+                        "role": "columnheader", tabindex: "-1", onkeypress: "$AINSPECTOR.grid.onKeyHeadingCell"},
                         DIV({"class": "gridHeaderCellBox",
                         title: $STR("imgGrid.header.longdesc Tooltip", "a11y_bundle")},
                         $STR("imgGrid.header.longdesc", "a11y_bundle"))
                     ),
-                    TD({id: "imgIssuesCol", "class": "gridHeaderCell alphaValue a11yFocus",
-                        "role": "columnheader", tabindex: "0", onkeypress: "$AINSPECTOR.grid.onClickHeader"},
+                    TD({id: "imgIssuesCol", "class": "gridHeaderCell gridCell alphaValue a11yFocus",
+                        "role": "columnheader", tabindex: "-1", onkeypress: "$AINSPECTOR.grid.onKeyHeadingCell"},
                         DIV({"class": "gridHeaderCellBox",
                         title: $STR("imgGrid.header.issues Tooltip", "a11y_bundle")},
                         $STR("imgGrid.header.issues", "a11y_bundle"))
@@ -94,30 +96,39 @@ AINSPECTOR.view.imageEntry = domplate(Firebug.Rep, new Firebug.Listener(),
 	
     rowTag: //added background color based on rule results
         FOR("object", "$images",
-            TR({"class": "$object.severityClass" //gridRow
+            TR({"class": "$object.severityClass gridRow a11yFocus", tabindex: "-1", //gridRow
+				"role": "row", onkeypress: "$AINSPECTOR.grid.onKeyRow"
             	},       		
-                TD({"class": "imgOrderCol gridCol a11yFocus", "role": "gridcell"},
+                TD({"class": "imgOrderCol gridCell gridCol a11yFocus", "role": "gridcell",
+					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
                         DIV({"class": "gridLabel"}, "$object.order")
                     ),
-                TD({"class": "imgTextCol gridCol a11yFocus", "role": "gridcell"},
+                TD({"class": "imgTextCol gridCell gridCol a11yFocus", "role": "gridcell",
+					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
                         DIV({"class": "gridLabel"}, TAG("$shortTag", {object : '$object.node'}))
                     ),
-                TD({"class": "imgLinkCol gridCol a11yFocus", "role": "gridcell" },
+                TD({"class": "imgLinkCol gridCell gridCol a11yFocus", "role": "gridcell" ,
+					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
                         DIV({"class": "gridLabel"}, "$object.link")
                     ),
-                TD({"class": "imgWidthCol gridCol a11yFocus", "role": "gridcell"},
+                TD({"class": "imgWidthCol gridCell gridCol a11yFocus", "role": "gridcell",
+					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
                         DIV({"class": "gridLabel"}, "$object.width")
                     ),
-                TD({"class": "imgHeightCol gridCol a11yFocus", "role": "gridcell"},
+                TD({"class": "imgHeightCol gridCell gridCol a11yFocus", "role": "gridcell",
+					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
                         DIV({"class": "gridLabel"}, "$object.height")
                     ),
-                TD({"class": "imgRatioCol gridCol a11yFocus", "role": "gridcell"},
+                TD({"class": "imgRatioCol gridCell gridCol a11yFocus", "role": "gridcell",
+					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
                         DIV({"class": "gridLabel"}, "$object.ratio")
                     ),
-                TD({"class": "imgLongdescCol gridCol a11yFocus", "role": "gridcell"},
+                TD({"class": "imgLongdescCol gridCell gridCol a11yFocus", "role": "gridcell",
+					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
                          DIV({"class": "gridLabel"}, "$object.longdesc")
                     ),
-                TD({"class": "imgIssuesCol gridCol a11yFocus", "role": "gridcell"},
+                TD({"class": "imgIssuesCol gridCell gridCol a11yFocus", "role": "gridcell",
+					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
                         DIV({"class": "gridLabel"}, FOR('issue', '$object.msgs',	DIV('$issue') ))
                     )
         	)	

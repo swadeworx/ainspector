@@ -14,6 +14,81 @@ AINSPECTOR.grid = {
         AINSPECTOR.grid.sortColumn(table, column);
     },
 
+    onKeyRow: function(event)
+    {
+		event.stopPropagation();
+		switch(event.keyCode) {
+		case 38: //up
+			var row = findPrevious(event.target, AINSPECTOR.grid.isGridRow);
+			if (row) row.focus();
+			break;
+		case 39: //right
+			var cell = getChildByClass(event.target, "gridCell");
+			if (cell) cell.focus();
+			break;
+		case 40: //down
+			var row = findNext(event.target, AINSPECTOR.grid.isGridRow);
+			if (row) row.focus();
+			break;
+		}
+    },
+    
+	onKeyCell: function(event)
+    {
+		event.stopPropagation();
+		switch(event.keyCode) {
+		case 38: //up
+			var index = findElementIndex(event.target);
+			var row = getAncestorByClass(event.target, "gridRow");
+			row = row.previousSibling;
+			if (row) {
+				var  cell = row.childNodes[index];
+				if (cell) cell.focus();
+			}
+			break;
+		case 37: //left
+			var cell = event.target.previousSibling;
+			if (cell) cell.focus();
+			else {
+				var row = getAncestorByClass(event.target, "gridRow");
+				row.focus();
+			}
+			break;
+		case 39: //right
+			var cell = event.target.nextSibling;
+			if (cell) cell.focus();
+			break;
+		case 40: //down
+			var index = findElementIndex(event.target);
+			var row = getAncestorByClass(event.target, "gridRow");
+			row = row.nextSibling;
+			if (row) {
+				var  cell = row.childNodes[index];
+				if (cell) cell.focus();
+			}
+			break;
+		}
+    },
+
+	onKeyHeadingCell: function(event)
+    {
+		event.stopPropagation();
+		switch(event.keyCode) {
+		case 13: //Enter
+	        var table = getAncestorByClass(event.target, "netTable");
+	        var column = getAncestorByClass(event.target, "gridHeaderCell");
+	        AINSPECTOR.grid.sortColumn(table, column);
+			break;
+		default:
+			AINSPECTOR.grid.onKeyCell(event);
+			break;
+		}
+    },
+	
+	isGridRow: function(node) {
+		return hasClass(node, "gridRow");
+	},
+
     sortColumn: function(table, col, direction)
     {
        if (!col)
@@ -196,3 +271,16 @@ AINSPECTOR.grid = {
 
 }});
 
+function findElementIndex(elem) {
+	var k=-1, e=elem;
+	while (e) {
+		if ( "previousSibling" in e ) {
+			e = e.previousSibling;
+			k = k + 1;
+		} else {
+			k= -1;
+			break;
+		}
+	}
+	return k;
+}
