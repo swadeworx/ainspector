@@ -15,28 +15,29 @@ AINSPECTOR.view.headingsTable = domplate(Firebug.Rep, new Firebug.Listener(),
         TABLE({"class": "netTable", cellpadding: 0, cellspacing: 0, hiddenCols: "", "role": "treegrid"},
             TBODY({"class": "netTableBody", "role" : "presentation"},
                 TR({"class": "gridHeaderRow gridRow focusRow outerFocusRow", id: "headingsTableHeader",
-				onclick: "$AINSPECTOR.grid.onClickHeader", "role": "row"},
+				onclick: "$AINSPECTOR.grid.onClickHeader", "role": "row", tabindex: "0",
+				onkeypress: "$AINSPECTOR.grid.onKeyRow" },
 
-                    TD({id: "headingsOrderCol", "class": "gridHeaderCell a11yFocus",
-                        "role": "columnheader", tabindex: "0", onkeypress: "$AINSPECTOR.grid.onClickHeader"},
+                    TD({id: "headingsOrderCol", "class": "gridHeaderCell gridCell a11yFocus",
+                        "role": "columnheader", tabindex: "-1", onkeypress: "$AINSPECTOR.grid.onKeyHeadingCell"},
                         DIV({"class": "gridHeaderCellBox",
                         title: $STR("headingsGrid.header.order Tooltip", "a11y_bundle")},
                         $STR("headingsGrid.header.order", "a11y_bundle"))
                     ),
-                    TD({id: "headingsLevelCol", "class": "gridHeaderCell alphaValue a11yFocus",
-                        "role": "columnheader", tabindex: "0", onkeypress: "$AINSPECTOR.grid.onClickHeader"},
+                    TD({id: "headingsLevelCol", "class": "gridHeaderCell gridCell alphaValue a11yFocus",
+                        "role": "columnheader", tabindex: "-1", onkeypress: "$AINSPECTOR.grid.onKeyHeadingCell"},
                         DIV({"class": "gridHeaderCellBox",
                         title: $STR("headingsGrid.header.level Tooltip", "a11y_bundle")},
                         $STR("headingsGrid.header.level", "a11y_bundle"))
                     ),
-                    TD({id: "headingsTextCol", "class": "gridHeaderCell alphaValue a11yFocus",
-                        "role": "columnheader", tabindex: "0", onkeypress: "$AINSPECTOR.grid.onClickHeader"},
+                    TD({id: "headingsTextCol", "class": "gridHeaderCell gridCell alphaValue a11yFocus",
+                        "role": "columnheader", tabindex: "-1", onkeypress: "$AINSPECTOR.grid.onKeyHeadingCell"},
                         DIV({"class": "gridHeaderCellBox",
                         title: $STR("headingsGrid.header.text Tooltip", "a11y_bundle")},
                         $STR("headingsGrid.header.text", "a11y_bundle"))
                     ),
-                    TD({id: "headingsIssuesCol", "class": "gridHeaderCell alphaValue a11yFocus",
-                        "role": "columnheader", tabindex: "0", onkeypress: "$AINSPECTOR.grid.onClickHeader"},
+                    TD({id: "headingsIssuesCol", "class": "gridHeaderCell gridCell alphaValue a11yFocus",
+                        "role": "columnheader", tabindex: "-1", onkeypress: "$AINSPECTOR.grid.onKeyHeadingCell"},
                         DIV({"class": "gridHeaderCellBox",
                         title: $STR("headingsGrid.header.issues Tooltip", "a11y_bundle")},
                         $STR("headingsGrid.header.issues", "a11y_bundle"))
@@ -68,18 +69,23 @@ AINSPECTOR.view.headingsEntry = domplate(Firebug.Rep, new Firebug.Listener(),
 	
     rowTag: //added background color based on rule results
         FOR("object", "$headings",
-            TR({"class": "$object.severityClass" //gridRow
+            TR({"class": "$object.severityClass gridRow a11yFocus", tabindex: "-1", //gridRow
+				"role": "row", onkeypress: "$AINSPECTOR.grid.onKeyRow"
             	},       		
-                TD({"class": "headingsOrderCol gridCol a11yFocus", "role": "gridcell"},
+                TD({"class": "headingsOrderCol gridCol gridCell a11yFocus", "role": "gridcell",
+					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
                         DIV({"class": "gridLabel"}, "$object.order")
                     ),
-                TD({"class": "headingsLevelCol gridCol a11yFocus", "role": "gridcell"},
+                TD({"class": "headingsLevelCol gridCol gridCell a11yFocus", "role": "gridcell",
+					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
                         DIV({"class": "gridLabel"}, "$object.level")
                     ),
-                TD({"class": "headingsTextCol gridCol a11yFocus", "role": "gridcell" },
+                TD({"class": "headingsTextCol gridCol gridCell a11yFocus", "role": "gridcell",
+					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
                         DIV({"class": "gridLabel"}, TAG("$shortTag", {object : '$object.node'}))
                     ),
-                TD({"class": "headingsIssuesCol gridCol a11yFocus", "role": "gridcell"},
+                TD({"class": "headingsIssuesCol gridCol gridCell a11yFocus", "role": "gridcell",
+					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
                         DIV({"class": "gridLabel"}, FOR('issue', '$object.msgs',	DIV('$issue') ))
                     )
         	)	

@@ -14,40 +14,42 @@ AINSPECTOR.view.linksTable = domplate(Firebug.Rep, new Firebug.Listener(),
 
         TABLE({"class": "netTable", cellpadding: 0, cellspacing: 0, hiddenCols: "", "role": "treegrid"},
             TBODY({"class": "netTableBody", "role" : "presentation"},
-                TR({"class": "gridHeaderRow gridRow focusRow outerFocusRow", id: "linksTableHeader", onclick: "$AINSPECTOR.grid.onClickHeader", "role": "row"},
+                TR({"class": "gridHeaderRow gridRow focusRow outerFocusRow", id: "linksTableHeader",
+					onclick: "$AINSPECTOR.grid.onClickHeader", "role": "row", tabindex: "0",
+					onkeypress: "$AINSPECTOR.grid.onKeyRow" },
 
-                    TD({id: "linksOrderCol", "class": "gridHeaderCell a11yFocus",
-                        "role": "columnheader", tabindex: "0", onkeypress: "$AINSPECTOR.grid.onClickHeader"},
+                    TD({id: "linksOrderCol", "class": "gridHeaderCell gridCell a11yFocus",
+                        "role": "columnheader", tabindex: "-1", onkeypress: "$AINSPECTOR.grid.onKeyHeadingCell"},
                         DIV({"class": "gridHeaderCellBox",
                         title: $STR("linkGrid.header.order Tooltip", "a11y_bundle")},
                         $STR("linkGrid.header.order", "a11y_bundle"))
                     ),
-                    TD({id: "linksTextCol", "class": "gridHeaderCell alphaValue a11yFocus",
-                        "role": "columnheader", tabindex: "0", onkeypress: "$AINSPECTOR.grid.onClickHeader"},
+                    TD({id: "linksTextCol", "class": "gridHeaderCell gridCell alphaValue a11yFocus",
+                        "role": "columnheader", tabindex: "-1", onkeypress: "$AINSPECTOR.grid.onKeyHeadingCell"},
                         DIV({"class": "gridHeaderCellBox",
                         title: $STR("linkGrid.header.linktext Tooltip", "a11y_bundle")},
                         $STR("linkGrid.header.linktext", "a11y_bundle"))
                     ),
-                    TD({id: "linksTitleCol", "class": "gridHeaderCell alphaValue a11yFocus",
-                        "role": "columnheader", tabindex: "0", onkeypress: "$AINSPECTOR.grid.onClickHeader"},
+                    TD({id: "linksTitleCol", "class": "gridHeaderCell gridCell alphaValue a11yFocus",
+                        "role": "columnheader", tabindex: "-1", onkeypress: "$AINSPECTOR.grid.onKeyHeadingCell"},
                         DIV({"class": "gridHeaderCellBox",
                         title: $STR("linkGrid.header.linktitle Tooltip", "a11y_bundle")},
                         $STR("linkGrid.header.linktitle", "a11y_bundle"))
                     ),
-                    TD({id: "linksTypeCol", "class": "gridHeaderCell alphaValue a11yFocus",
-                        "role": "columnheader", tabindex: "0", onkeypress: "$AINSPECTOR.grid.onClickHeader"},
+                    TD({id: "linksTypeCol", "class": "gridHeaderCell gridCell alphaValue a11yFocus",
+                        "role": "columnheader", tabindex: "-1", onkeypress: "$AINSPECTOR.grid.onKeyHeadingCell"},
                         DIV({"class": "gridHeaderCellBox",
                         title: $STR("linkGrid.header.type Tooltip", "a11y_bundle")},
                         $STR("linkGrid.header.type", "a11y_bundle"))
                     ),
-                    TD({id: "linksHREFCol", "class": "gridHeaderCell alphaValue a11yFocus",
-                        "role": "columnheader", tabindex: "0", onkeypress: "$AINSPECTOR.grid.onClickHeader"},
+                    TD({id: "linksHREFCol", "class": "gridHeaderCell gridCell alphaValue a11yFocus",
+                        "role": "columnheader", tabindex: "-1", onkeypress: "$AINSPECTOR.grid.onKeyHeadingCell"},
                         DIV({"class": "gridHeaderCellBox",
                         title: $STR("linkGrid.header.HREF Tooltip", "a11y_bundle")},
                         $STR("linkGrid.header.HREF", "a11y_bundle"))
                     ),
-                    TD({id: "linksIssuesCol", "class": "gridHeaderCell alphaValue a11yFocus",
-                        "role": "columnheader", tabindex: "0", onkeypress: "$AINSPECTOR.grid.onClickHeader"},
+                    TD({id: "linksIssuesCol", "class": "gridHeaderCell gridCell alphaValue a11yFocus",
+                        "role": "columnheader", tabindex: "-1", onkeypress: "$AINSPECTOR.grid.onKeyHeadingCell"},
                         DIV({"class": "gridHeaderCellBox",
                         title: $STR("linkGrid.header.issues Tooltip", "a11y_bundle")},
                         $STR("linkGrid.header.issues", "a11y_bundle"))
@@ -82,24 +84,31 @@ AINSPECTOR.view.linkEntry = domplate(Firebug.Rep, new Firebug.Listener(),
 		  
     linkTag: //added background color based on rule results
         FOR("object", "$links",
-            TR({"class": "$object.severityClass" //gridRow
+            TR({"class": "$object.severityClass gridRow a11yFocus", tabindex: "-1", //gridRow
+				"role": "row", onkeypress: "$AINSPECTOR.grid.onKeyRow"
             	},       		
-                TD({"class": "linksOrderCol gridCol a11yFocus", "role": "gridcell"},
+                TD({"class": "linksOrderCol gridCell gridCol a11yFocus", "role": "gridcell",
+					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
                         DIV({"class": "gridLabel"}, "$object.order")
                     ),
-                TD({"class": "linksTextCol gridCol a11yFocus", "role": "gridcell"},
+                TD({"class": "linksTextCol gridCell gridCol a11yFocus", "role": "gridcell",
+					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
                         DIV({"class": "gridLabel"}, TAG("$shortTag", {object : '$object.node'}))
                     ),
-                TD({"class": "linksTitleCol gridCol a11yFocus", "role": "gridcell" },
+                TD({"class": "linksTitleCol gridCell gridCol a11yFocus", "role": "gridcell" ,
+					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
                         DIV({"class": "gridLabel"}, "$object.title")
                     ),
-                TD({"class": "linksTypeCol gridCol a11yFocus", "role": "gridcell"},
+                TD({"class": "linksTypeCol gridCell gridCol a11yFocus", "role": "gridcell",
+					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
                         DIV({"class": "gridLabel"}, "$object.type")
                     ),
-                TD({"class": "linksHREFCol gridCol a11yFocus", "role": "gridcell"},
+                TD({"class": "linksHREFCol gridCell gridCol a11yFocus", "role": "gridcell",
+					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
                         DIV({"class": "gridLabel"}, "$object.link")
                     ),
-                TD({"class": "linksIssuesCol gridCol a11yFocus", "role": "gridcell"},
+                TD({"class": "linksIssuesCol gridCell gridCol a11yFocus", "role": "gridcell",
+					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
                         DIV({"class": "gridLabel"}, FOR('issue', '$object.msgs',	DIV('$issue') ))
                     )
         	)	

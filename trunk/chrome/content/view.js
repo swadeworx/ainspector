@@ -258,7 +258,7 @@ AINSPECTOR.view = function(panel, yscontext) {
 		this.landmarkTreeRep = domplate(Firebug.Rep,
 				{
 				  tag:
-				    TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, onclick: "$onClick"},
+				    TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, onclick: "$onClick", tabindex: 0, onkeypress: "$onKeyPressedTable"},
 				      TBODY(
 				        FOR("member", "$object|memberIterator",
 					    TAG("$row", {member: "$member"}))
@@ -267,7 +267,7 @@ AINSPECTOR.view = function(panel, yscontext) {
 				    
 				  row:
 				    TR({class: "treeRow", $hasChildren: "$member.hasChildren",
-				       _repObject: "$member", level: "$member.level"},
+				       _repObject: "$member", level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow"},
 					TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px"},
 					    TAG("$member.tag",
 						{'member' :"$member", 'object': "$member.value"}
@@ -314,35 +314,84 @@ AINSPECTOR.view = function(panel, yscontext) {
 				      this.toggleRow(row);
 				  },
 
-				  toggleRow: function(row)
-				  {
-				    var level = parseInt(row.getAttribute("level"));
-
-				    if (hasClass(row, "opened"))
-				    {
-				      removeClass(row, "opened");
-
-				      var tbody = row.parentNode;
-				      for (var firstRow = row.nextSibling; firstRow;
-				           firstRow = row.nextSibling)
-				      {
-				        if (parseInt(firstRow.getAttribute("level")) <= level)
-				          break;
-				        tbody.removeChild(firstRow);
-				      }
+			onKeyPressedTable: function(event) {
+			    switch(event.keyCode) {
+				case 39: //right
+				    event.stopPropagation();
+				    var label = findNextDown(event.target, this.isTreeRow);
+				    label.focus();
+				    break;
+			    }
+			},
+			
+			isTreeRow: function(node) {
+			    return hasClass(node, "treeRow");
+			},
+			
+			onKeyPressedRow: function(event) {
+			    event.stopPropagation();
+			    switch(event.keyCode) {
+				case 37: //left
+				    var row = getAncestorByClass(event.target, "treeRow");
+				    if (hasClass(row, "opened")) { // if open
+					this.closeRow(row); // close
+				    } else {
+					var table = getAncestorByClass(event.target, "domTable");
+					table.focus(); // focus parent;
 				    }
-				    else
-				    {
-				      setClass(row, "opened");
+				    break;
+				case 38: //up
+				    var row = findPrevious(event.target, this.isTreeRow, false);
+				    row.focus();
+				    break;
+				case 39: //right
+				    var row = getAncestorByClass(event.target, "treeRow");
+				    if (hasClass(row, "hasChildren"))
+				      this.openRow(row);		
+				    break;
+				case 40: //down
+				    var row = findNext(event.target, this.isTreeRow, false);
+				    row.focus();
+				    break;
+			    }
+			},
+			
+			
+			closeRow: function(row) {
+			    if (hasClass(row, "opened")) {
+				var level = parseInt(row.getAttribute("level"));
+				removeClass(row, "opened");
+				var tbody = row.parentNode;
+				for (var firstRow = row.nextSibling; firstRow; firstRow = row.nextSibling) {
+				    if (parseInt(firstRow.getAttribute("level")) <= level)
+					break;
+				    tbody.removeChild(firstRow);
+				}
+			    }
+			},
+			
+			openRow: function(row) {
+			    if (!hasClass(row, "opened")) {
+				var level = parseInt(row.getAttribute("level"));
+				setClass(row, "opened");
+				var repObject = row.repObject;
+				if (repObject) {
+                                    var members = this.getMembers(repObject.subNodes, level+1);
+				    if (members)
+					this.loop.insertRows({members: members}, row);
+				}
+			    }
+			},
+			
+		      toggleRow: function(row)
+		      {
 
-				      var repObject = row.repObject;
-				      if (repObject) {
-				        var members = this.getMembers(repObject.subNodes, level+1);
-				        if (members)
-				          this.loop.insertRows({members: members}, row);
-				      }
-				    }
-				  },
+			if (hasClass(row, "opened")) {
+			    this.closeRow(row);
+			} else {
+			    this.openRow(row);
+			}
+		      },
 
 				  getMembers: function(object, level)
 				  {
