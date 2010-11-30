@@ -77,13 +77,14 @@ AINSPECTOR.view = function(panel, yscontext) {
 	              /* end of not used */
 
 		    onKeyPressedTable: function(event) {
-			switch(event.keyCode) {
-			    case 39: //right
-				event.stopPropagation();
-				var label = findNextDown(event.target, this.isTreeLabel);
-				label.focus();
-				break;
-			}
+                switch(event.keyCode) {
+                    case 39: //right
+                        event.stopPropagation();
+                        event.preventDefault();
+                        var label = findNextDown(event.target, this.isTreeLabel);
+                        label.focus();
+                        break;
+                }
 		    },
 		    
 		    isTreeLabel: function(node) {
@@ -91,30 +92,34 @@ AINSPECTOR.view = function(panel, yscontext) {
 		    },
 
 		    onKeyPressedRow: function(event) {
-			event.stopPropagation();
-			var row = getAncestorByClass(event.target, "treeRow");
-			switch(event.keyCode) {
-			    case 37: //left
-				if (hasClass(row, "opened")) { // if open
-				    this.closeRow(row); // close
-				} else {
-				    var table = getAncestorByClass(event.target, "domTable");
-				    table.focus(); // focus parent;
-				}
-				break;
-			    case 38: //up
-				var label = findPrevious(event.target, this.isTreeLabel, false);
-				label.focus();
-				break;
-			    case 39: //right
-				if (hasClass(row, "hasChildren"))
-				  this.openRow(row);		
-				break;
-			    case 40: //down
-				var label = findNext(event.target, this.isTreeLabel, false);
-				label.focus();
-				break;
-			}
+                event.stopPropagation();
+                var row = getAncestorByClass(event.target, "treeRow");
+                switch(event.keyCode) {
+                    case 37: //left
+                        event.preventDefault();
+                        if (hasClass(row, "opened")) { // if open
+                            this.closeRow(row); // close
+                        } else {
+                            var table = getAncestorByClass(event.target, "domTable");
+                            table.focus(); // focus parent;
+                        }
+                        break;
+                    case 38: //up
+                        event.preventDefault();
+                        var label = findPrevious(event.target, this.isTreeLabel, false);
+                        label.focus();
+                        break;
+                    case 39: //right
+                        event.preventDefault();
+                        if (hasClass(row, "hasChildren"))
+                          this.openRow(row);		
+                        break;
+                    case 40: //down
+                        event.preventDefault();
+                        var label = findNext(event.target, this.isTreeLabel, false);
+                        label.focus();
+                        break;
+                }
 		    },
 		    
       	          getAllAttribs : function(elem) {
@@ -316,11 +321,12 @@ AINSPECTOR.view = function(panel, yscontext) {
 
 			onKeyPressedTable: function(event) {
 			    switch(event.keyCode) {
-				case 39: //right
-				    event.stopPropagation();
-				    var label = findNextDown(event.target, this.isTreeRow);
-				    label.focus();
-				    break;
+                    case 39: //right
+                        event.stopPropagation();
+                        event.preventDefault();
+                        var label = findNextDown(event.target, this.isTreeRow);
+                        label.focus();
+                        break;
 			    }
 			},
 			
@@ -331,28 +337,32 @@ AINSPECTOR.view = function(panel, yscontext) {
 			onKeyPressedRow: function(event) {
 			    event.stopPropagation();
 			    switch(event.keyCode) {
-				case 37: //left
-				    var row = getAncestorByClass(event.target, "treeRow");
-				    if (hasClass(row, "opened")) { // if open
-					this.closeRow(row); // close
-				    } else {
-					var table = getAncestorByClass(event.target, "domTable");
-					table.focus(); // focus parent;
-				    }
-				    break;
-				case 38: //up
-				    var row = findPrevious(event.target, this.isTreeRow, false);
-				    row.focus();
-				    break;
-				case 39: //right
-				    var row = getAncestorByClass(event.target, "treeRow");
-				    if (hasClass(row, "hasChildren"))
-				      this.openRow(row);		
-				    break;
-				case 40: //down
-				    var row = findNext(event.target, this.isTreeRow, false);
-				    row.focus();
-				    break;
+                    case 37: //left
+                        event.preventDefault();
+                        var row = getAncestorByClass(event.target, "treeRow");
+                        if (hasClass(row, "opened")) { // if open
+                        this.closeRow(row); // close
+                        } else {
+                        var table = getAncestorByClass(event.target, "domTable");
+                        table.focus(); // focus parent;
+                        }
+                        break;
+                    case 38: //up
+                        event.preventDefault();
+                        var row = findPrevious(event.target, this.isTreeRow, false);
+                        row.focus();
+                        break;
+                    case 39: //right
+                        event.preventDefault();
+                        var row = getAncestorByClass(event.target, "treeRow");
+                        if (hasClass(row, "hasChildren"))
+                          this.openRow(row);		
+                        break;
+                    case 40: //down
+                        event.preventDefault();
+                        var row = findNext(event.target, this.isTreeRow, false);
+                        row.focus();
+                        break;
 			    }
 			},
 			
@@ -536,18 +546,19 @@ AINSPECTOR.view = function(panel, yscontext) {
                     case KeyEvent.DOM_VK_UP:
                     case KeyEvent.DOM_VK_DOWN:
                         
-                        var forward = key == KeyEvent.DOM_VK_RIGHT || key == KeyEvent.DOM_VK_DOWN;
-                        var tabList = getAncestorByClass(event.target, "focusTabList");
-                        var tabs = tabList.getElementsByClassName("focusTab");
-                        var currentIndex = Array.indexOf(tabs, event.target);
-                        if (currentIndex != -1) {
-                            var newIndex = forward ? ++currentIndex : --currentIndex;
-                            newIndex = newIndex < 0 ? tabs.length -1 : (newIndex >= tabs.length ? 0 : newIndex);
-                            if (tabs[newIndex])
-                                tabs[newIndex].focus();
-                        }
-                        event.stopPropagation();
-                        break;
+                    var forward = key == KeyEvent.DOM_VK_RIGHT || key == KeyEvent.DOM_VK_DOWN;
+                    var tabList = getAncestorByClass(event.target, "focusTabList");
+                    var tabs = tabList.getElementsByClassName("focusTab");
+                    var currentIndex = Array.indexOf(tabs, event.target);
+                    if (currentIndex != -1) {
+                        var newIndex = forward ? ++currentIndex : --currentIndex;
+                        newIndex = newIndex < 0 ? tabs.length -1 : (newIndex >= tabs.length ? 0 : newIndex);
+                        if (tabs[newIndex])
+                            tabs[newIndex].focus();
+                    }
+                    event.stopPropagation();
+                    event.preventDefault();
+                    break;
                 }
             },
             viewContainer : DIV({style : "display:none"})
