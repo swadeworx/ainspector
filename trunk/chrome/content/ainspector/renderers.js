@@ -571,19 +571,20 @@ AINSPECTOR.registerRenderer({
                 case KeyEvent.DOM_VK_RIGHT:
                 case KeyEvent.DOM_VK_UP:
                 case KeyEvent.DOM_VK_DOWN:
-                    event.stopPropagation();
-                    var forward = key == KeyEvent.DOM_VK_RIGHT || key == KeyEvent.DOM_VK_DOWN;
-                    var tabList = getAncestorByClass(event.target, "focusTabList");
-                    var tabs = tabList.getElementsByClassName("focusTab");
-                    var currentIndex = Array.indexOf(tabs, event.target);
-                    if (currentIndex != -1) {
-                        var newIndex = forward ? ++currentIndex : --currentIndex;
-                        newIndex = newIndex < 0 ? tabs.length -1 : (newIndex >= tabs.length ? 0 : newIndex);
-                        if (tabs[newIndex])
-                            tabs[newIndex].focus();
-                    }
-                    
-                    break;
+                event.stopPropagation();
+                event.preventDefault();
+                var forward = key == KeyEvent.DOM_VK_RIGHT || key == KeyEvent.DOM_VK_DOWN;
+                var tabList = getAncestorByClass(event.target, "focusTabList");
+                var tabs = tabList.getElementsByClassName("focusTab");
+                var currentIndex = Array.indexOf(tabs, event.target);
+                if (currentIndex != -1) {
+                    var newIndex = forward ? ++currentIndex : --currentIndex;
+                    newIndex = newIndex < 0 ? tabs.length -1 : (newIndex >= tabs.length ? 0 : newIndex);
+                    if (tabs[newIndex])
+                        tabs[newIndex].focus();
+                }
+                
+                break;
             }
         },
 

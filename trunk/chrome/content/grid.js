@@ -17,16 +17,20 @@ AINSPECTOR.grid = {
     onKeyRow: function(event)
     {
 		event.stopPropagation();
+
 		switch(event.keyCode) {
 		case 38: //up
+            event.preventDefault();
 			var row = findPrevious(event.target, AINSPECTOR.grid.isGridRow);
 			if (row) row.focus();
 			break;
 		case 39: //right
+            event.preventDefault();
 			var cell = getChildByClass(event.target, "gridCell");
 			if (cell) cell.focus();
 			break;
 		case 40: //down
+            event.preventDefault();
 			var row = findNext(event.target, AINSPECTOR.grid.isGridRow);
 			if (row) row.focus();
 			break;
@@ -35,9 +39,11 @@ AINSPECTOR.grid = {
     
 	onKeyCell: function(event)
     {
-		event.stopPropagation();
+        event.stopPropagation();
+
 		switch(event.keyCode) {
 		case 38: //up
+            event.preventDefault();
 			var index = findElementIndex(event.target);
 			var row = getAncestorByClass(event.target, "gridRow");
 			row = row.previousSibling;
@@ -47,6 +53,7 @@ AINSPECTOR.grid = {
 			}
 			break;
 		case 37: //left
+            event.preventDefault();
 			var cell = event.target.previousSibling;
 			if (cell) cell.focus();
 			else {
@@ -55,10 +62,12 @@ AINSPECTOR.grid = {
 			}
 			break;
 		case 39: //right
+            event.preventDefault();
 			var cell = event.target.nextSibling;
 			if (cell) cell.focus();
 			break;
 		case 40: //down
+            event.preventDefault();
 			var index = findElementIndex(event.target);
 			var row = getAncestorByClass(event.target, "gridRow");
 			row = row.nextSibling;
@@ -67,19 +76,29 @@ AINSPECTOR.grid = {
 				if (cell) cell.focus();
 			}
 			break;
+        case 13: //Enter
+            event.preventDefault();
+            var links = event.target.getElementsByClassName('objectLink');
+            links[0].focus();
+            FBTrace.sysout("Enter :", links);
+            FBTrace.sysout("link :", links[0]);
+			break;
 		}
     },
 
 	onKeyHeadingCell: function(event)
     {
 		event.stopPropagation();
+
 		switch(event.keyCode) {
 		case 13: //Enter
+            event.preventDefault();
 	        var table = getAncestorByClass(event.target, "netTable");
 	        var column = getAncestorByClass(event.target, "gridHeaderCell");
 	        AINSPECTOR.grid.sortColumn(table, column);
 			break;
 		default:
+            event.preventDefault();
 			AINSPECTOR.grid.onKeyCell(event);
 			break;
 		}
