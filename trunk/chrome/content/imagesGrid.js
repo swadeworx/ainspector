@@ -96,39 +96,47 @@ AINSPECTOR.view.imageEntry = domplate(Firebug.Rep, new Firebug.Listener(),
 	
     rowTag: //added background color based on rule results
         FOR("object", "$images",
-            TR({"class": "$object.severityClass gridRow a11yFocus", tabindex: "-1", //gridRow
-				"role": "row", onkeypress: "$AINSPECTOR.grid.onKeyRow"
+            TR({"class": "$object.severityClass gridRow a11yFocus category-image", tabindex: "-1", //gridRow
+				"role": "row", onkeypress: "$AINSPECTOR.grid.onKeyRow", _repObject: "$object"
             	},       		
                 TD({"class": "imgOrderCol gridCell gridCol a11yFocus", "role": "gridcell",
-					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
+					onkeypress: "$AINSPECTOR.grid.onKeyCell",
+                    onfocus: "$AINSPECTOR.grid.showToolTip", tabindex: "-1"},
                         DIV({"class": "gridLabel"}, "$object.order")
                     ),
                 TD({"class": "imgTextCol gridCell gridCol a11yFocus", "role": "gridcell",
-					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
+					onkeypress: "$AINSPECTOR.grid.onKeyCell",
+                    onfocus: "$AINSPECTOR.grid.showToolTip", tabindex: "-1"},
                         DIV({"class": "gridLabel"}, TAG("$shortTag", {object : '$object.node'}))
                     ),
                 TD({"class": "imgLinkCol gridCell gridCol a11yFocus", "role": "gridcell" ,
-					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
-                        DIV({"class": "gridLabel"}, "$object.link")
+					onkeypress: "$AINSPECTOR.grid.onKeyCell",
+                    onfocus: "$AINSPECTOR.grid.showToolTip", tabindex: "-1"},
+                        "$object.link"
                     ),
                 TD({"class": "imgWidthCol gridCell gridCol a11yFocus", "role": "gridcell",
-					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
+					onkeypress: "$AINSPECTOR.grid.onKeyCell",
+                    onfocus: "$AINSPECTOR.grid.showToolTip", tabindex: "-1"},
                         DIV({"class": "gridLabel"}, "$object.width")
                     ),
                 TD({"class": "imgHeightCol gridCell gridCol a11yFocus", "role": "gridcell",
-					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
+					onkeypress: "$AINSPECTOR.grid.onKeyCell",
+                    onfocus: "$AINSPECTOR.grid.showToolTip", tabindex: "-1"},
                         DIV({"class": "gridLabel"}, "$object.height")
                     ),
                 TD({"class": "imgRatioCol gridCell gridCol a11yFocus", "role": "gridcell",
-					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
+					onkeypress: "$AINSPECTOR.grid.onKeyCell",
+                    onfocus: "$AINSPECTOR.grid.showToolTip", tabindex: "-1"},
                         DIV({"class": "gridLabel"}, "$object.ratio")
                     ),
                 TD({"class": "imgLongdescCol gridCell gridCol a11yFocus", "role": "gridcell",
-					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
+					onkeypress: "$AINSPECTOR.grid.onKeyCell",
+                    onfocus: "$AINSPECTOR.grid.showToolTip", tabindex: "-1"},
                          DIV({"class": "gridLabel"}, "$object.longdesc")
                     ),
                 TD({"class": "imgIssuesCol gridCell gridCol a11yFocus", "role": "gridcell",
-					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
+					onkeypress: "$AINSPECTOR.grid.onKeyCell",
+                    onfocus: "$AINSPECTOR.grid.showToolTip", tabindex: "-1"},
                         DIV({"class": "gridLabel"}, FOR('issue', '$object.msgs',	DIV('$issue') ))
                     )
         	)	
@@ -211,7 +219,7 @@ AINSPECTOR.view.getImagesEle = function(theWindow)
 };
 
 Firebug.registerRep(AINSPECTOR.view.imagesTable);
-
+    
 }});
 
 
