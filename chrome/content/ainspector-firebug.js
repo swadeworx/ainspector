@@ -283,8 +283,13 @@ FBL.ns(function() { with (FBL) {
 
         // tooltip
         showInfoTip: function (infoTip, target, x, y) {
-            if (target.nodeName === "A" && target.rel && (target.rel === 'image' || target.rel === 'cssimage')) {
-                return Firebug.InfoTip.populateImageInfoTip(infoTip, target.href);
+            var row = getAncestorByClass(target, "gridRow");
+            if (row && row.repObject)
+            {
+                if (hasClass(row, "category-image") && hasClass(target, 'imgLinkCol'))
+                {
+                    return Firebug.InfoTip.populateImageInfoTip(infoTip, row.repObject.link);
+                }
             }
             return false;
         },

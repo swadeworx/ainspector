@@ -104,6 +104,20 @@ AINSPECTOR.grid = {
 		}
     },
 	
+    showToolTip : function(e) {
+        var target = e.target;
+        var panel = Firebug.getElementPanel(target);
+        var rangeParent = getAncestorByClass(target, 'gridRow');
+        var browser = Firebug.chrome.getPanelBrowser(panel);
+        // these two lines are necessary, because otherwise the infoTip will not have the correct dimensions when it's positioned, and the contents
+        // could be placed outside FB's viewport (making it impossible to read for keyboard users)
+        var res = panel.showInfoTip(browser.infoTip, target, target.offsetLeft, target.offsetTop, rangeParent, 0); //will be called again in showInfoTip
+        
+        browser.infoTip.setAttribute("active", "true");
+        var left = target.offsetLeft + target.offsetWidth - 4;
+        Firebug.InfoTip.showInfoTip(browser.infoTip, panel, target, left, target.offsetTop - panel.panelNode.scrollTop - 12, rangeParent, 0);
+    },
+    
 	isGridRow: function(node) {
 		return hasClass(node, "gridRow");
 	},
