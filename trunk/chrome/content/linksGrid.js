@@ -92,7 +92,8 @@ AINSPECTOR.view.linkEntry = domplate(Firebug.Rep, new Firebug.Listener(),
                         DIV({"class": "gridLabel"}, "$object.order")
                     ),
                 TD({"class": "linksTextCol gridCell gridCol a11yFocus", "role": "gridcell",
-					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
+					onkeypress: "$AINSPECTOR.grid.onKeyCell",
+                    onfocus: "$AINSPECTOR.grid.onFocus",tabindex: "-1"},
                         DIV({"class": "gridLabel"}, TAG("$shortTag", {object : '$object.node'}))
                     ),
                 TD({"class": "linksTitleCol gridCell gridCol a11yFocus", "role": "gridcell" ,

@@ -81,7 +81,8 @@ AINSPECTOR.view.headingsEntry = domplate(Firebug.Rep, new Firebug.Listener(),
                         DIV({"class": "gridLabel"}, "$object.level")
                     ),
                 TD({"class": "headingsTextCol gridCol gridCell a11yFocus", "role": "gridcell",
-					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
+					onkeypress: "$AINSPECTOR.grid.onKeyCell",
+                    onfocus: "$AINSPECTOR.grid.onFocus", tabindex: "-1"},
                         DIV({"class": "gridLabel"}, TAG("$shortTag", {object : '$object.node'}))
                     ),
                 TD({"class": "headingsIssuesCol gridCol gridCell a11yFocus", "role": "gridcell",

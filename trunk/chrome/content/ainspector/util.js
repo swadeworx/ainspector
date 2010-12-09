@@ -897,8 +897,22 @@ AINSPECTOR.util.event = {
             listener.callback.call(listener.that, event_object);
         }
         return true;
-    }
-
+    },
+    dispatchMouseEvent : function (node, eventType, clientX, clientY, button) {
+        if (!clientX)
+            clientX = 0;
+        if (!clientY)
+            clientY = 0;
+        if (!button)
+            button = 0;
+        if (typeof node == "string")
+            node = $(node);
+        var doc = node.ownerDocument;
+        var event = doc.createEvent('MouseEvents');
+        event.initMouseEvent(eventType, true, true, doc.defaultView,
+            0, 0, 0, clientX, clientY, false, false, false, false, button, null);
+        node.dispatchEvent(event);
+    },
 };
 
 AINSPECTOR.util.Preference = {

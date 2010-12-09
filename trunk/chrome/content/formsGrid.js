@@ -131,7 +131,8 @@ AINSPECTOR.view.formsEntry = domplate(Firebug.Rep, new Firebug.Listener(),
                         DIV({"class": "gridLabel"}, "$object.label")
                     ),
                 TD({"class": "formsTypeCol gridCol gridCell a11yFocus", "role": "gridcell",
-					onkeypress: "$AINSPECTOR.grid.onKeyCell", tabindex: "-1"},
+					onkeypress: "$AINSPECTOR.grid.onKeyCell",
+                    onfocus: "$AINSPECTOR.grid.onFocus", tabindex: "-1"},
                         DIV({"class": "gridLabel"}, TAG("$shortTag", {object : '$object.node'}))
                     ),
                 TD({"class": "formsAriaAttrCol gridCol gridCell a11yFocus", "role": "gridcell",

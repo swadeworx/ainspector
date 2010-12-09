@@ -79,13 +79,18 @@ AINSPECTOR.grid = {
         case 13: //Enter
             event.preventDefault();
             var links = event.target.getElementsByClassName('objectLink');
-            links[0].focus();
-            FBTrace.sysout("Enter :", links);
-            FBTrace.sysout("link :", links[0]);
+            if (links[0])
+                AINSPECTOR.util.event.dispatchMouseEvent(links[0], 'click');
 			break;
 		}
     },
 
+    onFocus: function(event) {
+        var links = event.target.getElementsByClassName('objectLink');
+        if (links[0])
+            AINSPECTOR.util.event.dispatchMouseEvent(links[0], 'mouseover');        
+    },
+    
 	onKeyHeadingCell: function(event)
     {
 		event.stopPropagation();
@@ -105,6 +110,7 @@ AINSPECTOR.grid = {
     },
 	
     showToolTip : function(e) {
+        AINSPECTOR.grid.onFocus(e);
         var target = e.target;
         var panel = Firebug.getElementPanel(target);
         var rangeParent = getAncestorByClass(target, 'gridRow');
