@@ -49,16 +49,18 @@ AINSPECTOR.view = function(panel, yscontext) {
 				  ),
 				  row:
 				    TR({class: "treeRow", $hasChildren: "$member.hasChildren",
-				       _repObject: "$member", level: "$member.level"},
+				       _repObject: "$member", level: "$member.level", tabindex: "-1",
+                       onkeypress: "$onKeyPressedRow",
+                       onfocus: "$onFocus"},
 				       TD({style: "padding-left: $member.indent\\px"},
 				       TAG("$member.tag", {'member' :"$member", 'object' :"$member.value"})
 				      )
 				  ),	
 	              strTag : DIV({class: "treeLabel"},"$member.name"),   
-	              strTagFail : DIV({class: "treeLabel failMsgTxt", tabindex: "-1", onkeypress: "$onKeyPressedRow"},"$member.name"),   
-	              strTagWarn : DIV({class: "treeLabel warnMsgTxt", tabindex: "-1", onkeypress: "$onKeyPressedRow"},"$member.name"),   
-	              strTagSuggestion : DIV({class: "treeLabel suggestionMsgTxt", tabindex: "-1", onkeypress: "$onKeyPressedRow"},"$member.name"),   
-	              strTagPass : DIV({class: "treeLabel passMsgTxt", tabindex: "-1", onkeypress: "$onKeyPressedRow"},"$member.name"),   
+	              strTagFail : DIV({class: "treeLabel failMsgTxt"},"$member.name"),   
+	              strTagWarn : DIV({class: "treeLabel warnMsgTxt"},"$member.name"),   
+	              strTagSuggestion : DIV({class: "treeLabel suggestionMsgTxt"},"$member.name"),   
+	              strTagPass : DIV({class: "treeLabel passMsgTxt"},"$member.name"),   
 	              
 	              /* not used */
 				  myObjectTag : DIV({class: "treeLabel"}, "$member.name"),  
@@ -81,16 +83,23 @@ AINSPECTOR.view = function(panel, yscontext) {
                     case 39: //right
                         event.stopPropagation();
                         event.preventDefault();
-                        var label = findNextDown(event.target, this.isTreeLabel);
-                        label.focus();
+                        var row = findNextDown(event.target, this.isTreeRow);
+                        row.focus();
                         break;
                 }
 		    },
-		    
-		    isTreeLabel: function(node) {
-			return hasClass(node, "treeLabel");
+
+		    isTreeRow: function(node) {
+                return hasClass(node, "treeRow");
 		    },
 
+		    isTreeLabel: function(node) {
+                return hasClass(node, "treeLabel");
+		    },
+
+		    isObjectLink: function(node) {
+                return hasClass(node, "objectLink");
+		    },
 		    onKeyPressedRow: function(event) {
                 event.stopPropagation();
                 var row = getAncestorByClass(event.target, "treeRow");
@@ -106,21 +115,33 @@ AINSPECTOR.view = function(panel, yscontext) {
                         break;
                     case 38: //up
                         event.preventDefault();
-                        var label = findPrevious(event.target, this.isTreeLabel, false);
-                        label.focus();
+                        var row = findPrevious(event.target, this.isTreeRow, false);
+                        row.focus();
                         break;
                     case 39: //right
                         event.preventDefault();
                         if (hasClass(row, "hasChildren"))
-                          this.openRow(row);		
+                          this.openRow(row);
                         break;
                     case 40: //down
                         event.preventDefault();
-                        var label = findNext(event.target, this.isTreeLabel, false);
-                        label.focus();
+                        var row = findNext(event.target, this.isTreeRow, false);
+                        row.focus();
                         break;
-                }
-		    },
+                    case 13: //Enter
+                        event.preventDefault();
+                        var links = event.target.getElementsByClassName('objectLink');
+                        if (links[0])
+                            AINSPECTOR.util.event.dispatchMouseEvent(links[0], 'click');
+            			break;
+			    }
+			},
+			
+            onFocus: function(event) {
+                var links = event.target.getElementsByClassName('objectLink');
+                if (links[0])
+                    AINSPECTOR.util.event.dispatchMouseEvent(links[0], 'mouseover');        
+            },
 		    
       	          getAllAttribs : function(elem) {
       				var attribDetails = [];
@@ -272,7 +293,9 @@ AINSPECTOR.view = function(panel, yscontext) {
 				    
 				  row:
 				    TR({class: "treeRow", $hasChildren: "$member.hasChildren",
-				       _repObject: "$member", level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow"},
+				       _repObject: "$member", level: "$member.level", tabindex: "-1",
+                       onkeypress: "$onKeyPressedRow",
+                       onfocus: "$onFocus"},
 					TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px"},
 					    TAG("$member.tag",
 						{'member' :"$member", 'object': "$member.value"}
@@ -363,10 +386,21 @@ AINSPECTOR.view = function(panel, yscontext) {
                         var row = findNext(event.target, this.isTreeRow, false);
                         row.focus();
                         break;
+                    case 13: //Enter
+                        event.preventDefault();
+                        var links = event.target.getElementsByClassName('objectLink');
+                        if (links[0])
+                            AINSPECTOR.util.event.dispatchMouseEvent(links[0], 'click');
+            			break;
 			    }
 			},
 			
-			
+            onFocus: function(event) {
+                var links = event.target.getElementsByClassName('objectLink');
+                if (links[0])
+                    AINSPECTOR.util.event.dispatchMouseEvent(links[0], 'mouseover');        
+            },
+            
 			closeRow: function(row) {
 			    if (hasClass(row, "opened")) {
 				var level = parseInt(row.getAttribute("level"));
