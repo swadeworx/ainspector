@@ -288,7 +288,7 @@ FBL.ns(function() { with (FBL) {
             {
                 if (hasClass(row, "category-image") && hasClass(target, 'imgLinkCol'))
                 {
-                    return Firebug.InfoTip.populateImageInfoTip(infoTip, row.repObject.link);
+                    return Firebug.InfoTip.populateImageInfoTip(infoTip, row.repObject.node.src);
                 }
             }
             return false;
