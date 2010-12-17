@@ -90,7 +90,7 @@ AINSPECTOR.grid = {
         if (links[0])
             AINSPECTOR.util.event.dispatchMouseEvent(links[0], 'mouseover');        
     },
-    
+        
 	onKeyHeadingCell: function(event)
     {
 		event.stopPropagation();
@@ -212,56 +212,64 @@ AINSPECTOR.grid = {
     //
     getContextMenuItems: function(object, target, context)
     {
-    	var panel = FirebugContext.getPanel("AInspector");
-
-        var popup = $("fbContextMenu");
-        if (popup.firstChild && popup.firstChild.getAttribute("command") == "cmd_copy")
-            popup.removeChild(popup.firstChild);
-
-        var items = [];
-
-        // Iterate over all columns and create a menu item for each.
-        var table = panel.table; //context.getPanel(panelName, true).table;
-        var hiddenCols = table.getAttribute("hiddenCols");
-
-        var lastVisibleIndex;
-        var visibleColCount = 0;
-
-        // Iterate all columns except of the first one for breakpoints.
-        var header = getAncestorByClass(target, "gridHeaderRow");
-        var columns = cloneArray(header.childNodes);
-        for (var i=0; i<columns.length; i++)
-        {
-            var column = columns[i];
-            var visible = (hiddenCols.indexOf(column.id) == -1);
-
-            items.push({
-                label: column.textContent,
-                type: "checkbox",
-                checked: visible,
-                nol10n: true,
-                command: bindFixed(AINSPECTOR.grid.onShowColumn, this, AINSPECTOR.view.yscontext, column.id)
-            });
-
-            if (visible)
-            {
-                lastVisibleIndex = i;
-                visibleColCount++;
+        if (hasClass(target, "gridCol")) {
+            var links = target.getElementsByClassName('objectLink');
+            if (links[0]) {
+                var rep = Firebug.getRep(links[0], Firebug.currentContext);
+                return rep.getContextMenuItems(links[0], target, Firebug.currentContext);
             }
+        } else {
+            var panel = FirebugContext.getPanel("AInspector");
+
+            var popup = $("fbContextMenu");
+            if (popup.firstChild && popup.firstChild.getAttribute("command") == "cmd_copy")
+                popup.removeChild(popup.firstChild);
+    
+            var items = [];
+    
+            // Iterate over all columns and create a menu item for each.
+            var table = panel.table; //context.getPanel(panelName, true).table;
+            var hiddenCols = table.getAttribute("hiddenCols");
+    
+            var lastVisibleIndex;
+            var visibleColCount = 0;
+    
+            // Iterate all columns except of the first one for breakpoints.
+            var header = getAncestorByClass(target, "gridHeaderRow");
+            var columns = cloneArray(header.childNodes);
+            for (var i=0; i<columns.length; i++)
+            {
+                var column = columns[i];
+                var visible = (hiddenCols.indexOf(column.id) == -1);
+    
+                items.push({
+                    label: column.textContent,
+                    type: "checkbox",
+                    checked: visible,
+                    nol10n: true,
+                    command: bindFixed(AINSPECTOR.grid.onShowColumn, this, AINSPECTOR.view.yscontext, column.id)
+                });
+    
+                if (visible)
+                {
+                    lastVisibleIndex = i;
+                    visibleColCount++;
+                }
+            }
+    
+            // If the last column is visible, disable its menu item.
+            if (visibleColCount == 1)
+                items[lastVisibleIndex].disabled = true;
+    
+            items.push("-");
+            items.push({
+                label: $STR("net.header.Reset_Header"),
+                nol10n: true,
+                command: bindFixed(AINSPECTOR.grid.onResetColumns, this, AINSPECTOR.view.yscontext)
+            });
+            
+            return items;
         }
-
-        // If the last column is visible, disable its menu item.
-        if (visibleColCount == 1)
-            items[lastVisibleIndex].disabled = true;
-
-        items.push("-");
-        items.push({
-            label: $STR("net.header.Reset_Header"),
-            nol10n: true,
-            command: bindFixed(AINSPECTOR.grid.onResetColumns, this, AINSPECTOR.view.yscontext)
-        });
-
-        return items;
     },
 
     onShowColumn: function(context, colId)
