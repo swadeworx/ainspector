@@ -37,7 +37,7 @@ body {
     font-size: 8pt;
     font-weight: bold;
     font-family: Lucida Grande, Tahoma, sans-serif;
-    color: #565656; /* dark grey */
+    color: #767676; /* dark grey */
     margin-right: 10px;
     padding: 1px;
     width: 100%;
@@ -67,7 +67,7 @@ body {
     font-size: 8pt;
     font-weight: bold;
     font-family: Lucida Grande, Tahoma, sans-serif;
-    color: #565656; /* dark grey */
+    color: #767676; /* dark grey */
     margin: 0;
     padding: 0;
 }
@@ -142,7 +142,7 @@ body {
     left: 225px;
     top: 80px;
     font-size: 10pt;
-    color: #565656;
+    color: #767676;
 }
 
 #ainspectorDiv #dialogDiv .dialog-box .dialog-text {
@@ -230,7 +230,7 @@ body {
     font-size: 8pt;
     background: #ffffff;
     padding: 10px;
-    border: 1px solid #565656;
+    border: 1px solid #767676;
     text-align: left;
 }
 
@@ -249,7 +249,7 @@ body {
 #ainspectorDiv #toolbarDiv #toolbar-ruleset {
     font-size: 8pt;
     text-align: left;
-    color: #9b9b9b;
+    color: #767676;
     height: 20px;
     margin-left: 40px;
 }
@@ -267,7 +267,7 @@ body {
 }
 
 #ainspectorDiv #toolbarDiv #toolbar-ruleset option.firstInGroup {
-    border-top: 1px solid #9b9b9b;
+    border-top: 1px solid #767676;
 }
 
 #ainspectorDiv #toolbarDiv #toolbar-ruleset img { 
@@ -278,7 +278,7 @@ body {
 
 #ainspectorDiv #toolbarDiv #toolbar-ruleset a { 
     display: inline-block;
-    color: #565656;
+    color: #767676;
     margin-right: 5px;
 }
 
@@ -302,11 +302,11 @@ body {
 }
 
 #ainspectorDiv #toolbarDiv #toolbar-ruleset li.first {
-    border-right: 1px solid #9b9b9b;
+    border-right: 1px solid #767676;
 }
 
 #ainspectorDiv #toolbarDiv #helpDiv {
-    border: 1px solid #9b9b9b;
+    border: 1px solid #767676;
     position: absolute;
     top: 26px;
     left: 827px;
@@ -319,7 +319,7 @@ body {
     position: relative;
     display: block;
     padding: 5px 10px;
-    color: #565656;
+    color: #767676;
 }
 
 #ainspectorDiv #toolbarDiv #helpDiv a:hover {
@@ -328,7 +328,7 @@ body {
 }
 
 #ainspectorDiv #toolbarDiv #helpDiv .new-section {
-    border-top: 1px solid #9b9b9b;
+    border-top: 1px solid #767676;
 }
 
 #ainspectorDiv #toolbarDiv .yui-hidden {
@@ -338,7 +338,7 @@ body {
 /* TabView */
 
 #ainspectorDiv #toolbarDiv .nav-menu {
-    border:solid #9b9b9b; /* color between tab list and content */
+    border:solid #767676; /* color between tab list and content */
     border-width:0 0 1px;
     margin-top: 5px;
 }
@@ -360,7 +360,7 @@ body {
 }
 
 #ainspectorDiv #toolbarDiv .nav-menu li.selected {
-    border: solid #9b9b9b;
+    border: solid #767676;
     border-width: 1px 1px 1px 1px;
     border-bottom: 1px solid #fff;
 }
@@ -389,15 +389,15 @@ body {
     right: -1px;
     top: 1px;
     width: 1px;
-    background: #9b9b9b;
+    background: #767676;
     border-right: 1px solid #fff;
 }
 
 #ainspectorDiv #toolbarDiv .nav-menu ul li {
     background:#ffffff; /* tab background */
-    border: solid #9b9b9b;
+    border: solid #767676;
     border-width: 0;
-    color:#565656;
+    color:#767676;
     position:relative;
     text-decoration:none;
     padding: 0.35em 0.75em;
@@ -435,11 +435,11 @@ body {
 #ainspectorDiv #viewDiv .summary {
     display: inline;
     white-space: nowrap;
-    color: #9b9b9b;
+    color: #767676;
 }
 
 #ainspectorDiv #viewDiv .summary .view-title {
-    color: #9b9b9b;
+    color: #767676;
     font-size: 14pt;
     font-weight: bolder;
     padding-right: 25px;
@@ -449,7 +449,7 @@ body {
 #ainspectorDiv #viewDiv .section-summary .number {
     font-weight: bold;
     font-size: 9pt;
-    color: #565656;
+    color: #767676;
 }
 
 
@@ -460,7 +460,7 @@ body {
     width: 950px;
     min-height: 226px;
     margin: 20px 20px;
-    color: #565656;
+    color: #767676;
 }
 
 #ainspectorDiv #splashDivLeft {
@@ -598,7 +598,7 @@ body {
 #ainspectorDiv #reportDiv .summary table td {
     vertical-align: bottom;
     font-weight: bolder;
-    color: #9b9b9b;
+    color: #767676;
 }
 
 #ainspectorDiv #reportDiv .summary td.padding5 {
@@ -638,7 +638,7 @@ body {
     -moz-box-align: center;
     text-align: center;
     width: 30px;
-    color: #565656; /* dark grey */
+    color: #767676; /* dark grey */
     font-size: 10pt;
     font-weight: bold;
 }
@@ -775,7 +775,7 @@ body {
 }
 
 #ainspectorDiv .reportInnerDiv #filter li {
-    border-left: 1px solid #565656;
+    border-left: 1px solid #767676;
     display: inline;
     font-weight: bold;
     list-style-image: none;
@@ -840,9 +840,9 @@ body {
 #ainspectorDiv .reportInnerDiv .yui-navset .yui-content, 
 #ainspectorDiv .reportInnerDiv .yui-navset-left .yui-content {
     background: #ffffff;
-    border: 1px solid #9b9b9b;
+    border: 1px solid #767676;
     border-width: 0;
-    color: #9b9b9b;
+    color: #000000;
 }
 
 
@@ -851,13 +851,13 @@ body {
     min-height: 300px;
     width: 950px;
     margin: 0 20px 10px 20px;
-    color: #9b9b9b;
+    color: #767676;
 }
 
 #ainspectorDiv #statsDiv .section-header {
     font-size: 10pt;
-    color: #565656;
-    border-bottom: 1px solid #9b9b9b;
+    color: #767676;
+    border-bottom: 1px solid #767676;
     padding-top: 20px;
 }
 
@@ -880,7 +880,7 @@ body {
 #ainspectorDiv #statsDiv #empty-cache {
     margin-left: 15px;
     float: left;
-    border-right: 1px solid #9b9b9b;
+    border-right: 1px solid #767676;
     padding-left: 10px;
 }
 
@@ -896,7 +896,7 @@ body {
 #ainspectorDiv #statsDiv #stats-detail .summary-row-2 {
     font-weight: bold;
     font-size: 10pt;
-    color: #565656;
+    color: #767676;
     padding: 5px 0;
 }
 
@@ -908,18 +908,18 @@ body {
 
 #ainspectorDiv #statsDiv #stats-detail #stats-table tr {
     height: 18px;
-    border-top: 1px solid #9b9b9b;
+    border-top: 1px solid #767676;
 }
 
 #ainspectorDiv #statsDiv #stats-detail #stats-table tr {
-    border-top: 1px solid #9b9b9b;
+    border-top: 1px solid #767676;
 }
 
 #ainspectorDiv #statsDiv #stats-detail #stats-table td {
     height: 18px;
-    border-top: 1px solid #9b9b9b;
+    border-top: 1px solid #767676;
     margin: 2px 2px;
-    color: #9b9b9b;
+    color: #767676;
     font-weight: bolder;
 }
 
@@ -955,7 +955,7 @@ body {
 #ainspectorDiv #componentsDiv {
     min-height: 200px;
     margin: 0 20px 10px 20px;
-    color: #9b9b9b;
+    color: #767676;
 }
 
 #ainspectorDiv #componentsDiv a:hover {
@@ -975,7 +975,7 @@ body {
 }
 
 #ainspectorDiv #componentsDiv #components table {
-    border: solid #9b9b9b;
+    border: solid #767676;
     border-width: 0 1px 1px 0;
     border-spacing: 0;
     margin: 10px 0;
@@ -985,7 +985,7 @@ body {
 #ainspectorDiv #componentsDiv #components th {
     background: #dfdfdf url(../img/header_bg.gif) repeat-x;
     color:  #006CA2;
-    border: solid #9b9b9b;
+    border: solid #767676;
     border-width: 1px 0 0 1px;
     text-align: center;
     padding: 5px;
@@ -1019,16 +1019,16 @@ body {
 }
 
 #ainspectorDiv #componentsDiv #components th.sortBy a {
-    color:  #565656;
+    color:  #767676;
     text-decoration: underline;
 }
 
 #ainspectorDiv #componentsDiv #components td {
     padding: 2px 5px;
-    border: solid #9b9b9b;
+    border: solid #767676;
     border-width: 1px 0 0 1px;
     height: 30px;
-    color: #9b9b9b;
+    color: #767676;
     font-weight: bolder;
 }
 
@@ -1097,7 +1097,7 @@ body {
 
 #ainspectorDiv #componentsDiv #components tr.headers table tr.respHeaders td,
 #ainspectorDiv #componentsDiv #components tr.headers table tr.reqHeaders td {
-    border-bottom: 1px solid #9b9b9b;
+    border-bottom: 1px solid #767676;
     padding-top: 5px;
 }
 
@@ -1120,7 +1120,7 @@ body {
     text-align: right;
     vertical-align: top;
     padding-right: 10px;
-    color: #565656;
+    color: #767676;
 }
 
 #ainspectorDiv #componentsDiv #components tr.headers table td.param-value {
@@ -1143,7 +1143,7 @@ body {
     min-height: 200px;
     width: 950px;
     margin: 0 20px 10px 20px;
-    color: #9b9b9b;
+    color: #767676;
 }
 
 #ainspectorDiv #toolsDiv a:hover {
@@ -1157,7 +1157,7 @@ body {
 #ainspectorDiv #toolsDiv td {
     padding: 5px;
     font-size: 11pt;
-    color: #9b9b9b;
+    color: #767676;
     font-weight: bolder;
 }
 
@@ -1183,7 +1183,7 @@ body {
     min-height: 200px;
     width: 950px;
     margin: 0 20px;
-    color: #9b9b9b;
+    color: #767676;
     padding-bottom: 10px;
 }
 
@@ -1244,7 +1244,7 @@ body {
 
 #ainspectorDiv #rulesetEditDiv .yui-navset .yui-nav,
 #ainspectorDiv #rulesetEditDiv .yui-navset-left .yui-nav {
-    border-color: #9b9b9b;
+    border-color: #767676;
     border-width: 0;
 }
 
@@ -1252,12 +1252,12 @@ body {
 #ainspectorDiv #rulesetEditDiv .yui-navset-left .yui-content {
     width: auto;
     background: #efefef url(../img/gradient_bg.jpg) repeat-y;
-    border: 1px solid #9b9b9b;
+    border: 1px solid #767676;
     padding-right: 10px;
 }
 
 #ainspectorDiv #rulesetEditDiv .yui-navset .yui-nav li.new-section {
-    border: solid #9b9b9b;
+    border: solid #767676;
     border-width: 1px 0 0 0;
 }
 
@@ -1275,7 +1275,7 @@ body {
 
 #ainspectorDiv #rulesetEditDiv .yui-navset .yui-nav a {
     background: #ffffff;  /* tab background */
-    border:solid #9b9b9b;
+    border:solid #767676;
     border-width:0;
     position:relative;
     text-decoration:none;
@@ -1300,7 +1300,7 @@ body {
 
 #ainspectorDiv #rulesetEditDiv .yui-navset .yui-nav .selected a,
 #ainspectorDiv #rulesetEditDiv .yui-navset .yui-nav .selected a em {
-    border: 1px solid #9b9b9b; /* selected tab border color */
+    border: 1px solid #767676; /* selected tab border color */
     border-width: 1px 1px 1px 5px;
     border-right: 2px solid transparent;
     right: -1px;
@@ -1323,7 +1323,7 @@ body {
 }
 
 #ainspectorDiv #progressDiv p {
-    color: #565656; font-size: 13pt;
+    color: #767676; font-size: 13pt;
     /*font-family: Lucida Grande, Tahoma, sans-serif;*/
     margin: 10px 0;
 }
@@ -1337,7 +1337,7 @@ body {
 
 #ainspectorDiv #progressDiv #progtext,
 #ainspectorDiv #progressDiv #progtext2 {
-    color: #565656; font-size: 8pt; 
+    color: #767676; font-size: 8pt; 
     /*font-family: Lucida Grande, Tahoma, sans-serif;*/
     margin: 5px 0;
 }
