@@ -68,7 +68,7 @@ body {
 #ainspectorDiv .summary {
     display: inline;
     white-space: nowrap;
-    color: #565656;
+    color: #767676;
 }
 
 #ainspectorDiv .summary .view-title {
@@ -78,7 +78,7 @@ body {
 #ainspectorDiv .summary .number,
 #ainspectorDiv .section-summary .number {
     font-weight: bold;
-    color: #565656;
+    color: #767676;
 }
 
 /* START stats */
@@ -90,8 +90,8 @@ body {
 
 #statsDiv .section-header {
     font-size: 10pt;
-    color: #565656;
-    border-bottom: 1px solid #9b9b9b;
+    color: #767676;
+    border-bottom: 1px solid #767676;
     padding-top: 20px;
 }
 
@@ -114,7 +114,7 @@ body {
 #statsDiv #empty-cache {
     margin-left: 15px;
     float: left;
-    border-right: 1px solid #9b9b9b;
+    border-right: 1px solid #767676;
     padding-left: 10px;
 }
 
@@ -130,7 +130,7 @@ body {
 #statsDiv #stats-detail .summary-row-2 {
     font-weight: bold;
     font-size: 10pt;
-    color: #565656;
+    color: #767676;
     padding: 5px 0;
 }
 
@@ -142,16 +142,16 @@ body {
 
 #statsDiv #stats-detail #stats-table tr {
     height: 18px;
-    border-top: 1px solid #9b9b9b;
+    border-top: 1px solid #767676;
 }
 
 #statsDiv #stats-detail #stats-table tr {
-    border-top: 1px solid #9b9b9b;
+    border-top: 1px solid #767676;
 }
 
 #statsDiv #stats-detail #stats-table td {
     height: 18px;
-    border-top: 1px solid #9b9b9b;
+    border-top: 1px solid #767676;
     margin: 2px 2px;
 }
 
@@ -187,18 +187,18 @@ body {
 
 #cookiesDiv table {
     margin: 10px 10px;
-    border: 1px solid #9b9b9b;
+    border: 1px solid #767676;
     border-spacing: 0;
     font-size: 0.85em;
     width: 950px;
 }
  
 #cookiesDiv th {
-    border: 1px solid #9b9b9b;
+    border: 1px solid #767676;
 }
 
 #cookiesDiv td {
-    border: 1px solid #9b9b9b;
+    border: 1px solid #767676;
     vertical-align: top;
     padding: 5px 5px;
 }
@@ -222,18 +222,18 @@ body {
 
 #componentsDiv #components table {
     margin: 10px 10px;
-    border: 1px solid #9b9b9b;
+    border: 1px solid #767676;
     border-spacing: 0;
     font-size: 0.85em;
     width: 950px;
 }
  
 #componentsDiv #components th {
-    border: 1px solid #9b9b9b;
+    border: 1px solid #767676;
 }
 
 #componentsDiv #components td {
-    border: 1px solid #9b9b9b;
+    border: 1px solid #767676;
     padding: 2px 5px;
     height: 40px;
     max-width: 350px;
@@ -297,7 +297,7 @@ body {
     text-align: center;
     vertical-align: top;
     font-weight: bold;
-    border-bottom: 1px solid #9b9b9b;
+    border-bottom: 1px solid #767676;
 }
 
 #reportDiv td.desc {
