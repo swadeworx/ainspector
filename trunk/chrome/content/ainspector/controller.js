@@ -85,11 +85,6 @@ AINSPECTOR.controller = {
             }
             return;
         }
- //       FBTrace.sysout('default_ruleset_id: ' + this.default_ruleset_id);
- //       FBTrace.sysout('rules', this.rules);
- //       FBTrace.sysout('rulesets', this.rulesets);
- //   	var OAA = OpenAjax.a11y.getRuleset("WCAG_2_0");
- //       FBTrace.sysout('AINSPECTOR', AINSPECTOR);
       
         if (typeof yscontext == 'undefined') return;
         
@@ -210,7 +205,6 @@ AINSPECTOR.controller = {
         return yscontext.result_set;
 
     },
-
     runTool: function(tool_id, yscontext, param) {
         var tool = AINSPECTOR.Tools.getTool(tool_id);
         try {
@@ -520,7 +514,7 @@ AINSPECTOR.controller = {
     		    		}
     		    	}
     	        }
-            }
+            }//endfor
             return retStruct; 
             
     	} catch (exc){

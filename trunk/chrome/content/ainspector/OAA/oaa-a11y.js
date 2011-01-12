@@ -1,4 +1,15 @@
+// questions about format for any portion of a ruleset
+// may be answered by consulting the "Accessibility Validation Rule Codification Requirements"
+// http://www.openajax.org/member/wiki/Accessibility_Validation_Rule_Codification_Requirements
+
 (function () {
+	
+	// string utilities
+	if (typeof String.isInteger == "undefined") {
+		String.prototype.isInteger = function() {
+			return this.match(/^\d+$/) != null;
+		};
+	}
 	if (typeof String.trim == "undefined") {
 		String.prototype.trim = function() {
 			return this.replace(/^\s+|\s+$/g, '');
@@ -7,15 +18,10 @@
 	String.prototype.normalizeSpacing = function() {
 		return this.trim().replace(/\s+/g, ' ');
 	};
-	if (typeof String.isInteger == "undefined") {
-		String.prototype.isInteger = function() {
-			var ValidChars = "0123456789";
-			if (this.length == 0) return false;
-			for (i = 0; i < this.length; i++) if (ValidChars.indexOf(this.charAt(i)) == -1) return false;
-			return true;
-		};
-	}
+	
 	if (typeof OpenAjax == "undefined" || typeof OpenAjax.a11y == "undefined") {
+		
+		// --- regular expressions for context matching ---
 		
 		// match an attribute name (possibly namespaced)
 		var _attrNameExpr = "[\\w\\-\\:]+";
@@ -93,9 +99,16 @@ var _contextMap = {};
 		 */
 		var _metadata = {};
 		
+		/*
+		 * NLS mapping
+		 */
+		var _nls = {};
+		
 		var _requiredRuleProperties = ['id', 'context', 'validate'];
 		var _requiredRulesetProperties = ['id', 'nameCode', 'requirements'];
+		var _requiredNLSProperties = ['name', 'requirements', 'rules', 'severities'];
 		
+		// --- begin definition of OpenAjax.a11y object ---
 		this.OpenAjax = this.OpenAjax || {};
 		this.OpenAjax.a11y = {
 			// basic info
@@ -103,23 +116,124 @@ var _contextMap = {};
 			version : "1.0.0",
 			baseUri : "http://openajax.org/a11y",
 			
-			/*
+			cache: {
+			
+				cacheNode: function(node) {
+			    
+				    if (node) {
+				        var targetCache = null;
+				        var nameOfNode = node.nodeName;
+	
+				        switch (nameOfNode) {
+				            case 'H1':
+				            case 'H2':
+				            case 'H3':
+				            case 'H4':
+				            case 'H5':
+				            case 'H6':
+				                targetCache = this._headings;
+				                break;
+				            case 'FRAME':
+				                targetCache = this._frames;
+				                break;
+				            case 'TABLE':
+				                targetCache = this._tables;
+				                break;
+				            default:
+				                alert('cacheNode: No cache available for this type of node: ' + nameOfNode);
+				        }
+	
+				        // If node has an id, find out if it's already cached.
+				        // If id is already used, and node is not already cached
+				        // append node to end of cache.  Else use the node id as 
+				        // a hash to cache the node.  Hash lookups will be faster
+				        // than incrementing through array looking for nodes.
+	
+				         if (node && node.id) {
+				            var cachedNode = targetCache[node.id];
+				            
+				            // Cached node has the same id as the node that's about to be cached.
+			            	// But the two nodes are different.  So append the node to the cache.
+				            if (cachedNode !== node)	
+				                targetCache[headers.length] = node; 
+				            
+				            // Node hasn't been cached and can use its id as a hash.
+				            else if (!cachedNode)
+				                targetCache[node.id] = node;
+				        } else
+				            targetCache[targetCache.length] = node;
+				    }
+				    else
+				        alert('cacheNode: Node is null or undefined');
+				},
+				
+				// Clear individual cache arrays
+				clearHeadingsCache: function() { this._headings.splice(0); },
+				clearFramesCache: function() { this._frames.splice(0); },
+				clearTablesCache: function() { this._tables.splice(0); },
+				clearValidIdsCache: function() { this._validIds.splice(0); },
+				clearAccesskeysCache: function() { this._accesskeys.splice(0); },
+				clearLandmarksCache: function() { this._landmarks.splice(0); },
+				clearDivCache: function() { this._divs.splice(0); },
+				
+				// Clear all cache arrays
+				clearAllCaches: function() {
+					this._headings.splice(0);
+					this._frames.splice(0);
+					this._tables.splice(0);
+					this._validIds.splice(0);
+					this._accesskeys.splice(0);
+					this._landmarks.splice(0);
+					this._divs.splice(0);
+				},
+			
+				// When you want to cache a landmark call OpenAjax.a11y.cache.landmark().
+				// Set the value of 'role' and 'label' then cache the object in the landmarks array below.
+				landmark: function()  {
+					var obj = new Object();
+					obj.role = '';
+					obj.label = '';
+					return obj;
+				},
+				
+				// Entries in the following three arrays are managed by the cacheNode() function above
+				_headings: [],
+				_frames: [],
+				_tables: [],
+				_divs: [],
+			
+				// An array of object ids.  Check this array for an element id 
+				// before traversing the DOM looking for valid id references.
+				_validIds: [],
+				
+				// It's assumed that access keys will be the same throughout a Web application.
+				// Once access keys are cached here, check to make sure they are the same across the application
+				// and that there are no duplicates.  See access key rules in doc-structure-rules.js.
+				_accesskeys: [],
+				
+				// Cache landmark 'role' and 'label' properties (see landmark function above).  
+				// Make sure landmarks don't have duplicate labels.  Cache above landmark objects.
+				_landmarks: []                                 
+			},
+			
+			/**
 			 * tests whether or not the given object contains the specified
 			 * list of required properties
 			 * 
 			 * @param obj object to be tested
 			 * @param requiredProps list of required properties
 			 * @return true if object contains required properties, false otherwise
+			 * @private
 			 */
 			satisfiesInterface : function (obj, requiredProps) {
 			var satisfied = true;
 			for (var p = 0; satisfied && p < requiredProps.length; ++p) {
-				satisfied = Boolean(obj[requiredProps[p]]);
+				satisfied = !!(obj[requiredProps[p]]);
 			}
 			return satisfied;
 			},
 			
-			/*
+			/**
 			 * parse the given context expression taken from a rule object
 			 * or from some other source. Parsed contexts are cached for future use.
 			 * 
@@ -139,6 +253,8 @@ var _contextMap = {};
 			 * - attrValues: value(s) to be compared to attribute values for a given node
 			 * - exclusiveElemContext: whether or not this is an exclusive element context
 			 * - exclusiveAttrContext: whether or not this is an exclusive attribute context
+			 * @throws OpenAjax.a11y.ParseContextError
+			 * @private
 			 */
 			parseContextExpression : function(contextExpr) {
 				var result = _contextMap[this.getContextKey(contextExpr)];
@@ -160,7 +276,7 @@ var _contextMap = {};
 									var predicateExpr = parsed[4];
 									var predicate, tmpName;
 									while ((predicate  = predicateExpr.match(_predicateMatcher)) != null) {
-										tmpName = predicate[1][0] == '@' ? predicate[1].substr(1, predicate[1].length) : predicate[1];
+										tmpName = predicate[1].charAt(0) == '@' ? predicate[1].substr(1, predicate[1].length) : predicate[1];
 										names.push(tmpName);
 										ops.push(predicate[5] && predicate[5].trim().length > 0 ? predicate[5].trim() : "");
 										values.push(predicate[9]);
@@ -169,7 +285,7 @@ var _contextMap = {};
 								}
 
 								result.push({
-									tagName : parsed[1][0] == '*' ? "*" : parsed[1],
+									tagName : parsed[1].charAt(0) == '*' ? "*" : parsed[1],
 									attrNames : names,
 									operators : ops,
 									attrValues : values,
@@ -223,7 +339,7 @@ var _contextMap = {};
 								remainder = remainder.substring(parsed[0].length + offset);
 							}
 						} else {
-							if (contextExpr[0] == '.') { //is a function in OpenAjax.a11y.util
+							if (contextExpr.charAt(0) == '.') { //is a function in OpenAjax.a11y.util
 								var context = contextExpr.substring(1, contextExpr.length) ;
 								if (OpenAjax.a11y.util[context]) {						
 									result.push({
@@ -254,7 +370,7 @@ var _contextMap = {};
 				return result;
 			},
 				
-			/*
+			/**
 			 * returns whether or not the given node satisfies the parsed context
 			 * 
 			 * @param parsedContext parsed context as returned from parseContextExpression to be tested against
@@ -300,8 +416,8 @@ var _contextMap = {};
 												tmpResult = children[c].nodeType == 3;
 											}
 											predicateMatch &= tmpResult;
-										} else if (node.hasAttribute) {
-											predicateMatch &= (parsed.exclusiveAttrContext != node.hasAttribute(parsed.attrNames[p]));
+										} else {
+											predicateMatch &= (parsed.exclusiveAttrContext != OpenAjax.a11y.xbrowser.hasAttribute(node, parsed.attrNames[p]));
 										}
 									}
 								} // next predicate
@@ -316,7 +432,7 @@ var _contextMap = {};
 				return result;
 			},
 			
-			/*
+			/**
 			 * gets a collection of elements in the document that satisfy the
 			 * context expression using only DOM methods
 			 * 
@@ -330,7 +446,7 @@ var _contextMap = {};
 				if (typeof context == "string") {
 					var parsedContexts = this.parseContextExpression(context);
 					var doc = currentDoc ? currentDoc : this.getHtmlDocument();
-					if (context[0] == '.') { //is a function in OpenAjax.a11y.util
+					if (context.charAt(0) == '.') { //is a function in OpenAjax.a11y.util
 						context = context.substring(1, context.length) ;
 						result = OpenAjax.a11y.util[context](doc, null);
 						return result;
@@ -343,7 +459,7 @@ var _contextMap = {};
 							excludeNames.push(parsedContexts[i].tagName);
 						}
 						for (var e = 0; e < docElements.length; ++e) {
-							if (excludeNames.indexOf(docElements[e].tagName.toLowerCase()) == -1) {
+							if (OpenAjax.a11y.xbrowser.indexOf(excludeNames, docElements[e].tagName.toLowerCase()) == -1) {
 								totalResults.push(docElements[e]);
 							}
 						}
@@ -368,7 +484,13 @@ var _contextMap = {};
 											ctxResults.push(node);
 										}
 									} else {
-										// for IE or browsers not supporting traversal feature
+										// for IE or browsers, use an XPath
+										var textNodes = OpenAjax.a11y.xpath.evaluate('//text()[normalize-space(.)!=""]',
+												document.body, null, OpenAjax.a11y.xpath.XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+										for (var i = 0, l = textNodes.snapshotLength; i < l; i++) {
+											var textNode = textNodes.snapshotItem(i);
+											ctxResults.push(textNode);
+										}
 									}
 								} else {
 									// only element name specified - simply add elements
@@ -382,7 +504,7 @@ var _contextMap = {};
 								// attribute predicates present
 								var elements = doc.getElementsByTagName(tagName);
 								for (var e = 0; e < elements.length; ++e) {
-									if (this.satisfiesContext(parsedContexts, elements[e]) && totalResults.indexOf(elements[e]) == -1) {
+									if (this.satisfiesContext(parsedContexts, elements[e]) && OpenAjax.a11y.xbrowser.indexOf(totalResults, elements[e]) == -1) {
 										ctxResults.push(elements[e]);
 									}
 								}
@@ -399,10 +521,12 @@ var _contextMap = {};
 				return totalResults;
 			},
 			
-			/*
+			/**
 			 * retrieve a key for cacheing the given rule context so that it does not need to be reparsed
 			 * 
 			 * @param ruleContext from a rule object
+			 * @return context if it is a string, else function name
+			 * @private
 			 */
 			getContextKey : function (ruleContext) {
 				var contextKey;
@@ -416,7 +540,7 @@ var _contextMap = {};
 				return contextKey;
 			},
 			
-			/*
+			/**
 			 * retrieves an equivalent XPath expression for the given context expression assuming
 			 * 1) that the context expression is a string and 2) that it represents a context
 			 * involving only node name tessts and predicates.
@@ -498,29 +622,25 @@ var _contextMap = {};
 				return xpath;
 			},
 			
-			/*
+			/**
 			 * gets a collection of elements in the document that satisfy the
 			 * context expression using XPath evaluation
 			 * 
 			 * @param context context expression from a rule object
 			 * @param contextNode node from which evaluation is to commence (default is entire document)
 			 * @return array of nodes in the document that satisfy the context
-			 * @throw error if context cannot be converted to an xpath using contextAsXPath
+			 * @throw error if context cannot be converted to an xpath
 			 */
 			getCollectionViaXPath : function (context, contextNode) {
 				var doc = this.getHtmlDocument();
 				var node = contextNode ? contextNode : doc;
 				var result = null;
 				
-				if (doc.evaluate && XPathResult) {
 					var xpath = this.contextAsXPath(context);
-					result = doc.evaluate(xpath, node, OpenAjax.a11y.util.defaultNSResolver, XPathResult.ANY_TYPE, null);
-				}
-				
-				return result;
+				return OpenAjax.a11y.xpath.evaluate(xpath, node, OpenAjax.a11y.util.defaultNSResolver, OpenAjax.a11y.xpath.XPathResult.ANY_TYPE, null);
 			},
 			
-			/*
+			/**
 			 * add an array of rules. Each rule object in the array
 			 * must implement the rule object interface:
 			 * 
@@ -560,25 +680,29 @@ var _contextMap = {};
 				} // next rule
 			},
 			
-			/*
+			/**
 			 * returns a mapping of each context to the rules associated with that context. This
 			 * object is populated as rules are added via the addRules function.
+			 * 
+			 * @return context -> rules mapping
+			 * @see addRule
 			 */
 			rulesByContext : function () {
 				return _contextToRulesMapping;
 			},
 			
-			/*
+			/**
 			 * get a rule by its specified rule id, which was registered
 			 * via addRules
 			 * 
 			 * @param ruleId id of desired rule
+			 * @return rule or null if no rule matches the given id
 			 */
 			getRule : function (ruleId) {
 				return _ruleMapping[ruleId];
 			},
 			
-			/*
+			/**
 			 * add a ruleset. Each ruleset object
 			 * must implement the ruleset object interface:
 			 * 
@@ -596,23 +720,27 @@ var _contextMap = {};
 				}
 			},
 			
-			/*
+			/**
 			 * get a ruleset by id
 			 * 
 			 * @param id of desired ruleset
+			 * @return ruleset with desired id or null
 			 */
 			getRuleset : function (rulesetId) {
 				return _rulesets[rulesetId];
 			},
 			
-			/*
+			/**
 			 * get all registered rulesets as an associative array, keyed by ruleset id
+			 * 
+			 * @return id -> ruleset map
+			 * @see addRuleset
 			 */
 			getAllRulesets : function () {
 				return _rulesets;
 			},
 			
-			/*
+			/**
 			 * add an array of metadata objects to be associated with individual rules. Each object
 			 * is to be associated with a rule registered via addRuels but not necessarily incorporated
 			 * into that rule or into any particular ruleset added with the addRuleset function.
@@ -644,21 +772,82 @@ var _contextMap = {};
 				} // next metadata object
 			},
 			
-			/*
+			/**
 			 * return a map containing all metadata added via addMetadata
+			 * 
+			 * @return all metadata
+			 * @see addMetadata
 			 */
 			getAllMetadata : function () {
 				return _metadata;
 			},
 			
-			/*
+			/**
+			 * add an NLS layer for the specified ruleset. NLS support for a ruleset must contain
+			 * at least the following properties:
+			 * 
+			 * - name: localized name for the ruleset
+			 * - severities: localized severity levels for the ruleset with defined severity 
+			 * levels being given by the OAA rules requirements wiki.
+			 * - requirements: an associative array for each requirement in the ruleset, 
+			 * keyed by the 'criterionNumber' property of each requirement object in the ruleset. Each entry must contain
+			 * the property 'label' (a label for the criterionNumber) and may contain the optional properties 'level' 
+			 * and 'description'.
+			 * - rules: associative array keyed by ruleIds for each rule in the ruleset and the
+			 * value of which is an object which must contain the 'message' property (the localized message for that rule) 
+			 * and optionally may contain a 'label' property (a human-readable label for identifying the rule).
+			 * 
+			 * For an example, see nls/wcag20-ruleset_en-us.js. 
+			 * 
+			 * @param rulesetId id of ruleset for which NLS is being defined
+			 * @param locale - locale for which NLS is being defined
+			 * @param nls NLS object as defined above
+			 */
+			addNLSForRuleset : function (rulesetId, locale, nls) {
+				if (nls && locale && this.satisfiesInterface(nls, _requiredNLSProperties)
+						&& (typeof _nls[rulesetId] == "undefined" || typeof _nls[rulesetId][locale] == "undefined")) {
+					var ok = true;
+					var key;
+					for (key in nls.requirements) {
+						if (!nls.requirements[key].label) {
+							ok = false;
+							break;
+						}
+					}
+					for (key in nls.rules) {
+						if (!nls.rules[key].message) {
+							ok = false;
+							break;
+						}
+					}
+
+					if (ok) {
+						_nls[rulesetId] = _nls[rulesetId] || {};
+						_nls[rulesetId][locale] = nls;
+					}
+					}
+			},
+			
+			/**
+			 * get the native language support for a given ruleset and locale
+			 * 
+			 * @param rulesetId - id of ruleset for which NLS is desired
+			 * @param locale - locale for which support is desired
+			 * @returns NLS for ruleset with the given id and locale or null if not found
+			 * @see addNLSForRuleset
+			 */
+			getNLSForRuleset : function (rulesetId, locale) {
+				return _nls[rulesetId] ? _nls[rulesetId][locale] : null;
+			},
+			
+			/**
 			 * initializer for a result from an application of the validate function of a rule
 			 * object in a ruleContext
 			 * 
-			 * @param result whether or not the rule executed successfully, or if rule could not execute (true, false -1, respectively)
-			 * @param nodes array of offending nodes
-			 * @param attrs array of offending attributes
-			 * @param textContent offending text content of an element
+			 * @param result whether or not the test expressed by the rule was satisfied (i.e. true = pass, false = failure)
+			 * @param nodes array of offending nodes (empty if result is true)
+			 * @param attrs array of offending attributes (empty if result is true)
+			 * @param textContent offending text content of an element (empty if result is true)
 			 * @param msgArgs message arguments to be used in localized message strings
 			 */
 			ValidationResult : function (result, nodes, attrs, text, msgArgs) {
@@ -670,6 +859,12 @@ var _contextMap = {};
 				return true;
 			},
 			
+			/**
+			 * thrown if error during parsing a context for a rule
+			 * 
+			 * @param msg - error message
+			 * @see parseContextExpression
+			 */
 			ParseContextError : function(msg) {
 				this.msg = msg;
 				return true;
