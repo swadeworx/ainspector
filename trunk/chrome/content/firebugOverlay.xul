@@ -39,21 +39,32 @@
     
     <!-- OAA Rules -->
     <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/oaa-a11y.js"/>
+   	<script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/scripts/cross-browser-util.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/scripts/javascript-xpath.js"/>
     <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/nls/wcag20-ruleset_en-us.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/nls/iitaa10-ruleset_en-us.js"/>
     <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/wai-aria/wai-aria-definitions.js"/>
     <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/scripts/util.js"/>
     <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/scripts/colorUtil.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/ariavalidation-rules.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/doc-structure-rules.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/style-rules.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/text-equiv-rules.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_accesskey.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_audio_video.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_data_table.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_form_and_widget.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_frame.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_image_area.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_landmark_header.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_lang.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_layout.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_links.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_scripting.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_style.js"/>
 	<script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rulesets/wcag20-ruleset.js"/>
-	<script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rulesets/ariavalidation-ruleset.js"/>
+	<script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rulesets/iitaa10-ruleset.js"/>
+	
     <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA_Nexus.js" />
  
     <stringbundleset id="stringbundleset">
         <stringbundle id="a11y_bundle" src="chrome://ainspector/locale/a11y.properties"/>
-        <stringbundle id="OAA_bundle"   src="chrome://ainspector/locale/OAA.properties"/>
     </stringbundleset>
 
 </overlay>
