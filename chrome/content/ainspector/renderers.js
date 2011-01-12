@@ -348,7 +348,7 @@ AINSPECTOR.renderer = {
         div.innerHTML = weightsText;
     }
 
-};
+}; //end of AINSPECTOR.renderer
 
 AINSPECTOR.registerRenderer({
     id: 'html',

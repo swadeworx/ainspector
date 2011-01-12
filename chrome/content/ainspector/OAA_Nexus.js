@@ -16,7 +16,7 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
         try {
 	        AINSPECTOR.OAA_Nexus.addRuleset("WCAG_2_0"); //rendered by reportcardView() in renderers.js
 	        AINSPECTOR.OAA_Nexus.addRuleset("IITAA_1_0"); 
-	        AINSPECTOR.OAA_Nexus.addRuleset("ARIA_1_0"); 
+	       // AINSPECTOR.OAA_Nexus.addRuleset("ARIA_1_0"); 
         } catch (err) {
             alert("AINSPECTOR.OAA_Nexus: " + err.message);
         } // endtry
@@ -109,6 +109,19 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 		} // endwith
     },
     
+    replaceChar: function(name , args) {
+		var str = name;
+		var msgArgLength = args.length;
+		if (args.length != 0){
+			for (var i = 0; i < msgArgLength; ++i) {
+				//var regex = new RegExp('%' + (i + 1) + '\$[ds]');
+				var regexp = '%' + (i + 1) + '$S';
+				str = str.replace(regexp, args[i]);
+			}
+		}
+    	return str;
+	},
+	
    /*
     * OAAParseEle: This checks to see if the current node statisfies the context requirements
     * 
@@ -132,6 +145,8 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 
                 // Get the current ruleset using ID
 				var OAA = getRuleset(AINSPECTOR.controller.default_ruleset_id);
+				var OAARuleset = getNLSForRuleset(AINSPECTOR.controller.default_ruleset_id, 'en-us');
+				
 				// ruleMapping organizes rules based on the same context
 				var ruleMapping = rulesByContext();
 				
@@ -187,6 +202,7 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 								
 								    // run the rule on the node
 									ruleRet = rule.validate(node);
+									
 									// save results for the rule for the node 
 									ruleResArray[rule.id] = ruleRet.result;
 									
@@ -194,9 +210,10 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 									if (ruleRet.result == false) { 
 									    // !ruleRet.result
 										retStruct.id.push(rule.id);
-										retStruct.msg.push(FBL.$STR(ruleset[rule.id].severityCode.toLowerCase(), 'OAA_bundle') + ': ' + FBL.$STRF(ruleset[rule.id].messageCode, ruleRet.msgArgs, 'OAA_bundle'));
+										//retStruct.msg.push(FBL.$STR(ruleset[rule.id].severityCode.toLowerCase(), 'OAA_bundle') + ': ' + FBL.$STRF(ruleset[rule.id].messageCode['message'], ruleRet.msgArgs, 'OAA-bundle'));
+										retStruct.msg.push(OAARuleset.severities[ruleset[rule.id].severityCode] + ': ' + AINSPECTOR.OAA_Nexus.replaceChar(OAARuleset.rules[ruleset[rule.id].messageCode]['message'], ruleRet.msgArgs));
 										retStruct.attr.push(ruleRet.attrs);
-										retStruct.severityCode.push(ruleset[rule.id].severityCode.toLowerCase());
+										retStruct.severityCode.push(OAARuleset.severities[ruleset[rule.id].severityCode]);
 									} // endif
 
 									/* rule did not run successfully -  SMF This produces too much noise.
@@ -213,7 +230,7 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 						} // endfor
 					}  // endif
 				}  // endfor
-		//		FBTrace.sysout("retStruct " , retStruct);
+				
 				return (retStruct.msg.length > 0) ? retStruct : null;
 			}
 		} catch (ex) {
@@ -246,6 +263,8 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 				// Get rule set to run on document using 	
 
 				var OAA = getRuleset(AINSPECTOR.controller.default_ruleset_id);
+				var OAARuleset = OpenAjax.a11y.getNLSForRuleset(AINSPECTOR.controller.default_ruleset_id , 'en-us');
+				
 				if (OAA == null) {  
 				  return null; // OAA rule set is not active 
 				} // endif
@@ -304,9 +323,9 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 											var added = false;
 											for (var j = 0; j < loadArray.length && !added; j++) {
 												if (ruleRet.nodes[i] == loadArray[j].node) {
-													loadArray[j].issuesObj.msg.push(FBL.$STR(ruleset[rule.id].severityCode.toLowerCase(), 'OAA_bundle') + ': ' + FBL.$STRF(ruleset[rule.id].messageCode, ruleRet.msgArgs, 'OAA_bundle'));
+													loadArray[j].issuesObj.msg.push(OAARuleset.severities[ruleset[rule.id].severityCode] + ': ' + AINSPECTOR.OAA_Nexus.replaceChar(OAARuleset.rules[ruleset[rule.id].messageCode]['message'], ruleRet.msgArgs));
 													loadArray[j].issuesObj.attr.push(ruleRet.attrs);
-													loadArray[j].issuesObj.severityCode.push(ruleset[rule.id].severityCode.toLowerCase());
+													loadArray[j].issuesObj.severityCode.push(OAARuleset.severities[ruleset[rule.id].severityCode]);
 													added = true;
 												} // endif
 											} // endfor
@@ -318,7 +337,6 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 					} // endif
 				} // endfor
 			} // endwith
-		//	FBTrace.sysout("retStruct " , retStruct);
 			return (retStruct.msg.length > 0) ? retStruct : null;
 		} catch (ex) {
 			FBTrace.sysout('runDocContextRules exception: ', ex);
@@ -501,7 +519,8 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 								  nodes = new Array();
 								} // endif
 								  
-							} // endif
+							} // endif (virginArray)
+							
 							
 							// go through the nodes assocaited with the context of the current rule
 							for (var i = 0; i < ele.length; ++i) {
@@ -509,9 +528,12 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
                                 // Are there any dependencies for executing this rule
 							    // dependices are items that are missing from the markup like alt and title attributes, and elements like h1 							  
 								var dependencies = false;
-								if (rule.dependencies) for (var d = 0; d < rule.dependencies.length && !dependencies; ++d) {
+								if (rule.dependencies) {
+								   for (var d = 0; d < rule.dependencies.length && !dependencies; ++d) {
 									dependencies = (ruleResArray[rule.dependencies[d]][i] == false);
-								}
+								   } // endfor	
+								} // endif
+								
 //								if (rule.dependencies) FBTrace.sysout(rule.id + " dependencies " + rule.dependencies + 'dependencies' + dependencies, ruleResArray);
 
                                 // If all dependencies are satisfied validate the node using the rule
@@ -532,20 +554,18 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 										if (!loadArray[ruleIndex].stickyResult) {
 																				    
 											loadArray[ruleIndex].result = false;
-											// 
 											if (ruleRet.nodes) { 
-											
 											    // add the nodes that failed this rule to the nodes array
 												for (var n = 0; n < ruleRet.nodes.length; ++n) { 
-												
 												  // make sure the node is defined
 												  if (ruleRet.nodes[n] != 'undefined') {
 												     nodes.push(ruleRet.nodes[n]);
 												  } // endif
-												  
 												} // endfor
-												
 											} // endif
+											else {
+                                               nodes.push(ruleRet.nodes[n]);
+											}
 
 // Why is this not executed??
 //											if (expr == "document" && typeof ruleRet.msgArgs != 'undefined') loadArray[ruleIndex].msgArgs = ruleRet.msgArgs;
@@ -554,20 +574,27 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 											if (typeof ruleRet.msgArgs != 'undefined') loadArray[ruleIndex].msgArgs = ruleRet.msgArgs; //duplicateID is not a document rule
 										} // endif
 										
-	 								} else if (ruleRet.result == true){ //if test passed & document level & no result nodes do not let other frames change the fact that a test passed 
+	 								} else if (ruleRet.result == true){ 
+	 								    //if test passed & document level & no result nodes do not let other frames change the fact that a test passed 
 										if (expr == "document" && typeof loadArray.nodes == 'undefined') {
 											loadArray[ruleIndex].result = true;
+											// do not allow this the be changed in the future
 											loadArray[ruleIndex].stickyResult = true; //do not allow this the be changed in the future
-										}
-									} else if (ruleRet.result == -1) { //rule did not run successfully
+										} // endif
+									} else if (ruleRet.result == -1) { 
+									    //rule did not run successfully
 										if (!loadArray[ruleIndex].stickyResult) {
 											loadArray[ruleIndex].result = false;
 											loadArray[ruleIndex].severityCode = 'level.manual';
-											if (typeof ruleRet.msgArgs != 'undefined') loadArray[ruleIndex].msgArgs = ruleRet.msgArgs;
-										}
-									}
-								} 
-							}
+											if (typeof ruleRet.msgArgs != 'undefined') { 
+											  loadArray[ruleIndex].msgArgs = ruleRet.msgArgs;
+											} // endif
+											nodes.push(ruleRet.nodes[n]);
+										} // endif
+									} // end ifelse
+								} // endif
+							} // endfor
+							
 							if (typeof nodes!= 'undefined' && nodes.length > 0) {
 								loadArray[ruleIndex].nodes = nodes;
 							}
@@ -592,7 +619,7 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 	    	
 	  	    var eleArray = new Array();	
 			var doc = jQuery(indoc); 
-	 	    
+	 	    var OAARuleset = OpenAjax.a11y.getNLSForRuleset(AINSPECTOR.controller.default_ruleset_id , 'en-us');
 			if (criterionNumber == '2.4.1'){
 				AINSPECTOR.OAA_Nexus.runRuleGroup(criterionNumber, indoc, eleArray);
 			} else {
@@ -624,9 +651,9 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 								case 'level.potentialrecommendation': (eleArray[i].nodes) ? severitySum[3] += eleArray[i].nodes.length : severitySum[3] +=1; break;
 								case 'level.manual': (eleArray[i].nodes) ? severitySum[4] += eleArray[i].nodes.length : severitySum[4] +=1; break;
 							}
-							messages[messages.length] = FBL.$STRF(eleArray[i].messageCode, eleArray[i].msgArgs, 'OAA_bundle');
-
-							severity[severity.length] = FBL.$STR(eleArray[i].severityCode, 'OAA_bundle');
+							//messages[messages.length] = FBL.$STRF(eleArray[i].messageCode, eleArray[i].msgArgs, 'OAA_bundle');
+							messages[messages.length] = AINSPECTOR.OAA_Nexus.replaceChar(OAARuleset.rules[eleArray[i].messageCode]['message'], eleArray[i].msgArgs);
+							severity[severity.length] = OAARuleset.severities[eleArray[i].severityCode]; 
 							severityCode[severityCode.length] = eleArray[i].severityCode;
 							if (eleArray[i].nodes) {
 								messages[messages.length-1] = messages[messages.length-1] + AINSPECTOR.util.plural(' (%num% element%s%)', eleArray[i].nodes.length);
@@ -637,8 +664,9 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 	         	}
 				for (var i = 0; i < eleArray.length; ++i) { //add all passes
 					if (eleArray[i].result==true) {
-						messages[messages.length] = FBL.$STRF(eleArray[i].messageCode, ["<>"], 'OAA_bundle');
-						severity[severity.length] = FBL.$STR('level.pass', 'OAA_bundle');
+						//messages[messages.length] = FBL.$STRF(eleArray[i].messageCode, ["<>"], 'OAA_bundle');
+						messages[messages.length] = AINSPECTOR.OAA_Nexus.replaceChar(OAARuleset.rules[eleArray[i].messageCode]['message'], ["<>"]);
+						severity[severity.length] = OAARuleset.severities['level.pass'];
 						severityCode[severityCode.length] = 'level.pass';
 						sortedIssueOffenders[sortedIssueOffenders.length] = null;
 					}
@@ -651,7 +679,7 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 		      	       message: messages.join('\n'),
 		      	       severity: severity,
 		      	       severityCode: severityCode,
-		       		   components: sortedIssueOffenders
+		       		   components: sortedIssueOffenders,
 		       	}
 				//FBTrace.sysout("result " , result);
 	          	return result;
@@ -767,6 +795,7 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
     	if (typeof OpenAjax == "undefined" ) alert('typeof OpenAjax == "undefined"');
     	else if (typeof OpenAjax.a11y == "undefined") alert('typeof OpenAjax.a11y == "undefined"');
     	var OAA = OpenAjax.a11y.getRuleset(rulesetID);
+    	var OAARuleset = OpenAjax.a11y.getNLSForRuleset(rulesetID , 'en-us');
     	for (var rs = 0; rs < OAA.requirements.length; rs++) {
         	try {
         		var eleProp = OAA.requirements[rs].criterionNumber;
@@ -775,8 +804,8 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
                 
  		        AINSPECTOR.registerRule({
 		        	id: OAA.requirements[rs].criterionNumber,
-				    name: OpenAjax.a11y.RULESET_CODES[OAA.requirements[rs].criterionNumber], // the bundle has not been loaded yet FBL.$STR(OAA.requirements[rs].criterionNumber, 'OAA_bundle'), 
-				    info: OpenAjax.a11y.RULESET_CODES[OAA.requirements[rs].criterionDesc], // the bundle has not been loaded yet
+				    name: OAARuleset.requirements[eleProp]['label'], // the bundle has not been loaded yet FBL.$STR(OAA.requirements[rs].criterionNumber, 'OAA_bundle'), 
+				    info: OAARuleset.requirements[eleProp]['description'], // the bundle has not been loaded yet
 				    category: ['content'],
 				    url: OAA.baseReqUrl + OAA.requirements[rs].requirementUrl,
 				    formatParseEleResults: AINSPECTOR.OAA_Nexus.formatNoChange,
@@ -797,7 +826,7 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
     	// register the ruleset itself
         AINSPECTOR.registerRuleset({
         	id: OAA.id,
-        	name: OpenAjax.a11y.RULESET_CODES[OAA.nameCode],
+        	name: OAARuleset.name,
             rules: ele,
       	  	weights: weights
       	});
