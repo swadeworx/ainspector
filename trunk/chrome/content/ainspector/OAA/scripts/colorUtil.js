@@ -32,6 +32,16 @@ OpenAjax.a11y.colorUtil = {
 	
 	getColourParts: function(objElement, strProperty)	{
 		var arColour = [];
+		if (objElement.ownerDocument.defaultView && objElement.ownerDocument.defaultView.getComputedStyle) {
+			arColour = this.getColourPartsWithComputedStyle(objElement, strProperty);
+		} else {
+			arColour = this.getColourPartsInIE(objElement, strProperty);
+		}
+		return arColour;
+	},
+	
+	getColourPartsWithComputedStyle: function(objElement, strProperty) {
+		var arColour = [];
 	
 		var objStyle = objElement.ownerDocument.defaultView.getComputedStyle(objElement, null);
 		var objColour = objStyle.getPropertyCSSValue(strProperty);
@@ -45,7 +55,7 @@ OpenAjax.a11y.colorUtil = {
 			arColour = [iRed, iGreen, iBlue];
 		} else {
 			try	{
-				arColour = this.getColourParts(objElement.parentNode, strProperty);
+				arColour = this.getColourPartsWithComputedStyle(objElement.parentNode, strProperty);
 			} catch (err) {
 				if (strProperty == 'color') {
 					arColour = [0, 0, 0];
@@ -58,7 +68,43 @@ OpenAjax.a11y.colorUtil = {
 		return arColour;
 	},
 	
+	getColourPartsInIE: function(objElement, strProperty) {
+		var arColour = [];
+		
+		strProperty = this.convertStyleToPropertyInIE(strProperty);
+		var colour = objElement.currentStyle.getAttribute(strProperty);
+		if (colour && colour != "transparent") {
+			colour = this.getHexColourFromGeneralColourInIE(colour);
+			colour = colour.replace("#", "0x");
+			var r = (colour & 0xff0000) >> 16;
+			var g = (colour & 0x00ff00) >> 8;
+			var b = colour & 0x0000ff ;
+			arColour = [r, g, b];
+		} else {
+			try	{
+				arColour = this.getColourParts(objElement.parentNode, strProperty);
+			} catch (err) {
+				if (strProperty == 'color') {
+					arColour = [0, 0, 0];
+				} else {
+					arColour = [255, 255, 255];
+				}
+			}
+		}
+		return arColour;
+	},
+	
 	getHex: function(objElement, strProperty) {
+		var strColour;
+		if (objElement.ownerDocument.defaultView && objElement.ownerDocument.defaultView.getComputedStyle) {
+			strColour = this.getHexWithComputedStyle(objElement, strProperty);
+		} else {
+			strColour = this.getHexInIE(objElement, strProperty);
+		}
+		return strColour;
+	},
+	
+	getHexWithComputedStyle: function(objElement, strProperty) {
 		var objStyle = objElement.ownerDocument.defaultView.getComputedStyle(objElement, null);
 		var objColour = objStyle.getPropertyCSSValue(strProperty);
 		var strColour;
@@ -77,13 +123,37 @@ OpenAjax.a11y.colorUtil = {
 			strColour = '#' + strRed + strGreen + strBlue;
 		} else {
 			try	{
-				strColour = this.getHex(objElement.parentNode, strProperty);
+				strColour = this.getHexWithComputedStyle(objElement.parentNode, strProperty);
 			} catch (err) {
 				if (strProperty == 'color') strColour = '#000000'; else strColour = '#ffffff';
 			}
 		}
-	
 		return strColour;
+	},
+	
+	getHexInIE: function(objElement, strProperty) {
+		var strColour;
+		
+		strProperty = this.convertStyleToPropertyInIE(strProperty);
+		var colour = objElement.currentStyle.getAttribute(strProperty);
+		if (colour && colour != "transparent") {
+			strColour = this.getHexColourFromGeneralColourInIE(colour);
+		} else {
+			try	{
+				strColour = this.getHexInIE(objElement.parentNode, strProperty);
+			} catch (err) {
+				if (strProperty == 'color') strColour = '#000000'; else strColour = '#ffffff';
+			}
+		}
+		return strColour;
+	},
+	
+	// This function only works in IE.
+	// Other browser ought to have different ways to get the color value anyway
+	getHexColourFromGeneralColourInIE: function(colour) {
+		var tempNode = document.createElement("table");
+		tempNode.bgColor = colour;
+		return tempNode.bgColor;
 	},
 	
 	getLuminosity: function(objForeColour, objBackColour) {
@@ -124,5 +194,14 @@ OpenAjax.a11y.colorUtil = {
 		else fLinearisedBlue = Math.pow(((fBlueRGB + 0.055)/1.055), 2.4);
 	
 		return (0.2126 * fLinearisedRed + 0.7152 * fLinearisedGreen + 0.0722 * fLinearisedBlue);
+	},
+	
+	// TY right now this only converts the background-color property, since that
+	// is the only property used in this code that needs conversion.
+	convertStyleToPropertyInIE: function(styleName) {
+		switch(styleName) {
+		case "background-color": return "backgroundColor";
+		default: return styleName;
+		}
 	}
-}
+};
