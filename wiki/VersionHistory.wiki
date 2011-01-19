@@ -3,6 +3,6 @@
 = Version History =
   
 == Version beta 0.90 == 
-  * Updated the rules to OAA format
-     # IITAA1.0 rule sets are separated from the Wcag2.0 rule sets and moved to a separate file iitaa10-ruleset.js
+  * Updated the rules to OAA(Open Ajax Alliance) format
+     # IITAA1.0 rule sets are separated from the Wcag2.0 rule sets and moved to iitaa10-ruleset.js
   * locale\en-US\OAA.properties file is been removed and the localized messages will be read from OAA\nls\Wcag20-ruleset_en-us.js and OAA\nls\iitaa10-ruleset_en-us.js 
