@@ -2,8 +2,7 @@
 
 = Introduction =
 
-Add your content here.
-
+Set up Firebug Accessibility Inspector and making xpi
 
 = Details =
 
