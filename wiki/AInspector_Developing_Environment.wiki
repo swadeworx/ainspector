@@ -10,4 +10,4 @@ Set up Firebug Accessibility Inspector and making xpi
   * Install Firebug tracing-enabled version (1.6.X.0a3) http://getfirebug.com/releases/
   * Install Extension developer Addon  http://ted.mielczarek.org/code/mozilla/extensiondev/ to be able to build the xpi for deployment you must have winzip.exe on your machine using FireFox's Tools/Extension Developer/ Extension Builder.
        # Be sure install.rdf and content\scripts\about.js both contain the same version number, the version number must also be different (grater than the last version number posted).
-       # *Note:* if installing winzip14.0/winzip15.0, make sure to install command line winzip.  
+       # *Note:* If installing winzip14.0/winzip15.0, make sure to install command line winzip.  
