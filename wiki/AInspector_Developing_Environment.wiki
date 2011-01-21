@@ -1,10 +1,6 @@
 #summary Environment to develop AInspector
 
-= Introduction =
-
-Set up Firebug Accessibility Inspector and making xpi
-
-= Details =
+= Set up Firebug Accessibility Inspector =
 
   * Install Firefox/3.6.13 or higher (to have the eventlistenerservice available)
   * Install Firebug tracing-enabled version (1.6.X.0a3) http://getfirebug.com/releases/
