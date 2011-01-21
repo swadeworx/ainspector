@@ -13,7 +13,6 @@ Set up Firebug Accessibility Inspector and making xpi
   * Install AInspector from http://ainspector.googlecode.com/svn/trunk/
   * Create a file under the AppData at \Mozilla\Firefox\Profiles\skd8c5nh.default\extensions\
        # Name of the file must be similar to id for mozilla provided in the install.rdf for example., in this case it is ainspector@cita.uiuc.edu
-       # The file contains the path to the AInspector directory.
-          for example., C:\XFolder\AInspector
+       # The file contains the path to the AInspector directory.          for example., C:\XFolder\AInspector
   
         
