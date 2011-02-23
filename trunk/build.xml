@@ -2,18 +2,18 @@
 
 <project name="ainspector" default="createxpi">
     <property name="build_dir" location="./build" />
-	<property name="version" value="1.0.04" />
+	<property name="version" value="0.9" />
 
     <target name="createjar">
         <delete file="chrome/ainspector.jar" />
-        <zip destfile="chrome/ainspector.jar" basedir="chrome" 
+        <zip destfile="chrome/ainspector.jar" basedir="chrome"
             includes="**" />
     </target>
 
     <target name="createxpi" depends="createjar">
         <delete file="build/ainspector-${version}.xpi" />
         <zip destfile="${build_dir}/ainspector-${version}.xpi">
-            <zipfileset dir="chrome/" includes="ainspector.jar" 
+            <zipfileset dir="chrome/" includes="ainspector.jar"
             prefix="chrome" />
             <zipfileset dir="." includes="install.rdf" />
         	<zipfileset dir="." includes="license.txt" />
