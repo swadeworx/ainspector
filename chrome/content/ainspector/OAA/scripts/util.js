@@ -79,7 +79,20 @@ if (typeof OpenAjax.a11y.util == "undefined") {
 				   return result || defaultValue;
 				},
 				
-				defaultNSResolver: function(prefix) {
+				
+			getVal : function(node,attributeArray, def) {
+				var result = null;   
+		      	if (OpenAjax.a11y.xbrowser.hasAttribute(node, attributeArray)) {
+			    	var value = node.getAttribute(attributeArray);
+		    	    if (typeof(value) != "string") {
+		    			value = value.toString();
+		    	  	}
+		    	  	result = value.normalizeSpacing();
+		      	}
+		      	//def = def.normalizeSpacing();
+				return result || def;
+			},
+			defaultNSResolver: function(prefix) {
 				    var uri;
 					switch (prefix) {
 				      case 'html':
