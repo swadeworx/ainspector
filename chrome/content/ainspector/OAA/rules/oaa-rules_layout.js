@@ -1,19 +1,23 @@
 
   //
-  // OpenAjax Alliance Rules 
+  // OpenAjax Alliance Rules 
   // Rule group: Layout Rules
   //
 with (OpenAjax.a11y) {
   addRules([
            
-    // --------
+    // ------------------------
     // Rule 14: Do not use nested tables for positioning.
-    // --------
+    // Group 10: Layout Rule
+    // 
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_14", 
-      groupTitle: "Layout Rule", 
-      groupId: "oaa-rules_layout", 
+      id            : "RULE_14", 
+      lastUpdated   : "2011-02-11", 
+      messageCode   : "MESSAGE_14", 
+      groupCode     : "GROUP_10", 
       context: "document", 
       validate: function (ruleContext) { 
   var passed = true; 
@@ -37,12 +41,12 @@ with (OpenAjax.a11y) {
   } // endwhile 
   return new ValidationResult(passed, loadArray, '', '', []); 
 } // endfunction
-
-
+ 
+ 
       },
   ]); 
    }
-
-
+ 
+ 
         
-
+ 

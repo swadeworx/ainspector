@@ -1,19 +1,22 @@
 
   //
-  // OpenAjax Alliance Rules 
-  // Rule group: Frame Rules
+  // OpenAjax Alliance Rules  // Rule group: Frame Rules
   //
 with (OpenAjax.a11y) {
   addRules([
            
-    // --------
+    // ------------------------
     // Rule 26: Frame element must have a title attribute.
-    // --------
+    // Group 8: Frame Rule
+    // 
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_26", 
-      groupTitle: "Frame Rule", 
-      groupId: "oaa-rules_frame", 
+      id            : "RULE_26", 
+      lastUpdated   : "2011-02-11", 
+      messageCode   : "MESSAGE_26", 
+      groupCode     : "GROUP_8", 
       context: "frame | iframe", 
       validate: function (ruleContext) { 
   var passed = (util.getValueFromAttributes(ruleContext, ['title'], "").length != 0); 
@@ -23,14 +26,18 @@ with (OpenAjax.a11y) {
 
       },
            
-    // --------
+    // ------------------------
     // Rule 27: Title attributes for frames must be unique.
-    // --------
+    // Group 8: Frame Rule
+    // 
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_27", 
-      groupTitle: "Frame Rule", 
-      groupId: "oaa-rules_frame", 
+      id            : "RULE_27", 
+      lastUpdated   : "2011-02-11", 
+      messageCode   : "MESSAGE_27", 
+      groupCode     : "GROUP_8", 
       context: "frameset", 
       validate: function (ruleContext) {
   var frameArr = new Array();
@@ -72,14 +79,18 @@ with (OpenAjax.a11y) {
 
       },
            
-    // --------
+    // ------------------------
     // Rule 28: Frames should not be hidden or empty.
-    // --------
+    // Group 8: Frame Rule
+    // 
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_28", 
-      groupTitle: "Frame Rule", 
-      groupId: "oaa-rules_frame", 
+      id            : "RULE_28", 
+      lastUpdated   : "2011-02-11", 
+      messageCode   : "MESSAGE_28", 
+      groupCode     : "GROUP_8", 
       context: "frame | iframe", 
       validate: function (ruleContext) { 
   var passed = (util.getValueFromAttributes(ruleContext, ['src'], "").length != 0); 
@@ -98,7 +109,6 @@ with (OpenAjax.a11y) {
       },
   ]); 
    }
-
 
         
 

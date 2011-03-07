@@ -1,36 +1,45 @@
 
+ 
   //
-  // OpenAjax Alliance Rules 
+  // OpenAjax Alliance Rules 
   // Rule group: Data Table Rules
   //
 with (OpenAjax.a11y) {
   addRules([
            
-    // --------
+    // ------------------------
     // Rule 7: Data tables must use summary attribute.
-    // --------
+    // Group 3: Data Table Rule
+    // 
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_7", 
-      groupTitle: "Data Table Rule", 
-      groupId: "oaa-rules_data_table", 
+      id            : "RULE_7", 
+      lastUpdated   : "2011-02-11", 
+      messageCode   : "MESSAGE_7", 
+      groupCode     : "GROUP_3", 
       context: ".dataTable", 
       validate: function (ruleContext) { 
   var passed = (util.getValueFromAttributes(ruleContext,['summary'],'') != ''); 
   return new ValidationResult(passed, [ruleContext], '', '', []); 
 }  // endfunction
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 8: Data tables must use th elements
-    // --------
+    // Group 3: Data Table Rule
+    // 
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_8", 
-      groupTitle: "Data Table Rule", 
-      groupId: "oaa-rules_data_table", 
+      id            : "RULE_8", 
+      lastUpdated   : "2011-02-11", 
+      messageCode   : "MESSAGE_8", 
+      groupCode     : "GROUP_3", 
       context: ".dataTable", 
       validate: function (ruleContext) { 
   var passed = false; 
@@ -66,20 +75,24 @@ with (OpenAjax.a11y) {
   } // endif 
   return new ValidationResult(passed, [ruleContext], '', '', []); 
 }//endfunction
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 9: Summary attribute content must be unique.
-    // --------
+    // Group 3: Data Table Rule
+    // 
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_9", 
-      groupTitle: "Data Table Rule", 
-      groupId: "oaa-rules_data_table", 
+      id            : "RULE_9", 
+      lastUpdated   : "2011-02-11", 
+      messageCode   : "MESSAGE_9", 
+      groupCode     : "GROUP_3", 
       context: "table[@summary]", 
-      dependencies: ["rule_7",],
+      dependencies  : ["RULE_7",],
       validate: function (ruleContext) { 
   var passed = true; 
   var summary = util.getValueFromAttributes(ruleContext,['summary'],""); 
@@ -95,18 +108,22 @@ with (OpenAjax.a11y) {
   var passed = (count < 2); 
   return new ValidationResult(passed, [ruleContext], '', '', []); 
 } // endfunction
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 10: Complex data tables must have ids on th elements.
-    // --------
+    // Group 3: Data Table Rule
+    // 
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_10", 
-      groupTitle: "Data Table Rule", 
-      groupId: "oaa-rules_data_table", 
+      id            : "RULE_10", 
+      lastUpdated   : "2011-02-11", 
+      messageCode   : "MESSAGE_10", 
+      groupCode     : "GROUP_3", 
       context: ".complexDataTable", 
       validate: function (node) { 
   var passed = true; 
@@ -123,18 +140,22 @@ with (OpenAjax.a11y) {
   } //endfor
   return new ValidationResult(passed, [node], '', '', []); 
 } // endfunction
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 11: For complex data tables table ids must be unique.
-    // --------
+    // Group 3: Data Table Rule
+    // 
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_11", 
-      groupTitle: "Data Table Rule", 
-      groupId: "oaa-rules_data_table", 
+      id            : "RULE_11", 
+      lastUpdated   : "2011-02-11", 
+      messageCode   : "MESSAGE_11", 
+      groupCode     : "GROUP_3", 
       context: ".complexDataTable", 
       validate: function (node) { 
   var r,c; 
@@ -156,18 +177,22 @@ with (OpenAjax.a11y) {
   var passed = (duparray.length == 0); 
   return new ValidationResult(passed, [node], '', '', [duparray.join(', ')]); 
 } // endfunction
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 12: Complex data table td elements must have header attributes.
-    // --------
+    // Group 3: Data Table Rule
+    // 
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_12", 
-      groupTitle: "Data Table Rule", 
-      groupId: "oaa-rules_data_table", 
+      id            : "RULE_12", 
+      lastUpdated   : "2011-02-11", 
+      messageCode   : "MESSAGE_12", 
+      groupCode     : "GROUP_3", 
       context: ".complexDataTable", 
       validate: function (node) { 
   var passed = true; 
@@ -185,18 +210,22 @@ with (OpenAjax.a11y) {
   } // endfor
   return new ValidationResult(passed, [node], '', '', []); 
 } // end function
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 13: Complex data tables header ids must be on the page.
-    // --------
+    // Group 3: Data Table Rule
+    // 
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_13", 
-      groupTitle: "Data Table Rule", 
-      groupId: "oaa-rules_data_table", 
+      id            : "RULE_13", 
+      lastUpdated   : "2011-02-11", 
+      messageCode   : "MESSAGE_13", 
+      groupCode     : "GROUP_3", 
       context: ".complexDataTable", 
       validate: function (node) { 
   var r,c; 
@@ -234,12 +263,12 @@ with (OpenAjax.a11y) {
   var passed = (notfoundarray.length == 0); 
   return new ValidationResult(passed, [node], '', '', [notfoundarray.join(",")]); 
 } // end function
-
-
+ 
+ 
       },
   ]); 
    }
-
-
+ 
+ 
         
-
+ 

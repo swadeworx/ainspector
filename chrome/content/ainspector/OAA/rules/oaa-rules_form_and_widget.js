@@ -1,19 +1,23 @@
 
   //
-  // OpenAjax Alliance Rules 
+  // OpenAjax Alliance Rules 
   // Rule group: Form/Widget Rules
   //
 with (OpenAjax.a11y) {
   addRules([
            
-    // --------
+    // ------------------------
     // Rule 47: Each fieldset element should contain a legend element.
-    // --------
+    // Group 6: Form/Widget Rule
+    //
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_47", 
-      groupTitle: "Form/Widget Rule", 
-      groupId: "oaa-rules_form_and_widget", 
+      id            : "RULE_47",
+      lastUpdated   : "2011-02-11",
+      messageCode   : "MESSAGE_47",
+      groupCode     : "GROUP_6",
       context: "fieldset", 
       validate: function (ruleContext) { 
   var legendFound = false; 
@@ -27,18 +31,22 @@ with (OpenAjax.a11y) {
   return new ValidationResult(legendFound, [ruleContext], [], '', []); 
   
 } // endfunction
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 48: The label element should not encapsulate select and textarea elements.
-    // --------
+    // Group 6: Form/Widget Rule
+    //
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_48", 
-      groupTitle: "Form/Widget Rule", 
-      groupId: "oaa-rules_form_and_widget", 
+      id            : "RULE_48",
+      lastUpdated   : "2011-02-11",
+      messageCode   : "MESSAGE_48",
+      groupCode     : "GROUP_6",
       context: "label", 
       validate: function (ruleContext) { 
   var tagFound = false;
@@ -53,90 +61,110 @@ with (OpenAjax.a11y) {
   } // endfor
   
   return new ValidationResult(!tagFound, [ruleContext], [], '', []); }
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 49: Each input element with type=text | password | checkbox | radio | file and each select and textarea element should either be referenced by the for attribute of a label element via its id attribute, or have a title attribute.
-    // --------
+    // Group 6: Form/Widget Rule
+    //
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_49", 
-      groupTitle: "Form/Widget Rule", 
-      groupId: "oaa-rules_form_and_widget", 
+      id            : "RULE_49",
+      lastUpdated   : "2011-02-11",
+      messageCode   : "MESSAGE_49",
+      groupCode     : "GROUP_6",
       context: "input[@type == 'text'] | input[@type == 'password'] | input[@type == 'checkbox'] | input[@type == 'radio'] | input[@type == 'file'] | textarea | select", 
       validate: function (ruleContext) { 
   var retStruct = util.parseLabel(ruleContext); 
   var passed = (retStruct.label != null);	 
   return new ValidationResult(passed, [ruleContext], [], '', []); 
 }  // endfunction
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 50: Input element of type=[image] must have an alt or a title attribute.
-    // --------
+    // Group 6: Form/Widget Rule
+    //
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_50", 
-      groupTitle: "Form/Widget Rule", 
-      groupId: "oaa-rules_form_and_widget", 
+      id            : "RULE_50",
+      lastUpdated   : "2011-02-11",
+      messageCode   : "MESSAGE_50",
+      groupCode     : "GROUP_6",
       context: "input[@type == 'image']", 
       validate: function (ruleContext) { 
   var retStruct = util.parseLabel(ruleContext); 
   var passed = (retStruct.label != null);	 
   return new ValidationResult(passed, [ruleContext], [], '', []); 
 }  // endfunction
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 51: Input elements where type=[button|submit|reset] must have a value or title attribute.
-    // --------
+    // Group 6: Form/Widget Rule
+    //
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_51", 
-      groupTitle: "Form/Widget Rule", 
-      groupId: "oaa-rules_form_and_widget", 
+      id            : "RULE_51",
+      lastUpdated   : "2011-02-11",
+      messageCode   : "MESSAGE_51",
+      groupCode     : "GROUP_6",
       context: "input[@type == 'button'] | input[@type == 'submit'] | input[@type == 'reset']", 
       validate: function (ruleContext) { 
   var retStruct = util.parseLabel(ruleContext); 
   var passed = (retStruct.label != null);	 
   return new ValidationResult(passed, [ruleContext], [], '', []); 
 }  // endfunction
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 52: Each button element must contain content.
-    // --------
+    // Group 6: Form/Widget Rule
+    //
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_52", 
-      groupTitle: "Form/Widget Rule", 
-      groupId: "oaa-rules_form_and_widget", 
+      id            : "RULE_52",
+      lastUpdated   : "2011-02-11",
+      messageCode   : "MESSAGE_52",
+      groupCode     : "GROUP_6",
       context: "button", 
       validate: function (ruleContext) { 
   var retStruct = util.parseLabelFromButton(ruleContext); 
   var passed = (retStruct.label != null);	 
   return new ValidationResult(passed, [ruleContext], [], '', []); 
 } // endfunction
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 53: Effective labels should be unique.
-    // --------
+    // Group 6: Form/Widget Rule
+    //
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_53", 
-      groupTitle: "Form/Widget Rule", 
-      groupId: "oaa-rules_form_and_widget", 
+      id            : "RULE_53",
+      lastUpdated   : "2011-02-11",
+      messageCode   : "MESSAGE_53",
+      groupCode     : "GROUP_6",
       context: "document", 
       validate: function (ruleContext) { 
   var dataarray = new Array(); 
@@ -175,136 +203,156 @@ with (OpenAjax.a11y) {
 	for (j=i+1; j<n; j++) {  
 		if (dataarray[j].label == null) continue;  
 		var effLab2 = dataarray[j].legend + ' ' + dataarray[j].label;          
-		if (effLab1 == effLab2) {
-			dataarray[i].duplicatelabel=dataarray[j].duplicatelabel=true;
+		if (effLab1 == effLab2) { 
+			dataarray[i].duplicatelabel=dataarray[j].duplicatelabel=true; 
 		}//endif	
-	} //endfor
-} //endfor
-for (var i=0; i < dataarray.length;i++) {
-	if (dataarray[i].duplicatelabel) {
-		retArray.push(dataarray[i].node);
-		if (dataarray[i].legend != null) {
-			retMsgArray.push(dataarray[i].legend + ' ' + dataarray[i].label);
-		} else {
-			retMsgArray.push(dataarray[i].label);
-		} //end if
-	} //end if
-} //end for
-
-var passed = (retArray.length == 0);
-return new ValidationResult(passed, retArray, [], '', retMsgArray);
-} // endfunction
-
-
-      },
+	} //endfor 
+} //endfor 
+for (var i=0; i < dataarray.length;i++) { 
+	retArray.push(dataarray[i].node); 
+	if (dataarray[i].duplicatelabel) { 
+		if (dataarray[i].legend != null) { 
+			retMsgArray.push(dataarray[i].legend + ' ' + dataarray[i].label); 
+		} else { 
+			retMsgArray.push(dataarray[i].label); 
+		} //end if 
+	} //end if 
+} //end for 
+ 
+var passed = (retArray.length == 0); 
+return new ValidationResult(passed, retArray, [], '', retMsgArray); 
+} // endfunction 
+ 
+ 
+      }, 
            
-    // --------
-    // Rule 54: Labels must have text content.
-    // --------
+    // ------------------------
+    // Rule 54: Labels must have text content. 
+    // Group 6: Form/Widget Rule
+    //
+    // Last update: 2011-02-11
+    // ------------------------
 	          
-     {
-      id: "rule_54", 
-      groupTitle: "Form/Widget Rule", 
-      groupId: "oaa-rules_form_and_widget", 
+     { 
+      id            : "RULE_54",
+      lastUpdated   : "2011-02-11",
+      messageCode   : "MESSAGE_54",
+      groupCode     : "GROUP_6",
       context: "label", 
       validate: function (ruleContext) { 
-  var passed = xbrowser.getTextContent(ruleContext).normalizeSpacing().length != 0;
-	            return new ValidationResult(passed, [ruleContext], [], '', []);
- } //end function
-
-
-      },
+  var passed = xbrowser.getTextContent(ruleContext).normalizeSpacing().length != 0; 
+	            return new ValidationResult(passed, [ruleContext], [], '', []); 
+ } //end function 
+ 
+ 
+      }, 
            
-    // --------
-    // Rule 55: Legends must have text content.
-    // --------
+    // ------------------------
+    // Rule 55: Legends must have text content. 
+    // Group 6: Form/Widget Rule
+    //
+    // Last update: 2011-02-11
+    // ------------------------
 	          
-     {
-      id: "rule_55", 
-      groupTitle: "Form/Widget Rule", 
-      groupId: "oaa-rules_form_and_widget", 
+     { 
+      id            : "RULE_55",
+      lastUpdated   : "2011-02-11",
+      messageCode   : "MESSAGE_55",
+      groupCode     : "GROUP_6",
       context: "legend", 
       validate: function (ruleContext) { 
-  var passed = xbrowser.getTextContent(ruleContext).normalizeSpacing().length != 0;
-	            return new ValidationResult(passed, [ruleContext], [], '', []);
-} //end function
-
-
-      },
+  var passed = xbrowser.getTextContent(ruleContext).normalizeSpacing().length != 0; 
+	            return new ValidationResult(passed, [ruleContext], [], '', []); 
+} //end function 
+ 
+ 
+      }, 
            
-    // --------
-    // Rule 56: Title attributes used for labeling form controls must have content.
-    // --------
+    // ------------------------
+    // Rule 56: Title attributes used for labeling form controls must have content. 
+    // Group 6: Form/Widget Rule
+    //
+    // Last update: 2011-02-11
+    // ------------------------
 	          
-     {
-      id: "rule_56", 
-      groupTitle: "Form/Widget Rule", 
-      groupId: "oaa-rules_form_and_widget", 
+     { 
+      id            : "RULE_56",
+      lastUpdated   : "2011-02-11",
+      messageCode   : "MESSAGE_56",
+      groupCode     : "GROUP_6",
       context: "button[@title] | input[@title] | textarea[@title] | select[@title]", 
       validate: function (ruleContext) { 
-  var passed = ruleContext.getAttribute('title').normalizeSpacing().length != 0;
-	            return new ValidationResult(passed, [ruleContext], 'title', '', []);
-	        } //endfunction
-
-
-      },
+  var passed = ruleContext.getAttribute('title').normalizeSpacing().length != 0; 
+	            return new ValidationResult(passed, [ruleContext], 'title', '', []); 
+	        } //endfunction 
+ 
+ 
+      }, 
            
-    // --------
-    // Rule 57: Form controls must have unique ids.
-    // --------
+    // ------------------------
+    // Rule 57: Form controls must have unique ids. 
+    // Group 6: Form/Widget Rule
+    //
+    // Last update: 2011-02-11
+    // ------------------------
 	          
-     {
-      id: "rule_57", 
-      groupTitle: "Form/Widget Rule", 
-      groupId: "oaa-rules_form_and_widget", 
+     { 
+      id            : "RULE_57",
+      lastUpdated   : "2011-02-11",
+      messageCode   : "MESSAGE_57",
+      groupCode     : "GROUP_6",
       context: "button[@id] | input[@id] | textarea[@id] | select[@id]", 
       validate: function (ruleContext) { 
-	var count = 0;
-	var id = ruleContext.getAttribute('id');
-	var xp = "//button[@id='" + id + "']|//input[@id='" + id + "']|//textarea[@id='" + id + "']|//select[@id='" + id + "']";
-	var xpathResult = OpenAjax.a11y.xpath.evaluate(xp, ruleContext.ownerDocument, util.defaultNSResolver, OpenAjax.a11y.xpath.XPathResult.ANY_TYPE, null);
-	var r = xpathResult.iterateNext();
-	while (r && count < 2) {
-		count++;
-		r = xpathResult.iterateNext();
-	}
-	var passed = (count < 2);
-	return new ValidationResult(passed, [ruleContext], 'id', '', [id]);
-}  // endfunction
-
-
-      },
+	var count = 0; 
+	var id = ruleContext.getAttribute('id'); 
+	var xp = "//button[@id='" + id + "']|//input[@id='" + id + "']|//textarea[@id='" + id + "']|//select[@id='" + id + "']"; 
+	var xpathResult = OpenAjax.a11y.xpath.evaluate(xp, ruleContext.ownerDocument, util.defaultNSResolver, OpenAjax.a11y.xpath.XPathResult.ANY_TYPE, null); 
+	var r = xpathResult.iterateNext(); 
+	while (r && count < 2) { 
+		count++; 
+		r = xpathResult.iterateNext(); 
+	} 
+	var passed = (count < 2); 
+	return new ValidationResult(passed, [ruleContext], 'id', '', [id]); 
+}  // endfunction 
+ 
+ 
+      }, 
            
-    // --------
-    // Rule 63: Check aria properties and states for valid roles and properties
-    // --------
+    // ------------------------
+    // Rule 63: Check aria properties and states for valid roles and properties 
+    // Group 6: Form/Widget Rule
+    //
+    // Last update: 2011-02-11
+    // ------------------------
 	          
-     {
-      id: "rule_63", 
-      groupTitle: "Form/Widget Rule", 
-      groupId: "oaa-rules_form_and_widget", 
+     { 
+      id            : "RULE_63",
+      lastUpdated   : "2011-02-11",
+      messageCode   : "MESSAGE_63",
+      groupCode     : "GROUP_6",
       context: ".containsAriaAttr", 
       validate: 
-   function (ruleContext) {
-      var passed = true;
-      var attrNameArr = new Array();
-      var designPatterns = OpenAjax.a11y.aria.designPatterns;
-
-      //Get the role value
-      var role = ruleContext.getAttribute("role");
+   function (ruleContext) { 
+      var passed = true; 
+      var attrNameArr = new Array(); 
+      var designPatterns = OpenAjax.a11y.aria.designPatterns; 
+ 
+      //Get the role value 
+      var role = ruleContext.getAttribute("role"); 
       // - a role value of null indicates no role attribute is present in (FF,Opera, Safari, Chrome). 
       // - '' value indicates the role is set to an empty string for all browsers except 
-      //      IE which also returns '' if no role attribute is present
-      // neither of these values allow for unsupported state to be tested
+      //      IE which also returns '' if no role attribute is present 
+      // neither of these values allow for unsupported state to be tested 
 					
-      // Make sure the role value is consistent with IE as you don't want to push a null on the stack
-      if (role==null)
-         role='';
-      // If there is a valid role check to see that the states are supported
-      if ((role != '') && designPatterns[role]) {
-         for (var a = 0; a < ruleContext.attributes.length; a++) {
-            if (OpenAjax.a11y.util.isDefinedAriaAttributeAtIndex(ruleContext, a)) {
-               var attrName = ruleContext.attributes[a].name;
+      // Make sure the role value is consistent with IE as you don't want to push a null on the stack 
+      if (role==null) 
+         role=''; 
+      // If there is a valid role check to see that the states are supported 
+      if ((role != '') && designPatterns[role]) { 
+         for (var a = 0; a < ruleContext.attributes.length; a++) { 
+            if (OpenAjax.a11y.util.isDefinedAriaAttributeAtIndex(ruleContext, a)) { 
+               var attrName = ruleContext.attributes[a].name; 
                var found = OpenAjax.a11y.xbrowser.indexOf(OpenAjax.a11y.aria.globalProperties, attrName) >= 0;
                if (!found && designPatterns[role].reqProps != null) { 
                   found = OpenAjax.a11y.xbrowser.indexOf(designPatterns[role].reqProps, attrName) >= 0;
@@ -319,28 +367,32 @@ return new ValidationResult(passed, retArray, [], '', retMsgArray);
       var retMsg = new Array();
       retMsg.push (attrNameArr.toString());
       retMsg.push (role);
-
+ 
       var passed = attrNameArr.length == 0;
       return new ValidationResult(passed, [ruleContext], attrNameArr, '', retMsg);
    }
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 64: ARIA attributes have valid values 
-    // --------
+    // Group 6: Form/Widget Rule
+    //
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_64", 
-      groupTitle: "Form/Widget Rule", 
-      groupId: "oaa-rules_form_and_widget", 
+      id            : "RULE_64",
+      lastUpdated   : "2011-02-11",
+      messageCode   : "MESSAGE_64",
+      groupCode     : "GROUP_6",
       context: ".containsAriaAttr", 
       validate: 
    function (ruleContext) {
       var attrNameArr = new Array();
       var dataTypeArr = new Array();
-
+ 
       // for each aria attr check for nonexistant IDs
       for(var i=0; i< ruleContext.attributes.length; i++ ) {
          var attrName = ruleContext.attributes[i].name;
@@ -362,28 +414,32 @@ return new ValidationResult(passed, retArray, [], '', retMsgArray);
       var retMsg = new Array();
       retMsg.push (attrNameArr.toString());
       retMsg.push (dataTypeArr.toString());
-
+ 
       var passed = attrNameArr.length == 0;
       return new ValidationResult(passed, [ruleContext], attrNameArr, '', retMsg); 	                
    }
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 65: ARIA ID references must be valid IDRefs
-    // --------
+    // Group 6: Form/Widget Rule
+    //
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_65", 
-      groupTitle: "Form/Widget Rule", 
-      groupId: "oaa-rules_form_and_widget", 
+      id            : "RULE_65",
+      lastUpdated   : "2011-02-11",
+      messageCode   : "MESSAGE_65",
+      groupCode     : "GROUP_6",
       context: ".containsAriaAttrIDREF", 
       validate: 
    function (ruleContext) {
       var attrNameArr = new Array();
       var nonExistantIDs = new Array();
-
+ 
       // for each aria attr check for nonexistant IDs
       for(var i=0, pass=true; i< ruleContext.attributes.length; i++ ) {
          pass = true;
@@ -424,18 +480,22 @@ return new ValidationResult(passed, retArray, [], '', retMsgArray);
       var passed = attrNameArr.length == 0;
       return new ValidationResult(passed, [ruleContext], attrNameArr, '', retMsg); 	                
    }
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 66: ARIA attributes can only be used with certain roles
-    // --------
+    // Group 6: Form/Widget Rule
+    //
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_66", 
-      groupTitle: "Form/Widget Rule", 
-      groupId: "oaa-rules_form_and_widget", 
+      id            : "RULE_66",
+      lastUpdated   : "2011-02-11",
+      messageCode   : "MESSAGE_66",
+      groupCode     : "GROUP_6",
       context: ".containsAriaAttrIDREF", 
       validate: 
    function (ruleContext) {
@@ -446,7 +506,7 @@ return new ValidationResult(passed, retArray, [], '', retMsgArray);
       // - '' value indicates the role is set to an empty string for all browsers except 
       //      IE which also returns '' if no role attribute is present
       // neither of these values allow for unsupported state to be tested
-
+ 
       // Make sure the role value is consistent with IE as you don't want to push a null on the stack
       if (role==null)
          role='';
@@ -463,18 +523,22 @@ return new ValidationResult(passed, retArray, [], '', retMsgArray);
       var passed = attrNameArr.length == 0;
       return new ValidationResult(passed, [ruleContext], attrNameArr, '', retMsg);
   }
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 67: Roles must contain their required child roles
-    // --------
+    // Group 6: Form/Widget Rule
+    //
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_67", 
-      groupTitle: "Form/Widget Rule", 
-      groupId: "oaa-rules_form_and_widget", 
+      id            : "RULE_67",
+      lastUpdated   : "2011-02-11",
+      messageCode   : "MESSAGE_67",
+      groupCode     : "GROUP_6",
       context: "*[@role]", 
       validate: 
    function (ruleContext) {
@@ -507,24 +571,28 @@ return new ValidationResult(passed, retArray, [], '', retMsgArray);
       var passed = roleNameArr.length == 0;
       return new ValidationResult(passed, [ruleContext], '', '', retMsg);
    }
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 68: Child roles must be contained by the proper parent role
-    // --------
+    // Group 6: Form/Widget Rule
+    //
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_68", 
-      groupTitle: "Form/Widget Rule", 
-      groupId: "oaa-rules_form_and_widget", 
+      id            : "RULE_68",
+      lastUpdated   : "2011-02-11",
+      messageCode   : "MESSAGE_68",
+      groupCode     : "GROUP_6",
       context: "*[@role]", 
       validate: 
    function (ruleContext) {
       var passed = true;
       var roleNameArr = new Array();
-
+ 
       //Get the role value
       var role = ruleContext.getAttribute("role");
       // - a role value of null indicates no role attribute is present in (FF,Opera, Safari, Chrome). 
@@ -535,7 +603,7 @@ return new ValidationResult(passed, retArray, [], '', retMsgArray);
       // Make sure the role value is consistent with IE as you don't want to push a null on the stack
       if (role==null)
          role='';
-
+ 
       var designPatterns = OpenAjax.a11y.aria.designPatterns;
       // If there is a valid role and the role is required to have a container check to make sure the role is housed in the appropiate container
       if (role != '' && designPatterns[role] && designPatterns[role].container != null) { 
@@ -552,18 +620,22 @@ return new ValidationResult(passed, retArray, [], '', retMsgArray);
       var passed = roleNameArr.length == 0;
       return new ValidationResult(passed, [ruleContext], '', '', retMsg);
    }
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 69: Required properties and states should be defined
-    // --------
+    // Group 6: Form/Widget Rule
+    //
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_69", 
-      groupTitle: "Form/Widget Rule", 
-      groupId: "oaa-rules_form_and_widget", 
+      id            : "RULE_69",
+      lastUpdated   : "2011-02-11",
+      messageCode   : "MESSAGE_69",
+      groupCode     : "GROUP_6",
       context: ".containsAriaAttr", 
       validate: 
    function (ruleContext) {
@@ -594,18 +666,22 @@ return new ValidationResult(passed, retArray, [], '', retMsgArray);
       var passed = attrNameArr.length == 0;
       return new ValidationResult(passed, [ruleContext], attrNameArr, '', retMsg);
    }
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 70: Required properties and states must not be empty
-    // --------
+    // Group 6: Form/Widget Rule
+    //
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_70", 
-      groupTitle: "Form/Widget Rule", 
-      groupId: "oaa-rules_form_and_widget", 
+      id            : "RULE_70",
+      lastUpdated   : "2011-02-11",
+      messageCode   : "MESSAGE_70",
+      groupCode     : "GROUP_6",
       context: ".containsAriaAttr", 
       validate: 
    function (ruleContext) {
@@ -639,18 +715,22 @@ return new ValidationResult(passed, retArray, [], '', retMsgArray);
       var passed = attrNameArr.length == 0;
       return new ValidationResult(passed, [ruleContext], attrNameArr, '', retMsg);
    }
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 71: Role value must be valid
-    // --------
+    // Group 6: Form/Widget Rule
+    //
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_71", 
-      groupTitle: "Form/Widget Rule", 
-      groupId: "oaa-rules_form_and_widget", 
+      id            : "RULE_71",
+      lastUpdated   : "2011-02-11",
+      messageCode   : "MESSAGE_71",
+      groupCode     : "GROUP_6",
       context: "*[@role]", 
       validate: 
    function (ruleContext) {
@@ -668,23 +748,27 @@ return new ValidationResult(passed, retArray, [], '', retMsgArray);
       if (!OpenAjax.a11y.aria.designPatterns[role]) passed = false;
           return new ValidationResult(passed, [ruleContext], 'role', '', [role]);
    }
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 72: Check that 'ARIA-' attributes are valid properties and states
-    // --------
+    // Group 6: Form/Widget Rule
+    //
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_72", 
-      groupTitle: "Form/Widget Rule", 
-      groupId: "oaa-rules_form_and_widget", 
+      id            : "RULE_72",
+      lastUpdated   : "2011-02-11",
+      messageCode   : "MESSAGE_72",
+      groupCode     : "GROUP_6",
       context: "*", 
       validate: 
    function (ruleContext) {
       var attrNameArr = new Array();
-
+ 
       // TY attributes is null when the node is a comment node
       if (!!ruleContext.attributes && ruleContext.attributes.length) {
             // for each aria attr check for nonexistant IDs
@@ -701,18 +785,22 @@ return new ValidationResult(passed, retArray, [], '', retMsgArray);
       var passed = attrNameArr.length == 0;
       return new ValidationResult(passed, [ruleContext], attrNameArr, '', retMsg);
    }
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 73: Check that non-form and non-anchor elements with event handlers have valid roles.
-    // --------
+    // Group 6: Form/Widget Rule
+    //
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_73", 
-      groupTitle: "Form/Widget Rule", 
-      groupId: "oaa-rules_form_and_widget", 
+      id            : "RULE_73",
+      lastUpdated   : "2011-02-11",
+      messageCode   : "MESSAGE_73",
+      groupCode     : "GROUP_6",
       context: ".nonfocusableElementsContainingEvents", 
       validate: 
    function (ruleContext) {
@@ -741,18 +829,22 @@ return new ValidationResult(passed, retArray, [], '', retMsgArray);
       }
       return new ValidationResult(passed, [ruleContext], '', '', []);
    }
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 74: Check that elements with mouse event handlers also have key event handlers
-    // --------
+    // Group 6: Form/Widget Rule
+    //
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_74", 
-      groupTitle: "Form/Widget Rule", 
-      groupId: "oaa-rules_form_and_widget", 
+      id            : "RULE_74",
+      lastUpdated   : "2011-02-11",
+      messageCode   : "MESSAGE_74",
+      groupCode     : "GROUP_6",
       context: "*[@aria-activedescendant]", 
       validate: 
    function (ruleContext) {
@@ -760,18 +852,22 @@ return new ValidationResult(passed, retArray, [], '', retMsgArray);
       var passed = (events.toString().indexOf("mouse") == -1 || events.indexOf("keydown") >= 0 || events.indexOf("keypress") >= 0);
       return new ValidationResult(passed, [ruleContext], '', '', []);
    }
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 75: Check that enabled elements with ACTIVE-DESCENDANT have valid tab index
-    // --------
+    // Group 6: Form/Widget Rule
+    //
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_75", 
-      groupTitle: "Form/Widget Rule", 
-      groupId: "oaa-rules_form_and_widget", 
+      id            : "RULE_75",
+      lastUpdated   : "2011-02-11",
+      messageCode   : "MESSAGE_75",
+      groupCode     : "GROUP_6",
       context: "*[@aria-activedescendant]", 
       validate: 
    function (ruleContext) {
@@ -779,23 +875,27 @@ return new ValidationResult(passed, retArray, [], '', retMsgArray);
       var passed = (disabled == 'true' || (OpenAjax.a11y.xbrowser.hasAttribute(ruleContext, 'tabindex') && ruleContext.getAttribute("tabindex").isInteger()));
       return new ValidationResult(passed, [ruleContext], '', '', []);
    }
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 76: Check that elements without 'aria-activedescendant' that have roles requiring a container have focusable children
-    // --------
+    // Group 6: Form/Widget Rule
+    //
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_76", 
-      groupTitle: "Form/Widget Rule", 
-      groupId: "oaa-rules_form_and_widget", 
+      id            : "RULE_76",
+      lastUpdated   : "2011-02-11",
+      messageCode   : "MESSAGE_76",
+      groupCode     : "GROUP_6",
       context: "*[@aria-activedescendant]", 
       validate: 
    function (ruleContext) {
       var passed = true;
-
+ 
       var role = ruleContext.getAttribute("role");
       // - a role value of null indicates no role attribute is present in (FF,Opera, Safari, Chrome). 
       // - '' value indicates the role is set to an empty string for all browsers except 
@@ -825,18 +925,22 @@ return new ValidationResult(passed, retArray, [], '', retMsgArray);
       }
       return new ValidationResult(passed, [ruleContext], 'role', '', []);
    }
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 77: Check that elements without 'aria-activedescendant' that have roles requiring a container have key event handlers
-    // --------
+    // Group 6: Form/Widget Rule
+    //
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_77", 
-      groupTitle: "Form/Widget Rule", 
-      groupId: "oaa-rules_form_and_widget", 
+      id            : "RULE_77",
+      lastUpdated   : "2011-02-11",
+      messageCode   : "MESSAGE_77",
+      groupCode     : "GROUP_6",
       context: "*[@aria-activedescendant]", 
       validate: 
    function (ruleContext) {
@@ -868,12 +972,12 @@ return new ValidationResult(passed, retArray, [], '', retMsgArray);
       }
       return new ValidationResult(passed, [ruleContext], 'role', '', []);
    }
-
-
+ 
+ 
       },
   ]); 
    }
-
-
+ 
+ 
         
-
+ 

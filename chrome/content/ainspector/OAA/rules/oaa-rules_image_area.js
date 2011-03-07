@@ -1,19 +1,22 @@
 
   //
-  // OpenAjax Alliance Rules 
-  // Rule group: Image and Area Rules
+  // OpenAjax Alliance Rules  // Rule group: Image and Area Rules
   //
 with (OpenAjax.a11y) {
   addRules([
            
-    // --------
+    // ------------------------
     // Rule 1: Images must have valid alt text.
-    // --------
+    // Group 4: Image and Area Rule
+    // 
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_1", 
-      groupTitle: "Image and Area Rule", 
-      groupId: "oaa-rules_image_area", 
+      id            : "RULE_1", 
+      lastUpdated   : "2011-02-11", 
+      messageCode   : "MESSAGE_1", 
+      groupCode     : "GROUP_4", 
       context: "img[@role != 'presentation']", 
       validateParams: { 
       max_decorative_width: { value: 8, type: 'Integer' },
@@ -32,19 +35,23 @@ with (OpenAjax.a11y) {
 
       },
            
-    // --------
+    // ------------------------
     // Rule 2: Image file name is not valid alt text.
-    // --------
+    // Group 4: Image and Area Rule
+    // 
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_2", 
-      groupTitle: "Image and Area Rule", 
-      groupId: "oaa-rules_image_area", 
+      id            : "RULE_2", 
+      lastUpdated   : "2011-02-11", 
+      messageCode   : "MESSAGE_2", 
+      groupCode     : "GROUP_4", 
       context: "img[@role != 'presentation']", 
       validateParams: { 
       alt_forebidden_file_ext_pattern: { value: /.+\.(bmp|jpg|jpeg|jfif|gif|png|tif|tiff)$/i, type: 'Regular Expression' },
      }, 
-      dependencies: ["rule_1",],
+      dependencies  : ["RULE_1",],
       validate: function (ruleContext) { 
   var found = this.validateParams.alt_forebidden_file_ext_pattern.value.test(ruleContext.alt);
   return new ValidationResult(!found, [ruleContext], 'alt', '', []); 
@@ -53,19 +60,23 @@ with (OpenAjax.a11y) {
 
       },
            
-    // --------
+    // ------------------------
     // Rule 3: Certain words cannot be used as a part of valid alt text
-    // --------
+    // Group 4: Image and Area Rule
+    // 
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_3", 
-      groupTitle: "Image and Area Rule", 
-      groupId: "oaa-rules_image_area", 
+      id            : "RULE_3", 
+      lastUpdated   : "2011-02-11", 
+      messageCode   : "MESSAGE_3", 
+      groupCode     : "GROUP_4", 
       context: "img[@role != 'presentation']", 
       validateParams: { 
       alt_forebidden_words: { value: ['picture','graphic','image','photo',], type: 'Array' },
      }, 
-      dependencies: ["rule_1",],
+      dependencies  : ["RULE_1",],
       validate: function (ruleContext) {
   var alt = ruleContext.alt.toLowerCase();
   var forebiddenWords = this.validateParams.alt_forebidden_words.value;
@@ -79,20 +90,24 @@ with (OpenAjax.a11y) {
 
       },
            
-    // --------
+    // ------------------------
     // Rule 4: Length of alt text.
-    // --------
+    // Group 4: Image and Area Rule
+    // 
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_4", 
-      groupTitle: "Image and Area Rule", 
-      groupId: "oaa-rules_image_area", 
+      id            : "RULE_4", 
+      lastUpdated   : "2011-02-11", 
+      messageCode   : "MESSAGE_4", 
+      groupCode     : "GROUP_4", 
       context: "img[@role != 'presentation']", 
       validateParams: { 
       alt_min_length: { value: 7, type: 'Integer' },
       alt_max_length: { value: 90, type: 'Integer' },
      }, 
-      dependencies: ["rule_1",],
+      dependencies  : ["RULE_1",],
       validate: function (ruleContext) { 
    var vparams = this.validateParams; 
    var length = ruleContext.alt.length; 
@@ -103,14 +118,18 @@ with (OpenAjax.a11y) {
 
       },
            
-    // --------
+    // ------------------------
     // Rule 5: Longdesc must have valid URI.
-    // --------
+    // Group 4: Image and Area Rule
+    // 
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_5", 
-      groupTitle: "Image and Area Rule", 
-      groupId: "oaa-rules_image_area", 
+      id            : "RULE_5", 
+      lastUpdated   : "2011-02-11", 
+      messageCode   : "MESSAGE_5", 
+      groupCode     : "GROUP_4", 
       context: "img[@longdesc][@role != 'presentation']", 
       validateParams: { 
       valid_longdesc_url_pattern: { value: /.+\.[x]?htm[l]?$/i, type: 'Regular Expression' },
@@ -123,14 +142,18 @@ with (OpenAjax.a11y) {
 
       },
            
-    // --------
+    // ------------------------
     // Rule 6: If an image has an alt or title attribute, it should not have a presentation role.
-    // --------
+    // Group 4: Image and Area Rule
+    // 
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_6", 
-      groupTitle: "Image and Area Rule", 
-      groupId: "oaa-rules_image_area", 
+      id            : "RULE_6", 
+      lastUpdated   : "2011-02-11", 
+      messageCode   : "MESSAGE_6", 
+      groupCode     : "GROUP_4", 
       context: "img[@role == 'presentation']", 
       validate: function (ruleContext) { 
   var noAltOrTitle = !ruleContext.alt && !ruleContext.title; 
@@ -140,14 +163,18 @@ with (OpenAjax.a11y) {
 
       },
            
-    // --------
+    // ------------------------
     // Rule 37: Images should be at least 16 pixels by 16 pixels when used as links.
-    // --------
+    // Group 4: Image and Area Rule
+    // 
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_37", 
-      groupTitle: "Image and Area Rule", 
-      groupId: "oaa-rules_image_area", 
+      id            : "RULE_37", 
+      lastUpdated   : "2011-02-11", 
+      messageCode   : "MESSAGE_37", 
+      groupCode     : "GROUP_4", 
       context: "a", 
       validate: function (ruleContext) { 
 	var passed = true;
@@ -168,14 +195,18 @@ with (OpenAjax.a11y) {
 
       },
            
-    // --------
+    // ------------------------
     // Rule 38: Links with images and text content, the alt attribute should be unique to the text content or empty.
-    // --------
+    // Group 4: Image and Area Rule
+    // 
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_38", 
-      groupTitle: "Image and Area Rule", 
-      groupId: "oaa-rules_image_area", 
+      id            : "RULE_38", 
+      lastUpdated   : "2011-02-11", 
+      messageCode   : "MESSAGE_38", 
+      groupCode     : "GROUP_4", 
       context: "a", 
       validate: function (ruleContext) { 
 	var passed = true;
@@ -189,9 +220,31 @@ with (OpenAjax.a11y) {
 
 
       },
+           
+    // ------------------------
+    // Rule 78: ALT text must describe content or purpose of image
+    // Group 4: Image and Area Rule
+    // 
+    // Last update: 2011-02-18
+    // ------------------------
+	          
+     {
+      id            : "RULE_78", 
+      lastUpdated   : "2011-02-18", 
+      messageCode   : "MESSAGE_78", 
+      groupCode     : "GROUP_4", 
+      context: "img[@role != 'presentation']", 
+      validate: function (ruleContext) {
+	// Fail if an img element does not have ALT attributes 
+	// If image does have an ALT attribute the tester should verify that it is meaningful
+	var passed = OpenAjax.a11y.xbrowser.hasAttribute(ruleContext, "alt");
+	return new ValidationResult(passed, [ruleContext], '', '', []);
+} // endfunction
+
+
+      },
   ]); 
    }
-
 
         
 
