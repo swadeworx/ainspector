@@ -1,7 +1,12 @@
 #summary Information about changes in each version.
 
 = Version History =
-  
+
+== Version beta 0.91 == 
+  * Modified the NLS files, ruleset files according to OAA discussions. 
+  * Generates a report for META information on accessibility report
+  * printable View for the report tab outputs the results in JSON object.  
+
 == Version beta 0.90 == 
   * Updated the rules, messages and rule sets to OAA(Open Ajax Alliance) format
      # IITAA1.0 rule sets are separated from the Wcag2.0 rule sets and moved to iitaa10-ruleset.js
