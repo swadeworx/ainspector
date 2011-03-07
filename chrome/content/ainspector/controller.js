@@ -15,7 +15,7 @@ AINSPECTOR.controller = {
     renderers: {},
 
     default_ruleset_id: 'ydefault',
-    
+
     run_pending: undefined,
     /**
      * Init code.  Add event listeners.
@@ -45,7 +45,7 @@ AINSPECTOR.controller = {
                 obj.custom = true;
                 this.addRuleset(obj);
             }
-        }  
+        }
  /*       var arr_rulesets = AINSPECTOR.util.Preference.getPrefList("customRuleset.", undefined);
         if (arr_rulesets && arr_rulesets.length > 0) {
             for (var i = 0; i < arr_rulesets.length; i++) {
@@ -57,10 +57,10 @@ AINSPECTOR.controller = {
                 }
             }
         } */
-        
+
 
         this.default_ruleset_id = AINSPECTOR.util.Preference.getPref("defaultRuleset", 'WCAG_2_0');
-        
+
         // load rule config preference
         this.loadRulePreference();
     },
@@ -85,9 +85,9 @@ AINSPECTOR.controller = {
             }
             return;
         }
-      
+
         if (typeof yscontext == 'undefined') return;
-        
+
         if (!yscontext.PAGE.loaded) {
             this.run_pending = {'win': win,  'yscontext': yscontext};
             // @todo: put up spining logo to indicate waiting for page finish loading.
@@ -121,138 +121,104 @@ AINSPECTOR.controller = {
     },
 
     lint: function(doc, yscontext, ruleset_id) {
-        var ruleset = [], rule, i, results = [], conf;
-        if (ruleset_id) {
-            ruleset = this.rulesets[ruleset_id];
-        } else if (this.default_ruleset_id) {
-            ruleset = this.rulesets[this.default_ruleset_id];
-        } else {
-            // if no ruleset, take the first one available
-            for (i in this.rulesets) {
-                ruleset = this.rulesets[i];
-                break;
+      var ruleset = [], rule, i, results = [], conf;
+      var rulesetCount = 0;
+      if (ruleset_id) {
+          ruleset = this.rulesets[ruleset_id];
+      } else if (this.default_ruleset_id) {
+          ruleset = this.rulesets[this.default_ruleset_id];
+      } else {
+          // if no ruleset, take the first one available
+          for (i in this.rulesets) {
+              ruleset = this.rulesets[i];
+              break;
+          }
+      }
+      var total_score = 0;
+      for (i in ruleset.rules) {
+        if (ruleset.rules[i] && i in this.rules) {
+          try {
+            rule = this.rules[i];
+            conf = AINSPECTOR.util.merge(rule.config, ruleset.rules[i]);
+            var result = rule.lint(doc, yscontext.component_set, conf);
+            if (result.score !== -1) {
+              // -1 is reserved for n/a
+              if (result.score < 0) {
+                  result.score = 0;
+              }
             }
-        }
-
- //       var weights = {};
-        var total_weight = 0;
-  /*      if (ruleset.weights !== undefined) {
-            for (i in ruleset.rules) {
-                var weight;
-                if (ruleset.weights[i] === undefined) {
-                    weight = 5; // default average
-                } else {
-                    weight = ruleset.weights[i];
-                    if (weight < 0) {
-                        weight = 0;
-                    }
-                    if (weight > 10) {
-                        weight = 10;
-                    }
-                }
-                total_weight += weight;
-                weights[i] = weight;
+            if (result.score > 0) {
+              total_score += result.score;
+              rulesetCount += 1;
             }
+            result.name = rule.name;
+            result.category = rule.category;
+            result.rule_id = i;
+            results[results.length] = result;
+          } catch (err) {
+              AINSPECTOR.util.dump("AINSPECTOR.controller.lint: " + i + "\n" + err);
+              AINSPECTOR.util.event.fire("lintError", {'rule': i, 'message': err });
+          }
         }
-*/
-        var total_score = 0;
-
-        for (i in ruleset.rules) {
-            if (ruleset.rules[i] && i in this.rules) {
-	            try {
-	                rule = this.rules[i];
-	                conf = AINSPECTOR.util.merge(rule.config, ruleset.rules[i]);
-
-	                var result = rule.lint(doc, yscontext.component_set, conf);
-
-	                // apply rule weight to result.
-	                var weight = (ruleset.weights ? ruleset.weights[i]: undefined);
-	                if (weight !== undefined) {
-	                    weight = parseInt(weight, 10);
-	                }
-	                if (weight === undefined || weight < 0 || weight > 10) {
-	                    weight = 5;
-	                }
-	                result.weight = weight;
-
-	                if (result.score !== -1) {
-	                    // -1 is reserved for n/a
-	                    total_weight += result.weight;
-	                    if (result.score < 0) {
-	                        result.score = 0;
-	                    }
-	                }
-	                if (result.score > 0) {
-	                    total_score += result.score * ( result.weight !== undefined ? result.weight : 1 );
-	                }
-
-	                result.name = rule.name;
-	                result.category = rule.category;
-	                result.rule_id = i;
-
-	                results[results.length] = result;
-	            	
-	            } catch (err) {
-	                AINSPECTOR.util.dump("AINSPECTOR.controller.lint: " + i + "\n" + err);
-	                AINSPECTOR.util.event.fire("lintError", {'rule': i, 'message': err });
-	            }
-            }
-        }
-
-        yscontext.PAGE.overallScore = total_score / (total_weight > 0 ? total_weight: 1);
-        yscontext.result_set = new AINSPECTOR.ResultSet(results, yscontext.PAGE.overallScore, ruleset);
-        yscontext.result_set.url = doc.URL ? doc.URL : doc.defaultView.location.href;
-        return yscontext.result_set;
-
+      }
+      yscontext.PAGE.overallScore = total_score/rulesetCount;
+      yscontext.result_set = new AINSPECTOR.ResultSet(results, yscontext.PAGE.overallScore, ruleset);
+      yscontext.result_set.url = doc.URL ? doc.URL : doc.defaultView.location.href;
+      return yscontext.result_set;
     },
+
     runTool: function(tool_id, yscontext, param) {
         var tool = AINSPECTOR.Tools.getTool(tool_id);
         try {
         if (typeof tool == "object") {
-            var result = tool.run(window.top.content.document, yscontext.component_set, param);
-            if (tool.print_output) {
-                var html = '';
-                if (typeof result == "object") {
-                    html = result.html;
-                } else if (typeof result == "string") {
-                    html = result;
-                }
-                var doc = AINSPECTOR.util.getNewDoc();
-                doc.body.innerHTML = html;
-                var h = doc.getElementsByTagName('head')[0];
-                var css;
-                if (typeof result.css == "undefined") {
-                    // use default.
-                    var URI = 'chrome://ainspector/content/ainspector/css/tool.css';
-                    var req2 = new XMLHttpRequest();
-                    req2.open('GET', URI, false);
-                    req2.send(null);
-                    css = req2.responseText;
-                } else {
-                    css = result.css;
-                }
-                if (typeof css == "string") {
-                    var l = doc.createElement("style");
-                    l.setAttribute("type", "text/css");
-                    l.appendChild(doc.createTextNode(css));
-                    h.appendChild(l);
-                }
-
-                if (typeof result.js !== "undefined") {
-                    var s = doc.createElement("script");
-                    s.setAttribute("type", "text/javascript");
-                    s.appendChild(doc.createTextNode(result.js));
-                    h.appendChild(s);
-                }           
+          if ( param.yscontext.ruleset_id == 'IITAA 1.0') {
+            param.yscontext.ruleset_id = 'IITAA_1_0';
+          } else if (param.yscontext.ruleset_id == 'WCAG 2.0') {
+            param.yscontext.ruleset_id = 'WCAG_2_0';
+          }
+          var result = tool.run(window.top.content.document, yscontext.component_set, param);
+          if (tool.print_output) {
+            var html = '';
+            if (typeof result == "object") {
+              html = result.html;
+            } else if (typeof result == "string") {
+              html = result;
             }
+            var doc = AINSPECTOR.util.getNewDoc();
+            doc.body.innerHTML = html;
+            var h = doc.getElementsByTagName('head')[0];
+            var css;
+            if (typeof result.css == "undefined") {
+              // use default.
+              var URI = 'chrome://ainspector/content/ainspector/css/tool.css';
+              var req2 = new XMLHttpRequest();
+              req2.open('GET', URI, false);
+              req2.send(null);
+              css = req2.responseText;
+            } else {
+              css = result.css;
+            }
+            if (typeof css == "string") {
+              var l = doc.createElement("style");
+              l.setAttribute("type", "text/css");
+              l.appendChild(doc.createTextNode(css));
+              h.appendChild(l);
+            }
+            if (typeof result.js !== "undefined") {
+              var s = doc.createElement("script");
+              s.setAttribute("type", "text/javascript");
+              s.appendChild(doc.createTextNode(result.js));
+              h.appendChild(s);
+            }
+          }
         } else {
-            var message = tool_id + " is not a tool.";
-            AINSPECTOR.util.dump(message);
-            AINSPECTOR.util.event.fire("toolError", {'tool_id': tool_id, 'message': message});
+          var message = tool_id + " is not a tool.";
+          AINSPECTOR.util.dump(message);
+          AINSPECTOR.util.event.fire("toolError", {'tool_id': tool_id, 'message': message});
         }
         } catch (err) {
-            AINSPECTOR.util.dump("AINSPECTOR.controller.runTool: " + tool_id + "\n" + err);
-            AINSPECTOR.util.event.fire("toolError", {'tool_id': tool_id, 'message': err});
+          AINSPECTOR.util.dump("AINSPECTOR.controller.runTool: " + tool_id + "\n" + err);
+          AINSPECTOR.util.event.fire("toolError", {'tool_id': tool_id, 'message': err});
         }
         return doc;
     },
@@ -431,7 +397,7 @@ AINSPECTOR.controller = {
         }
     },
 
-    /* 
+    /*
     * Returns the ID of the default ruleset
     *
     * @return (string) id of the default rule set
@@ -441,7 +407,7 @@ AINSPECTOR.controller = {
         return this.rulesets[this.default_ruleset_id];
     },
 
-    /* 
+    /*
     * Returns the ID of the default ruleset
     *
     * @return (string) id of the default rule set
@@ -476,9 +442,9 @@ AINSPECTOR.controller = {
             }
         }
     },
-    
-    // ************************************************************************************************    
-    
+
+    // ************************************************************************************************
+
 	getMaxSeverity: function(severityArr) {
 		if (severityArr.length > 0) {
 			var cssClass = ['failRow', 'warnRow', 'checkRow', 'checkRow', 'checkRow'];
@@ -490,16 +456,16 @@ AINSPECTOR.controller = {
 		}
 		return "passRow";
 	},
-	
+
     callAllParseNode: function(node) {
-    	try {		
+    	try {
     		var targetRule;
 			var retStruct = {
 					msg: new Array(),
 					attr: new Array(),
 					severityCode: new Array()
 				}
-    		
+
     		var ruleset = this.rulesets[this.default_ruleset_id]; //AINSPECTOR.controller.getRuleset(AINSPECTOR.controller.default_ruleset_id); //'a11y'
             for (i in ruleset.rules) {
             	targetRule = AINSPECTOR.controller.rules[i];
@@ -515,8 +481,8 @@ AINSPECTOR.controller = {
     		    	}
     	        }
             }//endfor
-            return retStruct; 
-            
+            return retStruct;
+
     	} catch (exc){
     		FBTrace.sysout(exc);
     	}
