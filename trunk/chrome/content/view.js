@@ -1,17 +1,17 @@
 /**
  *  AINSPECTOR.view manages all of the tabs on the screen
- *  
- * @param (panel)     
- * @param (yscontent) 
- * 
+ *
+ * @param (panel)
+ * @param (yscontent)
+ *
  */
 
 AINSPECTOR.view = function(panel, yscontext) {
     this.panel_doc = panel.document;
     this.buttonViews = {};
     this.curButtonId = "";
-    this.panelNode = panel.panelNode;  
-    
+    this.panelNode = panel.panelNode;
+
     function hasProperties(ob)
     {
         try
@@ -31,7 +31,7 @@ AINSPECTOR.view = function(panel, yscontext) {
 						"&lt;",
 							SPAN({class: ""}, "$object|FirebugReps.Element.getSelectorTag"),
 								FOR('attr', '$object|getAllAttribs',
-									TAG("$attrTag", {attr : '$attr'})	
+									TAG("$attrTag", {attr : '$attr'})
 								),
 							"&gt;", SPAN({class: ""}, "$object|getDisplayableText")
 				          )
@@ -55,18 +55,18 @@ AINSPECTOR.view = function(panel, yscontext) {
 				       TD({style: "padding-left: $member.indent\\px"},
 				       TAG("$member.tag", {'member' :"$member", 'object' :"$member.value"})
 				      )
-				  ),	
-	              strTag : DIV({class: "treeLabel"},"$member.name"),   
-	              strTagFail : DIV({class: "treeLabel failMsgTxt"},"$member.name"),   
-	              strTagWarn : DIV({class: "treeLabel warnMsgTxt"},"$member.name"),   
-	              strTagSuggestion : DIV({class: "treeLabel suggestionMsgTxt"},"$member.name"),   
-	              strTagPass : DIV({class: "treeLabel passMsgTxt"},"$member.name"),   
-	              
+				  ),
+	              strTag : DIV({class: "treeLabel"},"$member.name"),
+	              strTagFail : DIV({class: "treeLabel failMsgTxt"},"$member.name"),
+	              strTagWarn : DIV({class: "treeLabel warnMsgTxt"},"$member.name"),
+	              strTagSuggestion : DIV({class: "treeLabel suggestionMsgTxt"},"$member.name"),
+	              strTagPass : DIV({class: "treeLabel passMsgTxt"},"$member.name"),
+
 	              /* not used */
-				  myObjectTag : DIV({class: "treeLabel"}, "$member.name"),  
-				  myLinkTag : A({class: "treeLabel", _domObj : "$member.value", onclick : "$onLinkClick"}, "$member.name"),  
-                  myNumberTag : DIV({class: "treeLabel"},"$member.name", ": ", "$member.value"), 
-                  		  
+				  myObjectTag : DIV({class: "treeLabel"}, "$member.name"),
+				  myLinkTag : A({class: "treeLabel", _domObj : "$member.value", onclick : "$onLinkClick"}, "$member.name"),
+                  myNumberTag : DIV({class: "treeLabel"},"$member.name", ": ", "$member.value"),
+
                   onLinkClick : function(event) {
 	                // Also support enter key for sorting
 		        if (!isLeftClick(event))
@@ -74,8 +74,8 @@ AINSPECTOR.view = function(panel, yscontext) {
 			var row = getAncestorByClass(event.target, "treeRow");
 			var label = getAncestorByClass(event.target, "treeLabel");
 			if (label && hasClass(row, "hasChildren"))
-			  this.toggleRow(row);		
-		    },    
+			  this.toggleRow(row);
+		    },
 	              /* end of not used */
 
 		    onKeyPressedTable: function(event) {
@@ -136,13 +136,13 @@ AINSPECTOR.view = function(panel, yscontext) {
             			break;
 			    }
 			},
-			
+
             onFocus: function(event) {
                 var links = event.target.getElementsByClassName('objectLink');
                 if (links[0])
-                    AINSPECTOR.util.event.dispatchMouseEvent(links[0], 'mouseover');        
+                    AINSPECTOR.util.event.dispatchMouseEvent(links[0], 'mouseover');
             },
-		    
+
       	          getAllAttribs : function(elem) {
       				var attribDetails = [];
       				var attrib;
@@ -154,17 +154,17 @@ AINSPECTOR.view = function(panel, yscontext) {
       	        	}
       	        	return attribDetails;
       	          },
-      	          
+
       	          getDisplayableText: function (node) {
       	          	var nodeText = OpenAjax.a11y.util.getNodeTextRecursively(node);
       	          	return cropMultipleLines(nodeText, 80);
       	    	//return OpenAjax.a11y.util.getNodeTextRecursively(node);
-       			  },   			
+       			  },
 
 				  loop:
 				    FOR("member", "$members",
 				      TAG("$row", {member: "$member"})),
-				  
+
 				  memberIterator: function(object)
 				  {
 				    return this.getMembers(object);
@@ -193,7 +193,7 @@ AINSPECTOR.view = function(panel, yscontext) {
 					    }
 					}
 				    },
-				    
+
 				    openRow: function(row) {
 				    	if (!hasClass(row, "opened")) {
 					    var level = parseInt(row.getAttribute("level"));
@@ -206,7 +206,7 @@ AINSPECTOR.view = function(panel, yscontext) {
 					    }
 					}
 				    },
-				    
+
 				  toggleRow: function(row)
 				  {
 
@@ -228,7 +228,7 @@ AINSPECTOR.view = function(panel, yscontext) {
 
 				    return members;
 				  },
-				  
+
 				  createMember: function(name, value, level)
 				  {
 					  var hasChildren = (typeof(value) == "object");
@@ -239,14 +239,14 @@ AINSPECTOR.view = function(panel, yscontext) {
 				      {
 				        case "object" :
 					        /* Fix me: language dependent!!! */
-				        	if (value.nodeType== 1) tag =this.shortTag; 
+				        	if (value.nodeType== 1) tag =this.shortTag;
 				        	else if (name.indexOf('Pass:')>=0) tag=this.strTagPass;
 				            else if (name.indexOf('Warn:')>=0 || name.indexOf('Potential Violation:')>=0) tag=this.strTagWarn;
 					        else if (name.indexOf('Fail:')>=0 || name.indexOf('Violation:')>=0) tag=this.strTagFail;
 				            else if (name.indexOf('Check:')>=0 ||name.indexOf('Recommendation:')>=0) tag=this.strTagSuggestion;
 				            else tag = this.strArray;
 				        break;
-				        
+
 				        case "string" :
 				        /* Fix me: language dependent!!! */
 				        if (name.indexOf('Pass:')>=0) tag=this.strTagPass;
@@ -256,14 +256,14 @@ AINSPECTOR.view = function(panel, yscontext) {
 			            else tag = this.strTag;
 				        if (name == "innerHTML" || name == "textContent")
 				          value = "...";
-				            break;    
-				        
+				            break;
+
 				        case "Number" :
 				        tag = this.myNumberTag;
 				        default :
 				        tag = this.strArray;
-				        break;   
-				      } 					  
+				        break;
+				      }
 					return {
 				      name:name,
 					  label: hasChildren ? "" : value,
@@ -276,8 +276,8 @@ AINSPECTOR.view = function(panel, yscontext) {
 				  }
 				});
 	};   /* SMF end addition for displaying A11y and IITAA rule sets */
-	
-	
+
+
 
 	/* SMF addition for displaying A11y and IITAA rule sets */
 	with (FBL) {
@@ -290,7 +290,7 @@ AINSPECTOR.view = function(panel, yscontext) {
 					    TAG("$row", {member: "$member"}))
 				      )
 				  ),
-				    
+
 				  row:
 				    TR({class: "treeRow", $hasChildren: "$member.hasChildren",
 				       _repObject: "$member", level: "$member.level", tabindex: "-1",
@@ -309,11 +309,11 @@ AINSPECTOR.view = function(panel, yscontext) {
 	    				TD({class: "memberLabelCell"},
 				    	    FOR('issue', '$member.issues',
 						DIV('$issue')
-					    )   
+					    )
 					)
 				    ),
 
-	              strTag : DIV({class: "treeLabel"},"$member.name"),   
+	              strTag : DIV({class: "treeLabel"},"$member.name"),
 
 	              getNaturalTag: function(value)
 	              {
@@ -321,11 +321,11 @@ AINSPECTOR.view = function(panel, yscontext) {
 	                  var tag = rep.shortTag ? rep.shortTag : rep.tag;
 	                  return tag;
 	              },
-	              
+
 				  loop:
 				    FOR("member", "$members",
 				      TAG("$row", {member: "$member"})),
-				  
+
 				  memberIterator: function(object)
 				  {
 				    return this.getMembers(object);
@@ -352,11 +352,11 @@ AINSPECTOR.view = function(panel, yscontext) {
                         break;
 			    }
 			},
-			
+
 			isTreeRow: function(node) {
 			    return hasClass(node, "treeRow");
 			},
-			
+
 			onKeyPressedRow: function(event) {
 			    event.stopPropagation();
 			    switch(event.keyCode) {
@@ -379,7 +379,7 @@ AINSPECTOR.view = function(panel, yscontext) {
                         event.preventDefault();
                         var row = getAncestorByClass(event.target, "treeRow");
                         if (hasClass(row, "hasChildren"))
-                          this.openRow(row);		
+                          this.openRow(row);
                         break;
                     case 40: //down
                         event.preventDefault();
@@ -394,13 +394,13 @@ AINSPECTOR.view = function(panel, yscontext) {
             			break;
 			    }
 			},
-			
+
             onFocus: function(event) {
                 var links = event.target.getElementsByClassName('objectLink');
                 if (links[0])
-                    AINSPECTOR.util.event.dispatchMouseEvent(links[0], 'mouseover');        
+                    AINSPECTOR.util.event.dispatchMouseEvent(links[0], 'mouseover');
             },
-            
+
 			closeRow: function(row) {
 			    if (hasClass(row, "opened")) {
 				var level = parseInt(row.getAttribute("level"));
@@ -413,7 +413,7 @@ AINSPECTOR.view = function(panel, yscontext) {
 				}
 			    }
 			},
-			
+
 			openRow: function(row) {
 			    if (!hasClass(row, "opened")) {
 				var level = parseInt(row.getAttribute("level"));
@@ -426,7 +426,7 @@ AINSPECTOR.view = function(panel, yscontext) {
 				}
 			    }
 			},
-			
+
 		      toggleRow: function(row)
 		      {
 
@@ -466,7 +466,7 @@ AINSPECTOR.view = function(panel, yscontext) {
 				  }
 				});
 	};   /* SMF end addition for displaying A11y and IITAA rule sets */
-	
+
     with (FBL) {
         this.viewRep = domplate(this, {
             toolbar : DIV({class : "nav-menu"},
@@ -474,15 +474,15 @@ AINSPECTOR.view = function(panel, yscontext) {
                 TAG("$rulesetList", {rulesets : "$rulesets"}),
                 DIV({style : "clear: both"})
             ),
-            
+
             toolbarButtons : UL ({class : "yui-nav focusTabList toolbarLinks", role : "tablist", onkeypress : "$onToolbarKeyPress", "aria-label" :  "Rule Categories"},
-                FOR("obj", "$categories", 
+                FOR("obj", "$categories",
                     LI({class : "$obj|getToolbarButtonClass focusTab", tabindex : "$obj|getTabIndex", role : "tab", "aria-selected" : "$obj|getSelectedState", onfocus : "$onToolbarFocus"},
                         "$obj.name"
                     )
                 )
             ),
-            
+
             rulesetList : DIV({id : "toolbar-ruleset", class : "floatLeft", role : "toolbar"},
                 LABEL({"for" : "toolbar-rulesetList"}, "Rulesets "),
                 TAG("$rulesetSelect", {rulesets : "$rulesets"}),
@@ -497,15 +497,15 @@ AINSPECTOR.view = function(panel, yscontext) {
                     "Printable View"
                 )
             ),
-            
+
             rulesetSelect : SELECT({id : "toolbar-rulesetList", name : "rulesets", onchange : "$onRulesetChange"},
-                FOR("ruleset", "$rulesets", 
-                    OPTION({id: "$ruleset.id", "$ruleset.selected" : "" }, "$ruleset.id") /* SMF TODO $ruleset.selected is never examined thus a ruleset is never selected */
+                FOR("ruleset", "$rulesets",
+                    OPTION({id: "$ruleset.id", "$ruleset.selected" : "" }, "$ruleset.name") /* SMF TODO $ruleset.selected is never examined thus a ruleset is never selected */
                 )
             ),
-            
+
             selectTab : function(elem) {
-                
+
                 if (!elem)
                     return;
                 var category = getClassValue(elem, "ruleCategory");
@@ -520,33 +520,33 @@ AINSPECTOR.view = function(panel, yscontext) {
                             removeClass(oldTab, "selected");
                         }
                     }
-                    
+
                     elem.setAttribute("aria-selected", "true");
                     elem.setAttribute("aria-expanded", "true");
                     elem.setAttribute("tabindex", "0")
                     setClass(elem, "selected");
                     var currentView = this.panel_doc.ysview;
-                    
+
                     if (currentView && typeof currentView["show" + category] == "function") {
-                        currentView["show" + category]();                        
+                        currentView["show" + category]();
                     }
                 }
-                
+
             },
-            
+
             getSelectedState : function (obj) {
                 return obj.selected ? "true" : "false";
             },
-            
+
             getTabIndex : function(obj) {
                 return obj.selected ? "0" : "-1";
             },
-            
+
             onEditRulesetsClick : function(event) {
                 var currentView = this.panel_doc.ysview;
                 currentView.showRuleSettings();
             },
-            
+
             onRulesetChange : function(event) {
                 var currentView = this.panel_doc.ysview;
                 currentView.onChangeRuleset(event);
@@ -555,9 +555,9 @@ AINSPECTOR.view = function(panel, yscontext) {
             onPrintableViewClick : function(event) {
                 var currentView = this.panel_doc.ysview;
                 if (currentView)
-                    currentView.openPrintableDialog(event);    
+                    currentView.openPrintableDialog(event);
             },
-            
+
             getToolbarButtonClass : function(obj) {
                 var className = "ruleCategory-" + obj.name;
                 if (obj.selected)
@@ -566,20 +566,20 @@ AINSPECTOR.view = function(panel, yscontext) {
                     className += " first";
                 return className;
             },
-            
+
             onToolbarFocus : function(event) {
                 this.selectTab(event.target);
             },
-            
+
             onToolbarKeyPress : function(event) {
-                
+
                 var key = event.keyCode;
                 switch(key) {
                     case KeyEvent.DOM_VK_LEFT:
                     case KeyEvent.DOM_VK_RIGHT:
                     case KeyEvent.DOM_VK_UP:
                     case KeyEvent.DOM_VK_DOWN:
-                        
+
                     var forward = key == KeyEvent.DOM_VK_RIGHT || key == KeyEvent.DOM_VK_DOWN;
                     var tabList = getAncestorByClass(event.target, "focusTabList");
                     var tabs = tabList.getElementsByClassName("focusTab");
@@ -599,25 +599,25 @@ AINSPECTOR.view = function(panel, yscontext) {
         })
     };
 
-	
+
     // save a pointer back to this object from the panel document.
     // this is used by javascript call in view content.
     this.panel_doc.ysview = this;
 
     this.loadCSS(this.panel_doc);
-    
+
     var toolbar = this.panel_doc.createElement("div");
     toolbar.id = "toolbarDiv";
     //toolbar.innerHTML = this.getToolbarSource();
-    var categories = [{name: "Report", selected : true, first : true}, 
-                      {name : "Headings"}, 
-                      {name : "Roles"}, 
-                      {name : "Forms"}, 
-                      {name : "Images"}, 
+    var categories = [{name: "Report", selected : true, first : true},
+                      {name : "Headings"},
+                      {name : "Roles"},
+                      {name : "Forms"},
+                      {name : "Images"},
                       {name : "Links"},
                       {name : "Tools"}];
     this.viewRep.toolbar.replace({categories : categories, rulesets : this.getRulesetArray()}, toolbar, this.viewRep);
-    
+
     toolbar.style.display = "block";
 
     var elem = this.panel_doc.createElement("div");
@@ -640,7 +640,7 @@ AINSPECTOR.view = function(panel, yscontext) {
         panel.panelNode.appendChild(toolbar);
         panel.panelNode.appendChild(elem);
      }
-    
+
     this.viewNode = elem;
     this.viewNode.id = "viewDiv";
     this.viewNode.className = "yui-skin-sam";
@@ -769,7 +769,7 @@ AINSPECTOR.view.prototype = {
                     + '        <div id="runtestCenter">'
                     + '          <a id="bn_runtest" href="javascript:document.ysview.runTest()" tabindex="0">'
                     + '            Create Report'
-                    + '          </a>' 
+                    + '          </a>'
                     + '        </div>'  /* END runtestCenter */
                     + '      </div>'  /* END runtestDiv */
                     + '      <div class="footer">'
@@ -879,29 +879,54 @@ AINSPECTOR.view.prototype = {
             }
  	}
     },
-    
+
     getRulesetArray : function() {
         var rulesets = AINSPECTOR.controller.getRegisteredRuleset();
         var rulesetsArray = [];
-		var selectedRulesetId = AINSPECTOR.util.Preference.getPref("defaultRuleset", 'WCAG_2_0');
+		    var selectedRulesetId = AINSPECTOR.util.Preference.getPref("defaultRuleset", 'WCAG_2_0');
         for (var id in rulesets) {
-         	var retStruct = {
-				id: rulesets[id].id,
-				name: rulesets[id].name,
-				selected: (rulesets[id].id == selectedRulesetId) ? 'selected' : '',
-			}
-            rulesetsArray.push(retStruct)
-        }
+          var retStruct = {
+				    id: rulesets[id].id,
+    				name: rulesets[id].name,
+		    		selected: (rulesets[id].id == selectedRulesetId) ? 'selected' : '',
+			    }
+          rulesetsArray.push(retStruct)
+        }//end for
         return rulesetsArray;
-    },
+      },
 
     updateRulesetList: function() {
         var div = this.panel_doc.getElementById('toolbar-ruleset');
         if (div) {
             this.viewRep.rulesetSelect.replace({rulesets : this.getRulesetArray()}, div, this.viewRep);
         }
+       /* var selects = this.panel_doc.getElementsByTagName('select');
+        var rulesets = YSLOW.controller.getRegisteredRuleset();
+        var sText = this.getRulesetListSource(rulesets);
+
+        var onchangeFunc = function(event) {
+            var doc = this.ownerDocument;
+            doc.ysview.onChangeRuleset(event);
+        };
+
+        for (var i = 0; i < selects.length; i++) {
+            if (selects[i].id == "toolbar-rulesetList") {
+                var div = selects[i].parentNode;
+                if (div && div.id == "toolbar-ruleset") {
+                    var new_select = this.panel_doc.createElement('select');
+                    if (new_select) {
+                        new_select.id = 'toolbar-rulesetList';
+                        new_select.name = 'rulesets';
+                        new_select.onchange = onchangeFunc;
+                        new_select.innerHTML = sText;
+                    }
+
+                    div.replaceChild(new_select, selects[i]);
+                }
+            }
+        }*/
     },
-    
+
     formatGridTable: function(table, tabName, headerID)
     {
     	table.setAttribute("id", this.yscontext.uniqueID + tabName);
@@ -911,14 +936,14 @@ AINSPECTOR.view.prototype = {
         var hiddenCols = AINSPECTOR.util.Preference.getPref("hiddenCols");
         if (hiddenCols)
         	table.setAttribute("hiddenCols", hiddenCols);
-        
+
         var sortCol = AINSPECTOR.util.Preference.getPref(headerID + "sortCol");
         var sortDir = AINSPECTOR.util.Preference.getPref(headerID + "sortDir");
         if (sortCol && sortDir) {
             var sortColEle=panel.document.getElementById(sortCol);
             AINSPECTOR.grid.sortColumn(table, sortColEle, sortDir);
         }
-      
+
         // Update columns width according to the preferences.
         var allHTMLTags=panel.document.getElementsByTagName("*");
         var header = panel.document.getElementById(headerID);
@@ -949,7 +974,7 @@ AINSPECTOR.view.prototype = {
             var stext = "";
             var panel = FirebugContext.getPanel("AInspector");
             var btnView = this.getButtonView(sView);
-            var panel = FirebugContext.getPanel("AInspector"); 
+            var panel = FirebugContext.getPanel("AInspector");
             if (btnView && !force && btnView.innerHTML != '') {
                 // This view already exists, just toggle to it.
             	if ("ysHeadingsButton" == sView) panel.table = panel.headingsTable;
@@ -961,8 +986,8 @@ AINSPECTOR.view.prototype = {
             else if ( "ysImagesButton" == sView ) {
                 stext += this.yscontext.genTab('images');
                 this.addButtonView("ysImagesButton", stext);
-                
-                //SMF append the appropriate DOMPlate        	    
+
+                //SMF append the appropriate DOMPlate
   	            var parentNode = panel.document.getElementById(this.yscontext.uniqueID + 'images');
 	            panel.table = panel.imgTable = AINSPECTOR.view.imagesTable.tableTag.append({}, parentNode, AINSPECTOR.view.imagesTable);
 	            var tbody = panel.table.firstChild;
@@ -972,8 +997,8 @@ AINSPECTOR.view.prototype = {
             else if ( "ysHeadingsButton" == sView ) {
                 stext += this.yscontext.genTab('headings');
                 this.addButtonView("ysHeadingsButton", stext);
-               
-                //SMF append to the appropriate DOMPlate        	    
+
+                //SMF append to the appropriate DOMPlate
   	            var parentNode = panel.document.getElementById(this.yscontext.uniqueID + 'headings');
 	            panel.table = panel.headingsTable = AINSPECTOR.view.headingsTable.tableTag.append({}, parentNode, AINSPECTOR.view.headingsTable);
 	            var tbody = panel.table.firstChild;
@@ -985,9 +1010,9 @@ AINSPECTOR.view.prototype = {
                 this.addButtonView("ysRolesButton", stext);
                 //SMF append to the appropriate DOMPlate
                  if (this.yscontext.roles_set.length > 0) {
-			Firebug.Console.log(this.yscontext.roles_set);
+			            Firebug.Console.log(this.yscontext.roles_set);
                 	var parentNode = panel.document.getElementById(this.yscontext.uniqueID + 'roles');
-                	this.landmarkTreeRep.tag.append({object: this.yscontext.roles_set}, parentNode, this.landmarkTreeRep);  
+                	this.landmarkTreeRep.tag.append({object: this.yscontext.roles_set}, parentNode, this.landmarkTreeRep);
                  } else {
                     this.addButtonView("ysRolesButton", stext + "<br>" + FBL.$STR('none', 'a11y_bundle'));
                  }
@@ -995,8 +1020,8 @@ AINSPECTOR.view.prototype = {
             else if ( "ysFormsButton" == sView) {
                 stext += this.yscontext.genTab('forms');
                 this.addButtonView("ysFormsButton", stext);
-                
-                //SMF append to the appropriate DOMPlate        	    
+
+                //SMF append to the appropriate DOMPlate
  	            var parentNode = panel.document.getElementById(this.yscontext.uniqueID + 'forms');
 	            panel.table = panel.formsTable = AINSPECTOR.view.formsTable.tableTag.append({}, parentNode, AINSPECTOR.view.formsTable);
 	            var tbody = panel.table.firstChild;
@@ -1021,22 +1046,22 @@ AINSPECTOR.view.prototype = {
                 stext += this.yscontext.genRulesetEditView();
                 this.addButtonView("ysRuleEditButton", stext);
             }
-            else {           	
+            else {
                 // Default is Performance.
                 this.yscontext.genPerformance();
                 this.showButtonView("ysPerfButton");
                 //this.addButtonView("ysPerfButton", stext);
                 /* SMF addition for displaying A11y and IITAA rule sets */
-	           try {  
+	           try {
 	                var panel = FirebugContext.getPanel("AInspector");
 	                 for (var i=0; i <  this.yscontext.result_set.results.length; i++) {
 		                var result = this.yscontext.result_set.results[i];
 		                var parentNode = panel.document.getElementById(this.yscontext.uniqueID + '_' + result.rule_id);
-		
+
 		                var messages = result.message.split('\n');
-		
+
 		                var tmp = new Object(); //Array
-		                for (var j = 0; j < messages.length; j++) {         	
+		                for (var j = 0; j < messages.length; j++) {
 			                prop =  (typeof result.severity != 'undefined') ? result.severity[j] + ': ' + messages[j] : messages[j]
 			                if (typeof result.components != 'undefined' && result.components[j] != null && result.components[j].length > 0) {
 			 		            var ele = new Object();
@@ -1054,27 +1079,27 @@ AINSPECTOR.view.prototype = {
 						                }
 			                    	}
 			                	}
-		                		tmp[prop] =  ele; 
+		                		tmp[prop] =  ele;
 			                }
 			                else tmp[prop] = "";
 		                }
 		        	    this.msgTreeRep.tag.append({object: tmp}, parentNode, this.msgTreeRep);
 	                }
-	
+
 	            } catch (exc) {
 	            	FBTrace.sysout(exc.message);
 	            }    /* SMF end addition for displaying A11y and IITAA rule sets */
-              
+
             }
-            
+
             this.panelNode.scrollTop = 0;
             this.panelNode.scrollLeft = 0;
 
-            
+
             this.updateStatusBar(FirebugContext.window.document);
         }
     },
-    
+
     /**
      * @private
      */
@@ -1125,7 +1150,7 @@ AINSPECTOR.view.prototype = {
     showImages: function() {
         this.show('ysImagesButton');
     },
-    
+
     showRoles: function() {
         this.show('ysRolesButton');
     },
@@ -1137,7 +1162,7 @@ AINSPECTOR.view.prototype = {
     showLinks: function() {
         this.show('ysLinksButton');
     },
-    
+
     showTools: function() {
         this.show('ysToolButton');
     },
@@ -1158,13 +1183,13 @@ AINSPECTOR.view.prototype = {
         var checkbox = event.currentTarget;
         AINSPECTOR.util.Preference.setPref("extensions.firebug.ainspector.autorun", checkbox.checked);
     },
-    
+
     // This function runs the current rule set
-    
+
     onRerunRuleset: function(event) {
         var select = event.currentTarget; //tried target, explicitOriginalTarget; //
         var doc = select.ownerDocument;
-        var  curButtonId = doc.ainspector_panel.ysview.curButtonId;
+        var curButtonId = doc.ainspector_panel.ysview.curButtonId;
         doc.ysview.yscontext.result_set = null; //clear the old data out
         for (sView in doc.ysview.buttonViews) doc.ysview.setButtonView(sView, ''); //clear the old data out
         doc.ysview.show(curButtonId, true);  //SMF to get the screen refreshed with the new results
@@ -1174,17 +1199,17 @@ AINSPECTOR.view.prototype = {
      * Changes the rule set
      *
      * @param (event)  The event includes the ID of the new rule set
-     *  
+     *
      * @return none
-    */  
+    */
 
     onChangeRuleset: function(event) {
         var select = event.currentTarget; //tried target, explicitOriginalTarget; //
         var option = select.options[select.selectedIndex];
-        AINSPECTOR.controller.setDefaultRuleset(option.value);
+        AINSPECTOR.controller.setDefaultRuleset(option.id);
         this.yscontext.ruleset_id = option.value;
         var doc = select.ownerDocument;
-        
+
        	this.ruleset_id = option.value;
         var  curButtonId = doc.ainspector_panel.ysview.curButtonId;
         AINSPECTOR.view.restoreStatusBar(doc.ainspector_context);
@@ -1193,13 +1218,13 @@ AINSPECTOR.view.prototype = {
         for (sView in doc.ysview.buttonViews) doc.ysview.setButtonView(sView, ''); //clear the old data out
         doc.ysview.show(curButtonId, true);  //SMF to get the screen refreshed with the new results
         return;
-        
+
     },
 
-    /* 
-     * TabView 
+    /*
+     * TabView
      *
-     * @param (event) 
+     * @param (event)
      *
      * @return false
      *
@@ -1212,7 +1237,7 @@ AINSPECTOR.view.prototype = {
         if (li_elem.className.indexOf('selected') !== -1 || li_elem.id.indexOf('label') === -1) {
             return false;
         }  // endif
-        
+
         if (ul_elem) {
             var child = ul_elem.firstChild;
             var tab;
@@ -1480,12 +1505,12 @@ AINSPECTOR.view.prototype = {
             doc.ysview.closeDialog(doc);
             doc.ysview.runTool('printableview', {'options': print_type, 'yscontext': doc.ainspector_context });
         };
-        
+
         this.openDialog(doc, 389, 150, line1, line2, left_button_label, left_button_func);
-*/     
-       
+*/
+
         var print_this = {};
-        switch (this.curButtonId) {
+		    switch (this.curButtonId) {
 	        case "ysHeadingsButton": print_this['headings'] = 1; break;
 	        case "ysRolesButton": print_this['roles'] = 1; break;
 	        case "ysFormsButton": print_this['forms'] = 1; break;
@@ -1497,10 +1522,18 @@ AINSPECTOR.view.prototype = {
 	                this.openDialog(doc, 389, 150, line, '', 'Ok');
 	                return;
 	            }
-	        	print_this['reportcard'] = 1; 
+	        	print_this['reportcard'] = 1;
 	        	break;
 	        }
 	        case "ysToolButton": print_this['reportcard'] = 1; break;
+          /*PBK begin*/
+          case "panel_about": {
+				    if (doc.ysview.yscontext.result_set === null) {
+              var line = 'Please run AInspector first before using Printable View.';
+              this.openDialog(doc, 389, 150, line, '', 'Ok');
+              return;
+          } //end if
+			} /*PBK end*/
         }
         doc.ysview.runTool('printableview', {'options': print_this, 'yscontext': doc.ysview.yscontext });
     },
@@ -1592,7 +1625,7 @@ AINSPECTOR.view.prototype = {
     closeDialog: function(doc) {
         var dialog = this.modaldlg;
         dialog.style.display = "none";
-        
+
     },
 
     saveRuleset: function(doc) {
@@ -1678,7 +1711,7 @@ AINSPECTOR.view.prototype = {
 AINSPECTOR.view.setStatusBar = function(text, sId) {
     sId = sId || "ainspector_status_grade";
     var sbelem = document.getElementById(sId);
-    sbelem.value = text;  
+    sbelem.value = text;
 };
 
 AINSPECTOR.view.clearStatusBar = function() {
@@ -1738,30 +1771,30 @@ AINSPECTOR.view.removeClassName = function(element, name) {
 
 AINSPECTOR.view.getDocuments = function(objWithFrames, documentList) {
 	documentList.push(objWithFrames.document);
-	
+
 	if (null != objWithFrames.frames) {
 		var framesList = objWithFrames.frames;
-	      
+
 		// Loop through the frames
 		for(var i = 0; i < framesList.length; i++) {
 			AINSPECTOR.view.getDocuments(framesList[i], documentList);
 		}
 	}
-	
+
 	return documentList;
 };
 
 AINSPECTOR.view.getLandmarks = function(theWindow, whichTab) {
 	var a = new Array();
 	var documents = AINSPECTOR.view.getDocuments(theWindow, new Array());
-	
+
 	for (var i =0; i < documents.length; i++) {
 		a = a.concat(AINSPECTOR.view.getEleByType(documents[i], whichTab));
 	}
-	return a; 
+	return a;
 };
 
-AINSPECTOR.view.getEleByType = function(doc, whichTab)  
+AINSPECTOR.view.getEleByType = function(doc, whichTab)
 {
     try {
      	function landmarkObject(node, label) {
@@ -1773,18 +1806,18 @@ AINSPECTOR.view.getEleByType = function(doc, whichTab)
 			with (OpenAjax.a11y.util) {
 	    		this.node = node;
 	    		var content = getNodeTextRecursively(node);
-	    		var role = getValueFromAttributes(node,['role'],''); 
-	    		var attrType = getValueFromAttributes(node,['type'],''); 
-	    		var alt = getValueFromAttributes(node,['alt'],''); 
-	//    		var id = getValueFromAttributes(node,['id'],''); 
-	    	    if (role != '') role = " role='" + role + "'"; 
+	    		var role = getValueFromAttributes(node,['role'],'');
+	    		var attrType = getValueFromAttributes(node,['type'],'');
+	    		var alt = getValueFromAttributes(node,['alt'],'');
+	//    		var id = getValueFromAttributes(node,['id'],'');
+	    	    if (role != '') role = " role='" + role + "'";
 	    	    if (attrType != '') attrType = " type='" + attrType + "'";
 	    	    if (alt != '') alt = " alt='" + alt + "'";
 	//      	if (id != '') type = " id=" + id;
 	    	    this.displayName =' <' + this.node.nodeName + role + attrType + alt + '> '
 	    	    if (label != null) this.displayName += label;
 	    	    else this.displayName += Left(getNodeTextRecursively(node), 256);
-	    	    	
+
 	     		this.issuesObj = AINSPECTOR.controller.callAllParseNode(node);
 	     		this.ariaAttributes = role;
 			}
@@ -1797,17 +1830,17 @@ AINSPECTOR.view.getEleByType = function(doc, whichTab)
     		issuesObj: null,
     		ariaAttributes: null,
     	}
-    	
+
     	function AddAsSubNode(parentNode, node) {
     		if (parentNode.subNodes == null) {
     			var children = [];
     			children.push(node);
-    			parentNode.subNodes = children; 
+    			parentNode.subNodes = children;
     		}else {
     			parentNode.subNodes[parentNode.subNodes.length] = node;
     		}
     	}
-    	
+
     	function isParent(doc, parent, child) {
     		var walker = doc.createTreeWalker(doc,NodeFilter.SHOW_ELEMENT,null,true);
 			walker.currentNode = child;
@@ -1815,11 +1848,11 @@ AINSPECTOR.view.getEleByType = function(doc, whichTab)
 				while (null != cur) if (cur == parent) return true; else cur = walker.parentNode();
 			   return false;
     	}
-    	
+
     	var nodelist = [];
     	var tmpList = [];
      	var landmarkList = [];
-     	
+
      	if (whichTab == 'roles') {
 			var xp = "//*[@role]";
 			var elements = new Array();
@@ -1827,7 +1860,7 @@ AINSPECTOR.view.getEleByType = function(doc, whichTab)
 			var r = xpathResult.iterateNext();
 			while (r) {
 				var LMObj = new landmarkObject(r, null);
-				nodelist.push(LMObj); 
+				nodelist.push(LMObj);
 				tmpList.push(nodelist[nodelist.length-1]);
 				r = xpathResult.iterateNext();
 			}
@@ -1835,7 +1868,7 @@ AINSPECTOR.view.getEleByType = function(doc, whichTab)
 			//AINSPECTOR.OAA_Nexus.runDocContextRules('3.3.2', doc, nodelist); // forms
     	}
 
-    	
+
     	for (var i=nodelist.length-1; i >= 0; i--) {
     		nodelist[i].node.isChild = false;
     		for (var j=i-1; j >= 0 && !nodelist[i].node.isChild; j--) {
@@ -1846,8 +1879,8 @@ AINSPECTOR.view.getEleByType = function(doc, whichTab)
     				break;
     			}
     		}
-    	}			    	
-     	
+    	}
+
        	for (var i=0; i < nodelist.length; i++) if (!nodelist[i].node.isChild) landmarkList.push(tmpList[i]);
 //        FBTrace.sysout('landmarkList', landmarkList);
         return landmarkList;
