@@ -2,7 +2,7 @@
 
 <project name="ainspector" default="createxpi">
     <property name="build_dir" location="./build" />
-	<property name="version" value="0.9" />
+	<property name="version" value="0.91" />
 
     <target name="createjar">
         <delete file="chrome/ainspector.jar" />
