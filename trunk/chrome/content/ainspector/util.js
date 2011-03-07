@@ -539,7 +539,12 @@ AINSPECTOR.util = {
         }
         return url;
     },
-
+	/*getIDFromBriefUrl: function(url){
+		url = url.substring(0, url.lastIndexOf("/"));
+		var iLastslash = url.lastIndexOf("/");
+		var testId = url.substring(iLastslash+1, url.length);
+		return testId;
+	},*/
 
     // Return a string with an anchor around a long piece of text.
     // (It's confusing, but often the "long piece of text" is the URL itself.)
@@ -624,60 +629,60 @@ AINSPECTOR.util = {
      *  Convert a type (eg, "cssimage") to a prettier name (eg, "CSS Images").
      */
     prettyType: function(sType) {
-	return AINSPECTOR.util.prettyTypes[sType];
+	    return AINSPECTOR.util.prettyTypes[sType];
     },
 
-    /**
-     *  Return a letter grade for a score.
-     */
-    prettyScore: function(iScore, bDark, bText) {
-
+ /**
+  *  Return a letter grade for a score.
+  */
+ prettyScore: function(iScore, bDark, bText) {
+  var sLetter = "F";
 	if ( ! parseInt(iScore) && 0 != iScore ) {
 		return iScore;
 	}
-    if ( iScore === -1 ) {
-        return "N/A";
-    }
-
-	var sLetter = "F";
-
-	if ( 90 <= iScore )
+  if ( iScore === -1 ) {
+    return "N/A";
+  }
+	if ( 100 == iScore )
 		sLetter = "A";
-	else if ( 80 <= iScore )
+  else if ( 99 <= iScore)
+    sLetter = "A+M";
+	else if ( 89 < iScore )
 		sLetter = "B";
-	else if ( 70 <= iScore )
+  else if (90 == iScore)
+    sLetter = "B+M";
+	else if ( 79 < iScore )
 		sLetter = "C";
+  else if ( 70 < iScore )
+    sLetter = "C+M";
 	else if ( 60 <= iScore )
 		sLetter = "D";
-
 	if ( bText ) {
 		return sLetter;
 	}
-
 	return sLetter;
-    },
+},
 
-    sendBeacon: function(thisUrl, score, results, size) {
+sendBeacon: function(thisUrl, score, results, size) {
 
-        var beaconUrl = AINSPECTOR.getPref("beaconUrl", "http://rtblab.pclick.yahoo.com/images/ysb.gif") + '?';
+  var beaconUrl = AINSPECTOR.getPref("beaconUrl", "http://rtblab.pclick.yahoo.com/images/ysb.gif") + '?';
 
-        var qs = [];
-        qs[qs.length] = 'w=' + parseInt(size, 10);
-        qs[qs.length] = 'o=' + parseInt(score, 10);
-        qs[qs.length] = 'u=' + escape(thisUrl);
-        qs[qs.length] = 'r=' + AINSPECTOR.controller.PAGE.totalRequests;
-        qs[qs.length] = 's=' + escape(AINSPECTOR.util.getPageSpaceid());
+  var qs = [];
+  qs[qs.length] = 'w=' + parseInt(size, 10);
+  qs[qs.length] = 'o=' + parseInt(score, 10);
+  qs[qs.length] = 'u=' + escape(thisUrl);
+  qs[qs.length] = 'r=' + AINSPECTOR.controller.PAGE.totalRequests;
+  qs[qs.length] = 's=' + escape(AINSPECTOR.util.getPageSpaceid());
 
+  for(var i in results) {
+    if (results.hasOwnProperty(i)) {
+        qs[qs.length] = i.toLowerCase() + '=' + parseInt(results[i], 10);
+    }
+  }
 
-        for(var i in results) {
-            if (results.hasOwnProperty(i)) {
-                qs[qs.length] = i.toLowerCase() + '=' + parseInt(results[i], 10);
-            }
-        }
-
-        beaconUrl += qs.join('&');
-        new Image().src = beaconUrl;
-    },
+  beaconUrl += qs.join('&');
+  new Image().src = beaconUrl;
+},
 
     /**
      *  Try to find a spaceid in the HTML document source.

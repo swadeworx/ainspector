@@ -125,7 +125,6 @@ AINSPECTOR.Tools = {
 */
     printable: function(doc, components, param) {
         AINSPECTOR.renderer.bPrintable = true;
-
         // read the ainspector logo as a binary stream, then base64 and use as data URI
         netscape.security.PrivilegeManager.enablePrivilege("UniversalBrowserRead");
         var req = new XMLHttpRequest();
@@ -150,17 +149,19 @@ AINSPECTOR.Tools = {
                + '</span></div>' +
 
         '<div id="ainspectorDiv">';	//ainspectorDiv start
+
          if (param && param.yscontext) {
             if (param.options === undefined) {
                 param.options = { 'reportcard': 1, 'headings': 1, 'roles': 1, 'forms': 1, 'images': 1, 'links': 1 };
             }
             for (var view in param.options) {
                 var sText = '<div class="section">';
-                
+
                 var rulesetName = ' (' + FBL.$STR('rulesetApplied', 'a11y_bundle') + ': ' + AINSPECTOR.controller.rulesets[param.yscontext.ruleset_id].name + ') ';
                 switch (view) {
                 case 'reportcard':
-                    sText += '<div class="title">Grade</div><div class="contentDiv">' + param.yscontext.genPerformance();
+                   // sText += '<div class="title">Grade</div><div class="contentDiv">' + param.yscontext.genPerformance();  //PBK commented
+					sText += '<div class="contentDiv">' + param.yscontext.genPerformance(); //PBK
                     break;
                 case 'headings':
                     sText += '<div class="title">' + FBL.$STR('headingsGrid.title', 'a11y_bundle') + rulesetName + '</div><div class="contentDiv">' + param.yscontext.genTab(view);
@@ -206,7 +207,7 @@ AINSPECTOR.Tools = {
         req2.overrideMimeType('text/css');
         req2.send(null);
         css += req2.responseText;
-       
+
         return { 'css': css, 'html': cnt, 'plot_component': plot_component };
 
     }
