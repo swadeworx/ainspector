@@ -1,19 +1,23 @@
 
   //
-  // OpenAjax Alliance Rules 
+  // OpenAjax Alliance Rules 
   // Rule group: Styling Rules
   //
 with (OpenAjax.a11y) {
   addRules([
            
-    // --------
+    // ------------------------
     // Rule 15: Color contrast ratio must be > 3 for large text
-    // --------
+    // Group 7: Styling Rule
+    // 
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_15", 
-      groupTitle: "Styling Rule", 
-      groupId: "oaa-rules_style", 
+      id            : "RULE_15", 
+      lastUpdated   : "2011-02-11", 
+      messageCode   : "MESSAGE_15", 
+      groupCode     : "GROUP_7", 
       context: "#text", 
       validate: function (ruleContext) { 
   var node = ruleContext.parentNode; 
@@ -24,20 +28,24 @@ with (OpenAjax.a11y) {
     //getComputedStyle does not exist return new ValidationResult(-1, [node], '', '', []); 
   } // endif 
 }  // endfunction
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 16: Color contrast ratio should be > 4.5
-    // --------
+    // Group 7: Styling Rule
+    // 
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_16", 
-      groupTitle: "Styling Rule", 
-      groupId: "oaa-rules_style", 
+      id            : "RULE_16", 
+      lastUpdated   : "2011-02-11", 
+      messageCode   : "MESSAGE_16", 
+      groupCode     : "GROUP_7", 
       context: "#text", 
-      dependencies: ["rule_15",],
+      dependencies  : ["RULE_15",],
       validate: 
   function (ruleContext) { 
     var node = ruleContext.parentNode; 
@@ -50,50 +58,62 @@ with (OpenAjax.a11y) {
       return new ValidationResult(-1, [node], '', '', []); 
     } // endif
 } // endfunction
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 17: Do not use the FONT element to style text
-    // --------
+    // Group 7: Styling Rule
+    // 
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_17", 
-      groupTitle: "Styling Rule", 
-      groupId: "oaa-rules_style", 
+      id            : "RULE_17", 
+      lastUpdated   : "2011-02-11", 
+      messageCode   : "MESSAGE_17", 
+      groupCode     : "GROUP_7", 
       context: "font", 
       validate: function (ruleContext) { 
   var passed = false; 
   return new ValidationResult(passed, [ruleContext], '', '', []); }
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 25: The blink and marquee elements must not be used. 
-    // --------
+    // Group 7: Styling Rule
+    // 
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_25", 
-      groupTitle: "Styling Rule", 
-      groupId: "oaa-rules_style", 
+      id            : "RULE_25", 
+      lastUpdated   : "2011-02-11", 
+      messageCode   : "MESSAGE_25", 
+      groupCode     : "GROUP_7", 
       context: "blink | marquee", 
       validate: function (ruleContext) { 
   return new ValidationResult(false, [ruleContext], '', '', []); 
 } // endfunction
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 58: Do not use the B element.
-    // --------
+    // Group 7: Styling Rule
+    // 
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_58", 
-      groupTitle: "Styling Rule", 
-      groupId: "oaa-rules_style", 
+      id            : "RULE_58", 
+      lastUpdated   : "2011-02-11", 
+      messageCode   : "MESSAGE_58", 
+      groupCode     : "GROUP_7", 
       context: "document", 
       validate: function (ruleContext) { 
 	var passed = true;
@@ -110,18 +130,22 @@ with (OpenAjax.a11y) {
 	} //endwhile
 	return new ValidationResult(passed, loadArray, '', '', []);
 }  // endfunction
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 59: Do not use the I element.
-    // --------
+    // Group 7: Styling Rule
+    // 
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_59", 
-      groupTitle: "Styling Rule", 
-      groupId: "oaa-rules_style", 
+      id            : "RULE_59", 
+      lastUpdated   : "2011-02-11", 
+      messageCode   : "MESSAGE_59", 
+      groupCode     : "GROUP_7", 
       context: "document", 
       validate: function (ruleContext) { 
 	var passed = true;
@@ -136,18 +160,22 @@ with (OpenAjax.a11y) {
 	} //end while
 	return new ValidationResult(passed, loadArray, '', '', []);
 } // endfunction
-
-
+ 
+ 
       },
            
-    // --------
+    // ------------------------
     // Rule 60: Do not use the U element.
-    // --------
+    // Group 7: Styling Rule
+    // 
+    // Last update: 2011-02-11
+    // ------------------------
 	          
      {
-      id: "rule_60", 
-      groupTitle: "Styling Rule", 
-      groupId: "oaa-rules_style", 
+      id            : "RULE_60", 
+      lastUpdated   : "2011-02-11", 
+      messageCode   : "MESSAGE_60", 
+      groupCode     : "GROUP_7", 
       context: "document", 
       validate: function (ruleContext) { 
 	var passed = true;
@@ -162,12 +190,12 @@ with (OpenAjax.a11y) {
 	} //endwhile
 	return new ValidationResult(passed, loadArray, '', '', []);
 } // endfunction
-
-
+ 
+ 
       },
   ]); 
    }
-
-
+ 
+ 
         
-
+ 
