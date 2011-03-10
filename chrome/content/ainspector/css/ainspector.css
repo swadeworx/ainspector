@@ -795,6 +795,8 @@ body {
     min-height: 200px;
     background: #efefef;
     width: 680px;
+    position:absolute;
+    left:260px;
 }
 
 #ainspectorDiv .reportInnerDiv .result-tab ul {
