@@ -671,9 +671,51 @@ with (FBL) {
             var newPanel = getChildByClass(panelSet, "panel-" + tabIndex);
             if (newPanel) {
                 removeClass(newPanel, "yui-hidden");
+                var ul_elem = elem.parentNode;
+                var div_elem = ul_elem.nextSibling;
+                this.positionResultTab(newPanel, div_elem, elem);
             }
         },
 
+        positionResultTab: function(tab, container, label) {
+            var doc = FirebugContext.getPanel("AInspector").document;
+            var panelNode = FirebugContext.getPanel("AInspector").panelNode;
+            var win = doc.defaultView;
+            var pageHeight = win.offsetHeight? win.offsetHeight : win.innerHeight;
+    
+            var currentHeight = container.offsetHeight;
+            var height = label.offsetTop + tab.offsetHeight;
+            container.style.height = height + 'px';
+            tab.style.position = "absolute";
+            tab.style.left = label.offsetLeft + label.offsetWidth + "px";
+            tab.style.top = label.offsetTop + "px";
+    
+            /* now make sure tab is visible */
+            var y = tab.offsetTop;
+            var parent = tab.offsetParent;
+            while (parent !== null) {
+                y += parent.offsetTop;
+                parent = parent.offsetParent;
+            }
+    
+            var padding = 5;
+            if (y < panelNode.scrollTop ||
+                y + tab.offsetHeight > panelNode.scrollTop + pageHeight) {
+    
+                if (y < panelNode.scrollTop) {
+                    // scroll up
+                    panelNode.scrollTop = y - padding;
+                } else {
+                    // scroll down
+                    var delta = y + tab.offsetHeight - panelNode.scrollTop - pageHeight + padding;
+                    if (delta > y - panelNode.scrollTop) {
+                        delta = y - panelNode.scrollTop;
+                    }
+                    panelNode.scrollTop += delta;
+                }
+            }
+        },
+    
         getSelectedState : function (obj) {
             return obj.selected ? "true" : "false";
         },
