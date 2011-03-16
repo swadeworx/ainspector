@@ -331,10 +331,10 @@ with (FBL) {
       images: 1,
       reportcard: 1,
       headings: 1,
+      landmarks: 1,
       roles: 1,
       forms: 1,
       links: 1,
-      tools: 1,
       rulesetEdit: 1
     },
 
@@ -396,22 +396,260 @@ with (FBL) {
 	  /* PBK begin */
 	  /* printableView - outputs results in JSON object format onto the browser */
 	  printableView: function(results) {
+
 		  try {
         var count = 1;
-        var html = '\n <script type="text/javascript" src="http://code.jquery.com/jquery-1.5.min.js"> </script> \n';
-        html += '<script type="text/javascript" src= "" > </script>';
-        html += '\n <script> \n';
+        var singleSpaceFiller = "   ";   // 3 spaces
+        var doubleSpaceFiller = singleSpaceFiller + singleSpaceFiller;
+        var html = '<script type="text/javascript">';
+        
+        /* KH begin*/
+        html += '\n\nwindow.onload = doReport;'; // TODO: trigger doReport() from the AInspector
+
+        html += '\n\nfunction doReport() {';
+
+        html += '\nvar reqNdx = 0;';
+        html += '\nvar ruleNdx = 0;';
+        html += '\nvar markup = \'<table id="results">\\n\';';
+
+        html += '\nif (ainspector.evaluation.Results) {';
+
+         // iterate through AInspector results structure.
+        html += '\nfor (reqNdx = 0; reqNdx < ainspector.evaluation.Results.length; reqNdx++) {';
+
+        html += '\n  var curReq = ainspector.evaluation.Results[reqNdx];';
+        html += '\n  var numRules = curReq.rules.length;';
+        html += '\n  var priority = curReq.requirementLevel.substr(6);';
+        html += '\n  var bHaveFragments = false;';
+        html += '\n  var ruleMarkup = \'\'; // used to build the rule info markup';
+
+        html += '\n  var gradeCalc = calcGrade(curReq);';
+
+        // iterate through the rules array, adding any rule with pass or fail nodes to ruleArray
+        html += '\n  for (ruleNdx = 0; ruleNdx < curReq.rules.length; ruleNdx++) {';
+
+        html += '\n    var curRule = curReq.rules[ruleNdx];';
+
+        html += '\n    if (ruleNdx != 0) {';
+        html += '\n      ruleMarkup += \'\\n\\t<tr class="middleRow">\';';
+        html += '\n    }';
+        html += '\n    else {';
+        html += '\n      ruleMarkup += \'\\n\\t<tr>\';';
+        html += '\n    }';
+        html += '\n    ruleMarkup += \'\\n\\n\\t<th>&nbsp;</th>\';';
+        html += '\n    ruleMarkup += \'\\n\\t\\t<td class="centerAlign \' + curRule.resultCode +\'">\' + curRule.result + \'</td>\';';
+        html += '\n    ruleMarkup += \'\\n\\t\\t<td>\' + curRule.ruleTitle + \'</td>\';';
+
+        html += '\n    if (curRule.resultCode != \'SEVERITY_PASS\' && curRule.failed.nodeFragments) {';
+
+        html += '\n      var numFragments = curRule.failed.nodeFragments.length;';
+
+        html += '\n      if (numFragments == 1) {';
+        html += '\n        ruleMarkup += \'\\n\\t\\t<td>1 element failed:\';';
+        html += '\n      }';
+        html += '\n      else {';
+        html += '\n        ruleMarkup += \'\\n\\t\\t<td>\' + numFragments + \' elements failed:\';';
+        html += '\n      }';
+
+        html += '\n      ruleMarkup += \' <input type="button" id="bn-\' + curRule.ruleID + \'" class="bnHideShow" aria-controls="rgn-\' + curRule.ruleID + \'" aria-expanded="true" value="Hide Code Fragments"/>\';';
+        html += '\n      ruleMarkup += \'\\n\\t\\t<ol id="rgn-\' + curRule.ruleID + \'" aria-hidden="false">\';';
+
+        html += '\n      for (ndx = 0; ndx < numFragments; ndx++) {';
+        html += '\n        var tmp = curRule.failed.nodeFragments[ndx].replace(/</g, \'&lt;\');';
+        html += '\n        tmp = tmp.replace(/>/g, \'&gt;\');';
+        html += '\n        tmp = tmp.replace(/&lt;/g, \'<span class="code">&lt;\');';
+        html += '\n        tmp = tmp.replace(/&gt;/g, \'&gt;</span>\');';
+        html += '\n        ruleMarkup += \'\\n\\t\\t\\t<li>\' + tmp + \'</li>\';';
+        html += '\n      }';
+
+        html += '\n      ruleMarkup += \'\\n\\t\\t</ol>\';';
+
+        html += '\n      bHaveFragments = true;';
+        html += '\n    }';
+        html += '\n    else {';
+        html += '\n      ruleMarkup += \'\\n\\t\\t<td>&nbsp;</td>\';';
+        html += '\n    }';
+        html += '\n    ruleMarkup += "\\n\\t</tr>";\n';
+        html += '\n  }';
+
+        html += '\n  var headingMarkup = \'\'; // used to build the heading rows for the requirement';
+
+        html += '\n  headingMarkup += \'\\n\\t<tr>\\n\\t\\t<th colspan="4" class="reqInfo">Grade <span="grade">\' + gradeCalc + \'</span> on \' + curReq.requirementTitle + \'</th>\\n\\t</tr>\';';
+        html += '\n  headingMarkup += \'\\n\\t<tr>\\n\\t\\t<th class="indent">&nbsp;</th><th colspan="3" class="ReqDesc">\' + curReq.requirementDesc + \'</th>\\n\\t</tr>\';';
+
+        html += '\n  headingMarkup += \'\\n\\t<tr>\';';
+        html += '\n  headingMarkup += \'\\n\\n\\t<th>&nbsp;</th>\';';
+        html += '\n  headingMarkup += \'\\n\\n\\t<th class="bottomBorder">Result</th>\';';
+        html += '\n  headingMarkup += \'\\n\\n\\t<th class="bottomBorder">Rule</th>\';';
+
+        html += '\n  if (bHaveFragments == true) {';
+        html += '\n    headingMarkup += \'\\n\\n\\t<th class="bottomBorder">Code Fragments</th>\';';
+        html += '\n  }\n  else {';
+        html += '\n    headingMarkup += \'\\n\\n\\t<th class="bottomBorder">&nbsp;</th>\';';
+        html += '\n  }';
+
+        html += '\n  headingMarkup += \'\\n\\t</tr>\';';
+
+        html += '\n  markup += headingMarkup + ruleMarkup;';
+        html += '\n  }';
+
+        html += '\n  var arrElem = document.getElementsByTagName("div");';
+        html += '\n  for (ndx = 0; ndx < arrElem.length; ndx++) {';
+        html += '\n    if (arrElem[ndx].className === "contentDiv") {';
+        html += '\n      arrElem[ndx].innerHTML = markup + \'\\n</table>\';';
+        html += '\n      break;';
+        html += '\n    }';
+        html += '\n  }';
+        html += '\n}';
+        // bind event handlers
+        html += '\n\narrElem = document.getElementsByTagName("input");';
+        html += '\n  for (ndx = 0; ndx < arrElem.length; ndx++) {';
+        html += '\n    if (arrElem[ndx].className === "bnHideShow") {';
+        html += '\n      arrElem[ndx].addEventListener("click", handleButtonClick, false);';
+        html += '\n    }';
+        html += '\n  }';
+        html += '\n}';
+
+        html += '\nfunction handleButtonClick() {';
+
+        html += '\n  var rgnID = this.getAttribute("aria-controls");';
+        html += '\n\n  var rgn = document.getElementById(rgnID);';
+
+        html += '\n  if (this.getAttribute("aria-expanded") == "true") {';
+        html += '\n    rgn.setAttribute("aria-hidden", "true");';
+        html += '\n    this.setAttribute("aria-expanded", "false");';
+        html += '\n    this.setAttribute("value", "Show Code Fragments");';
+        html += '\n  }\n  else {';
+        html += '\n    rgn.setAttribute("aria-hidden", "false");';
+        html += '\n    this.setAttribute("aria-expanded", "true");';
+        html += '\n    this.setAttribute("value", "Hide Code Fragments");';
+        html += '\n  }';
+        html += '\n}';
+
+        html += '\nfunction calcGrade(reqObj) {';
+        html += '\n   var numRules = reqObj.rules.length;';
+        html += '\n   var vCount = 0;';
+        html += '\n   var vPass = 0;';
+        html += '\n   var rCount = 0;';
+        html += '\n   var rPass = 0;';
+        html += '\n   var bManualCheck = false;';
+
+        // iterate through the rules and count the number of failures
+        // potential violation or recommendations should trip the manual
+        // check flag
+        //
+        html += '\n   for (ndx = 0; ndx < numRules; ndx++) {';
+        html += '\n      var curRule = reqObj.rules[ndx];';
+        html += '\n      switch (curRule.ruleSeverityCode) {';
+        html += '\n         case \'SEVERITY_VIOLATION\' : {';
+        html += '\n            vCount++;';
+        html += '\n            if (curRule.resultCode == \'SEVERITY_PASS\') {';
+        html += '\n               vPass++;';
+        html += '\n            }';
+        html += '\n            break;';
+        html += '\n         }';
+        html += '\n         case \'SEVERITY_RECOMMENDATION\' : {';
+        html += '\n            rCount++;';
+        html += '\n            if (curRule.resultCode == \'SEVERITY_PASS\') {';
+        html += '\n               rPass++;';
+        html += '\n            }';
+        html += '\n            break;';
+        html += '\n         }';
+        html += '\n         case \'SEVERITY_POTENTIAL_VIOLATION\': { ';
+        html += '\n            if (curRule.resultCode != \'SEVERITY_PASS\') {';
+        html += '\n               bManualCheck = true;';
+        html += '\n            }';
+        html += '\n            break;';
+        html += '\n         }';
+        html += '\n         case \'SEVERITY_POTENTIAL_RECOMMENDATION\': { ';
+        html += '\n            if (curRule.resultCode != \'SEVERITY_PASS\') {';
+        html += '\n               bManualCheck = true;';
+        html += '\n            }';
+        html += '\n            break;';
+        html += '\n         }';
+        html += '\n      }';
+        html += '\n   }';
+      //  html += '\n   var vPercent =  (vCount > 0) ? Math.round((vPass/vCount)*100/numRules) : 0;';
+      //  html += '\n   var rPercent =  (rCount > 0) ? Math.round((rPass/rCount)*100/numRules) : 0;';
+        html += '\n   var vPercent =  (vCount > 0) ? Math.round((vCount-vPass)*100/numRules) : 0;';
+        html += '\n   var rPercent =  (rCount > 0) ? Math.round((rCount-rPass)*100/numRules) : 0;';
+        html += '\n   var grade = \'\';';
+        html += '\n   if (rCount == 0 || vCount == 0) { // no recommendations and no violations';
+        html += '\n     if (bManualCheck == true) {';
+        html += '\n       grade = \'<span class="GradeM">M</span>\';';
+        html += '\n       return grade';
+        html += '\n     }';
+        html += '\n   }';
+        html += '\n   if (rCount == 0) { // no recommendations';
+        html += '\n      if (vPass == vCount) { //all violations passed';
+        html += '\n         grade = \'<span class="gradeA">A</span>\';';
+        html += '\n         if (bManualCheck == true) {';
+        html += '\n           grade += \'+<span class="GradeM">M</span>\';';
+        html += '\n         }';
+        html += '\n      }';
+        html += '\n      else { // some Violations failed';
+        html += '\n         if ((100 - vPercent) >= 90) {';
+        html += '\n            grade = \'<span class="gradeC">C</span>\';';
+        html += '\n            if (bManualCheck == true) {';
+        html += '\n              grade += \'+<span class="GradeM">M</span>\';';
+        html += '\n            }';
+        html += '\n         }';
+        html += '\n         else if ((100 - vPercent) >= 50) {';
+        html += '\n            grade = \'<span class="gradeD">D</span>\';';
+        html += '\n         }';
+        html += '\n         else {';
+        html += '\n            grade = \'<span class="gradeF">F</span>\';';
+        html += '\n         }';
+        html += '\n      }';
+        html += '\n   }';
+        html += '\n   else { // recommendations exist';
+        html += '\n      if (vPass == vCount) {';
+        html += '\n         if (rPass == rCount) { //all violations and recommendations passed';
+        html += '\n            grade = \'<span class="gradeA">A</span>\';';
+        html += '\n         }';
+        html += '\n         else { // some recommendations failed';
+        html += '\n            grade = \'<span class="gradeB">B</span>\';';
+        html += '\n         }';
+        html += '\n         if (bManualCheck == true) {';
+        html += '\n           grade += \'+<span class="GradeM">M</span>\';';
+        html += '\n         }';
+        html += '\n      } ';
+        html += '\n      else { // some violations failed';
+        html += '\n         if ((100 - vPercent) >= 9*numRules) {';
+        html += '\n            grade = \'<span class="gradeC">C</span>\';';
+        html += '\n            if (bManualCheck == true) {';
+        html += '\n              grade += \'+<span class="GradeM">M</span>\';';
+        html += '\n            }';
+        html += '\n         }';
+        html += '\n         else if ((100 - vPercent) >= 5*numRules) {';
+        html += '\n            grade = \'<span class="gradeD">D</span>\';';
+        html += '\n         }';
+        html += '\n         else {';
+        html += '\n            grade = \'<span class="gradeF">F</span>\';';
+        html += '\n         }';
+        html += '\n      }';
+        html += '\n   }';
+        html += '\n   return grade;';
+        html += '\n}';
+
+        
+        html += '</script>';
+        /* KH end*/
+        
+        html += '\n <script type="text/javascript"> \n';
 
         for (var i = 0; i < results.length, count > 0; i++) {
           var result = results[i];
           if (i == (results.length - 1)) {
-            count = count -1;
+            count -= 1;
           }
           if(result.metaData != 'undefined' && result.metaData != ' ' && result.metaData != null) {
             var metaData = result.metaData.split(';');
             count = count - 1;
             for(var i=0; i < metaData.length; i++) {
-              var text = metaData[i] + ";";
+              var text = metaData[i];
+              text += (i == metaData.length-1) ? '': ';';
+
               html += text;
             } //end inner for
           }//end if
@@ -429,11 +667,31 @@ with (FBL) {
               result.message = messages.join('\n');
             }
             if (typeof result.severityCode != 'undefined') {
-              html += '{\n';
-              html += ' "requirementNumber" : "' + results[i].requirementNumber + '",\n';
-              html += ' "requirementLevel" : "' + results[i].requirementLevel + '",\n';
-              html += ' "requirementUrl" : "' + results[i].requirementUrl + '",\n';
-              html += ' "rules" : ' + '[ \n ';
+
+              /* ruleInfo is not available in results object. Try to get the ruleInfo from the requirement Number */
+              var rule = AINSPECTOR.controller.getRule(results[i].requirementNumber);
+              var requirementDesc = '';
+              var requirementTitle = results[i].name;
+              try {
+                requirementTitle = requirementTitle.replace(/\"/g, "'");
+                if (rule) {
+                  requirementDesc = rule ? rule.info : '** To be added **';
+                  requirementDesc = requirementDesc.replace(/\"/g, "'");
+                }
+              } catch (er) {
+              }
+
+              if (results[i].requirementNumber == '1.4.3') {
+               requirementDesc = requirementDesc.replace(/\n/gi, "");
+              }
+              html += ' {';
+              html += '\n' + singleSpaceFiller + ' "requirementNumber": "' + results[i].requirementNumber + '",';
+              html += '\n' + singleSpaceFiller + ' "requirementTitle" : "' + requirementTitle + '",';
+              html += '\n' + singleSpaceFiller + ' "requirementDesc"  : "' + requirementDesc + '",';
+              html += '\n' + singleSpaceFiller + ' "requirementLevelCode"  : "' + rule.level + '",';
+              html += '\n' + singleSpaceFiller + ' "requirementLevel" : "' + results[i].requirementLevel + '",';
+              html += '\n' + singleSpaceFiller + ' "requirementUrl" : "' + results[i].requirementUrl + '",';
+              html += '\n' + singleSpaceFiller + ' "rules" : ' + '[ ';
 
               rid = results[i].ruleID;
               var passIDs = result.drivenIDs.split('\n');
@@ -449,24 +707,23 @@ with (FBL) {
                 if(passIDs[j] == 'not defined' || passIDs[j] == '') {
 //                passIDs[j] = 'null';
                   passIDs[j] = '[ ]';
-                } else {
-                 // passIDs[j] = '" ' +  passIDs[j] + '" ';
-                  var passIDArray = [];
-                  passIDArray =  passIDs[j].split(',');
-                  var newPassIDs = '[ ';
-                  for (var k=0; k<passIDArray.length; k++) {
-                    newPassIDs = newPassIDs + '"' + passIDArray[k];
-                    if(k == (passIDArray.length - 1)){
-                      newPassIDs = newPassIDs + '" ';
-                    } else {
-                      newPassIDs = newPassIDs + '", ';
-                    }
+                } else {                 // passIDs[j] = '" ' +  passIDs[j] + '" ';
+                var passIDArray = [];
+                passIDArray =  passIDs[j].split(',');
+                var newPassIDs = '[ ';
+                for (var k=0; k<passIDArray.length; k++) {
+                  newPassIDs = newPassIDs + '"' + passIDArray[k];
+                  if (k == (passIDArray.length - 1)){
+                    newPassIDs = newPassIDs + '" ';
+                  } else {
+                    newPassIDs = newPassIDs + '", ';
                   }
-                  passIDs[j] = newPassIDs + ' ]';
-                }//end ifelse
-                if(failIDs[j] == 'not defined' || failIDs[j] == ''){
-//                  failIDs[j] = 'null';
-                    failIDs[j] = '[ ]';
+                }
+                passIDs[j] = newPassIDs + ' ]';
+              }//end ifelse
+              if(failIDs[j] == 'not defined' || failIDs[j] == ''){
+//              failIDs[j] = 'null';
+                failIDs[j] = '[ ]';
                 } else {
                   //failIDs[j] = '" ' + failIDs[j] + ' "';
                   failIDArray =  failIDs[j].split(',');
@@ -481,59 +738,72 @@ with (FBL) {
                   }
                   failIDs[j] = newFailIDs + ' ]';
                 }//end ifelse
-                html += '\n {\n' + ' "ruleID" : "' + rid[j] + '",\n';
-                html += ' "ruleTitle" : "' + result.ruleTitles[j] + '",\n';
-                html += ' "ruleMessage" : "' + messages[j] + '" \n';
-                html += ' "ruleSeverity" : "' + result.ruleSeverity[j] + '",\n';
-                html += ' "rulePriority" : "' + result.priority[j] + '"\n';
-                html += ' "calculatedSeverity" : "' + result.severity[j] + '",\n';
-                html += ' "passed" : { \n "nodeID" : ' + passIDs[j] + ',\n';
-                html += '},\n';
-                html += ' "failed" : {\n "nodeID" : ' + failIDs[j] + ',\n';
-                /*var elem = new Object();
-                if (result.components[j] != "undefined" && typeof result.components[j] != 'undefined' && result.components[j] != null && result.components[j].length > 0) {
-                  var ele = new Object();
-                  FBTrace.sysout("00000000", result.components[j]);
-                    for (var k = 0; k < result.components[j].length; k++) {
-                      if (result.components[j][k] && result.components[j][k] != null) {
-                        if (typeof result.components[j][k].node == 'undefined') { // Node itself was passed in
-                         eleProp = 'obj' + k;
-                         ele[eleProp] = result.components[j][k];
-                         }
-                         else if (result.components[j][k].node != null) { //Accext format
-                         eleProp = 'obj' + k;
-                         ele[eleProp] = result.components[j][k].node;
-                       } else {
-                           ele = "";
-                      }
-                     }
-                   }
-                   FBTrace.sysout("@@@@@@@@@@@@@" , ele);
-                   elem = ele;
 
-               // var attribDetails = [];
-      				  var attrib;
-        	      if (elem != 'undefined' || elem.length > 0) {
-                  for (var i = 0; i < elem.attributes.length; i++) {
-                    attrib = elem.getAttribute(elem.attributes[i].name);
-                    html += "<" + elem.attributes[i].name + " " +attrib + "/>"
+                html += '\n' + singleSpaceFiller +' {\n' + doubleSpaceFiller +' "ruleID"    : "' + rid[j] + '",';
+                html += '\n' + doubleSpaceFiller + ' "ruleTitle"    : "' + result.ruleTitles[j] + '",';
+                html += '\n' + doubleSpaceFiller + ' "ruleMessage"  : "' + messages[j] + '" ,';
+                html += '\n' + doubleSpaceFiller + ' "ruleSeverityCode" : "' + result.ruleSeverityCode[j] + '",';
+                html += '\n' + doubleSpaceFiller + ' "ruleSeverity" : "' + result.ruleSeverity[j] + '",';
+                html += '\n' + doubleSpaceFiller + ' "rulePriorityCode" : "' + result.priorityCode[j] + '",';
+                html += '\n' + doubleSpaceFiller + ' "rulePriority" : "' + result.priority[j] + '",';
+                html += '\n'+ doubleSpaceFiller + ' "resultCode"    : "' + result.resultCode[j] + '",';
+                html += '\n'+ doubleSpaceFiller + ' "result"        : "' + result.severity[j] + '",';
+                html += '\n' + doubleSpaceFiller + ' "passed"       : { \n '+ doubleSpaceFiller + singleSpaceFiller +' "nodeID" : ' + passIDs[j] + '';
+                html += '\n' + doubleSpaceFiller + '  },';
+                html += '\n' + doubleSpaceFiller + ' "failed"       : {\n '+ doubleSpaceFiller + singleSpaceFiller +'"nodeID" : ' + failIDs[j] + ',';
+
+                var elem = new Object();
+                if ( result.components[j] != 0 && result.components[j] != "undefined" &&
+                  typeof result.components[j] !== 'undefined' && result.components[j] != null && result.components[j].length > 0) {
+                  var ele = new Object();
+                  html += '\n'+ doubleSpaceFiller + singleSpaceFiller +' "nodeFragments" : [ ';
+                  for (var k = 0; k < result.components[j].length; k++) {
+                    if (result.components[j][k] && result.components[j][k] != null) {
+                      if (typeof result.components[j][k].node == 'undefined') { // Node itself was passed in
+                        ele[k] = result.components[j][k];
+                      } else if (result.components[j][k].node != null) { //Accext format
+                        ele[k] = result.components[j][k].node;
+                      } else {
+                        ele[k] = "";
+                      }
                     }
-                }
-                }*/
-                html += '},\n';
-                html += "},";
+                    html += '"<' + ele[k].nodeName;
+                    if (typeof(ele[k].attributes) !== 'undefined' && ele[k].attributes != null && ele[k].attributes.length > 0 ) {
+                      for (var attrName = 0; attrName < ele[k].attributes.length; attrName++) {
+                        html +=  ' ' + ele[k].attributes[attrName].name + "='" + ele[k].attributes[attrName].value + "'";
+                      } // end inner for
+                    }//end if
+                    html += ">";
+                    var content = "";
+                    content = ele[k].innerHTML;
+                    try {
+                      if (content != 'undefined' && content != " ") {
+                        content = content.replace(/\n/gi, "\\n");
+                        content = content.replace(/\r/gi, "");
+                        content = content.replace(/\"/g, "'");
+                      }
+                    }catch (e) {
+                    }
+                    html += content;
+                    html += (k == result.components[j].length-1) ? '"' : ('", \n' + doubleSpaceFiller + doubleSpaceFiller);
+                  }// end outer for
+                  html += ']';
+                }//end if
+                html += '\n  ' + doubleSpaceFiller + '},';
+                html +=  '\n '+ singleSpaceFiller + "},";
               }//end for
               html += '\n ]},\n';
             } //end if
           }//end if
         }//endfor
         html += ']';
-        html += '</script>';
 
+        html += '</script>';
         return html;
+
       } catch (err){
-		    FBTrace.sysout('printableView: ' + err.message);
-		  }
+	    FBTrace.sysout('printableView: ' + err.message);
+	  }
 	  },
     /* PBK end */
 
@@ -878,7 +1148,8 @@ with (FBL) {
 
     treeTabPrintableView: function(tabName, tabData, titleText, ruleset, uniqueID) {
         var panel = FirebugContext.getPanel("AInspector");
-        var parentNode = panel.document.getElementById(uniqueID + 'roles');
+//      var parentNode = panel.document.getElementById(uniqueID + 'roles');
+        var parentNode = (tabName == 'roles') ? panel.document.getElementById(uniqueID + 'roles') : panel.document.getElementById(uniqueID + 'landmarks'); //PBK addition
         var topGridTable = parentNode.getElementsByTagName('table')[0];
         var html = '<div id="reportDiv"><table summary="' + topGridTable.getAttribute('summary') + '">';
         var allTRTags = topGridTable.getElementsByTagName('tr');
@@ -904,7 +1175,7 @@ with (FBL) {
 
 	tabView: function(tabName, tabData, titleText, uniqueID) {
         if (AINSPECTOR.renderer.bPrintable) {
-        	if (tabName != 'roles')	return this.gridTabPrintableView(tabName, tabData, titleText, null, uniqueID);
+        	if (tabName != 'roles' && tabName != 'landmarks')	return this.gridTabPrintableView(tabName, tabData, titleText, null, uniqueID);
         	else return this.treeTabPrintableView(tabName, tabData, titleText, null, uniqueID);;
         }
 
@@ -918,7 +1189,7 @@ with (FBL) {
         return sText;
     },
 
-    toolsView: function(tools) {
+   /*toolsView: function(tools) {
 
         var tableHtml = '<table>';
 
@@ -947,7 +1218,7 @@ with (FBL) {
                     + '</div>';
 
         return sText;
-    },
+    },*/
 
     rulesetEditView: function(rulesets) {
 

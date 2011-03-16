@@ -239,6 +239,9 @@ AINSPECTOR.controller = {
             case 'headings':
                 content = renderer.tabView(view, params.tabdata,FBL.$STR('headingsGrid.title', 'a11y_bundle'), timestamp);
                 break;
+            case 'landmarks':
+                content = renderer.tabView(view, params.tabdata,FBL.$STR('landmarksGrid.title', 'a11y_bundle'), timestamp);
+                break;
             case 'roles':
                 content = renderer.tabView(view, params.tabdata,FBL.$STR('rolesGrid.title', 'a11y_bundle'), timestamp);
                 break;
@@ -247,9 +250,6 @@ AINSPECTOR.controller = {
                 break;
             case 'links':
                 content = renderer.tabView(view, params.tabdata,FBL.$STR('linksGrid.title', 'a11y_bundle'), timestamp);
-                break;
-            case 'tools':
-                content = renderer.toolsView(params.tools);
                 break;
             case 'rulesetEdit':
                 content = renderer.rulesetEditView(params.rulesets);

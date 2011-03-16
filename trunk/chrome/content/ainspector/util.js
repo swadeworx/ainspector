@@ -643,6 +643,10 @@ AINSPECTOR.util = {
   if ( iScore === -1 ) {
     return "N/A";
   }
+  if ( iScore === 1 ) {
+    return "M";
+  }
+
 	if ( 100 == iScore )
 		sLetter = "A";
   else if ( 99 <= iScore)

@@ -2,10 +2,10 @@
 
 FBL.ns(function() { with (FBL) {
 	var BaseModule = Firebug.ActivableModule ? Firebug.ActivableModule : Firebug.Module;
-	
-	/* PBK addition for overriding the cropMultipleLines() to 
+
+	/* PBK addition for overriding the cropMultipleLines() to
 		1. Avoid "..." in error messages from DOM+ & A11Y panels
-		2. Add "..." in A11Y Inspector panel if length of nodetext > 200 
+		2. Add "..." in A11Y Inspector panel if length of nodetext > 200
 	 */
 	FBL.cropMultipleLines = function(text, limit)
 	{
@@ -20,26 +20,26 @@ FBL.ns(function() { with (FBL) {
     	} else {
     		return text;
     	}
-    	
+
 	};
-	
+
 	Firebug.A11yModule = extend(BaseModule, {
-		// Module life-cycle 
+		// Module life-cycle
 		initialize : function() {
 			BaseModule.initialize.apply(this, arguments);
-		//	*will cause ctrl+f to crash FF* if (wairoleProperties == null) {this.loadWairolesProperties();} 
+		//	*will cause ctrl+f to crash FF* if (wairoleProperties == null) {this.loadWairolesProperties();}
 		},
 		initContext : function(context) {
 			BaseModule.initContext.apply(this, arguments);
 		},
-		showContext : function(context) {		
+		showContext : function(context) {
 		},
 		destroyContext : function(context) {
 			BaseModule.destroyContext.apply(this, arguments);
 		},
-	});	
+	});
 	var A11yModule = Firebug.A11yModule;
-	
+
 	A11yModule.A11yObject = function(object, attrIndex, AEObj) {
 		this.value =  object.attributes[attrIndex].nodeValue;
 		this.init(object, attrIndex, AEObj);
@@ -47,23 +47,23 @@ FBL.ns(function() { with (FBL) {
 
 	A11yModule.A11yObject.prototype = {
 		value : null,
-		toString : function() { 
+		toString : function() {
 			try {
-				return 'Issue Count: ' + this.issues.length; 
+				return 'Issue Count: ' + this.issues.length;
 			} catch (e) {
 				return 'attr';
 			}
 		},
-/*			toString : function() { 
+/*			toString : function() {
 			try {
-				try { 
+				try {
 					FBTrace.sysout("toString " + object.attributes[attrIndex].name)
 					//return object.attributes[attrIndex].name + ' Issue Count: ' + this.issues.length;
 					return 'Issue Count: ' + this.issues.length;
 				} catch (e) {
 					return object.attributes[attrIndex].name
 				}
-			} catch (e) {return object.attributes[attrIndex].name;}	
+			} catch (e) {return object.attributes[attrIndex].name;}
 		}, */
 		init : function(object, attrIndex, AEObj) {
 			var attrName = object.attributes[attrIndex].name.toLowerCase();
@@ -74,7 +74,7 @@ FBL.ns(function() { with (FBL) {
 				}
 			}
 			if (issues.length > 0) {this.issues = issues;}
-			
+
 			if (object.attributes[attrIndex].name.substring(0, 5) == 'aria-') {
 				if (object.attributes[attrIndex].name == 'aria-labelledby'){
 					this.AccessibleName = getTextAssocWithIDsAT(object, 'name');
@@ -85,10 +85,10 @@ FBL.ns(function() { with (FBL) {
 				var IDREFS = Firebug.A11yModule.getLinksToAssociatedObjects(object, attrIndex);
 				if (IDREFS.length > 0) {
 					if (IDREFS.length == 1) this.IDREF = IDREFS[0]; else this.IDREFS = IDREFS;
-					
+
 				}
-			} 
-				
+			}
+
 			if (object.attributes[attrIndex].name.toLowerCase() == 'id') {
 				var labelElement = getNodesAssociatedWithIDs(object.ownerDocument, this.value, "for", false);
 				if (labelElement.length > 0) {
@@ -122,7 +122,7 @@ FBL.ns(function() { with (FBL) {
 			FBTrace.sysout(exc);
 		}
 	};
-	
+
 	/*  to be used inplace of getTextAssociatedWithIDs() once we have access to the object */
 	const nsIAccessibleRetrieval = Components.interfaces.nsIAccessibleRetrieval;
 	function getTextAssocWithIDsAT(theDoc, field) {
@@ -143,11 +143,11 @@ FBL.ns(function() { with (FBL) {
 			FBTrace.sysout(exc);
 		}
 	}
-*/		
+*/
 	A11yModule.trim = function (str) { return str.replace(/^\s*|\s*$/g,"");	};
-	
+
 	A11yModule.cleanSpaces = function (str) { return A11yModule.trim(str.replace(/\s+/g,' '));	};
-	
+
 	A11yModule.getLinksToAssociatedObjects = function (object, attrIndex) {
 		try
 		{
@@ -159,8 +159,8 @@ FBL.ns(function() { with (FBL) {
 						return getNodesAssociatedWithIDs(object.ownerDocument, attr.nodeValue, 'id', true);
 					}
 				case 'aria-controls':	//IDREFS
-				case 'aria-flowto':	
-				case 'aria-owns':	
+				case 'aria-flowto':
+				case 'aria-owns':
 					if (A11yModule.cleanSpaces(attr.nodeValue) != '') {
 						return getNodesAssociatedWithIDs(object.ownerDocument, attr.nodeValue, 'id', false);
 					}
@@ -220,7 +220,7 @@ const RowTag =
         TD({"class": "memberLabelCell", style: "padding-left: $member.indent\\px",
             role: 'presentation'},
             DIV({"class": "memberLabel $member.type\\Label"},
-                
+
                 SPAN("$member.name")
             )
         ),
@@ -234,7 +234,7 @@ const SizerRow =
         TD(),
         TD({width: "30%"}),
         TD({width: "70%"})
-        
+
     );
 
 const DirTablePlate = domplate(Firebug.Rep,
@@ -258,9 +258,9 @@ const DirTablePlate = domplate(Firebug.Rep,
     rowTag:
         FOR("member", "$members", RowTag),
 
-    //fulltext: SPAN({class: "objectBox objectBox-$className", role : "presentation"}, "&quot;$member&quot;"), 
-    fulltext: DIV({class: "", role : "presentation"}, "&quot;$member.value&quot;"), 
-    
+    //fulltext: SPAN({class: "objectBox objectBox-$className", role : "presentation"}, "&quot;$member&quot;"),
+    fulltext: DIV({class: "", role : "presentation"}, "&quot;$member.value&quot;"),
+
     memberIterator: function(object, level)
     {
         return getMembers(object, level);
@@ -313,7 +313,7 @@ const DirTablePlate = domplate(Firebug.Rep,
         var panel = row.parentNode.parentNode.domPanel;
         var target = row.lastChild.firstChild;
         var isString = hasClass(target,"objectBox-string");
-        
+
         if (hasClass(row, "opened"))
         {
             removeClass(row, "opened");
@@ -338,17 +338,17 @@ const DirTablePlate = domplate(Firebug.Rep,
                             toggles = toggles[path[i]];
                     }
                 }
-                
+
                 var rowTag = this.rowTag;
                 var tbody = row.parentNode;
-    
+
                 setTimeout(function()
                 {
                     for (var firstRow = row.nextSibling; firstRow; firstRow = row.nextSibling)
                     {
                         if (parseInt(firstRow.getAttribute("level")) <= level)
                             break;
-    
+
                         tbody.removeChild(firstRow);
                     }
                 }, row.insertTimeout ? row.insertTimeout : 0);
@@ -382,10 +382,10 @@ const DirTablePlate = domplate(Firebug.Rep,
 
                 var context = panel ? panel.context : null;
                 var members = getMembers(target.repObject, level+1, context);
-    
+
                 var rowTag = this.rowTag;
                 var lastRow = row;
-    
+
                 var delay = 0;
                 var setSize = members.length;
                 var rowCount = 1;
@@ -403,10 +403,10 @@ const DirTablePlate = domplate(Firebug.Rep,
                         if (isLast)
                             delete row.insertTimeout;
                     }, delay, members.splice(0, insertSliceSize), !members.length);
-    
+
                     delay += insertInterval;
                 }
-    
+
                 row.insertTimeout = delay;
             }
         }
@@ -939,7 +939,7 @@ DOMBasePanel.prototype = extend(Firebug.Panel,
             optionMenuA11y("showRules"), //Addition for A11y
            "-",
             {label: "Refresh", command: bindFixed(this.rebuild, this, true) }
-        ]; 
+        ];
     },
     getContextMenuItems: function(object, target)
     {
@@ -1080,7 +1080,7 @@ function getMembers(object, level)  // we expect object to be user-level object 
             var insecureObject = object.wrappedJSObject;
         else
             var insecureObject = object;
-        		
+
         for (var name in insecureObject)  // enumeration is safe
         {
             if (ignoreVars[name] == 1)  // javascript.options.strict says ignoreVars is undefined.
@@ -1111,8 +1111,8 @@ function getMembers(object, level)  // we expect object to be user-level object 
                     addMember("userFunction", userFuncs, name, val, level);
             }
             else
-            {			
-                if (name in domMembers) 
+            {
+                if (name in domMembers)
 					addMember("dom", domProps, name, val, level, domMembers[name]);
                 else if (name in domConstantMap)
                     addMember("dom", domConstants, name, val, level);
@@ -1122,7 +1122,7 @@ function getMembers(object, level)  // we expect object to be user-level object 
         }
 		//Addition for A11y
         var rules = [];
-        if (object.node) { 
+        if (object.node) {
     		AccessibilityRulesandARIA(object.node, level, "rule", rules);
         }else{
         	AccessibilityRulesandARIA(object, level, "rule", rules);
@@ -1172,13 +1172,13 @@ function getMembers(object, level)  // we expect object to be user-level object 
 
     if (Firebug.showDOMConstants)
         members.push.apply(members, domConstants);
-       
-    if (Firebug.getPref(Firebug.prefDomain, "showRules")) //Addition for A11y  
+
+    if (Firebug.getPref(Firebug.prefDomain, "showRules")) //Addition for A11y
     {
 	    rules.sort(sortName);
 	    members.push.apply(members, rules);
     }
-    
+
     return members;
 }
 
@@ -1234,14 +1234,14 @@ function addMember(type, props, name, value, level, order)
 {
 	var rep = Firebug.getRep(value);    // do this first in case a call to instanceof reveals contents
 	var tag = rep.shortTag ? rep.shortTag : rep.tag;
-	
+
 	var valueType = typeof(value);
 	var hasChildren = hasProperties(value) && !(value instanceof ErrorCopy) &&
 	    (valueType == "function" || (valueType == "object" && value != null)
 	    || (valueType == "string" && value.length > Firebug.stringCropLength));
-	
+
 //	if (name == 'issues') tag = rep.fulltext;
-		
+
 	props.push({
 	    name: name,
 	    value: value,
@@ -1323,7 +1323,7 @@ function getA11yString(stringName) {
 						return retStr;
 				}
 			}
-	} catch (e) {FBTrace.sysout(stringName + ' ' + e.message); return stringName;} 
+	} catch (e) {FBTrace.sysout(stringName + ' ' + e.message); return stringName;}
 }
 
 function optionMenuA11y (option) //Addition for A11y
@@ -1335,17 +1335,17 @@ function optionMenuA11y (option) //Addition for A11y
             command: bindFixed(Firebug.setPref, Firebug, Firebug.prefDomain, option, !value) };
 	} catch (exc) 	{
 		FBTrace.sysout(exc.message);
-	}   
+	}
 }
 
 function getA11yPref(prefName) {
-	try {	
+	try {
 	    const nsIPrefBranch = Ci.nsIPrefBranch;
 	    const nsIPrefBranch2 = Ci.nsIPrefBranch2;
-	    
+
 	    const a11yPrefService = Cc["@mozilla.org/preferences-service;1"];
 	    const rulesPrefs =a11yPrefService.getService(nsIPrefBranch2);
-	    
+
 	      var type = rulesPrefs.getPrefType(prefName);
 	      if (type!=nsIPrefBranch.PREF_BOOL) {
 	    	  try {
@@ -1354,7 +1354,7 @@ function getA11yPref(prefName) {
 	      }	else {
 	    	  return rulesPrefs.getBoolPref(prefName);
 	      }
-		
+
 	} catch (exc) {
 		FBTrace.sysout(exc.message);
 	}
@@ -1366,10 +1366,10 @@ function AccessibilityRulesandARIA(object, level, theType, theProps)
 		var issues = new Array();
 		var accMsg = getA11yString('a11yMsg'); //'Accessibility Msg';
 		var ariaMSG = getA11yString('ariaMsg'); //'ARIA Msg';
-		
-		if (object.name && object.name != '') { 
+
+		if (object.name && object.name != '') {
 			var objName = object.name.toLowerCase();
-			
+
 /*			var AEObj;
   			alert('in AccessibilityRulesandARIA');
 			FBTrace.sysout('object', object);
@@ -1377,34 +1377,34 @@ function AccessibilityRulesandARIA(object, level, theType, theProps)
 			else AEObj = AINSPECTOR.controller.callAllParseNode(object);
 */
 			FBTrace.sysout('AccessibilityRulesandARIA object', object);
-			
+
 			var AEObj= AINSPECTOR.controller.callAllParseNode(object); //var AEObj= callAllParseNode(object.ownerElement);
 			FBTrace.sysout('object.name: ' + object.name, AEObj);
 			for (var i=0, nameLC = object.name.toLowerCase(); i < AEObj.msg.length; i++) {
 				if (AEObj.attr[i] == nameLC) addMember(theType, theProps, accMsg, AEObj.msg[i], level);
 			}
- 
+
 			// ARIA expand ID(s) found in aria-labelledby and aria-describedby
 			if (objName == 'aria-labelledby'){
 				var text = getTextAssocWithIDsAT(object.ownerElement, 'name');
-				addMember(theType, theProps, 'Accessible Name', Firebug.A11yModule.cleanSpaces(text), level);	
+				addMember(theType, theProps, 'Accessible Name', Firebug.A11yModule.cleanSpaces(text), level);
 				return;
 			}
 			if (objName == 'aria-describedby'){
 				var text = getTextAssocWithIDsAT(object.ownerElement, 'description');
-				addMember(theType, theProps, 'Accessible Descritpion', Firebug.A11yModule.cleanSpaces(text), level);	
+				addMember(theType, theProps, 'Accessible Descritpion', Firebug.A11yModule.cleanSpaces(text), level);
 				return;
 			}
 			//if (object.getNamedItem('aria-labelledby') != null || object.getNamedItem('aria-describedby') != null){
 			//	var ATObj = getATObj(object);
-			//	addMember(theType, theProps, 'Accessible Object', ATObj, level);	
+			//	addMember(theType, theProps, 'Accessible Object', ATObj, level);
 			//}
-			
-		} else if (object.getNamedItem) { //might be an attributes object			
+
+		} else if (object.getNamedItem) { //might be an attributes object
 		}
 		else { //no attributes
 			var tagName = object.tagName.toLowerCase();
-						
+
 			var AEObj = AINSPECTOR.controller.callAllParseNode(object);
 			for (var i=0; i < AEObj.msg.length; i++) {
 				if (AEObj.attr[i] == '') addMember(theType, theProps, accMsg, AEObj.msg[i], level);
@@ -1425,12 +1425,12 @@ A11yPanel.prototype = extend(DOMBasePanel.prototype,
 	title: "A11y",
     parentPanel: "html",
     order: 6,
-    tag: DirTablePlate.tableTag,  
+    tag: DirTablePlate.tableTag,
     rebuild: function(update, scrollTop)
     {
         dispatch([Firebug.A11yModel], 'onBeforeDomUpdateSelection', [this]);
 	    var members = getAccessibleObjs(this.selection);
-	    
+
         expandMembers(members, this.toggles, 0, 0);
 
         this.showMembers(members, update, scrollTop);
@@ -1449,7 +1449,7 @@ A11yPanel.prototype = extend(DOMBasePanel.prototype,
         Firebug.Panel.initialize.apply(this, arguments);
         this.loadNewCss();
     },
-    
+
     initializeNode: function(oldPanelNode)
     {
         dispatch([Firebug.A11yModel], 'onInitializeNode', [this, 'console']);
@@ -1459,11 +1459,11 @@ A11yPanel.prototype = extend(DOMBasePanel.prototype,
     {
         dispatch([Firebug.A11yModel], 'onDestroyNode', [this, 'console']);
     },
-    
-    loadNewCss: function () 
+
+    loadNewCss: function ()
     {
         try
-        {  
+        {
     	//	this.document.styleSheets[0].insertRule(".ruleLabel { color: #000000; }", this.document.styleSheets[0].cssRules.length) //{ color: #FF6600; font-weight: bold; } orange-bold
     		this.document.styleSheets[0].insertRule(".ruleLabel { color: #FF6600; font-weight: bold; }", this.document.styleSheets[0].cssRules.length) // orange-bold
         } catch (exc)    {
@@ -1489,32 +1489,60 @@ function accessext_nodeHanlder_LandmarkRoles(node) {
 					break;
 				default : // traverse all children except those with landmark roles
 				//	accessext_nodeHanlder_LandmarkRoles(pageRoles[i]);  //.get(i)
-			}	
+			}
 		}
 		var noRole = selected.filter("*[not exists(@role)]");  //*[not exists(@role)]   *[not @role]
 		alert(' accessext_nodeHanlder_LandmarkRoles noRole.length' + noRole.length);
-		
-			
-	    	
+
+
+
 	} catch (ex) {
 		FBTrace.sysout('accessext_nodeHanlder_LandmarkRoles exception: ', ex);
 	}
 }
+function accessext_nodeHanlder_Landmarks(node) {
+	try {
+		var selected = jQuery(node).children();
+		var pageRoles = selected.filter("*[@role]"); //"*[@role='complementary']|[@role='banner']"
+		for (i = 0; i < pageRoles.length; i++) {
+			switch (pageRoles[i].getAttribute('role').toUpperCase()) {
+				case 'MAIN':
+        case 'NAVIGATION':
+				case 'BANNER':
+        case 'SEARCH':
+				case 'COMPLEMENTARY':
+				case 'CONTENTINFO':
+				case 'REGION':
+					alert('accessext_nodeHanlder_Landmarks' + pageRoles[i].getAttribute('role'));
+					break;
+				default : // traverse all children except those with landmark roles
+				//	accessext_nodeHanlder_LandmarkRoles(pageRoles[i]);  //.get(i)
+			}
+		}
+		var noRole = selected.filter("*[not exists(@role)]");  //*[not exists(@role)]   *[not @role]
+		alert(' accessext_nodeHanlder_Landmarks noRole.length' + noRole.length);
 
-function getAccessibleObjs(object, level)  
+
+
+	} catch (ex) {
+		FBTrace.sysout('accessext_nodeHanlder_Landmarks exception: ', ex);
+	}
+}
+
+function getAccessibleObjs(object, level)
 {
     if (!level)
         level = 0;
 
     var heading = [];
-    
+
     try
-    {  
+    {
     	// show a small subset of the DOM properties, aria info & broken rules
     	addMember("dom", heading, object.tagName, object, level);
     //	var textValue = getNodeText(object);
     //	addMember("dom", heading, "textContent", textValue, level);
-    	
+
 		var AEObj = AINSPECTOR.controller.callAllParseNode(object);
 		if (AEObj.msg.length > 0) {
     		var accMsg = getA11yString('a11yMsg'); //'Accessibility Msg';
@@ -1528,7 +1556,7 @@ function getAccessibleObjs(object, level)
 	        for(var i=0; i< object.attributes.length; i++ ) {
 				if( object.attributes[i].name == 'role' ) { role = object.attributes[i].nodeValue; }
 			}
-			
+
 	    	for(var i=0; i < object.attributes.length; i++) {
 	 			var detailsObj = new Firebug.A11yModule.A11yObject(object, i, AEObj);
 	 			if (detailsObj.issues) {
@@ -1541,7 +1569,7 @@ function getAccessibleObjs(object, level)
 	 			} else {
 	 				addMember("dom", heading, object.attributes[i].name, detailsObj, level);
 	 			}
-	    	}  
+	    	}
 		}
      }
     catch (exc)
