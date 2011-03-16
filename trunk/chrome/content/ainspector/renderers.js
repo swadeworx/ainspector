@@ -475,7 +475,9 @@ with (FBL) {
         html += '\n  var headingMarkup = \'\'; // used to build the heading rows for the requirement';
 
         html += '\n  headingMarkup += \'\\n\\t<tr>\\n\\t\\t<th colspan="4" class="reqInfo">Grade <span="grade">\' + gradeCalc + \'</span> on \' + curReq.requirementTitle + \'</th>\\n\\t</tr>\';';
-        html += '\n  headingMarkup += \'\\n\\t<tr>\\n\\t\\t<th class="indent">&nbsp;</th><th colspan="3" class="ReqDesc">\' + curReq.requirementDesc + \'</th>\\n\\t</tr>\';';
+        html += '\n  var tmp = curReq.requirementDesc.replace(/</g, \'&lt;\');';
+        html += '\n  tmp = tmp.replace(/>/g, \'&gt;\');';
+        html += '\n  headingMarkup += \'\\n\\t<tr>\\n\\t\\t<th class="indent">&nbsp;</th><th colspan="3" class="ReqDesc">\' + tmp + \'</th>\\n\\t</tr>\';';
 
         html += '\n  headingMarkup += \'\\n\\t<tr>\';';
         html += '\n  headingMarkup += \'\\n\\n\\t<th>&nbsp;</th>\';';
