@@ -333,6 +333,112 @@ body {
     border-color: #df4444;
 }
 
+/* Begin printable view styles */
+
+span.gradeA {
+  color: #34a234;
+}
+
+span.gradeB {
+  color: #a4cb58;
+}
+
+span.gradeC {
+  color: #fadd3d;
+}
+
+span.gradeD {
+  color: #f5a249;
+}
+
+span.gradeF {
+  color: #df4444;
+}
+span.gradeM {
+  color: #8e8e8e; 
+}
+table#results {
+   width: 100%;
+   border-spacing: 0;
+}
+table#results th {
+   padding: 10px 5px;
+   text-align: left;
+   vertical-align: top;
+   background-color: #fff;
+}
+th.reqInfo {
+   border-top: 2px solid #999;
+}
+table#results th.reqDesc,
+table#results td {
+   padding: 10px 5px;
+   text-align: left;
+   font-weight: normal;
+   font-size: 80%;
+   vertical-align: top;
+}
+tr.middleRow td {
+   border-top: 1px solid #999;
+}
+
+.indent {
+   width: 30px;
+}
+span.priority {
+   font-weight: normal;
+   font-size: 80%;
+}
+table#results td.fail {
+   background-color: #fdd;
+   font-weight: bold !important;
+}
+table#results td.pass {
+   background-color: #dfd;
+}
+table#results td ul {
+   padding-left: 15px;
+}
+.centerAlign {
+   text-align: center !important;
+}
+td.emphasize {
+   font-size: 1em !important;
+   font-weight: bold !important;
+}
+
+.bottomBorder {
+   border-bottom: 2px solid black;
+}
+.code {
+   color: #06a;
+}
+.SEVERITY_VIOLATION {
+   color: #800;
+   font-weight: bold !important;
+   text-size: 1.2em !important;
+}
+.SEVERITY_RECOMMENDATION {
+   color: #b50;
+}
+.SEVERITY_POTENTIAL_VIOLATION,
+.SEVERITY_POTENTIAL_RECOMENDATION {
+   color: #808;
+   font-weight: bold !important;
+   text-size: 1.2em !important;
+}
+.SEVERITY_PASS {
+   color: #070;
+}
+
+input.bnHideShow {
+   float: right;
+}
+
+ol[aria-hidden="true"] {
+   display: none;
+}
+/* END printable view styles */
 
 /* END Performance */
 
