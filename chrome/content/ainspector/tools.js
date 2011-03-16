@@ -152,7 +152,7 @@ AINSPECTOR.Tools = {
 
          if (param && param.yscontext) {
             if (param.options === undefined) {
-                param.options = { 'reportcard': 1, 'headings': 1, 'roles': 1, 'forms': 1, 'images': 1, 'links': 1 };
+                param.options = { 'reportcard': 1, 'headings': 1, 'landmarks': 1, 'roles': 1, 'forms': 1, 'images': 1, 'links': 1 };
             }
             for (var view in param.options) {
                 var sText = '<div class="section">';
@@ -161,10 +161,13 @@ AINSPECTOR.Tools = {
                 switch (view) {
                 case 'reportcard':
                    // sText += '<div class="title">Grade</div><div class="contentDiv">' + param.yscontext.genPerformance();  //PBK commented
-					sText += '<div class="contentDiv">' + param.yscontext.genPerformance(); //PBK
+					          sText += '<div class="contentDiv">' + param.yscontext.genPerformance(); //PBK
                     break;
                 case 'headings':
                     sText += '<div class="title">' + FBL.$STR('headingsGrid.title', 'a11y_bundle') + rulesetName + '</div><div class="contentDiv">' + param.yscontext.genTab(view);
+                    break;
+                case 'landmarks':
+                    sText += '<div class="title">' + FBL.$STR('landmarksGrid.title', 'a11y_bundle') + rulesetName + '</div><div class="contentDiv">' + param.yscontext.genTab(view);
                     break;
                 case 'roles':
                     sText += '<div class="title">' + FBL.$STR('rolesGrid.title', 'a11y_bundle') + rulesetName + '</div><div class="contentDiv">' + param.yscontext.genTab(view);

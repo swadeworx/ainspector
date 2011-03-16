@@ -21,12 +21,20 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 
   /*
    * calculateScore
-   * @param (integer) numEle
-   * @param (array of integers) severitySum
+   * @param (integer) numEle - nomber of rules in a ruleset
+   * @param (array of integers) severitySum - nomber of violations, recommendations, PV and PR passed
+   * @param (array of integers) receivedSeverity - nomber of violations, recommendations, PV and PR in a ruleset
    * @return (integer)
    */
   calculateScore: function (requirementNumber, numEle, severitySum, receivedSeverity) {
     var score;
+
+    if (receivedSeverity[0]== 0 && receivedSeverity[2] == 0) { // no violations and no recommendations and Pv/PR is failed
+      if (receivedSeverity[1] != severitySum[1] || receivedSeverity[3] != severitySum[3]) {
+        score = 1; //M
+        return score;
+      }
+    }
     if (receivedSeverity[2] == 0) { //when no recommendations
       if (receivedSeverity[0] == severitySum[0]) { //check if violations are passed
         if (receivedSeverity[1] != 0 || receivedSeverity[3] != 0) { //check for PV or PR
@@ -66,7 +74,11 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
             score = (receivedSeverity[1] != 0 && receivedSeverity[1] == severitySum[1]) ? 90 : 89;  //90 - B; 89 - B + M
           }
         } else { //if no PV or PR in a ruleset
-          score = 100; //A
+          if (recpmmendationFlag == true) {
+            score = 100; //A
+          } else {
+            score = 90; //B
+          }
         }
       } else {
         var errPercent = (receivedSeverity[0] - severitySum[0])*100/numEle;
@@ -83,6 +95,7 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
         }
       }
     }
+
     return score;
   },
 
@@ -229,7 +242,6 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 										retStruct.id.push(rule.id);
 										//retStruct.msg.push(FBL.$STR(ruleset[rule.id].severityCode.toLowerCase(), 'OAA_bundle') + ': ' + FBL.$STRF(ruleset[rule.id].messageCode['message'], ruleRet.msgArgs, 'OAA-bundle'));
 										retStruct.msg.push(OAARuleset.severities[ruleset[rule.id].severityCode] + ': ' + AINSPECTOR.OAA_Nexus.replaceChar(OAARuleset.rules[ruleset[rule.id].messageCode]['message'], ruleRet.msgArgs));
-										retStruct.title.push(OAARuleset.rules[ruleset[rule.id].messageCode]['title']);
 										retStruct.attr.push(ruleRet.attrs);
 										retStruct.severityCode.push(OAARuleset.severities[ruleset[rule.id].severityCode]);
 									} // endif
@@ -342,7 +354,7 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 											for (var j = 0; j < loadArray.length && !added; j++) {
 												if (ruleRet.nodes[i] == loadArray[j].node) {
 													loadArray[j].issuesObj.msg.push(OAARuleset.severities[ruleset[rule.id].severityCode] + ': ' + AINSPECTOR.OAA_Nexus.replaceChar(OAARuleset.rules[ruleset[rule.id].messageCode]['message'], ruleRet.msgArgs));
-													loadArray[j].issuesObj.title.push(OAARuleset.rules[ruleset[rule.id].messageCode]['title']);
+													//loadArray[j].issuesObj.title.push(OAARuleset.rules[ruleset[rule.id].messageCode]['title']);
 													loadArray[j].issuesObj.attr.push(ruleRet.attrs);
 													loadArray[j].issuesObj.severityCode.push(OAARuleset.severities[ruleset[rule.id].severityCode]);
 													added = true;
@@ -683,16 +695,20 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 	        var severity = [];
           var ruleSeverity = [];
    	      var priorityCode = [];
+          var priority = [];
 	        var severityCode = [];
 	      	var ruleID = [];
 	  	    var eleArray = new Array();
 	  	    var passIDs = [];
 	      	var drivenIDs = [];
     			var failIDs = [];
+          var resultCode = [];
+          ruleSeverityCode = [];
 
           var doc = jQuery(indoc);
 
           var OAARuleset = OpenAjax.a11y.getNLSForRuleset(AINSPECTOR.controller.default_ruleset_id , 'en-us');
+          requirementLevel = OAARuleset.levels[requirementLevel];
     			if (requirementNumber == '2.4.1'){
 			  	  AINSPECTOR.OAA_Nexus.runRuleGroup(requirementNumber, indoc, eleArray);
     			} else {
@@ -742,15 +758,17 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 							    ruleID[ruleID.length] = eleArray[i].id;
                   messages[messages.length] = AINSPECTOR.OAA_Nexus.replaceChar(OAARuleset.rules[eleArray[i].messageCode]['message'], eleArray[i].msgArgs);
 						    	ruleTitles[ruleTitles.length] = OAARuleset.rules[eleArray[i].messageCode]['title'];
-    							severity[severity.length] = OAARuleset.severities[eleArray[i].severityCode];
+    							severity[severity.length] = OAARuleset.severities[eleArray[i].severityCode]; //result
 		    					severityCode[severityCode.length] = eleArray[i].severityCode;
 				    			priorityCode[priorityCode.length] = eleArray[i].priorityCode;
-                  ruleSeverity[ruleSeverity.length] = eleArray[i].severityCode;
+                  priority[priority.length] = OAARuleset.priorities[eleArray[i].priorityCode];
+                  ruleSeverity[ruleSeverity.length] = OAARuleset.severities[eleArray[i].severityCode];
+                  ruleSeverityCode[ruleSeverityCode.length] = eleArray[i].severityCode;
+                  resultCode[resultCode.length] = eleArray[i].severityCode;
 
                   if (eleArray[i].nodes) {
 			      				messages[messages.length-1] = messages[messages.length-1] + AINSPECTOR.util.plural(' (%num% element%s%)', eleArray[i].nodes.length);
 						      	sortedIssueOffenders[sortedIssueOffenders.length] = (eleArray[i].nodes)? eleArray[i].nodes : null;
-
 						      }//end if
       					}//end if
 			      	}//end for
@@ -766,9 +784,14 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
               ruleTitles[ruleTitles.length] = OAARuleset.rules[eleArray[i].messageCode]['title'];
               severity[severity.length] = OAARuleset.severities['SEVERITY_PASS'];
               severityCode[severityCode.length] = 'SEVERITY_PASS';
+
               priorityCode[priorityCode.length] = eleArray[i].priorityCode;
+              priority[priority.length] = OAARuleset.priorities[eleArray[i].priorityCode];
               sortedIssueOffenders[sortedIssueOffenders.length] = null;
-              ruleSeverity[ruleSeverity.length] = eleArray[i].severityCode;
+              ruleSeverity[ruleSeverity.length] = OAARuleset.severities[eleArray[i].severityCode];
+              ruleSeverityCode[ruleSeverityCode.length] = eleArray[i].severityCode;
+              resultCode[resultCode.length] = 'SEVERITY_PASS';
+
               /*PBK begin*/
               if (eleArray[i].severityCode == 'SEVERITY_VIOLATION'){
                 receivedSeverity[0] += 1;
@@ -812,13 +835,16 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 		      	message: messages.join('\n'),
 		      	severity: severity,
 		      	severityCode: severityCode,
+            ruleSeverityCode: ruleSeverityCode,
             ruleSeverity: ruleSeverity,       //PBK
 		       	components: sortedIssueOffenders,
-					  priority: priorityCode,            //PBK
-					  ruleTitles: ruleTitles,            //PBK
+					  priorityCode: priorityCode,            //PBK
+					  priority: priority,
+            ruleTitles: ruleTitles,            //PBK
 					  drivenIDs: drivenIDs.join('\n'),   //PBK
 					  failIDs: failIDs.join('\n'),       //PBK
-					  metaData: metaData,
+					  metaData: metaData,                 //PBK
+            resultCode: resultCode
 		      }
          // FBTrace.sysout("result" , result);
          	return result;
