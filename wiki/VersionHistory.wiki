@@ -2,6 +2,9 @@
 
 = Version History =
 
+== Version beta 0.92 == 
+  * Generates a report on AINspector results with the JSON Object.
+
 == Version beta 0.91 == 
   * Modified the NLS files, ruleset files according to OAA discussions. 
   * Generates a report for META information on accessibility report
