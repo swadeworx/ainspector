@@ -8,11 +8,11 @@ OpenAjax.a11y.addRuleset(
         //
         // Basic info
         //
-    	  id : 'IITAA_1_0',                     // Unique ID reference for ruleset
+    	id : 'IITAA_1_0',                     // Unique ID reference for ruleset
         nameCode : 'name',                    // Reference to the name of requirements document in the NLS file
         descriptionCode : 'description',      // Reference to the description of the requirements document in the NLS file
         versionCode : 'version',              // Reference to the ruleset version in the NLS file
-        date: '2011-02-25',                   // Date this file was last modified
+        date: '2011-03-10',                   // Date this file was last modified
 
 
         // rulesetUrl - URL of the checklist/ruleset as a whole
@@ -1803,7 +1803,7 @@ OpenAjax.a11y.addRuleset(
                },  // end 18.1
 
       ]
-    }
+    }  // end ruleset
 );
 
 

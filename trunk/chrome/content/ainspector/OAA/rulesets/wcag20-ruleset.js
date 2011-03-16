@@ -8,11 +8,11 @@ OpenAjax.a11y.addRuleset(
         //
         // Basic info
         //
-    	  id : 'WCAG_2_0',                      // Unique ID reference for ruleset
+    	id : 'WCAG_2_0',                      // Unique ID reference for ruleset
         nameCode : 'name',                    // Reference to the name of requirements document in the NLS file
         descriptionCode : 'description',      // Reference to the description of the requirements document in the NLS file
         versionCode : 'version',              // Reference to the ruleset version in the NLS file
-        date: '2011-02-24',                   // Date this file was last modified
+        date: '2011-03-10',                   // Date this file was last modified
 
 
         // rulesetUrl - URL of the checklist/ruleset as a whole
@@ -31,7 +31,7 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '1.1.1',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_A',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#text-equiv',
                  enabled           : 'true',
                  rules : {
@@ -44,6 +44,7 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
                                 messageCode  : 'MESSAGE_1',
+                                groupCode    : 'GROUP_4',
                                 enabled      : 'true',
                               },
                                 //
@@ -55,6 +56,7 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
                                 messageCode  : 'MESSAGE_2',
+                                groupCode    : 'GROUP_4',
                                 enabled      : 'true',
                               },
                                 //
@@ -66,6 +68,7 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
                                 messageCode  : 'MESSAGE_3',
+                                groupCode    : 'GROUP_4',
                                 enabled      : 'true',
                               },
                                 //
@@ -77,6 +80,7 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
                                 messageCode  : 'MESSAGE_4',
+                                groupCode    : 'GROUP_4',
                                 enabled      : 'true',
                               },
                                 //
@@ -88,6 +92,7 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
                                 messageCode  : 'MESSAGE_5',
+                                groupCode    : 'GROUP_4',
                                 enabled      : 'true',
                               },
                                 //
@@ -99,6 +104,7 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
                                 messageCode  : 'MESSAGE_6',
+                                groupCode    : 'GROUP_4',
                                 enabled      : 'true',
                               },
                                 //
@@ -110,9 +116,11 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_PROPOSED',
                                 messageCode  : 'MESSAGE_78',
+                                groupCode    : 'GROUP_4',
                                 enabled      : 'true',
                               },
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 1.1.1
 
                  //
@@ -120,7 +128,7 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '1.2.1',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_A',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#media-equiv-av-only-alt',
                  enabled           : 'true',
                  rules : {
@@ -133,6 +141,7 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_PROPOSED',
                                 messageCode  : 'MESSAGE_79',
+                                groupCode    : 'GROUP_5',
                                 enabled      : 'true',
                               },
                                 //
@@ -144,9 +153,11 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_PROPOSED',
                                 messageCode  : 'MESSAGE_80',
+                                groupCode    : 'GROUP_5',
                                 enabled      : 'true',
                               },
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 1.2.1
 
                  //
@@ -154,7 +165,7 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '1.2.2',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_A',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#media-equiv-captions',
                  enabled           : 'true',
                  rules : {
@@ -167,9 +178,11 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_PROPOSED',
                                 messageCode  : 'MESSAGE_81',
+                                groupCode    : 'GROUP_5',
                                 enabled      : 'true',
                               },
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 1.2.2
 
                  //
@@ -177,7 +190,7 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '1.2.3',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_A',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#media-equiv-audio-desc',
                  enabled           : 'true',
                  rules : {
@@ -190,9 +203,11 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_PROPOSED',
                                 messageCode  : 'MESSAGE_82',
+                                groupCode    : 'GROUP_5',
                                 enabled      : 'true',
                               },
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 1.2.3
 
                  //
@@ -200,7 +215,7 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '1.2.4',
-                 requirementLevel  : 'LEVEL.AA',
+                 requirementLevel  : 'LEVEL_AA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#media-equiv-real-time-captions',
                  enabled           : 'true',
                  rules : {
@@ -213,9 +228,11 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_PROPOSED',
                                 messageCode  : 'MESSAGE_83',
+                                groupCode    : 'GROUP_5',
                                 enabled      : 'true',
                               },
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 1.2.4
 
                  //
@@ -223,7 +240,7 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '1.2.5',
-                 requirementLevel  : 'LEVEL.AA',
+                 requirementLevel  : 'LEVEL_AA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#media-equiv-audio-desc-only',
                  enabled           : 'true',
                  rules : {
@@ -236,9 +253,11 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_PROPOSED',
                                 messageCode  : 'MESSAGE_84',
+                                groupCode    : 'GROUP_5',
                                 enabled      : 'true',
                               },
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 1.2.5
 
                  //
@@ -246,7 +265,7 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '1.2.6',
-                 requirementLevel  : 'LEVEL.AAA',
+                 requirementLevel  : 'LEVEL_AAA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#media-equiv-sign',
                  enabled           : 'true',
                  rules : {
@@ -259,9 +278,11 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_PROPOSED',
                                 messageCode  : 'MESSAGE_85',
+                                groupCode    : 'GROUP_5',
                                 enabled      : 'true',
                               },
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 1.2.6
 
                  //
@@ -269,7 +290,7 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '1.2.7',
-                 requirementLevel  : 'LEVEL.AAA',
+                 requirementLevel  : 'LEVEL_AAA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#media-equiv-extended-ad',
                  enabled           : 'true',
                  rules : {
@@ -282,9 +303,11 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_PROPOSED',
                                 messageCode  : 'MESSAGE_86',
+                                groupCode    : 'GROUP_5',
                                 enabled      : 'true',
                               },
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 1.2.7
 
                  //
@@ -292,7 +315,7 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '1.2.8',
-                 requirementLevel  : 'LEVEL.AAA',
+                 requirementLevel  : 'LEVEL_AAA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#media-equiv-text-doc',
                  enabled           : 'true',
                  rules : {
@@ -305,9 +328,11 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_PROPOSED',
                                 messageCode  : 'MESSAGE_87',
+                                groupCode    : 'GROUP_5',
                                 enabled      : 'true',
                               },
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 1.2.8
 
                  //
@@ -315,7 +340,7 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '1.2.9',
-                 requirementLevel  : 'LEVEL.AAA',
+                 requirementLevel  : 'LEVEL_AAA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#media-equiv-live-audio-only',
                  enabled           : 'true',
                  rules : {
@@ -328,9 +353,11 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_PROPOSED',
                                 messageCode  : 'MESSAGE_88',
+                                groupCode    : 'GROUP_5',
                                 enabled      : 'true',
                               },
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 1.2.9
 
                  //
@@ -338,7 +365,7 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '1.3.1',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_A',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#content-structure-separation-programmatic',
                  enabled           : 'true',
                  rules : {
@@ -351,6 +378,7 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
                                 messageCode  : 'MESSAGE_7',
+                                groupCode    : 'GROUP_3',
                                 enabled      : 'true',
                               },
                                 //
@@ -362,6 +390,7 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
                                 messageCode  : 'MESSAGE_8',
+                                groupCode    : 'GROUP_3',
                                 enabled      : 'true',
                               },
                                 //
@@ -372,7 +401,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_9',
+                                messageCode  : 'MESSAGE_9',
+                                groupCode    : 'GROUP_3',
                                 enabled      : 'true',
                               },
                                 //
@@ -383,7 +413,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_10',
+                                messageCode  : 'MESSAGE_10',
+                                groupCode    : 'GROUP_3',
                                 enabled      : 'true',
                               },
                                 //
@@ -394,7 +425,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_11',
+                                messageCode  : 'MESSAGE_11',
+                                groupCode    : 'GROUP_3',
                                 enabled      : 'true',
                               },
                                 //
@@ -405,7 +437,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_12',
+                                messageCode  : 'MESSAGE_12',
+                                groupCode    : 'GROUP_3',
                                 enabled      : 'true',
                               },
                                 //
@@ -416,10 +449,12 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_13',
+                                messageCode  : 'MESSAGE_13',
+                                groupCode    : 'GROUP_3',
                                 enabled      : 'true',
                               },
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 1.3.1
 
                  //
@@ -427,7 +462,7 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '1.3.2',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_A',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#content-structure-separation-sequenc',
                  enabled           : 'true',
                  rules : {
@@ -439,10 +474,12 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_POTENTIAL_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_14',
+                                messageCode  : 'MESSAGE_14',
+                                groupCode    : 'GROUP_10',
                                 enabled      : 'true',
                               },
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 1.3.2
 
                  //
@@ -450,15 +487,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '1.3.3',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_A',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#content-structure-separation-understanding',
-                   messageCode  : 'MESSAGE_15',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 1.3.3
 
                  //
@@ -466,7 +503,7 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '1.4.1',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_A',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#visual-audio-contrast-without-color',
                  enabled           : 'true',
                  rules : {
@@ -479,9 +516,11 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_PROPOSED',
                                 messageCode  : 'MESSAGE_89',
+                                groupCode    : 'GROUP_5',
                                 enabled      : 'true',
                               },
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 1.4.1
 
                  //
@@ -489,14 +528,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '1.4.2',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_A',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#visual-audio-contrast-dis-audio',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 1.4.2
 
                  //
@@ -504,7 +544,7 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '1.4.3',
-                 requirementLevel  : 'LEVEL.AA',
+                 requirementLevel  : 'LEVEL_AA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#visual-audio-contrast-contrast',
                  enabled           : 'true',
                  rules : {
@@ -517,6 +557,7 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
                                 messageCode  : 'MESSAGE_15',
+                                groupCode    : 'GROUP_7',
                                 enabled      : 'true',
                               },
                                 //
@@ -527,7 +568,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P2',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_16',
+                                messageCode  : 'MESSAGE_16',
+                                groupCode    : 'GROUP_7',
                                 enabled      : 'true',
                               },
                                 //
@@ -538,10 +580,12 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P2',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_17',
+                                messageCode  : 'MESSAGE_17',
+                                groupCode    : 'GROUP_7',
                                 enabled      : 'true',
                               },
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 1.4.3
 
                  //
@@ -549,14 +593,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '1.4.4',
-                 requirementLevel  : 'LEVEL.AA',
+                 requirementLevel  : 'LEVEL_AA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#visual-audio-contrast-scale',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 1.4.4
 
                  //
@@ -564,14 +609,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '1.4.5',
-                 requirementLevel  : 'LEVEL.AA',
+                 requirementLevel  : 'LEVEL_AA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#visual-audio-contrast-text-presentation',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 1.4.5
 
                  //
@@ -579,14 +625,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '1.4.6',
-                 requirementLevel  : 'LEVEL.AAA',
+                 requirementLevel  : 'LEVEL_AAA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#visual-audio-contrast7',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 1.4.6
 
                  //
@@ -594,14 +641,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '1.4.7',
-                 requirementLevel  : 'LEVEL.AAA',
+                 requirementLevel  : 'LEVEL_AAA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#isual-audio-contrast-noaudio',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 1.4.7
 
                  //
@@ -609,14 +657,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '1.4.8',
-                 requirementLevel  : 'LEVEL.AAA',
+                 requirementLevel  : 'LEVEL_AAA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#visual-audio-contrast-visual-presentation',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 1.4.8
 
                  //
@@ -624,14 +673,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '1.4.9',
-                 requirementLevel  : 'LEVEL.AAA',
+                 requirementLevel  : 'LEVEL_AAA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#visual-audio-contrast-text-images',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 1.4.9
 
                  //
@@ -639,7 +689,7 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '2.1.1',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_A',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-keyboard-operation-keyboard-operable',
                  enabled           : 'true',
                  rules : {
@@ -651,7 +701,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_18',
+                                messageCode  : 'MESSAGE_18',
+                                groupCode    : 'GROUP_9',
                                 enabled      : 'true',
                               },
                                 //
@@ -662,7 +713,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_19',
+                                messageCode  : 'MESSAGE_19',
+                                groupCode    : 'GROUP_9',
                                 enabled      : 'true',
                               },
                                 //
@@ -673,7 +725,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_20',
+                                messageCode  : 'MESSAGE_20',
+                                groupCode    : 'GROUP_9',
                                 enabled      : 'true',
                               },
                                 //
@@ -685,6 +738,7 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P2',
                                 statusCode   : 'STATUS_ACCEPTED',
                                 messageCode  : 'MESSAGE_21',
+                                groupCode    : 'GROUP_9',
                                 enabled      : 'true',
                               },
                                 //
@@ -695,7 +749,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_22',
+                                messageCode  : 'MESSAGE_22',
+                                groupCode    : 'GROUP_9',
                                 enabled      : 'true',
                               },
                                 //
@@ -706,7 +761,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_73',
+                                messageCode  : 'MESSAGE_73',
+                                groupCode    : 'GROUP_6',
                                 enabled      : 'true',
                               },
                                 //
@@ -717,7 +773,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_74',
+                                messageCode  : 'MESSAGE_74',
+                                groupCode    : 'GROUP_6',
                                 enabled      : 'true',
                               },
                                 //
@@ -728,7 +785,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_75',
+                                messageCode  : 'MESSAGE_75',
+                                groupCode    : 'GROUP_6',
                                 enabled      : 'true',
                               },
                                 //
@@ -739,7 +797,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_76',
+                                messageCode  : 'MESSAGE_76',
+                                groupCode    : 'GROUP_6',
                                 enabled      : 'true',
                               },
                                 //
@@ -750,10 +809,12 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_77',
+                                messageCode  : 'MESSAGE_77',
+                                groupCode    : 'GROUP_6',
                                 enabled      : 'true',
                               },
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 2.1.1
 
                  //
@@ -761,14 +822,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '2.1.2',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_A',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-keyboard-operation-trapping',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 2.1.2
 
                  //
@@ -776,7 +838,7 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '2.1.3',
-                 requirementLevel  : 'LEVEL.AAA',
+                 requirementLevel  : 'LEVEL_AAA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-keyboard-operation-all-funcs',
                  enabled           : 'true',
                  rules : {
@@ -788,7 +850,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P2',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_23',
+                                messageCode  : 'MESSAGE_23',
+                                groupCode    : 'GROUP_13',
                                 enabled      : 'true',
                               },
                                 //
@@ -799,10 +862,12 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P2',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_24',
+                                messageCode  : 'MESSAGE_24',
+                                groupCode    : 'GROUP_13',
                                 enabled      : 'true',
                               },
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 2.1.3
 
                  //
@@ -810,14 +875,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '2.2.1',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_A',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-time-limits-required-behaviors',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 2.2.1
 
                  //
@@ -825,7 +891,7 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '2.2.2',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_A',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-time-limits-pause',
                  enabled           : 'true',
                  rules : {
@@ -837,10 +903,12 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_25',
+                                messageCode  : 'MESSAGE_25',
+                                groupCode    : 'GROUP_7',
                                 enabled      : 'true',
                               },
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 2.2.2
 
                  //
@@ -848,14 +916,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '2.2.3',
-                 requirementLevel  : 'LEVEL.AAA',
+                 requirementLevel  : 'LEVEL_AAA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-time-limits-no-exceptions',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 2.2.3
 
                  //
@@ -863,14 +932,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '2.2.4',
-                 requirementLevel  : 'LEVEL.AAA',
+                 requirementLevel  : 'LEVEL_AAA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-time-limits-postponed',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 2.2.4
 
                  //
@@ -878,14 +948,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '2.2.5',
-                 requirementLevel  : 'LEVEL.AAA',
+                 requirementLevel  : 'LEVEL_AAA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-time-limits-server-timeout',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 2.2.5
 
                  //
@@ -893,14 +964,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '2.3.1',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_A',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-seizure-does-not-violate',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 2.3.1
 
                  //
@@ -908,14 +980,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '2.3.2',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_AAA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-seizure-three-times',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 2.3.2
 
                  //
@@ -923,7 +996,7 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '2.4.1',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_A',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-navigation-mechanisms-skip',
                  enabled           : 'true',
                  rules : {
@@ -935,7 +1008,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_26',
+                                messageCode  : 'MESSAGE_26',
+                                groupCode    : 'GROUP_8',
                                 enabled      : 'true',
                               },
                                 //
@@ -946,7 +1020,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_27',
+                                messageCode  : 'MESSAGE_27',
+                                groupCode    : 'GROUP_8',
                                 enabled      : 'true',
                               },
                                 //
@@ -958,9 +1033,11 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P2',
                                 statusCode   : 'STATUS_ACCEPTED',
                                 messageCode  : 'MESSAGE_28',
+                                groupCode    : 'GROUP_8',
                                 enabled      : 'true',
                               },
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 2.4.1
 
                  //
@@ -968,7 +1045,7 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '2.4.2',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_A',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-navigation-mechanisms-title',
                  enabled           : 'true',
                  rules : {
@@ -981,6 +1058,7 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
                                 messageCode  : 'MESSAGE_29',
+                                groupCode    : 'GROUP_2',
                                 enabled      : 'true',
                               },
                                 //
@@ -992,6 +1070,7 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
                                 messageCode  : 'MESSAGE_30',
+                                groupCode    : 'GROUP_2',
                                 enabled      : 'true',
                               },
                                 //
@@ -1002,7 +1081,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_RECOMMENDATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_31',
+                                messageCode  : 'MESSAGE_31',
+                                groupCode    : 'GROUP_2',
                                 enabled      : 'true',
                               },
                                 //
@@ -1013,7 +1093,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_RECOMMENDATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_32',
+                                messageCode  : 'MESSAGE_32',
+                                groupCode    : 'GROUP_2',
                                 enabled      : 'true',
                               },
                                 //
@@ -1024,7 +1105,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_RECOMMENDATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_33',
+                                messageCode  : 'MESSAGE_33',
+                                groupCode    : 'GROUP_2',
                                 enabled      : 'true',
                               },
                                 //
@@ -1036,6 +1118,7 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
                                 messageCode  : 'MESSAGE_61',
+                                groupCode    : 'GROUP_2',
                                 enabled      : 'true',
                               },
                                 //
@@ -1047,9 +1130,11 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
                                 messageCode  : 'MESSAGE_62',
+                                groupCode    : 'GROUP_2',
                                 enabled      : 'true',
                               },
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 2.4.2
 
                  //
@@ -1057,14 +1142,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '2.4.3',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_A',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-navigation-mechanisms-focus-order',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 2.4.3
 
                  //
@@ -1072,7 +1158,7 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '2.4.4',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_A',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-navigation-mechanisms-refs',
                  enabled           : 'true',
                  rules : {
@@ -1084,7 +1170,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_RECOMMENDATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_34',
+                                messageCode  : 'MESSAGE_34',
+                                groupCode    : 'GROUP_11',
                                 enabled      : 'true',
                               },
                                 //
@@ -1095,7 +1182,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_35',
+                                messageCode  : 'MESSAGE_35',
+                                groupCode    : 'GROUP_11',
                                 enabled      : 'true',
                               },
                                 //
@@ -1106,7 +1194,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_36',
+                                messageCode  : 'MESSAGE_36',
+                                groupCode    : 'GROUP_11',
                                 enabled      : 'true',
                               },
                                 //
@@ -1117,7 +1206,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_RECOMMENDATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_37',
+                                messageCode  : 'MESSAGE_37',
+                                groupCode    : 'GROUP_4',
                                 enabled      : 'true',
                               },
                                 //
@@ -1128,10 +1218,12 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_38',
+                                messageCode  : 'MESSAGE_38',
+                                groupCode    : 'GROUP_4',
                                 enabled      : 'true',
                               },
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 2.4.4
 
                  //
@@ -1139,14 +1231,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '2.4.5',
-                 requirementLevel  : 'LEVEL.AA',
+                 requirementLevel  : 'LEVEL_AA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-navigation-mechanisms-mult-loc',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 2.4.5
 
                  //
@@ -1154,7 +1247,7 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '2.4.6',
-                 requirementLevel  : 'LEVEL.AA',
+                 requirementLevel  : 'LEVEL_AA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-navigation-mechanisms-descriptive',
                  enabled           : 'true',
                  rules : {
@@ -1166,7 +1259,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_39',
+                                messageCode  : 'MESSAGE_39',
+                                groupCode    : 'GROUP_2',
                                 enabled      : 'true',
                               },
                                 //
@@ -1177,7 +1271,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_RECOMMENDATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_40',
+                                messageCode  : 'MESSAGE_40',
+                                groupCode    : 'GROUP_2',
                                 enabled      : 'true',
                               },
                                 //
@@ -1188,7 +1283,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_RECOMMENDATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                   messageCode  : 'MESSAGE_41',
+                                messageCode  : 'MESSAGE_41',
+                                groupCode    : 'GROUP_2',
                                 enabled      : 'true',
                               },
                                 //
@@ -1199,7 +1295,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                   messageCode  : 'MESSAGE_42',
+                                messageCode  : 'MESSAGE_42',
+                                groupCode    : 'GROUP_2',
                                 enabled      : 'true',
                               },
                                 //
@@ -1210,7 +1307,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_RECOMMENDATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                   messageCode  : 'MESSAGE_43',
+                                messageCode  : 'MESSAGE_43',
+                                groupCode    : 'GROUP_2',
                                 enabled      : 'true',
                               },
                                 //
@@ -1221,10 +1319,12 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_POTENTIAL_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                   messageCode  : 'MESSAGE_44',
+                                messageCode  : 'MESSAGE_44',
+                                groupCode    : 'GROUP_2',
                                 enabled      : 'true',
                               },
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 2.4.6
 
                  //
@@ -1232,14 +1332,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '2.4.7',
-                 requirementLevel  : 'LEVEL.AA',
+                 requirementLevel  : 'LEVEL_AA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#navigation-mechanisms-focus-visible',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 2.4.7
 
                  //
@@ -1247,14 +1348,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '2.4.8',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_AAA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-navigation-mechanisms-location',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 2.4.8
 
                  //
@@ -1262,14 +1364,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '2.4.9',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_AAA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-navigation-mechanisms-link',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 2.4.9
 
                  //
@@ -1277,14 +1380,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '2.4.10',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_AAA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-navigation-mechanisms-headings',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 2.4.10
 
                  //
@@ -1292,7 +1396,7 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '3.1.1',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_A',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-meaning-doc-lang-id',
                  enabled           : 'true',
                  rules : {
@@ -1305,6 +1409,7 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
                                 messageCode  : 'MESSAGE_45',
+                                groupCode    : 'GROUP_12',
                                 enabled      : 'true',
                               },
                                 //
@@ -1316,9 +1421,11 @@ OpenAjax.a11y.addRuleset(
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
                                 messageCode  : 'MESSAGE_46',
+                                groupCode    : 'GROUP_12',
                                 enabled      : 'true',
                               },
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 3.1.1
 
                  //
@@ -1326,14 +1433,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '3.1.2',
-                 requirementLevel  : 'LEVEL.AA',
+                 requirementLevel  : 'LEVEL_AA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-meaning-other-lang-id',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 3.1.2
 
                  //
@@ -1341,14 +1449,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '3.1.3',
-                 requirementLevel  : 'LEVEL.AAA',
+                 requirementLevel  : 'LEVEL_AAA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-meaning-idioms',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 3.1.3
 
                  //
@@ -1356,14 +1465,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '3.1.4',
-                 requirementLevel  : 'LEVEL.AAA',
+                 requirementLevel  : 'LEVEL_AAA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-meaning-located',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 3.1.4
 
                  //
@@ -1371,14 +1481,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '3.1.5',
-                 requirementLevel  : 'LEVEL.AAA',
+                 requirementLevel  : 'LEVEL_AAA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-meaning-supplements',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 3.1.5
 
                  //
@@ -1386,14 +1497,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '3.1.6',
-                 requirementLevel  : 'LEVEL.AAA',
+                 requirementLevel  : 'LEVEL_AAA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-meaning-pronunciation',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 3.1.6
 
                  //
@@ -1401,14 +1513,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '3.2.1',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_A',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-consistent-behavior-receive-focus',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 3.2.1
 
                  //
@@ -1416,14 +1529,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '3.2.2',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_A',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-consistent-behavior-unpredictable-change',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 3.2.2
 
                  //
@@ -1431,14 +1545,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '3.2.3',
-                 requirementLevel  : 'LEVEL.AA',
+                 requirementLevel  : 'LEVEL_AA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-consistent-behavior-consistent-locations',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 3.2.3
 
                  //
@@ -1446,14 +1561,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '3.2.4',
-                 requirementLevel  : 'LEVEL.AA',
+                 requirementLevel  : 'LEVEL_AA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-consistent-behavior-consistent-functionality',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 3.2.4
 
                  //
@@ -1461,14 +1577,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '3.2.5',
-                 requirementLevel  : 'LEVEL.AAA',
+                 requirementLevel  : 'LEVEL_AAA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-consistent-behavior-no-extreme-changes-context',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 3.2.5
 
                  //
@@ -1476,14 +1593,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '3.3.1',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_A',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-minimize-error-identified',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 3.3.1
 
                  //
@@ -1491,7 +1609,7 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '3.3.2',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_A',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-minimize-error-cues',
                  enabled           : 'true',
                  rules : {
@@ -1503,7 +1621,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                   messageCode  : 'MESSAGE_47',
+                                messageCode  : 'MESSAGE_47',
+                                groupCode    : 'GROUP_6',
                                 enabled      : 'true',
                               },
                                 //
@@ -1514,7 +1633,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_RECOMMENDATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                   messageCode  : 'MESSAGE_48',
+                                messageCode  : 'MESSAGE_48',
+                                groupCode    : 'GROUP_6',
                                 enabled      : 'true',
                               },
                                 //
@@ -1525,7 +1645,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                   messageCode  : 'MESSAGE_49',
+                                messageCode  : 'MESSAGE_49',
+                                groupCode    : 'GROUP_6',
                                 enabled      : 'true',
                               },
                                 //
@@ -1536,7 +1657,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                   messageCode  : 'MESSAGE_50',
+                                messageCode  : 'MESSAGE_50',
+                                groupCode    : 'GROUP_6',
                                 enabled      : 'true',
                               },
                                 //
@@ -1547,7 +1669,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_RECOMMENDATION',
                                 priorityCode : 'PRIORITY_P2',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_51',
+                                messageCode  : 'MESSAGE_51',
+                                groupCode    : 'GROUP_6',
                                 enabled      : 'true',
                               },
                                 //
@@ -1558,7 +1681,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_52',
+                                messageCode  : 'MESSAGE_52',
+                                groupCode    : 'GROUP_6',
                                 enabled      : 'true',
                               },
                                 //
@@ -1569,7 +1693,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_53',
+                                messageCode  : 'MESSAGE_53',
+                                groupCode    : 'GROUP_6',
                                 enabled      : 'true',
                               },
                                 //
@@ -1580,7 +1705,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_54',
+                                messageCode  : 'MESSAGE_54',
+                                groupCode    : 'GROUP_6',
                                 enabled      : 'true',
                               },
                                 //
@@ -1591,7 +1717,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_55',
+                                messageCode  : 'MESSAGE_55',
+                                groupCode    : 'GROUP_6',
                                 enabled      : 'true',
                               },
                                 //
@@ -1602,7 +1729,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_RECOMMENDATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_56',
+                                messageCode  : 'MESSAGE_56',
+                                groupCode    : 'GROUP_6',
                                 enabled      : 'true',
                               },
                                 //
@@ -1613,10 +1741,12 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_57',
+                                messageCode  : 'MESSAGE_57',
+                                groupCode    : 'GROUP_6',
                                 enabled      : 'true',
                               },
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 3.3.2
 
                  //
@@ -1624,14 +1754,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '3.3.3',
-                 requirementLevel  : 'LEVEL.AA',
+                 requirementLevel  : 'LEVEL_AA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-minimize-error-suggestions',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 3.3.3
 
                  //
@@ -1639,14 +1770,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '3.3.4',
-                 requirementLevel  : 'LEVEL.AA',
+                 requirementLevel  : 'LEVEL_AA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-minimize-error-reversible',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 3.3.4
 
                  //
@@ -1654,14 +1786,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '3.3.5',
-                 requirementLevel  : 'LEVEL.AAA',
+                 requirementLevel  : 'LEVEL_AAA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-minimize-error-context-help',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 3.3.5
 
                  //
@@ -1669,14 +1802,15 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '3.3.6',
-                 requirementLevel  : 'LEVEL.AAA',
+                 requirementLevel  : 'LEVEL_AAA',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-minimize-error-reversible-all',
                  enabled           : 'true',
                  rules : {
                                 //
                                 // No rules defined
                                 //
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 3.3.6
 
                  //
@@ -1684,7 +1818,7 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '4.1.1',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_A',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-ensure-compat-parses',
                  enabled           : 'true',
                  rules : {
@@ -1696,7 +1830,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P2',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_58',
+                                messageCode  : 'MESSAGE_58',
+                                groupCode    : 'GROUP_7',
                                 enabled      : 'true',
                               },
                                 //
@@ -1707,7 +1842,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P2',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_59',
+                                messageCode  : 'MESSAGE_59',
+                                groupCode    : 'GROUP_7',
                                 enabled      : 'true',
                               },
                                 //
@@ -1718,7 +1854,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P2',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_60',
+                                messageCode  : 'MESSAGE_60',
+                                groupCode    : 'GROUP_7',
                                 enabled      : 'true',
                               },
                                 //
@@ -1729,7 +1866,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_64',
+                                messageCode  : 'MESSAGE_64',
+                                groupCode    : 'GROUP_6',
                                 enabled      : 'true',
                               },
                                 //
@@ -1740,7 +1878,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_65',
+                                messageCode  : 'MESSAGE_65',
+                                groupCode    : 'GROUP_6',
                                 enabled      : 'true',
                               },
                                 //
@@ -1751,10 +1890,12 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_66',
+                                messageCode  : 'MESSAGE_66',
+                                groupCode    : 'GROUP_6',
                                 enabled      : 'true',
                               },
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 4.1.1
 
                  //
@@ -1762,7 +1903,7 @@ OpenAjax.a11y.addRuleset(
                  //
                {
                  requirementNumber : '4.1.2',
-                 requirementLevel  : 'LEVEL.A',
+                 requirementLevel  : 'LEVEL_A',
                  requirementUrl    : 'http://www.w3.org/TR/WCAG20/#qr-ensure-compat-rsv',
                  enabled           : 'true',
                  rules : {
@@ -1774,7 +1915,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_63',
+                                messageCode  : 'MESSAGE_63',
+                                groupCode    : 'GROUP_6',
                                 enabled      : 'true',
                               },
                                 //
@@ -1785,7 +1927,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_67',
+                                messageCode  : 'MESSAGE_67',
+                                groupCode    : 'GROUP_6',
                                 enabled      : 'true',
                               },
                                 //
@@ -1796,7 +1939,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_68',
+                                messageCode  : 'MESSAGE_68',
+                                groupCode    : 'GROUP_6',
                                 enabled      : 'true',
                               },
                                 //
@@ -1807,7 +1951,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_69',
+                                messageCode  : 'MESSAGE_69',
+                                groupCode    : 'GROUP_6',
                                 enabled      : 'true',
                               },
                                 //
@@ -1818,7 +1963,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_70',
+                                messageCode  : 'MESSAGE_70',
+                                groupCode    : 'GROUP_6',
                                 enabled      : 'true',
                               },
                                 //
@@ -1829,7 +1975,8 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_71',
+                                messageCode  : 'MESSAGE_71',
+                                groupCode    : 'GROUP_6',
                                 enabled      : 'true',
                               },
                                 //
@@ -1840,10 +1987,12 @@ OpenAjax.a11y.addRuleset(
                                 severityCode : 'SEVERITY_VIOLATION',
                                 priorityCode : 'PRIORITY_P1',
                                 statusCode   : 'STATUS_ACCEPTED',
-                                  messageCode  : 'MESSAGE_72',
+                                messageCode  : 'MESSAGE_72',
+                                groupCode    : 'GROUP_6',
                                 enabled      : 'true',
                               },
-                 }
+                 }   // end list of rules
+
                }, // end success criteria 4.1.2
 
       ]
