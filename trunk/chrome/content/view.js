@@ -144,8 +144,8 @@ AINSPECTOR.view = function(panel, yscontext) {
             },
 
       	          getAllAttribs : function(elem) {
-      				var attribDetails = [];
-      				var attrib;
+      				      var attribDetails = [];
+      				      var attrib;
         	        	for (var i = 0; i < elem.attributes.length; i++) {
       	        		attrib = elem.getAttribute(elem.attributes[i].name);
       	        		if (attrib !== null) {
@@ -483,7 +483,7 @@ AINSPECTOR.view = function(panel, yscontext) {
                 )
             ),
 
-            rulesetList : DIV({id : "toolbar-ruleset", class : "floatLeft", role : "toolbar"},
+            rulesetList : DIV({id : "toolbar-ruleset", class : "floatRight", role : "toolbar"},
                 LABEL({"for" : "toolbar-rulesetList"}, "Rulesets "),
                 TAG("$rulesetSelect", {rulesets : "$rulesets"}),
          //       A({onclick : "$onEditRulesetsClick", role : "button", href : "#"},
@@ -603,7 +603,6 @@ AINSPECTOR.view = function(panel, yscontext) {
     // save a pointer back to this object from the panel document.
     // this is used by javascript call in view content.
     this.panel_doc.ysview = this;
-
     this.loadCSS(this.panel_doc);
 
     var toolbar = this.panel_doc.createElement("div");
@@ -611,11 +610,11 @@ AINSPECTOR.view = function(panel, yscontext) {
     //toolbar.innerHTML = this.getToolbarSource();
     var categories = [{name: "Report", selected : true, first : true},
                       {name : "Headings"},
+                      {name : "Landmarks"},
                       {name : "Roles"},
                       {name : "Forms"},
                       {name : "Images"},
-                      {name : "Links"},
-                      {name : "Tools"}];
+                      {name : "Links"}];
     this.viewRep.toolbar.replace({categories : categories, rulesets : this.getRulesetArray()}, toolbar, this.viewRep);
 
     toolbar.style.display = "block";
@@ -1005,6 +1004,18 @@ AINSPECTOR.view.prototype = {
 	            var row = AINSPECTOR.view.headingsEntry.rowTag.insertRows({headings: this.yscontext.headings_set}, tbody.lastChild)[0];
                 this.formatGridTable(panel.table, 'headings', "headingsTableHeader");
             }
+            else if ( "ysLandmarksButton" == sView) {
+                stext += this.yscontext.genTab('landmarks');
+                this.addButtonView("ysLandmarksButton", stext);
+                //SMF append to the appropriate DOMPlate
+                 if (this.yscontext.landmarks_set.length > 0) {
+			            Firebug.Console.log(this.yscontext.landmarks_set);
+                	var parentNode = panel.document.getElementById(this.yscontext.uniqueID + 'landmarks');
+                	this.landmarkTreeRep.tag.append({object: this.yscontext.landmarks_set}, parentNode, this.landmarkTreeRep);
+                 } else {
+                    this.addButtonView("ysLandmarksButton", stext + "<br>" + FBL.$STR('none', 'a11y_bundle'));
+                 }
+            }
             else if ( "ysRolesButton" == sView) {
                 stext += this.yscontext.genTab('roles');
                 this.addButtonView("ysRolesButton", stext);
@@ -1038,11 +1049,7 @@ AINSPECTOR.view.prototype = {
 	            var row = AINSPECTOR.view.linkEntry.linkTag.insertRows({links: this.yscontext.links_set}, tbody.lastChild)[0];
                 this.formatGridTable(panel.table, 'links', "linksTableHeader");
              }
-            else if ( "ysToolButton" == sView) {
-                stext += this.yscontext.genToolsView();
-                this.addButtonView("ysToolButton", stext);
-            }
-            else if ( "ysRuleEditButton" == sView) {
+             else if ( "ysRuleEditButton" == sView) {
                 stext += this.yscontext.genRulesetEditView();
                 this.addButtonView("ysRuleEditButton", stext);
             }
@@ -1106,12 +1113,12 @@ AINSPECTOR.view.prototype = {
     updateToolbarSelection: function() {
         switch (this.curButtonId) {
         case "ysHeadingsButton":
+        case "ysLandmarksButton":
         case "ysRolesButton":
         case "ysFormsButton":
         case "ysImagesButton":
         case "yslinksButton":
         case "ysPerfButton":
-        case "ysToolButton":
             var elem = this.getElementByTagNameAndId(this.panelNode, 'li', this.curButtonId);
             if (elem) {
                 if (elem.className.indexOf("selected") !== -1) {
@@ -1146,6 +1153,9 @@ AINSPECTOR.view.prototype = {
     showHeadings: function() {
         this.show('ysHeadingsButton');
     },
+    showLandmarks: function() {
+        this.show('ysLandmarksButton');
+    },
 
     showImages: function() {
         this.show('ysImagesButton');
@@ -1161,10 +1171,6 @@ AINSPECTOR.view.prototype = {
 
     showLinks: function() {
         this.show('ysLinksButton');
-    },
-
-    showTools: function() {
-        this.show('ysToolButton');
     },
 
     showRuleSettings: function() {
@@ -1512,7 +1518,8 @@ AINSPECTOR.view.prototype = {
         var print_this = {};
 		    switch (this.curButtonId) {
 	        case "ysHeadingsButton": print_this['headings'] = 1; break;
-	        case "ysRolesButton": print_this['roles'] = 1; break;
+	        case "ysLandmarksButton": print_this['landmarks'] = 1; break;
+          case "ysRolesButton": print_this['roles'] = 1; break;
 	        case "ysFormsButton": print_this['forms'] = 1; break;
 	        case "ysImagesButton": print_this['images'] = 1; break;
 	        case "ysLinksButton": print_this['links'] = 1; break;
@@ -1787,9 +1794,8 @@ AINSPECTOR.view.getDocuments = function(objWithFrames, documentList) {
 AINSPECTOR.view.getLandmarks = function(theWindow, whichTab) {
 	var a = new Array();
 	var documents = AINSPECTOR.view.getDocuments(theWindow, new Array());
-
 	for (var i =0; i < documents.length; i++) {
-		a = a.concat(AINSPECTOR.view.getEleByType(documents[i], whichTab));
+	   a = a.concat(AINSPECTOR.view.getEleByType(documents[i], whichTab));
 	}
 	return a;
 };
@@ -1805,22 +1811,35 @@ AINSPECTOR.view.getEleByType = function(doc, whichTab)
     		}
 			with (OpenAjax.a11y.util) {
 	    		this.node = node;
+          var landMarkArray = ["main", "navigation", "banner", "search", "contentinfo", "complementory", "region"];
 	    		var content = getNodeTextRecursively(node);
 	    		var role = getValueFromAttributes(node,['role'],'');
 	    		var attrType = getValueFromAttributes(node,['type'],'');
 	    		var alt = getValueFromAttributes(node,['alt'],'');
 	//    		var id = getValueFromAttributes(node,['id'],'');
-	    	    if (role != '') role = " role='" + role + "'";
+            if (whichTab == 'landmarks') {
+              var count = 0;
+              for (var i=0; i < landMarkArray.length; i++){
+
+                if (role == landMarkArray[i]) {
+                  break;
+                }
+                if (count == landMarkArray.length-1) return '';
+                count += 1;
+              }
+            }
+            if (role != '') {
+              role = " role='" + role + "'";
+            }
 	    	    if (attrType != '') attrType = " type='" + attrType + "'";
 	    	    if (alt != '') alt = " alt='" + alt + "'";
 	//      	if (id != '') type = " id=" + id;
 	    	    this.displayName =' <' + this.node.nodeName + role + attrType + alt + '> '
 	    	    if (label != null) this.displayName += label;
 	    	    else this.displayName += Left(getNodeTextRecursively(node), 256);
-
 	     		this.issuesObj = AINSPECTOR.controller.callAllParseNode(node);
 	     		this.ariaAttributes = role;
-			}
+			  }
     	}
 
     	landmarkObject.prototype = {
@@ -1832,21 +1851,21 @@ AINSPECTOR.view.getEleByType = function(doc, whichTab)
     	}
 
     	function AddAsSubNode(parentNode, node) {
-    		if (parentNode.subNodes == null) {
+          if (parentNode.subNodes == null) {
     			var children = [];
     			children.push(node);
     			parentNode.subNodes = children;
-    		}else {
+    		} else {
     			parentNode.subNodes[parentNode.subNodes.length] = node;
     		}
     	}
 
     	function isParent(doc, parent, child) {
-    		var walker = doc.createTreeWalker(doc,NodeFilter.SHOW_ELEMENT,null,true);
-			walker.currentNode = child;
+        var walker = doc.createTreeWalker(doc,NodeFilter.SHOW_ELEMENT,null,true);
+			  walker.currentNode = child;
 				var cur = walker.parentNode();
 				while (null != cur) if (cur == parent) return true; else cur = walker.parentNode();
-			   return false;
+			  return false;
     	}
 
     	var nodelist = [];
@@ -1867,25 +1886,40 @@ AINSPECTOR.view.getEleByType = function(doc, whichTab)
 			//SMF this does not lend to additional rule sets
 			//AINSPECTOR.OAA_Nexus.runDocContextRules('3.3.2', doc, nodelist); // forms
     	}
-
-
+      if (whichTab == 'landmarks') {
+			var xp = "//*[@role]";
+			var elements = new Array();
+			var xpathResult = doc.evaluate(xp, doc, OpenAjax.a11y.util.defaultNSResolver, XPathResult.ANY_TYPE,null);
+			var r = xpathResult.iterateNext();
+			while (r) {
+				var LMObj = new landmarkObject(r, null);
+        if (LMObj.ariaAttributes== null && LMObj.ariaAttributes == "role='button'" && LMObj.ariaAttributes == "role='application'") {
+          r = xpathResult.iterateNext();
+          break;
+        }
+				nodelist.push(LMObj);
+				tmpList.push(nodelist[nodelist.length-1]);
+				r = xpathResult.iterateNext();
+			}
+			//SMF this does not lend to additional rule sets
+			//AINSPECTOR.OAA_Nexus.runDocContextRules('3.3.2', doc, nodelist); // forms
+    	}
     	for (var i=nodelist.length-1; i >= 0; i--) {
     		nodelist[i].node.isChild = false;
     		for (var j=i-1; j >= 0 && !nodelist[i].node.isChild; j--) {
     			foundParent = isParent(doc, nodelist[j].node, nodelist[i].node)
     			if (foundParent) {
-        			nodelist[i].node.isChild = true;
+        		nodelist[i].node.isChild = true;
     				AddAsSubNode(tmpList[j], nodelist[i]);
     				break;
     			}
     		}
     	}
-
-       	for (var i=0; i < nodelist.length; i++) if (!nodelist[i].node.isChild) landmarkList.push(tmpList[i]);
-//        FBTrace.sysout('landmarkList', landmarkList);
+     	for (var i=0; i < nodelist.length; i++) if (!nodelist[i].node.isChild) landmarkList.push(tmpList[i]);
+//      FBTrace.sysout('landmarkList', landmarkList);
         return landmarkList;
 	} catch (exc)  {
-    	FBTrace.sysout(exc.message)
-    }
+    FBTrace.sysout(exc.message)
+  }
 };
 
