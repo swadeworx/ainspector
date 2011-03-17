@@ -410,7 +410,9 @@ with (FBL) {
 
         html += '\nvar reqNdx = 0;';
         html += '\nvar ruleNdx = 0;';
-        html += '\nvar markup = \'<table id="results">\\n\';';
+        html += '\nvar markup = \'<table id="results">\\n\\t<caption>Result Details</caption>\\n\';';
+        html += '\nvar summaryMarkup = \'<table id="result-summary">\\n\\t<caption>Result Summary</caption>\'';
+        html += '\n\t+ \'\\n\\t<thead>\\n\\t<tr><th>Grade</th><th class="left">Requirement <span class="instruction">(click on a requirement to jump to details)</span></th>\\n\\t</tr>\\n\\t</thead>\';';
 
         html += '\nif (ainspector.evaluation.Results) {';
 
@@ -438,7 +440,7 @@ with (FBL) {
         html += '\n    }';
         html += '\n    ruleMarkup += \'\\n\\n\\t<th>&nbsp;</th>\';';
         html += '\n    ruleMarkup += \'\\n\\t\\t<td class="centerAlign \' + curRule.resultCode +\'">\' + curRule.result + \'</td>\';';
-        html += '\n    ruleMarkup += \'\\n\\t\\t<td>\' + curRule.ruleTitle + \'</td>\';';
+        html += '\n    ruleMarkup += \'\\n\\t\\t<td class="ruleTitle">\' + curRule.ruleTitle + \'</td>\';';
 
         html += '\n    if (curRule.resultCode != \'SEVERITY_PASS\' && curRule.failed.nodeFragments) {';
 
@@ -474,7 +476,10 @@ with (FBL) {
 
         html += '\n  var headingMarkup = \'\'; // used to build the heading rows for the requirement';
 
-        html += '\n  headingMarkup += \'\\n\\t<tr>\\n\\t\\t<th colspan="4" class="reqInfo">Grade <span="grade">\' + gradeCalc + \'</span> on \' + curReq.requirementTitle + \'</th>\\n\\t</tr>\';';
+        html += '\n  headingMarkup += \'\\n\\t<tr>\\n\\t\\t<th colspan="4" id="req\' + curReq.requirementNumber + \'"  class="reqInfo">Grade \' + gradeCalc + \' on \' + curReq.requirementTitle + \'<a class="nav" href="#result-summary">Return to Summary</a></th>\\n\\t</tr>\';';
+
+        html += '\n  summaryMarkup += \'\\n\\t<tr>\\n\\t\\t<th>\' + gradeCalc + \'</th>\' + \'\\n<td><a href="#req\' + curReq.requirementNumber + \'">\' + curReq.requirementTitle + \'</a></td>\\n\\t</tr>\';';
+
         html += '\n  var tmp = curReq.requirementDesc.replace(/</g, \'&lt;\');';
         html += '\n  tmp = tmp.replace(/>/g, \'&gt;\');';
         html += '\n  headingMarkup += \'\\n\\t<tr>\\n\\t\\t<th class="indent">&nbsp;</th><th colspan="3" class="ReqDesc">\' + tmp + \'</th>\\n\\t</tr>\';';
@@ -498,7 +503,7 @@ with (FBL) {
         html += '\n  var arrElem = document.getElementsByTagName("div");';
         html += '\n  for (ndx = 0; ndx < arrElem.length; ndx++) {';
         html += '\n    if (arrElem[ndx].className === "contentDiv") {';
-        html += '\n      arrElem[ndx].innerHTML = markup + \'\\n</table>\';';
+        html += '\n      arrElem[ndx].innerHTML = summaryMarkup + \'\\n</table>\\n\' + markup + \'\\n</table>\';';
         html += '\n      break;';
         html += '\n    }';
         html += '\n  }';
