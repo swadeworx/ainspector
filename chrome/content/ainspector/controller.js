@@ -169,6 +169,7 @@ AINSPECTOR.controller = {
 
     runTool: function(tool_id, yscontext, param) {
         var tool = AINSPECTOR.Tools.getTool(tool_id);
+        var data = '';  // data will have the html content that contains report shown when clicked on printable View button
         try {
         if (typeof tool == "object") {
           if ( param.yscontext.ruleset_id == 'IITAA 1.0') {
@@ -179,36 +180,67 @@ AINSPECTOR.controller = {
           var result = tool.run(window.top.content.document, yscontext.component_set, param);
           if (tool.print_output) {
             var html = '';
-            if (typeof result == "object") {
-              html = result.html;
-            } else if (typeof result == "string") {
-              html = result;
-            }
-            var doc = AINSPECTOR.util.getNewDoc();
-            doc.body.innerHTML = html;
-            var h = doc.getElementsByTagName('head')[0];
-            var css;
-            if (typeof result.css == "undefined") {
-              // use default.
-              var URI = 'chrome://ainspector/content/ainspector/css/tool.css';
-              var req2 = new XMLHttpRequest();
-              req2.open('GET', URI, false);
-              req2.send(null);
-              css = req2.responseText;
-            } else {
-              css = result.css;
-            }
-            if (typeof css == "string") {
-              var l = doc.createElement("style");
-              l.setAttribute("type", "text/css");
-              l.appendChild(doc.createTextNode(css));
-              h.appendChild(l);
-            }
-            if (typeof result.js !== "undefined") {
-              var s = doc.createElement("script");
-              s.setAttribute("type", "text/javascript");
-              s.appendChild(doc.createTextNode(result.js));
-              h.appendChild(s);
+
+            // If the user wants the printable view of the report tab, instead of creating new tab, create a new window with the results report and JSON object
+            if (param.options.reportcard == 1) {
+              data += '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">';
+              data += "<html>";
+              data += '<head> <meta http-equiv="content-type" content="text/html; charset=UTF-8"><title></title>';
+              data += '<style type="text/css">';
+              data += result.css;
+              data += '</style></head>';
+              data += '</body>';
+              data += result.html;
+              data += '</body>';
+              data += '</html>';
+
+              // file is nsIFile, data is a string
+              var file = Components.classes["@mozilla.org/file/directory_service;1"].getService(Components.interfaces.nsIProperties).get("TmpD", Components.interfaces.nsIFile);
+              file.append("AInspector_Report.html");
+              file.createUnique(Components.interfaces.nsIFile.NORMAL_FILE_TYPE, 0666);
+//            alert(file.path);
+              var foStream = Components.classes["@mozilla.org/network/file-output-stream;1"].
+              createInstance(Components.interfaces.nsIFileOutputStream);
+              foStream.init(file, 0x02 | 0x08 | 0x20, 0666, 0);
+              var converter = Components.classes["@mozilla.org/intl/converter-output-stream;1"].
+              createInstance(Components.interfaces.nsIConverterOutputStream);
+              converter.init(foStream, "UTF-8", 0, 0);
+              converter.writeString(data);
+              converter.close(); // this closes foStream
+              window.open("file:\\"+file.path, 'MetaReport','width=1150,height=800,left=0,top=100,screenX=0,screenY=100,scrollbars=Yes');
+           } else {
+             // If the user wants the printable view of the headings, landmarks, widgets etc.. tabs create new tab with the results
+              if (typeof result == "object") {
+                html = result.html;
+              } else if (typeof result == "string") {
+                html = result;
+              }
+              var doc = AINSPECTOR.util.getNewDoc();
+              doc.body.innerHTML = html;
+              var h = doc.getElementsByTagName('head')[0];
+              var css;
+              if (typeof result.css == "undefined") {
+                // use default.
+                var URI = 'chrome://ainspector/content/ainspector/css/tool.css';
+                var req2 = new XMLHttpRequest();
+                req2.open('GET', URI, false);
+                req2.send(null);
+                css = req2.responseText;
+              }  else {
+                css = result.css;
+              }
+              if (typeof css == "string") {
+                var l = doc.createElement("style");
+                l.setAttribute("type", "text/css");
+                l.appendChild(doc.createTextNode(css));
+                h.appendChild(l);
+              }
+              if (typeof result.js !== "undefined") {
+                var s = doc.createElement("script");
+                s.setAttribute("type", "text/javascript");
+                s.appendChild(doc.createTextNode(result.js));
+                h.appendChild(s);
+              }
             }
           }
         } else {
