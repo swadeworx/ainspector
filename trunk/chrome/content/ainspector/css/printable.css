@@ -357,6 +357,54 @@ span.gradeF {
 span.gradeM {
   color: #8e8e8e; 
 }
+
+table#result-summary {
+   margin: 10px 0;
+   width: 100%;
+   border-top: 1px solid black;
+   border-bottom: 1px solid black;
+   border-spacing: 0;
+}
+
+table#result-summary caption,
+table#results caption{
+   font-weight: bold;
+   font-size: 2em;
+}
+
+table#result-summary th.left {
+   text-align: left;
+}
+
+table#result-summary th span.instruction {
+   font-size: .7em;
+}
+
+table#result-summary thead {
+   font-size: 1.2em;
+   background-color: #ddd;
+}
+
+table#result-summary th,
+table#result-summary td {
+   padding: 5px;
+   border: 1px solid #ccc;
+}
+
+table#result-summary a{
+   color: black;
+   text-decoration: none;
+}
+
+table#results a.nav {
+   float: right;
+}
+
+table#results a.nav:hover,
+table#result-summary a:hover {
+   color: #808;
+}
+
 table#results {
    width: 100%;
    border-spacing: 0;
@@ -378,6 +426,9 @@ table#results td {
    font-size: 80%;
    vertical-align: top;
 }
+table#results td.ruleTitle {
+   min-width: 400px;
+}
 tr.middleRow td {
    border-top: 1px solid #999;
 }
@@ -396,7 +447,8 @@ table#results td.fail {
 table#results td.pass {
    background-color: #dfd;
 }
-table#results td ul {
+table#results td ol li {
+   margin-top: 5px;
    padding-left: 15px;
 }
 .centerAlign {
