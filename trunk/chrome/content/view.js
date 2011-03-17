@@ -1794,8 +1794,9 @@ AINSPECTOR.view.getDocuments = function(objWithFrames, documentList) {
 AINSPECTOR.view.getLandmarks = function(theWindow, whichTab) {
 	var a = new Array();
 	var documents = AINSPECTOR.view.getDocuments(theWindow, new Array());
+
 	for (var i =0; i < documents.length; i++) {
-	   a = a.concat(AINSPECTOR.view.getEleByType(documents[i], whichTab));
+		a = a.concat(AINSPECTOR.view.getEleByType(documents[i], whichTab));
 	}
 	return a;
 };
