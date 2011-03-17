@@ -402,7 +402,7 @@ with (FBL) {
         var singleSpaceFiller = "   ";   // 3 spaces
         var doubleSpaceFiller = singleSpaceFiller + singleSpaceFiller;
         var html = '<script type="text/javascript">';
-        
+
         /* KH begin*/
         html += '\n\nwindow.onload = doReport;'; // TODO: trigger doReport() from the AInspector
 
@@ -634,10 +634,10 @@ with (FBL) {
         html += '\n   return grade;';
         html += '\n}';
 
-        
+
         html += '</script>';
         /* KH end*/
-        
+
         html += '\n <script type="text/javascript"> \n';
 
         for (var i = 0; i < results.length, count > 0; i++) {
@@ -954,14 +954,14 @@ with (FBL) {
             var panelNode = FirebugContext.getPanel("AInspector").panelNode;
             var win = doc.defaultView;
             var pageHeight = win.offsetHeight? win.offsetHeight : win.innerHeight;
-    
+
             var currentHeight = container.offsetHeight;
             var height = label.offsetTop + tab.offsetHeight;
             container.style.height = height + 'px';
             tab.style.position = "absolute";
             tab.style.left = label.offsetLeft + label.offsetWidth + "px";
             tab.style.top = label.offsetTop + "px";
-    
+
             /* now make sure tab is visible */
             var y = tab.offsetTop;
             var parent = tab.offsetParent;
@@ -969,11 +969,11 @@ with (FBL) {
                 y += parent.offsetTop;
                 parent = parent.offsetParent;
             }
-    
+
             var padding = 5;
             if (y < panelNode.scrollTop ||
                 y + tab.offsetHeight > panelNode.scrollTop + pageHeight) {
-    
+
                 if (y < panelNode.scrollTop) {
                     // scroll up
                     panelNode.scrollTop = y - padding;
@@ -987,7 +987,7 @@ with (FBL) {
                 }
             }
         },
-    
+
         getSelectedState : function (obj) {
             return obj.selected ? "true" : "false";
         },
@@ -1133,7 +1133,7 @@ with (FBL) {
   	          row_count = 1;
 	        } // endif
 
-	        FBTrace.sysout("Class Name" + cn + " Row count " + row_count, row_count );
+//	        FBTrace.sysout("Class Name" + cn + " Row count " + row_count, row_count );
 
 		    html += '<tr class=' + cn + '>';
 		    for (var i=0; i<columns.length; i++) {
