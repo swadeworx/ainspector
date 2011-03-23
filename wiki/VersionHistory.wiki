@@ -3,6 +3,11 @@
 = Version History =
 
 == Version beta 0.92 == 
+  * AInspector is now compatible with Firefox 4.
+  * Implemented a new tab "Landmarks" on the AInspector Panel.
+  * "Roles" tab is modified to "Widgets"
+
+== Version beta 0.92 == 
   * Generates a report on AINspector results with the JSON Object.
 
 == Version beta 0.91 == 
