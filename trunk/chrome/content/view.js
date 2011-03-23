@@ -611,7 +611,7 @@ AINSPECTOR.view = function(panel, yscontext) {
     var categories = [{name: "Report", selected : true, first : true},
                       {name : "Headings"},
                       {name : "Landmarks"},
-                      {name : "Roles"},
+                      {name : "Widgets"},
                       {name : "Forms"},
                       {name : "Images"},
                       {name : "Links"}];
@@ -1016,16 +1016,16 @@ AINSPECTOR.view.prototype = {
                     this.addButtonView("ysLandmarksButton", stext + "<br>" + FBL.$STR('none', 'a11y_bundle'));
                  }
             }
-            else if ( "ysRolesButton" == sView) {
-                stext += this.yscontext.genTab('roles');
-                this.addButtonView("ysRolesButton", stext);
+            else if ( "ysWidgetsButton" == sView) {
+                stext += this.yscontext.genTab('widgets');
+                this.addButtonView("ysWidgetsButton", stext);
                 //SMF append to the appropriate DOMPlate
-                 if (this.yscontext.roles_set.length > 0) {
-			            Firebug.Console.log(this.yscontext.roles_set);
-                	var parentNode = panel.document.getElementById(this.yscontext.uniqueID + 'roles');
-                	this.landmarkTreeRep.tag.append({object: this.yscontext.roles_set}, parentNode, this.landmarkTreeRep);
+                 if (this.yscontext.widgets_set.length > 0) {
+			            Firebug.Console.log(this.yscontext.widgets_set);
+                	var parentNode = panel.document.getElementById(this.yscontext.uniqueID + 'widgets');
+                	this.landmarkTreeRep.tag.append({object: this.yscontext.widgets_set}, parentNode, this.landmarkTreeRep);
                  } else {
-                    this.addButtonView("ysRolesButton", stext + "<br>" + FBL.$STR('none', 'a11y_bundle'));
+                    this.addButtonView("ysWidgetsButton", stext + "<br>" + FBL.$STR('none', 'a11y_bundle'));
                  }
             }
             else if ( "ysFormsButton" == sView) {
@@ -1114,7 +1114,7 @@ AINSPECTOR.view.prototype = {
         switch (this.curButtonId) {
         case "ysHeadingsButton":
         case "ysLandmarksButton":
-        case "ysRolesButton":
+        case "ysWidgetsButton":
         case "ysFormsButton":
         case "ysImagesButton":
         case "yslinksButton":
@@ -1161,8 +1161,8 @@ AINSPECTOR.view.prototype = {
         this.show('ysImagesButton');
     },
 
-    showRoles: function() {
-        this.show('ysRolesButton');
+    showWidgets: function() {
+        this.show('ysWidgetsButton');
     },
 
     showForms: function() {
@@ -1519,7 +1519,7 @@ AINSPECTOR.view.prototype = {
 		    switch (this.curButtonId) {
 	        case "ysHeadingsButton": print_this['headings'] = 1; break;
 	        case "ysLandmarksButton": print_this['landmarks'] = 1; break;
-          case "ysRolesButton": print_this['roles'] = 1; break;
+          case "ysWidgetsButton": print_this['roles'] = 1; break;
 	        case "ysFormsButton": print_this['forms'] = 1; break;
 	        case "ysImagesButton": print_this['images'] = 1; break;
 	        case "ysLinksButton": print_this['links'] = 1; break;
@@ -1804,6 +1804,7 @@ AINSPECTOR.view.getLandmarks = function(theWindow, whichTab) {
 AINSPECTOR.view.getEleByType = function(doc, whichTab)
 {
     try {
+      var landMarkArray = ["main", "application", "navigation", "banner", "search", "contentinfo", "complementory", "region"];
      	function landmarkObject(node, label) {
     		function Left(str, n){
     			if (n <= 0) return "";
@@ -1812,23 +1813,22 @@ AINSPECTOR.view.getEleByType = function(doc, whichTab)
     		}
 			with (OpenAjax.a11y.util) {
 	    		this.node = node;
-          var landMarkArray = ["main", "navigation", "banner", "search", "contentinfo", "complementory", "region"];
 	    		var content = getNodeTextRecursively(node);
-	    		var role = getValueFromAttributes(node,['role'],'');
+          var ariaRole = getValueFromAttributes(node,['role'],'');
+	    		var role = ariaRole;
 	    		var attrType = getValueFromAttributes(node,['type'],'');
 	    		var alt = getValueFromAttributes(node,['alt'],'');
-	//    		var id = getValueFromAttributes(node,['id'],'');
-            if (whichTab == 'landmarks') {
+	//    	var id = getValueFromAttributes(node,['id'],'');
+            /*if (whichTab == 'landmarks') {
               var count = 0;
               for (var i=0; i < landMarkArray.length; i++){
-
                 if (role == landMarkArray[i]) {
                   break;
                 }
                 if (count == landMarkArray.length-1) return '';
                 count += 1;
               }
-            }
+            }*/
             if (role != '') {
               role = " role='" + role + "'";
             }
@@ -1838,8 +1838,9 @@ AINSPECTOR.view.getEleByType = function(doc, whichTab)
 	    	    this.displayName =' <' + this.node.nodeName + role + attrType + alt + '> '
 	    	    if (label != null) this.displayName += label;
 	    	    else this.displayName += Left(getNodeTextRecursively(node), 256);
-	     		this.issuesObj = AINSPECTOR.controller.callAllParseNode(node);
+	     	  this.issuesObj = AINSPECTOR.controller.callAllParseNode(node);
 	     		this.ariaAttributes = role;
+          this.ariaRole = ariaRole;
 			  }
     	}
 
@@ -1849,6 +1850,7 @@ AINSPECTOR.view.getEleByType = function(doc, whichTab)
     		subNodes: null,
     		issuesObj: null,
     		ariaAttributes: null,
+        ariaRole: ''
     	}
 
     	function AddAsSubNode(parentNode, node) {
@@ -1873,47 +1875,65 @@ AINSPECTOR.view.getEleByType = function(doc, whichTab)
     	var tmpList = [];
      	var landmarkList = [];
 
-     	if (whichTab == 'roles') {
-			var xp = "//*[@role]";
-			var elements = new Array();
-			var xpathResult = doc.evaluate(xp, doc, OpenAjax.a11y.util.defaultNSResolver, XPathResult.ANY_TYPE,null);
-			var r = xpathResult.iterateNext();
-			while (r) {
-				var LMObj = new landmarkObject(r, null);
-				nodelist.push(LMObj);
-				tmpList.push(nodelist[nodelist.length-1]);
-				r = xpathResult.iterateNext();
-			}
-			//SMF this does not lend to additional rule sets
-			//AINSPECTOR.OAA_Nexus.runDocContextRules('3.3.2', doc, nodelist); // forms
+     	if (whichTab == 'widgets') {
+        var xp = "//*[@role]";
+        var elements = new Array();
+        var xpathResult = doc.evaluate(xp, doc, OpenAjax.a11y.util.defaultNSResolver, XPathResult.ANY_TYPE,null);
+        var r = xpathResult.iterateNext();
+        while (r) {
+          var LMObj = new landmarkObject(r, null);
+          nodelist.push(LMObj);
+          tmpList.push(nodelist[nodelist.length-1]);
+          r = xpathResult.iterateNext();
+        }
+        //SMF this does not lend to additional rule sets
+        //AINSPECTOR.OAA_Nexus.runDocContextRules('3.3.2', doc, nodelist); // forms
     	}
       if (whichTab == 'landmarks') {
-			var xp = "//*[@role]";
-			var elements = new Array();
-			var xpathResult = doc.evaluate(xp, doc, OpenAjax.a11y.util.defaultNSResolver, XPathResult.ANY_TYPE,null);
-			var r = xpathResult.iterateNext();
-			while (r) {
-				var LMObj = new landmarkObject(r, null);
-        if (LMObj.ariaAttributes== null && LMObj.ariaAttributes == "role='button'" && LMObj.ariaAttributes == "role='application'") {
+        var xp = "//*[@role]";
+        var elements = new Array();
+        var xpathResult = doc.evaluate(xp, doc, OpenAjax.a11y.util.defaultNSResolver, XPathResult.ANY_TYPE,null);
+        var r = xpathResult.iterateNext();
+        while (r) {
+          var LMObj = new landmarkObject(r, null);
+          //FBTrace.sysout('LMObj: ', LMObj);
+          //FBTrace.sysout('LMObj.ariaAttributes: '+  LMObj.ariaAttributes);
+          for (var iterateRoles=0; iterateRoles < landMarkArray.length; iterateRoles++) {
+            if (LMObj.ariaRole == landMarkArray[iterateRoles]) {
+              nodelist.push(LMObj);
+              tmpList.push(nodelist[nodelist.length-1]);
+              break;
+            } else {
+              continue;
+            }
+          }//end for
           r = xpathResult.iterateNext();
-          break;
+          //SMF this does not lend to additional rule sets
+          //AINSPECTOR.OAA_Nexus.runDocContextRules('3.3.2', doc, nodelist); // forms
         }
-				nodelist.push(LMObj);
-				tmpList.push(nodelist[nodelist.length-1]);
-				r = xpathResult.iterateNext();
-			}
-			//SMF this does not lend to additional rule sets
-			//AINSPECTOR.OAA_Nexus.runDocContextRules('3.3.2', doc, nodelist); // forms
-    	}
+      }
     	for (var i=nodelist.length-1; i >= 0; i--) {
     		nodelist[i].node.isChild = false;
     		for (var j=i-1; j >= 0 && !nodelist[i].node.isChild; j--) {
-    			foundParent = isParent(doc, nodelist[j].node, nodelist[i].node)
-    			if (foundParent) {
-        		nodelist[i].node.isChild = true;
-    				AddAsSubNode(tmpList[j], nodelist[i]);
-    				break;
-    			}
+          if (whichTab == 'landmarks') {
+            for (var k=0; k < landMarkArray.length; k++) {
+              if (nodelist[i].ariaRole == landMarkArray[k] ) {
+                foundParent = isParent(doc, nodelist[j].node, nodelist[i].node)
+        			  if (foundParent) {
+            		  nodelist[i].node.isChild = true;
+    		    		  AddAsSubNode(tmpList[j], nodelist[i]);
+    				      break;
+        			  } //end inner if
+              } // end outer if
+            } //end inner for
+          } else {
+            foundParent = isParent(doc, nodelist[j].node, nodelist[i].node)
+        		if (foundParent) {
+              nodelist[i].node.isChild = true;
+    		    	AddAsSubNode(tmpList[j], nodelist[i]);
+    				  break;
+        		} //end inner if
+          }
     		}
     	}
      	for (var i=0; i < nodelist.length; i++) if (!nodelist[i].node.isChild) landmarkList.push(tmpList[i]);
