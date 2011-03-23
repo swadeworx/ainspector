@@ -332,7 +332,7 @@ with (FBL) {
       reportcard: 1,
       headings: 1,
       landmarks: 1,
-      roles: 1,
+      widgets: 1,
       forms: 1,
       links: 1,
       rulesetEdit: 1
@@ -1156,7 +1156,7 @@ with (FBL) {
     treeTabPrintableView: function(tabName, tabData, titleText, ruleset, uniqueID) {
         var panel = FirebugContext.getPanel("AInspector");
 //      var parentNode = panel.document.getElementById(uniqueID + 'roles');
-        var parentNode = (tabName == 'roles') ? panel.document.getElementById(uniqueID + 'roles') : panel.document.getElementById(uniqueID + 'landmarks'); //PBK addition
+        var parentNode = (tabName == 'widgets') ? panel.document.getElementById(uniqueID + 'widgets') : panel.document.getElementById(uniqueID + 'landmarks'); //PBK addition
         var topGridTable = parentNode.getElementsByTagName('table')[0];
         var html = '<div id="reportDiv"><table summary="' + topGridTable.getAttribute('summary') + '">';
         var allTRTags = topGridTable.getElementsByTagName('tr');
@@ -1182,7 +1182,7 @@ with (FBL) {
 
 	tabView: function(tabName, tabData, titleText, uniqueID) {
         if (AINSPECTOR.renderer.bPrintable) {
-        	if (tabName != 'roles' && tabName != 'landmarks')	return this.gridTabPrintableView(tabName, tabData, titleText, null, uniqueID);
+        	if (tabName != 'widgets' && tabName != 'landmarks')	return this.gridTabPrintableView(tabName, tabData, titleText, null, uniqueID);
         	else return this.treeTabPrintableView(tabName, tabData, titleText, null, uniqueID);;
         }
 

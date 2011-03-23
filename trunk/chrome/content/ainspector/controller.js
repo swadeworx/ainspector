@@ -274,8 +274,8 @@ AINSPECTOR.controller = {
             case 'landmarks':
                 content = renderer.tabView(view, params.tabdata,FBL.$STR('landmarksGrid.title', 'a11y_bundle'), timestamp);
                 break;
-            case 'roles':
-                content = renderer.tabView(view, params.tabdata,FBL.$STR('rolesGrid.title', 'a11y_bundle'), timestamp);
+            case 'widgets':
+                content = renderer.tabView(view, params.tabdata,FBL.$STR('widgetsGrid.title', 'a11y_bundle'), timestamp);
                 break;
             case 'forms':
                 content = renderer.tabView(view, params.tabdata,FBL.$STR('formsGrid.title', 'a11y_bundle'), timestamp);
