@@ -10,7 +10,7 @@ AINSPECTOR.context = function(doc, theWin) {
     this.images_set = null;
     this.headings_set = null;
     this.landmarks_set = null;
-    this.roles_set = null;
+    this.widgets_set = null;
     this.forms_set = null;
     this.links_set = null;
     this.onloadTimestamp = null;
@@ -55,7 +55,7 @@ AINSPECTOR.context.prototype = {
         case "images": tabdata = this.images_set = AINSPECTOR.view.getImagesEle(this.theWin); break;
         case "headings": tabdata = this.headings_set = AINSPECTOR.view.getheadingsEle(this.theWin); break;
         case "landmarks": tabdata = this.landmarks_set = AINSPECTOR.view.getLandmarks(this.theWin, tabName); break;
-        case "roles": tabdata = this.roles_set = AINSPECTOR.view.getLandmarks(this.theWin, tabName); break;
+        case "widgets": tabdata = this.widgets_set = AINSPECTOR.view.getLandmarks(this.theWin, tabName); break;
         case "forms": tabdata = this.forms_set = AINSPECTOR.view.getFormsEle(this.theWin); break;
         case "links": tabdata = this.links_set = AINSPECTOR.view.getLinkEle(this.theWin); break;
        }
