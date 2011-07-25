@@ -3,7 +3,6 @@
 AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
   urls: {},
   lastLoadTimestamp: undefined,
-
   /*
    * init
    * Check which rule sets are available and add them to the available rules
@@ -11,6 +10,7 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
    */
   init: function() {
     try {
+				
 	    AINSPECTOR.OAA_Nexus.addRuleset("WCAG_2_0"); //rendered by reportcardView() in renderers.js
 	  //  AINSPECTOR.OAA_Nexus.addRuleset("IITAA_1_0");
 	    // AINSPECTOR.OAA_Nexus.addRuleset("ARIA_1_0");
@@ -173,6 +173,7 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 			severityCode: new Array()
 		} // endstruct
 
+				 
                 // Get the current ruleset using ID
 				var OAA = getRuleset(AINSPECTOR.controller.default_ruleset_id);
 				var OAARuleset = getNLSForRuleset(AINSPECTOR.controller.default_ruleset_id, 'en-us');
@@ -291,7 +292,7 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
 					}
 
 				// Get rule set to run on document using
-
+				
 				var OAA = getRuleset(AINSPECTOR.controller.default_ruleset_id);
 				var OAARuleset = OpenAjax.a11y.getNLSForRuleset(AINSPECTOR.controller.default_ruleset_id , 'en-us');
 
@@ -706,7 +707,6 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
           ruleSeverityCode = [];
 
           var doc = jQuery(indoc);
-
           var OAARuleset = OpenAjax.a11y.getNLSForRuleset(AINSPECTOR.controller.default_ruleset_id , 'en-us');
           requirementLevel = OAARuleset.levels[requirementLevel];
     			if (requirementNumber == '2.4.1'){
@@ -949,12 +949,14 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
         //
         //WCAG 2.0 OAA common rules
         //for each ruleset register rule and then ruleset
+        FBTrace.sysout("Inside addRuleset**********" + this.lang);
     	var ele = new Object();
     	var weights = new Object();
     	var gIndex = new Object();
     	if (typeof OpenAjax == "undefined" ) alert('typeof OpenAjax == "undefined"');
     	else if (typeof OpenAjax.a11y == "undefined") alert('typeof OpenAjax.a11y == "undefined"');
     	var OAA = OpenAjax.a11y.getRuleset(rulesetID);
+    	
     	var OAARuleset = OpenAjax.a11y.getNLSForRuleset(rulesetID, 'en-us');
     	for (var rs = 0; rs < OAA.requirements.length; rs++) {
         	try {
