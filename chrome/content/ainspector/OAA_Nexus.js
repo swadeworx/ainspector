@@ -12,7 +12,7 @@ AINSPECTOR.OAA_Nexus = { //AINSPECTOR.OAA_Nexus
   init: function() {
     try {
 	    AINSPECTOR.OAA_Nexus.addRuleset("WCAG_2_0"); //rendered by reportcardView() in renderers.js
-	    AINSPECTOR.OAA_Nexus.addRuleset("IITAA_1_0");
+	  //  AINSPECTOR.OAA_Nexus.addRuleset("IITAA_1_0");
 	    // AINSPECTOR.OAA_Nexus.addRuleset("ARIA_1_0");
     } catch (err) {
       alert("AINSPECTOR.OAA_Nexus: " + err.message);
