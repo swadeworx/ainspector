@@ -1,3 +1,0 @@
-content ainspector chrome/content/
-overlay     chrome://firebug/content/firebugOverlay.xul chrome://ainspector/content/firebugOverlay.xul
-
