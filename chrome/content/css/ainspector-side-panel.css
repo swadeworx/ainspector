@@ -1,0 +1,130 @@
+#ainspector-side-panelai-sidepanel-table {
+  width: 90%;
+}
+
+.toolbar-text-button,
+.toolbar-text-menubutton {
+    padding: 3px 6px;
+    color: #000000;
+}
+
+.toolbar-text-button[disabled="true"],
+.toolbar-text-menubutton[disabled="true"] {
+    color: graytext;
+}
+
+.toolbar-text-button[checked="true"] {
+    padding: 3px 6px !important;
+}
+
+.toolbar-text-button > .toolbarbutton-icon,
+.toolbar-text-menubutton > .toolbarbutton-icon {
+    /*display: none;*/
+}
+
+
+
+#ainspector-side-panel body, div, span, ul, li, h1, h2, h3, h4, h5, h6, hr, p, input, select, option, form, em, table, tr, td, img {
+/* FIX ME : the original, below, makes the twisty be under the text
+#ainspector-side-panel div, #ainspector-side-panel span, #ainspector-side-panel ul, #ainspector-side-panel li, #ainspector-side-panel hr, #ainspector-side-panel p, #ainspector-side-panel form, #ainspector-side-panel em, #ainspector-side-panel table, #ainspector-side-panel th, #ainspector-side-panel tr, #ainspector-side-panel td, #ainspector-side-panel img, #ainspector-side-panel label {
+*/
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: #fff;
+}
+
+#ainspector-side-panel {
+    font-size: 8pt;
+    font-weight: normal;
+    font-family: Lucida Grande, Tahoma, sans-serif;
+    color: #767676; /* dark grey */
+    margin-right: 10px;
+    padding: 1px;
+    width: 100%;
+    text-align: center;
+    background: #ffffff;
+}
+
+#ainspector-side-panel .font10 {
+    font-size: 10pt;
+}
+
+#ainspector-side-panel table {
+    empty-cells: show;
+}
+
+#ainspector-side-panel td, #ainspector-side-panel th {
+    font-size: 10pt;
+}
+
+#ainspector-side-panel .padding50 {
+    padding-left: 50px;
+}
+
+#ainspector-side-panel .padding100 {
+    padding-left: 100px;
+}
+
+#ainspector-side-panel .floatRight {
+    float: right;
+}
+
+#ainspector-side-panel .floatLeft {
+    float: left;
+}
+
+#ainspector-side-panel em {
+    font-weight: bold;
+    font-size: 8pt;
+}
+
+
+#ainspector-side-panel  a:hover {
+    text-decoration: underline;
+}
+
+#ainspector-side-panel  table {
+    margin-left: 25px;
+    margin-top: 80px;
+}
+
+#ainspector-side-panel  td {
+    padding: 5px;
+    font-size: 10pt;
+    color: #000000;
+    font-weight: normal;
+    font-family: sans-serif;
+}
+
+.nav-menu li:focus {
+     outline-offset: -5px;
+}
+
+#ainspector-side-panel td.resultsCol {
+  text-align: left;
+  padding-left: 2em;
+}
+
+#ainspector-side-panel td.messagesCol {
+  text-align: left; 
+  padding-left: 5em;
+}
+
+#ainspector-side-panel tr.gridHeaderRow {
+  background: 1px solid #828282;
+  background-color: #BCBCBC;
+  font-weight: bold;
+  
+}
+
+#ainspector-side-panel th.HeaderCell {
+  text-align: center;
+}
+
+#ainspector-side-panel td.gridColumn {
+  text-align: center;
+}
+

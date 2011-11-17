@@ -1,0 +1,47 @@
+/* SMF A11y Grade screen */
+.domTable {
+    width: 100%;
+}
+
+.treeRow.hasChildren .treeLabel {
+    background-image: url(../img/twistyClosed.png);
+    background-repeat: no-repeat;
+    background-position: 2px 2px;
+}
+
+.treeRow.hasChildren.opened .treeLabel {
+    background-image: url(../img/twistyOpen.png);
+}
+
+.treeRow .treeLabel {
+    padding-left: 18px;
+    padding-right: 10px;
+}
+
+.treeRow .treeLabel td {
+    padding:25px 50px; 
+    background-color: #121212;
+}
+
+.failMsgTxt:first-letter {color: red; font-size: large;}
+.warnMsgTxt:first-letter {color: orange; font-size: large;}
+.suggestionMsgTxt:first-letter {color: brown; font-size: large;}
+.passMsgTxt:first-letter {color: green; font-size: large;}
+
+.treeRow.hasChildren .treeLabel:hover, .treeRow.hasChildren .treeLabel:focus {
+    color: blue;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+table:focus, .treeLabel:focus, .treeRow:focus {
+    outline: 2px solid #FF9933;
+    -moz-outline-radius: 5px;    
+}
+
+/* END A11y Grade screen */
+
+.treeitem {  margin-right: .6em;}
+.collapsedgroup { display : none; }
+.group { margin-left: 1.5em; }
+.treeitemfocus { outline: 0px; background-color: #dddddd; color: black;}
