@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ 
+ <!DOCTYPE overlay >
+ <overlay id="status-bar-sample-1-overlay"
+          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+ 
+ <!-- Firefox -->
+ <statusbar id="status-bar">
+   <statusbarpanel id="status-bar-sample-1"
+     label="AInspector-firebug"
+     tooltiptext="Firebug Accessibility Inspector"
+   />
+ </statusbar>
+ 
+ </overlay>

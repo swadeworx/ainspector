@@ -1,0 +1,125 @@
+#ainspectorDiv {
+    font-size: 8pt;
+    font-weight: bold;
+    font-family: Lucida Grande, Tahoma, sans-serif;
+    color: #767676; /* dark grey */
+    margin-right: 10px;
+    padding: 1px;
+    width: 100%;
+    text-align: center;
+    background: #ffffff;
+}
+
+#ainspectorDiv .font10 {
+    font-size: 10pt;
+}
+
+#ainspectorDiv table {
+    empty-cells: show;
+}
+
+#ainspectorDiv .reportInnerDiv .yui-navset .yui-nav li:hover span.desc {
+    text-decoration: underline;
+}
+
+
+/* BEGIN TOOLBAR */
+
+.toolbarLinks {
+    float: left;
+ }
+
+#ainspectorDiv #toolbarDiv {
+    width: 1000px;
+    text-align: left;
+    margin-top: 5px;
+}
+
+#ainspectorDiv #toolbarDiv #toolbar-ruleset {
+    font-size: 8pt;
+    text-align: left;
+    color: #767676;
+    height: 20px;
+    margin-left: 40px;
+}
+
+#ainspectorDiv #toolbarDiv #toolbar-ruleset select {
+    margin: 0;
+    padding: 0;
+    height: 19px; 
+    top: 0;
+}
+
+#ainspectorDiv #toolbarDiv #toolbar-ruleset option {
+    margin: 2px 0;
+    padding: 2px 5px;
+}
+
+#ainspectorDiv #toolbarDiv #toolbar-ruleset option.firstInGroup {
+    border-top: 1px solid #767676;
+}
+
+#ainspectorDiv #toolbarDiv #toolbar-ruleset img { 
+    border: none;
+    margin: 0 5px 2px 5px;
+    vertical-align: middle;
+}
+
+#ainspectorDiv #toolbarDiv #toolbar-ruleset a { 
+    display: inline-block;
+    color: #767676;
+    margin-right: 5px;
+}
+
+#ainspectorDiv #toolbarDiv #toolbar-ruleset a em { 
+    font-style: normal;
+}
+
+#ainspectorDiv #toolbarDiv #toolbar-ruleset a:hover em { 
+    text-decoration: underline;
+}
+
+#ainspectorDiv #toolbarDiv #toolbar-ruleset ul {
+    display: inline;
+}
+
+#ainspectorDiv #toolbarDiv #toolbar-ruleset li {
+    display: inline;
+    list-style-image: none;
+    list-style-position: outside;
+    list-style-type: none;
+}
+
+#ainspectorDiv #toolbarDiv #toolbar-ruleset li.first {
+    border-right: 1px solid #767676;
+}
+
+#ainspectorDiv #toolbarDiv #helpDiv {
+    border: 1px solid #767676;
+    position: absolute;
+    top: 26px;
+    left: 827px;
+    font-size: 8pt;
+    z-index: 99;
+    background: #ffffff;
+}
+
+#ainspectorDiv #toolbarDiv #helpDiv a {
+    position: relative;
+    display: block;
+    padding: 5px 10px;
+    color: #767676;
+}
+
+#ainspectorDiv #toolbarDiv #helpDiv a:hover {
+    color: #ffffff;
+    background: #006ca2;
+}
+
+#ainspectorDiv #toolbarDiv #helpDiv .new-section {
+    border-top: 1px solid #767676;
+}
+
+#ainspectorDiv #toolbarDiv .yui-hidden {
+    display: none;
+}
