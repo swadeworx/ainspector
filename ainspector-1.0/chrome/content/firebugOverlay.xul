@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"> 
+  <script type="application/x-javascript" src="chrome://ainspector/content/ainspector.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/ainspector-firebug.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/navigation.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/linksPlate.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/rulesSidePanel.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/advancedSidePanel.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/widget.js"/>
+  
+  <script type="application/x-javascript" src="chrome://ainspector/content/openajax_a11y/openajax_a11y_all.js"/>
+  
+  <commandset id="mainCommandSet"> 
+    <command id="ainspector_report_view_button" oncommand="Firebug.ainspectorModule.reportView(Firebug.currentContext)"/>
+    <command id="ainspector_images_view_button" oncommand="Firebug.ainspectorModule.imagesView(Firebug.currentContext)"/>
+    <command id="ainspector_controls_view_button" oncommand="Firebug.ainspectorModule.controlsView(Firebug.currentContext)"/>
+    <command id="ainspector_color_contrast_view_button" oncommand="Firebug.ainspectorModule.colorContrastView(Firebug.currentContext)"/>
+    <command id="ainspector_headings_landmarks_view_button" oncommand="Firebug.ainspectorModule.headingsView(Firebug.currentContext)"/>
+    <command id="ainspector_links_view_button" oncommand="Firebug.ainspectorModule.linksView(Firebug.currentContext)"/>
+    <command id="ainspector_lists_view_button" oncommand="Firebug.ainspectorModule.listsView(Firebug.currentContext)"/>
+    <command id="ainspector_tables_view_button" oncommand="Firebug.ainspectorModule.tablesView(Firebug.currentContext)"/>
+    
+    <command id="ainspector_navigation_view_button" oncommand="Firebug.ainspectorModule.navigationView(Firebug.currentContext)"/>
+  </commandset> 
+  
+  <toolbar id="fbToolbar" align="center"> 
+    <hbox id="fbToolbarInner" insertbefore="fbDetachButton" flex="1" align="center"> 
+      <hbox id="fbFirebugExtensionButtons" insertafter="fbNetButtons"> 
+        <toolbarseparator/>
+	    <toolbox> 
+        <toolbar id="radio-toolbar">
+        <toolbarbutton label="Report" class="toolbar-text-button fbInternational" checked = "true"  command="ainspector_report_view_button" type="radio" group="RadioGroup"/> 
+        <toolbarseparator/>
+        <toolbarbutton label="Images/Media" class="toolbar-text-button fbInternational" command="ainspector_images_view_button" type="radio" group="RadioGroup"/>
+        <toolbarseparator/>
+        <toolbarbutton label="Controls" class="toolbar-text-button fbInternational" command="ainspector_controls_view_button" type="radio" group="RadioGroup"/>
+        <toolbarseparator/>
+        <toolbarbutton label="Color Contrast" class="toolbar-text-button fbInternational" command="ainspector_color_contrast_view_button" type="radio" group="RadioGroup"/> 
+        <toolbarseparator/>
+        <toolbarbutton label="Headings/Landmarks" class="toolbar-text-button fbInternational" command= "ainspector_headings_landmarks_view_button" type="radio" group="RadioGroup"/>
+        <toolbarseparator/>
+        <toolbarbutton label="Links" class="toolbar-text-button fbInternational" command= "ainspector_links_view_button" type="radio" group="RadioGroup"/>
+        <toolbarseparator/>
+        <toolbarbutton label="Lists" class="toolbar-text-button fbInternational" command="ainspector_lists_view_button" type="radio" group="RadioGroup"/> 
+        <toolbarseparator/>
+        <toolbarbutton label="Tables" class="toolbar-text-button fbInternational" command="ainspector_tables_view_button" type="radio" group="RadioGroup"/> 
+        <toolbarseparator/>
+      
+        <toolbarbutton label="Navigation" class="toolbar-text-button fbInternational" command= "ainspector_navigation_view_button" type="radio" group="RadioGroup"/>
+        <toolbarseparator/>
+ 
+         
+       </toolbar>   
+      </toolbox>  
+      </hbox> 
+    </hbox>   
+  </toolbar> 
+   
+  
+</overlay> 
+
+
+    
