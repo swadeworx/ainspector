@@ -1,9 +1,7 @@
 FBL.ns(function() { with (FBL) { 
   
-//const Cc = Components.classes;
-//const Ci = Components.interfaces;
-  
-  var panelName = "AInspector";
+  var panel_name = ainspectorUtil.$HW_STR("ainspector.mainpanel.name");
+  var panel_title = ainspectorUtil.$HW_STR("ainpector.mainpanel.title");
   
   Firebug.ainspectorModule = extend(Firebug.Module, { 
   
@@ -17,7 +15,7 @@ FBL.ns(function() { with (FBL) {
 	 */
 	showPanel: function(browser, panel) { 
 	   
-	  var isFirebugExtension = panel && panel.name == "AInspector"; 
+	  var isFirebugExtension = panel && panel.name == panel_name; 
 	  var FirebugExtensionButtons = browser.chrome.$("fbFirebugExtensionButtons"); 
 	  collapse(FirebugExtensionButtons, !isFirebugExtension); 
 	},
@@ -30,7 +28,7 @@ FBL.ns(function() { with (FBL) {
      */
     shutdown: function() {
      
-      if (Firebug.getPref('defaultPanelName')=='AInspector') {
+      if (Firebug.getPref('defaultPanelName')==panel_name) {
         /* Optional */
         Firebug.setPref('defaultPanelName','console');
       }
@@ -56,7 +54,7 @@ FBL.ns(function() { with (FBL) {
      */
     reportView: function(context) { 
   
-      var panel = context.getPanel(panelName, true);
+      var panel = context.getPanel(panel_name, true);
       
       /* Clear the panel before writing anything onto the report*/
       if (panel) {
@@ -73,7 +71,7 @@ FBL.ns(function() { with (FBL) {
      */
     imagesView: function(context) { 
     	  
-      var panel = context.getPanel(panelName, true);
+      var panel = context.getPanel(panel_name, true);
 
       /* Clear the panel before writing anything onto the report*/
       if (panel) {
@@ -92,7 +90,7 @@ FBL.ns(function() { with (FBL) {
     	  
       var cachesResult = this.updateCache();
 
-      var panel = context.getPanel(panelName, true);
+      var panel = context.getPanel(panel_name, true);
       
       /* Clear the panel before writing anything onto the report*/
       if (panel) {
@@ -128,7 +126,7 @@ FBL.ns(function() { with (FBL) {
      */
     colorContrastView: function(context) { 
     	  
-      var panel = context.getPanel(panelName, true);
+      var panel = context.getPanel(panel_name, true);
 
       /* Clear the panel before writing anything onto the report*/
       if (panel) {
@@ -145,7 +143,7 @@ FBL.ns(function() { with (FBL) {
      */
     headingsView: function(context) { 
     	  
-      var panel = context.getPanel(panelName, true);
+      var panel = context.getPanel(panel_name, true);
 
       /* Clear the panel before writing anything onto the report*/
       if (panel) {
@@ -162,7 +160,7 @@ FBL.ns(function() { with (FBL) {
      */
     linksView: function(context) { 
         	  
-      var panel = context.getPanel(panelName, true);
+      var panel = context.getPanel(panel_name, true);
 
       /* Clear the panel before writing anything onto the report*/
       if (panel) {
@@ -179,7 +177,7 @@ FBL.ns(function() { with (FBL) {
      */
     listView: function(context) { 
          	  
-      var panel = context.getPanel(panelName, true);
+      var panel = context.getPanel(panel_name, true);
 
       /* Clear the panel before writing anything onto the report*/
       if (panel) {
@@ -196,7 +194,7 @@ FBL.ns(function() { with (FBL) {
      */
     tablesView: function(context) { 
             	  
-      var panel = context.getPanel(panelName, true);
+      var panel = context.getPanel(panel_name, true);
     
       /* Clear the panel before writing anything onto the report*/
       if (panel) {
@@ -218,7 +216,7 @@ FBL.ns(function() { with (FBL) {
       var cachesResult = this.updateCache();
       // NavigationPanel.onNavigationClick(context, cachesResult);
       FBTrace.sysout("Hello World");
-      var panel = context.getPanel(panelName, true);
+      var panel = context.getPanel(panel_name, true);
       FBTrace.sysout("panelll....", panel);
       
       if (panel) {
@@ -256,7 +254,7 @@ FBL.ns(function() { with (FBL) {
      */
     equivalentsView: function(context) { 
  
-      var panel = context.getPanel(panelName, true);
+      var panel = context.getPanel(panel_name, true);
     
       /* Clear the panel before writing anything onto the Navigation*/
       if (panel) {
@@ -276,7 +274,7 @@ FBL.ns(function() { with (FBL) {
      */
     colorContrastView: function(context) { 
 
-      var panel = context.getPanel(panelName, true);
+      var panel = context.getPanel(panel_name, true);
     
       /* Clear the panel before writing anything onto the Navigation*/
       if (panel) {
@@ -342,8 +340,10 @@ FBL.ns(function() { with (FBL) {
 
   ainspectorPanel.prototype = extend(Firebug.Panel, { 
   
-    name: "AInspector",  //returned by getPanel()
-    title: "A11y Inspector", //title to appear on UI
+   // name: ainspectorUtil.$HW_STR("ainspector.mainpanel.name"),  //returned by getPanel()
+   // title: ainspectorUtil.$HW_STR("ainspector.mainpanel.title"), //title to appear on UI
+    name: panel_name,
+    title: panel_title,
     searchable: false, 
     editable: true,
   
@@ -381,7 +381,7 @@ FBL.ns(function() { with (FBL) {
     show: function() {
     	
       Firebug.Panel.show.apply(this, arguments);
-      FBTrace.sysout("Inside show..............................");
+      FBTrace.sysout("Inside show.............................." + ainspectorUtil.$HW_STR("ainspector.mainpanel.name"));
       
     },
     
