@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+ 
+<prefwindow id="ainspector_PrefWindow"
+     title="Rengine Options"
+     xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+ 
+	<prefpane id="ainspector_PrefPane" label="Rengine Options">
+		<preferences>
+			<preference id="pref_Autorun" name="extensions.firebug.ainspector.autorun" type="bool"/>
+			<preference id="pref_HideStatusbar" name="extensions.firebug.ainspector.hidestatusbar" type="bool"/>
+		</preferences>
+	 
+		<vbox align="left">
+			<checkbox label="Automatically run Rengine when page finishes loading" preference="pref_Autorun" id="Autorun" />
+			<checkbox label="Do not show Rengine result on status bar" preference="pref_HideStatusbar" id="HideStatusbar" />
+		</vbox>
+	</prefpane>
+ 
+</prefwindow>

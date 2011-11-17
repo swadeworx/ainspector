@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://ainspector/skin/ainspector.css" type="text/css"?>
+
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+     <commandset id="mainCommandSet">
+         <command id="cmd_ainspector_run" oncommand="AINSPECTOR.firefox.run(false)"/>
+         <command id="cmd_ainspector_close" oncommand="AINSPECTOR.firefox.close()"/>
+     </commandset>
+
+     <vbox id="ainspector-view" persist="height" flex="1">
+          <toolbox>
+              <toolbar id="ainspector-TopBar" align="center" flex="0">
+                  <toolbarbutton id="ainspector-TopBarButton-Peel" 
+                  label="Open Accessibility Inspector" tooltiptext="Open Firebug Accessibility Inspector"
+                  command="cmd_ainspector_run"/>
+                  <toolbarbutton id="ainspector-TopBarButton-Close"
+                  label="Close Accessibility Inspector" tooltiptext="Close Firebug Accessibility Inspector "
+                  command="cmd_ainspector_close" />
+              </toolbar>
+          </toolbox>
+
+          <hbox flex="1" style="overflow: auto;">
+              <tabbox id="ainspector-Tablist" flex="1">
+                  <tabs id="ainspector-ViewsTabs"> 
+                      <tab label="AInspector"/>
+                  </tabs>
+                  <tabpanels flex="1">
+                      <tabpanel id="ainspector-OutputTab"
+                                orient="vertical">
+                          <hbox flex="1">
+                              <browser id="ainspector-Output" class="textbox_browser" type="content" flex="1" wrap="false" multiline="true"/>
+                          </hbox>
+                      </tabpanel>
+                  </tabpanels>
+              </tabbox>
+          </hbox>
+     </vbox>
+
+</overlay>

@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="chrome://ainspector/skin/ainspector.css" type="text/css"?>
+
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <script type="application/x-javascript" src="chrome://ainspector/content/jquery/jquery-1.2.6.min.js"/>
+    <script src="chrome://ainspector/content/jquery/ainspector.jQuery.js" type="text/javascript"/>
+
+    <!-- dependencies -->
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/lib/json2.js"></script>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/lib/beautify.js"></script>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/lib/fulljslint.js"></script>
+
+    <!-- ainspector core -->
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/ainspector.js"></script>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/controller.js"></script>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/util.js"></script>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/renderers.js"></script>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/tools.js"></script>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/resultset.js"></script>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/context.js"></script>
+    <script type="application/x-javascript" src="chrome://ainspector/content/grid.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/headingsGrid.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/imagesGrid.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/formsGrid.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/linksGrid.js"/>
+
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector-ff-pref.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/view.js"/>
+
+    <!-- Firebug plumbing -->
+    <script type="application/x-javascript" src="chrome://ainspector/content/exporter.js"></script>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector-firebug-net.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector-firebug.js"/>
+   
+    <!-- A11y & DOM+ Tabs -->
+    <script src="chrome://ainspector/content/ainspector/AllyModule.js" type="application/x-javascript"/> 
+    <script src="chrome://ainspector/content/ainspector/A11yPanel.js" type="application/x-javascript"/> 
+    
+    <!-- OAA Rules -->
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/oaa-a11y.js"/>
+   	<script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/scripts/cross-browser-util.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/scripts/javascript-xpath.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/nls/wcag20-ruleset_fr-fr.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/nls/wcag20-ruleset_en-us.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/nls/iitaa10-ruleset_en-us.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/wai-aria/wai-aria-definitions.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/scripts/util.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/scripts/colorUtil.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_accesskey.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_audio_video.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_data_table.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_form_and_widget.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_frame.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_image_area.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_landmark_header.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_lang.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_layout.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_links.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_scripting.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_style.js"/>
+	<script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rulesets/wcag20-ruleset.js"/>
+	<script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rulesets/iitaa10-ruleset.js"/>
+	
+    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA_Nexus.js" />
+ 
+    <stringbundleset id="stringbundleset">
+        <stringbundle id="a11y_bundle" src="chrome://ainspector/locale/a11y.properties"/>
+    </stringbundleset>
+
+</overlay>
