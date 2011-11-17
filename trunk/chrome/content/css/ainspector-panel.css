@@ -1,0 +1,620 @@
+.ai-table-list-items {
+  padding: 50px;
+  width: 100%;
+}
+
+.toolbar-text-button,
+.toolbar-text-menubutton {
+    padding: 3px 6px;
+    color: #000000;
+}
+
+.toolbar-text-button[disabled="true"],
+.toolbar-text-menubutton[disabled="true"] {
+    color: graytext;
+}
+
+.toolbar-text-button[checked="true"] {
+    padding: 3px 6px !important;
+}
+
+.toolbar-text-button > .toolbarbutton-icon,
+.toolbar-text-menubutton > .toolbarbutton-icon {
+    /*display: none;*/
+}
+
+
+
+#ainspector-panel body, div, span, ul, li, h1, h2, h3, h4, h5, h6, hr, p, input, select, option, form, em, table, tr, td, img {
+/* FIX ME : the original, below, makes the twisty be under the text
+#ainspector-panel div, #ainspector-panel span, #ainspector-panel ul, #ainspector-panel li, #ainspector-panel hr, #ainspector-panel p, #ainspector-panel form, #ainspector-panel em, #ainspector-panel table, #ainspector-panel th, #ainspector-panel tr, #ainspector-panel td, #ainspector-panel img, #ainspector-panel label {
+*/
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: #fff;
+}
+
+#ainspector-panel {
+    font-size: 8pt;
+    font-weight: normal;
+    font-family: Lucida Grande, Tahoma, sans-serif;
+    color: #767676; /* dark grey */
+    margin-right: 10px;
+    padding: 1px;
+    width: 100%;
+    text-align: center;
+    background: #ffffff;
+}
+
+#ainspector-panel .font10 {
+    font-size: 10pt;
+}
+
+#ainspector-panel table {
+    empty-cells: show;
+}
+
+#ainspector-panel td, #ainspector-panel th {
+    font-size: 10pt;
+}
+
+#ainspector-panel input {
+    font-size: 9pt;
+}
+
+#ainspector-panel input, 
+#ainspector-panel select, 
+#ainspector-panel option {
+    font-size: 8pt;
+    font-weight: bold;
+    font-family: Lucida Grande, Tahoma, sans-serif;
+    color: #767676; /* dark grey */
+    margin: 0;
+    padding: 0;
+}
+
+#ainspector-panel .padding50 {
+    padding-left: 50px;
+}
+
+#ainspector-panel .padding100 {
+    padding-left: 100px;
+}
+
+#ainspector-panel h1, 
+#ainspector-panel h2, 
+#ainspector-panel h3, 
+#ainspector-panel h4, 
+#ainspector-panel h5, 
+#ainspector-panel h6 {
+    font-weight: normal;
+    padding: 0;
+    margin: 0;
+}
+
+#ainspector-panel h2 {
+    color: #89B31F;  /* green */
+    font-weight: bold;
+    font-size: 16pt;
+    margin: 0 0 0.4em;
+}
+
+#ainspector-panel h3 {
+    color: #FF8800;   /* orange */
+    font-weight: bold;
+    font-size: 14pt;
+    margin: 1em 0 0.4em;
+}
+
+#ainspector-panel h4 {
+    font-weight: bold;
+    color: #4f4f4f;
+    font-size: 10pt;
+    margin: 1em 0 0.4em;
+}
+
+#ainspector-panel .floatRight {
+    float: right;
+}
+
+#ainspector-panel .floatLeft {
+    float: left;
+}
+
+#ainspector-panel em {
+    font-weight: bold;
+    font-size: 8pt;
+}
+
+
+/* BEGIN TOOLBAR */
+
+.toolbarLinks {
+    float: left;
+ }
+
+#ainspector-panel #toolbarDiv {
+    width: 1000px;
+    text-align: left;
+    margin-top: 5px;
+}
+
+#ainspector-panel #toolbarDiv #toolbar-ruleset {
+    font-size: 8pt;
+    text-align: left;
+    color: #767676;
+    height: 20px;
+    margin-left: 40px;
+}
+
+#ainspector-panel #toolbarDiv #toolbar-ruleset select {
+    margin: 0;
+    padding: 0;
+    height: 19px; 
+    top: 0;
+}
+
+#ainspector-panel #toolbarDiv #toolbar-ruleset option {
+    margin: 2px 0;
+    padding: 2px 5px;
+}
+
+#ainspector-panel #toolbarDiv #toolbar-ruleset option.firstInGroup {
+    border-top: 1px solid #767676;
+}
+
+#ainspector-panel #toolbarDiv #toolbar-ruleset img { 
+    border: none;
+    margin: 0 5px 2px 5px;
+    vertical-align: middle;
+}
+
+#ainspector-panel #toolbarDiv #toolbar-ruleset a { 
+    display: inline-block;
+    color: #767676;
+    margin-right: 5px;
+}
+
+#ainspector-panel #toolbarDiv #toolbar-ruleset a em { 
+    font-style: normal;
+}
+
+#ainspector-panel #toolbarDiv #toolbar-ruleset a:hover em { 
+    text-decoration: underline;
+}
+
+#ainspector-panel #toolbarDiv #toolbar-ruleset ul {
+    display: inline;
+}
+
+#ainspector-panel #toolbarDiv #toolbar-ruleset li {
+    display: inline;
+    list-style-image: none;
+    list-style-position: outside;
+    list-style-type: none;
+}
+
+#ainspector-panel #toolbarDiv #toolbar-ruleset li.first {
+    border-right: 1px solid #767676;
+}
+
+#ainspector-panel #toolbarDiv #helpDiv {
+    border: 1px solid #767676;
+    position: absolute;
+    top: 26px;
+    left: 827px;
+    font-size: 8pt;
+    z-index: 99;
+    background: #ffffff;
+}
+
+#ainspector-panel #toolbarDiv #helpDiv a {
+    position: relative;
+    display: block;
+    padding: 5px 10px;
+    color: #767676;
+}
+
+#ainspector-panel #toolbarDiv #helpDiv a:hover {
+    color: #ffffff;
+    background: #006ca2;
+}
+
+#ainspector-panel #toolbarDiv #helpDiv .new-section {
+    border-top: 1px solid #767676;
+}
+
+#ainspector-panel #toolbarDiv .yui-hidden {
+    display: none;
+}
+
+/* TabView */
+
+#ainspector-panel #toolbarDiv .nav-menu {
+    border:solid #767676; /* color between tab list and content */
+    border-width:0 0 1px;
+    margin-top: 5px;
+}
+
+#ainspector-panel #toolbarDiv .nav-menu li {
+    display: -moz-inline-stack;
+    display: inline-block;
+    font-weight: 600; /* semi-bold */
+    list-style-image: none;
+    list-style-position: outside;
+    list-style-type: none;
+    margin: 0;
+    padding:1px 0 0; /* gecko: make room for overflow */
+    -moz-user-select : none;
+}
+
+#ainspector-panel #toolbarDiv .nav-menu .selected {
+    margin: 0 0 -1px 0; /* for overlap */
+}
+
+#ainspector-panel #toolbarDiv .nav-menu li.selected {
+    border: solid #767676;
+    border-width: 1px 1px 1px 1px;
+    border-bottom: 1px solid #fff;
+}
+
+#ainspector-panel #toolbarDiv .nav-menu li.first {
+    margin-left: 5px;
+}
+
+#ainspector-panel #toolbarDiv .nav-menu li {
+    vertical-align: bottom;
+}
+
+#ainspector-panel #toolbarDiv .nav-menu li em {
+    font-style: normal;
+}
+
+#ainspector-panel #toolbarDiv .nav-menu li.selected span.pipe,
+#ainspector-panel #toolbarDiv .nav-menu li.off span.pipe {
+    visibility: hidden;
+}
+
+#ainspector-panel #toolbarDiv .nav-menu li span.pipe {
+    display: block;
+    height: 1.45em;
+    position: absolute;
+    right: -1px;
+    top: 1px;
+    width: 1px;
+    background: #767676;
+    border-right: 1px solid #fff;
+}
+
+#ainspector-panel #toolbarDiv .nav-menu ul li {
+    background:#ffffff; /* tab background */
+    border: solid #767676;
+    border-width: 0;
+    color:#767676;
+    position:relative;
+    text-decoration:none;
+    padding: 0.35em 0.75em;
+}
+
+#ainspector-panel #toolbarDiv .nav-menu li{
+    cursor:pointer;
+}
+
+#ainspector-panel #toolbarDiv .nav-menu li:hover {
+    text-decoration: underline;
+}
+
+#ainspector-panel #toolbarDiv .nav-menu .yui-content {
+    width: 100%;
+    border: solid #ff0000;
+    border-width: 1px 0 0 0;
+    margin-top: -1px;
+}
+
+/* END TOOLBAR */
+
+#ainspector-panel #viewDiv {
+    min-width: 950px;
+    margin: 0px auto;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+#ainspector-panel #viewDiv a {
+    color: #006CA2; /* blue */
+}
+
+#ainspector-panel #viewDiv .summary {
+    display: inline;
+    white-space: nowrap;
+    color: #767676;
+}
+
+#ainspector-panel #viewDiv .summary .view-title {
+    color: #767676;
+    font-size: 14pt;
+    font-weight: bolder;
+    padding-right: 25px;
+}
+
+#ainspector-panel #viewDiv .summary .number,
+#ainspector-panel #viewDiv .section-summary .number {
+    font-weight: bold;
+    font-size: 9pt;
+    color: #767676;
+}
+
+
+
+/* START Tool screen */
+
+#ainspector-panel #toolsDiv {
+    min-height: 200px;
+    width: 950px;
+    margin: 0 20px 10px 20px;
+    color: #767676;
+}
+
+#ainspector-panel #toolsDiv a:hover {
+    text-decoration: underline;
+}
+
+#ainspector-panel #toolsDiv table {
+    margin-left: 30px;
+}
+
+#ainspector-panel #toolsDiv td {
+    padding: 5px;
+    font-size: 11pt;
+    color: #767676;
+    font-weight: bolder;
+    font-family: sans-serif;
+    
+}
+
+#ainspector-panel #toolsDiv td.name {
+    color: #006CA2;
+    text-align: right;
+}
+
+#ainspector-panel #toolsDiv td.launch-tool {
+    font-size: 8pt;
+    color: #006CA2;
+}
+
+#ainspector-panel #toolsDiv td.launch-tool a {
+    cursor: pointer;
+}
+
+/* END Tool Screen */
+
+/* START RulesetEdit screen */
+
+#ainspector-panel #rulesetEditDiv {
+    min-height: 200px;
+    width: 950px;
+    margin: 0 20px;
+    color: #767676;
+    padding-bottom: 10px;
+}
+
+#ainspector-panel #rulesetEditDiv td {
+    vertical-align: top;
+}
+
+#ainspector-panel #rulesetEditDiv .column1,
+#ainspector-panel #rulesetEditDiv .column2,
+#ainspector-panel #rulesetEditDiv .column3 {
+    margin: 10px 7px;
+    vertical-align: top;
+}
+
+#ainspector-panel #rulesetEditDiv input {
+    margin: 5px 5px 5px 0;
+}
+
+#ainspector-panel #rulesetEditDiv #settingsDiv {
+    margin-top: 15px;
+}
+
+
+#ainspector-panel #rulesetEditDiv #settingsDiv .rulesColumns {
+    padding: 10px 20px 5px 20px;
+}
+
+#ainspector-panel #rulesetEditDiv #settingsDiv .buttons {
+    padding: 0 20px 10px 20px;
+}
+
+#ainspector-panel #rulesetEditDiv #settingsDiv .buttons input {
+    width: 125px;
+}
+
+#ainspector-panel #rulesetEditDiv #settingsDiv .buttons input.btn_delete {
+    margin-left: 50px;
+}
+
+#ainspector-panel #rulesetEditDiv #settingsDiv form a {
+    padding: 0 5px;
+}
+
+#ainspector-panel #rulesetEditDiv #settingsDiv form a:hover {
+    text-decoration: underline;
+}
+
+#ainspector-panel #rulesetEditDiv #settingsDiv .yui-content h4 {
+    font-size: 11pt;
+    margin-left: 10px;
+}
+
+#ainspector-panel #rulesetEditDiv .yui-navset .yui-navset-left .yui-nav,
+#ainspector-panel #rulesetEditDiv .yui-navset-left .yui-nav { width:140px; }
+
+#ainspector-panel #rulesetEditDiv .yui-navset .yui-navset-left,
+#ainspector-panel #rulesetEditDiv .yui-navset-left { padding:0 0 0 140px; } /* map to nav width */
+
+#ainspector-panel #rulesetEditDiv .yui-navset .yui-nav,
+#ainspector-panel #rulesetEditDiv .yui-navset-left .yui-nav {
+    border-color: #767676;
+    border-width: 0;
+}
+
+#ainspector-panel #rulesetEditDiv .yui-navset .yui-content, 
+#ainspector-panel #rulesetEditDiv .yui-navset-left .yui-content {
+    width: auto;
+    background: #efefef url(../img/gradient_bg.jpg) repeat-y;
+    border: 1px solid #767676;
+    padding-right: 10px;
+}
+
+#ainspector-panel #rulesetEditDiv .yui-navset .yui-nav li.new-section {
+    border: solid #767676;
+    border-width: 1px 0 0 0;
+}
+
+#ainspector-panel #rulesetEditDiv .yui-navset .yui-nav li.header {
+    padding: 5px 0;
+}
+
+#ainspector-panel #rulesetEditDiv .yui-navset .yui-nav li.create-ruleset {
+    padding: 5px 15px;
+}
+
+#ainspector-panel #rulesetEditDiv .yui-navset .yui-nav li.create-ruleset input {
+    width: 80px;
+}
+
+#ainspector-panel #rulesetEditDiv .yui-navset .yui-nav a {
+    background: #ffffff;  /* tab background */
+    border:solid #767676;
+    border-width:0;
+    position:relative;
+    text-decoration:none;
+    padding: 5px 10px; 
+}
+
+#ainspector-panel #rulesetEditDiv .yui-navset .yui-nav .selected a,
+#ainspector-panel #rulesetEditDiv .yui-navset .yui-nav .selected a:focus, /* no focus effect for selected */
+#ainspector-panel #rulesetEditDiv .yui-navset .yui-nav .selected a:hover { /* no hover effect for selected */
+    background: #efefef url(../img/gradient_bg.jpg) repeat-y;
+    color: #000000;
+}
+
+#ainspector-panel #rulesetEditDiv .yui-navset .yui-nav a:hover,
+#ainspector-panel #rulesetEditDiv .yui-navset .yui-nav a:focus {
+    background:#ffffff; /* selected tab background */
+}
+
+#ainspector-panel #rulesetEditDiv .yui-navset .yui-nav .selected a em {
+    padding:0.35em 0.75em; /* raise selected tab */
+}
+
+#ainspector-panel #rulesetEditDiv .yui-navset .yui-nav .selected a,
+#ainspector-panel #rulesetEditDiv .yui-navset .yui-nav .selected a em {
+    border: 1px solid #767676; /* selected tab border color */
+    border-width: 1px 1px 1px 5px;
+    border-right: 2px solid transparent;
+    right: -1px;
+    padding-left: 5px;
+}
+
+#ainspector-panel #rulesetEditDiv .yui-navset .yui-nav a:hover {
+    text-decoration: underline;
+}
+
+#ainspector-panel #rulesetEditDiv .yui-navset .yui-nav .selected a:hover {
+    text-decoration: none;
+}
+
+/* END RulesetEdit screen */
+
+#ainspector-panel #progressDiv {
+    margin: 0 20px 10px 30px;
+    font-family: Arial,Helvetica;
+}
+
+#ainspector-panel #progressDiv p {
+    color: #767676; font-size: 13pt;
+    /*font-family: Lucida Grande, Tahoma, sans-serif;*/
+    margin: 10px 0;
+}
+
+#ainspector-panel #progressDiv #progbar,
+#ainspector-panel #progressDiv #progbar2 {
+    position:absolute; top:0px; left:0px; 
+    height: 20px; width: 700px; 
+    font-size: 0px; background-color: #FFFFFF;
+}
+
+#ainspector-panel #progressDiv #progtext,
+#ainspector-panel #progressDiv #progtext2 {
+    color: #767676; font-size: 8pt; 
+    /*font-family: Lucida Grande, Tahoma, sans-serif;*/
+    margin: 5px 0;
+}
+
+#ainspector-panel #progressDiv #peelprogress,
+#ainspector-panel #progressDiv #fetchprogress {
+    position:relative; 
+    height: 20px; width: 700px; 
+    vertical-align: middle; background-color: #CCC; 
+    border: 1px solid #666666; 
+}
+
+#ainspector-panel #fetch {
+    margin-top: 20px;
+}
+
+#ainspector-panel #tooltipDiv {
+    font-weight: normal;
+}
+
+#yslowDiv #copyrightDiv {
+    padding: 0 30px 10px 30px;
+    text-align: left;
+    font-weight: normal;
+    font-size: 85%;
+}
+a:focus, li:focus, select:focus {
+    outline: 2px solid #FF9933;
+    -moz-outline-radius: 5px;
+}
+
+.nav-menu li:focus {
+     outline-offset: -5px;
+}
+
+#ainspector-panel td.linksTextCol {
+  text-align: left;
+  padding-left: 5em;
+}
+
+#ainspector-panel td.linksHREFCol {
+  text-align: left; 
+  padding-left: 5em;
+}
+
+#ainspector-panel td.linksOrderCol {
+  padding-right: 4em;
+  text-align: right;
+}
+
+#ainspector-panel tr.gridHeaderRow {
+  background: 1px solid #828282;
+  font-weight: bold;
+  background: #BBBBBB url(chrome://ainspector/skin/tableHeader.gif) repeat-x;
+  
+}
+
+#ainspector-panel th.HeaderCell {
+  text-align: center;
+}
+
+#ainspector-panel td.gridColumn {
+  text-align: center;
+}
+

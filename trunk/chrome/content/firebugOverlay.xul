@@ -1,71 +1,63 @@
 <?xml version="1.0"?>
-<?xml-stylesheet href="chrome://ainspector/skin/ainspector.css" type="text/css"?>
-
-<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-
-    <script type="application/x-javascript" src="chrome://ainspector/content/jquery/jquery-1.2.6.min.js"/>
-    <script src="chrome://ainspector/content/jquery/ainspector.jQuery.js" type="text/javascript"/>
-
-    <!-- dependencies -->
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/lib/json2.js"></script>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/lib/beautify.js"></script>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/lib/fulljslint.js"></script>
-
-    <!-- ainspector core -->
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/ainspector.js"></script>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/controller.js"></script>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/util.js"></script>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/renderers.js"></script>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/tools.js"></script>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/resultset.js"></script>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/context.js"></script>
-    <script type="application/x-javascript" src="chrome://ainspector/content/grid.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/headingsGrid.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/imagesGrid.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/formsGrid.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/linksGrid.js"/>
-
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector-ff-pref.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/view.js"/>
-
-    <!-- Firebug plumbing -->
-    <script type="application/x-javascript" src="chrome://ainspector/content/exporter.js"></script>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector-firebug-net.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector-firebug.js"/>
-   
-    <!-- A11y & DOM+ Tabs -->
-    <script src="chrome://ainspector/content/ainspector/AllyModule.js" type="application/x-javascript"/> 
-    <script src="chrome://ainspector/content/ainspector/A11yPanel.js" type="application/x-javascript"/> 
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"> 
+  <script type="application/x-javascript" src="chrome://ainspector/content/ainspector.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/ainspector-firebug.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/navigation.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/linksPlate.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/rulesSidePanel.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/advancedSidePanel.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/widget.js"/>
+  
+  <script type="application/x-javascript" src="chrome://ainspector/content/openajax_a11y/openajax_a11y_all.js"/>
+  
+  <commandset id="mainCommandSet"> 
+    <command id="ainspector_report_view_button" oncommand="Firebug.ainspectorModule.reportView(Firebug.currentContext)"/>
+    <command id="ainspector_images_view_button" oncommand="Firebug.ainspectorModule.imagesView(Firebug.currentContext)"/>
+    <command id="ainspector_controls_view_button" oncommand="Firebug.ainspectorModule.controlsView(Firebug.currentContext)"/>
+    <command id="ainspector_color_contrast_view_button" oncommand="Firebug.ainspectorModule.colorContrastView(Firebug.currentContext)"/>
+    <command id="ainspector_headings_landmarks_view_button" oncommand="Firebug.ainspectorModule.headingsView(Firebug.currentContext)"/>
+    <command id="ainspector_links_view_button" oncommand="Firebug.ainspectorModule.linksView(Firebug.currentContext)"/>
+    <command id="ainspector_lists_view_button" oncommand="Firebug.ainspectorModule.listsView(Firebug.currentContext)"/>
+    <command id="ainspector_tables_view_button" oncommand="Firebug.ainspectorModule.tablesView(Firebug.currentContext)"/>
     
-    <!-- OAA Rules -->
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/oaa-a11y.js"/>
-   	<script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/scripts/cross-browser-util.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/scripts/javascript-xpath.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/nls/wcag20-ruleset_fr-fr.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/nls/wcag20-ruleset_en-us.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/nls/iitaa10-ruleset_en-us.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/wai-aria/wai-aria-definitions.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/scripts/util.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/scripts/colorUtil.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_accesskey.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_audio_video.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_data_table.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_form_and_widget.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_frame.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_image_area.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_landmark_header.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_lang.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_layout.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_links.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_scripting.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rules/oaa-rules_style.js"/>
-	<script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rulesets/wcag20-ruleset.js"/>
-	<script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA/rulesets/iitaa10-ruleset.js"/>
-	
-    <script type="application/x-javascript" src="chrome://ainspector/content/ainspector/OAA_Nexus.js" />
+    <command id="ainspector_navigation_view_button" oncommand="Firebug.ainspectorModule.navigationView(Firebug.currentContext)"/>
+  </commandset> 
+  
+  <toolbar id="fbToolbar" align="center"> 
+    <hbox id="fbToolbarInner" insertbefore="fbDetachButton" flex="1" align="center"> 
+      <hbox id="fbFirebugExtensionButtons" insertafter="fbNetButtons"> 
+        <toolbarseparator/>
+	    <toolbox> 
+        <toolbar id="radio-toolbar">
+        <toolbarbutton label="Report" class="toolbar-text-button fbInternational" checked = "true"  command="ainspector_report_view_button" type="radio" group="RadioGroup"/> 
+        <toolbarseparator/>
+        <toolbarbutton label="Images/Media" class="toolbar-text-button fbInternational" command="ainspector_images_view_button" type="radio" group="RadioGroup"/>
+        <toolbarseparator/>
+        <toolbarbutton label="Controls" class="toolbar-text-button fbInternational" command="ainspector_controls_view_button" type="radio" group="RadioGroup"/>
+        <toolbarseparator/>
+        <toolbarbutton label="Color Contrast" class="toolbar-text-button fbInternational" command="ainspector_color_contrast_view_button" type="radio" group="RadioGroup"/> 
+        <toolbarseparator/>
+        <toolbarbutton label="Headings/Landmarks" class="toolbar-text-button fbInternational" command= "ainspector_headings_landmarks_view_button" type="radio" group="RadioGroup"/>
+        <toolbarseparator/>
+        <toolbarbutton label="Links" class="toolbar-text-button fbInternational" command= "ainspector_links_view_button" type="radio" group="RadioGroup"/>
+        <toolbarseparator/>
+        <toolbarbutton label="Lists" class="toolbar-text-button fbInternational" command="ainspector_lists_view_button" type="radio" group="RadioGroup"/> 
+        <toolbarseparator/>
+        <toolbarbutton label="Tables" class="toolbar-text-button fbInternational" command="ainspector_tables_view_button" type="radio" group="RadioGroup"/> 
+        <toolbarseparator/>
+      
+        <toolbarbutton label="Navigation" class="toolbar-text-button fbInternational" command= "ainspector_navigation_view_button" type="radio" group="RadioGroup"/>
+        <toolbarseparator/>
  
-    <stringbundleset id="stringbundleset">
-        <stringbundle id="a11y_bundle" src="chrome://ainspector/locale/a11y.properties"/>
-    </stringbundleset>
+         
+       </toolbar>   
+      </toolbox>  
+      </hbox> 
+    </hbox>   
+  </toolbar> 
+   
+  
+</overlay> 
 
-</overlay>
+
+    
