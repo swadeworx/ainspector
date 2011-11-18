@@ -1,9 +1,9 @@
 <!ENTITY  ainspector.toolbarbutton.report.label         "Report">
 <!ENTITY  ainspector.toolbarbutton.images.label         "Images/Media">
-<!ENTITY  ainspector.toolbarbutton.controls.label         "Controls">
-<!ENTITY  ainspector.toolbarbutton.colorContrast.label         "Color Contrast">
-<!ENTITY  ainspector.toolbarbutton.headings.label         "Headings/Landmarks">
-<!ENTITY  ainspector.toolbarbutton.links.label         "Links">
-<!ENTITY  ainspector.toolbarbutton.lists.label         "Lists">
+<!ENTITY  ainspector.toolbarbutton.controls.label       "Controls">
+<!ENTITY  ainspector.toolbarbutton.colorContrast.label  "Color Contrast">
+<!ENTITY  ainspector.toolbarbutton.headings.label       "Headings/Landmarks">
+<!ENTITY  ainspector.toolbarbutton.links.label          "Links">
+<!ENTITY  ainspector.toolbarbutton.lists.label          "Lists">
 <!ENTITY  ainspector.toolbarbutton.tables.label         "Tables">
-<!ENTITY  ainspector.toolbarbutton.navigation.label         "Navigation">
+<!ENTITY  ainspector.toolbarbutton.navigation.label     "Navigation">

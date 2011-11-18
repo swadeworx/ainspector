@@ -1,3 +1,4 @@
 content ainspector chrome/content/
+locale  ainspector  en-US       chrome/locale/en-US/
 overlay     chrome://firebug/content/firebugOverlay.xul chrome://ainspector/content/firebugOverlay.xul
 
