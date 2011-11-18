@@ -2,6 +2,7 @@ FBL.ns(function() { with (FBL) {
   
   var panel_name = ainspectorUtil.$HW_STR("ainspector.mainpanel.name");
   var panel_title = ainspectorUtil.$HW_STR("ainpector.mainpanel.title");
+  var cache_object;
   
   Firebug.ainspectorModule = extend(Firebug.Module, { 
   
@@ -16,8 +17,22 @@ FBL.ns(function() { with (FBL) {
 	showPanel: function(browser, panel) { 
 	   
 	  var isFirebugExtension = panel && panel.name == panel_name; 
-	  var FirebugExtensionButtons = browser.chrome.$("fbFirebugExtensionButtons"); 
+	  var FirebugExtensionButtons = browser.chrome.$("fbFirebugExtensionButtons");
+	  this.showDefaultPanelView();
 	  collapse(FirebugExtensionButtons, !isFirebugExtension); 
+	},
+	
+	/**
+	 * showDefaultPanelView()
+	 * 
+	 * @ desc shows the default panel to be displayed when the AInspector is loaded for the first time
+	 * 
+	 * @param context
+	 */
+	showDefaultPanelView : function () {
+ 
+	  cache_object = this.updateCache();
+	  this.reportView(Firebug.currentContext);	
 	},
 	
 	/**
@@ -35,17 +50,6 @@ FBL.ns(function() { with (FBL) {
     },
   
     /**
-     * onClick
-     * 
-     * @desc
-     * 
-     * @param event
-     */
-    onClick: function(event) {
-      FBTrace.sysout("inside onClick() from ainspector main panel");
-    },
-  
-    /**
      * reportView
      * 
      * @desc
@@ -58,7 +62,7 @@ FBL.ns(function() { with (FBL) {
       
       /* Clear the panel before writing anything onto the report*/
       if (panel) {
-    	clearNode(panel.panelNode);
+      	clearNode(panel.panelNode);
         clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
       }
       Firebug.currentContext.getPanel("AInspector").printLine('Inside Report View'); 
@@ -88,7 +92,7 @@ FBL.ns(function() { with (FBL) {
      */
     controlsView: function(context) { 
     	  
-      var cachesResult = this.updateCache();
+      //var cachesResult = this.updateCache();
 
       var panel = context.getPanel(panel_name, true);
       
@@ -111,10 +115,10 @@ FBL.ns(function() { with (FBL) {
       this.loadCSS("chrome://ainspector/content/css/grid.css", panel.document); 
       
       var toolbar = panel.document.createElement("div");
-      //FBTrace.sysout("cachesResult..." , cachesResult);
-      var retrieve_result_from_cache = this.retrieveResultFromCache(cachesResult);                   
+      //FBTrace.sysout("cache_object..." , cache_object);
+      var retrieve_result_from_cache = this.retrieveResultFromCache(cache_object);                   
       toolbar.id = "toolbarDiv";
-      panelObject.panelsView(control_toolbar_buttons, toolbar, panel, cachesResult);
+      panelObject.panelsView(control_toolbar_buttons, toolbar, panel, cache_object);
      
       //Firebug.currentContext.getPanel("AInspector").printLine('Inside Controls View'); 
     },
@@ -213,11 +217,7 @@ FBL.ns(function() { with (FBL) {
      */
     navigationView: function(context) { 
     
-      var cachesResult = this.updateCache();
-      // NavigationPanel.onNavigationClick(context, cachesResult);
-      FBTrace.sysout("Hello World");
       var panel = context.getPanel(panel_name, true);
-      FBTrace.sysout("panelll....", panel);
       
       if (panel) {
       	clearNode(panel.panelNode);
@@ -242,7 +242,7 @@ FBL.ns(function() { with (FBL) {
       var toolbar = panel.document.createElement("div");
     
       toolbar.id = "toolbarDiv";
-      navigationPanel.navigationView(nav_toolbar_buttons, toolbar, panel, cachesResult);
+      navigationPanel.navigationView(nav_toolbar_buttons, toolbar, panel, cache_object);
     },
   
     /**
