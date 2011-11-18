@@ -1,5 +1,9 @@
 FBL.ns(function() { with (FBL) {
 
+  var main_panel = ainspectorUtil.$HW_STR("ainspector.mainpanel.name");
+  var side_panel_name = ainspectorUtil.$HW_STR("ainspector.sidepanel.rules.name");
+  var side_panel_title = ainspectorUtil.$HW_STR("ainspector.sidepanel.rules.title");
+  
   /**
    * @panel NavigationSidePanel displaying Rule results for the current selected 
    * row in the Navigation button,
@@ -8,9 +12,9 @@ FBL.ns(function() { with (FBL) {
   
   NavigationSidePanel.prototype = extend(Firebug.Panel, {
     
-    name: 'Rules',
-    parentPanel: 'AInspector',
-    title: 'Rules',
+    name: side_panel_name,
+    parentPanel: main_panel,
+    title: side_panel_title,
     order: 0,
     editable: true,
 
@@ -19,15 +23,13 @@ FBL.ns(function() { with (FBL) {
      *
      * initialize
      * 
-     *@author pbale
-     * 
      *@param context
      * 
      *@param doc
      */
      initialize: function(context, doc) {
     
-	   this.onKeyPress = bind(this.onKeyPress, this);
+	   //this.onKeyPress = bind(this.onKeyPress, this);
 	   this.onCLick = bind(this.setSelection, this);
        Firebug.Panel.initialize.apply(this, arguments);
      },
@@ -52,7 +54,7 @@ FBL.ns(function() { with (FBL) {
 //     this.onCLick = bind(this.onClick, this);
        this.setSelection = bind(this.setSelection, this);
        this.mainPanel.panelNode.addEventListener("click", this.setSelection, false);
-       this.mainPanel.panelNode.addEventListener("keypress", this.onKeyPress, false);
+       //this.mainPanel.panelNode.addEventListener("keypress", this.onKeyPress, false);
        Firebug.Panel.initializeNode.apply(this, arguments);
     // Log simple message
      },
@@ -184,36 +186,24 @@ FBL.ns(function() { with (FBL) {
      setSelection: function(event) {
    
 	   FBTrace.sysout("event in setSelection:", event);
-      // FBTrace.sysout("repObject", Firebug.getRepObject(event.target));
-      
-       /* var document_order = event.target.id;
-        FBTrace.sysout("document_order: "+ document_order);    
-        var linkEle = event.currentTarget.link;
-        var resultArray = new Array();
-        FBTrace.sysout("linkEle in setSelection:"+ event.currentTarget.id);
-        FBTrace.sysout("originalTarget:", event.originalTarget.offsetParent.offsetParent.lastElementChild.rows[0].link);
-        var linkObjs = event.originalTarget.offsetParent.offsetParent.lastElementChild.rows;
-        var linkObjs_length = linkObjs.length;
-        var linkEle;
-        for (var i = 0; i < linkObjs_length; i++) {
-          if (linkObjs[i].link.document_order == document_order) {
-            linkEle = linkObjs[i].link;
-          }
-        }*/
-        
-       //var linkEle = event.originalTarget.offsetParent.offsetParent.lastElementChild.rows[0].link;
-
        var linkEle = Firebug.getRepObject(event.target);
        FBTrace.sysout("linkEle: ", linkEle);    
        
        this.rebuild(this.getRuleResults(linkEle.dom_element));
      },
     
+     /**
+      * getRuleResults
+      * 
+      * @param rule_results_object
+      * 
+      * @return resultArray;
+      */
      getRuleResults: function(rule_results_object){
      
          FBTrace.sysout("Inside getRuleResults....", rule_results_object);
-    	 var resultArray = new Array();
-    	 var i;
+         var i;
+         var resultArray = new Array();
     	 var violations = rule_results_object.rules_violations;
     	 var potential_violations = rule_results_object.rules_potential_violations;
     	 var recommendations = rule_results_object.rules_recommendations;
