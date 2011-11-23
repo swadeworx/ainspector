@@ -1,8 +1,8 @@
 FBL.ns(function() { with (FBL) {
 
-  var main_panel = ainspectorUtil.$HW_STR("ainspector.mainpanel.name");
-  var side_panel_name = ainspectorUtil.$HW_STR("ainspector.sidepanel.rules.name");
-  var side_panel_title = ainspectorUtil.$HW_STR("ainspector.sidepanel.rules.title");
+  var main_panel = ainspectorUtil.$AI_STR("ainspector.mainpanel.name");
+  var side_panel_name = ainspectorUtil.$AI_STR("ainspector.sidepanel.rules.name");
+  var side_panel_title = ainspectorUtil.$AI_STR("ainspector.sidepanel.rules.title");
   
   /**
    * @panel NavigationSidePanel displaying Rule results for the current selected 
