@@ -1,26 +1,7 @@
-#ainspector-side-panelai-sidepanel-table {
+#ainspector-side-panel .ai-sidepanel-table {
   width: 90%;
 }
 
-.toolbar-text-button,
-.toolbar-text-menubutton {
-    padding: 3px 6px;
-    color: #000000;
-}
-
-.toolbar-text-button[disabled="true"],
-.toolbar-text-menubutton[disabled="true"] {
-    color: graytext;
-}
-
-.toolbar-text-button[checked="true"] {
-    padding: 3px 6px !important;
-}
-
-.toolbar-text-button > .toolbarbutton-icon,
-.toolbar-text-menubutton > .toolbarbutton-icon {
-    /*display: none;*/
-}
 
 
 
