@@ -1,7 +1,7 @@
 FBL.ns(function() { with (FBL) { 
   
-  var panel_name = ainspectorUtil.$HW_STR("ainspector.mainpanel.name");
-  var panel_title = ainspectorUtil.$HW_STR("ainpector.mainpanel.title");
+  var panel_name = ainspectorUtil.$AI_STR("ainspector.mainpanel.name");
+  var panel_title = ainspectorUtil.$AI_STR("ainpector.mainpanel.title");
   var cache_object;
   
   Firebug.ainspectorModule = extend(Firebug.Module, { 
@@ -82,7 +82,20 @@ FBL.ns(function() { with (FBL) {
         clearNode(panel.panelNode);
         clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
       }
-      Firebug.currentContext.getPanel("AInspector").printLine('Inside Images View'); 
+      
+      var image_toolbar_buttons = [{name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.images"), selected: true, first:true},
+                                   {name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.images.mediaTab")}, 
+                                   {name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.images.abbreviationTab")},
+                                   {name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.images.rulesTab")}];
+      
+      ainspectorUtil.loadCSSToStylePanel(panel.document);
+
+      var toolbar = panel.document.createElement("div");
+      toolbar.id = "toolbarDiv";
+      var images_cache = cache_object.dom_cache.images_cache;
+      images_cache.sortImageElements('document_order', true);
+      imageObject.imagePanelView(image_toolbar_buttons, toolbar, panel, images_cache);
+      
     },
       
     /**
@@ -106,13 +119,7 @@ FBL.ns(function() { with (FBL) {
                                  {name: "Control Rules", selected: true, first: true},                     
                                  {name: "Control List"}];
                              
-      this.loadCSS("chrome://ainspector/content/css/ainspector-panel.css", panel.document);
-      this.loadCSS("chrome://ainspector/content/css/ainspector-side-panel.css", panel.document);
-      this.loadCSS("chrome://ainspector/content/css/fonts-min.css", panel.document);
-      this.loadCSS("chrome://ainspector/content/css/tabview.css", panel.document);
-      //this.loadCSS("chrome://ainspector/content/css/ainspector.css", panel.document);
-      this.loadCSS("chrome://ainspector/content/css/allyGrade.css", panel.document);
-      this.loadCSS("chrome://ainspector/content/css/grid.css", panel.document); 
+      ainspectorUtil.loadCSSToStylePanel(panel.document); 
       
       var toolbar = panel.document.createElement("div");
       //FBTrace.sysout("cache_object..." , cache_object);
@@ -120,7 +127,6 @@ FBL.ns(function() { with (FBL) {
       toolbar.id = "toolbarDiv";
       panelObject.panelsView(control_toolbar_buttons, toolbar, panel, cache_object);
      
-      //Firebug.currentContext.getPanel("AInspector").printLine('Inside Controls View'); 
     },
     
     /**
@@ -137,7 +143,6 @@ FBL.ns(function() { with (FBL) {
       	clearNode(panel.panelNode);
         clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
       }
-      Firebug.currentContext.getPanel("AInspector").printLine('Inside Color Contrast View'); 
     },
       
     /**
@@ -154,7 +159,6 @@ FBL.ns(function() { with (FBL) {
       	clearNode(panel.panelNode);
         clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
       }
-      Firebug.currentContext.getPanel("AInspector").printLine('Inside Headings/Landmarks View'); 
     },
         
     /**
@@ -164,14 +168,25 @@ FBL.ns(function() { with (FBL) {
      */
     linksView: function(context) { 
         	  
-      var panel = context.getPanel(panel_name, true);
+    	var panel = context.getPanel(panel_name, true);
 
-      /* Clear the panel before writing anything onto the report*/
-      if (panel) {
-       	clearNode(panel.panelNode);
-        clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
-      }
-      Firebug.currentContext.getPanel("AInspector").printLine('Inside Links View'); 
+        /* Clear the panel before writing anything onto the report*/
+        if (panel) {
+          clearNode(panel.panelNode);
+          clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+        }
+        
+        var toolbar_buttons = [{name: "Duplicate HREF", selected: true, first:true},
+                                     {name: "Duplicate NAME"}, 
+                                     {name: "AREA"}];
+        
+        ainspectorUtil.loadCSSToStylePanel(panel.document);
+
+        var toolbar = panel.document.createElement("div");
+        toolbar.id = "toolbarDiv";
+        var images_cache = cache_object.dom_cache.images_cache;
+        images_cache.sortImageElements('document_order', true);
+        imageObject.imagePanelView(toolbar_buttons, toolbar, panel, images_cache);
     },
     
     /**
@@ -179,16 +194,26 @@ FBL.ns(function() { with (FBL) {
      * @param context
      * @returns
      */
-    listView: function(context) { 
+    listsView: function(context) { 
          	  
-      var panel = context.getPanel(panel_name, true);
+    	var panel = context.getPanel(panel_name, true);
 
-      /* Clear the panel before writing anything onto the report*/
-      if (panel) {
-       	clearNode(panel.panelNode);
-        clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
-      }
-      Firebug.currentContext.getPanel("AInspector").printLine('Inside List View'); 
+        /* Clear the panel before writing anything onto the report*/
+        if (panel) {
+          clearNode(panel.panelNode);
+          clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+        }
+        
+        var toolbar_buttons = [{name: "List View", selected: true, first:true},
+                                     {name: "Tree View"}];
+        
+        ainspectorUtil.loadCSSToStylePanel(panel.document);
+        
+        var toolbar = panel.document.createElement("div");
+        toolbar.id = "toolbarDiv";
+        var images_cache = cache_object.dom_cache.images_cache;
+        images_cache.sortImageElements('document_order', true);
+        imageObject.imagePanelView(toolbar_buttons, toolbar, panel, images_cache);
     },
     
     /**
@@ -205,7 +230,6 @@ FBL.ns(function() { with (FBL) {
        	clearNode(panel.panelNode);
         clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
       }
-      Firebug.currentContext.getPanel("AInspector").printLine('Inside Tables View'); 
     },
     
     /**
@@ -231,13 +255,7 @@ FBL.ns(function() { with (FBL) {
           {name: "Widgets"},
           {name: "Forms"}];
       
-      this.loadCSS("chrome://ainspector/content/css/ainspector-panel.css", panel.document);
-      this.loadCSS("chrome://ainspector/content/css/ainspector-side-panel.css", panel.document);
-      this.loadCSS("chrome://ainspector/content/css/fonts-min.css", panel.document);
-      this.loadCSS("chrome://ainspector/content/css/tabview.css", panel.document);
-      //this.loadCSS("chrome://ainspector/content/css/ainspector.css", panel.document);
-      this.loadCSS("chrome://ainspector/content/css/allyGrade.css", panel.document);
-      this.loadCSS("chrome://ainspector/content/css/grid.css", panel.document); 
+      ainspectorUtil.loadCSSToStylePanel(panel.document); 
       
       var toolbar = panel.document.createElement("div");
     
@@ -245,26 +263,7 @@ FBL.ns(function() { with (FBL) {
       navigationPanel.navigationView(nav_toolbar_buttons, toolbar, panel, cache_object);
     },
   
-    /**
-     * equivalentsView
-     * 
-     * @desc
-     * 
-     * @param context
-     */
-    equivalentsView: function(context) { 
  
-      var panel = context.getPanel(panel_name, true);
-    
-      /* Clear the panel before writing anything onto the Navigation*/
-      if (panel) {
-       	clearNode(panel.panelNode);
-        clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
-      }
-      
-      Firebug.currentContext.getPanel("AInspector").printLine('Inside Equivalents View'); 
-    },
-  
     /**
      * colorContrastView
      * 
@@ -282,7 +281,6 @@ FBL.ns(function() { with (FBL) {
         clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
       }
       
-      Firebug.currentContext.getPanel("AInspector").printLine('Inside Colorcontrast View'); 
     },
   
     /**
@@ -293,44 +291,20 @@ FBL.ns(function() { with (FBL) {
      */
     updateCache: function() {
 
+      var cache_Object;
       try { 
         var doc = window.content.document;
       } catch(e) {
         var doc  = window.opener.parent.content.document;
       } // end try
       
-      FBTrace.sysout("doc.location---" + doc.location);
-      FBTrace.sysout("doc.title---" + doc.title);
-      var cacheResult = new OpenAjax.a11y.RulesetEvaluation('WCAG_2_0', 'en-us', doc.location.href, doc.title, doc, null);
-      cacheResult.evaluate(true);
-      cacheResult.dom_cache.links_cache.sortLinkElements('document_order', true);
+      cache_Object = new OpenAjax.a11y.RulesetEvaluation('WCAG_2_0', 'en-us', doc.location.href, doc.title, doc, null);
+      cache_Object.evaluate(true);
+      cache_Object.dom_cache.links_cache.sortLinkElements('document_order', true);
       
-      return cacheResult;
+      return cache_Object;
     },
   
-    /**
-     * loadCSS
-     * 
-     * @desc
-     * 
-     * @param  url
-     * @param  doc 
-     */
-    loadCSS: function(url, doc) {
-    
-      if ( ! doc ) {
-        return '';
-      }
-      
-      var newCss = doc.createElement("link");
-      newCss.rel = "stylesheet";
-      newCss.type = "text\/css";
-      newCss.href = url;
-      doc.body.appendChild(newCss);
-      
-      return newCss;
-    },
-    
     retrieveResultFromCache: function(cacheResult) {
       	
     }
