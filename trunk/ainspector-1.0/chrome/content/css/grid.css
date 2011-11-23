@@ -15,17 +15,25 @@
     height: 16px;
 }
 
+.gridHeaderRowz {
+  margin: 0;
+  border: 0;
+  padding: 3px 5px;
+  vertical-align: top;
+  background-color: #999;
+  color: #eee;
+  white-space: nowrap;
+}
 
 .gridHeaderCell {
     cursor: pointer;
     -moz-user-select: none;
     border-bottom: 1px solid #9C9C9C;
     padding: 0 !important;
-    font-weight: bold;
+    font-weight: normal;
     color: #000000; 
-    font-weight: bold;
     font-size: medium;
-    background: #BBBBBB url(chrome://firebug/skin/tableHeader.gif) repeat-x;
+    background: #EEEEEE url(chrome://ainspector/skin/tableHeader.gif) repeat-x;
     white-space: nowrap; 
 }
 
@@ -37,32 +45,33 @@
     padding: 2px 14px 2px 10px;
     border-left: 1px solid #D9D9D9;
     border-right: 1px solid #9C9C9C;
+    text-align: left;
 }
 
 .gridHeaderCell:hover:active {
-    background: #959595 url(chrome://firebug/skin/tableHeaderActive.gif) repeat-x;
+    background: #959595 url(chrome://ainspector/skin/tableHeaderActive.gif) repeat-x;
 }
 
 .gridHeaderCell:focus {
 	outline:none;
-    background: #959595 url(../img/tableHeaderFocus.gif) bottom left repeat-x;
+  background: #959595 url(../img/tableHeaderFocus.gif) bottom left repeat-x;
 }
 
 .gridHeaderSorted {
-    background: #7D93B2 url(chrome://firebug/skin/tableHeaderSorted.gif) repeat-x;
+    background: #7D93B2 url(chrome://ainspector/skin/tableHeaderSorted.gif) repeat-x;
 }
 
 .gridHeaderSorted > .gridHeaderCellBox {
     border-right-color: #6B7C93;
-    background: url(chrome://firebug/skin/arrowDown.png) no-repeat right;
+    background: url(chrome://ainspector/skin/arrowDown.png) no-repeat right;
 }
 
 .gridHeaderSorted.sortedAscending > .gridHeaderCellBox {
-    background-image: url(chrome://firebug/skin/arrowUp.png);
+    background-image: url(chrome://ainspector/skin/arrowUp.png);
 }
 
 .gridHeaderSorted:hover:active {
-    background: #536B90 url(chrome://firebug/skin/tableHeaderSortedActive.gif) repeat-x;
+    background: #536B90 url(chrome://ainspector/skin/tableHeaderSortedActive.gif) repeat-x;
 }
 
 /************************************************************************************************/
@@ -136,10 +145,18 @@
 /*    white-space: nowrap;    grid column sizes will not resize if this is set */
 }
 
+.gridOrderCol {
+  text-align: right;
+}
+
 .gridLabel {
     width: 100%; 
 }
 
+.gridContent {
+    width: 100%;
+    text-align: left; 
+}
 .useA11y .a11yShowFullLabel {
     display: block;
     background-image: none !important;
