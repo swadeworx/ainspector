@@ -291,18 +291,18 @@ FBL.ns(function() { with (FBL) {
      */
     updateCache: function() {
 
-      var cache_Object;
+      var cache_object;
       try { 
         var doc = window.content.document;
       } catch(e) {
         var doc  = window.opener.parent.content.document;
       } // end try
       
-      cache_Object = new OpenAjax.a11y.RulesetEvaluation('WCAG_2_0', 'en-us', doc.location.href, doc.title, doc, null);
-      cache_Object.evaluate(true);
-      cache_Object.dom_cache.links_cache.sortLinkElements('document_order', true);
-      
-      return cache_Object;
+      cache_object = new OpenAjax.a11y.RulesetEvaluation('WCAG_2_0', 'en-us', doc.location.href, doc.title, doc, null);
+      cache_object.evaluate(true);
+      cache_object.dom_cache.links_cache.sortLinkElements('document_order', true);
+      FBTrace.sysout("cache...............", cache_object);
+      return cache_object;
     },
   
     retrieveResultFromCache: function(cacheResult) {
