@@ -14,7 +14,7 @@ with (FBL) {
    */
   var panelPlate = domplate({
     toolbar : DIV( {class : "nav-menu"},
-                TAG("$toolbarButtons", {toolbar_buttons : "$control_toolbar_buttons"}),
+                TAG("$toolbarButtons", {toolbar_buttons : "$toolbar_buttons"}),
                   DIV({style : "clear: both"})        
               ), 
   
@@ -209,10 +209,10 @@ with (FBL) {
 	 * @param cacheResult
 	 * @returns
 	 */
-	 panelsView : function(control_toolbar_buttons, toolbar, panelView, cacheResult) {
+	 panelsView : function(toolbar_buttons, toolbar, panelView, cacheResult) {
 	        
-	  FBTrace.sysout("control_toolbar_buttons: ", control_toolbar_buttons); 
-	  panelPlate.toolbar.replace({control_toolbar_buttons : control_toolbar_buttons}, toolbar, panelPlate);
+	  FBTrace.sysout("control_toolbar_buttons: ", toolbar_buttons); 
+	  panelPlate.toolbar.replace({toolbar_buttons : toolbar_buttons}, toolbar, panelPlate);
 	  toolbar.style.display = "block";
 	  panelView.panelNode.id = "ainspector-panel"; 
 	  panelView.panelNode.appendChild(toolbar);

@@ -162,11 +162,15 @@ FBL.ns(function() { with (FBL) {
 //     FBTrace.sysout("Side Panel...", Firebug.currentContext.getPanel('Rules'));
      },
      
-     sView: function(state){
+     sView: function(state, first_element){
     	 if (state) {
              try {
-        	   result = this.mainPanel.panelNode.lastElementChild.lastElementChild.firstElementChild.link.dom_element;
-        	   FBTrace.sysout("sView link..............." , result);
+          	   //FBTrace.sysout(".............sView..............", this.mainPanel.panelNode.lastElementChild.lastElementChild.firstElementChild.cache_type);
+          	   //FBTrace.sysout(".............type.............."+ cache_type );
+
+        	  // result = this.mainPanel.panelNode.lastElementChild.lastElementChild.firstElementChild.image.dom_element;
+        	   result = first_element.dom_element;
+          	   FBTrace.sysout("sView link..............." , result);
                rule_result_array = this.getRuleResults(result);
         	   FBTrace.sysout("rule_result_array length..............." + rule_result_array.length);
                if (rule_result_array.length > 0) this.rebuild(rule_result_array);
@@ -186,10 +190,10 @@ FBL.ns(function() { with (FBL) {
      setSelection: function(event) {
    
 	   FBTrace.sysout("event in setSelection:", event);
-       var linkEle = Firebug.getRepObject(event.target);
-       FBTrace.sysout("linkEle: ", linkEle);    
+       var element = Firebug.getRepObject(event.target);
+       FBTrace.sysout("element: ", element);    
        
-       this.rebuild(this.getRuleResults(linkEle.dom_element));
+       this.rebuild(this.getRuleResults(element.dom_element));
      },
     
      /**
@@ -386,10 +390,10 @@ FBL.ns(function() { with (FBL) {
           )
         ),  
         TBODY(
-          FOR("linkObj", "$object",
+          FOR("obj", "$object",
             TR({"class": "tableRow a11yFocus", "role": "row"},
-              TD({"class": "resultsCol gridCell gridCol", "role": "gridcell", "tabindex": "-1"}, DIV({"class": "gridLabel"},"$linkObj.severity")),
-              TD({"class": "messagesCol gridCell gridCol", "role": "gridcell", "tabindex": "-1"}, DIV({"class": "gridLabel"},"$linkObj.message"))
+              TD({"class": "resultsCol gridCell gridCol", "role": "gridcell", "tabindex": "-1"}, DIV({"class": "gridLabel"},"$obj.severity")),
+              TD({"class": "messagesCol gridCell gridCol", "role": "gridcell", "tabindex": "-1"}, DIV({"class": "gridLabel"},"$obj.message"))
             ) //end TR
           ) 
         ) //end TBODY  
