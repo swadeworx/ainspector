@@ -29,7 +29,7 @@ FBL.ns(function() { with (FBL) {
      */
      initialize: function(context, doc) {
     
-	   //this.onKeyPress = bind(this.onKeyPress, this);
+	   this.onKeyPress = bind(this.onKeyPress, this);
 	   this.onCLick = bind(this.setSelection, this);
        Firebug.Panel.initialize.apply(this, arguments);
      },
@@ -54,7 +54,7 @@ FBL.ns(function() { with (FBL) {
 //     this.onCLick = bind(this.onClick, this);
        this.setSelection = bind(this.setSelection, this);
        this.mainPanel.panelNode.addEventListener("click", this.setSelection, false);
-       //this.mainPanel.panelNode.addEventListener("keypress", this.onKeyPress, false);
+       this.mainPanel.panelNode.addEventListener("keypress", this.onKeyPress, false);
        Firebug.Panel.initializeNode.apply(this, arguments);
     // Log simple message
      },
@@ -80,46 +80,60 @@ FBL.ns(function() { with (FBL) {
      onKeyPress: function(event) {
    
 	   FBTrace.sysout("Inside navigationSidePanel-onKeyPress", event);
+       var current_row;
+       var next_row;
+       var previous_row;
+       var prev_cell;
+       var next_cell;
        
 	   if (event.keyCode == KeyEvent.DOM_VK_UP) {
-         this.selectCellBy("tab");
-       } else if (event.keyCode == KeyEvent.DOM_VK_UP) {
-         this.selectCellBy("up");
-       } else if (event.keyCode == KeyEvent.DOM_VK_DOWN) {
+		 current_row = getAncestorByClass(event.target, "tableRow");
+    	 FBTrace.sysout("up..." , current_row);
+    	// previous_row = current_row.previousSibling;
+    	 FBTrace.sysout("previous_row" , previous_row);
+    	 result = current_row.repObject.dom_element;
+         rule_result_array = this.getRuleResults(result);
+         if (rule_result_array.length > 0) this.rebuild(rule_result_array);
+      
+	   } else if (event.keyCode == KeyEvent.DOM_VK_DOWN) {
+    	 current_row = getAncestorByClass(event.target, "tableRow");
+    	 next_row = current_row.nextSibling;
+    	 result = next_row.repObject.dom_element;
+         rule_result_array = this.getRuleResults(result);
+       
+         if (rule_result_array.length > 0) this.rebuild(rule_result_array);
+       
+	   } else if (event.keyCode == KeyEvent.DOM_VK_LEFT) {
          this.setSelection(event);
-       } else if (event.keyCode == KeyEvent.DOM_VK_LEFT) {
-         this.selectCellBy("left");
-       } else if (event.keyCode == KeyEvent.DOM_VK_RIGHT) {
-         this.selectCellBy("right");
-       } else if (event.keyCode == KeyEvent.DOM_VK_BACK_SPACE){
+	   } else if (event.keyCode == KeyEvent.DOM_VK_RIGHT) {
+		 this.setSelection(event);
+	   } else if (event.keyCode == KeyEvent.DOM_VK_BACK_SPACE){
          this.deleteNode("node", "up");
-       } else if (event.keyCode == KeyEvent.DOM_VK_DELETE) {
+       
+	   } else if (event.keyCode == KeyEvent.DOM_VK_DELETE) {
          this.deleteNode("node", "down");
-       } else {
+       
+	   } else {
          return;
        }     
-     }, 
-   
-     /**
-      * selectCellBy
-      * 
-      * @desc
-      * 
-      * @param direction
-      */
-     selectCellBy: function(direction) {
-  
-       if (direction == "up") {
-       
-       } else if (direction == "down"){
-     
-         FBTrace.sysout("Inside navigationSidePanel-selectCellBy() direction..."+ direction);
-         this.setSelection;
-       } else {
-       
-       }
      },
-   
+     
+     findIndex: function(ele){
+       var k = -1;
+       var e = ele;
+       while (e) {
+    	 if ("previousElementSibling" in e) {
+    	   e = e.previousSibling;
+    	   FBTrace.sysout("e", e);
+    	   k = k+1;
+    	 } else {
+    	   k = -1;
+    	   break;
+    	 } 
+       }
+       return k;
+     },
+     
      /**
       * deleteNode
       * 

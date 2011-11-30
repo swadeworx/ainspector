@@ -221,14 +221,14 @@ with (FBL) {
       TABLE({"class": "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "", "role": "treegrid"},
         THEAD(
           TR({"class": "gridHeaderRow a11yFocus", id: "imgTableHeader", "role": "row", tabindex: "0", onclick: "$onClickHeader"},
-            TH({"class": "gridHeaderCell", id: "imgOrderCol"}, DIV({"class": "gridHeaderCellBox"}, "documentOrder")),
+            TH({"class": "gridHeaderCell", id: "imgOrderCol"}, DIV({"class": "gridHeaderCellBox"}, "Order")),
             TH({"class": "gridHeaderCell", id: "imgTextCol"}, DIV({"class": "gridHeaderCellBox"}, "Alt Text")), //TAG("$headerTag", {header: "Source"}))),
             TH({"class": "gridHeaderCell", id: "imgSrcCol"}, DIV({"class": "gridHeaderCellBox"}, "Source"))
           ) //end TR
         ), //end THEAD
         TBODY(
           FOR("object", "$image_elements",
-            TR({"class": "tableRow a11yFocus", "role": "row", id: "$object.cache_id", _image:"$object", onclick: "$hightlightRow"},//gridRow              
+            TR({"class": "tableRow a11yFocus", "role": "row", id: "$object.cache_id", _repObject:"$object", onclick: "$hightlightRow"},//gridRow              
               TD({"class": "gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1"},
                 DIV({"class": "gridContent gridOrderCol", _repObject:"$object"}, "$object.document_order")
               ),
