@@ -18,7 +18,10 @@ FBL.ns(function() { with (FBL) {
 	   
 	  var isFirebugExtension = panel && panel.name == panel_name; 
 	  var FirebugExtensionButtons = browser.chrome.$("fbFirebugExtensionButtons");
+	  FBTrace.sysout("FirebugExtensionButtons  : ", FirebugExtensionButtons.childNodes[1].childNodes);
+
 	  this.showDefaultPanelView();
+	  //FBTrace.sysout("showPanel  : ", panel.getTabBrowserView());
 	  collapse(FirebugExtensionButtons, !isFirebugExtension); 
 	},
 	
@@ -48,7 +51,7 @@ FBL.ns(function() { with (FBL) {
         Firebug.setPref('defaultPanelName','console');
       }
     },
-  
+    
     /**
      * reportView
      * 
@@ -65,6 +68,7 @@ FBL.ns(function() { with (FBL) {
       	clearNode(panel.panelNode);
         clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
       }
+      
       Firebug.currentContext.getPanel("AInspector").printLine('Inside Report View'); 
     },
     
@@ -353,9 +357,9 @@ FBL.ns(function() { with (FBL) {
     },
     
     show: function() {
-    	
+
+      FBTrace.sysout("Inside show..............................");
       Firebug.Panel.show.apply(this, arguments);
-      FBTrace.sysout("Inside show.............................." + ainspectorUtil.$HW_STR("ainspector.mainpanel.name"));
       
     },
     

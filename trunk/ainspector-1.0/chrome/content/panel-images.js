@@ -228,14 +228,14 @@ with (FBL) {
         ), //end THEAD
         TBODY(
           FOR("object", "$image_elements",
-            TR({"class": "tableRow a11yFocus", "role": "row", id: "$object.cache_id", _repObject:"$object", onclick: "$hightlightRow"},//gridRow              
-              TD({"class": "gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1"},
+            TR({"class": "tableRow a11yFocus", "role": "row", id: "$object.cache_id", _repObject:"$object"},//gridRow              
+              TD({"class": "imgOrderCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onclick: "$hightlightCell"},
                 DIV({"class": "gridContent gridOrderCol", _repObject:"$object"}, "$object.document_order")
               ),
-              TD({"class": "imgAltCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1"},
+              TD({"class": "imgAltCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onclick: "$hightlightCell"},
                 DIV({"class": "gridContent", _repObject:"$object"}, "$object.alt")
               ),
-              TD({"class": "imgSourceCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1"},
+              TD({"class": "imgSourceCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onclick: "$hightlightCell"},
                 DIV({id: "$object.document_order", class: "gridContent"}, TAG("$attrTag", {imageObject: "$object"}) )
               )
             )//end TR   
@@ -255,16 +255,46 @@ with (FBL) {
        * @param event
        * @returns
        */
-      hightlightRow: function (event) {
-	    //Firebug.InsideOutBox.highlight(event.target);
-	    FBTrace.sysout("highlight: ", event);
-	    var colorObj = {content: "SkyBlue", padding: "SlateBlue", border: "#444444", margin: "#EDFF64"};
-	    var offset = getLTRBWH(Firebug.getRepObject(event.target));
-        var x = offset.left, y = offset.top;
-        var w = offset.width, h = offset.height;
-        FBTrace.sysout("offset: ", offset);
-        FBTrace.sysout("x: ", x);
-        FBTrace.sysout("y: ", y);
+      hightlightCell: function (event) {
+	    
+        var table = getAncestorByClass(event.target, "ai-table-list-items");
+        var row =  getAncestorByClass(event.target, "tableRow");
+        var i;
+        var j;
+        var k;
+        var cell_selected;
+        var child;
+        var row;
+        FBTrace.sysout("table: ", table);
+        var tbody = table.children[1];
+        FBTrace.sysout("tbody: ", tbody);
+
+        for (i = 0; i < tbody.children.length; i++) {
+          var flag = false;
+          var row = tbody.children[i];
+          
+          for (j = 0; j < row.children.length; j++) {
+        	var cell = row.children[j];
+        	var cell_selected = getChildByClass(cell, "gridCellSelected");
+        	FBTrace.sysout("cell_selected: "+ cell_selected);
+        	if (cell_selected) {
+              ainspectorUtil.removeClass(cell, "gridCellSelected");
+              flag = true;
+              break;
+            }
+          }
+          if (flag == true) break;
+        }
+
+        var column = getAncestorByClass(event.target, "gridCell");
+        FBTrace.sysout("column bef: ", column);
+        ainspectorUtil.setClass(column, "gridCellSelected");
+        FBTrace.sysout("column aft: ", column);
+
+        //ainspectorUtil.setClass(row_cell, "gridCellSelected");
+        //var row_cells = cell.childNodes;
+        //FBTrace.sysout("rowcells.....", row_cells);
+        
      },
        
       /**
