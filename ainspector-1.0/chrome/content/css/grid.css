@@ -74,6 +74,10 @@
     background: #536B90 url(chrome://ainspector/skin/tableHeaderSortedActive.gif) repeat-x;
 }
 
+.gridCellSelected {
+     background: #7D93B2;
+}
+
 /************************************************************************************************/
 /* Column visibility */
 

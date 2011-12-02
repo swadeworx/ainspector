@@ -1,6 +1,6 @@
     
 with (FBL) {
-
+  var classNameReCache={};
   var ainspectorUtil = {
 	
 	loadCSSToStylePanel : function(document){
@@ -13,7 +13,7 @@ with (FBL) {
     },
 		  
 	/**
-     *  Dynamically add a stylesheet to the document.
+     *  Dynamically add a style sheet to the document.
      */
     loadCSS : function(url, doc) {
       if ( ! doc ) {
@@ -41,14 +41,10 @@ with (FBL) {
       var colIndex = 0;
       if(!column) return;
       FBTrace.sysout("Inside sortColumn....");
-      var numerical = !hasClass(column, "alphaValue");
-      FBTrace.sysout("numerical...." +  numerical);
+      var numerical = !this.hasClass(column, "alphaValue");
 
       for (column = column.previousElementSibling; column; ) {
-    	FBTrace.sysout("column", column);
-    	FBTrace.sysout("column.previousSibling"+ column.previousElementSibling);
     	++colIndex;
-    	FBTrace.sysout("colIndex:  "+ colIndex);
     	column = column.previousElementSibling;
       }
 
@@ -74,7 +70,7 @@ with (FBL) {
       
       FBTrace.sysout("header...", header);
       
-      setClass(header, "gridHeaderSorted");
+      this.setClass(header, "gridHeaderSorted");
       
       // If the column is already using required sort order, bubble out.
       if ((order == "desc" && header.sorted == 1) || (order == "asc" && header.sorted == -1))  return;
@@ -89,7 +85,6 @@ with (FBL) {
 
       Preference.setPref(headerID + "sortCol", colID); 
       Preference.setPref(headerID + "sortDir", header.getAttribute("aria-sort")); 
-      FBTrace.sysout("tbody childNodes...", tbody.childNodes[1]);
       var values = [];
       for (var row = tbody.childNodes[0]; row; row = row.nextSibling) {
           var cell = row.childNodes[colIndex];
@@ -100,9 +95,8 @@ with (FBL) {
       values.sort(function(a, b) { return a.value < b.value ? -1 : 1; });
 
       if ((header.sorted && header.sorted == 1) || (!header.sorted && order == "asc")) {
-        FBTrace.sysout("111111111111111111");
     	removeClass(header, "sortedDescending");
-        setClass(header, "sortedAscending");
+        this.setClass(header, "sortedAscending");
         header.sorted = -1;
 
         for (var i = 0; i < values.length; ++i) {
@@ -111,9 +105,8 @@ with (FBL) {
           if (values[i].info) tbody.appendChild(values[i].info);
         }
       } else {
-    	FBTrace.sysout("22222222222222222222222");
     	removeClass(header, "sortedAscending");
-        setClass(header, "sortedDescending");
+        this.setClass(header, "sortedDescending");
 
         header.sorted = 1;
 
@@ -124,8 +117,127 @@ with (FBL) {
         }
       }
       FBTrace.sysout("values: ", values);
-      FBTrace.sysout("header after setClass is called: ", header);
+      FBTrace.sysout("header after this.setClass is called: ", header);
     },
+    
+    /**
+     * 
+     */
+    setClass : function(node, name) {
+    
+      if (!node || node.nodeType != 1 || name == '') return;
+
+      if (name.indexOf(" ") != -1) {
+        var classes = name.split(" "), len = classes.length;
+        
+        for (var i = 0; i < len; i++) {
+          var cls = classes[i].trim();
+          
+          if (cls != "") this.setClass(node, cls);
+        }
+        return;
+      }
+      
+      if (!this.hasClass(node, name)) node.className = node.className.trim() + " " + name;
+    },
+    
+    /**
+     * 
+     */
+    removeClass : function(node, name) {
+        
+      if (!node || node.nodeType != 1 || node.className == '' || name == '') return;
+
+      if (name.indexOf(" ") != -1) {
+        var classes = name.split(" "), len = classes.length;
+        
+        for (var i = 0; i < len; i++) {
+          var cls = classes[i].trim();
+          
+          if (cls != ""){
+                    
+            if (this.hasClass(node, cls) == false) this.removeClass(node, cls);
+          }
+        }
+        return;
+      }
+
+      var re;
+      
+      if (name.indexOf("-") == -1) {
+        re = classNameReCache[name] = classNameReCache[name] || new RegExp('(^|\\s)' + name + '(\\s|$)', "g");
+      } else { 
+        re = new RegExp('(^|\\s)' + name + '(\\s|$)', "g")
+      }
+      node.className = node.className.replace(re, " ");
+
+    },
+    
+    /**
+     * 
+     */
+    hasClass : function(node, name) {
+      if (!node || node.nodeType != 1 || !node.className || name == '') return false;
+
+      if (name.indexOf(" ") != -1) {
+        var classes = name.split(" "), len = classes.length, found=false;
+
+        for (var i = 0; i < len; i++) {
+          var cls = classes[i].trim();
+                
+          if (cls != "") {
+        	if (this.hasClass(node, cls) == false) return false;
+            found = true;
+          }
+        }
+        return found;
+      }
+      var re;
+      if (name.indexOf("-") == -1) {
+        re = classNameReCache[name] = classNameReCache[name] || new RegExp('(^|\\s)' + name + '(\\s|$)', "g");
+      } else { 
+        re = new RegExp('(^|\\s)' + name + '(\\s|$)', "g")
+      }
+      return node.className.search(re) != -1;
+    },
+    
+    getChildByClass : function(node) {
+        if (!node)
+        {
+            FBTrace.sysout("dom.getChildByClass; ERROR, no parent node!");
+            return null;
+        }
+
+        for (var i = 1; i < arguments.length; ++i)
+        {
+            var className = arguments[i];
+            var child = node.firstChild;
+            node = null;
+            for (; child; child = child.nextSibling)
+            {
+                if (this.hasClass(child, className))
+                {
+                    node = child;
+                    break;
+                }
+            }
+        }
+
+        return node;
+    },
+    
+    getAncestorByClass : function(node, className)
+    {
+        for (var parent = node; parent; parent = parent.parentNode)
+        {
+            if (this.hasClass(parent, className))
+                return parent;
+        }
+
+        return null;
+    },
+    
+    
   };
   
   var Preference = {
