@@ -1,0 +1,1 @@
+This project is been abandoned due to the performance issues. We are working on new version of the AInspector which sure show the difference in the performance levels and will be released soon.
