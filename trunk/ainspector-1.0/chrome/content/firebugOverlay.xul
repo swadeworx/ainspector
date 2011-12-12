@@ -16,6 +16,7 @@
   <script type="application/x-javascript" src="chrome://ainspector/content/advancedSidePanel.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/widget.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-images.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/panel-headings.js"/>
   
   
   <script type="application/x-javascript" src="chrome://ainspector/content/openajax_a11y/openajax_a11y_all.js"/>
@@ -29,7 +30,7 @@
     <command id="ainspector_links_view_button" oncommand="Firebug.ainspectorModule.linksView(Firebug.currentContext)"/>
     <command id="ainspector_lists_view_button" oncommand="Firebug.ainspectorModule.listsView(Firebug.currentContext)"/>
     <command id="ainspector_tables_view_button" oncommand="Firebug.ainspectorModule.tablesView(Firebug.currentContext)"/>
-    
+
     <command id="ainspector_navigation_view_button" oncommand="Firebug.ainspectorModule.navigationView(Firebug.currentContext)"/>
   </commandset> 
   
@@ -39,23 +40,22 @@
         <toolbarseparator/>
 	    <toolbox> 
         <toolbar id="radio-toolbar">
-          <toolbarbutton label="&ainspector.toolbarbutton.report.label;" class="toolbar-text-button fbInternational" checked = "true"  command="ainspector_report_view_button" type="radio" group="RadioGroup"/> 
+          <toolbarbutton label="&ainspector.toolbarbutton.report.label;" class="toolbar-text-button fbInternational" command="ainspector_report_view_button"/> 
           <toolbarseparator/>
-          <toolbarbutton label="&ainspector.toolbarbutton.images.label;" class="toolbar-text-button fbInternational" command="ainspector_images_view_button" type="radio" group="RadioGroup"/>
+          <toolbarbutton label="&ainspector.toolbarbutton.images.label;" class="toolbar-text-button fbInternational" command="ainspector_images_view_button"/>
           <toolbarseparator/>
-          <toolbarbutton label="&ainspector.toolbarbutton.controls.label;" class="toolbar-text-button fbInternational" command="ainspector_controls_view_button" type="radio" group="RadioGroup"/>
+          <toolbarbutton label="&ainspector.toolbarbutton.controls.label;" class="toolbar-text-button fbInternational" command="ainspector_controls_view_button"/>
           <toolbarseparator/>
-          <toolbarbutton label="&ainspector.toolbarbutton.colorContrast.label;" class="toolbar-text-button fbInternational" command="ainspector_color_contrast_view_button" type="radio" group="RadioGroup"/> 
+          <toolbarbutton label="&ainspector.toolbarbutton.colorContrast.label;" class="toolbar-text-button fbInternational" command="ainspector_color_contrast_view_button"/> 
           <toolbarseparator/>
-          <toolbarbutton label="&ainspector.toolbarbutton.headings.label;" class="toolbar-text-button fbInternational" command= "ainspector_headings_landmarks_view_button" type="radio" group="RadioGroup"/>
+          <toolbarbutton label="&ainspector.toolbarbutton.headings.label;" class="toolbar-text-button fbInternational" command= "ainspector_headings_landmarks_view_button"/>
           <toolbarseparator/>
-          <toolbarbutton label="&ainspector.toolbarbutton.links.label;" class="toolbar-text-button fbInternational" command= "ainspector_links_view_button" type="radio" group="RadioGroup"/>
+          <toolbarbutton label="&ainspector.toolbarbutton.links.label;" class="toolbar-text-button fbInternational" command= "ainspector_links_view_button"/>
           <toolbarseparator/>
-          <toolbarbutton label="&ainspector.toolbarbutton.lists.label;" class="toolbar-text-button fbInternational" command="ainspector_lists_view_button" type="radio" group="RadioGroup"/> 
+          <toolbarbutton label="&ainspector.toolbarbutton.lists.label;" class="toolbar-text-button fbInternational" command="ainspector_lists_view_button"/> 
           <toolbarseparator/>
-          <toolbarbutton label="&ainspector.toolbarbutton.tables.label;" class="toolbar-text-button fbInternational" command="ainspector_tables_view_button" type="radio" group="RadioGroup"/> 
+          <toolbarbutton label="&ainspector.toolbarbutton.tables.label;" class="toolbar-text-button fbInternational" command="ainspector_tables_view_button"/> 
           <toolbarseparator/>
-         
        </toolbar>   
       </toolbox>  
       </hbox> 

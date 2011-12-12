@@ -6,6 +6,20 @@ FBL.ns(function() { with (FBL) {
   
   Firebug.ainspectorModule = extend(Firebug.Module, { 
   
+	//initializeUI: function(){
+	  //FBTrace.sysout("Inside initializeUI..1111...");
+	  //Firebug.Module.initializeUI.apply(this, arguments);
+	  
+	  //this.onKeyPress = bind(this.onKeyPress, this);
+	  //FBTrace.sysout("Inside initializeUI..2222222...");
+
+	  //Firebug.chrome.$("fbFirebugExtensionButtons").addEventListener("keypress", this.onKeyPress, true);  
+	  //FBTrace.sysout("Inside initializeUI.333333....");
+	  //var FirebugExtension = Firebug.chrome.$("fbFirebugExtensionButtons");
+
+
+  	//},
+  	
 	/**   
 	 * showPanel()
 	 *  
@@ -16,12 +30,15 @@ FBL.ns(function() { with (FBL) {
 	 */
 	showPanel: function(browser, panel) { 
 	   
-	  var isFirebugExtension = panel && panel.name == panel_name; 
+	  
+  	  var isFirebugExtension = panel && panel.name == panel_name; 
 	  var FirebugExtensionButtons = browser.chrome.$("fbFirebugExtensionButtons");
-	  FBTrace.sysout("FirebugExtensionButtons  : ", FirebugExtensionButtons.childNodes[1].childNodes);
-
+	  //FBTrace.sysout("FirebugExtensionButtons  : ", FirebugExtensionButtons.childNodes[1].childNodes);
+	  //var ainspector_toolbar_buttons = browser.chrome.$("radio-toolbar");
+	  //FBTrace.sysout("Toolbarr.............", ainspector_toolbar_buttons);
+	  //FBTrace.sysout("report tb...........", ainspector_toolbar_buttons._getToolbarItem("report_id"));
+	  //FBTrace.sysout("link tb...........", ainspector_toolbar_buttons._getToolbarItem("link_id"));
 	  this.showDefaultPanelView();
-	  //FBTrace.sysout("showPanel  : ", panel.getTabBrowserView());
 	  collapse(FirebugExtensionButtons, !isFirebugExtension); 
 	},
 	
@@ -50,7 +67,15 @@ FBL.ns(function() { with (FBL) {
         /* Optional */
         Firebug.setPref('defaultPanelName','console');
       }
+	//  Firebug.chrome.$("fbFirebugExtensionButtons").removeEventListener("keypress", this.onKeyPress, false);  
+
     },
+    
+    /*onKeyPress : function(event) {
+      if (event.keyCode == window.KeyEvent.DOM_VK_LEFT) {
+      } else if (event.keyCode == window.KeyEvent.DOM_VK_RIGHT) {
+      }
+    },*/
     
     /**
      * reportView
@@ -68,7 +93,10 @@ FBL.ns(function() { with (FBL) {
       	clearNode(panel.panelNode);
         clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
       }
-      
+      FBTrace.sysout("panel in reportView: ", panel);
+      FBTrace.sysout("GetTab info: ", panel.getTab());
+      //FBTrace.sysout("XUL controllers: ", panel.controllers.getControllerId());
+
       Firebug.currentContext.getPanel("AInspector").printLine('Inside Report View'); 
     },
     
@@ -86,7 +114,7 @@ FBL.ns(function() { with (FBL) {
         clearNode(panel.panelNode);
         clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
       }
-      
+      FBTrace.sysout("panel in imagesView: ", panel);
       var image_toolbar_buttons = [{name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.images"), selected: true, first:true},
                                    {name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.images.mediaTab")}, 
                                    {name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.images.abbreviationTab")},
@@ -97,8 +125,9 @@ FBL.ns(function() { with (FBL) {
       var toolbar = panel.document.createElement("div");
       toolbar.id = "toolbarDiv";
       var images_cache = cache_object.dom_cache.images_cache;
+      FBTrace.sysout("cache_object", cache_object);
       images_cache.sortImageElements('document_order', true);
-      imageObject.imagePanelView(image_toolbar_buttons, toolbar, panel, images_cache);
+      imageObject.imagePanelView(image_toolbar_buttons, toolbar, panel, cache_object);
       
     },
       
@@ -163,6 +192,17 @@ FBL.ns(function() { with (FBL) {
       	clearNode(panel.panelNode);
         clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
       }
+      
+      var head_land_toolbar_buttons = [{name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.headings.tree"), selected: true, first:true},
+                                   {name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.headings.rulesTab")}, 
+                                   {name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.headings")},
+                                   {name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.landmarks")}];
+      
+      ainspectorUtil.loadCSSToStylePanel(panel.document);
+
+      var toolbar = panel.document.createElement("div");
+      toolbar.id = "toolbarDiv";
+      headingsObject.headingsPanelView(head_land_toolbar_buttons, toolbar, panel, cache_object);
     },
         
     /**
@@ -363,7 +403,7 @@ FBL.ns(function() { with (FBL) {
       
     },
     
-    /**
+   /**
      * updateSelection
      * 
      * @param  object
