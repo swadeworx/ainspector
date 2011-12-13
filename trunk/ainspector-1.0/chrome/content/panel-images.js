@@ -367,7 +367,9 @@ with (FBL) {
       onSourceClick : function(event){
         
 	    var linkEle = event.target.imageElement;
-        var node = linkEle.dom_element.node;
+		FBTrace.sysout("event onSourceClick::::: ", event.target);
+
+	    var node = linkEle.dom_element.node;
         var panel = Firebug.chrome.selectPanel("html");
         panel.select(node);
       },

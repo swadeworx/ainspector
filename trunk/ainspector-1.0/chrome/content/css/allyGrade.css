@@ -4,13 +4,14 @@
 }
 
 .treeRow.hasChildren .treeLabel {
-    background-image: url(chrome://ainspector/skin/twistyClosed.png) repeat-x;
-    background-repeat: no-repeat;
-    background-position: 2px 2px;
+    background-image:url(chrome://firebug/skin/twistyClosed.png);
+    background-repeat:no-repeat;
+    background-position:2px 2px;
 }
 
 .treeRow.hasChildren.opened .treeLabel {
-    background-image: url(chrome://ainspector/skin/twistyOpen.png);
+    background: url(chrome://firebug/skin/twistyOpen.png);
+    background-repeat:no-repeat;
 }
 
 .treeRow .treeLabel {
