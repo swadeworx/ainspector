@@ -206,8 +206,9 @@ FBL.ns(function() { with (FBL) {
 	   FBTrace.sysout("event in setSelection:", event);
        var element = Firebug.getRepObject(event.target);
        FBTrace.sysout("element: ", element);    
-       
-       this.rebuild(this.getRuleResults(element.dom_element));
+       if (element.dom_element)
+         this.rebuild(this.getRuleResults(element.dom_element));
+       else this.rebuild(this.getRuleResults(element.value.dom_element));
      },
     
      /**
@@ -223,9 +224,9 @@ FBL.ns(function() { with (FBL) {
          var i;
          var resultArray = new Array();
     	 var violations = rule_results_object.rules_violations;
-    	 var potential_violations = rule_results_object.rules_potential_violations;
+    	 var manual_evaluations = rule_results_object.rules_manual_evaluations;
     	 var recommendations = rule_results_object.rules_recommendations;
-         var potential_recommendations = rule_results_object.rules_potential_recommendations;
+         var informational = rule_results_object.rules_informational;
          var passed = rule_results_object.rules_passed;
          var not_applicable = rule_results_object.rules_na;
          var hidden = rule_results_object.rules_hidden;
@@ -234,35 +235,35 @@ FBL.ns(function() { with (FBL) {
          if (violations && violations.length>0) {
          
            for (i = 0; i < violations.length; i++) {
-             resultArray.push({severity: "V", message: violations[i].rule_result.rule_title});
+             resultArray.push({severity: "Violation", message: violations[i].rule_result.rule_title});
            }
          }
 
-         if (potential_violations && potential_violations.length>0) {
+         if (manual_evaluations && manual_evaluations.length>0) {
          
-           for (i = 0; i < potential_violations.length; i++) {
-             resultArray.push({severity: "PV", message: potential_violations[i].rule_result.rule_title});
+           for (i = 0; i < manual_evaluations.length; i++) {
+             resultArray.push({severity: "Manual Evaluation", message: manual_evaluations[i].rule_result.rule_title});
            }
          }
 
          if (recommendations && recommendations.length>0) {
          
            for (i = 0; i < recommendations.length; i++) {
-             resultArray.push({severity: "R", message: recommendations[i].rule_result.rule_title});
+             resultArray.push({severity: "Recommendation", message: recommendations[i].rule_result.rule_title});
            }
          }
 
-         if (potential_recommendations && potential_recommendations.length>0) {
+         if (informational && informational.length>0) {
          
-           for (i = 0; i < potential_recommendations.length; i++) {
-             resultArray.push({severity: "PR", message: potential_recommendations[i].rule_result.rule_title});
+           for (i = 0; i < informational.length; i++) {
+             resultArray.push({severity: "Information", message: informational[i].rule_result.rule_title});
            } 
          }
        
          if (passed && passed.length>0) {
          
            for (i = 0; i < passed.length; i++) {
-             resultArray.push({severity: "P", message: passed[i].rule_result.rule_title});
+             resultArray.push({severity: "Pass", message: passed[i].rule_result.rule_title});
            }
          }
 
@@ -276,14 +277,14 @@ FBL.ns(function() { with (FBL) {
          if (hidden && hidden.length>0) {
              
            for (i = 0; i < hidden.length; i++) {
-             resultArray.push({severity: "", message: hidden[i].rule_result.rule_title});
+             resultArray.push({severity: "Hidden", message: hidden[i].rule_result.rule_title});
            }
          }
          
          if (warnings && warnings.length>0) {
              
            for (i = 0; i < warnings.length; i++) {
-             resultArray.push({severity: "", message: warnings[i].rule_result.rule_title});
+             resultArray.push({severity: "Warning", message: warnings[i].rule_result.rule_title});
            }
          }
          
