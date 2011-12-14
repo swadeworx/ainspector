@@ -1,5 +1,5 @@
-content ainspector chrome/content/
+content ainspector  chrome/content/
 locale  ainspector  en-US       chrome/locale/en-US/
-skin ainspector classic chrome/skin/
+skin    ainspector  classic/1.0     skin/classic/
 overlay     chrome://firebug/content/firebugOverlay.xul chrome://ainspector/content/firebugOverlay.xul
 
