@@ -38,7 +38,9 @@ FBL.ns(function() { with (FBL) {
 	  //FBTrace.sysout("Toolbarr.............", ainspector_toolbar_buttons);
 	  //FBTrace.sysout("report tb...........", ainspector_toolbar_buttons._getToolbarItem("report_id"));
 	  //FBTrace.sysout("link tb...........", ainspector_toolbar_buttons._getToolbarItem("link_id"));
-	  this.showDefaultPanelView();
+	 // this.showDefaultPanelView();
+	  cache_object = this.updateCache();
+
 	  collapse(FirebugExtensionButtons, !isFirebugExtension); 
 	},
 	
