@@ -33,14 +33,14 @@ FBL.ns(function() { with (FBL) {
 	  
   	  var isFirebugExtension = panel && panel.name == panel_name; 
 	  var FirebugExtensionButtons = browser.chrome.$("fbFirebugExtensionButtons");
-	  //FBTrace.sysout("FirebugExtensionButtons  : ", FirebugExtensionButtons.childNodes[1].childNodes);
+	  FBTrace.sysout("FirebugExtensionButtons  : ", FirebugExtensionButtons.childNodes[1].childNodes);
 	  //var ainspector_toolbar_buttons = browser.chrome.$("radio-toolbar");
 	  //FBTrace.sysout("Toolbarr.............", ainspector_toolbar_buttons);
 	  //FBTrace.sysout("report tb...........", ainspector_toolbar_buttons._getToolbarItem("report_id"));
 	  //FBTrace.sysout("link tb...........", ainspector_toolbar_buttons._getToolbarItem("link_id"));
-	 // this.showDefaultPanelView();
+	  
 	  cache_object = this.updateCache();
-
+	  //this.showDefaultPanelView();
 	  collapse(FirebugExtensionButtons, !isFirebugExtension); 
 	},
 	
@@ -195,8 +195,8 @@ FBL.ns(function() { with (FBL) {
         clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
       }
       
-      var head_land_toolbar_buttons = [{name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.headings.tree"), selected: true, first:true},
-                                   {name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.headings.rulesTab")}, 
+      var head_land_toolbar_buttons = [{name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.tree"), selected: true, first:true},
+                                   {name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.titleMain")}, 
                                    {name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.headings")},
                                    {name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.landmarks")}];
       
