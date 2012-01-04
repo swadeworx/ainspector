@@ -1,31 +1,13 @@
 with (FBL) {
   
-  panel : null;
-  headings_panel : null;
-  links_panel : null;
-  cache : null;
-  
   /**
-   * panelPlate
+   * toolbarUtil
    * 
    * @Domplate
    * 
    * @desc template creates the content for navigation button
    */
-  var panelPlate = domplate({
-    toolbar : DIV( {class : "nav-menu"},
-                TAG("$toolbarButtons", {toolbar_buttons : "$toolbar_buttons"}),
-                  DIV({style : "clear: both"})        
-              ), 
-  
-    toolbarButtons : UL ({class : "yui-nav focusTabList toolbarLinks", role : "tablist", onkeypress : "$onToolbarKeyPress", "aria-label" :  "Rule Categories"},
-                       FOR("obj", "$toolbar_buttons",
-                         LI({id: "$obj.name", class : "$obj|getToolbarButtonClass focusTab", onclick: "$onClick", tabindex : "$obj|getTabIndex", role : "tab", "aria-selected" : "$obj|getSelectedState", onfocus : "$onToolbarFocus"},
-                             "$obj.name"
-                         )//end LI
-                       )//end for
-                
-    ),
+  var toolbarUtil = {
     
     /**
      * getToolbarButtonClass
@@ -43,27 +25,6 @@ with (FBL) {
     
       return className;
     },
-    
-    /**
-     * onClick
-     * 
-     * @desc
-     * 
-     * @param event
-     */
-    onClick : function(event) {
-      var toolbar_button = event.currentTarget.id;
-      
-      if (toolbar_button == "Control Rules") {
-      	//clearNode(panel.panelNode);
-        //  clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
-    	  elementDomplate.tableTag.replace({}, panel, elementDomplate);
-        } else {
-         // clearNode(panel.panelNode);
-          //clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
-
-        }
-      },
     
     /**
      * selectTab
@@ -111,7 +72,7 @@ with (FBL) {
      * @returns
      */
     onToolbarFocus : function(event) {
-      this.selectTab(event.target);
+      toolbarUtil.selectTab(event.target);
     },
     
     /**
@@ -171,58 +132,5 @@ with (FBL) {
       },
     
     viewContainer : DIV({style : "display:none"})
-
-  });
-  
-  var elementDomplate = domplate({
-		
-	tableTag : 
-		TABLE({"class": "ai-table-list-items", cellpadding: 0, border: 1, cellspacing: 0, hiddenCols: "", "role": "treegrid"},
-		        THEAD(
-		          TR({"class": "gridHeaderRow", id: "linksTableHeader", "role": "row", tabindex: "0"},
-		            TH( ),
-		            TH({"class": "HeaderCell"}, "P"),
-		            TH({"class": "HeaderCell"},"V"),
-		            TH({"class": "HeaderCell"},"PV"),
-		            TH({"class": "HeaderCell"},"R"),
-		            TH({"class": "HeaderCell"},"PR"),
-		            TH({"class": "HeaderCell"},"W"),
-		            TH({"class": "HeaderCell"},"I"),
-		            TH({"class": "HeaderCell"},"A")
-
-		          ) //end TR
-		        ),
-		TBODY()
-	  )	  
-});
-  
-  var panelObject = {  
-	      
-    /**
-	 * panelsView
-	 * 
-	 * @desc
-	 * 
-	 * @param toolbar_buttons
-	 * @param toolbar
-	 * @param panelView
-	 * @param cacheResult
-	 * @returns
-	 */
-	 panelsView : function(toolbar_buttons, toolbar, panelView, cacheResult) {
-	        
-	  FBTrace.sysout("control_toolbar_buttons: ", toolbar_buttons); 
-	  panelPlate.toolbar.replace({toolbar_buttons : toolbar_buttons}, toolbar, panelPlate);
-	  toolbar.style.display = "block";
-	  panelView.panelNode.id = "ainspector-panel"; 
-	  panelView.panelNode.appendChild(toolbar);
-	        
-	  panel = panelView;
-	  FBTrace.sysout("panelView...", panelView.panelNode);
- 	  elementDomplate.tableTag.append( {}, panelView.panelNode, null);
-	  FBTrace.sysout("cacheResult...", cacheResult);
-
-	  Firebug.currentContext.getPanel('Rules').sView(true);
-    }
-  };
+  }
 }
