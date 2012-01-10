@@ -6,6 +6,7 @@
   <stringbundleset id="stringbundleset">
     <stringbundle id="ainspector_stringbundle" src="chrome://ainspector/locale/ainspector.properties"/>
   </stringbundleset>
+  
   <script type="application/x-javascript" src="chrome://ainspector/content/a11y.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/ainspector.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/util.js"/>
