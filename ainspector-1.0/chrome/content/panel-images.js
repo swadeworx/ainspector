@@ -18,7 +18,7 @@ with (FBL) {
   var imageToolbarPlate = domplate({
     toolbar : DIV( {class : "nav-menu"},
                 TAG("$toolbarButtons", {toolbar_buttons : "$images_toolbar_buttons"}),
-                  DIV({style : "clear: both"})        
+                BUTTON({class: "gridContent", onclick: "$onClickHtmlView"}, "HTML Panel" )
               ), 
   
     toolbarButtons : UL ({class : "yui-nav focusTabList toolbarLinks", role : "tablist", onkeypress : "$toolbarUtil.onToolbarKeyPress", "aria-label" :  "Rule Categories"},
@@ -27,9 +27,38 @@ with (FBL) {
                              "$obj.name"
                          )//end LI
                        )//end for
-                
+    
     ),
     
+    onClickHtmlView: function(event) {
+      var table = getChildByClass(event.target.offsetParent, "ai-table-list-items");
+	  var row =  getChildByClass(event.target.offsetParent, "tableRow");
+      var child;
+      var tbody = table.children[1];
+      FBTrace.sysout("tbody: ", tbody);
+      var node = null;
+
+      for (var i = 0; i < tbody.children.length; i++) {
+        var flag = false;
+        var row = tbody.children[i];
+        node = row;
+        for (var j = 0; j < row.children.length; j++) {
+      	var cell = row.children[j];
+        for (var k=0; k<cell.classList.length;k++) {
+          if (cell.classList[k] ==  "gridCellSelected") {
+            flag = true;
+            break;
+          }//end if
+        }//end for
+        if (flag == true) break;
+      }
+        if (flag == true) break;
+      }
+      node = node.repObject.dom_element.node;
+      var panel = Firebug.chrome.selectPanel("html");
+      panel.select(node);
+    },
+
     /**
      * onClick
      * 
@@ -38,7 +67,6 @@ with (FBL) {
      * @param event
      */
     onClick : function(event) {
-      FBTrace.sysout("event.......................", event);	
       var toolbar_button = event.currentTarget.id;
       
       clearNode(panel.panelNode);
@@ -189,7 +217,8 @@ with (FBL) {
        */
       hightlightCell: function (event) {
 	    
-        var table = getAncestorByClass(event.target, "ai-table-list-items");
+        FBTrace.sysout("HIGHLIGHT...", event);
+	    var table = getAncestorByClass(event.target, "ai-table-list-items");
         var row =  getAncestorByClass(event.target, "tableRow");
         var i;
         var j;
@@ -208,12 +237,14 @@ with (FBL) {
           for (j = 0; j < row.children.length; j++) {
         	var cell = row.children[j];
         	var cell_selected = getChildByClass(cell, "gridCellSelected");
-        	FBTrace.sysout("cell_selected: "+ cell_selected);
-        	if (cell_selected) {
-              ainspectorUtil.removeClass(cell, "gridCellSelected");
-              flag = true;
-              break;
-            }
+        	FBTrace.sysout("cell_selected in highlightcell: "+ cell_selected);
+        	for (var k=0; k<cell.classList.length;k++) {
+           	  if (cell.classList[k] ==  "gridCellSelected") {
+                  ainspectorUtil.removeClass(cell, "gridCellSelected");
+           		  flag = true;
+                   break;
+             }
+        	if (flag == true) break;
           }
           if (flag == true) break;
         }
@@ -231,7 +262,7 @@ with (FBL) {
       /**
        * onClickHtmlView
        * 
-       * @desc redirects to the HTML view of Firebug
+       * @desc redirect to the HTML view of Firebug
        * 
        * @param event event triggered on a row in the Links Table
        */

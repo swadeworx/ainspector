@@ -344,7 +344,8 @@ FBL.ns(function() { with (FBL) {
         var doc  = window.opener.parent.content.document;
       } // end try
       
-      cache_object = new OpenAjax.a11y.RulesetEvaluation('WCAG_2_0', 'en-us', doc.location.href, doc.title, doc, null);
+      cache_object = new OpenAjax.a11y.RulesetEvaluation();
+      cache_object.init('WCAG_2_0', 'en-us', doc.location.href, doc.title, doc, null);
       cache_object.evaluate(true);
       cache_object.dom_cache.links_cache.sortLinkElements('document_order', true);
       FBTrace.sysout("cache...............", cache_object);
