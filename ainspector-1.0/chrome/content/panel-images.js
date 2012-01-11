@@ -18,7 +18,7 @@ with (FBL) {
   var imageToolbarPlate = domplate({
     toolbar : DIV( {class : "nav-menu"},
                 TAG("$toolbarButtons", {toolbar_buttons : "$images_toolbar_buttons"}),
-                BUTTON({class: "gridContent", onclick: "$onClickHtmlView"}, "HTML Panel" )
+                BUTTON({class: "button", onclick: "$onClickHtmlView"}, "HTML Panel" )
               ), 
   
     toolbarButtons : UL ({class : "yui-nav focusTabList toolbarLinks", role : "tablist", onkeypress : "$toolbarUtil.onToolbarKeyPress", "aria-label" :  "Rule Categories"},
@@ -30,6 +30,13 @@ with (FBL) {
     
     ),
     
+    /**
+     * onClickHtmlView
+     * 
+     * @desc redirect to the HTML view of Firebug
+     * 
+     * @param event event triggered on a row in the Links Table
+     */
     onClickHtmlView: function(event) {
       var table = getChildByClass(event.target.offsetParent, "ai-table-list-items");
 	  var row =  getChildByClass(event.target.offsetParent, "tableRow");
@@ -181,8 +188,7 @@ with (FBL) {
           TR({"class": "gridHeaderRow a11yFocus", id: "imgTableHeader", "role": "row", tabindex: "0", onclick: "$onClickHeader"},
               TH({"class": "gridHeaderCell", id: "imgOrderCol"}, DIV({"class": "gridHeaderCellBox"}, "Order")),
               TH({"class": "gridHeaderCell", id: "imgTextCol"}, DIV({"class": "gridHeaderCellBox"}, "Alt Text")), //TAG("$headerTag", {header: "Source"}))),
-              TH({"class": "gridHeaderCell", id: "imgSrcCol"}, DIV({"class": "gridHeaderCellBox"}, "Source")),
-              TH({"class": "gridHeaderCell"}, DIV({"class": "gridHeaderCellBox"}, "HTML View"))
+              TH({"class": "gridHeaderCell", id: "imgSrcCol"}, DIV({"class": "gridHeaderCellBox"}, "Source"))
           ) //end TR
         ), //end THEAD
         TBODY(
@@ -196,9 +202,6 @@ with (FBL) {
               ),
               TD({"class": "imgSourceCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onclick: "$hightlightCell"},
                 DIV({class: "gridContent", _repObject:"object"}, "$object.source")
-              ),
-              TD({"class": "imgSourceCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onclick: "$hightlightCell"},
-                BUTTON({_element: "$object", id: "$object.document_order", class: "gridContent", onclick: "$onClickHtmlView"}, "view" )
               )
             )//end TR   
           ) //end FOR
@@ -244,6 +247,7 @@ with (FBL) {
            		  flag = true;
                    break;
              }
+        	}  
         	if (flag == true) break;
           }
           if (flag == true) break;
@@ -259,23 +263,6 @@ with (FBL) {
         //FBTrace.sysout("rowcells.....", row_cells);
      },
        
-      /**
-       * onClickHtmlView
-       * 
-       * @desc redirect to the HTML view of Firebug
-       * 
-       * @param event event triggered on a row in the Links Table
-       */
-     onClickHtmlView : function(event){
-        
-	    var element = event.target.element;
-		FBTrace.sysout("event onSourceClick::::: ", event.target);
-
-	    var node = element.dom_element.node;
-        var panel = Firebug.chrome.selectPanel("html");
-        panel.select(node);
-      },
-      
       onClickHeader : function(event){
     	  
     	FBTrace.sysout("Inside onClickHeader................................", event.target);  
