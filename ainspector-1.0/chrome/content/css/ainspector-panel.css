@@ -179,6 +179,16 @@ body {
     border-right: 1px solid #767676;
 }
 
+#ainspector-panel #toolbarDiv #button{
+    display: inline;
+    position: relative;
+    top: 26px;
+    right: 1000px;
+    font-size: 8pt;
+    z-index: 99;
+    background: #ffffff;
+}
+
 #ainspector-panel #toolbarDiv #helpDiv {
     border: 1px solid #767676;
     position: absolute;
