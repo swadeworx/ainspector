@@ -3,6 +3,14 @@
   width: 100%;
 }
 
+.ai-table-list-items tr:nth-child(even) {
+    background-color: #EFEFEF;
+}
+
+.domTable tr:nth-child(even) {
+    background-color: #EFEFEF;
+}
+
 #ainspector-panel body, div, span, ul, li, h1, h2, h3, h4, h5, h6, hr, p, input, select, option, form, em, table, tr, td, img {
 /* FIX ME : the original, below, makes the twisty be under the text
 #ainspector-panel div, #ainspector-panel span, #ainspector-panel ul, #ainspector-panel li, #ainspector-panel hr, #ainspector-panel p, #ainspector-panel form, #ainspector-panel em, #ainspector-panel table, #ainspector-panel th, #ainspector-panel tr, #ainspector-panel td, #ainspector-panel img, #ainspector-panel label {
