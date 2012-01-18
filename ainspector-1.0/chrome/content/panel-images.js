@@ -18,7 +18,7 @@ with (FBL) {
   var imageToolbarPlate = domplate({
     toolbar : DIV( {class : "nav-menu"},
                 TAG("$toolbarButtons", {toolbar_buttons : "$images_toolbar_buttons"}),
-                BUTTON({class: "button", onclick: "$onClickHtmlView"}, "HTML Panel" )
+                BUTTON({class: "button", onclick: "$toHTMLPanel"}, "HTML Panel" )
               ), 
   
     toolbarButtons : UL ({class : "yui-nav focusTabList toolbarLinks", role : "tablist", onkeypress : "$toolbarUtil.onToolbarKeyPress", "aria-label" :  "Rule Categories"},
@@ -31,18 +31,21 @@ with (FBL) {
     ),
     
     /**
-     * onClickHtmlView
+     * toHTMLPanel
      * 
-     * @desc redirect to the HTML view of Firebug
+     * @desc redirect to the HTML Panel of Firebug
      * 
      * @param event event triggered on a row in the Links Table
      */
-    onClickHtmlView: function(event) {
+    toHTMLPanel: function(event) {
+      FBTrace.sysout("inside pane-images event", event);
+
       var table = getChildByClass(event.target.offsetParent, "ai-table-list-items");
+      FBTrace.sysout("inside pane-images table", table);
+
 	  var row =  getChildByClass(event.target.offsetParent, "tableRow");
       var child;
       var tbody = table.children[1];
-      FBTrace.sysout("tbody: ", tbody);
       var node = null;
 
       for (var i = 0; i < tbody.children.length; i++) {
@@ -80,32 +83,25 @@ with (FBL) {
       clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
       
       if (toolbar_button == "Images") {
-      	
-    	//elementDomplate.tableTag.replace({}, panel, elementDomplate);
-        imageObject.getToolBarButtons(image_view, toolbar_button);
-
+        
+    	imageObject.getToolBarButtons(image_view, toolbar_button);
   	    panel.table = flatListTemplate.tableTag.append( {image_elements: image_elements}, image_view.panelNode, null);
-  	  
   	    Firebug.currentContext.getPanel('Rules').sView(true, image_elements[0]);
       
       } else if (toolbar_button == "Media"){
-        FBTrace.sysout(".................", media_view);
-        imageObject.getToolBarButtons(media_view, toolbar_button);
-  	    FBTrace.sysout("media elements: ", media_elements);
-    	panel.table = flatListMediaTemplate.tableTag.append( {media_elements: media_elements}, media_view.panelNode, null);
-   
-    	Firebug.currentContext.getPanel('Rules').sView(true, media_elements[0]);
 
+    	imageObject.getToolBarButtons(media_view, toolbar_button);
+    	panel.table = flatListMediaTemplate.tableTag.append( {media_elements: media_elements}, media_view.panelNode, null);
+    	Firebug.currentContext.getPanel('Rules').sView(true, media_elements[0]);
       } else if (toolbar_button == "Abbreviations") {
         
         imageObject.getToolBarButtons(abbreviation_view, toolbar_button);
-        
   	    panel.table = flatListAbbreviationTemplate.tableTag.append( {abbreviation_elements: abbreviation_elements}, abbreviation_view.panelNode, null);
-  	    
   	    Firebug.currentContext.getPanel('Rules').sView(true, abbreviation_elements[0]);
       
       } else {
-          imageObject.getToolBarButtons(abbreviation_view, toolbar_button);
+
+    	imageObject.getToolBarButtons(abbreviation_view, toolbar_button);
       }
     },
     viewContainer : DIV({style : "display:none"})
@@ -131,10 +127,7 @@ with (FBL) {
 	  image_elements = images_cache.image_elements;
 	  media_elements = cache_object.dom_cache.media_cache.media_elements;
 	  abbreviation_elements = cache_object.dom_cache.abbreviations_cache.abbreviation_elements;
-	  
-      FBTrace.sysout("image images_cache: ", images_cache);
 
-      FBTrace.sysout("image ELements: ", image_elements);
       imageToolbarPlate.toolbar.replace({images_toolbar_buttons : images_toolbar_buttons}, toolbar, imageToolbarPlate);
 	  toolbar.style.display = "block";
 	  panelView.panelNode.id = "ainspector-panel"; 
@@ -144,15 +137,13 @@ with (FBL) {
 	  image_view = panelView;
 	  media_view = panelView;
 	  abbreviation_view = panelView;
-	  FBTrace.sysout("panelView...", panelView.panelNode);
 	  panel.table = flatListTemplate.tableTag.append( {image_elements: image_elements}, panel.panelNode, null);
-	  FBTrace.sysout("images_cache11111111111111111...", images_cache.image_elements[0]);
-	  FBTrace.sysout("panel.table...", panel.table);
 
 	  Firebug.currentContext.getPanel('Rules').sView(true, images_cache.image_elements[0]);
     },
     
     getToolBarButtons: function (panel, button_view) {
+
       var i;
       var images_toolbar_buttons = [{name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.images"), selected: false},
                                      {name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.images.mediaTab"), selected: false}, 
@@ -185,23 +176,23 @@ with (FBL) {
 	  tableTag:
       TABLE({"class": "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "", "role": "treegrid"},
         THEAD(
-          TR({"class": "gridHeaderRow a11yFocus", id: "imgTableHeader", "role": "row", tabindex: "0", onclick: "$onClickHeader"},
-              TH({"class": "gridHeaderCell", id: "imgOrderCol"}, DIV({"class": "gridHeaderCellBox"}, "Order")),
-              TH({"class": "gridHeaderCell", id: "imgTextCol"}, DIV({"class": "gridHeaderCellBox"}, "Alt Text")), //TAG("$headerTag", {header: "Source"}))),
-              TH({"class": "gridHeaderCell", id: "imgSrcCol"}, DIV({"class": "gridHeaderCellBox"}, "Source"))
+          TR({"class": "gridHeaderRow a11yFocus", id: "imgTableHeader", "role": "row", tabindex: "0", onclick: "$flatListTemplateUtil.onClickHeader", onkeypress: "$flatListTemplateUtil.onKeyPressRow"},
+              TH({"class": "gridHeaderCell gridCell", id: "imgOrderCol", onkeypress: "$flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Order")),
+              TH({"class": "gridHeaderCell gridCell", id: "imgTextCol", onkeypress: "$flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "AltText")), //TAG("$headerTag", {header: "Source"}))),
+              TH({"class": "gridHeaderCell gridCell", id: "imgSrcCol", onkeypress: "$flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Source"))
           ) //end TR
         ), //end THEAD
         TBODY(
           FOR("object", "$image_elements",
-            TR({"class": "tableRow a11yFocus", "role": "row", id: "$object.cache_id", _repObject:"$object"},//gridRow              
-              TD({"class": "imgOrderCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onclick: "$hightlightCell"},
+            TR({"class": "tableRow a11yFocus gridRow", "role": "row", id: "$object.cache_id", _repObject:"$object", onkeypress: "$flatListTemplateUtil.onKeyPressRow", onclick: "$flatListTemplateUtil.hightlightCell", ondblclick: "$flatListTemplateUtil.doubleClick"},//gridRow              
+              TD({"class": "imgOrderCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$flatListTemplateUtil.onKeyPressCell", onclick: "$flatListTemplateUtil.hightlightCell", ondblclick: "$flatListTemplateUtil.doubleClick"},
                 DIV({"class": "gridContent gridOrderCol", _repObject:"$object"}, "$object.document_order")
               ),
-              TD({"class": "imgAltCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onclick: "$hightlightCell"},
+              TD({"class": "imgAltCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$flatListTemplateUtil.onKeyPressCell", onclick: "$flatListTemplateUtil.hightlightCell", ondblclick: "$flatListTemplateUtil.doubleClick"},
                 DIV({"class": "gridContent", _repObject:"$object"}, "$object.alt")
               ),
-              TD({"class": "imgSourceCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onclick: "$hightlightCell"},
-                DIV({class: "gridContent", _repObject:"object"}, "$object.source")
+              TD({"class": "imgSourceCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$flatListTemplateUtil.onKeyPressCell", onclick: "$flatListTemplateUtil.hightlightCell", ondblclick: "$flatListTemplateUtil.doubleClick"},
+                DIV({class: "gridContent", _repObject:"$object"}, "$object.source")
               )
             )//end TR   
           ) //end FOR
@@ -210,70 +201,8 @@ with (FBL) {
       
       attrTag : DIV({_imageElement: "$imageObject", class: "gridLabel", onclick: "$onSourceClick"},
                 "$imageObject.source"
-      ),
-      
-      /**
-       * highlightRow
-       *  
-       * @param event
-       * @returns
-       */
-      hightlightCell: function (event) {
-	    
-        FBTrace.sysout("HIGHLIGHT...", event);
-	    var table = getAncestorByClass(event.target, "ai-table-list-items");
-        var row =  getAncestorByClass(event.target, "tableRow");
-        var i;
-        var j;
-        var k;
-        var cell_selected;
-        var child;
-        var row;
-        FBTrace.sysout("table: ", table);
-        var tbody = table.children[1];
-        FBTrace.sysout("tbody: ", tbody);
-
-        for (i = 0; i < tbody.children.length; i++) {
-          var flag = false;
-          var row = tbody.children[i];
-          
-          for (j = 0; j < row.children.length; j++) {
-        	var cell = row.children[j];
-        	var cell_selected = getChildByClass(cell, "gridCellSelected");
-        	FBTrace.sysout("cell_selected in highlightcell: "+ cell_selected);
-        	for (var k=0; k<cell.classList.length;k++) {
-           	  if (cell.classList[k] ==  "gridCellSelected") {
-                  ainspectorUtil.removeClass(cell, "gridCellSelected");
-           		  flag = true;
-                   break;
-             }
-        	}  
-        	if (flag == true) break;
-          }
-          if (flag == true) break;
-        }
-
-        var column = getAncestorByClass(event.target, "gridCell");
-        FBTrace.sysout("column bef: ", column);
-        ainspectorUtil.setClass(column, "gridCellSelected");
-        FBTrace.sysout("column aft: ", column);
-
-        //ainspectorUtil.setClass(row_cell, "gridCellSelected");
-        //var row_cells = cell.childNodes;
-        //FBTrace.sysout("rowcells.....", row_cells);
-     },
-       
-      onClickHeader : function(event){
-    	  
-    	FBTrace.sysout("Inside onClickHeader................................", event.target);  
-        var table = getAncestorByClass(event.target, "ai-table-list-items");
-    	FBTrace.sysout("table..........", table);  
-
-        var column = getAncestorByClass(event.target, "gridHeaderCell");
-        FBTrace.sysout("column", column);
-        ainspectorUtil.sortColumn(table, column);
-      }
-   });
+      )
+    });
   
   
   /**
