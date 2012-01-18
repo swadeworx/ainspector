@@ -53,8 +53,10 @@ FBL.ns(function() { with (FBL) {
 
 //     this.onCLick = bind(this.onClick, this);
        this.setSelection = bind(this.setSelection, this);
+	   this.onKeyPress = bind(this.onKeyPress, this);
+
        this.mainPanel.panelNode.addEventListener("click", this.setSelection, false);
-       this.mainPanel.panelNode.addEventListener("keypress", this.onKeyPress, false);
+       this.mainPanel.panelNode.addEventListener("keypress", this.onKeyPress, true);
        Firebug.Panel.initializeNode.apply(this, arguments);
     // Log simple message
      },
@@ -89,9 +91,9 @@ FBL.ns(function() { with (FBL) {
 	   if (event.keyCode == KeyEvent.DOM_VK_UP) {
 		 current_row = getAncestorByClass(event.target, "tableRow");
     	 FBTrace.sysout("up..." , current_row);
-    	// previous_row = current_row.previousSibling;
+    	 previous_row = current_row.previousSibling;
     	 FBTrace.sysout("previous_row" , previous_row);
-    	 result = current_row.repObject.dom_element;
+    	 result = previous_row.repObject.dom_element;
          rule_result_array = this.getRuleResults(result);
          if (rule_result_array.length > 0) this.rebuild(rule_result_array);
       
