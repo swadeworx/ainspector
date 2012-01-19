@@ -21,7 +21,7 @@ with (FBL) {
                 BUTTON({class: "button", onclick: "$toHTMLPanel"}, "HTML Panel" )
               ), 
   
-    toolbarButtons : UL ({class : "yui-nav focusTabList toolbarLinks", role : "tablist", onkeypress : "$toolbarUtil.onToolbarKeyPress", "aria-label" :  "Rule Categories"},
+    toolbarButtons : UL ({class : "yui-nav focusTabList toolbarLinks", role : "tablist", onkeypress : "$onToolbarKeyPress", "aria-label" :  "Rule Categories"},
                        FOR("obj", "$toolbar_buttons",
                          LI({id: "$obj.name", class : "$obj|toolbarUtil.getToolbarButtonClass focusTab", onclick: "$onClick", tabindex : "$obj|toolbarUtil.getTabIndex", role : "tab", "aria-selected" : "$obj|toolbarUtil.getSelectedState", onfocus : "$toolbarUtil.onToolbarFocus"},
                              "$obj.name"
@@ -78,32 +78,73 @@ with (FBL) {
      */
     onClick : function(event) {
       var toolbar_button = event.currentTarget.id;
-      
-      clearNode(panel.panelNode);
-      clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
-      
-      if (toolbar_button == "Images") {
-        
-    	imageObject.getToolBarButtons(image_view, toolbar_button);
-  	    panel.table = flatListTemplate.tableTag.append( {image_elements: image_elements}, image_view.panelNode, null);
-  	    Firebug.currentContext.getPanel('Rules').sView(true, image_elements[0]);
-      
-      } else if (toolbar_button == "Media"){
-
-    	imageObject.getToolBarButtons(media_view, toolbar_button);
-    	panel.table = flatListMediaTemplate.tableTag.append( {media_elements: media_elements}, media_view.panelNode, null);
-    	Firebug.currentContext.getPanel('Rules').sView(true, media_elements[0]);
-      } else if (toolbar_button == "Abbreviations") {
-        
-        imageObject.getToolBarButtons(abbreviation_view, toolbar_button);
-  	    panel.table = flatListAbbreviationTemplate.tableTag.append( {abbreviation_elements: abbreviation_elements}, abbreviation_view.panelNode, null);
-  	    Firebug.currentContext.getPanel('Rules').sView(true, abbreviation_elements[0]);
-      
-      } else {
-
-    	imageObject.getToolBarButtons(abbreviation_view, toolbar_button);
-      }
+      this.onSelectButton(toolbar_button);
     },
+    
+    onToolbarKeyPress: function(event){
+      
+    	var key = event.keyCode;
+        var tabs;
+        FBTrace.sysout("keyCode in widget.js:" , event);
+        switch(key) {
+          case KeyEvent.DOM_VK_LEFT:
+          case KeyEvent.DOM_VK_RIGHT:
+          case KeyEvent.DOM_VK_UP:
+          case KeyEvent.DOM_VK_DOWN:
+
+            var forward = key == KeyEvent.DOM_VK_RIGHT || key == KeyEvent.DOM_VK_DOWN;
+            var tabList = getAncestorByClass(event.target, "focusTabList");
+            tabs = tabList.getElementsByClassName("focusTab");
+            FBTrace.sysout("keyCode in widget.js - tablist", tabList);
+            FBTrace.sysout("keyCode in widget.js - tab:", tabs);
+            var currentIndex = Array.indexOf(tabs, event.target);
+            FBTrace.sysout("keyCode in widget.js - curIndex:"+ currentIndex);
+            if (currentIndex != -1) {
+              var newIndex = forward ? ++currentIndex : --currentIndex;
+              newIndex = newIndex < 0 ? tabs.length -1 : (newIndex >= tabs.length ? 0 : newIndex);
+              
+              if (tabs[newIndex]) {
+            	  tabs[newIndex].focus();
+                  FBTrace.sysout("newIndex: ", tabs[newIndex]);
+                  var toolbar_button_id = tabs[newIndex].id;
+                  this.onSelectButton(toolbar_button_id);
+              }
+            }
+            event.stopPropagation();
+            event.preventDefault();
+            
+            break;
+          } //end switch
+          
+    },
+    
+    onSelectButton : function(toolbar_button_id) {
+    	clearNode(panel.panelNode);
+        clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+        
+        if (toolbar_button_id == "Images") {
+          
+      	   imageObject.getToolBarButtons(image_view, toolbar_button_id);
+    	    panel.table = flatListTemplate.tableTag.append( {image_elements: image_elements}, image_view.panelNode, null);
+    	    Firebug.currentContext.getPanel('Rules').sView(true, image_elements[0]);
+        
+        } else if (toolbar_button_id == "Media"){
+
+      	imageObject.getToolBarButtons(media_view, toolbar_button_id);
+      	panel.table = flatListMediaTemplate.tableTag.append( {media_elements: media_elements}, media_view.panelNode, null);
+      	Firebug.currentContext.getPanel('Rules').sView(true, media_elements[0]);
+        } else if (toolbar_button_id == "Abbreviations") {
+          
+          imageObject.getToolBarButtons(abbreviation_view, toolbar_button_id);
+    	    panel.table = flatListAbbreviationTemplate.tableTag.append( {abbreviation_elements: abbreviation_elements}, abbreviation_view.panelNode, null);
+    	    Firebug.currentContext.getPanel('Rules').sView(true, abbreviation_elements[0]);
+        
+        } else {
+
+      	imageObject.getToolBarButtons(abbreviation_view, toolbar_button);
+        } 	
+    },
+    
     viewContainer : DIV({style : "display:none"})
   });
   

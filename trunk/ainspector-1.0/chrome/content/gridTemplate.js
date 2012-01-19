@@ -193,7 +193,7 @@ with (FBL) {
 	        
 	  //var image_elements = images_cache.image_elements;
       //FBTrace.sysout("image ELements: ", image_elements);
-	  toolbarTemPlate.toolbar.replace({images_toolbar_buttons : images_toolbar_buttons}, toolbar, toolbarTemPlate);
+	  toolbarTemPlate.toolbar.replace({toolbar_buttons : toolbar_buttons}, toolbar, toolbarTemPlate);
 	  toolbar.style.display = "block";
 	  panelView.panelNode.id = "ainspector-panel"; 
 	  panelView.panelNode.appendChild(toolbar);

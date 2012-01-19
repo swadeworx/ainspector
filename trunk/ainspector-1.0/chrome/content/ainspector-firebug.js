@@ -222,7 +222,8 @@ FBL.ns(function() { with (FBL) {
           clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
         }
         
-        var toolbar_buttons = [{name: "Duplicate HREF", selected: true, first:true},
+        var toolbar_buttons = [{name: "All", selected: true, first:true},
+                               {name: "Duplicate HREF"},
                                      {name: "Duplicate NAME"}, 
                                      {name: "AREA"}];
         
@@ -230,9 +231,10 @@ FBL.ns(function() { with (FBL) {
 
         var toolbar = panel.document.createElement("div");
         toolbar.id = "toolbarDiv";
-        var images_cache = cache_object.dom_cache.images_cache;
-        images_cache.sortImageElements('document_order', true);
-        imageObject.imagePanelView(toolbar_buttons, toolbar, panel, images_cache);
+        var links_cache = cache_object.dom_cache.links_cache;
+        FBTrace.sysout("links cache: ", links_cache);
+        
+  	    linksPanel.displayLinksPanel(panel, toolbar, toolbar_buttons, links_cache);
     },
     
     /**
