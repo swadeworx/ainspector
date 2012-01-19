@@ -96,7 +96,8 @@ with (FBL) {
      */
     onToolbarKeyPress : function(event) {
       var key = event.keyCode;
-      
+      var tabs;
+      FBTrace.sysout("keyCode in widget.js:" , event);
       switch(key) {
         case KeyEvent.DOM_VK_LEFT:
         case KeyEvent.DOM_VK_RIGHT:
@@ -105,20 +106,24 @@ with (FBL) {
 
           var forward = key == KeyEvent.DOM_VK_RIGHT || key == KeyEvent.DOM_VK_DOWN;
           var tabList = getAncestorByClass(event.target, "focusTabList");
-          var tabs = tabList.getElementsByClassName("focusTab");
+          tabs = tabList.getElementsByClassName("focusTab");
+          FBTrace.sysout("keyCode in widget.js - tablist", tabList);
+          FBTrace.sysout("keyCode in widget.js - tab:", tabs);
           var currentIndex = Array.indexOf(tabs, event.target);
-          
+          FBTrace.sysout("keyCode in widget.js - curIndex:"+ currentIndex);
           if (currentIndex != -1) {
             var newIndex = forward ? ++currentIndex : --currentIndex;
             newIndex = newIndex < 0 ? tabs.length -1 : (newIndex >= tabs.length ? 0 : newIndex);
             
             if (tabs[newIndex]) tabs[newIndex].focus();
+            FBTrace.sysout("newIndex: ", tabs[newIndex]);
           }
           event.stopPropagation();
           event.preventDefault();
           
           break;
         } //end switch
+        //return tabs[newIndex];
       },
       
       /**
@@ -130,6 +135,46 @@ with (FBL) {
       getSelectedState : function (obj) {
         return obj.selected ? "true" : "false";
       },
+      
+      /**
+       * toHTMLPanel
+       * 
+       * @desc redirect to the HTML Panel of Firebug
+       * 
+       * @param event event triggered on a row in the Links Table
+       */
+      toHTMLPanel: function(event) {
+        FBTrace.sysout("inside pane-images event", event);
+
+        var table = getChildByClass(event.target.offsetParent, "ai-table-list-items");
+        FBTrace.sysout("inside pane-images table", table);
+
+  	  var row =  getChildByClass(event.target.offsetParent, "tableRow");
+        var child;
+        var tbody = table.children[1];
+        var node = null;
+
+        for (var i = 0; i < tbody.children.length; i++) {
+          var flag = false;
+          var row = tbody.children[i];
+          node = row;
+          for (var j = 0; j < row.children.length; j++) {
+        	var cell = row.children[j];
+          for (var k=0; k<cell.classList.length;k++) {
+            if (cell.classList[k] ==  "gridCellSelected") {
+              flag = true;
+              break;
+            }//end if
+          }//end for
+          if (flag == true) break;
+        }
+          if (flag == true) break;
+        }
+        node = node.repObject.dom_element.node;
+        var panel = Firebug.chrome.selectPanel("html");
+        panel.select(node);
+      },
+
     
     viewContainer : DIV({style : "display:none"})
   }
