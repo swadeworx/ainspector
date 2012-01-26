@@ -30,7 +30,6 @@ FBL.ns(function() { with (FBL) {
 	 */
 	showPanel: function(browser, panel) { 
 	   
-	  
   	  var isFirebugExtension = panel && panel.name == panel_name; 
 	  var FirebugExtensionButtons = browser.chrome.$("fbFirebugExtensionButtons");
 	  FBTrace.sysout("FirebugExtensionButtons  : ", FirebugExtensionButtons.childNodes[1].childNodes);
@@ -119,8 +118,7 @@ FBL.ns(function() { with (FBL) {
       FBTrace.sysout("panel in imagesView: ", panel);
       var image_toolbar_buttons = [{name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.images"), selected: true, first:true},
                                    {name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.images.mediaTab")}, 
-                                   {name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.images.abbreviationTab")},
-                                   {name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.images.rulesTab")}];
+                                   {name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.images.abbreviationTab")}];
       
       ainspectorUtil.loadCSSToStylePanel(panel.document);
 
@@ -129,8 +127,8 @@ FBL.ns(function() { with (FBL) {
       var images_cache = cache_object.dom_cache.images_cache;
       FBTrace.sysout("cache_object", cache_object);
       images_cache.sortImageElements('document_order', true);
-      imageObject.imagePanelView(image_toolbar_buttons, toolbar, panel, cache_object);
-      
+      //imageObject.imagePanelView(image_toolbar_buttons, toolbar, panel, cache_object);
+      AINSPECTOR_FB.images.imagePanelView(image_toolbar_buttons, toolbar, panel, cache_object);
     },
       
     /**
@@ -151,16 +149,17 @@ FBL.ns(function() { with (FBL) {
       }
       
       var control_toolbar_buttons = [
-                                 {name: "Control Rules", selected: true, first: true},                     
-                                 {name: "Control List"}];
+                                 {name: "Tree View", selected: true, first: true},                     
+                                 {name: "Lables"},
+                                 {name: "Controls"}];
                              
       ainspectorUtil.loadCSSToStylePanel(panel.document); 
       
       var toolbar = panel.document.createElement("div");
       //FBTrace.sysout("cache_object..." , cache_object);
-      var retrieve_result_from_cache = this.retrieveResultFromCache(cache_object);                   
+      //var retrieve_result_from_cache = this.retrieveResultFromCache(cache_object);                   
       toolbar.id = "toolbarDiv";
-      panelObject.panelsView(control_toolbar_buttons, toolbar, panel, cache_object);
+      AINSPECTOR_FB.controls.controlPanelView(control_toolbar_buttons, toolbar, panel, cache_object);
      
     },
     
@@ -178,6 +177,9 @@ FBL.ns(function() { with (FBL) {
       	clearNode(panel.panelNode);
         clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
       }
+      var toolbar = panel.document.createElement("div");
+      toolbar.id = "toolbarDiv";
+      AINSPECTOR_FB.colorContrast.colorContrastPanelView(toolbar, panel, cache_object);
     },
       
     /**
@@ -252,16 +254,15 @@ FBL.ns(function() { with (FBL) {
           clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
         }
         
-        var toolbar_buttons = [{name: "List View", selected: true, first:true},
-                                     {name: "Tree View"}];
+        var toolbar_buttons = [{name: "Tree View", selected: true, first:true},
+                                     {name: "List View"}];
         
         ainspectorUtil.loadCSSToStylePanel(panel.document);
         
         var toolbar = panel.document.createElement("div");
         toolbar.id = "toolbarDiv";
-        var images_cache = cache_object.dom_cache.images_cache;
-        images_cache.sortImageElements('document_order', true);
-        imageObject.imagePanelView(toolbar_buttons, toolbar, panel, images_cache);
+        var lists_cache = cache_object.dom_cache.lists_cache;
+        AINSPECTOR_FB.lists.listPanelView(toolbar_buttons, toolbar, panel, lists_cache);
     },
     
     /**
@@ -278,6 +279,15 @@ FBL.ns(function() { with (FBL) {
        	clearNode(panel.panelNode);
         clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
       }
+      
+      var tables_toolbar_buttons = [{name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.tables.tree"), selected: true, first:true},
+                                       {name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.tables.list")}];
+          
+      ainspectorUtil.loadCSSToStylePanel(panel.document);
+
+      var toolbar = panel.document.createElement("div");
+      toolbar.id = "toolbarDiv";
+      AINSPECTOR_FB.tables.tablesPanelView(tables_toolbar_buttons, toolbar, panel, cache_object);
     },
     
     /**
@@ -359,9 +369,9 @@ FBL.ns(function() { with (FBL) {
     }
   }); 
 
-  function ainspectorPanel() {} 
+  function AInspectorPanel() {} 
 
-  ainspectorPanel.prototype = extend(Firebug.Panel, { 
+  AInspectorPanel.prototype = extend(Firebug.Panel, { 
   
    // name: ainspectorUtil.$HW_STR("ainspector.mainpanel.name"),  //returned by getPanel()
    // title: ainspectorUtil.$HW_STR("ainspector.mainpanel.title"), //title to appear on UI
@@ -429,6 +439,6 @@ FBL.ns(function() { with (FBL) {
   Firebug.registerModule(Firebug.ainspectorModule); 
 
   /* Firebug.registerPanel(), registers the new panel with global Firebug object and ensures its display*/
-  Firebug.registerPanel(ainspectorPanel); 
+  Firebug.registerPanel(AInspectorPanel); 
 
 }});

@@ -32,12 +32,14 @@ with (FBL) {
      * @param elem
      * @returns
      */
-    selectTab : function(elem) {
-    
+    selectTab : function(event) {
+      var elem = event.target;
       if (!elem) return;
       
       var category = getClassValue(elem, "ruleCategory");
-    
+      FBTrace.sysout("catewgory: ", category);
+      FBTrace.sysout("elem: ", event);
+
       if (category) {
         var tabList = getAncestorByClass(elem, "focusTabList");
         
@@ -56,10 +58,13 @@ with (FBL) {
         elem.setAttribute("tabindex", "0");
         setClass(elem, "selected");
         var currentView = panel;
+        showOnSelectButton();
+        //var currentView = panel;
         
-        if (currentView && typeof currentView["show" + category] == "function") {
+        /*if (currentView && typeof currentView["show" + category] == "function") {
           currentView["show" + category]();
-        }
+        }*/
+        
       }
     },
   
@@ -72,7 +77,7 @@ with (FBL) {
      * @returns
      */
     onToolbarFocus : function(event) {
-      toolbarUtil.selectTab(event.target);
+      toolbarUtil.selectTab(event);
     },
     
     /**
@@ -149,7 +154,7 @@ with (FBL) {
         var table = getChildByClass(event.target.offsetParent, "ai-table-list-items");
         FBTrace.sysout("inside pane-images table", table);
 
-  	  var row =  getChildByClass(event.target.offsetParent, "tableRow");
+  	    var row =  getChildByClass(event.target.offsetParent, "tableRow");
         var child;
         var tbody = table.children[1];
         var node = null;
