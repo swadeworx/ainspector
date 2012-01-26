@@ -35,7 +35,7 @@ with (FBL) {
      */
     getToolbarButtonClass : function(obj) {
       
-      var className = "ruleCategory-" + obj.name;
+      var className = "elementView-" + obj.name;
       
       if (obj.selected) className += " selected";
       
@@ -75,8 +75,9 @@ with (FBL) {
     
       if (!elem) return;
       
-      var category = getClassValue(elem, "ruleCategory");
-    
+      var category = getClassValue(elem, "elementview");
+      FBTrace.sysout("category: ", category);
+      FBTrace.sysout("elem: ", elem);
       if (category) {
         var tabList = getAncestorByClass(elem, "focusTabList");
         
@@ -95,7 +96,6 @@ with (FBL) {
         elem.setAttribute("tabindex", "0");
         setClass(elem, "selected");
         var currentView = panel;
-        
         if (currentView && typeof currentView["show" + category] == "function") {
           currentView["show" + category]();
         }

@@ -9,6 +9,13 @@
   
   <script type="application/x-javascript" src="chrome://ainspector/content/a11y.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/ainspector.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/panel-images.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/panel-lists.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/panel-controls.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/panel-tables.js"/>
+    <script type="application/x-javascript" src="chrome://ainspector/content/panel-colorContrast.js"/>
+  
+  
   <script type="application/x-javascript" src="chrome://ainspector/content/util.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/ainspector-firebug.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/gridTemplate.js"/>
@@ -17,9 +24,8 @@
   <script type="application/x-javascript" src="chrome://ainspector/content/rulesSidePanel.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/advancedSidePanel.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/widget.js"/>
-  <script type="application/x-javascript" src="chrome://ainspector/content/panel-images.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-headings.js"/>
-  
+    
   
   <script type="application/x-javascript" src="chrome://ainspector/content/openajax_a11y/openajax_a11y_all.js"/>
   
