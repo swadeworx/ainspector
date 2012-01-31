@@ -65,7 +65,7 @@ AINSPECTOR_FB.equivalents = {
     ),
     
     /**
-     * toHTMLPanel
+     * @function toHTMLPanel
      * 
      * @desc redirect to the HTML Panel of Firebug
      * 
