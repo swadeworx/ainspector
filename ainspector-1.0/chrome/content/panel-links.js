@@ -21,9 +21,9 @@ with (FBL) {
 	                BUTTON({class: "button", onclick: "$toHTMLPanel"}, "HTML Panel" )
 	              ), 
 	  
-	    toolbarButtons : UL ({class : "yui-nav focusTabList toolbarLinks", role : "tablist", onkeypress : "$toolbarUtil.onToolbarKeyPress", "aria-label" :  "Rule Categories"},
+	    toolbarButtons : UL ({class : "yui-nav focusTabList toolbarLinks", role : "tablist", onkeypress : "$AINSPECTOR_FB.toolbarUtil.onToolbarKeyPress", "aria-label" :  "Rule Categories"},
 	                       FOR("obj", "$toolbar_buttons",
-	                         LI({id: "$obj.name", class : "$obj|toolbarUtil.getToolbarButtonClass focusTab", onclick: "$onClick", tabindex : "$obj|toolbarUtil.getTabIndex", role : "tab", "aria-selected" : "$obj|toolbarUtil.getSelectedState", onfocus : "$toolbarUtil.onToolbarFocus"},
+	                         LI({id: "$obj.name", class : "$obj|AINSPECTOR_FB.toolbarUtil.getToolbarButtonClass focusTab", onclick: "$onClick", tabindex : "$obj|AINSPECTOR_FB.toolbarUtil.getTabIndex", role : "tab", "aria-selected" : "$obj|AINSPECTOR_FB.toolbarUtil.getSelectedState", onfocus : "$AINSPECTOR_FB.toolbarUtil.onToolbarFocus"},
 	                             "$obj.name"
 	                         )//end LI
 	                       )//end for
@@ -38,7 +38,7 @@ with (FBL) {
 	     * @param event event triggered on a row in the Links Table
 	     */
 	    toHTMLPanel: function(event) {
-	      FBTrace.sysout("inside pane-images event", event);
+	      FBTrace.sysout("inside pane-images event", event.target);
 
 	      var table = getChildByClass(event.target.offsetParent, "ai-table-list-items");
 	      FBTrace.sysout("inside pane-images table", table);
@@ -120,22 +120,22 @@ with (FBL) {
 	layoutTag:
       TABLE({"class": "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "", "role": "treegrid"},
         THEAD(
-          TR({"class": "gridHeaderRow", id: "linksTableHeader", "role": "row", tabindex: "0", onclick: "$flatListTemplateUtil.onClickHeader", onkeypress: "$flatListTemplateUtil.onKeyPressRow"},
-            TH({"class": "gridHeaderCell gridCell", id: "linkOrderCol", onkeypress: "$flatListTemplateUtil.onKeyPressHeadingCell"}, "Order"),
-            TH({"class": "gridHeaderCell gridCell", id: "linkNameCol", onkeypress: "$flatListTemplateUtil.onKeyPressHeadingCell"},"Name"),
-            TH({"class": "gridHeaderCell gridCell", id: "linkHrefCol", onkeypress: "$flatListTemplateUtil.onKeyPressHeadingCell"},"HREF")
+          TR({"class": "gridHeaderRow", id: "linksTableHeader", "role": "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow"},
+            TH({"class": "gridHeaderCell gridCell", id: "linkOrderCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, "Order"),
+            TH({"class": "gridHeaderCell gridCell", id: "linkNameCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"},"Name"),
+            TH({"class": "gridHeaderCell gridCell", id: "linkHrefCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"},"HREF")
           ) //end TR
         ), //end THEAD
         TBODY(
           FOR("object", "$links",
-            TR({"class": "tableRow a11yFocus gridRow", "role": "row", id: "$object.cache_id", _link:"$object", onkeypress: "$flatListTemplateUtil.onKeyPressRow", onclick: "$flatListTemplateUtil.hightlightCell", ondblclick: "$flatListTemplateUtil.doubleClick"},//gridRow              
-              TD({"class": "linksOrderCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$flatListTemplateUtil.onKeyPressCell", onclick: "$flatListTemplateUtil.hightlightCell", ondblclick: "$flatListTemplateUtil.doubleClick"},
+            TR({"class": "tableRow a11yFocus gridRow", "role": "row", id: "$object.cache_id", _link:"$object", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.hightlightCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
+              TD({"class": "linksOrderCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.hightlightCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({"class": "gridLabel", _repObject:"$object"}, "$object.document_order")
               ),
-              TD({"class": "linksTextCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$flatListTemplateUtil.onKeyPressCell", onclick: "$flatListTemplateUtil.hightlightCell", ondblclick: "$flatListTemplateUtil.doubleClick"},
+              TD({"class": "linksTextCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.hightlightCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({"class": "gridLabel", _repObject:"$object"}, "$object.name")
               ),
-              TD({"class": "linksHREFCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$flatListTemplateUtil.onKeyPressCell", onclick: "$flatListTemplateUtil.hightlightCell", ondblclick: "$flatListTemplateUtil.doubleClick"},
+              TD({"class": "linksHREFCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.hightlightCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({id: "$object.document_order", class: "gridLabel", _repObject:"$object"}, "$object.href" )
               )
             )//end TR   

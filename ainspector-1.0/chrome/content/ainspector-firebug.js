@@ -106,7 +106,7 @@ FBL.ns(function() { with (FBL) {
      * @param context
      * @returns
      */
-    imagesView: function(context) { 
+    equivalentsView: function(context) { 
     	  
       var panel = context.getPanel(panel_name, true);
 
@@ -115,8 +115,7 @@ FBL.ns(function() { with (FBL) {
         clearNode(panel.panelNode);
         clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
       }
-      FBTrace.sysout("panel in imagesView: ", panel);
-      var image_toolbar_buttons = [{name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.images"), selected: true, first:true},
+      var equiv_toolbar_buttons = [{name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.images"), selected: true, first:true},
                                    {name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.images.mediaTab")}, 
                                    {name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.images.abbreviationTab")}];
       
@@ -125,10 +124,10 @@ FBL.ns(function() { with (FBL) {
       var toolbar = panel.document.createElement("div");
       toolbar.id = "toolbarDiv";
       var images_cache = cache_object.dom_cache.images_cache;
-      FBTrace.sysout("cache_object", cache_object);
       images_cache.sortImageElements('document_order', true);
-      //imageObject.imagePanelView(image_toolbar_buttons, toolbar, panel, cache_object);
-      AINSPECTOR_FB.images.imagePanelView(image_toolbar_buttons, toolbar, panel, cache_object);
+      
+      AINSPECTOR_FB.equivalents.equivalentsView(equiv_toolbar_buttons, toolbar, panel, cache_object);
+      
     },
       
     /**
@@ -361,6 +360,20 @@ FBL.ns(function() { with (FBL) {
       cache_object.evaluate(true);
       cache_object.dom_cache.links_cache.sortLinkElements('document_order', true);
       FBTrace.sysout("cache...............", cache_object);
+      
+      
+      
+      /*var ruleset_id = 'WCAG20_TRANS';
+
+      var ruleset = OpenAjax.a11y.all_rulesets.getRuleset(ruleset_id);
+      if (ruleset) {
+        OAA_CI.evaluation = ruleset.evaluate(url, title, doc, OAA_CI.updateProgress, true);
+        OpenAjax.a11y.console("Ruleset results object for: " + OAA_CI.evaluation.url);
+      }
+      else {
+        OpenAjax.a11y.console("  ** Ruleset with the id '" + ruleset_id + "' not found!!");
+      }*/
+      
       return cache_object;
     },
   
