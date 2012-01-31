@@ -13,7 +13,9 @@
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-lists.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-controls.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-tables.js"/>
-    <script type="application/x-javascript" src="chrome://ainspector/content/panel-colorContrast.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/panel-colorContrast.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/panel-headings.js"/>
+    
   
   
   <script type="application/x-javascript" src="chrome://ainspector/content/util.js"/>
@@ -24,14 +26,13 @@
   <script type="application/x-javascript" src="chrome://ainspector/content/rulesSidePanel.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/advancedSidePanel.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/widget.js"/>
-  <script type="application/x-javascript" src="chrome://ainspector/content/panel-headings.js"/>
     
   
   <script type="application/x-javascript" src="chrome://ainspector/content/openajax_a11y/openajax_a11y_all.js"/>
   
   <commandset id="mainCommandSet"> 
     <command id="ainspector_report_view_button" oncommand="Firebug.ainspectorModule.reportView(Firebug.currentContext)"/>
-    <command id="ainspector_images_view_button" oncommand="Firebug.ainspectorModule.imagesView(Firebug.currentContext)"/>
+    <command id="ainspector_images_view_button" oncommand="Firebug.ainspectorModule.equivalentsView(Firebug.currentContext)"/>
     <command id="ainspector_controls_view_button" oncommand="Firebug.ainspectorModule.controlsView(Firebug.currentContext)"/>
     <command id="ainspector_color_contrast_view_button" oncommand="Firebug.ainspectorModule.colorContrastView(Firebug.currentContext)"/>
     <command id="ainspector_headings_landmarks_view_button" oncommand="Firebug.ainspectorModule.headingsView(Firebug.currentContext)"/>

@@ -64,12 +64,12 @@ with (FBL) {
   this.listToolbarPlate = domplate({
     toolbar : DIV( {class : "nav-menu"},
                 TAG("$toolbarButtons", {toolbar_buttons : "$toolbar_buttons"}),
-                BUTTON({class: "button", onclick: "$toolbarUtil.toHTMLPanel"}, "HTML Panel" )
+                BUTTON({class: "button", onclick: "$AINSPECTOR_FB.toolbarUtil.toHTMLPanel"}, "HTML Panel" )
               ), 
   
-    toolbarButtons : UL ({class : "yui-nav focusTabList toolbarLinks", role : "tablist", onkeypress : "$toolbarUtil.onToolbarKeyPress", "aria-label" :  "element views"},
+    toolbarButtons : UL ({class : "yui-nav focusTabList toolbarLinks", role : "tablist", onkeypress : "$AINSPECTOR_FB.toolbarUtil.onToolbarKeyPress", "aria-label" :  "element views"},
                        FOR("obj", "$toolbar_buttons",
-                         LI({id: "$obj.name", class : "$obj|toolbarUtil.getToolbarButtonClass focusTab", onclick: "$onClick", tabindex : "$obj|toolbarUtil.getTabIndex", role : "tab", "aria-selected" : "$obj|toolbarUtil.getSelectedState", onfocus : "$onToolbarFocus"},
+                         LI({id: "$obj.name", class : "$obj|AINSPECTOR_FB.toolbarUtil.getToolbarButtonClass focusTab", onclick: "$onClick", tabindex : "$obj|AINSPECTOR_FB.toolbarUtil.getTabIndex", role : "tab", "aria-selected" : "$obj|AINSPECTOR_FB.toolbarUtil.getSelectedState", onfocus : "$onToolbarFocus"},
                              "$obj.name"
                          )//end LI
                        )//end for
@@ -208,30 +208,30 @@ with (FBL) {
 	  tableTag:
       TABLE({"class": "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "", "role": "treegrid"},
         THEAD(
-          TR({"class": "gridHeaderRow a11yFocus", id: "listTableHeader", "role": "row", tabindex: "0", onclick: "$flatListTemplateUtil.onClickHeader", onkeypress: "$flatListTemplateUtil.onKeyPressRow"},
-            TH({"class": "gridHeaderCell gridCell", id: "listEleCol", onkeypress: "$flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Element")),
-            TH({"class": "gridHeaderCell gridCell", id: "listOrderCol", onkeypress: "$flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Order")),
-            TH({"class": "gridHeaderCell gridCell", id: "listIDCol", onkeypress: "$flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "ID")), //TAG("$headerTag", {header: "Source"}))),
-            TH({"class": "gridHeaderCell gridCell", id: "listClassCol", onkeypress: "$flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Class")),
-            TH({"class": "gridHeaderCell gridCell", id: "listXpathCol", onkeypress: "$flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "XPath"))
+          TR({"class": "gridHeaderRow a11yFocus", id: "listTableHeader", "role": "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow"},
+            TH({"class": "gridHeaderCell gridCell", id: "listEleCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Element")),
+            TH({"class": "gridHeaderCell gridCell", id: "listOrderCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Order")),
+            TH({"class": "gridHeaderCell gridCell", id: "listIDCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "ID")), //TAG("$headerTag", {header: "Source"}))),
+            TH({"class": "gridHeaderCell gridCell", id: "listClassCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Class")),
+            TH({"class": "gridHeaderCell gridCell", id: "listXpathCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "XPath"))
           ) //end TR
         ), //end THEAD
         TBODY(
           FOR("object", "$list_elements",
-            TR({"class": "tableRow a11yFocus gridRow", "role": "row", id: "$object.cache_id", _repObject:"$object", onkeypress: "$flatListTemplateUtil.onKeyPressRow", onclick: "$flatListTemplateUtil.hightlightCell", ondblclick: "$flatListTemplateUtil.doubleClick"},//gridRow              
-    		  TD({"class": "listEleCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$flatListTemplateUtil.onKeyPressCell", onclick: "$flatListTemplateUtil.hightlightCell", ondblclick: "$flatListTemplateUtil.doubleClick"},
+            TR({"class": "tableRow a11yFocus gridRow", "role": "row", id: "$object.cache_id", _repObject:"$object", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.hightlightCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
+    		  TD({"class": "listEleCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.hightlightCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({"class": "gridContent gridOrderCol", _repObject:"$object"}, "$object.dom_element.tag_name")
               ),  
-              TD({"class": "listOrderCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$flatListTemplateUtil.onKeyPressCell", onclick: "$flatListTemplateUtil.hightlightCell", ondblclick: "$flatListTemplateUtil.doubleClick"},
+              TD({"class": "listOrderCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.hightlightCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({"class": "gridContent gridOrderCol", _repObject:"$object"}, "$object.document_order")
               ),
-              TD({"class": "listIDCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$flatListTemplateUtil.onKeyPressCell", onclick: "$flatListTemplateUtil.hightlightCell", ondblclick: "$flatListTemplateUtil.doubleClick"},
+              TD({"class": "listIDCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.hightlightCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({"class": "gridContent", _repObject:"$object"}, "$object.dom_element.id")
               ),
-              TD({"class": "listClassCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$flatListTemplateUtil.onKeyPressCell", onclick: "$flatListTemplateUtil.hightlightCell", ondblclick: "$flatListTemplateUtil.doubleClick"},
+              TD({"class": "listClassCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.hightlightCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({class: "gridContent", _repObject:"$object"}, "$object.dom_element.class_name")
               ),
-              TD({"class": "listXpathCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$flatListTemplateUtil.onKeyPressCell", onclick: "$flatListTemplateUtil.hightlightCell", ondblclick: "$flatListTemplateUtil.doubleClick"},
+              TD({"class": "listXpathCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.hightlightCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({"class": "gridContent gridOrderCol", _repObject:"$object"}, "$object.dom_element.xpath")
               )
             )//end TR   

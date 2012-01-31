@@ -1,6 +1,9 @@
-    
+var AINSPECTOR_FB = AINSPECTOR_FB || {};
+
 with (FBL) {
+  
   var classNameReCache={};
+  
   var ainspectorUtil = {
 	
 	loadCSSToStylePanel : function(document){
@@ -13,9 +16,17 @@ with (FBL) {
     },
 		  
 	/**
-     *  Dynamically add a style sheet to the document.
+     * @function loadCSS
+     * 
+     * @desc dynamically add a style sheet to the document.
+     * 
+     * @param url
+     * @param doc
+     * 
+     * @return
      */
     loadCSS : function(url, doc) {
+      
       if ( ! doc ) {
         return '';
       }
@@ -28,14 +39,44 @@ with (FBL) {
       return newCss;
     },  
 
+    /**
+     * @function AI_STR
+     * 
+     * @desc
+     * 
+     * @param name
+     * 
+     * @return
+     */
     $AI_STR : function(name) {
+      
       return document.getElementById("ainspector_stringbundle").getString(name);
     },
 
+    /**
+     * @function AI_STRF
+     * 
+     * @desc
+     * 
+     * @param name
+     * @param args
+     * 
+     * @return
+     */
     $AI_STRF : function(name, args) {
+      
       return document.getElementById("ainspector_stringbundle").getFormattedString(name, args);
     },
     
+    /**
+     * @function sortColumn
+     * 
+     * @desc
+     * 
+     * @param table
+     * @param column
+     * @param order
+     */
     sortColumn : function(table, column, order) {
       
       var colIndex = 0;
@@ -51,6 +92,16 @@ with (FBL) {
       this.sort(table, colIndex, numerical, order);
     },
 
+    /**
+     * @funstion sort
+     * 
+     * @desc 
+     * 
+     * @param table
+     * @param colIndex
+     * @param numerical
+     * @param order
+     */
     sort: function(table, colIndex, numerical, order)  {
       var thead = table.firstChild;
       var headerRow = thead.firstChild;
@@ -121,7 +172,14 @@ with (FBL) {
     },
     
     /**
+     * @function setClass
      * 
+     * @desc
+     * 
+     * @param node
+     * @param name
+     * 
+     * @return node|null
      */
     setClass : function(node, name) {
     
@@ -142,7 +200,14 @@ with (FBL) {
     },
     
     /**
+     * @function removeClass
      * 
+     * @desc
+     * 
+     * @param node
+     * @param name
+     * 
+     * @return node|null
      */
     removeClass : function(node, name) {
         
@@ -174,7 +239,14 @@ with (FBL) {
     },
     
     /**
+     * @function hasClass
      * 
+     * @desc
+     * 
+     * @param node
+     * @param name
+     * 
+     * @return 
      */
     hasClass : function(node, name) {
       if (!node || node.nodeType != 1 || !node.className || name == '') return false;
@@ -201,71 +273,294 @@ with (FBL) {
       return node.className.search(re) != -1;
     },
     
+    /**
+     * @function getChildByClass
+     * 
+     * @desc
+     * 
+     * @param node
+     * 
+     * @return node
+     */
     getChildByClass : function(node) {
-    	FBTrace.sysout("inside getChildByClass: ", node);
-        if (!node)
-        {
-            FBTrace.sysout("dom.getChildByClass; ERROR, no parent node!");
-            return null;
-        }
+    	
+      if (!node) {
+        return null;
+      }
 
-        for (var i = 1; i < arguments.length; ++i)
-        {
-            var className = arguments[i];
-            var child = node.firstChild;
-            node = null;
-            for (; child; child = child.nextSibling)
-            {
-                if (this.hasClass(child, className))
-                {
-                    node = child;
-                    break;
-                }
-            }
+      for (var i = 1; i < arguments.length; ++i) {
+        var className = arguments[i];
+        var child = node.firstChild;
+        node = null;
+        
+        for (; child; child = child.nextSibling) {
+                
+          if (this.hasClass(child, className)) {
+            node = child;
+            break;
+          }
         }
+      }
 
-        return node;
+      return node;
     },
     
+    /**
+     * @function isGridRow
+     * 
+     * @desc
+     * 
+     * @param node
+     * 
+     * @return 
+     */
     isGridRow: function(node) {
-		return this.hasClass(node, "gridRow");
+	  
+      return this.hasClass(node, "gridRow");
 	},
     
-    getAncestorByClass : function(node, className)
-    {
-        for (var parent = node; parent; parent = parent.parentNode)
-        {
-            if (this.hasClass(parent, className))
-                return parent;
-        }
+	/**
+	 * @function getAncestorByClass
+	 * 
+	 * @desc
+	 * 
+	 * @param node
+	 * @param className
+	 */
+    getAncestorByClass : function(node, className) {
+      
+	  for (var parent = node; parent; parent = parent.parentNode) {
+            
+		if (this.hasClass(parent, className)) return parent;
+      }
 
-        return null;
+      return null;
     },
     
+    /**
+     * @function findElementIndex
+     * 
+     * @desc
+     * 
+     * @param elem
+     * 
+     * @return
+     */
     findElementIndex : function(elem) {
-    	var k=-1, e=elem;
-    	while (e) {
-    		if ( "previousSibling" in e ) {
-    			e = e.previousSibling;
-    			k = k + 1;
-    		} else {
-    			k= -1;
-    			break;
-    		}
+      
+      var k=-1, e=elem;
+      
+      while (e) {
+    	
+    	if ( "previousSibling" in e ) {
+    	
+    	  e = e.previousSibling;
+    	  k = k + 1;
+    	
+    	} else {
+    	  k= -1;
+    	  break;
     	}
-    	return k;
+      }
+      return k;
     }
-    
-    
   };
   
-  var flatListTemplateUtil = {
+  /**
+   * toolbarUtil
+   * 
+   * @desc common helper functions for the tool bar buttons
+   */
+  AINSPECTOR_FB.toolbarUtil = {
+    
+    /**
+     * @function getToolbarButtonClass
+     * 
+     * @param obj
+     * @returns
+     */
+    getToolbarButtonClass : function(obj) {
+      
+      var className = "ruleCategory-" + obj.name;
+      
+      if (obj.selected) className += " selected";
+      
+      if (obj.first) className += " first";
+    
+      return className;
+    },
+    
+    /**
+     * @function selectTab
+     * 
+     * @param event
+     * 
+     * @returns
+     */
+    selectTab : function(event) {
+      var elem = event.target;
+      if (!elem) return;
+      
+      var category = getClassValue(elem, "ruleCategory");
+      FBTrace.sysout("catewgory: ", category);
+      FBTrace.sysout("elem: ", event);
 
-    onKeyPressRow: function(event){
+      if (category) {
+        var tabList = getAncestorByClass(elem, "focusTabList");
+        
+        if (tabList) {
+          var oldTab = getElementByClass(tabList, "selected");
+          
+          if (oldTab) {
+            oldTab.setAttribute("aria-selected", "false");
+            oldTab.setAttribute("aria-expanded", "false");
+            oldTab.setAttribute("tabindex", "-1");
+            removeClass(oldTab, "selected");
+          }
+        }
+        elem.setAttribute("aria-selected", "true");
+        elem.setAttribute("aria-expanded", "true");
+        elem.setAttribute("tabindex", "0");
+        setClass(elem, "selected");
+        var currentView = panel;
+        showOnSelectButton();
+        //var currentView = panel;
+        
+        /*if (currentView && typeof currentView["show" + category] == "function") {
+          currentView["show" + category]();
+        }*/
+        
+      }
+    },
+  
+    /**
+     * onToolbarFocus
+     * 
+     * @desc
+     * 
+     * @param event
+     * @returns
+     */
+    onToolbarFocus : function(event) {
+      toolbarUtil.selectTab(event);
+    },
+    
+    /**
+     * @function getTabIndex
+     * 
+     * @param obj
+     * @returns
+     */
+    getTabIndex : function(obj) {
+      
+      return obj.selected ? "0" : "-1";
+    },
+    
+    /**
+     * @function onToolbarKeyPress
+     * 
+     * @desc
+     * 
+     * @param event
+     * @returns
+     */
+    onToolbarKeyPress : function(event) {
+      var key = event.keyCode;
+      var tabs;
+      FBTrace.sysout("keyCode in widget.js:" , event);
+      switch(key) {
+        case KeyEvent.DOM_VK_LEFT:
+        case KeyEvent.DOM_VK_RIGHT:
+        case KeyEvent.DOM_VK_UP:
+        case KeyEvent.DOM_VK_DOWN:
+
+          var forward = key == KeyEvent.DOM_VK_RIGHT || key == KeyEvent.DOM_VK_DOWN;
+          var tabList = getAncestorByClass(event.target, "focusTabList");
+          tabs = tabList.getElementsByClassName("focusTab");
+          FBTrace.sysout("keyCode in widget.js - tablist", tabList);
+          FBTrace.sysout("keyCode in widget.js - tab:", tabs);
+          var currentIndex = Array.indexOf(tabs, event.target);
+          FBTrace.sysout("keyCode in widget.js - curIndex:"+ currentIndex);
+          if (currentIndex != -1) {
+            var newIndex = forward ? ++currentIndex : --currentIndex;
+            newIndex = newIndex < 0 ? tabs.length -1 : (newIndex >= tabs.length ? 0 : newIndex);
+            
+            if (tabs[newIndex]) tabs[newIndex].focus();
+            FBTrace.sysout("newIndex: ", tabs[newIndex]);
+          }
+          event.stopPropagation();
+          event.preventDefault();
+          
+          break;
+        } //end switch
+        //return tabs[newIndex];
+      },
+      
+      /**
+       * getSelectedState
+       * 
+       * @param obj
+       * @returns
+       */
+      getSelectedState : function (obj) {
+        return obj.selected ? "true" : "false";
+      },
+      
+      /**
+       * toHTMLPanel
+       * 
+       * @desc redirect to the HTML Panel of Firebug
+       * 
+       * @param event event triggered on a row in the Links Table
+       */
+      toHTMLPanel: function(event) {
+        FBTrace.sysout("inside pane-images event", event);
+
+        var table = getChildByClass(event.target.offsetParent, "ai-table-list-items");
+        FBTrace.sysout("inside pane-images table", table);
+
+  	    var row =  getChildByClass(event.target.offsetParent, "tableRow");
+        var child;
+        var tbody = table.children[1];
+        var node = null;
+
+        for (var i = 0; i < tbody.children.length; i++) {
+          var flag = false;
+          var row = tbody.children[i];
+          node = row;
+          for (var j = 0; j < row.children.length; j++) {
+        	var cell = row.children[j];
+          for (var k=0; k<cell.classList.length;k++) {
+            if (cell.classList[k] ==  "gridCellSelected") {
+              flag = true;
+              break;
+            }//end if
+          }//end for
+          if (flag == true) break;
+        }
+          if (flag == true) break;
+        }
+        node = node.repObject.dom_element.node;
+        var panel = Firebug.chrome.selectPanel("html");
+        panel.select(node);
+      },
+
+    
+    viewContainer : DIV({style : "display:none"})
+  };
+  
+  AINSPECTOR_FB.flatListTemplateUtil = {
+
+	/**
+	 * @function onKeyPressRow
+	 * 
+	 * @desc focus on a row with the keyboard events
+	 * 
+	 * @param event event triggered when any keyboard's right, left, up and down arrows are pressed
+	 */
+	onKeyPressRow: function(event){
 	  
 	  event.stopPropagation();
-	  FBTrace.sysout("in rowpress: ", event);
-	  FBTrace.sysout("in rowpress keycode: "+ event.keyCode);
 
       switch(event.keyCode) {
 		  
@@ -284,82 +579,104 @@ with (FBL) {
 	  }
     },
     
+    /**
+     * @function onKeyPressHeadingCell
+     * 
+     * @desc focus on a table header cell with the keyboard events
+     * 
+     * @param event event triggered when any keyboard's enter, right, left, up and down arrows are pressed
+     */
     onKeyPressHeadingCell: function(event){
 	    
-	    event.stopPropagation();
-		FBTrace.sysout("in headingpress: ", event);
-	    switch(event.keyCode) {
+	  event.stopPropagation();
+	  FBTrace.sysout("in headingpress: ", event);
+	  switch(event.keyCode) {
 		  
-	      case 13: //Enter
-	        var table = getAncestorByClass(event.target, "ai-table-list-items");
-	        var column = getAncestorByClass(event.target, "gridHeaderCell");
-	        ainspectorUtil.sortColumn(table, column);
-			break;
-	      default:
-			this.onKeyPressCell(event);
-			break;
-		}
-      
-      },
+	    case 13: //Enter
+	      var table = getAncestorByClass(event.target, "ai-table-list-items");
+	      var column = getAncestorByClass(event.target, "gridHeaderCell");
+	      ainspectorUtil.sortColumn(table, column);
+		  break;
+	      
+	    default:
+		  this.onKeyPressCell(event);
+		  break;
+	  }
+    },
     
+    /**
+     * @function onKeyPressCell
+     * 
+     * @desc focus on a table cell with the keyboard events
+     * 
+     * @param event event triggered when any keyboard's right, left, up and down arrows are pressed
+     */
     onKeyPressCell: function(event){
   	
-  	event.stopPropagation();
-		FBTrace.sysout("in cellpress: ", event);
-		FBTrace.sysout("keycode: "+ event.keyCode);
-
-  	switch(event.keyCode) {
+  	  event.stopPropagation();
+  	  switch(event.keyCode) {
 		  
-  	  case 13:
+  	    case 13:
   		  var row = getAncestorByClass(event.target, "gridRow");
-  		  FBTrace.sysout("nnnnnnnn", row.repObject);
   		  var imageElement = row.repObject;
-  	        var node = imageElement.dom_element.node;
-  	        var panel = Firebug.chrome.selectPanel("html");
-  	        panel.select(node);
-  	        break;
-  	  case 38: //up
+          var node = imageElement.dom_element.node;
+  	      var panel = Firebug.chrome.selectPanel("html");
+  	      panel.select(node);
+  	      break;
+  	  
+  	    case 38: //up
 			var index = ainspectorUtil.findElementIndex(event.target);
 			var row = getAncestorByClass(event.target, "gridRow");
 			row = row.previousSibling;
 			if (row) {
-				var  cell = row.childNodes[index];
-				if (cell) cell.focus();
+			  var  cell = row.childNodes[index];
+			  
+			  if (cell) cell.focus();
 			}
 			break;
 		  
-  	  case 37: //left
-			var cell = event.target.previousSibling;
-			if (cell) cell.focus();
-			else {
-				var row = getAncestorByClass(event.target, "gridRow");
-				row.focus();
-			}
-			break;
+  	    case 37: //left
+		  var cell = event.target.previousSibling;
 		
-  	  case 39: //right
-			var cell = event.target.nextSibling;
-			if (cell) cell.focus();
-			break;
-		
-  	  case 40: //down
-			var index = ainspectorUtil.findElementIndex(event.target);
+		  if (cell) {
+		    cell.focus();
+		  } else {
 			var row = getAncestorByClass(event.target, "gridRow");
-			FBTrace.sysout("row: ", row);
-			row = row.nextSibling;
-			if (row) {
-				var  cell = row.childNodes[index];
-				if (cell) cell.focus();
-			}
-			break;
-		}
-    },
+			row.focus();
+		  }
+		  break;
+		
+  	    case 39: //right
+		  var cell = event.target.nextSibling;
+			
+		  if (cell) cell.focus();
+		  break;
+		
+  	    case 40: //down
+		  var index = ainspectorUtil.findElementIndex(event.target);
+		  var row = getAncestorByClass(event.target, "gridRow");
+   		  row = row.nextSibling;
+			
+   		  if (row) {
+			var  cell = row.childNodes[index];
+			
+			if (cell) cell.focus();
+		  }
+		  break;
+	   }  
+     },
     
+    /**
+     * @function doubleClick
+     * 
+     * @desc double click on a row/cell takes to the HTML panel of Firebug from the ainspector panel
+     * 
+     * @param event
+     */ 
     doubleClick: function(event){
-      FBTrace.sysout("doubleClick..........", event);
 
-	    var imageElement = event.target.repObject;
-      var node = imageElement.dom_element.node;
+      var element = event.target.repObject;
+      var node = element.dom_element.node;
       var panel = Firebug.chrome.selectPanel("html");
       panel.select(node);
     },
@@ -367,13 +684,14 @@ with (FBL) {
     /**
      * hightlightCell
      *  
-     * @param event
+     * @desc
+     * 
+     * @param event event triggered when mouse click happens
+     * 
      * @returns
      */
     hightlightCell: function (event) {
 	    
-      FBTrace.sysout("HIGHLIGHT...", event);
-      FBTrace.sysout("Clicks..."+ event.Clicks);
 	  var table = getAncestorByClass(event.target, "ai-table-list-items");
       var row =  getAncestorByClass(event.target, "tableRow");
       var i;
@@ -382,38 +700,43 @@ with (FBL) {
       var cell_selected;
       var child;
       var row;
-      FBTrace.sysout("table: ", table);
       var tbody = table.children[1];
-      FBTrace.sysout("tbody: ", tbody);
 
       for (i = 0; i < tbody.children.length; i++) {
         var flag = false;
         var row = tbody.children[i];
         
         for (j = 0; j < row.children.length; j++) {
-      	var cell = row.children[j];
-      	var cell_selected = getChildByClass(cell, "gridCellSelected");
-      	FBTrace.sysout("cell_selected in highlightcell: "+ cell_selected);
-      	for (var k=0; k<cell.classList.length;k++) {
-         	  if (cell.classList[k] ==  "gridCellSelected") {
-                ainspectorUtil.removeClass(cell, "gridCellSelected");
-         		  flag = true;
-                 break;
+      	  var cell = row.children[j];
+      	  var cell_selected = getChildByClass(cell, "gridCellSelected");
+      	 
+      	  for (var k=0; k<cell.classList.length;k++) {
+     	  
+      		if (cell.classList[k] ==  "gridCellSelected") {
+              ainspectorUtil.removeClass(cell, "gridCellSelected");
+     		  flag = true;
+              break;
            }
-      	}  
-      	if (flag == true) break;
-        }
-        if (flag == true) break;
-      }
+      	 }  
+      	 if (flag == true) break;
+       }
+       if (flag == true) break;
+     }
 
-      var column = getAncestorByClass(event.target, "gridCell");
-      ainspectorUtil.setClass(column, "gridCellSelected");
+     var column = getAncestorByClass(event.target, "gridCell");
+     ainspectorUtil.setClass(column, "gridCellSelected");
 
       //ainspectorUtil.setClass(row_cell, "gridCellSelected");
       //var row_cells = cell.childNodes;
-      //FBTrace.sysout("rowcells.....", row_cells);
-   },
+    },
      
+    /**
+     * @function onClickHeader
+     * 
+     * @desc sorts the table depending on the header selected
+     * 
+     * @param event event triggered when mouse click happens
+     */
     onClickHeader : function(event){
   	  
       var table = getAncestorByClass(event.target, "ai-table-list-items");

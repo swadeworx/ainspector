@@ -1,16 +1,15 @@
+var AINSPECTOR_FB = AINSPECTOR_FB || {};
 with (FBL) {
   
   /**
    * toolbarUtil
    * 
-   * @Domplate
-   * 
-   * @desc template creates the content for navigation button
+   * @desc common helper functions for the tool bar buttons
    */
-  var toolbarUtil = {
+  AINSPECTOR_FB.toolbarUtil = {
     
     /**
-     * getToolbarButtonClass
+     * @function getToolbarButtonClass
      * 
      * @param obj
      * @returns
@@ -27,9 +26,10 @@ with (FBL) {
     },
     
     /**
-     * selectTab
+     * @function selectTab
      * 
-     * @param elem
+     * @param event
+     * 
      * @returns
      */
     selectTab : function(event) {
@@ -81,7 +81,7 @@ with (FBL) {
     },
     
     /**
-     * getTabIndex
+     * @function getTabIndex
      * 
      * @param obj
      * @returns
@@ -92,7 +92,7 @@ with (FBL) {
     },
     
     /**
-     * onToolbarKeyPress
+     * @function onToolbarKeyPress
      * 
      * @desc
      * 
