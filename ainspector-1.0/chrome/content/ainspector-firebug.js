@@ -32,28 +32,8 @@ FBL.ns(function() { with (FBL) {
 	   
   	  var isFirebugExtension = panel && panel.name == panel_name; 
 	  var FirebugExtensionButtons = browser.chrome.$("fbFirebugExtensionButtons");
-	  FBTrace.sysout("FirebugExtensionButtons  : ", FirebugExtensionButtons.childNodes[1].childNodes);
-	  //var ainspector_toolbar_buttons = browser.chrome.$("radio-toolbar");
-	  //FBTrace.sysout("Toolbarr.............", ainspector_toolbar_buttons);
-	  //FBTrace.sysout("report tb...........", ainspector_toolbar_buttons._getToolbarItem("report_id"));
-	  //FBTrace.sysout("link tb...........", ainspector_toolbar_buttons._getToolbarItem("link_id"));
-	  
 	  cache_object = this.updateCache();
-	  //this.showDefaultPanelView();
 	  collapse(FirebugExtensionButtons, !isFirebugExtension); 
-	},
-	
-	/**
-	 * showDefaultPanelView()
-	 * 
-	 * @ desc shows the default panel to be displayed when the AInspector is loaded for the first time
-	 * 
-	 * @param context
-	 */
-	showDefaultPanelView : function () {
- 
-	  cache_object = this.updateCache();
-	  this.reportView(Firebug.currentContext);	
 	},
 	
 	/**
@@ -68,15 +48,7 @@ FBL.ns(function() { with (FBL) {
         /* Optional */
         Firebug.setPref('defaultPanelName','console');
       }
-	//  Firebug.chrome.$("fbFirebugExtensionButtons").removeEventListener("keypress", this.onKeyPress, false);  
-
     },
-    
-    /*onKeyPress : function(event) {
-      if (event.keyCode == window.KeyEvent.DOM_VK_LEFT) {
-      } else if (event.keyCode == window.KeyEvent.DOM_VK_RIGHT) {
-      }
-    },*/
     
     /**
      * reportView
