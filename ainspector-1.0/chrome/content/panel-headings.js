@@ -1,3 +1,4 @@
+var AINSPECTOR_FB = AINSPECTOR_FB || {};
 with (FBL) {
   
   panel : null;
@@ -10,7 +11,7 @@ with (FBL) {
   title_main_elements: null;
   landmark_elements: null;
   
-  var headingsObject = {  
+  AINSPECTOR_FB.headLandmarkView = {  
 	      
     /**
 	 * @function headingsPanelView
@@ -25,7 +26,6 @@ with (FBL) {
 	 headingsPanelView : function(head_land_toolbar_buttons, toolbar, panelView, cache_object) {
 	        
       var head_land_cache = cache_object.dom_cache.headings_landmarks_cache;
-      FBTrace.sysout("head_land_cache: ", head_land_cache);
       
       child_elements = head_land_cache.child_cache_elements;
       landmark_elements = head_land_cache.landmark_elements;
@@ -62,7 +62,7 @@ with (FBL) {
                 DIV({style : "clear: both"})        
               ), 
   
-    toolbarButtons : UL ({class : "yui-nav focusTabList toolbarLinks", role : "tablist", onkeypress : "$AINSPECTOR_FB.toolbarUtil.onToolbarKeyPress", "aria-label" :  "element views"},
+    toolbarButtons : UL ({class : "yui-nav focusTabList toolbarLinks", role : "tablist", onkeypress : "$AINSPECTOR_FB.toolbarUtil.onToolbarKeyPress", "aria-label" :  "toolbarbutton views"},
                        FOR("obj", "$toolbar_buttons",
                          LI({id: "$obj.name", class : "$obj|AINSPECTOR_FB.toolbarUtil.getToolbarButtonClass focusTab", onclick: "$onClickToolbarButton", tabindex : "$obj|AINSPECTOR_FB.toolbarUtil.getTabIndex", role : "tab", "aria-selected" : "$obj|AINSPECTOR_FB.toolbarUtil.getSelectedState", onfocus : "$onToolbarFocus"},
                              "$obj.name"
@@ -79,7 +79,6 @@ with (FBL) {
      * @param event event triggered on a row/cell
      */
     toHTMLPanel: function(event) {
-	  FBTrace.sysout("inside pane-headings htmlview", event);
       var table = getChildByClass(event.target.offsetParent, "ai-table-list-items");
       var row =  null;
       var tbody = null;
@@ -159,6 +158,8 @@ with (FBL) {
      * @function showOnSelectButton
      * 
      * @desc show the selected toolbar button with a focus on it
+     * 
+     * @param toolbar_button_id
      */
     showOnSelectButton : function(toolbar_button_id) {
 
@@ -172,17 +173,11 @@ with (FBL) {
   	    Firebug.currentContext.getPanel('Rules').sView(true, child_elements[0]);
 
       } else if (toolbar_button_id == "Title/Main/H1"){
-    	//panel.table = flatListTemplate.shortTag.append( {image_elements: image_elements}, panel.panelNode, null);
     	  
   	    Firebug.currentContext.getPanel('Rules').sView(true, image_elements[0]);
       } else if (toolbar_button_id == "Headings") {
       	var properties = ["Order", "Level", "Name"];
       	var display_properties = ["document_order", "level", "name"];
-      	FBTrace.sysout("heading_elements: ", heading_elements);
-      	/*var input = {properties: properties,
-      			display_properties: display_properties,
-      			heading_elements: heading_elements
-      	}*/
       	
       	panel.table = flatList.shortTag.append({elements: heading_elements, display_properties: display_properties, header_properties: properties}, panel.panelNode, null);
     	  
@@ -206,7 +201,7 @@ with (FBL) {
     
       if (!elem) return;
       
-      var category = getClassValue(elem, "ruleCategory");
+      var category = getClassValue(elem, "toolbarButtonView");
 
       if (category) {
         var tabList = getAncestorByClass(elem, "focusTabList");
@@ -226,7 +221,6 @@ with (FBL) {
         elem.setAttribute("tabindex", "0");
         setClass(elem, "selected");
         var currentView = panel;
-        FBTrace.sysout("panel in selectTab: ", panel);
         this.showOnSelectButton(category);
       }
     },
@@ -446,7 +440,7 @@ with (FBL) {
 	      for (var k=0; k<row.classList.length;k++) {
 	        
 	        if (row.classList[k] ==  "gridCellSelected") {
-	          ainspectorUtil.removeClass(row, "gridCellSelected");
+	          AINSPECTOR_FB.ainspectorUtil.removeClass(row, "gridCellSelected");
 	          flag = true;
 	          break;
 	        }
@@ -454,10 +448,16 @@ with (FBL) {
 	      if (flag == true) break;
 	    }
         var row_selected = getAncestorByClass(event.target, "treeRow");
-	    ainspectorUtil.setClass(row_selected, "gridCellSelected");
+	    AINSPECTOR_FB.ainspectorUtil.setClass(row_selected, "gridCellSelected");
      },
 
-
+      /**
+       * @function toggleRow
+       * 
+       * @desc
+       * 
+       * @param row
+       */
       toggleRow: function(row) {
 
 		if (hasClass(row, "opened")) {
@@ -583,24 +583,24 @@ with (FBL) {
       TABLE({class: "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "", "role": "treegrid"},
         THEAD(
           TR({class: "gridHeaderRow a11yFocus", id: "imgTableHeader", "role": "row", tabindex: "0", onclick: "$onClickHeader"},
-        	  TH({class: "gridHeaderCell"}, DIV({class: "gridHeaderCellBox"}, "Order")),
-        	  TH({class: "gridHeaderCell"}, DIV({class: "gridHeaderCellBox"}, "Level")),
-        	  TH({class: "gridHeaderCell"}, DIV({class: "gridHeaderCellBox"}, "Name"))
+        	TH({class: "gridHeaderCell"}, DIV({class: "gridHeaderCellBox"}, "Order")),
+        	TH({class: "gridHeaderCell"}, DIV({class: "gridHeaderCellBox"}, "Level")),
+        	TH({class: "gridHeaderCell"}, DIV({class: "gridHeaderCellBox"}, "Name"))
           ) //end TR
         ), //end THEAD
         TBODY(
           FOR("object", "$elements",
             TR({class: "tableRow a11yFocus", "role": "row", id: "$object.cache_id", _repObject:"$object"},//gridRow              
-            	TD({class: "gridCell gridCol a11yFocus", "role": "gridcell", tabindex: "-1", onclick: "$hightlightCell"},
-                  DIV({class: "gridContent gridOrderCol", _repObject:"$object"}, "$object.document_order")
-                ),
-                TD({class: "gridCell gridCol a11yFocus", "role": "gridcell", tabindex: "-1", onclick: "$hightlightCell"},
-                  DIV({class: "gridContent gridOrderCol", _repObject:"$object"}, "$object.level")
-                ),
-                TD({class: "gridCell gridCol a11yFocus", "role": "gridcell", tabindex: "-1", onclick: "$hightlightCell"},
-                  DIV({class: "gridContent gridOrderCol", _repObject:"$object"}, "$object.name")
-                )
-              )//end TR
+              TD({class: "gridCell gridCol a11yFocus", "role": "gridcell", tabindex: "-1", onclick: "$hightlightCell"},
+                DIV({class: "gridContent gridOrderCol", _repObject:"$object"}, "$object.document_order")
+              ),
+              TD({class: "gridCell gridCol a11yFocus", "role": "gridcell", tabindex: "-1", onclick: "$hightlightCell"},
+                DIV({class: "gridContent gridOrderCol", _repObject:"$object"}, "$object.level")
+              ),
+              TD({class: "gridCell gridCol a11yFocus", "role": "gridcell", tabindex: "-1", onclick: "$hightlightCell"},
+                DIV({class: "gridContent gridOrderCol", _repObject:"$object"}, "$object.name")
+              )
+            )//end TR
             
           ) //end FOR
         )// end TBODY
@@ -654,7 +654,7 @@ with (FBL) {
         	FBTrace.sysout("cell_selected: "+ cell_selected);
         	for (var k=0; k<cell.classList.length;k++) {
              	  if (cell.classList[k] ==  "gridCellSelected") {
-                    ainspectorUtil.removeClass(cell, "gridCellSelected");
+                    AINSPECTOR_FB.ainspectorUtil.removeClass(cell, "gridCellSelected");
              		  flag = true;
                      break;
                }
@@ -666,10 +666,10 @@ with (FBL) {
 
         var column = getAncestorByClass(event.target, "gridCell");
         FBTrace.sysout("column bef: ", column);
-        ainspectorUtil.setClass(column, "gridCellSelected");
+        AINSPECTOR_FB.ainspectorUtil.setClass(column, "gridCellSelected");
         FBTrace.sysout("column aft: ", column);
 
-        //ainspectorUtil.setClass(row_cell, "gridCellSelected");
+        //AINSPECTOR_FB.ainspectorUtil.setClass(row_cell, "gridCellSelected");
         //var row_cells = cell.childNodes;
         //FBTrace.sysout("rowcells.....", row_cells);
      },
@@ -699,7 +699,7 @@ with (FBL) {
 
         var column = getAncestorByClass(event.target, "gridHeaderCell");
         FBTrace.sysout("column", column);
-        ainspectorUtil.sortColumn(table, column);
+        AINSPECTOR_FB.ainspectorUtil.sortColumn(table, column);
       }
    });
 }
