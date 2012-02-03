@@ -204,7 +204,7 @@ with (FBL) {
 	        var row = tbody.children[i];
 	      	for (var k=0; k<row.classList.length;k++) {
 	          if (row.classList[k] ==  "gridCellSelected") {
-	            ainspectorUtil.removeClass(row, "gridCellSelected");
+	            AINSPECTOR_FB.ainspectorUtil.removeClass(row, "gridCellSelected");
 	         	flag = true;
 	            break;
 	           }
@@ -213,9 +213,9 @@ with (FBL) {
 	      }
 
 	      var row_selected = getAncestorByClass(event.target, "treeRow");
-	      ainspectorUtil.setClass(row_selected, "gridCellSelected");
+	      AINSPECTOR_FB.ainspectorUtil.setClass(row_selected, "gridCellSelected");
 
-	      //ainspectorUtil.setClass(row, "selected");
+	      //AINSPECTOR_FB.ainspectorUtil.setClass(row, "selected");
 	      //var row_cells = cell.childNodes;
 	      FBTrace.sysout("rowcells.....", row_cells);
 	   },

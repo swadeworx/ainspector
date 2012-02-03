@@ -1,6 +1,6 @@
 with (FBL) {
 
-  var ainspectorUtil = {
+  var AINSPECTOR_FB.ainspectorUtil = {
     onShowImagesCommand : function (e) {
 
 

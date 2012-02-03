@@ -280,7 +280,7 @@ with (FBL) {
       onClickHeader : function(event){
         var table = getAncestorByClass(event.target, "ai-table-list-items");
         var column = getAncestorByClass(event.target, "gridHeaderCell");
-        ainspectorUtil.sortColumn(table, column);
+        AINSPECTOR_FB.ainspectorUtil.sortColumn(table, column);
       }
    });
 
