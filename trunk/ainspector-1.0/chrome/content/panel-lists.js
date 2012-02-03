@@ -38,7 +38,7 @@ AINSPECTOR_FB.lists = {
 	  panel = panelView;
 	  list_view = panelView;
 	  tree_view = panelView;
-	  panel.table = treeTemplate.tag.append( {object: child_elements}, panel.panelNode, treeTemplate);
+	  panel.table = listTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, listTreeTemplate);
 
 	  //panel.table = flatListTemplate.tableTag.append( {image_elements: image_elements}, panel.panelNode, null);
 
@@ -133,7 +133,7 @@ with (FBL) {
         FBTrace.sysout("toolbar_button_id: " + toolbar_button_id);
         if (toolbar_button_id == "Tree View") {
       	   //imageObject.getToolBarButtons(image_view, toolbar_button_id);
-    		  panel.table = treeTemplate.tag.append( {object: child_elements}, tree_view.panelNode, treeTemplate);
+    		  panel.table = listTreeTemplate.tag.append( {object: child_elements}, tree_view.panelNode, listTreeTemplate);
     		  Firebug.currentContext.getPanel('Rules').sView(true, child_elements[0]);
         
         } else {
@@ -154,9 +154,7 @@ with (FBL) {
     
       if (!elem) return;
       
-      var category = getClassValue(elem, "ruleCategory");
-      FBTrace.sysout("catewgory: "+ category);
-      FBTrace.sysout("elem: ", elem);
+      var category = getClassValue(elem, "toolbarButtonView");
 
       if (category) {
         var tabList = getAncestorByClass(elem, "focusTabList");
@@ -176,7 +174,6 @@ with (FBL) {
         elem.setAttribute("tabindex", "0");
         setClass(elem, "selected");
         var currentView = panel;
-        FBTrace.sysout("panel in selectTab: ", panel);
         this.showOnSelectButton(category);
       }
     },
@@ -241,25 +238,38 @@ with (FBL) {
     });
   
   var listTreeTemplate = domplate({
-	    tag:
-		  TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, onclick: "$onClick", tabindex: 0, onkeypress: "$onKeyPressedTable"},
-		    TBODY(
-			  FOR("member", "$object|memberIterator", TAG("$row", {member: "$member"}))
-			)
-		  ),
+	tag:
+	  TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, onclick: "$onClick", tabindex: 0, onkeypress: "$onKeyPressedTable"},
+	    THEAD(
+	      TR({"class": "gridHeaderRow a11yFocus", id: "listTableHeader", "role": "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow"},
+	        TH({"class": "gridHeaderCell gridCell", id: "listEleCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Element")),
+		    TH({"class": "gridHeaderCell gridCell", id: "listOrderCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Order")),
+		    TH({"class": "gridHeaderCell gridCell", id: "listIDCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "ID")), //TAG("$headerTag", {header: "Source"}))),
+	        TH({"class": "gridHeaderCell gridCell", id: "listClassCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Class")),
+	        TH({"class": "gridHeaderCell gridCell", id: "listXpathCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "XPath"))
+	      ) //end TR
+	    ),
+		TBODY(
+		  FOR("member", "$object|memberIterator", TAG("$row", {member: "$member"}))
+		)
+	  ),
 	    
-		  row:
-		    TR({class: "treeRow", $hasChildren: "$member.hasChildren", _repObject: "$member", 
-		    	level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onfocus: "$onFocus", onclick: "$highlightRow"},
-			  TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member"},
-			    TAG("$member.tag", {'member' :"$member", 'object': "$member.value"})
-			  ),
-			  TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member"},
-				"$member.role_level"),
-	  		  TD({class: "memberLabelCell", _repObject: "$member"}, "$member.text")
-		    ),
+	  row:
+	    TR({class: "treeRow", $hasChildren: "$member.hasChildren", _repObject: "$member", 
+	    	level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onfocus: "$onFocus", onclick: "$highlightRow"},
+		  TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member"},
+		    TAG("$member.tag", {'member' :"$member", 'object': "$member.value"})
+		  ),
+		  TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member"},
+			"$member.order"),
+		  TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member"},
+			"$member.id"),
+		  TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member"},
+			"$member.name"),
+		  TD({class: "memberLabelCell", _repObject: "$member"}, "$member.xpath")
+	    ),
 
-	      strTag : DIV({class: "treeLabel"},"$member.name"),
+	      strTag : DIV({class: "treeLabel"},"$member.element"),
 
 		  loop:
 		    FOR("member", "$members", TAG("$row", {member: "$member"})),
@@ -402,7 +412,7 @@ with (FBL) {
 		        var row = tbody.children[i];
 		      	for (var k=0; k<row.classList.length;k++) {
 		          if (row.classList[k] ==  "gridCellSelected") {
-		            ainspectorUtil.removeClass(row, "gridCellSelected");
+		            AINSPECTOR_FB.ainspectorUtil.removeClass(row, "gridCellSelected");
 		         	flag = true;
 		            break;
 		           }
@@ -411,11 +421,11 @@ with (FBL) {
 		      }
 
 		      var row_selected = getAncestorByClass(event.target, "treeRow");
-		      ainspectorUtil.setClass(row_selected, "gridCellSelected");
+		      AINSPECTOR_FB.ainspectorUtil.setClass(row_selected, "gridCellSelected");
 
-		      //ainspectorUtil.setClass(row, "selected");
+		      //AINSPECTOR_FB.ainspectorUtil.setClass(row, "selected");
 		      //var row_cells = cell.childNodes;
-		      FBTrace.sysout("rowcells.....", row_cells);
+//		      FBTrace.sysout("rowcells.....", row_cells);
 		   },
 
 
@@ -442,16 +452,19 @@ with (FBL) {
 		  createMember: function(name, value, level)  {
 		  //  FBTrace.sysout(' createMember : ', value);
 			return {
-			  name: value.dom_element.tag_name, //name,
 			  role_level: (value.dom_element.role) ? value.dom_element.role : value.level,
-			  text: (value.dom_element.role) ? (value.label) : value.name,
 		      hasChildren: this.hasChildElements(value), 
 		      children: this.getChildrenEle(value),
 		      value: (value != null) ? value : "",
 		      label: (value.dom_element.children != null) ? "" : value,
 		      level: level,
 		      indent: level * 16,
-		      tag: this.strTag
+		      tag: this.strTag,
+		      element:value.dom_element.tag_name,
+		      id: value.dom_element.id,
+		      order: value.document_order,
+			  name: value.dom_element.class_name, //name,
+		      xpath: value.dom_element.xpath
 		    };
 		  },
 		  

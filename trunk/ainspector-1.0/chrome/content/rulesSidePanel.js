@@ -1,11 +1,11 @@
 FBL.ns(function() { with (FBL) {
 
-  var main_panel = ainspectorUtil.$AI_STR("ainspector.mainpanel.name");
-  var side_panel_name = ainspectorUtil.$AI_STR("ainspector.sidepanel.rules.name");
-  var side_panel_title = ainspectorUtil.$AI_STR("ainspector.sidepanel.rules.title");
+  var main_panel = AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.name");
+  var side_panel_name = AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.sidepanel.rules.name");
+  var side_panel_title = AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.sidepanel.rules.title");
   
   /**
-   * @panel NavigationSidePanel displaying Rule results for the current selected 
+   * @function NavigationSidePanel displaying Rule results for the current selected 
    * row in the Navigation button,
    */
   function NavigationSidePanel() {}
@@ -137,7 +137,7 @@ FBL.ns(function() { with (FBL) {
      },
      
      /**
-      * deleteNode
+      * @function deleteNode
       * 
       * @desc
       * 
@@ -149,7 +149,7 @@ FBL.ns(function() { with (FBL) {
      },
 
      /**
-      * destroyNode
+      * @function destroyNode
       * 
       * @desc 
       */
@@ -171,33 +171,31 @@ FBL.ns(function() { with (FBL) {
 	   
        var rule_result_array = new Array();
        var result;
-       FBTrace.sysout("Inside show of navigationSidePanel.js");
        Firebug.Panel.show.apply(this, arguments);
-       
-//     FBTrace.sysout("Main Panel...", this.mainPanel);
-//     FBTrace.sysout("Side Panel...", Firebug.currentContext.getPanel('Rules'));
      },
      
+     /**
+      * @function sView
+      * 
+      * @param state
+      * @param first_element
+      */
      sView: function(state, first_element){
-    	 if (state) {
-             try {
-          	   //FBTrace.sysout(".............sView..............", this.mainPanel.panelNode.lastElementChild.lastElementChild.firstElementChild.cache_type);
-          	   //FBTrace.sysout(".............type.............."+ cache_type );
-
-        	  // result = this.mainPanel.panelNode.lastElementChild.lastElementChild.firstElementChild.image.dom_element;
-        	   result = first_element.dom_element;
-          	   FBTrace.sysout("sView link..............." , result);
-               rule_result_array = this.getRuleResults(result);
-        	   FBTrace.sysout("rule_result_array length..............." + rule_result_array.length);
-               if (rule_result_array.length > 0) this.rebuild(rule_result_array);
-             } catch (er) {
-            	 
-             }
-           }
+	   if (state) {
+         try {
+    	   result = first_element.dom_element;
+      	   FBTrace.sysout("sView link..............." , result);
+           rule_result_array = this.getRuleResults(result);
+    	   FBTrace.sysout("rule_result_array length..............." + rule_result_array.length);
+           if (rule_result_array.length > 0) this.rebuild(rule_result_array);
+         } catch (er) {
+        	 
+         }
+       }
      },
 
      /**
-      * setSelection
+      * @function setSelection
       * 
       * @desc
       * 
@@ -214,7 +212,7 @@ FBL.ns(function() { with (FBL) {
      },
     
      /**
-      * getRuleResults
+      * @function getRuleResults
       * 
       * @param rule_results_object
       * 
@@ -237,64 +235,65 @@ FBL.ns(function() { with (FBL) {
          if (violations && violations.length>0) {
          
            for (i = 0; i < violations.length; i++) {
-             resultArray.push({severity: "Violation", message: violations[i].rule_result.rule_title});
+             resultArray.push({severity: "Violation", message: violations[i]});
            }
          }
 
          if (manual_evaluations && manual_evaluations.length>0) {
          
            for (i = 0; i < manual_evaluations.length; i++) {
-             resultArray.push({severity: "Manual Evaluation", message: manual_evaluations[i].rule_result.rule_title});
+             resultArray.push({severity: "Manual Evaluation", message: manual_evaluations[i]});
            }
          }
 
          if (recommendations && recommendations.length>0) {
          
            for (i = 0; i < recommendations.length; i++) {
-             resultArray.push({severity: "Recommendation", message: recommendations[i].rule_result.rule_title});
+             resultArray.push({severity: "Recommendation", message: recommendations[i]});
            }
          }
 
          if (informational && informational.length>0) {
          
            for (i = 0; i < informational.length; i++) {
-             resultArray.push({severity: "Information", message: informational[i].rule_result.rule_title});
+             resultArray.push({severity: "Information", message: informational[i]});
            } 
          }
        
          if (passed && passed.length>0) {
          
            for (i = 0; i < passed.length; i++) {
-             resultArray.push({severity: "Pass", message: passed[i].rule_result.rule_title});
+             resultArray.push({severity: "Pass", message: passed[i]});
            }
          }
 
          if (not_applicable && not_applicable.length>0) {
          
            for (i = 0; i < not_applicable.length; i++) {
-             resultArray.push({severity: "NA", message: not_applicable[i].rule_result.rule_title});
+             resultArray.push({severity: "NA", message: not_applicable[i]});
            }
          }
          
          if (hidden && hidden.length>0) {
              
            for (i = 0; i < hidden.length; i++) {
-             resultArray.push({severity: "Hidden", message: hidden[i].rule_result.rule_title});
+             resultArray.push({severity: "Hidden", message: hidden[i]});
            }
          }
          
          if (warnings && warnings.length>0) {
              
            for (i = 0; i < warnings.length; i++) {
-             resultArray.push({severity: "Warning", message: warnings[i].rule_result.rule_title});
+             resultArray.push({severity: "Warning", message: warnings[i]});
            }
          }
          
          return resultArray;
     	 
      },
+     
      /**
-      * rebuild
+      * @function rebuild
       * 
       * @desc
       * 
@@ -302,8 +301,7 @@ FBL.ns(function() { with (FBL) {
       */
      rebuild: function(resultArray){
        this.panelNode.id = "ainspector-side-panel";
-       FBTrace.sysout("Inside rebuid panel: ", this.panelNode);
-	   SelectorTemplate.tag.replace({object: resultArray}, this.panelNode);
+	   rulesTemplate.tag.replace({object: resultArray}, this.panelNode);
      },
    
      /**
@@ -395,22 +393,21 @@ FBL.ns(function() { with (FBL) {
     }
   });
 
-  var SelectorTemplate = domplate(BaseRep, {
+  var rulesTemplate = domplate(BaseRep, {
     
-    // object will be array of elements CSSStyleRule
     tag:
-      TABLE({"class": "ai-sidepanel-table", cellpadding: 0, cellspacing: 0, role: "treegrid"},
+      TABLE({class: "ai-sidepanel-table", cellpadding: 0, cellspacing: 0, role: "treegrid"},
         THEAD(
-          TR({"class": "gridHeaderRow", id: "linksTableHeader", "role": "row", tabindex: "0"},
-            TH({}, "Results"),
-            TH({}, "Message")
+          TR({class: "gridHeaderRow gridRow", id: "rulesTableHeader", "role": "row", tabindex: "0"},
+            TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, "Results"),
+            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, "Message")
           )
         ),  
         TBODY(
           FOR("obj", "$object",
-            TR({"class": "tableRow a11yFocus", "role": "row"},
-              TD({"class": "resultsCol gridCell gridCol", "role": "gridcell", "tabindex": "-1"}, DIV({"class": "gridLabel"},"$obj.severity")),
-              TD({"class": "messagesCol gridCell gridCol", "role": "gridcell", "tabindex": "-1"}, DIV({"class": "gridLabel"},"$obj.message"))
+            TR({class: "tableRow a11yFocus", role: "row"},
+              TD({class: "resultsCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridLabel"},"$obj.severity")),
+              TD({class: "messagesCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridLabel"},"$obj.message"))
             ) //end TR
           ) 
         ) //end TBODY  

@@ -176,15 +176,15 @@ with (FBL) {
     getToolBarButtons: function (panel, button_view) {
 
         var i;
-        var links_toolbar_buttons = [{name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.all"), selected: false},
-                                       {name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.duplicateHref"), selected: false}, 
-                                       {name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.duplicateName"), selected: false},
-                                       {name: ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.area"), selected: false}];
+        var links_toolbar_buttons = [{name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.all"), selected: false},
+                                       {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.duplicateHref"), selected: false}, 
+                                       {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.duplicateName"), selected: false},
+                                       {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.area"), selected: false}];
         for (i=0; i < links_toolbar_buttons.length; i++){
       	if (links_toolbar_buttons[i].name == button_view) links_toolbar_buttons[i].selected = true;  
         }  
         
-        ainspectorUtil.loadCSSToStylePanel(panel.document);
+        AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
 
         var toolbar = panel.document.createElement("div");
         toolbar.id = "toolbarDiv";
@@ -357,7 +357,7 @@ with (FBL) {
 		        var row = tbody.children[i];
 		      	for (var k=0; k<row.classList.length;k++) {
 		          if (row.classList[k] ==  "gridCellSelected") {
-		            ainspectorUtil.removeClass(row, "gridCellSelected");
+		            AINSPECTOR_FB.ainspectorUtil.removeClass(row, "gridCellSelected");
 		         	flag = true;
 		            break;
 		           }
@@ -366,9 +366,9 @@ with (FBL) {
 		      }
 
 		      var row_selected = getAncestorByClass(event.target, "treeRow");
-		      ainspectorUtil.setClass(row_selected, "gridCellSelected");
+		      AINSPECTOR_FB.ainspectorUtil.setClass(row_selected, "gridCellSelected");
 
-		      //ainspectorUtil.setClass(row, "selected");
+		      //AINSPECTOR_FB.ainspectorUtil.setClass(row, "selected");
 		      //var row_cells = cell.childNodes;
 		      FBTrace.sysout("rowcells.....", row_cells);
 		   },

@@ -49,15 +49,16 @@ AINSPECTOR_FB.equivalents = {
    * 
    * @desc template creates a Tool bar in ainpector panel 
    */
-  var equivToolbarPlate = domplate({
+   var equivToolbarPlate = domplate({
     toolbar : DIV( {class : "nav-menu"},
                 TAG("$toolbarButtons", {toolbar_buttons : "$toolbar_buttons"}),
                 BUTTON({class: "button", onclick: "$toHTMLPanel"}, "HTML Panel" )
               ), 
   
-    toolbarButtons : UL ({class : "yui-nav focusTabList toolbarLinks", role : "tablist", onkeypress : "$AINSPECTOR_FB.toolbarUtil.onToolbarKeyPress", "aria-label" :  "element views"},
+    toolbarButtons : UL ({class : "yui-nav focusTabList toolbarLinks", role : "tablist", onkeypress : "$AINSPECTOR_FB.toolbarUtil.onToolbarKeyPress", "aria-label" :  "toolbarbutton views"},
                        FOR("obj", "$toolbar_buttons",
-                         LI({id: "$obj.name", class : "$obj|AINSPECTOR_FB.toolbarUtil.getToolbarButtonClass focusTab", onclick: "$onClickToolbarButton", tabindex : "$obj|AINSPECTOR_FB.toolbarUtil.getTabIndex", role : "tab", "aria-selected" : "$obj|AINSPECTOR_FB.toolbarUtil.getSelectedState", onfocus : "$onToolbarFocus"},
+                         LI({id: "$obj.name", class : "$obj|AINSPECTOR_FB.toolbarUtil.getToolbarButtonClass focusTab", onclick: "$onClickToolbarButton", tabindex : "$obj|AINSPECTOR_FB.toolbarUtil.getTabIndex", 
+                           role : "tab", "aria-selected" : "$obj|AINSPECTOR_FB.toolbarUtil.getSelectedState", onfocus : "$onToolbarFocus"},
                              "$obj.name"
                          )//end LI
                        )//end for
@@ -151,7 +152,7 @@ AINSPECTOR_FB.equivalents = {
     
       if (!elem) return;
       
-      var category = getClassValue(elem, "ruleCategory");
+      var category = getClassValue(elem, "toolbarButtonView");
 
       if (category) {
         var tabList = getAncestorByClass(elem, "focusTabList");
@@ -201,24 +202,24 @@ AINSPECTOR_FB.equivalents = {
     
 	  tableTag:
       
-	  TABLE({class: "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "", role: "treegrid"},
+	  TABLE({class: "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "", role: "treegrid", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressTable"},
         THEAD(
-          TR({class: "gridHeaderRow", id: "imgTableHeader", role: "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow"},
-              TH({class: "gridHeaderCell gridCell", id: "imgOrderCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Order")),
-              TH({class: "gridHeaderCell gridCell", id: "imgTextCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Source")), //TAG("$headerTag", {header: "Source"}))),
-              TH({class: "gridHeaderCell gridCell", id: "imgSrcCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "AltText"))
+          TR({class: "gridHeaderRow gridRow", id: "imgTableHeader", role: "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader"},
+              TH({class: "gridHeaderCell gridCell", id: "imgOrderHeaderCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Order")),
+              TH({class: "gridHeaderCell gridCell", id: "imgSrcHeaderCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Source")), //TAG("$headerTag", {header: "Source"}))),
+              TH({class: "gridHeaderCell gridCell", id: "imgTextHeaderCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "AltText"))
           ) //end TR
         ), //end THEAD
         TBODY(
           FOR("object", "$image_elements",
-            TR({class: "tableRow  gridRow", role: "row", id: "$object.cache_id", _repObject:"$object", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.hightlightCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
-              TD({class: "imgOrderCol gridCell gridCol", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.hightlightCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+            TR({class: "tableRow  gridRow", role: "row", id: "$object.cache_id", _repObject:"$object", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.hightlightCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
+              TD({class: "imgOrderCol gridCell gridCol", id:"imgOrderCol" , role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.hightlightCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({class: "gridContent", _repObject:"$object"}, "$object.document_order")
               ),
-              TD({class: "imgAltCol gridCell gridCol ", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.hightlightCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+              TD({class: "imgSourceCol gridCell gridCol ",  id:"imgSrcCol", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.hightlightCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({class: "gridContent", _repObject:"$object"}, "$object.source")
               ),
-              TD({class: "imgSourceCol gridCell gridCol ", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.hightlightCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+              TD({class: "imgTextCol gridCell gridCol ", id: "imgTextCol", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.hightlightCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({class: "gridContent", _repObject:"$object"}, "$object.alt")
               )
             )//end TR   
@@ -366,7 +367,7 @@ AINSPECTOR_FB.equivalents = {
 		
 		return {
 		  //role_level: (value.dom_element.role) ? value.dom_element.role : value.level,
-		  hasChildren: this.hasChildElements(value), 
+		  hasChildren: (value.dom_elements) ? true : false, 
 		  children: value.dom_elements,
 		  value: (value != null) ? value : "",
 		  level: level,
@@ -438,7 +439,9 @@ AINSPECTOR_FB.equivalents = {
 	 * 
 	 * @desc show the focus on particular row when used keyboard event
 	 * 
-	 *  @return focus on a row
+	 * @param event
+	 * 
+	 * @return focus on a row
 	 */
 	onKeyPressedRow: function(event) {
 	
@@ -496,6 +499,8 @@ AINSPECTOR_FB.equivalents = {
 	 * @function closeRow
 	 * 
 	 * @desc close a row when clicked on a twisty open image on the panel
+	 * 
+	 * @param row to be closed
 	 */
 	closeRow: function(row) {
 			
@@ -516,6 +521,8 @@ AINSPECTOR_FB.equivalents = {
 	 * @function openRow
 	 * 
 	 * @desc open a row when clicked on a twisty close image on the panel
+	 * 
+	 * @param row row to open
 	 */
 	openRow: function(row) {
 			
@@ -555,7 +562,7 @@ AINSPECTOR_FB.equivalents = {
         for (var k=0; k<row.classList.length;k++) {
         
     	  if (row.classList[k] ==  "gridCellSelected") {
-            ainspectorUtil.removeClass(row, "gridCellSelected");
+            AINSPECTOR_FB.ainspectorUtil.removeClass(row, "gridCellSelected");
      	    flag = true;
             break;
           }
@@ -565,11 +572,15 @@ AINSPECTOR_FB.equivalents = {
       }
 
 	  var row_selected = getAncestorByClass(event.target, "treeRow");
-	  ainspectorUtil.setClass(row_selected, "gridCellSelected");
+	  AINSPECTOR_FB.ainspectorUtil.setClass(row_selected, "gridCellSelected");
     },
 
     /**
      * @function toggleRow
+     * 
+     * @desc close the row if it is open and vice versa
+     * 
+     * @param row row either closed or opened
      */
 	toggleRow: function(row) {
 
@@ -578,36 +589,6 @@ AINSPECTOR_FB.equivalents = {
 	  } else {
 	    this.openRow(row);
 	  }
-    },
-    
-    /**
-     * @function getChildrenEle
-     */
-    getChildrenEle: function(element){
-	  
-      return element.dom_elements; 
-    },
-  
-    /**
-     * @function hasChildElements
-     */
-    hasChildElements: function(element){
-
-      if (element.dom_elements) return true;
-	  
-      else return false;
-    },
-  
-    /**
-     * @function onClick_htmlView
-     */
-    onClick_htmlView: function(event) {
-	  
-      var head_landmark = event.target.headLandElement.value;
-      var node = head_landmark.dom_element.node;
-      var panel = Firebug.chrome.selectPanel("html");
-      
-      panel.select(node);  
     }
   });
 
