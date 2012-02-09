@@ -35,7 +35,7 @@
     text-decoration: underline;
 }
 
-table:focus, .treeLabel:focus, .treeRow:focus {
+table:focus, .treeLabelxx:focus, .treeRow:focus {
     outline: 2px solid #FF9933;
     -moz-outline-radius: 5px;    
 }

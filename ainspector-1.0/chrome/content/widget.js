@@ -104,6 +104,9 @@ with (FBL) {
       var tabs;
       FBTrace.sysout("keyCode in widget.js:" , event);
       switch(key) {
+        case KeyEvent.DOM_VK_TAB:
+          FBTrace.sysout("TABBBBBBBBBBBBBB");
+          break;
         case KeyEvent.DOM_VK_LEFT:
         case KeyEvent.DOM_VK_RIGHT:
         case KeyEvent.DOM_VK_UP:

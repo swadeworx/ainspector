@@ -4,6 +4,240 @@ FBL.ns(function() {with (FBL) {
   
   var classNameReCache={};
   
+  AINSPECTOR_FB.gridHeaderColumnResize = {
+		  
+    resizing: false,
+    currColumn: null,
+    startX: 0,
+    startWidth: 0,
+    lastMouseUp: 0,
+
+    /**
+     * @function onMouseClick
+     * 
+     * @desc
+     * 
+     * @param {} event
+     */
+    onMouseClick: function(event) {
+        
+	  if (!isLeftClick(event)) return;
+
+      // Avoid click event for sorting, if the resizing has been just finished.
+      var rightNow = (new Date()).getTime();
+
+      if ((rightNow - AINSPECTOR_FB.gridHeaderColumnResize.lastMouseUp) < 1000) cancelEvent(event);
+    },
+    
+    /**
+     * @function onMouseDown
+     * 
+     * @descs
+     * 
+     * @param {} event
+     */
+    onMouseDown: function(event) {
+        
+   	  if (!isLeftClick(event)) return;
+
+      var target = event.target;
+      
+      if (!hasClass(target, "gridHeaderCellBox")) return;
+
+      var header = getAncestorByClass(target, "gridHeaderRow");
+
+      if (!header) return;
+
+      AINSPECTOR_FB.gridHeaderColumnResize.onStartResizing(event);
+
+      cancelEvent(event);
+    },
+
+    /**
+     * @function onMouseMove
+     * 
+     * @descs
+     * 
+     * @param {} event
+     */
+    onMouseMove: function(event) {
+        
+      if (AINSPECTOR_FB.gridHeaderColumnResize.resizing) {
+            
+    	if (hasClass(target, "gridHeaderCellBox")) target.style.cursor = "e-resize";
+
+        AINSPECTOR_FB.gridHeaderColumnResize.onResizing(event);
+        return;
+      }
+      var target = event.target;
+
+      if (!hasClass(target, "gridHeaderCellBox")) return;
+
+      if (target) target.style.cursor = "";
+
+      if (!AINSPECTOR_FB.gridHeaderColumnResize.isBetweenColumns(event)) return;
+
+      // Update cursor if the mouse is located between two columns.
+      target.style.cursor = "e-resize";
+    },
+
+    /**
+     * @function onMouseUp
+     * 
+     * @desc
+     * 
+     * @param {} event
+     */
+    onMouseUp: function(event) {
+        
+      if (!AINSPECTOR_FB.gridHeaderColumnResize.resizing) return;
+
+      AINSPECTOR_FB.gridHeaderColumnResize.lastMouseUp = (new Date()).getTime();
+      AINSPECTOR_FB.gridHeaderColumnResize.onEndResizing(event);
+      cancelEvent(event);
+    },
+
+    /**
+     * @function onMouseOut
+     * 
+     * @desc
+     * 
+     * @param {} event
+     */
+    onMouseOut: function(event) {
+        
+      if (!AINSPECTOR_FB.gridHeaderColumnResize.resizing) return;
+
+      if (FBTrace.DBG_COOKIES) {
+        FBTrace.sysout("cookies.Mouse out, target: " + event.target.localName +
+                ", " + event.target.className + "\n");
+        FBTrace.sysout("      explicitOriginalTarget: " + event.explicitOriginalTarget.localName +
+                ", " + event.explicitOriginalTarget.className + "\n");
+      }
+      var target = event.target;
+
+      if (target == event.explicitOriginalTarget) AINSPECTOR_FB.gridHeaderColumnResize.onEndResizing(event);
+
+      cancelEvent(event);
+    },
+
+    /**
+     * @function isBetweenColumns
+     * 
+     * @desc
+     * 
+     * @param {} event
+     */
+    isBetweenColumns: function(event) {
+        
+      var target = event.target;
+      var x = event.clientX;
+      var y = event.clientY;
+
+      var column = getAncestorByClass(target, "gridHeaderCell");
+      var offset = getClientOffset(column);
+      var size = getOffsetSize(column);
+
+      if (column.previousSibling) {
+
+    	if (x < offset.x + 4)
+          return 1;   // Mouse is close to the left side of the column (target).
+      }
+
+      if (column.nextSibling) {
+            
+    	if (x > offset.x + size.width - 6)
+          return 2;  // Mouse is close to the right side.
+      }
+      return 0;
+    },
+
+    /**
+     * @function onStartResizing
+     * 
+     * @desc
+     * 
+     * @param {} event
+     */
+    onStartResizing: function(event){
+
+      var location = AINSPECTOR_FB.gridHeaderColumnResize.isBetweenColumns(event);
+      
+      if (!location) return;
+
+      var target = event.target;
+      AINSPECTOR_FB.gridHeaderColumnResize.resizing = true;
+      AINSPECTOR_FB.gridHeaderColumnResize.startX = event.clientX;
+
+      // Currently resizing column.
+      var column = getAncestorByClass(target, "gridHeaderCell");
+      AINSPECTOR_FB.gridHeaderColumnResize.currColumn = (location == 1) ? column.previousSibling : column;
+
+      // Last column width.
+      var size = getOffsetSize(AINSPECTOR_FB.gridHeaderColumnResize.currColumn);
+      AINSPECTOR_FB.gridHeaderColumnResize.startWidth = size.width;
+
+      if (FBTrace.DBG_COOKIES) {
+            
+    	var colId = AINSPECTOR_FB.gridHeaderColumnResize.currColumn.getAttribute("id");
+        FBTrace.sysout("cookies.Start resizing column (id): " + colId +
+                ", start width: " + AINSPECTOR_FB.gridHeaderColumnResize.startWidth + "\n");
+      }
+    },
+
+    /**
+     * @function onResizing
+     * 
+     * @desc
+     * 
+     * @param {} event
+     */
+    onResizing: function(event) {
+        
+      if (!AINSPECTOR_FB.gridHeaderColumnResize.resizing) return;
+
+      var newWidth = AINSPECTOR_FB.gridHeaderColumnResize.startWidth + (event.clientX - AINSPECTOR_FB.gridHeaderColumnResize.startX);
+      AINSPECTOR_FB.gridHeaderColumnResize.currColumn.style.width = newWidth + "px";
+        
+      if (FBTrace.DBG_COOKIES) {
+        var colId = AINSPECTOR_FB.gridHeaderColumnResize.currColumn.getAttribute("id");
+        FBTrace.sysout("cookies.Resizing column (id): " + colId +
+                ", new width: " + newWidth + "\n", AINSPECTOR_FB.gridHeaderColumnResize.currColumn);
+      }
+    },
+
+    /**
+     * @function endResizing
+     * 
+     * @desc
+     * 
+     * @param {} event
+     */
+    onEndResizing: function(event) {
+
+      if (!AINSPECTOR_FB.gridHeaderColumnResize.resizing) return;
+
+      AINSPECTOR_FB.gridHeaderColumnResize.resizing = false;
+
+      var newWidth = AINSPECTOR_FB.gridHeaderColumnResize.startWidth + (event.clientX - AINSPECTOR_FB.gridHeaderColumnResize.startX);
+      AINSPECTOR_FB.gridHeaderColumnResize.currColumn.style.width = newWidth + "px";
+
+      // Store width into the preferences.
+      var colId = AINSPECTOR_FB.gridHeaderColumnResize.currColumn.getAttribute("id");
+
+      if (colId) {
+        var prefName = "ainspector." + colId + ".width";
+        AINSPECTOR.util.Preference.setPref(prefName, newWidth);
+      }
+
+      if (FBTrace.DBG_COOKIES) {
+        var colId = AINSPECTOR_FB.gridHeaderColumnResize.currColumn.getAttribute("id");
+        FBTrace.sysout("cookies.End resizing column (id): " + colId +
+                ", new width: " + newWidth + "\n");
+      }
+    }	  
+  };
+  
   AINSPECTOR_FB.ainspectorUtil = {
 	
 	loadCSSToStylePanel : function(document){
@@ -182,7 +416,10 @@ FBL.ns(function() {with (FBL) {
      * @return node|null
      */
     setClass : function(node, name) {
-    
+      
+      FBTrace.sysout("Inside setClass()   ", node);
+      FBTrace.sysout("Inside setClass()   "+ name);
+
       if (!node || node.nodeType != 1 || name == '') return;
 
       if (name.indexOf(" ") != -1) {
@@ -190,13 +427,14 @@ FBL.ns(function() {with (FBL) {
         
         for (var i = 0; i < len; i++) {
           var cls = classes[i].trim();
-          
+          FBTrace.sysout("cls :   " + cls);
           if (cls != "") this.setClass(node, cls);
         }
         return;
       }
       
       if (!this.hasClass(node, name)) node.className = node.className.trim() + " " + name;
+      FBTrace.sysout("node: ", node);
     },
     
     /**
@@ -266,9 +504,11 @@ FBL.ns(function() {with (FBL) {
       }
       var re;
       if (name.indexOf("-") == -1) {
+  
         re = classNameReCache[name] = classNameReCache[name] || new RegExp('(^|\\s)' + name + '(\\s|$)', "g");
+
       } else { 
-        re = new RegExp('(^|\\s)' + name + '(\\s|$)', "g")
+        re = new RegExp('(^|\\s)' + name + '(\\s|$)', "g");
       }
       return node.className.search(re) != -1;
     },
@@ -524,7 +764,7 @@ FBL.ns(function() {with (FBL) {
           for (var j = 0; j < row.children.length; j++) {
         	var cell = row.children[j];
           for (var k=0; k<cell.classList.length;k++) {
-            if (cell.classList[k] ==  "gridCellSelected") {
+            if (cell.classList[k] ==  "gridRowSelected") {
               flag = true;
               break;
             }//end if
@@ -828,6 +1068,80 @@ FBL.ns(function() {with (FBL) {
       var node = element.dom_element.node;
       var panel = Firebug.chrome.selectPanel("html");
       panel.select(node);
+    },
+    
+    /**
+     * @function highlight
+     * 
+     * @desc highlight the first row when a toolbar button is clicked
+     * 
+     * @param {Object} row - row to highlight
+     */
+    highlight : function (row) {
+      
+      AINSPECTOR_FB.ainspectorUtil.setClass(row, "gridRowSelected");
+
+      for (var i=0; i< row.children.length; i++) {
+      	AINSPECTOR_FB.ainspectorUtil.setClass(row.children[i], "gridCellSelected");
+      }
+    },
+    
+    /**
+     * @function highlightRow
+     *  
+     * @desc highlight a row when a row is selected in a panel
+     * Set the "gridRowSelected" and "gridCellSelected" classes to the selected Row and 
+     * cells in that row remove these classes from earlier selected row.
+     * 
+     * 
+     * @param {event} event triggered when mouse click happens
+     * 
+     * @returns 
+     */
+    highlightRow: function (event) {
+	
+      var table = getAncestorByClass(event.target, "ai-table-list-items");
+      var current_row =  getAncestorByClass(event.target, "tableRow");
+      var tbody = table.children[1]; //nomber of rows in a table
+      var row;
+      var cell;
+
+      if (!current_row) { //to highlight header cells
+    	current_row =  getAncestorByClass(event.target, "gridHeaderRow");
+  	    tbody = table.children[0];
+      }
+    
+      for (var i = 0; i < tbody.children.length; i++) {
+        row = tbody.children[i];
+        var count = 0;
+        var no_of_cells = row.children.length;
+        
+        for (var j = 0; j < no_of_cells; j++) {
+    	  cell = row.children[j];
+    	 
+    	  for (var k=0; k<cell.classList.length;k++) {
+   	  
+    	  	if (cell.classList[k] ==  "gridCellSelected") {
+              AINSPECTOR_FB.ainspectorUtil.removeClass(cell, "gridCellSelected");
+              count = count + 1;
+              break;
+    	  	}
+
+    	  }  
+    	  if (count >= no_of_cells) break;
+        }
+        if (count >= no_of_cells) {
+    	  AINSPECTOR_FB.ainspectorUtil.removeClass(row, "gridRowSelected");
+    	  break;
+    	}
+        
+      }
+      AINSPECTOR_FB.ainspectorUtil.setClass(current_row, "gridRowSelected");
+
+      for (var c=0; c< current_row.children.length; c++) {
+    	AINSPECTOR_FB.ainspectorUtil.setClass(current_row.children[c], "gridCellSelected");
+      }
+      
     },
     
     /**

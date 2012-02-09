@@ -7,12 +7,13 @@ FBL.ns(function() { with (FBL) {
   Firebug.ainspectorModule = extend(Firebug.Module, { 
   
 	/**   
-	 * @function showPanel()
+	 * @function showPanel
 	 *  
-	 * @desc Executed by Firebug's framework whenever a panel is displayed
+	 * @desc Show/Hide our panel based on new selection from the Firebug main toolbar.
+	 * Only called by the Firebug framework.
 	 *
-	 * @param browser is the browser window
-	 * @param panel being activated   
+	 * @param {Object} browser - the browser window object
+	 * @param {Object} panel - the new selected panel object    
 	 */
 	showPanel: function(browser, panel) { 
 	   
@@ -25,9 +26,9 @@ FBL.ns(function() { with (FBL) {
     /**
      * @function reportView
      * 
-     * @desc
+     * @desc respond to "Report" button in the AInspector toolbar
      * 
-     * @param context
+     * @param {Object} context
      */
     reportView: function(context) { 
   
@@ -42,6 +43,8 @@ FBL.ns(function() { with (FBL) {
     
     /**
      * @function equivalentsView
+     * 
+     * @desc respond to "Images" button in the AInspector toolbar
      * 
      * @param context
      * 
@@ -74,6 +77,8 @@ FBL.ns(function() { with (FBL) {
     /**
      * @function controlsView
      * 
+     * @desc respond to "Controls" button in the AInspector toolbar
+     * 
      * @param context
      */
     controlsView: function(context) { 
@@ -104,6 +109,8 @@ FBL.ns(function() { with (FBL) {
     /**
      * @function colorContrastView
      * 
+     * @desc respond to "Color Contrast" button in the AInspector toolbar
+     * 
      * @param context
      */
     colorContrastView: function(context) { 
@@ -121,6 +128,9 @@ FBL.ns(function() { with (FBL) {
     },
       
     /**
+     * @function headingsView
+     * 
+     * @desc respond to "Headings/Landmarks" button in the AInspector toolbar
      * 
      * @param context
      * @returns
@@ -149,6 +159,8 @@ FBL.ns(function() { with (FBL) {
         
     /**
      * @function linksView
+     * 
+     * @desc respond to "Links" button in the AInspector toolbar
      * 
      * @param context
      */
@@ -180,6 +192,8 @@ FBL.ns(function() { with (FBL) {
     /**
      * @function listsView
      * 
+     * @desc respond to "Lists" button in the AInspector toolbar
+     * 
      * @param context
      */
     listsView: function(context) { 
@@ -206,6 +220,8 @@ FBL.ns(function() { with (FBL) {
     /**
      * @function tablesView
      * 
+     * @desc respond to "Tables" button in the AInspector toolbar
+     * 
      * @param context
      * @returns
      */
@@ -229,25 +245,6 @@ FBL.ns(function() { with (FBL) {
       AINSPECTOR_FB.tables.tablesPanelView(tables_toolbar_buttons, toolbar, panel, cache_object);
     },
 
-    /**
-     * @function colorContrastView
-     * 
-     * @desc
-     * 
-     * @param context
-     */
-    colorContrastView: function(context) { 
-
-      var panel = context.getPanel(panel_name, true);
-    
-      /* Clear the panel before writing anything onto the Navigation*/
-      if (panel) {
-        clearNode(panel.panelNode);
-        clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
-      }
-      
-    },
-  
     /**
      * @function updateCache
      * 
@@ -293,18 +290,63 @@ FBL.ns(function() { with (FBL) {
   
     name: panel_name,
     title: panel_title,
-    editable: true,  // clicking on contents in the panel will invoke the inline editor
-  //  enableA11y: true,    // true if the panel wants to participate in A11y accessibility support.
-
+    dependents: ["Rules", "Attributes", "Cache", "Style", "Events"],
   
     /**
      * @function initialize
      * 
      * @desc calls the predecessor method (i.e., Firebug panels initialize()) to set context object reference in panel
+     * 
      */
     initialize: function() {
+	  
+	  var header_column_resizer = AINSPECTOR_FB.gridHeaderColumnResize;
+	  
+	  this.onMouseClick = bind(header_column_resizer.onMouseClick, header_column_resizer); 
+	  this.onMouseDown = bind(header_column_resizer.onMouseDown, header_column_resizer);
+	  this.onMouseMove = bind(header_column_resizer.onMouseMove, header_column_resizer);
+	  this.onMouseUp = bind(header_column_resizer.onMouseUp, header_column_resizer);
+	  this.onMouseOut = bind(header_column_resizer.onMouseOut, header_column_resizer);
+	  
 	  //this - context , arguments - document
 	  Firebug.Panel.initialize.apply(this, arguments);
+    },
+    
+    /**
+     * @function initializeNode
+     * 
+     * @desc Add mouse event listeners to the panel to resize the column headers
+     * Only called by the Firebug initialize() function
+     * 
+     */
+    initializeNode : function(){
+      
+      this.panelNode.id = "ainspector-panel";	
+      
+      this.panelNode.addEventListener("click", this.onMouseClick, true);
+      this.panelNode.addEventListener("mousedown", this.onMouseDown, true);
+      this.panelNode.addEventListener("mousemove", this.onMouseMove, true);
+      this.panelNode.addEventListener("mouseup", this.onMouseUp, true);
+      this.panelNode.addEventListener("mouseout", this.onMouseOut, true);
+      
+      return;
+      
+    },
+    
+    /**
+     * @function destroyNode
+     * 
+     * @desc remove the mouse eventListeners from the panel  
+     * Only called by the Firebug Framework
+     */
+    destroyNode : function() {
+    
+	  this.panelNode.removeEventListener("click", this.onMouseClick, true);
+      this.panelNode.removeEventListener("mousedown", this.onMouseDown, true);
+      this.panelNode.removeEventListener("mousemove", this.onMouseMove, true);
+      this.panelNode.removeEventListener("mouseup", this.onMouseUp, true);
+      this.panelNode.removeEventListener("mouseout", this.onMouseOut, true);
+      	
     }
   }); 
 

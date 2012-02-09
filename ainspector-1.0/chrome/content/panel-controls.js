@@ -1,5 +1,4 @@
 var AINSPECTOR_FB = AINSPECTOR_FB || {};	
-//var imageObject = {
 
 AINSPECTOR_FB.controls = {
   /**
@@ -32,11 +31,6 @@ AINSPECTOR_FB.controls = {
 	  
 	  FBTrace.sysout("panelView: ", panelView);
 	        
-	  /*viewNode = element;
-	  viewNode.id = "view-panel";
-	  
-	  FBTrace.sysout("viewNode: ", viewNode);*/
-	  
 	  panel = panelView;
 	  label_list_view = panelView;
 	  control_list_view = panelView;
@@ -225,14 +219,14 @@ with (FBL) {
         ), //end THEAD
         TBODY(
           FOR("object", "$elements",
-            TR({"class": "tableRow a11yFocus gridRow", "role": "row", id: "$object.cache_id", _repObject:"$object", onkeypress: "$flatListTemplateUtil.onKeyPressRow", onclick: "$flatListTemplateUtil.hightlightCell", ondblclick: "$flatListTemplateUtil.doubleClick"},//gridRow              
-    		  TD({"class": "labelEleCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$flatListTemplateUtil.onKeyPressCell", onclick: "$flatListTemplateUtil.hightlightCell", ondblclick: "$flatListTemplateUtil.doubleClick"},
+            TR({"class": "tableRow a11yFocus gridRow", "role": "row", id: "$object.cache_id", _repObject:"$object", onkeypress: "$flatListTemplateUtil.onKeyPressRow", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.highlightRow", ondblclick: "$flatListTemplateUtil.doubleClick"},//gridRow              
+    		  TD({"class": "labelEleCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$flatListTemplateUtil.onKeyPressCell", ondblclick: "$flatListTemplateUtil.doubleClick"},
                 DIV({"class": "gridContent gridOrderCol", _repObject:"$object"}, "$object.dom_element.tag_name")
               ),  
-              TD({"class": "labelTypeCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$flatListTemplateUtil.onKeyPressCell", onclick: "$flatListTemplateUtil.hightlightCell", ondblclick: "$flatListTemplateUtil.doubleClick"},
+              TD({"class": "labelTypeCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$flatListTemplateUtil.onKeyPressCell", ondblclick: "$flatListTemplateUtil.doubleClick"},
                 DIV({class: "gridContent", _repObject:"$object"}, "$object.dom_element.type")
               ),
-              TD({"class": "labelsCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$flatListTemplateUtil.onKeyPressCell", onclick: "$flatListTemplateUtil.hightlightCell", ondblclick: "$flatListTemplateUtil.doubleClick"},
+              TD({"class": "labelsCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$flatListTemplateUtil.onKeyPressCell", ondblclick: "$flatListTemplateUtil.doubleClick"},
                 DIV({"class": "gridContent gridOrderCol", _repObject:"$object"}, "$object.dom_element.label")
               )
             )//end TR   

@@ -2,10 +2,10 @@ var AINSPECTOR_FB = AINSPECTOR_FB || {};
 
 with (FBL) {
   
-    panel : null;
-    image_elements: null;
-    media_elements: null;
-    abbreviation_elements: null;
+  panel : null;
+  image_elements: null;
+  media_elements: null;
+  abbreviation_elements: null;
 
 AINSPECTOR_FB.equivalents = {
 		  
@@ -14,10 +14,10 @@ AINSPECTOR_FB.equivalents = {
    * 
    * @desc
    * 
-   * @param toolbar_buttons buttons to show on a toolbar
-   * @param toolbar 
-   * @param panelView panel 
-   * @param cache_object is the container of image, media and abbreviation element properties
+   * @param {Array} toolbar_buttons - buttons to show on a toolbar
+   * @param {Object} toolbar - dom element created to hold the content of the panel. will append to the panel 
+   * @param {Object} panelView - panel 
+   * @param {Object} cache_object - container for image, media and abbreviation element properties
    * 
    */
 	equivalentsView : function(toolbar_buttons, toolbar, panelView, cache_object) {
@@ -28,7 +28,7 @@ AINSPECTOR_FB.equivalents = {
 	  media_elements = cache_object.dom_cache.media_cache.media_elements;
 	  abbreviation_elements = cache_object.dom_cache.abbreviations_cache.abbreviation_items;
 	  
-	  equivToolbarPlate.toolbar.replace({toolbar_buttons : toolbar_buttons}, toolbar, equivToolbarPlate);
+	  AINSPECTOR_FB.equivalents.equivToolbarPlate.toolbar.replace({toolbar_buttons : toolbar_buttons}, toolbar, AINSPECTOR_FB.equivalents.equivToolbarPlate);
 	  
 	  var element = panelView.document.createElement("div");
 	  element.style.display = "block";
@@ -38,18 +38,35 @@ AINSPECTOR_FB.equivalents = {
 	  panelView.panelNode.appendChild(element);
 	  
 	  panel = panelView;
-	  panel.table = imagesTemplate.tableTag.append( {image_elements: image_elements}, panel.panelNode, imagesTemplate);
+	  panel.table = AINSPECTOR_FB.equivalents.imagesTemplate.tableTag.append( {image_elements: image_elements}, panel.panelNode, AINSPECTOR_FB.equivalents.imagesTemplate);
+	  this.select(image_elements[0]);
 
 	  Firebug.currentContext.getPanel('Rules').sView(true, images_cache.image_elements[0]);
+    },
+    
+    /**
+     * @function select
+     * 
+     * @desc sets the first row object in to the panel and highlight() function to highlight the first row 
+     * 
+     * @param {Object} object - first image object in the images cache
+     * @property {Object} selection - set an object to the panel to be used by the side panels when selected first time
+     */
+    select : function(object) {
+      
+  	  panel.selection = object;
+  	  
+      AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[1].children[0]);
+      
     }
   }; //end of equivalents
   
   /**
-   * @domplate equivToolbarPlate
+   * @function equivToolbarPlate
    * 
    * @desc template creates a Tool bar in ainpector panel 
    */
-   var equivToolbarPlate = domplate({
+  AINSPECTOR_FB.equivalents.equivToolbarPlate = domplate({
     toolbar : DIV( {class : "nav-menu"},
                 TAG("$toolbarButtons", {toolbar_buttons : "$toolbar_buttons"}),
                 BUTTON({class: "button", onclick: "$toHTMLPanel"}, "HTML Panel" )
@@ -128,15 +145,15 @@ AINSPECTOR_FB.equivalents = {
         
       if (toolbar_button_id == "Images") {
 
-        panel.table = imagesTemplate.tableTag.append( {image_elements: image_elements}, panel.panelNode, imagesTemplate);
+        panel.table = AINSPECTOR_FB.equivalents.imagesTemplate.tableTag.append( {image_elements: image_elements}, panel.panelNode, AINSPECTOR_FB.equivalents.imagesTemplate);
     	Firebug.currentContext.getPanel('Rules').sView(true, image_elements[0]);
       } else if (toolbar_button_id == "Media"){
           
-        panel.table = mediaTemplate.tableTag.append( {media_elements: media_elements}, panel.panelNode, mediaTemplate);
+        panel.table = AINSPECTOR_FB.equivalents.mediaTemplate.tableTag.append( {media_elements: media_elements}, panel.panelNode, AINSPECTOR_FB.equivalents.mediaTemplate);
         Firebug.currentContext.getPanel('Rules').sView(true, media_elements[0]);
       } else {
     	  
-        panel.table = abbreviationTemplate.tag.append( {object: abbreviation_elements}, panel.panelNode, abbreviationTemplate);
+        panel.table = AINSPECTOR_FB.equivalents.abbreviationTemplate.tag.append( {object: abbreviation_elements}, panel.panelNode, AINSPECTOR_FB.equivalents.abbreviationTemplate);
     	Firebug.currentContext.getPanel('Rules').sView(true, abbreviation_elements[0]);
       } 	
     },
@@ -198,34 +215,72 @@ AINSPECTOR_FB.equivalents = {
    * 
    * @return flat list of images to be displayed on the panel
    */
-  var imagesTemplate = domplate({
+  AINSPECTOR_FB.equivalents.imagesTemplate = domplate({
     
 	  tableTag:
       
 	  TABLE({class: "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "", role: "treegrid", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressTable"},
         THEAD(
           TR({class: "gridHeaderRow gridRow", id: "imgTableHeader", role: "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader"},
-              TH({class: "gridHeaderCell gridCell", id: "imgOrderHeaderCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Order")),
-              TH({class: "gridHeaderCell gridCell", id: "imgSrcHeaderCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Source")), //TAG("$headerTag", {header: "Source"}))),
-              TH({class: "gridHeaderCell gridCell", id: "imgTextHeaderCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "AltText"))
+              TH({class: "gridHeaderCell gridCell", id: "imgOrderHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Order")),
+              TH({class: "gridHeaderCell gridCell", id: "imgElementHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Element")),
+              TH({class: "gridHeaderCell gridCell", id: "imgTextHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "AltText")),
+              TH({class: "gridHeaderCell gridCell", id: "imgSrcHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Source"))
           ) //end TR
         ), //end THEAD
         TBODY(
           FOR("object", "$image_elements",
-            TR({class: "tableRow  gridRow", role: "row", id: "$object.cache_id", _repObject:"$object", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.hightlightCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
-              TD({class: "imgOrderCol gridCell gridCol", id:"imgOrderCol" , role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.hightlightCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+            TR({class: "tableRow  gridRow", role: "row", id: "$object.cache_id", _repObject:"$object", onclick: "$onClick", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
+              TD({class: "imgOrderCol gridCell gridCol", id:"imgOrderCol" , role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({class: "gridContent", _repObject:"$object"}, "$object.document_order")
               ),
-              TD({class: "imgSourceCol gridCell gridCol ",  id:"imgSrcCol", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.hightlightCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
-                DIV({class: "gridContent", _repObject:"$object"}, "$object.source")
+              TD({class: "imgEleCol gridCell gridCol ",  id:"imgSrcCol", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+                DIV({class: "gridContent", _repObject:"$object"}, "$object.dom_element.tag_name")
               ),
-              TD({class: "imgTextCol gridCell gridCol ", id: "imgTextCol", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.hightlightCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+              TD({class: "imgTextCol gridCell gridCol ",  id:"imgSrcCol", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({class: "gridContent", _repObject:"$object"}, "$object.alt")
+              ),
+              TD({class: "imgSourceCol gridCell gridCol ", id: "imgTextCol", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+                DIV({class: "gridContent", _repObject:"$object", title: "$object.source"}, "$object.source|getFileName")
               )
             )//end TR   
           ) //end FOR
         )// end TBODY
-      ) // end inner TABLE
+      ), // end inner TABLE
+      
+      /**
+       * @function getFileName
+       * 
+       * @desc retrive file name from the URL 
+       * 
+       * @param {String} url 
+       */
+      getFileName : function (url){
+         
+	    if (url){
+          var file_name = url.toString().match(/.*\/(.*)$/);
+
+          if (file_name && file_name.length > 1){
+            return decodeURI(file_name[1]);
+          }
+        }
+        return "";
+      },
+      
+      /**
+       * @function onClick
+       * 
+       * @desc helper function to call highlight
+       * 
+       * @param {Event} event - even triggered when a row is selected in a panel
+       * @property {Object} selection - present selected row info to be passed to the side panel 
+       */
+      onClick : function(event){
+    	  
+  	    panel.selection = Firebug.getRepObject(event.target);
+  	    FBTrace.sysout("panel: zupzupzupz", panel);
+  	    AINSPECTOR_FB.flatListTemplateUtil.highlightRow(event);
+      }
     });
   
   
@@ -236,7 +291,7 @@ AINSPECTOR_FB.equivalents = {
    * 
    * @return flat list of media elements to be displayed on the panel 
    */
-  this.mediaTemplate = domplate({
+  AINSPECTOR_FB.equivalents.mediaTemplate = domplate({
     
 	  tableTag:
       TABLE({class: "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "", role: "treegrid"},
@@ -252,33 +307,32 @@ AINSPECTOR_FB.equivalents = {
         ), //end THEAD
         TBODY(
           FOR("object", "$media_elements",
-            TR({class: "tableRow ", role: "row", id: "$object.cache_id", _repObject:"$object"},//gridRow              
-              TD({class: "imgOrderCol gridCell gridCol ", role: "gridcell", tabindex: "-1", onclick: "$flatListTemplate.hightlightCell"},
+            TR({class: "tableRow ", role: "row", id: "$object.cache_id", _repObject:"$object", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.highlightRow"},//gridRow              
+              TD({class: "imgOrderCol gridCell gridCol ", role: "gridcell", tabindex: "-1"},
                 DIV({class: "gridContent gridOrderCol", _repObject:"$object"}, "$object.document_order")
               ),
-              TD({class: "imgAltCol gridCell gridCol ", role: "gridcell", tabindex: "-1", onclick: "$flatListTemplate.hightlightCell"},
+              TD({class: "imgAltCol gridCell gridCol ", role: "gridcell", tabindex: "-1"},
                 DIV({class: "gridContent", _repObject:"$object"}, "$object.tag_name")
               ),
-              TD({class: "imgSourceCol gridCell gridCol ", role: "gridcell", tabindex: "-1", onclick: "$flatListTemplate.hightlightCell"},
+              TD({class: "imgSourceCol gridCell gridCol ", role: "gridcell", tabindex: "-1"},
                 DIV({id: "$object.document_order", class: "gridContent"}, "$object.is_video")
               ),
-              TD({class: "imgOrderCol gridCell gridCol ", role: "gridcell", tabindex: "-1", onclick: "$flatListTemplate.hightlightCell"},
+              TD({class: "imgOrderCol gridCell gridCol ", role: "gridcell", tabindex: "-1"},
                 DIV({class: "gridContent gridOrderCol", _repObject:"$object"}, "$object.is_audio")
               ),
-              TD({class: "imgAltCol gridCell gridCol ", role: "gridcell", tabindex: "-1", onclick: "$flatListTemplate.hightlightCell"},
+              TD({class: "imgAltCol gridCell gridCol ", role: "gridcell", tabindex: "-1"},
                 DIV({class: "gridContent", _repObject:"$object"}, "$object.has_caption")
               ),
-              TD({class: "imgSourceCol gridCell gridCol ", role: "gridcell", tabindex: "-1", onclick: "$flatListTemplate.hightlightCell"},
+              TD({class: "imgSourceCol gridCell gridCol ", role: "gridcell", tabindex: "-1"},
                 DIV({id: "$object.document_order", class: "gridContent"}, "$object.is_audio_desc")
-              ),
-              TD({class: "imgSourceCol gridCell gridCol ", role: "gridcell", tabindex: "-1", onclick: "$flatListTemplate.hightlightCell"},
-                BUTTON({_element: "$object", id: "$object.document_order", class: "gridContent", onclick: "$flatListTemplate.onClickHtmlView"}, "view" )
               )
               
             )//end TR   
           ) //end FOR
         )// end TBODY
       ) // end inner TABLE
+      
+      
    });
   
   /**
@@ -288,7 +342,7 @@ AINSPECTOR_FB.equivalents = {
    * 
    * @return Two level tree to be displayed on the panel
    */
-  var abbreviationTemplate = domplate({
+  AINSPECTOR_FB.equivalents.abbreviationTemplate = domplate({
     
     tag:
 	  TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, onclick: "$onClick", tabindex: 0, onkeypress: "$onKeyPressedTable"},
