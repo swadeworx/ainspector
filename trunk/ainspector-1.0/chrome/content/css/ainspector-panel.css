@@ -6,6 +6,9 @@
 .ai-table-list-items tr:nth-child(even) {
     background-color: #EFEFEF;
 }
+.ai-table-list-items tr:nth-child(odd) {
+    background-color: #FFFFFF;
+}
 
 .domTable tr:nth-child(even) {
     background-color: #EFEFEF;

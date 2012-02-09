@@ -590,14 +590,14 @@ with (FBL) {
         ), //end THEAD
         TBODY(
           FOR("object", "$elements",
-            TR({class: "tableRow a11yFocus", "role": "row", id: "$object.cache_id", _repObject:"$object"},//gridRow              
-              TD({class: "gridCell gridCol a11yFocus", "role": "gridcell", tabindex: "-1", onclick: "$hightlightCell"},
+            TR({class: "tableRow a11yFocus", "role": "row", id: "$object.cache_id", _repObject:"$object", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.highlightRow"},//gridRow              
+              TD({class: "gridCell gridCol a11yFocus", "role": "gridcell", tabindex: "-1"},
                 DIV({class: "gridContent gridOrderCol", _repObject:"$object"}, "$object.document_order")
               ),
-              TD({class: "gridCell gridCol a11yFocus", "role": "gridcell", tabindex: "-1", onclick: "$hightlightCell"},
+              TD({class: "gridCell gridCol a11yFocus", "role": "gridcell", tabindex: "-1"},
                 DIV({class: "gridContent gridOrderCol", _repObject:"$object"}, "$object.level")
               ),
-              TD({class: "gridCell gridCol a11yFocus", "role": "gridcell", tabindex: "-1", onclick: "$hightlightCell"},
+              TD({class: "gridCell gridCol a11yFocus", "role": "gridcell", tabindex: "-1"},
                 DIV({class: "gridContent gridOrderCol", _repObject:"$object"}, "$object.name")
               )
             )//end TR

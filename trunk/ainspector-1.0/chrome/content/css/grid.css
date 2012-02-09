@@ -54,7 +54,7 @@
 
 .gridHeaderCell:focus {
 	outline:none;
-  background: #959595 url(../img/tableHeaderFocus.gif) bottom left repeat-x;
+  background: #959595 url(chrome://ainspector/skin/tableHeaderFocus.gif) bottom left repeat-x;
 }
 
 .gridHeaderSorted {
@@ -75,7 +75,12 @@
 }
 
 .gridCellSelected {
-     background: #7D93B2;
+  background: #7D93B2;
+  color: #ffffff;
+}
+
+.gridRowSelected {
+   background: #817db2;
 }
 
 /************************************************************************************************/
@@ -130,10 +135,6 @@
 	background: white;
 }
 
-.gridRow {
-    background: LightYellow;
-}
-
 .gridRow.loaded {
     background: #FFFFFF;
 }
@@ -145,8 +146,8 @@
 .gridCol {
     padding: 0;
     vertical-align: top;
-    color: #000000; 
-/*    white-space: nowrap;    grid column sizes will not resize if this is set */
+   /* color: #000000;*/ 
+    white-space: nowrap;   /* grid column sizes will not resize if this is set */
 }
 
 .gridOrderCol {
