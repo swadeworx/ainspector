@@ -1145,6 +1145,64 @@ FBL.ns(function() {with (FBL) {
     },
     
     /**
+     * @function highlightTreeRow
+     *  
+     * @desc highlight a row when a row is selected in a panel
+     * Set the "gridRowSelected" and "gridCellSelected" classes to the selected Row and 
+     * cells in that row remove these classes from earlier selected row.
+     * 
+     * 
+     * @param {event} event triggered when mouse click happens
+     * 
+     * @returns 
+     */
+    highlightTreeRow: function (event) {
+	
+      var table = getAncestorByClass(event.target, "domTable");
+      var current_row =  getAncestorByClass(event.target, "treeRow");
+      var tbody = table.children[1]; //nomber of rows in a table
+      var row;
+      var cell;
+      
+      if (!current_row) { //to highlight header cells
+    	current_row =  getAncestorByClass(event.target, "gridHeaderRow");
+  	    tbody = table.children[0];
+      }
+    
+      for (var i = 0; i < tbody.children.length; i++) {
+        row = tbody.children[i];
+        var count = 0;
+        var no_of_cells = row.children.length;
+        
+        for (var j = 0; j < no_of_cells; j++) {
+    	  cell = row.children[j];
+    	 
+    	  for (var k=0; k<cell.classList.length;k++) {
+   	  
+    	  	if (cell.classList[k] ==  "gridCellSelected") {
+              AINSPECTOR_FB.ainspectorUtil.removeClass(cell, "gridCellSelected");
+              count = count + 1;
+              break;
+    	  	}
+
+    	  }  
+    	  if (count >= no_of_cells) break;
+        }
+        if (count >= no_of_cells) {
+    	  AINSPECTOR_FB.ainspectorUtil.removeClass(row, "gridRowSelected");
+    	  break;
+    	}
+        
+      }
+      AINSPECTOR_FB.ainspectorUtil.setClass(current_row, "gridRowSelected");
+
+      for (var c=0; c< current_row.children.length; c++) {
+    	AINSPECTOR_FB.ainspectorUtil.setClass(current_row.children[c], "gridCellSelected");
+      }
+      
+    },
+    
+    /**
      * hightlightCell
      *  
      * @desc
