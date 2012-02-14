@@ -38,6 +38,7 @@ AINSPECTOR_FB.equivalents = {
 	  panelView.panelNode.appendChild(element);
 	  
 	  panel = panelView;
+	  FBTrace.sysout("image_elements: ", image_elements);
 	  panel.table = AINSPECTOR_FB.equivalents.imagesTemplate.tableTag.append( {image_elements: image_elements}, panel.panelNode, AINSPECTOR_FB.equivalents.imagesTemplate);
 	  this.select(image_elements[0]);
 
@@ -196,7 +197,7 @@ AINSPECTOR_FB.equivalents = {
         setClass(elem, "selected");
         var currentView = panel;
         FBTrace.sysout("panel in selectTab: ", panel);
-        this.showOnSelectButton(category);
+        //this.showOnSelectButton(category);
       }
     },
   
@@ -236,7 +237,7 @@ AINSPECTOR_FB.equivalents = {
         ), //end THEAD
         TBODY(
           FOR("object", "$image_elements",
-            TR({class: "tableRow  gridRow", role: "row", id: "$object.cache_id", _repObject:"$object", onclick: "$hightlightRow", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
+            TR({class: "tableRow  gridRow", role: "row", id: "$object.cache_id", _repObject:"$object", onclick: "$highlightRow", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
               TD({class: "imgOrderCol gridCell gridCol", id:"imgOrderCol" , role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({class: "gridContent", _repObject:"$object"}, "$object.document_order")
               ),
@@ -274,7 +275,7 @@ AINSPECTOR_FB.equivalents = {
       },
       
       /**
-       * @function onClick
+       * @function highlightRow
        * 
        * @desc helper function to call highlight
        * 
@@ -284,7 +285,6 @@ AINSPECTOR_FB.equivalents = {
       highlightRow : function(event){
     	  
   	    panel.selection = Firebug.getRepObject(event.target);
-  	    FBTrace.sysout("panel: zupzupzupz", panel);
   	    AINSPECTOR_FB.flatListTemplateUtil.highlightRow(event);
       }
     });
@@ -366,7 +366,7 @@ AINSPECTOR_FB.equivalents = {
 	    
 	row:
 	  TR({class: "treeRow", $hasChildren: "$member.hasChildren", _repObject: "$member", 
-	   level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onfocus: "$onFocus", onclick: "$highlightRow"},
+	   level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onclick: "$highlightRow"},
 	    TD({class: "memberLabelCell treeLabel", style: "padding-left: $member.indent\\px", _repObject: "$member"},
           "$member.length"
 	    ),
@@ -377,7 +377,7 @@ AINSPECTOR_FB.equivalents = {
 	
 	childrow:
 	  TR({class: "treeRow", $hasChildren: "$member.hasChildren", _repObject: "$member", 
-	   level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onfocus: "$onFocus", onclick: "$highlightRow"},
+	   level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onclick: "$highlightRow"},
 	    TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member"},
 		  "$member.tagname"
 	    ),
