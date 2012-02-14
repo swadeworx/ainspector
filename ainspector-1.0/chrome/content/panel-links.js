@@ -39,7 +39,7 @@ with (FBL) {
 		  duplicate_name_items = links_cache.duplicate_name_items;
 		  duplicate_href_items = links_cache.duplicate_href_items;
 		  panel = panelView;
-		  panel.table = AINSPECTOR_FB.links.allLinksTemplate.layoutTag.append({links: link_elements}, panel.panelNode, null);
+		  panel.table = AINSPECTOR_FB.links.allLinksTemplate.layoutTag.append({link_elements: link_elements}, panel.panelNode, null);
 		  this.select(links_cache.link_elements[0]);
 	      Firebug.currentContext.getPanel('Rules').sView(true, links_cache.link_elements[0]);
 
@@ -316,14 +316,14 @@ with (FBL) {
     		  FOR("member", "$members", TAG("$childrow", {member: "$member"})),
     		  
     		getParentColumn : function(member) {
-    	      if (selected_toolbar_button == "Duplicate HREF") return member.duplicate_href;
+    	      if (selected_toolbar_button == "Duplicate HREF") return decodeURI(member.duplicate_href);
     	      else return member.duplicate_name;
     	      
       		},
       		
       		getChildColumn : function(member) {
       	      if (selected_toolbar_button == "Duplicate HREF") return member.duplicate_name;
-      	      else return member.duplicate_href;
+      	      else return decodeURI(member.duplicate_href);
       	      
         	},
       		
