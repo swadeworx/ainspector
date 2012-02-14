@@ -1,24 +1,33 @@
 var AINSPECTOR_FB = AINSPECTOR_FB || {};	
 
-AINSPECTOR_FB.controls = {
-  /**
-	 * panelsView
+with (FBL) {
+
+  panel : null;
+  child_elements: null;
+  control_elements: null;
+  label_elements: null;
+  
+  AINSPECTOR_FB.controls = {
+    
+    /**
+	 * @function controlsView
 	 * 
 	 * @desc
 	 * 
-	 * @param toolbar_buttons
-	 * @param toolbar
-	 * @param panelView
-	 * @param cacheResult
-	 * @returns
+	 * @param {Array} toolbar_buttons - buttons to show on a toolbar
+	 * @param {Object} toolbar - dom element created to hold the content of the panel. will append to the panel
+	 * @param {Object} panelView - panel
+	 * @param {Object} cache_object - container for image, media and abbreviation element properties
+	 * 
 	 */
-  controlPanelView : function(toolbar_buttons, toolbar, panelView, cache_object) {
+    controlsView : function(toolbar_buttons, toolbar, panelView, cache_object) {
+	  
 	  var controls_cache = cache_object.dom_cache.controls_cache;
 	  control_elements = controls_cache.control_elements;
       child_elements = controls_cache.child_cache_elements;
       label_elements = controls_cache.label_elements;
 
-	  controlToolbarPlate.toolbar.replace({toolbar_buttons : toolbar_buttons}, toolbar, controlToolbarPlate);
+	  AINSPECTOR_FB.controls.controlToolbarPlate.toolbar.replace({toolbar_buttons : toolbar_buttons}, toolbar, AINSPECTOR_FB.controls.controlToolbarPlate);
 	  //toolbar.style.display = "block";
 	  
 	  var element = panelView.document.createElement("div");
@@ -30,47 +39,53 @@ AINSPECTOR_FB.controls = {
 	  
 	  
 	  FBTrace.sysout("panelView: ", panelView);
+	  FBTrace.sysout("controlsView: ", cache_object);
 	        
 	  panel = panelView;
-	  label_list_view = panelView;
-	  control_list_view = panelView;
-	  tree_view = panelView;
-	  
-	  panel.table = controlTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, controlTreeTemplate);
+	  panel.table = AINSPECTOR_FB.controls.controlTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.controls.controlTreeTemplate);
 
-	  //panel.table = flatListTemplate.tableTag.append( {image_elements: image_elements}, panel.panelNode, null);
+	  this.select(child_elements[0]);
 
 	  Firebug.currentContext.getPanel('Rules').sView(true, child_elements[0]);
+    },
+    
+    /**
+     * @function select
+     * 
+     * @desc sets the first row object in to the panel and highlight() function to highlight the first row 
+     * 
+     * @param {Object} object - first image object in the images cache
+     * @property {Object} selection - set an object to the panel to be used by the side panels when selected first time
+     */
+    select : function(object) {
+      
+  	  panel.selection = object;
+  	  
+      AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[1].children[0]);
+      
     }
 }; //end of imageObject  
 
-with (FBL) {
   
-    panel : null;
-    control_view : null;
-    label_list_view : null;
-    control_list_view : null;
-    tree_view : null;
-    child_elements: null;
-    control_elements: null;
-	label_elements: null;
+  
   
   /**
-   * imageToolbarPlate
+   * controlToolbarPlate
    * 
    * @Domplate
    * 
    * @desc template creates the content for navigation button
    */
-  this.controlToolbarPlate = domplate({
+  AINSPECTOR_FB.controls.controlToolbarPlate = domplate({
     toolbar : DIV( {class : "nav-menu"},
                 TAG("$toolbarButtons", {toolbar_buttons : "$toolbar_buttons"}),
-                BUTTON({class: "button", onclick: "$toolbarUtil.toHTMLPanel"}, "HTML Panel" )
+                BUTTON({class: "button", onclick: "$toHTMLPanel"}, "HTML Panel" )
               ), 
   
-    toolbarButtons : UL ({class : "yui-nav focusTabList toolbarLinks", role : "tablist", onkeypress : "$toolbarUtil.onToolbarKeyPress", "aria-label" :  "element views"},
+    toolbarButtons : UL ({class : "yui-nav focusTabList toolbarLinks", role : "tablist", onkeypress : "$AINSPECTOR_FB.toolbarUtil.onToolbarKeyPress", "aria-label" :  "toolbarbutton views"},
                        FOR("obj", "$toolbar_buttons",
-                         LI({id: "$obj.name", class : "$obj|toolbarUtil.getToolbarButtonClass focusTab", onclick: "$onClick", tabindex : "$obj|toolbarUtil.getTabIndex", role : "tab", "aria-selected" : "$obj|toolbarUtil.getSelectedState", onfocus : "$onToolbarFocus"},
+                         LI({id: "$obj.name", class : "$obj|AINSPECTOR_FB.toolbarUtil.getToolbarButtonClass focusTab", onclick: "$onClick", tabindex : "$obj|AINSPECTOR_FB.toolbarUtil.getTabIndex", 
+			   role : "tab", "aria-selected" : "$obj|AINSPECTOR_FB.toolbarUtil.getSelectedState", onfocus : "$onToolbarFocus"},
                              "$obj.name"
                          )//end LI
                        )//end for
@@ -78,7 +93,7 @@ with (FBL) {
     ),
     
     /**
-     * toHTMLPanel
+     * @function toHTMLPanel
      * 
      * @desc redirect to the HTML Panel of Firebug
      * 
@@ -127,39 +142,47 @@ with (FBL) {
       var toolbar_button = event.currentTarget.id;
       this.showOnSelectButton(toolbar_button);
     },
+
+    /**
+     * @function showOnSelectButton
+     * 
+     * @desc show the selected toolbar button with a focus on it
+     * 
+     * @param toolbar_button_id id of the toolbar to be selected
+     */
     showOnSelectButton : function(toolbar_button_id) {
 
     	clearNode(panel.table);
         clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
         FBTrace.sysout("toolbar_button_id: " + toolbar_button_id);
         if (toolbar_button_id == "Tree View") {
-      	   //imageObject.getToolBarButtons(image_view, toolbar_button_id);
-    		  panel.table = controlTreeTemplate.tag.append( {object: child_elements}, tree_view.panelNode, controlTreeTemplate);
-    		  Firebug.currentContext.getPanel('Rules').sView(true, child_elements[0]);
+   		  panel.table = AINSPECTOR_FB.controls.controlTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.controls.controlTreeTemplate);
+   		  AINSPECTOR_FB.controls.select(child_elements[0]);
+   		  Firebug.currentContext.getPanel('Rules').sView(true, child_elements[0]);
         
         } else if (toolbar_button_id == "Labels") {
-       	//clearNode(panel.panelNode);
-      	//imageObject.getToolBarButtons(media_view, toolbar_button_id);
-      	  panel.table = controlFlatListTemplate.tableTag.append( {elements: label_elements}, label_list_view.panelNode, null);
+          FBTrace.sysout("inside labels: ", label_elements);	
+      	  panel.table = AINSPECTOR_FB.controls.controlFlatListTemplate.tableTag.append( {elements: label_elements}, panel.panelNode, null);
+		  AINSPECTOR_FB.controls.select(label_elements[0]);
       	  Firebug.currentContext.getPanel('Rules').sView(true, label_elements[0]);
         } else {
-        	panel.table = controlFlatListTemplate.tableTag.append( {elements: control_elements}, control_list_view.panelNode, null);
-          	Firebug.currentContext.getPanel('Rules').sView(true, control_elements[0]);
+          panel.table = AINSPECTOR_FB.controls.controlFlatListTemplate.tableTag.append( {elements: control_elements}, panel.panelNode, null);
+          AINSPECTOR_FB.controls.select(control_elements[0]);
+          Firebug.currentContext.getPanel('Rules').sView(true, control_elements[0]);
         }
      },
     /**
-     * selectTab
+     * @function selectTab
      * 
-     * @param elem
-     * @returns
+     * @desc set the aria attributes/properties and css properties for a particular tab to be selected 
+     * 
+     * @param elem event target 
      */
     selectTab : function(elem) {
     
       if (!elem) return;
       
-      var category = getClassValue(elem, "ruleCategory");
-      FBTrace.sysout("catewgory: "+ category);
-      FBTrace.sysout("elem: ", elem);
+      var category = getClassValue(elem, "toolbarButtonView");
 
       if (category) {
         var tabList = getAncestorByClass(elem, "focusTabList");
@@ -185,12 +208,11 @@ with (FBL) {
     },
   
     /**
-     * onToolbarFocus
+     * @function onToolbarFocus
      * 
      * @desc
      * 
      * @param event
-     * @returns
      */
     onToolbarFocus : function(event) {
       this.selectTab(event.target);
@@ -202,56 +224,71 @@ with (FBL) {
   /**
    * controlFlatListTemplate
    * 
-   * @Domplate
+   * @Desc template object, create HTML mark up showed upon clicking the  toolbar button
    * 
-   * @desc template to create a table for Links tab and pop up the values in it
+
    */
-  this.controlFlatListTemplate = domplate({
+  AINSPECTOR_FB.controls.controlFlatListTemplate = domplate({
     
 	  tableTag:
       TABLE({"class": "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "", "role": "treegrid"},
         THEAD(
-          TR({"class": "gridHeaderRow a11yFocus", id: "controlTableHeader", "role": "row", tabindex: "0", onclick: "$flatListTemplateUtil.onClickHeader", onkeypress: "$flatListTemplateUtil.onKeyPressRow"},
-            TH({"class": "gridHeaderCell gridCell", id: "labelEleCol", onkeypress: "$flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Element")),
-            TH({"class": "gridHeaderCell gridCell", id: "labelTypeCol", onkeypress: "$flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Type")),
-            TH({"class": "gridHeaderCell gridCell", id: "labelCol", onkeypress: "$flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Label"))
+          TR({"class": "gridHeaderRow a11yFocus", id: "controlTableHeader", "role": "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow"},
+            TH({"class": "gridHeaderCell gridCell", id: "labelEleCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Element")),
+            TH({"class": "gridHeaderCell gridCell", id: "labelTypeCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Type")),
+            TH({"class": "gridHeaderCell gridCell", id: "labelCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Label"))
           ) //end TR
         ), //end THEAD
         TBODY(
           FOR("object", "$elements",
-            TR({"class": "tableRow a11yFocus gridRow", "role": "row", id: "$object.cache_id", _repObject:"$object", onkeypress: "$flatListTemplateUtil.onKeyPressRow", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.highlightRow", ondblclick: "$flatListTemplateUtil.doubleClick"},//gridRow              
-    		  TD({"class": "labelEleCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$flatListTemplateUtil.onKeyPressCell", ondblclick: "$flatListTemplateUtil.doubleClick"},
+            TR({"class": "tableRow a11yFocus gridRow", "role": "row", id: "$object.cache_id", _repObject:"$object", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow", onclick: "$highlightRow", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
+    		  TD({"class": "labelEleCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({"class": "gridContent gridOrderCol", _repObject:"$object"}, "$object.dom_element.tag_name")
               ),  
-              TD({"class": "labelTypeCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$flatListTemplateUtil.onKeyPressCell", ondblclick: "$flatListTemplateUtil.doubleClick"},
-                DIV({class: "gridContent", _repObject:"$object"}, "$object.dom_element.type")
+              TD({"class": "labelTypeCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+                DIV({class: "gridContent", _repObject:"$object"}, "$object.type")
               ),
-              TD({"class": "labelsCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$flatListTemplateUtil.onKeyPressCell", ondblclick: "$flatListTemplateUtil.doubleClick"},
-                DIV({"class": "gridContent gridOrderCol", _repObject:"$object"}, "$object.dom_element.label")
+              TD({"class": "labelsCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+                DIV({"class": "gridContent gridOrderCol", _repObject:"$object"}, "$object.label")
               )
             )//end TR   
           ) //end FOR
         )// end TBODY
-      ) // end inner TABLE
+      ), // end inner TABLE
+      
+      highlightRow : function(event){
+	    panel.selection = Firebug.getRepObject(event.target);
+	    AINSPECTOR_FB.flatListTemplateUtil.highlightRow(event); 
+      }
     });
   
-  var controlTreeTemplate = domplate({
+  /**
+   * controlTreeTemplate
+   */
+  AINSPECTOR_FB.controls.controlTreeTemplate = domplate({
 	    tag:
 		  TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, onclick: "$onClick", tabindex: 0, onkeypress: "$onKeyPressedTable"},
-		    TBODY(
+		    THEAD(
+			  TR({"class": "gridHeaderRow a11yFocus", id: "tableTableHeader", "role": "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow"},
+			    TH({"class": "gridHeaderCell gridCell", id: "headEleCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Element")),
+			    TH({"class": "gridHeaderCell gridCell", id: "headRoleCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Type")),
+			    TH({"class": "gridHeaderCell gridCell", id: "headNameCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Label"))
+			  ) //end TR
+			), //end THEAD
+			TBODY(
 			  FOR("member", "$object|memberIterator", TAG("$row", {member: "$member"}))
 			)
 		  ),
 	    
 		  row:
 		    TR({class: "treeRow", $hasChildren: "$member.hasChildren", _repObject: "$member", 
-		    	level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onfocus: "$onFocus", onclick: "$highlightRow"},
+		    	level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onfocus: "$onFocus", onclick: "$highlightTreeRow"},
 			  TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member"},
 			    TAG("$member.tag", {'member' :"$member", 'object': "$member.value"})
 			  ),
 			  TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member"},
-				"$member.role_level"),
-	  		  TD({class: "memberLabelCell", _repObject: "$member"}, "$member.text")
+				"$member.type"),
+	  		  TD({class: "memberLabelCell", _repObject: "$member"}, "$member.label")
 		    ),
 
 	      strTag : DIV({class: "treeLabel"},"$member.name"),
@@ -261,6 +298,11 @@ with (FBL) {
 
 		  memberIterator: function(object) {
 		    return this.getMembers(object);
+		  },
+		  
+		  highlightTreeRow : function(event){
+			panel.selection = Firebug.getRep(event.target);
+			AINSPECTOR_FB.flatListTemplateUtil.highlightTreeRow(event);
 		  },
 
 		  onClick: function(event) {
@@ -443,7 +485,8 @@ with (FBL) {
 		      hasChildren: this.hasChildElements(value), 
 		      children: this.getChildrenEle(value),
 		      value: (value != null) ? value : "",
-		      label: (value.dom_element.children != null) ? "" : value,
+		      label: value.label,
+		      type: value.type,
 		      level: level,
 		      indent: level * 16,
 		      tag: this.strTag

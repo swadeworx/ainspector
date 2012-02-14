@@ -146,15 +146,21 @@ AINSPECTOR_FB.equivalents = {
       if (toolbar_button_id == "Images") {
 
         panel.table = AINSPECTOR_FB.equivalents.imagesTemplate.tableTag.append( {image_elements: image_elements}, panel.panelNode, AINSPECTOR_FB.equivalents.imagesTemplate);
+        AINSPECTOR_FB.equivalents.select(image_elements[0]);
+
     	Firebug.currentContext.getPanel('Rules').sView(true, image_elements[0]);
       } else if (toolbar_button_id == "Media"){
           
         panel.table = AINSPECTOR_FB.equivalents.mediaTemplate.tableTag.append( {media_elements: media_elements}, panel.panelNode, AINSPECTOR_FB.equivalents.mediaTemplate);
+        AINSPECTOR_FB.equivalents.select(media_elements[0]);
+
         Firebug.currentContext.getPanel('Rules').sView(true, media_elements[0]);
       } else {
-    	  
+    	FBTrace.sysout("abbreviation");  
         panel.table = AINSPECTOR_FB.equivalents.abbreviationTemplate.tag.append( {object: abbreviation_elements}, panel.panelNode, AINSPECTOR_FB.equivalents.abbreviationTemplate);
-    	Firebug.currentContext.getPanel('Rules').sView(true, abbreviation_elements[0]);
+        AINSPECTOR_FB.equivalents.select(abbreviation_elements[0]);
+
+        Firebug.currentContext.getPanel('Rules').sView(true, abbreviation_elements[0]);
       } 	
     },
     
@@ -230,7 +236,7 @@ AINSPECTOR_FB.equivalents = {
         ), //end THEAD
         TBODY(
           FOR("object", "$image_elements",
-            TR({class: "tableRow  gridRow", role: "row", id: "$object.cache_id", _repObject:"$object", onclick: "$onClick", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
+            TR({class: "tableRow  gridRow", role: "row", id: "$object.cache_id", _repObject:"$object", onclick: "$hightlightRow", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
               TD({class: "imgOrderCol gridCell gridCol", id:"imgOrderCol" , role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({class: "gridContent", _repObject:"$object"}, "$object.document_order")
               ),
@@ -275,7 +281,7 @@ AINSPECTOR_FB.equivalents = {
        * @param {Event} event - even triggered when a row is selected in a panel
        * @property {Object} selection - present selected row info to be passed to the side panel 
        */
-      onClick : function(event){
+      highlightRow : function(event){
     	  
   	    panel.selection = Firebug.getRepObject(event.target);
   	    FBTrace.sysout("panel: zupzupzupz", panel);

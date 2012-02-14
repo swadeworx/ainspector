@@ -1,6 +1,12 @@
 var AINSPECTOR_FB = AINSPECTOR_FB || {};
 
-AINSPECTOR_FB.tables = {  
+with (FBL) {
+	  
+  panel : null;
+  child_elements: null;
+  table_elements: null;
+ 
+  AINSPECTOR_FB.tables = {  
 	      
     /**
 	 * panelsView
@@ -20,7 +26,7 @@ AINSPECTOR_FB.tables = {
       table_elements = tables_cache.table_elements;
       child_elements = tables_cache.child_cache_elements;
 
-      tablesToolbarPlate.toolbar.replace({toolbar_buttons : toolbar_buttons}, toolbar, tablesToolbarPlate);
+      AINSPECTOR_FB.tables.tablesToolbarPlate.toolbar.replace({toolbar_buttons : toolbar_buttons}, toolbar, AINSPECTOR_FB.tables.tablesToolbarPlate);
 	  //toolbar.style.display = "block";
        var element = panelView.document.createElement("div");
 	  element.style.display = "block";
@@ -29,22 +35,31 @@ AINSPECTOR_FB.tables = {
           panelView.panelNode.appendChild(element);
 	        
 	  panel = panelView;
-	  tables_tree_view = panelView;
-	  tables_list_view = panelView;
 
-	  panel.table = tablesTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, tablesTreeTemplate);
+
+
+	  panel.table = AINSPECTOR_FB.tables.tablesTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.tables.tablesTreeTemplate);
+	  this.select(child_elements[0]);
 	  Firebug.currentContext.getPanel('Rules').sView(true, child_elements[0]);
+    },
+    
+    /**
+     * @function select
+     * 
+     * @desc sets the first row object in to the panel and highlight() function to highlight the first row 
+     * 
+     * @param {Object} object - first image object in the images cache
+     * @property {Object} selection - set an object to the panel to be used by the side panels when selected first time
+     */
+    select : function(object) {
+      
+  	  panel.selection = object;
+  	  
+      AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[1].children[0]);
+      
     }
  };
 
-with (FBL) {
-  
-  panel : null;
-  tables_tree_view : null;
-  tables_list_view: null;
-  child_elements: null;
-  table_elements: null;
-  
   /**
    * imageToolbarPlate
    * 
@@ -52,7 +67,7 @@ with (FBL) {
    * 
    * @desc template creates the content for navigation button
    */
-  this.tablesToolbarPlate = domplate({
+  AINSPECTOR_FB.tables.tablesToolbarPlate = domplate({
     toolbar : DIV( {class : "nav-menu"},
                 TAG("$toolbarButtons", {toolbar_buttons : "$toolbar_buttons"}),
                 BUTTON({class: "button", onclick: "$AINSPECTOR_FB.toolbarUtil.toHTMLPanel"}, "HTML Panel" )
@@ -118,21 +133,22 @@ with (FBL) {
      */
     onClick : function(event) {
       var toolbar_button = event.currentTarget.id;
+      
       this.showOnSelectButton(toolbar_button);
     },
     showOnSelectButton : function(toolbar_button_id) {
 
     	clearNode(panel.table);
         clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
-        FBTrace.sysout("toolbar_button_id: " + toolbar_button_id);
+
         if (toolbar_button_id == "Tree View") {
-    		  panel.table = tablesTreeTemplate.tag.append( {object: child_elements}, tables_tree_view.panelNode, tablesTreeTemplate);
-    		  Firebug.currentContext.getPanel('Rules').sView(true, child_elements[0]);
+    	  panel.table = AINSPECTOR_FB.tables.tablesTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.tables.tablesTreeTemplate);
+    	  AINSPECTOR_FB.tables.select(child_elements[0]);
+    	  Firebug.currentContext.getPanel('Rules').sView(true, child_elements[0]);
         
         } else {
-          FBTrace.sysout("table_elements: ", table_elements);	
-      	  panel.table = tablesFlatListTemplate.tableTag.append( {table_elements: table_elements}, tables_list_view.panelNode, null);
-      	  FBTrace.sysout("panel.table: ", panel.table);
+          panel.table = AINSPECTOR_FB.tables.tablesTreeTemplate.tag.append( {object: table_elements}, panel.panelNode, AINSPECTOR_FB.tables.tablesTreeTemplate);
+      	  AINSPECTOR_FB.tables.select(table_elements[0]);
       	  Firebug.currentContext.getPanel('Rules').sView(true, table_elements[0]);
         }
      },
@@ -169,7 +185,7 @@ with (FBL) {
         setClass(elem, "selected");
         var currentView = panel;
         FBTrace.sysout("panel in selectTab: ", panel);
-        this.showOnSelectButton(category);
+        //this.showOnSelectButton(category);
       }
     },
   
@@ -188,47 +204,7 @@ with (FBL) {
     viewContainer : DIV({style : "display:none"})
 });
 
-/**
-   * tablesFlatListTemplate
-   * 
-   * @Domplate
-   * 
-   * @desc template to create a table for Links tab and pop up the values in it
-   */
-  this.tablesFlatListTemplate = domplate({
-    
-	  tableTag:
-      TABLE({"class": "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "", "role": "treegrid"},
-        THEAD(
-          TR({"class": "gridHeaderRow a11yFocus", id: "tableTableHeader", "role": "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow"},
-            TH({"class": "gridHeaderCell gridCell", id: "tableTagCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Tag")),
-            TH({"class": "gridHeaderCell gridCell", id: "tableInfoCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Information"))
-          ) //end TR
-        ), //end THEAD
-        TBODY(
-          FOR("object", "$table_elements",
-            TR({"class": "tableRow a11yFocus gridRow", "role": "row", id: "$object.cache_id", _repObject:"$object", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.hightlightCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"}, //gridRow              
-            	TD({"class": "tableTagCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onclick: "$hightlightCell"},
-                  DIV({"class": "gridContent gridOrderCol", _repObject:"$object"}, "$object.dom_element.tag_name")
-                ),
-                
-                TD({"class": "tableInfoCol gridCell gridCol a11yFocus", "role": "gridcell", "tabindex": "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", onclick: "$hightlightCell"},
-                  DIV({"class": "gridContent gridOrderCol", _repObject:"$object"}, "$object|getString")
-                )
-              )//end TR
-            
-          ) //end FOR
-        )// end TBODY
-      ),// end inner TABLE
-      
-      getString : function (object){
-	    return object.toString();
-      }
-      
-      
-   });
-  
-  var tablesTreeTemplate = domplate({
+  AINSPECTOR_FB.tables.tablesTreeTemplate = domplate({
     tag:
 	  TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, onclick: "$onClick", tabindex: 0, onkeypress: "$onKeyPressedTable"},
 	    THEAD(
@@ -244,7 +220,7 @@ with (FBL) {
     
 	  row:
 	    TR({class: "treeRow", $hasChildren: "$member.hasChildren", _repObject: "$member", 
-	    	level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onfocus: "$onFocus", onclick: "$highlightRow"},
+	    	level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onfocus: "$onFocus", onclick: "$highlightTreeRow"},
 		  TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member"},
 		    TAG("$member.tag", {'member' :"$member", 'object': "$member.value"})
 		  ),
@@ -368,48 +344,10 @@ with (FBL) {
 		}
 	  },
 	  
-	  highlightRow: function (event) {
-		    
-	      FBTrace.sysout("HIGHLIGHT...", event);
-		 // var table = getAncestorByClass(event.target, "domTable");
-	      //var row =  getAncestorByClass(event.target, "treeRow");
-	      
-	      var table = getAncestorByClass(event.target, "domTable");
-	    	 // table = getAncestorByClass(event.target.offsetParent, "domTable");
-	      row = table.rows;
-	      tbody = table.children[0];
-	      FBTrace.sysout("inside pane-headings table", table);
-	      FBTrace.sysout("inside pane-headings row", row);
-	      var i;
-	      var j;
-	      var k;
-	      var cell_selected;
-	      var child;
-	      var row;
-	      FBTrace.sysout("table: ", table);
-	      FBTrace.sysout("tbody: ", tbody);
-
-	      for (i = 0; i < tbody.children.length; i++) {
-	        var flag = false;
-	        var row = tbody.children[i];
-	      	for (var k=0; k<row.classList.length;k++) {
-	          if (row.classList[k] ==  "gridCellSelected") {
-	            AINSPECTOR_FB.ainspectorUtil.removeClass(row, "gridCellSelected");
-	         	flag = true;
-	            break;
-	           }
-	      	}  
-	      	if (flag == true) break;
-	      }
-
-	      var row_selected = getAncestorByClass(event.target, "treeRow");
-	      AINSPECTOR_FB.ainspectorUtil.setClass(row_selected, "gridCellSelected");
-
-	      //AINSPECTOR_FB.ainspectorUtil.setClass(row, "selected");
-	      //var row_cells = cell.childNodes;
-	      FBTrace.sysout("rowcells.....", row_cells);
-	   },
-
+	  highlightTreeRow : function(event){
+		panel.selection = Firebug.getRep(event.target);
+		AINSPECTOR_FB.flatListTemplateUtil.highlightTreeRow(event);
+	 },
 
       toggleRow: function(row) {
 

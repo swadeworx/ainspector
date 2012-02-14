@@ -93,16 +93,15 @@ FBL.ns(function() { with (FBL) {
         clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
       }
       
-      var control_toolbar_buttons = [
-                                 {name: "Tree View", selected: true, first: true},                     
-                                 {name: "Lables"},
-                                 {name: "Controls"}];
+      var control_toolbar_buttons = [{name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.controls.tree"), selected: true, first:true},
+                                     {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.controls.labels")}, 
+                                     {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.controls")}];
                              
       AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document); 
       
       var toolbar = panel.document.createElement("div");
       toolbar.id = "toolbarDiv";
-      AINSPECTOR_FB.controls.controlPanelView(control_toolbar_buttons, toolbar, panel, cache_object);
+      AINSPECTOR_FB.controls.controlsView(control_toolbar_buttons, toolbar, panel, cache_object);
      
     },
     
@@ -122,9 +121,9 @@ FBL.ns(function() { with (FBL) {
       	clearNode(panel.panelNode);
         clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
       }
-      var toolbar = panel.document.createElement("div");
-      toolbar.id = "toolbarDiv";
-      AINSPECTOR_FB.colorContrast.colorContrastPanelView(toolbar, panel, cache_object);
+     // var toolbar = panel.document.createElement("div");
+     // toolbar.id = "toolbarDiv";
+     // AINSPECTOR_FB.colorContrast.colorContrastPanelView(panel, cache_object);
     },
       
     /**
@@ -145,7 +144,7 @@ FBL.ns(function() { with (FBL) {
         clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
       }
       
-      var head_land_toolbar_buttons = [{name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.tree"), selected: true, first:true},
+      var head_land_toolbar_buttons = [{name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.headings.tree"), selected: true, first:true},
                                    {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.titleMain")}, 
                                    {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.headings")},
                                    {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.landmarks")}];
@@ -186,7 +185,7 @@ FBL.ns(function() { with (FBL) {
       var links_cache = cache_object.dom_cache.links_cache;
       FBTrace.sysout("links cache: ", links_cache);
         
-      linksPanel.displayLinksPanel(panel, toolbar, toolbar_buttons, links_cache);
+      AINSPECTOR_FB.links.linksPanel(panel, toolbar, toolbar_buttons, links_cache);
     },
     
     /**

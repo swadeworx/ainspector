@@ -1,9 +1,13 @@
 var AINSPECTOR_FB = AINSPECTOR_FB || {};
 
-AINSPECTOR_FB.colorContrast = {  
+with (FBL) {
+	  
+  panel : null;
+  
+  AINSPECTOR_FB.colorContrast = {  
 	      
     /**
-	 * panelsView
+	 * colorContrastPanelView
 	 * 
 	 * @desc
 	 * 
@@ -13,26 +17,51 @@ AINSPECTOR_FB.colorContrast = {
 	 * @param cache_object
 	 * @returns
 	 */
-	 colorContrastPanelView : function(toolbar, panelView, cache_object) {
+	 colorContrastPanelView : function(panelView, cache_object) {
 	        
       var color_contrast_cache = cache_object.dom_cache.color_contrast_cache; 
       
       var color_contrast_items = color_contrast_cache.color_contrast_items;
+      FBTrace.sysout("color_contrast_cache: ", color_contrast_cache);
+
+	        
+
+      FBTrace.sysout("panelv: ", panelView);
+      
+	  AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate.tag.append( {object: color_contrast_items}, panelView.panelNode, AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate);
+	  
+	  var element = panelView.document.createElement("div");
 
 	  panelView.panelNode.id = "ainspector-panel"; 
-	        
+	  panelView.panelNode.appendChild(element);
+	  panelView.panelNode.appendChild(table);
+	  
 	  panel = panelView;
+	  
+	 
+	  this.select(color_contrast_items[0]);
 
-	  panel.table = colorContrastTreeTemplate.tag.replace( {object: color_contrast_items}, panel.panelNode, colorContrastTreeTemplate);
 	  Firebug.currentContext.getPanel('Rules').sView(true, color_contrast_items[0]);
+    },
+    
+    /**
+     * @function select
+     * 
+     * @desc sets the first row object in to the panel and highlight() function to highlight the first row 
+     * 
+     * @param {Object} object - first image object in the images cache
+     * @property {Object} selection - set an object to the panel to be used by the side panels when selected first time
+     */
+    select : function(object) {
+      
+  	  panel.selection = object;
+  	  
+      AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[1].children[0]);
+      
     }
  };
 
-with (FBL) {
-  
-  panel : null;
-
-    this.colorContrstTreeTemplate = domplate({
+AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
     tag:
 	  TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, onclick: "$onClick", tabindex: 0, onkeypress: "$onKeyPressedTable"},
 	    THEAD(
@@ -294,5 +323,9 @@ with (FBL) {
 	  
 	});
    
-  }
+  
+
+
+
+}
 
