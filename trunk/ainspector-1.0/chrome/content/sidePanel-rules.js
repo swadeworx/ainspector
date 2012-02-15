@@ -193,7 +193,7 @@ FBL.ns(function() { with (FBL) {
     	   result = first_element.dom_element;
       	   FBTrace.sysout("sView link..............." , result);
            rule_result_array = this.showOnRulesTabSelect(result);
-    	   FBTrace.sysout("rule_result_array length..............." + rule_result_array.length);
+    	   FBTrace.sysout("rule_result_array length..............." , rule_result_array);
            if (rule_result_array.length > 0) this.rebuild(rule_result_array);
          } catch (er) {
         	 
@@ -246,10 +246,10 @@ FBL.ns(function() { with (FBL) {
        var rule_result_array = new Array();
 
        for(var i=0; i<rule_results.length; i++){
-    	   FBTrace.sysout("1", rule_results[i].getSeverity());
+    	   FBTrace.sysout("1", rule_results[i].getSeverity().label);
     	   FBTrace.sysout("2", rule_results[i].getSeverityStyle());
     	   FBTrace.sysout("3", rule_results[i].toString());
-    	   rule_result_array.push({"label": rule_results[i].getSeverity(), "description": rule_results[i].toString()});
+    	   rule_result_array.push({"label": rule_results[i].getSeverity().label, "description": rule_results[i].toString()});
        }
        return rule_result_array;
        

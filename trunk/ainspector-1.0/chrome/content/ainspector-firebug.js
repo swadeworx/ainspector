@@ -1,3 +1,5 @@
+var AINSPECTOR_FB = AINSPECTOR_FB || {};
+
 FBL.ns(function() { with (FBL) { 
   
   var panel_name = AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.name");
@@ -5,7 +7,7 @@ FBL.ns(function() { with (FBL) {
   var cache_object;
   
   Firebug.ainspectorModule = extend(Firebug.Module, { 
-  
+	
 	/**   
 	 * @function showPanel
 	 *  
@@ -19,8 +21,66 @@ FBL.ns(function() { with (FBL) {
 	   
   	  var isFirebugExtension = panel && panel.name == panel_name; 
 	  var FirebugExtensionButtons = browser.chrome.$("fbFirebugExtensionButtons");
-	  cache_object = this.updateCache();
+	  //cache_object = this.updateCache();
 	  collapse(FirebugExtensionButtons, !isFirebugExtension); 
+	},
+	
+	/**
+	 * 
+	 */
+	watchWindow : function(context, win){
+	  FBTrace.sysout("watchWindow: ");	
+	  if (win == win.top) {
+		context.window.addEventListener("load", this.ainspectorOnLoad, false);
+		context.window.addEventListener("beforeunload", this.ainspectorOnUnload, false);
+		context.window.addEventListener("DOMContentLoaded", this.ainspectorOnDOMContentLoaded, false);
+	  }	
+	},
+	
+	/**
+	 * 
+	 */
+	unWatchWindow : function(context, win){
+	  FBTrace.sysout("watchWindow: ");	
+	  if (win == win.top) {
+		context.window.removeEventListener("load", this.ainspectorOnLoad, false);
+		context.window.removeEventListener("beforeunload", this.ainspectorOnUnload, false);
+		context.window.removeEventListener("DOMContentLoaded", this.ainspectorOnDOMContentLoaded, false);
+	  }	
+	},
+	
+	/**
+	 * @function ainspectorOnLoad
+	 * 
+	 * @desc
+	 * 
+	 * @param {Event} event
+	 */
+	ainspectorOnLoad : function(event){
+		
+	  var win = event.currentTarget;
+	  var firebug_context;
+	  
+	  if (win != Firebug.currentContext.window) {
+		firebug_context = TabWatcher.getContextByWindow(win);
+	  } else {
+		firebug_context = Firebug.currentContext;  
+	  }
+	  firebug_context.getPanel("AInspector");
+	  cache_object = AINSPECTOR_FB.cacheUtil.updateCache();
+	  
+	  AINSPECTOR_FB.cacheUtil.equivalentsView(panel_name, cache_object, firebug_context);
+	},
+	
+	/**
+	 * @function ainspectorOnUnLoad
+	 * 
+	 * @desc
+	 * 
+	 * @param {Event} event
+	 */
+	ainspectorOnUnLoad : function(event) {
+		
 	},
     
     /**
@@ -242,6 +302,63 @@ FBL.ns(function() { with (FBL) {
       var toolbar = panel.document.createElement("div");
       toolbar.id = "toolbarDiv";
       AINSPECTOR_FB.tables.tablesPanelView(tables_toolbar_buttons, toolbar, panel, cache_object);
+    },
+    
+    /**
+     * @function abbreviationsView
+     * 
+     * @desc respond to "Tables" button in the AInspector toolbar
+     * 
+     * @param context
+     * @returns
+     */
+    abbrView: function(context) { 
+            	  
+      var panel = context.getPanel(panel_name, true);
+    
+      /* Clear the panel before writing anything onto the report*/
+      if (panel) {
+       	clearNode(panel.panelNode);
+        clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+      }
+      
+      var abbr_toolbar_buttons = [
+          {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.abbr.languageTab"), selected: true, first:true},
+          {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.abbr.abbreviationTab")}];
+          
+      AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
+
+      var toolbar = panel.document.createElement("div");
+      toolbar.id = "toolbarDiv";
+      AINSPECTOR_FB.abbr.abbreviationsView(abbr_toolbar_buttons, toolbar, panel, cache_object);
+    },
+    
+    /**
+     * @function elementsView
+     * 
+     * @desc respond to "Headings/Landmarks" button in the AInspector toolbar
+     * 
+     * @param context
+     * @returns
+     */
+    elementsView: function(context) { 
+    	  
+      var panel = context.getPanel(panel_name, true);
+
+      /* Clear the panel before writing anything onto the report*/
+      if (panel) {
+      	clearNode(panel.panelNode);
+        clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+      }
+      
+      var toolbar_buttons = [{name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.elements.tree"), selected: true, first:true},
+                                   {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.elements.list")}];
+      
+      AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
+
+      var toolbar = panel.document.createElement("div");
+      toolbar.id = "toolbarDiv";
+      AINSPECTOR_FB.elementsView.allElementsPanelView(toolbar_buttons, toolbar, panel, cache_object);
     },
 
     /**

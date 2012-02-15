@@ -16,7 +16,10 @@
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-colorContrast.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-headings.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-links.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/panel-abbreviations.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/panel-allElements.js"/>
   
+  <script type="application/x-javascript" src="chrome://ainspector/content/cache-util.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/util.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/ainspector-firebug.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/gridTemplate.js"/>
@@ -38,6 +41,8 @@
     <command id="ainspector_links_view_button" oncommand="Firebug.ainspectorModule.linksView(Firebug.currentContext)"/>
     <command id="ainspector_lists_view_button" oncommand="Firebug.ainspectorModule.listsView(Firebug.currentContext)"/>
     <command id="ainspector_tables_view_button" oncommand="Firebug.ainspectorModule.tablesView(Firebug.currentContext)"/>
+    <command id="ainspector_abbr_view_button" oncommand="Firebug.ainspectorModule.abbrView(Firebug.currentContext)"/>
+    <command id="ainspector_elements_view_button" oncommand="Firebug.ainspectorModule.elementsView(Firebug.currentContext)"/>
 
     <command id="ainspector_navigation_view_button" oncommand="Firebug.ainspectorModule.navigationView(Firebug.currentContext)"/>
   </commandset> 
@@ -48,7 +53,7 @@
         <toolbarseparator/>
 	      <toolbox> 
           <toolbar id="radio-toolbar">
-            <toolbarbutton label="&ainspector.toolbarbutton.images.label;" class="toolbar-text-button fbInternational" command="ainspector_images_view_button" type="radio" group="RadioGroup"/>
+            <toolbarbutton label="&ainspector.toolbarbutton.images.label;" class="toolbar-text-button fbInternational" checked="true" command="ainspector_images_view_button" type="radio" group="RadioGroup"/>
             <toolbarseparator/>
             <toolbarbutton label="&ainspector.toolbarbutton.controls.label;" class="toolbar-text-button fbInternational" command="ainspector_controls_view_button" type="radio" group="RadioGroup"/>
             <toolbarseparator/>
@@ -61,6 +66,10 @@
             <toolbarbutton label="&ainspector.toolbarbutton.lists.label;" class="toolbar-text-button fbInternational" command="ainspector_lists_view_button" type="radio" group="RadioGroup"/> 
             <toolbarseparator/>
             <toolbarbutton label="&ainspector.toolbarbutton.tables.label;" class="toolbar-text-button fbInternational" command="ainspector_tables_view_button" type="radio" group="RadioGroup"/> 
+            <toolbarseparator/>
+            <toolbarbutton label="&ainspector.toolbarbutton.abbr.label;" class="toolbar-text-button fbInternational" command="ainspector_abbr_view_button" type="radio" group="RadioGroup"/> 
+            <toolbarseparator/>
+            <toolbarbutton label="&ainspector.toolbarbutton.elements.label;" class="toolbar-text-button fbInternational" command="ainspector_elements_view_button" type="radio" group="RadioGroup"/> 
             <toolbarseparator/>
           </toolbar>   
         </toolbox>  
