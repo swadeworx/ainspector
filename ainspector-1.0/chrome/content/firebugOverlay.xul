@@ -31,7 +31,6 @@
   <script type="application/x-javascript" src="chrome://ainspector/content/openajax_a11y/openajax_a11y_all.js"/>
   
   <commandset id="mainCommandSet"> 
-    <command id="ainspector_report_view_button" oncommand="Firebug.ainspectorModule.reportView(Firebug.currentContext)"/>
     <command id="ainspector_images_view_button" oncommand="Firebug.ainspectorModule.equivalentsView(Firebug.currentContext)"/>
     <command id="ainspector_controls_view_button" oncommand="Firebug.ainspectorModule.controlsView(Firebug.currentContext)"/>
     <command id="ainspector_color_contrast_view_button" oncommand="Firebug.ainspectorModule.colorContrastView(Firebug.currentContext)"/>
@@ -49,8 +48,6 @@
         <toolbarseparator/>
 	      <toolbox> 
           <toolbar id="radio-toolbar">
-            <toolbarbutton label="&ainspector.toolbarbutton.report.label;" class="toolbar-text-button fbInternational" command="ainspector_report_view_button" type="radio" group="RadioGroup"/> 
-            <toolbarseparator/>
             <toolbarbutton label="&ainspector.toolbarbutton.images.label;" class="toolbar-text-button fbInternational" command="ainspector_images_view_button" type="radio" group="RadioGroup"/>
             <toolbarseparator/>
             <toolbarbutton label="&ainspector.toolbarbutton.controls.label;" class="toolbar-text-button fbInternational" command="ainspector_controls_view_button" type="radio" group="RadioGroup"/>

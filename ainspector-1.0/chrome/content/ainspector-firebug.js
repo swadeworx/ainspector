@@ -121,9 +121,9 @@ FBL.ns(function() { with (FBL) {
       	clearNode(panel.panelNode);
         clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
       }
-     // var toolbar = panel.document.createElement("div");
-     // toolbar.id = "toolbarDiv";
-     // AINSPECTOR_FB.colorContrast.colorContrastPanelView(panel, cache_object);
+      AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document); 
+
+      AINSPECTOR_FB.colorContrast.colorContrastPanelView(panel, cache_object);
     },
       
     /**
