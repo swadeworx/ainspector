@@ -27,21 +27,24 @@ with (FBL) {
 	        
 
       FBTrace.sysout("panelv: ", panelView);
+	  panelView.panelNode.id = "ainspector-panel"; 
+
       
-	  AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate.tag.append( {object: color_contrast_items}, panelView.panelNode, AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate);
+	  panelView.table = AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate.tag.replace( {object: color_contrast_items}, panelView.panelNode, AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate);
 	  
 	  var element = panelView.document.createElement("div");
 
-	  panelView.panelNode.id = "ainspector-panel"; 
 	  panelView.panelNode.appendChild(element);
-	  panelView.panelNode.appendChild(table);
 	  
 	  panel = panelView;
 	  
+	  FBTrace.sysout("panel: ", panel);
 	 
-	  this.select(color_contrast_items[0]);
+	  panel.selection = color_contrast_items[0];
+  	  
+      AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[1].children[0]);
 
-	  Firebug.currentContext.getPanel('Rules').sView(true, color_contrast_items[0]);
+	  Firebug.currentContext.getPanel('Rules').showContrast(true, panel.selection);
     },
     
     /**
@@ -80,24 +83,46 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
     
 	  row:
 	    TR({class: "treeRow", $hasChildren: "$member.hasChildren", _repObject: "$member", 
-	    	level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onfocus: "$onFocus", onclick: "$highlightRow"},
-		  TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member"},
-		    TAG("$member.tag", {'member' :"$member", 'object': "$member.value"})
+	    	level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onclick: "$highlightTreeRow"},
+		  TD({class: "memberLabelCell treeLabel", style: "padding-left: $member.indent\\px", _repObject: "$member"},
+				  "$member.count"
 		  ),
 		  TD({class: "memberLabelCell", _repObject: "$member"}, "$member.color"),
 		  TD({class: "memberLabelCell", _repObject: "$member"}, "$member.background_color"),
 		  TD({class: "memberLabelCell", _repObject: "$member"}, "$member.color_contrast_ratio"),
 		  TD({class: "memberLabelCell", _repObject: "$member"}, "$member.background_image")
 	    ),
-
-      strTag : DIV({class: "treeLabel"},"$member.count"),
+	    
+	  childrow : 
+	    TR({class: "treeRow", _repObject: "$member", 
+    	  level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onclick: "$highlightTreeRow"},
+	      TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member"},
+			  "$member.tag_name"
+	      ),
+	      TD({class: "memberLabelCell", _repObject: "$member"}, "$member.color"),
+	      TD({class: "memberLabelCell", _repObject: "$member"}, "$member.background_color"),
+	      TD({class: "memberLabelCell", _repObject: "$member"}, "$member.color_contrast_ratio"),
+	      TD({class: "memberLabelCell", _repObject: "$member"}, "$member.background_image")
+    
+      ),
 
 	  loop:
-	    FOR("member", "$members", TAG("$row", {member: "$member"})),
+	    FOR("member", "$members", TAG("$childrow", {member: "$member"})),
 
-	  memberIterator: function(object) {
-	    return this.getMembers(object);
-	  },
+	  /**
+	   * @function highlightTreeRow
+	   * 
+	   * @desc helper function to call highlight
+	   * 
+	   * @param {Event} event - even triggered when a row is selected in a panel
+	   * @property {Object} selection - present selected row info to be passed to the side panel 
+	   */
+	  highlightTreeRow : function(event){
+			    	  
+		panel.selection = Firebug.getRepObject(event.target);
+		FBTrace.sysout("panel: zupzupzupz", panel);
+		AINSPECTOR_FB.flatListTemplateUtil.highlightTreeRow(event);
+  	  },
 
 	  onClick: function(event) {
 			    
@@ -107,6 +132,45 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
 		var label = getAncestorByClass(event.target, "treeLabel");
 		
 		if (label && hasClass(row, "hasChildren")) this.toggleRow(row);
+	  },
+	  
+	  memberIterator: function(object) {
+	    return this.getMembers(object);
+	 },
+		  
+	  getMembers: function(object, level) {
+		    
+		if (!level) level = 0;
+
+	    var members = [];
+		
+	    for (var p in object) members.push(this.createMember(p, object[p], level));
+	    FBTrace.sysout("members: ", members);
+		return members;
+		  },
+
+	  createMember: function(name, value, level)  {
+	  //  FBTrace.sysout(' createMember : ', value);
+		if (level == 0) return {
+		  count: value.dom_elements.length,
+		  role_level: (value.dom_elements.role) ? value.dom_elements.role : value.level,
+		  color: value.color,
+		  background_color: value.background_color,
+		  color_contrast_ratio: value.color_contrast_ratio,
+		  background_image: value.background_image,
+	      hasChildren: (value.dom_elements.length > 0) ? true : false,
+	      children: value.dom_elements,
+	      value: (value != null) ? value : "",
+	      level: level,
+	      indent: level * 16
+	    };
+	    else return {
+	      color: value.color,
+		  background_color: value.background_color,
+		  color_contrast_ratio: value.color_contrast_ratio,
+	      background_image: value.background_image,
+	      tag_name: value.tag_name
+	    };
 	  },
 
 	  onKeyPressedTable: function(event) {
@@ -198,7 +262,7 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
 		  var level = parseInt(row.getAttribute("level"));
 		  setClass(row, "opened");
 		  var repObject = row.repObject;
-			
+		  FBTrace.sysout("row: ", row);
 		  if (repObject) {
             var members = this.getMembers(repObject.children, level+1);
 			
@@ -206,50 +270,6 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
 		  }
 		}
 	  },
-	  
-	  highlightRow: function (event) {
-		    
-	      FBTrace.sysout("HIGHLIGHT...", event);
-		 // var table = getAncestorByClass(event.target, "domTable");
-	      //var row =  getAncestorByClass(event.target, "treeRow");
-	      
-	      var table = getAncestorByClass(event.target, "domTable");
-	    	 // table = getAncestorByClass(event.target.offsetParent, "domTable");
-	      row = table.rows;
-	      tbody = table.children[0];
-	      FBTrace.sysout("inside pane-headings table", table);
-	      FBTrace.sysout("inside pane-headings row", row);
-	      var i;
-	      var j;
-	      var k;
-	      var cell_selected;
-	      var child;
-	      var row;
-	      FBTrace.sysout("table: ", table);
-	      FBTrace.sysout("tbody: ", tbody);
-
-	      for (i = 0; i < tbody.children.length; i++) {
-	        var flag = false;
-	        var row = tbody.children[i];
-	      	for (var k=0; k<row.classList.length;k++) {
-	          if (row.classList[k] ==  "gridCellSelected") {
-	            AINSPECTOR_FB.ainspectorUtil.removeClass(row, "gridCellSelected");
-	         	flag = true;
-	            break;
-	           }
-	      	}  
-	      	if (flag == true) break;
-	      }
-
-	      var row_selected = getAncestorByClass(event.target, "treeRow");
-	      AINSPECTOR_FB.ainspectorUtil.setClass(row_selected, "gridCellSelected");
-
-	      //AINSPECTOR_FB.ainspectorUtil.setClass(row, "selected");
-	      //var row_cells = cell.childNodes;
-	      FBTrace.sysout("rowcells.....", row_cells);
-	   },
-
-
       toggleRow: function(row) {
 
 		if (hasClass(row, "opened")) {
@@ -259,60 +279,6 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
 		}
 	  },
 
-	  getMembers: function(object, level) {
-			    
-		if (!level) level = 0;
-
-	    var members = [];
-		
-	    for (var p in object) members.push(this.createMember(p, object[p], level));
-
-		return members;
-	  },
-
-	  createMember: function(name, value, level)  {
-	  //  FBTrace.sysout(' createMember : ', value);
-		return {
-		  name: value.dom_element.tag_name, //name,
-		  count: value.dom_element.length,
-		  role_level: (value.dom_element.role) ? value.dom_element.role : value.level,
-		  text: (value.dom_element.role) ? (value.label) : value.name,
-		  color: value.color,
-		  background_color: value.background_color,
-		  color_contrast_ratio: value.color_contrast_ratio,
-		  background_image: value.background_image,
-	      hasChildren: this.hasChildElements(value), 
-	      children: this.getChildrenEle(value),
-	      value: (value != null) ? value : "",
-	      label: (value.dom_element.children != null) ? "" : value,
-	      level: level,
-	      indent: level * 16,
-	      tag: this.strTag
-	    };
-	  },
-	  
-	  getChildrenEle: function(element){
-		var tag_name = element.dom_element; 
-	    if (tag_name == 'h1' || tag_name == 'h2' || tag_name == 'h3' ||
-	     tag_name == 'h4' || tag_name == 'h5' || tag_name == 'h6') {
-	      return [];	
-	    } else {
-		 return element.child_cache_elements; 
-	    }
-	  },
-	  
-	  hasChildElements: function(element){
-		if (typeof element.has_element_children === 'undefined') { 
-		  
-		  /* check if the child elements are the only text. If so set hasChildren to false. */
-		  if (element.child_cache_elements && element.child_cache_elements.length > 0)
-		  return element.dom_element.has_element_children;
-		  else return false;
-	    } else {
-		  return element.has_element_children;
-		}
-	  },
-	  
 	  onClick_htmlView: function(event) {
 		FBTrace.sysout("event::::: ", event.target);
 		var head_landmark = event.target.headLandElement.value;

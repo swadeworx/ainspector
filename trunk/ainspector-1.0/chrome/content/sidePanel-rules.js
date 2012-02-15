@@ -200,6 +200,18 @@ FBL.ns(function() { with (FBL) {
          }
        }
      },
+     
+     showContrast: function(state, element){
+	   if (state) {
+         try {
+           rule_result_array = this.showOnRulesTabSelect(element);
+    	   FBTrace.sysout("rule_result_array length..............." + rule_result_array.length);
+           if (rule_result_array.length > 0) this.rebuild(rule_result_array);
+         } catch (er) {
+        	 
+         }
+       } 
+     },
 
      /**
       * @function setSelection
@@ -216,7 +228,8 @@ FBL.ns(function() { with (FBL) {
        
        if (element.dom_element)
          this.rebuild(this.showOnRulesTabSelect(element.dom_element));
-       else this.rebuild(this.showOnRulesTabSelect(element.value.dom_element));
+       else if (element.value.dom_element) this.rebuild(this.showOnRulesTabSelect(element.value.dom_element));
+       else this.rebuild(this.showOnRulesTabSelect(element.value)); //for colorcontrast
      },
      
      /**

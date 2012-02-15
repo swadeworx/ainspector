@@ -104,7 +104,9 @@ FBL.ns(function() { with (FBL) {
        var element = Firebug.getRepObject(event.target);
        if (element.dom_element)
          this.rebuild(this.showOnRulesTabSelect(element.dom_element));
-       else this.rebuild(this.showOnRulesTabSelect(element.value.dom_element));
+       else if (element.value.dom_element) this.rebuild(this.showOnRulesTabSelect(element.value.dom_element));
+       else this.rebuild(this.showOnRulesTabSelect(element.value)); //for colorcontrast
+
      },
      
      /**
