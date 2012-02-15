@@ -341,9 +341,6 @@ FBL.ns(function() {with (FBL) {
       var headerRow = thead.firstChild;
       var tbody = table.lastChild;
       
-      FBTrace.sysout("thead...", thead);
-  	  FBTrace.sysout("headerRow...." ,  headerRow);
-  	
       // Remove class from the currently sorted column
       var headerSorted = getChildByClass(headerRow, "gridHeaderSorted");
       removeClass(headerSorted, "gridHeaderSorted");
@@ -353,8 +350,6 @@ FBL.ns(function() {with (FBL) {
       // Mark new column as sorted.
       var header = headerRow.childNodes[colIndex];
       
-      FBTrace.sysout("header...", header);
-      
       this.setClass(header, "gridHeaderSorted");
       
       // If the column is already using required sort order, bubble out.
@@ -363,10 +358,8 @@ FBL.ns(function() {with (FBL) {
       if (header) header.setAttribute("aria-sort", header.sorted === -1 ? "descending" : "ascending");
       
       var colID = header.getAttribute("id");
-      FBTrace.sysout("colID.."+ colID);
       // Store current state into the preferences.
       var headerID = headerRow.getAttribute("id");
-      FBTrace.sysout("headerID.."+ headerID);
 
       Preference.setPref(headerID + "sortCol", colID); 
       Preference.setPref(headerID + "sortDir", header.getAttribute("aria-sort")); 
@@ -401,8 +394,6 @@ FBL.ns(function() {with (FBL) {
           if (values[i].info) tbody.appendChild(values[i].info);
         }
       }
-      FBTrace.sysout("values: ", values);
-      FBTrace.sysout("header after this.setClass is called: ", header);
     },
     
     /**
@@ -417,9 +408,6 @@ FBL.ns(function() {with (FBL) {
      */
     setClass : function(node, name) {
       
-      FBTrace.sysout("Inside setClass()   ", node);
-      FBTrace.sysout("Inside setClass()   "+ name);
-
       if (!node || node.nodeType != 1 || name == '') return;
 
       if (name.indexOf(" ") != -1) {
@@ -427,14 +415,12 @@ FBL.ns(function() {with (FBL) {
         
         for (var i = 0; i < len; i++) {
           var cls = classes[i].trim();
-          FBTrace.sysout("cls :   " + cls);
           if (cls != "") this.setClass(node, cls);
         }
         return;
       }
       
       if (!this.hasClass(node, name)) node.className = node.className.trim() + " " + name;
-      FBTrace.sysout("node: ", node);
     },
     
     /**
@@ -642,9 +628,6 @@ FBL.ns(function() {with (FBL) {
       if (!elem) return;
       
       var category = getClassValue(elem, "toolbarButtonView");
-      FBTrace.sysout("catewgory: ", category);
-      FBTrace.sysout("elem: ", event);
-
       if (category) {
         var tabList = getAncestorByClass(elem, "focusTabList");
         
@@ -747,10 +730,8 @@ FBL.ns(function() {with (FBL) {
        * @param event event triggered on a row in the Links Table
        */
       toHTMLPanel: function(event) {
-        FBTrace.sysout("inside pane-images event", event);
 
         var table = getChildByClass(event.target.offsetParent, "ai-table-list-items");
-        FBTrace.sysout("inside pane-images table", table);
 
   	    var row =  getChildByClass(event.target.offsetParent, "tableRow");
         var child;
@@ -794,8 +775,6 @@ FBL.ns(function() {with (FBL) {
 	onKeyPressTable : function(event){
 	  
 	  event.stopPropagation();
-	  FBTrace.sysout("in onKeyPressTable(): ", event);
-	  FBTrace.sysout("in onKeyPressTable(): " + event.keyCode);
 	  
 	  switch(event.keyCode) {
 	  
@@ -806,20 +785,17 @@ FBL.ns(function() {with (FBL) {
 		  break;
 		case 39: //right
 		  var cell = AINSPECTOR_FB.ainspectorUtil.getChildByClass(event.target, "gridCell");
-		  FBTrace.sysout("cell: ", cell);
 		  AINSPECTOR_FB.flatListTemplateUtil.hightlightCell(event);
 		  if (cell) cell.focus();
 		  break;
 		case 40: //down
 		  var index = AINSPECTOR_FB.ainspectorUtil.findElementIndex(event.target);
 		  var row = getAncestorByClass(event.target, "gridRow");
-		  FBTrace.sysout("parent: ", row.parentNode);
 		  if (event.target.id == "imgTableHeader") {
 			row = row.parentNode.nextSibling.firstChild;
 		  } else {
 			row = row.nextSibling;
 		  }
-		  FBTrace.sysout("row: ", row);				
 	   	  if (row) row.focus();
 		  break;
 		case 13:
@@ -845,9 +821,6 @@ FBL.ns(function() {with (FBL) {
 	  var table = getAncestorByClass(event.target, "ai-table-list-items");
       var row =  getAncestorByClass(event.target, "gridRow");
       var tbody = null;
-      FBTrace.sysout("inside highlight: ", event);
-      FBTrace.sysout("table: ", table);
-      FBTrace.sysout("row: ", row);
       var id = row.id;
       if (row.id == "imgTableHeader") 
     	tbody = table.children[0];
@@ -903,7 +876,6 @@ FBL.ns(function() {with (FBL) {
 	onKeyPressRow: function(event){
 	  
 	  event.stopPropagation();
-	  FBTrace.sysout("in headingpress: ", event);
 
       switch(event.keyCode) {
 		  
@@ -913,7 +885,6 @@ FBL.ns(function() {with (FBL) {
 		  break;
 		case 39: //right
 		  var cell = AINSPECTOR_FB.ainspectorUtil.getChildByClass(event.target, "gridCell");
-		  FBTrace.sysout("cell: ", cell);
 		  if (cell) cell.focus();
 		  break;
 		case 40: //down
@@ -933,9 +904,6 @@ FBL.ns(function() {with (FBL) {
 	onKeyPressHeaderRow: function(event){
 	  
 	  event.stopPropagation();
-	  FBTrace.sysout("in onKeyPressHeaderRow: ", event);
-	  FBTrace.sysout("in onKeyPressHeaderRow key coode: "+ event.keyCode);
-
 
       switch(event.keyCode) {
 		  
@@ -945,15 +913,11 @@ FBL.ns(function() {with (FBL) {
 		  break;
 		case 39: //right
 		  var cell = AINSPECTOR_FB.ainspectorUtil.getChildByClass(event.target, "gridHeaderCell");
-		  FBTrace.sysout("cell: ", cell);
 		  AINSPECTOR_FB.flatListTemplateUtil.hightlightCell(event);
 		  if (cell) cell.focus();
 		  break;
 		case 40: //down
 		  var row = findNext(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow);
-		  FBTrace.sysout("row: ", row);
-
-		  FBTrace.sysout("cell: ", cell);
 
 		  if (row) row.focus();
 		  break;
@@ -976,7 +940,6 @@ FBL.ns(function() {with (FBL) {
     onKeyPressHeadingCell: function(event){
 	    
 	  event.stopPropagation();
-	  FBTrace.sysout("in headingcellpress: ", event);
 	  switch(event.keyCode) {
 		  
 	    case 13: //Enter
@@ -1001,7 +964,6 @@ FBL.ns(function() {with (FBL) {
      * @param event event triggered when any keyboard's right, left, up and down arrows are pressed
      */
     onKeyPressCell: function(event){
-  	  FBTrace.sysout("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@", event);
   	  event.stopPropagation();
   	  switch(event.keyCode) {
 		  
@@ -1229,8 +1191,6 @@ FBL.ns(function() {with (FBL) {
       var row;
       var cell;
       
-      FBTrace.sysout("tbody: ", tbody);
-      FBTrace.sysout("row: ", row);
       for (i = 0; i < tbody.children.length; i++) {
         var flag = false;
         var row = tbody.children[i];
@@ -1261,7 +1221,6 @@ FBL.ns(function() {with (FBL) {
      } else {
        column = getChildByClass(event.target, "gridHeaderCell");}
      }
-     FBTrace.sysout("column: ", column);
      AINSPECTOR_FB.ainspectorUtil.setClass(column, "gridCellSelected");
 
       //AINSPECTOR_FB.ainspectorUtil.setClass(row_cell, "gridCellSelected");
