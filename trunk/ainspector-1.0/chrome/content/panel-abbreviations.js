@@ -33,8 +33,9 @@ with (FBL) {
 	  panelView.panelNode.appendChild(element);
 	  
 	  panel = panelView;
-	  panel.table = AINSPECTOR_FB.abbr.languageTemplate.tableTag.append( {language_elements: language_elements}, panel.panelNode, AINSPECTOR_FB.abbr.languageTemplate);
-	  this.select(language_elements[0]);
+	 // panel.table = AINSPECTOR_FB.abbr.languageTemplate.tableTag.append( {language_elements: language_elements}, panel.panelNode, AINSPECTOR_FB.abbr.languageTemplate);
+	  panel.table = AINSPECTOR_FB.abbr.abbreviationTemplate.tag.append( {object: abbreviation_elements}, panel.panelNode, AINSPECTOR_FB.abbr.abbreviationTemplate);
+	  this.select(abbreviation_elements[0]);
 	  FBTrace.sysout("8888888888888888888888888", language_elements[0].dom_element.getAccessibility());
 	  Firebug.currentContext.getPanel('Rules').sView(true, language_elements[0]);
     },

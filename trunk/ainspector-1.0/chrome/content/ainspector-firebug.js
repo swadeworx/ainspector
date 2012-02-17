@@ -21,7 +21,7 @@ FBL.ns(function() { with (FBL) {
 	   
   	  var isFirebugExtension = panel && panel.name == panel_name; 
 	  var FirebugExtensionButtons = browser.chrome.$("fbFirebugExtensionButtons");
-	  //cache_object = this.updateCache();
+	  cache_object = this.updateCache();
 	  collapse(FirebugExtensionButtons, !isFirebugExtension); 
 	},
 	
@@ -69,7 +69,7 @@ FBL.ns(function() { with (FBL) {
 	  firebug_context.getPanel("AInspector");
 	  cache_object = AINSPECTOR_FB.cacheUtil.updateCache();
 	  
-	  AINSPECTOR_FB.cacheUtil.equivalentsView(panel_name, cache_object, firebug_context);
+	  AINSPECTOR_FB.equivalents.equivalentsView(firebug_context, panel_name, cache_object);
 	},
 	
 	/**
@@ -101,39 +101,6 @@ FBL.ns(function() { with (FBL) {
       }
     },
     
-    /**
-     * @function equivalentsView
-     * 
-     * @desc respond to "Images" button in the AInspector toolbar
-     * 
-     * @param context
-     * 
-     * @returns
-     */
-    equivalentsView: function(context) { 
-    	  
-      var panel = context.getPanel(panel_name, true);
-
-      /* Clear the panel before writing anything onto the report*/
-      if (panel) {
-        clearNode(panel.panelNode);
-        clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
-      }
-      var equiv_toolbar_buttons = [{name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.images"), selected: true, first:true},
-                                   {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.images.mediaTab")}, 
-                                   {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.images.abbreviationTab")}];
-      
-      AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
-
-      var toolbar = panel.document.createElement("div");
-      toolbar.id = "toolbarDiv";
-      var images_cache = cache_object.dom_cache.images_cache;
-      images_cache.sortImageElements('document_order', true);
-      
-      AINSPECTOR_FB.equivalents.equivalentsView(equiv_toolbar_buttons, toolbar, panel, cache_object);
-      
-    },
-      
     /**
      * @function controlsView
      * 
@@ -323,8 +290,8 @@ FBL.ns(function() { with (FBL) {
       }
       
       var abbr_toolbar_buttons = [
-          {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.abbr.languageTab"), selected: true, first:true},
-          {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.abbr.abbreviationTab")}];
+          {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.abbr.abbreviationTab"), selected: true, first:true},
+          {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.abbr.languageTab")}];
           
       AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
 
