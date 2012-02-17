@@ -12,17 +12,49 @@ AINSPECTOR_FB.equivalents = {
   /**
    * @function equivalentsView 
    * 
-   * @desc
+   * @desc respond to "Images" button in the AInspector toolbar
    * 
-   * @param {Array} toolbar_buttons - buttons to show on a toolbar
-   * @param {Object} toolbar - dom element created to hold the content of the panel. will append to the panel 
-   * @param {Object} panelView - panel 
-   * @param {Object} cache_object - container for image, media and abbreviation element properties
+   * @param {String} panel_name - name of the panel to identify in which panel are we
+   * @param {Object} cache_object - container for all the element properties
+   * @property {Array} toolbar_buttons - buttons to show on a toolbar
+   * @property {Object} toolbar - dom element created to hold the content of the panel. will append to the panel 
+   * @property {Object} cache_object - container for all the element properties
    * 
    */
-	equivalentsView : function(toolbar_buttons, toolbar, panelView, cache_object) {
-	        
+	//equivalentsView : function(toolbar_buttons, toolbar, panelView, cache_object) {
+	equivalentsView: function(context, panel_name, cache_object) {		
+	  FBTrace.sysout("xxxxxxxxxxxxequivalents viewxxxxxxxxxxxxxxxx");
+
+	  if (!panel_name) panel_name = "AInspector";
+	  if (cache_object)
+	    FBTrace.sysout("cache_object: ", cache_object);
+	  if (!cache_object) cache_object = AINSPECTOR_FB.cacheUtil.updateCache();
+	  
+	  panel = context.getPanel(panel_name, true);
+	  FBTrace.sysout("equivalentsView: ", cache_object);
+
+      /* Clear the panel before writing anything onto the report*/
+      if (panel) {
+        clearNode(panel.panelNode);
+        clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+      }
+
+      var toolbar_buttons = [{name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.images"), selected: true, first:true},
+                                 {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.images.mediaTab")}];
+	  FBTrace.sysout("0000000000000000000000000");
+
+      AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
+	  FBTrace.sysout("1111111111111111111111111");
+
+      var toolbar = panel.document.createElement("div");
+      toolbar.id = "toolbarDiv";
       var images_cache = cache_object.dom_cache.images_cache;
+      images_cache.sortImageElements('document_order', true);
+	  FBTrace.sysout("22222222222222222222222222");
+
+     // AINSPECTOR_FB.equivalents.equivalentsView(toolbar_buttons, toolbar, panel, cache_object);
+	  FBTrace.sysout("333333333333333333333333333");
+	  var images_cache = cache_object.dom_cache.images_cache;
 	  
       image_elements = images_cache.image_elements;
 	  media_elements = cache_object.dom_cache.media_cache.media_elements;
@@ -30,14 +62,14 @@ AINSPECTOR_FB.equivalents = {
 	  
 	  AINSPECTOR_FB.equivalents.equivToolbarPlate.toolbar.replace({toolbar_buttons : toolbar_buttons}, toolbar, AINSPECTOR_FB.equivalents.equivToolbarPlate);
 	  
-	  var element = panelView.document.createElement("div");
+	  var element = panel.document.createElement("div");
 	  element.style.display = "block";
 	  
-	  panelView.panelNode.id = "ainspector-panel"; 
-	  panelView.panelNode.appendChild(toolbar);
-	  panelView.panelNode.appendChild(element);
+	  panel.panelNode.id = "ainspector-panel"; 
+	  panel.panelNode.appendChild(toolbar);
+	  panel.panelNode.appendChild(element);
 	  
-	  panel = panelView;
+	 // panel = panelView;
 	  panel.table = AINSPECTOR_FB.equivalents.imagesTemplate.tableTag.append( {image_elements: image_elements}, panel.panelNode, AINSPECTOR_FB.equivalents.imagesTemplate);
 	  this.select(image_elements[0]);
 	  Firebug.currentContext.getPanel('Rules').sView(true, images_cache.image_elements[0]);

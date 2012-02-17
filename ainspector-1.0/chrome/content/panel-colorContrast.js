@@ -7,7 +7,7 @@ with (FBL) {
   AINSPECTOR_FB.colorContrast = {  
 	      
     /**
-	 * colorContrastPanelView
+	 * @function colorContrastPanelView
 	 * 
 	 * @desc
 	 * 
@@ -44,7 +44,7 @@ with (FBL) {
   	  
       AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[1].children[0]);
 
-	  Firebug.currentContext.getPanel('Rules').showContrast(true, panel.selection);
+	  Firebug.currentContext.getPanel('Rules').showContrastOrAllElements(true, panel.selection);
     },
     
     /**

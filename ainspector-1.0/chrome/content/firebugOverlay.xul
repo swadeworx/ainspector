@@ -34,7 +34,7 @@
   <script type="application/x-javascript" src="chrome://ainspector/content/openajax_a11y/openajax_a11y_all.js"/>
   
   <commandset id="mainCommandSet"> 
-    <command id="ainspector_images_view_button" oncommand="Firebug.ainspectorModule.equivalentsView(Firebug.currentContext)"/>
+    <command id="ainspector_images_view_button" oncommand="AINSPECTOR_FB.equivalents.equivalentsView(Firebug.currentContext)"/>
     <command id="ainspector_controls_view_button" oncommand="Firebug.ainspectorModule.controlsView(Firebug.currentContext)"/>
     <command id="ainspector_color_contrast_view_button" oncommand="Firebug.ainspectorModule.colorContrastView(Firebug.currentContext)"/>
     <command id="ainspector_headings_landmarks_view_button" oncommand="Firebug.ainspectorModule.headingsView(Firebug.currentContext)"/>

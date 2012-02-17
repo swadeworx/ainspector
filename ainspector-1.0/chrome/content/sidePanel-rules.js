@@ -201,7 +201,7 @@ FBL.ns(function() { with (FBL) {
        }
      },
      
-     showContrast: function(state, element){
+     showContrastOrAllElements: function(state, element){
 	   if (state) {
          try {
            rule_result_array = this.showOnRulesTabSelect(element);
