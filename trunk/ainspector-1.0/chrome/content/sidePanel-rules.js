@@ -226,10 +226,15 @@ FBL.ns(function() { with (FBL) {
        var element = Firebug.getRepObject(event.target);
        FBTrace.sysout("element: ", element);
        
+       try {
        if (element.dom_element)
          this.rebuild(this.showOnRulesTabSelect(element.dom_element));
-       else if (element.value.dom_element) this.rebuild(this.showOnRulesTabSelect(element.value.dom_element));
-       else this.rebuild(this.showOnRulesTabSelect(element.value)); //for colorcontrast
+       //else if (element.value.dom_element) this.rebuild(this.showOnRulesTabSelect(element.value.dom_element));
+       //else if (element.value) this.rebuild(this.showOnRulesTabSelect(element.value)); //for colorcontrast
+       else this.rebuild(this.showOnRulesTabSelect(element));
+       } catch(e) {
+    	   
+       }
      },
      
      /**
@@ -246,10 +251,7 @@ FBL.ns(function() { with (FBL) {
        var rule_result_array = new Array();
 
        for(var i=0; i<rule_results.length; i++){
-    	   FBTrace.sysout("1", rule_results[i].getSeverity().label);
-    	   FBTrace.sysout("2", rule_results[i].getSeverityStyle());
-    	   FBTrace.sysout("3", rule_results[i].toString());
-    	   rule_result_array.push({"label": rule_results[i].getSeverity().label, "description": rule_results[i].toString()});
+   	     rule_result_array.push({"label": rule_results[i].getSeverity().label, "description": rule_results[i].toString()});
        }
        return rule_result_array;
        

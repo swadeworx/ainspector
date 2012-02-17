@@ -281,26 +281,26 @@ with (FBL) {
 	  ), //end TABLE
 	    
 	row:
-	  TR({class: "treeRow", $hasChildren: "$member.hasChildren", _repObject: "$member", 
+	  TR({class: "treeRow", $hasChildren: "$member.hasChildren", _repObject: "$member.value", 
 	   level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onclick: "$highlightRow"},
-	    TD({class: "memberLabelCell treeLabel", style: "padding-left: $member.indent\\px", _repObject: "$member"},
+	    TD({class: "memberLabelCell treeLabel", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
           "$member.length"
 	    ),
-		TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member"},
+		TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
 		  "$member.abbreviation_text"
 		)
 	  ),
 	
 	childrow:
-	  TR({class: "treeRow", $hasChildren: "$member.hasChildren", _repObject: "$member", 
+	  TR({class: "treeRow", $hasChildren: "$member.hasChildren", _repObject: "$member.value", 
 	   level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onclick: "$highlightRow"},
-	    TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member"},
+	    TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
 		  "$member.tagname"
 	    ),
-		TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member"},
+		TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
 		  "$member.abbreviation_text"
 		),
-		TD({class: "memberLabelCell", _repObject: "$member"}, "$member.title")
+		TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.title")
 	  ),
 
 	loop:

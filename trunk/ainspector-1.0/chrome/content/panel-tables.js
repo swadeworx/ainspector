@@ -219,12 +219,12 @@ with (FBL) {
 	  ),
     
 	  row:
-	    TR({class: "treeRow", $hasChildren: "$member.hasChildren", _repObject: "$member", 
+	    TR({class: "treeRow", $hasChildren: "$member.hasChildren", _repObject: "$member.value", 
 	    	level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onfocus: "$onFocus", onclick: "$highlightTreeRow"},
-		  TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member"},
+		  TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
 		    TAG("$member.tag", {'member' :"$member", 'object': "$member.value"})
 		  ),
-		  TD({class: "memberLabelCell", _repObject: "$member"}, "$member.information")
+		  TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.information")
 	    ),
 
       strTag : DIV({class: "treeLabel"},"$member.name"),
