@@ -265,21 +265,21 @@ AINSPECTOR_FB.elementsView.elementsTreeTemplate = domplate({
 	),
 
 	row:
-	  TR({class: "treeRow", $hasChildren: "$member.hasChildren", _repObject: "$member", 
+	  TR({class: "treeRow", $hasChildren: "$member.hasChildren", _repObject: "$member.value", 
 	    level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onclick: "$onClickTreeRow"},
-		TD({class: "memberLabelCell treeLabel", style: "padding-left: $member.indent\\px", _repObject: "$member"},
+		TD({class: "memberLabelCell treeLabel", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
 		   "$member.element"
 		),
-		TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member"},
+		TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
 		   "$member.order"
 		),
-		TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member"},
+		TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
 			"$member.id"
 		),
-		TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member"},
+		TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
 		   "$member.name"
 		),
-		TD({class: "memberLabelCell", _repObject: "$member"}, "$member.xpath")
+		TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.xpath")
 	),
 
 	loop:
@@ -545,60 +545,6 @@ createMember: function(name, value, level)  {
 	name: value.className, //name,
 	xpath: value.xpath,
   };
-},
-
-/**
- * @function getChildrenEle
- * 
- * @desc
- * 
- * @param element
- * 
- * @return child_cache_elements|null
- */
-getChildrenEle: function(element){
-	var tag_name = element.dom_element; 
-	if (tag_name == 'h1' || tag_name == 'h2' || tag_name == 'h3' ||
-			tag_name == 'h4' || tag_name == 'h5' || tag_name == 'h6') {
-		return [];	
-	} else {
-		return element.child_cache_elements; 
-	}
-},
-
-/**
- * @function hasChildElements
- * 
- * @desc
- * 
- * @param element
- */
-hasChildElements: function(element){
-	if (typeof element.has_element_children === 'undefined') { 
-
-		/* check if the child elements are the only text. If so set hasChildren to false. */
-		if (element.child_cache_elements && element.child_cache_elements.length > 0)
-			return element.dom_element.has_element_children;
-		else return false;
-	} else {
-		return element.has_element_children;
-	}
-},
-
-/**
- * @function onClick_htmlView
- * 
- * @desc
- * 
- * @param event
- */
-onClick_htmlView: function(event) {
-
-	var head_landmark = event.target.headLandElement.value;
-	var node = head_landmark.dom_element.node;
-	var panel = Firebug.chrome.selectPanel("html");
-
-	panel.select(node);  
 }
 
 });
@@ -628,20 +574,25 @@ AINSPECTOR_FB.elementsView.elementsTemplate = domplate({
       TBODY(
         FOR("object", "$list_of_all_elements",
           TR({class: "tableRow  gridRow", role: "row", id: "$object.cache_id", _repObject:"$object", onclick: "$onClickRow", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
-		    TD({class: "imgEleCol gridCell gridCol ",  id:"imgSrcCol", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+		    TD({class: "imgEleCol gridCell gridCol ",  id:"imgSrcCol", role: "gridcell", tabindex: "-1", 
+		    	onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
 	          DIV({class: "gridContent", _repObject:"$object"}, "$object.tag_name")
 	        ),
-        	TD({class: "imgOrderCol gridCell gridCol", id:"imgOrderCol" , role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+        	TD({class: "imgOrderCol gridCell gridCol", id:"imgOrderCol" , role: "gridcell", tabindex: "-1",
+        		onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
               DIV({class: "gridContent", _repObject:"$object"}, "$object.document_order")
             ),
             
-            TD({class: "imgTextCol gridCell gridCol ",  id:"imgSrcCol", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+            TD({class: "imgTextCol gridCell gridCol ",  id:"imgSrcCol", role: "gridcell", tabindex: "-1", 
+            	onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
               DIV({class: "gridContent", _repObject:"$object"}, "$object.id")
             ),
-            TD({class: "imgSourceCol gridCell gridCol ", id: "imgTextCol", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+            TD({class: "imgSourceCol gridCell gridCol ", id: "imgTextCol", role: "gridcell", tabindex: "-1", 
+            	onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
               DIV({class: "gridContent", _repObject:"$object"}, "$object.class_name|getValue")
             ),
-            TD({class: "imgSourceCol gridCell gridCol ", id: "imgTextCol", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+            TD({class: "imgSourceCol gridCell gridCol ", id: "imgTextCol", role: "gridcell", tabindex: "-1", 
+            	onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
               DIV({class: "gridContent", _repObject:"$object"}, "$object.xpath")
             )
           )//end TR   
@@ -675,7 +626,6 @@ AINSPECTOR_FB.elementsView.elementsTemplate = domplate({
     onClickRow : function(event){
   	  
 	    panel.selection = Firebug.getRepObject(event.target);
-	    FBTrace.sysout("panel: zupzupzupz", panel);
 	    AINSPECTOR_FB.flatListTemplateUtil.highlightRow(event);
     }
   });

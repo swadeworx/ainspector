@@ -291,7 +291,7 @@ with (FBL) {
     	  ), //end TABLE
     		    
     	  row:
-    		TR({class: "treeRow", $hasChildren: "$member.hasDuplicates", _repObject: "$member",
+    		TR({class: "treeRow", $hasChildren: "$member.hasDuplicates", _repObject: "$member.value",
     		 level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onclick: "$onClickTreeRow"},
     		  TD({class: "memberLabelCell treeLabel", style: "padding-left: $member.indent\\px"}, "$member.number"
     		  ),
@@ -302,14 +302,14 @@ with (FBL) {
     		),
     		
    		   childrow:
-    		 TR({class: "treeRow", _repObject: "$member", 
+    		 TR({class: "treeRow", _repObject: "$member.value", 
     		   level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onclick: "$onClickTreeRow"},
     		   TD(
     	       ),
-    		   TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member"},
+    		   TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member".value},
     			  "$member|getParentColumn"
     		    ),
-    			TD({class: "memberLabelCell", _repObject: "$member"}, "$member|getChildColumn")
+    			TD({class: "memberLabelCell", _repObject: "$member".value}, "$member|getChildColumn")
     		  ),
 
     		loop:

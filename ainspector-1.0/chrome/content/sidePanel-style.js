@@ -104,8 +104,8 @@ FBL.ns(function() { with (FBL) {
        var element = Firebug.getRepObject(event.target);
        if (element.dom_element)
          this.rebuild(this.showOnRulesTabSelect(element.dom_element));
-       else if(element.value.dom_element) this.rebuild(this.showOnRulesTabSelect(element.value.dom_element));
-       else this.rebuild(this.showOnRulesTabSelect(element.value)); //for colorcontrast
+       //else if(element.value.dom_element) this.rebuild(this.showOnRulesTabSelect(element.value.dom_element));
+       else this.rebuild(this.showOnRulesTabSelect(element)); //for colorcontrast
 
      },
      
@@ -121,8 +121,6 @@ FBL.ns(function() { with (FBL) {
        var cache_item = cache_item;
        var properties = cache_item.getStyle();
        var rule_result_array = new Array();
-	   FBTrace.sysout("props", properties);
-
 
        for(var i=0; i<properties.length; i++){
     	 rule_result_array.push({"label": properties[i].label, "value": properties[i].value});

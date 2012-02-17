@@ -82,27 +82,27 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
 	  ),
     
 	  row:
-	    TR({class: "treeRow", $hasChildren: "$member.hasChildren", _repObject: "$member", 
+	    TR({class: "treeRow", $hasChildren: "$member.hasChildren", _repObject: "$member.value", 
 	    	level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onclick: "$highlightTreeRow"},
-		  TD({class: "memberLabelCell treeLabel", style: "padding-left: $member.indent\\px", _repObject: "$member"},
+		  TD({class: "memberLabelCell treeLabel", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
 				  "$member.count"
 		  ),
-		  TD({class: "memberLabelCell", _repObject: "$member"}, "$member.color"),
-		  TD({class: "memberLabelCell", _repObject: "$member"}, "$member.background_color"),
-		  TD({class: "memberLabelCell", _repObject: "$member"}, "$member.color_contrast_ratio"),
-		  TD({class: "memberLabelCell", _repObject: "$member"}, "$member.background_image")
+		  TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.color"),
+		  TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.background_color"),
+		  TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.color_contrast_ratio"),
+		  TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.background_image")
 	    ),
 	    
 	  childrow : 
 	    TR({class: "treeRow", _repObject: "$member", 
     	  level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onclick: "$highlightTreeRow"},
-	      TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member"},
+	      TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
 			  "$member.tag_name"
 	      ),
-	      TD({class: "memberLabelCell", _repObject: "$member"}, "$member.color"),
-	      TD({class: "memberLabelCell", _repObject: "$member"}, "$member.background_color"),
-	      TD({class: "memberLabelCell", _repObject: "$member"}, "$member.color_contrast_ratio"),
-	      TD({class: "memberLabelCell", _repObject: "$member"}, "$member.background_image")
+	      TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.color"),
+	      TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.background_color"),
+	      TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.color_contrast_ratio"),
+	      TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.background_image")
     
       ),
 
