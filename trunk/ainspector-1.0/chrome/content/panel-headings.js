@@ -127,20 +127,21 @@ AINSPECTOR_FB.headLandmarkView.headingsToolbarPlate = domplate({
 		node = node.repObject.dom_element.node;
 
 	} else {
+		FBTrace.sysout("zip event", event);
 		table = getChildByClass(event.target.offsetParent, "domTable");
 		//row = getChildByClass(event.target.offsetParent, "treeRow");
 
-		row = table.rows;
+		var rows = table.rows;
 		tbody = table.children[0];
 
-		for (var i = 0; i < tbody.children.length; i++) {
+		for (var i = 0; i < rows.length; i++) {
 			var flag = false;
-			var row = tbody.children[i];
+			var row = rows[i];//tbody.children[i];
 			node = row;
-
+			FBTrace.sysout("row:", row);
 			for (var k=0; k<row.classList.length;k++) {
 
-				if (row.classList[k] ==  "gridCellSelected") {
+				if (row.classList[k] ==  "gridRowSelected") {
 					flag = true;
 					break;
 				}//end if
@@ -148,7 +149,8 @@ AINSPECTOR_FB.headLandmarkView.headingsToolbarPlate = domplate({
 
 			if (flag == true) break;
 		}
-		node = node.repObject.value.dom_element.node;
+		FBTrace.sysout("node: ", node);
+		node = node.repObject.dom_element.node;
 	}
 
 	var panel = Firebug.chrome.selectPanel("html");
@@ -270,22 +272,22 @@ AINSPECTOR_FB.headLandmarkView.headingsTreeTemplate = domplate({
   tag:
 	TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, onclick: "$onClick", tabindex: 0, onkeypress: "$onKeyPressedTable"},
 	  THEAD(
-		TR({"class": "gridHeaderRow a11yFocus", id: "tableTableHeader", "role": "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow"},
-		  TH({"class": "gridHeaderCell gridCell", id: "headEleCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Element")),
-		  TH({"class": "gridHeaderCell gridCell", id: "headRoleCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Role/Level")),
-		  TH({"class": "gridHeaderCell gridCell", id: "headNameCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Name"))
+		TR({class: "gridHeaderRow a11yFocus", id: "tableTableHeader", role: "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow"},
+		  TH({class: "gridHeaderCell gridCell", id: "headEleCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Element")),
+		  TH({class: "gridHeaderCell gridCell", id: "headRoleCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Role/Level")),
+		  TH({class: "gridHeaderCell gridCell", id: "headNameCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Name"))
 		) //end TR
 	  ), //end THEAD
 	  TBODY(
 	  	FOR("member", "$object|memberIterator", TAG("$row", {member: "$member"}))
-	  )
-	),
+	  ) //end TBODY
+	), //end TABLE
 
 	row:
-	  TR({class: "treeRow", $hasChildren: "$member.hasChildren", _repObject: "$member.value", 
+	  TR({class: "treeRow", $hasChildren: "$member.hasChildren", _newObject: "$member", _repObject: "$member.value", 
 	    level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onclick: "$onClickTreeRow"},
 		TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
-		  TAG("$member.tag", {'member' :"$member", 'object': "$member.value"})
+		  TAG("$member.tag", {'member' :"$member", 'object': "$member"})
 		),
 		TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
 		 "$member.role_level"),
@@ -448,8 +450,9 @@ openRow: function(row) {
 	if (!hasClass(row, "opened")) {
 		var level = parseInt(row.getAttribute("level"));
 		setClass(row, "opened");
-		var repObject = row.repObject;
+		FBTrace.sysout("repObject on Openrow: ", row);
 
+		var repObject = row.newObject;
 		if (repObject) {
 			var members = this.getMembers(repObject.children, level+1);
 
@@ -553,7 +556,7 @@ createMember: function(name, value, level)  {
 	  value: (value != null) ? value : "",
 	  label: (value.dom_element.children != null) ? "" : value,
 	  level: level,
-	  indent: level * 16,
+	  indent: level*2,
 	  tag: this.strTag
 	};
 },

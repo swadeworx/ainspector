@@ -70,7 +70,7 @@ with (FBL) {
   AINSPECTOR_FB.tables.tablesToolbarPlate = domplate({
     toolbar : DIV( {class : "nav-menu"},
                 TAG("$toolbarButtons", {toolbar_buttons : "$toolbar_buttons"}),
-                BUTTON({class: "button", onclick: "$AINSPECTOR_FB.toolbarUtil.toHTMLPanel"}, "HTML Panel" )
+                BUTTON({class: "button", onclick: "$toHtmlPanel"}, "HTML Panel" )
                 
               ), 
   
@@ -219,7 +219,7 @@ with (FBL) {
 	  ),
     
 	  row:
-	    TR({class: "treeRow", $hasChildren: "$member.hasChildren", _repObject: "$member.value", 
+	    TR({class: "treeRow", $hasChildren: "$member.hasChildren", _newObject: "$member", _repObject: "$member.value", 
 	    	level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onfocus: "$onFocus", onclick: "$highlightTreeRow"},
 		  TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
 		    TAG("$member.tag", {'member' :"$member", 'object': "$member.value"})
@@ -334,7 +334,7 @@ with (FBL) {
     	if (!hasClass(row, "opened")) {
 		  var level = parseInt(row.getAttribute("level"));
 		  setClass(row, "opened");
-		  var repObject = row.repObject;
+		  var repObject = row.newObject;
 			
 		  if (repObject) {
             var members = this.getMembers(repObject.children, level+1);

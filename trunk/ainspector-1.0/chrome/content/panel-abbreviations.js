@@ -36,8 +36,7 @@ with (FBL) {
 	 // panel.table = AINSPECTOR_FB.abbr.languageTemplate.tableTag.append( {language_elements: language_elements}, panel.panelNode, AINSPECTOR_FB.abbr.languageTemplate);
 	  panel.table = AINSPECTOR_FB.abbr.abbreviationTemplate.tag.append( {object: abbreviation_elements}, panel.panelNode, AINSPECTOR_FB.abbr.abbreviationTemplate);
 	  this.select(abbreviation_elements[0]);
-	  FBTrace.sysout("8888888888888888888888888", language_elements[0].dom_element.getAccessibility());
-	  Firebug.currentContext.getPanel('Rules').sView(true, language_elements[0]);
+	  Firebug.currentContext.getPanel('Rules').sView(true, abbreviation_elements[0]);
     },
     
     /**
@@ -83,34 +82,67 @@ with (FBL) {
      * 
      * @desc redirect to the HTML Panel of Firebug
      * 
-     * @param event event triggered on a row/cell of a images/media/abbreviation toolbar buttons
+     * @param event event triggered on a row/cell of a Abbrev/Language toolbar buttons
      */
     toHTMLPanel: function(event) {
-
-      var table = getChildByClass(event.target.offsetParent, "ai-table-list-items");
-	  var row =  getChildByClass(event.target.offsetParent, "tableRow");
-      var child;
-      var tbody = table.children[1];
-      var node = null;
-
-      for (var i = 0; i < tbody.children.length; i++) {
-        var flag = false;
-        var row = tbody.children[i];
-        node = row;
-        for (var j = 0; j < row.children.length; j++) {
-      	var cell = row.children[j];
-        for (var k=0; k<cell.classList.length;k++) {
-          if (cell.classList[k] ==  "gridCellSelected") {
-            flag = true;
-            break;
-          }//end if
-        }//end for
-        if (flag == true) break;
-      }
-        if (flag == true) break;
-      }
+	  FBTrace.sysout("inside toHTMl panel: ", event);
+	  var table = getChildByClass(event.target.offsetParent, "ai-table-list-items");
+	  var row =  null;
+	  var tbody = null;
+	  var child;
+	  var node = null;
       
-      node = node.repObject.dom_element.node;
+	  if (table) {
+    	row = getChildByClass(event.target.offsetParent, "tableRow");
+  		tbody = table.children[1];
+        
+  		for (var i = 0; i < tbody.children.length; i++) {
+          var flag = false;
+          var row = tbody.children[i];
+          node = row;
+        
+          for (var j = 0; j < row.children.length; j++) {
+      	  var cell = row.children[j];
+          
+      	  for (var k=0; k<cell.classList.length;k++) {
+            if (cell.classList[k] ==  "gridCellSelected") {
+              flag = true;
+              break;
+            }//end if
+          }//end for
+          if (flag == true) break;
+          }
+          if (flag == true) break;
+        }
+        node = node.repObject.dom_element.node;
+
+	  } else {
+		table = getChildByClass(event.target.offsetParent, "domTable");
+		//row = getChildByClass(event.target.offsetParent, "treeRow");
+
+		var rows = table.rows;
+		tbody = table.children[2];
+
+		for (var i = 0; i < rows.length; i++) {
+			var flag = false;
+			var row = rows[i];//tbody.children[i];
+			node = row;
+			FBTrace.sysout("row:", row);
+			for (var k=0; k<row.classList.length;k++) {
+
+				if (row.classList[k] ==  "gridRowSelected") {
+					flag = true;
+					break;
+				}//end if
+			}//end for
+
+			if (flag == true) break;
+		}
+		FBTrace.sysout("node: ", node);
+		node = node.repObject.node;
+	}
+      
+//      node = node.repObject.dom_element.node;
       var panel = Firebug.chrome.selectPanel("html");
       panel.select(node);
     },
@@ -270,9 +302,9 @@ with (FBL) {
 	  TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, onclick: "$onClick", tabindex: 0, onkeypress: "$onKeyPressedTable"},
 		THEAD(
 	      TR({class: "gridHeaderRow ", id: "imgTableHeader", role: "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader"},
-	        TH({class: "gridHeaderCell", id: "abbrEleCol"}, DIV({class: "gridHeaderCellBox"}, "Element")),
-	        TH({class: "gridHeaderCell", id: "abbrCol"}, DIV({class: "gridHeaderCellBox"}, "Abbreviation")),
-	        TH({class: "gridHeaderCell", id: "abbrTitleCol"}, DIV({class: "gridHeaderCellBox"}, "Title"))
+	        TH({class: "gridHeaderCell gridCell", id: "abbrEleCol"}, DIV({class: "gridHeaderCellBox"}, "Element")),
+	        TH({class: "gridHeaderCell gridCell", id: "abbrCol"}, DIV({class: "gridHeaderCellBox"}, "Abbreviation")),
+	        TH({class: "gridHeaderCell gridCell", id: "abbrTitleCol"}, DIV({class: "gridHeaderCellBox"}, "Title"))
 	      ) //end TR
 		), //end THEAD
 		TBODY(
@@ -281,30 +313,54 @@ with (FBL) {
 	  ), //end TABLE
 	    
 	row:
-	  TR({class: "treeRow", $hasChildren: "$member.hasChildren", _repObject: "$member.value", 
-	   level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onclick: "$highlightRow"},
-	    TD({class: "memberLabelCell treeLabel", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
-          "$member.length"
+	  TR({class: "treeRow", $hasChildren: "$member.hasChildren", _newObject: "$member", _repObject: "$member.value", 
+	   level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onclick: "$onClickTreeRow"},
+	    TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
+              TAG("$member.tag", {'member' :"$member", 'object': "$member"})
 	    ),
 		TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
-		  "$member.abbreviation_text"
+		  "$member.abbreviation_text|getValue"
 		)
 	  ),
 	
 	childrow:
-	  TR({class: "treeRow", $hasChildren: "$member.hasChildren", _repObject: "$member.value", 
-	   level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onclick: "$highlightRow"},
+	  TR({class: "treeRow", $hasChildren: "$member.hasChildren", _newObject: "$member", _repObject: "$member.value", 
+	   level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onclick: "$onClickTreeRow"},
 	    TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
 		  "$member.tagname"
 	    ),
 		TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
-		  "$member.abbreviation_text"
+		  "$member.abbreviation_text|getValue"
 		),
 		TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.title")
 	  ),
+	  
+	strTag : DIV({class: "treeLabel"},"$member.length"),  
 
 	loop:
 	  FOR("member", "$members", TAG("$childrow", {member: "$member"})),
+	  
+	getValue : function(property){
+	  if (property) return property;
+	  else return "";
+    },  
+	  
+    /**
+     * @function onClickTreeRow
+     * 
+     * @desc helper function to call highlight
+     * 
+     * @param {Event} event - even triggered when a row is selected in a panel
+     * @property {Object} selection - present selected row info to be passed to the side panel 
+     */
+    onClickTreeRow : function(event){
+		    	  
+	  panel.selection = Firebug.getRepObject(event.target);
+	  FBTrace.sysout("panel: zupzupzupz", panel);
+	  AINSPECTOR_FB.flatListTemplateUtil.highlightTreeRow(event);
+	  
+	  
+	},
 
 	/**
 	 * @ function memberIterator
@@ -349,7 +405,8 @@ with (FBL) {
 		  level: level,
 		  indent: level * 16,
 		  length: value.count,
-		  abbreviation_text: value.abbreviation_text
+		  abbreviation_text: value.abbreviation_text,
+		  tag: this.strTag
 		};
 	  } else {
 				
@@ -361,7 +418,8 @@ with (FBL) {
           value: (value != null) ? value : "",
           level: level,
           indent: level * 16,
-          title: value.title
+          title: value.title,
+	  tag: this.strTag
         };	
 	  }
 	},
@@ -505,7 +563,7 @@ with (FBL) {
 	  if (!hasClass(row, "opened")) {
 		var level = parseInt(row.getAttribute("level"));
 		setClass(row, "opened");
-		var repObject = row.repObject;
+		var repObject = row.newObject;
 
 		if (repObject) {
 	      var members = this.getMembers(repObject.children, level+1);

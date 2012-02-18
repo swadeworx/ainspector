@@ -68,12 +68,12 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
     tag:
 	  TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, onclick: "$onClick", tabindex: 0, onkeypress: "$onKeyPressedTable"},
 	    THEAD(
-	      TR({"class": "gridHeaderRow a11yFocus", id: "tableTableHeader", "role": "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow"},
-	        TH({"class": "gridHeaderCell gridCell", id: "colConEleCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Elements")),
-	        TH({"class": "gridHeaderCell gridCell", id: "colConColorCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Color")),
-	        TH({"class": "gridHeaderCell gridCell", id: "colConBgCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Background")),
-	        TH({"class": "gridHeaderCell gridCell", id: "colConCCRCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "CCR")),
-	        TH({"class": "gridHeaderCell gridCell", id: "colConBgiCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "BG Image"))
+	      TR({class: "gridHeaderRow a11yFocus", id: "tableTableHeader", "role": "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow"},
+	        TH({class: "gridHeaderCell gridCell", id: "colConEleCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Elements")),
+	        TH({class: "gridHeaderCell gridCell", id: "colConColorCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Color")),
+	        TH({class: "gridHeaderCell gridCell", id: "colConBgCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Background")),
+	        TH({class: "gridHeaderCell gridCell", id: "colConCCRCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "CCR")),
+	        TH({class: "gridHeaderCell gridCell", id: "colConBgiCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "BG Image"))
 	      ) //end TR
 	    ), //end THEAD
 	    TBODY(
@@ -82,10 +82,10 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
 	  ),
     
 	  row:
-	    TR({class: "treeRow", $hasChildren: "$member.hasChildren", _repObject: "$member.value", 
+	    TR({class: "treeRow", $hasChildren: "$member.hasChildren", _newObject: "$member", _repObject: "$member.value", 
 	    	level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onclick: "$highlightTreeRow"},
-		  TD({class: "memberLabelCell treeLabel", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
-				  "$member.count"
+		  TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
+		    TAG("$member.tag", {'member' :"$member", 'object': "$member"}) 
 		  ),
 		  TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.color"),
 		  TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.background_color"),
@@ -94,7 +94,7 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
 	    ),
 	    
 	  childrow : 
-	    TR({class: "treeRow", _repObject: "$member", 
+	    TR({class: "treeRow", _newObject: "$member", _repObject: "$member.value", 
     	  level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onclick: "$highlightTreeRow"},
 	      TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
 			  "$member.tag_name"
@@ -105,7 +105,9 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
 	      TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.background_image")
     
       ),
-
+      
+      
+strTag : DIV({class: "treeLabel"},"$member.count"),
 	  loop:
 	    FOR("member", "$members", TAG("$childrow", {member: "$member"})),
 
@@ -162,14 +164,16 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
 	      children: value.dom_elements,
 	      value: (value != null) ? value : "",
 	      level: level,
-	      indent: level * 16
+	      indent: level * 16,
+	      tag: this.strTag
 	    };
 	    else return {
 	      color: value.color,
 		  background_color: value.background_color,
 		  color_contrast_ratio: value.color_contrast_ratio,
 	      background_image: value.background_image,
-	      tag_name: value.tag_name
+	      tag_name: value.tag_name,
+      	      tag: this.strTag
 	    };
 	  },
 
@@ -261,7 +265,7 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
     	if (!hasClass(row, "opened")) {
 		  var level = parseInt(row.getAttribute("level"));
 		  setClass(row, "opened");
-		  var repObject = row.repObject;
+		  var repObject = row.newObject;
 		  FBTrace.sysout("row: ", row);
 		  if (repObject) {
             var members = this.getMembers(repObject.children, level+1);
