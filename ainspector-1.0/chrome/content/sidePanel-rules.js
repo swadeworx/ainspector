@@ -220,7 +220,7 @@ FBL.ns(function() { with (FBL) {
       * 
       * @param event
       */
-     setSelection: function(event) {
+     setSelection : function(event) {
    
 	   FBTrace.sysout("event in setSelection:", event);
        var element = Firebug.getRepObject(event.target);

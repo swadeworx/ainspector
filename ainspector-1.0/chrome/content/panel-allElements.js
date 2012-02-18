@@ -93,8 +93,8 @@ AINSPECTOR_FB.elementsView.elementsToolbarPlate = domplate({
 	var row =  null;
 	var tbody = null;
 	var child;
-	var node = null;
-
+	var node;
+	FBTrace.sysout("inside toHTMl panel: ", event);
 	if (table) {
 		row = getChildByClass(event.target.offsetParent, "tableRow");
 		tbody = table.children[1];
@@ -125,18 +125,18 @@ AINSPECTOR_FB.elementsView.elementsToolbarPlate = domplate({
 	} else {
 		table = getChildByClass(event.target.offsetParent, "domTable");
 		//row = getChildByClass(event.target.offsetParent, "treeRow");
+		FBTrace.sysout("inside toHTMl panel else: ", table);
+		var rows = table.rows;
+		tbody = table.children[1];
 
-		row = table.rows;
-		tbody = table.children[0];
-
-		for (var i = 0; i < tbody.children.length; i++) {
+		for (var i = 0; i < rows.length; i++) {
 			var flag = false;
-			var row = tbody.children[i];
+			var row = rows[i];//tbody.children[i];
 			node = row;
 
 			for (var k=0; k<row.classList.length;k++) {
 
-				if (row.classList[k] ==  "gridCellSelected") {
+				if (row.classList[k] ==  "gridRowSelected") {
 					flag = true;
 					break;
 				}//end if
@@ -144,7 +144,7 @@ AINSPECTOR_FB.elementsView.elementsToolbarPlate = domplate({
 
 			if (flag == true) break;
 		}
-		node = node.repObject.value.dom_element.node;
+		node = node.repObject.node;
 	}
 
 	var panel = Firebug.chrome.selectPanel("html");
@@ -251,12 +251,12 @@ AINSPECTOR_FB.elementsView.elementsTreeTemplate = domplate({
   tag:
 	TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, onclick: "$onClick", tabindex: 0, onkeypress: "$onKeyPressedTable"},
 	  THEAD(
-		TR({"class": "gridHeaderRow a11yFocus", id: "tableTableHeader", "role": "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow"},
-		  TH({"class": "gridHeaderCell gridCell", id: "headEleCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Element")),
-		  TH({"class": "gridHeaderCell gridCell", id: "headRoleCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Order")),
-		  TH({"class": "gridHeaderCell gridCell", id: "headNameCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "ID")),
-		  TH({"class": "gridHeaderCell gridCell", id: "headNameCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Class")),
-		  TH({"class": "gridHeaderCell gridCell", id: "headNameCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "XPath"))
+		TR({class: "gridHeaderRow a11yFocus", id: "tableTableHeader", "role": "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow"},
+		  TH({class: "gridHeaderCell gridCell", id: "headEleCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Element")),
+		  TH({class: "gridHeaderCell gridCell", id: "headRoleCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Order")),
+		  TH({class: "gridHeaderCell gridCell", id: "headNameCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "ID")),
+		  TH({class: "gridHeaderCell gridCell", id: "headNameCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Class")),
+		  TH({class: "gridHeaderCell gridCell", id: "headNameCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "XPath"))
 		) //end TR
 	  ), //end THEAD
 	  TBODY(
@@ -265,10 +265,10 @@ AINSPECTOR_FB.elementsView.elementsTreeTemplate = domplate({
 	),
 
 	row:
-	  TR({class: "treeRow", $hasChildren: "$member.hasChildren", _repObject: "$member.value", 
+	  TR({class: "treeRow", $hasChildren: "$member.hasChildren", _newObject: "$member", _repObject: "$member.value", 
 	    level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onclick: "$onClickTreeRow"},
-		TD({class: "memberLabelCell treeLabel", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
-		   "$member.element"
+		TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
+		   TAG("$member.tag", {'member' :"$member", 'object': "$member"})
 		),
 		TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
 		   "$member.order"
@@ -281,6 +281,8 @@ AINSPECTOR_FB.elementsView.elementsTreeTemplate = domplate({
 		),
 		TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.xpath")
 	),
+	
+	strTag : DIV({class: "treeLabel"}, "$member.element"),
 
 	loop:
 	  FOR("member", "$members", TAG("$row", {member: "$member"})),
@@ -436,8 +438,9 @@ openRow: function(row) {
 	if (!hasClass(row, "opened")) {
 		var level = parseInt(row.getAttribute("level"));
 		setClass(row, "opened");
-		var repObject = row.repObject;
+		FBTrace.sysout("repObject on Openrow: ", row);
 
+		var repObject = row.newObject;
 		if (repObject) {
 			var members = this.getMembers(repObject.children, level+1);
 
@@ -544,6 +547,7 @@ createMember: function(name, value, level)  {
 	order: value.document_order,
 	name: value.className, //name,
 	xpath: value.xpath,
+	tag : this.strTag
   };
 }
 

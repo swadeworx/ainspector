@@ -70,7 +70,7 @@ with (FBL) {
   AINSPECTOR_FB.lists.listToolbarPlate = domplate({
     toolbar : DIV( {class : "nav-menu"},
                 TAG("$toolbarButtons", {toolbar_buttons : "$toolbar_buttons"}),
-                BUTTON({class: "button", onclick: "$AINSPECTOR_FB.toolbarUtil.toHTMLPanel"}, "HTML Panel" )
+                BUTTON({class: "button", onclick: "$toHTMLPanel"}, "HTML Panel" )
               ), 
   
     toolbarButtons : UL ({class : "yui-nav focusTabList toolbarLinks", role : "tablist", onkeypress : "$AINSPECTOR_FB.toolbarUtil.onToolbarKeyPress", "aria-label" :  "element views"},
@@ -95,31 +95,68 @@ with (FBL) {
       var table = getChildByClass(event.target.offsetParent, "ai-table-list-items");
       FBTrace.sysout("inside pane-images table", table);
 
-	  var row =  getChildByClass(event.target.offsetParent, "tableRow");
+	  var row;
       var child;
-      var tbody = table.children[1];
-      var node = null;
+      var tbody;
+      var node;
 
-      for (var i = 0; i < tbody.children.length; i++) {
-        var flag = false;
-        var row = tbody.children[i];
-        node = row;
-        for (var j = 0; j < row.children.length; j++) {
-      	var cell = row.children[j];
-        for (var k=0; k<cell.classList.length;k++) {
-          if (cell.classList[k] ==  "gridCellSelected") {
-            flag = true;
-            break;
-          }//end if
-        }//end for
-        if (flag == true) break;
-      }
-        if (flag == true) break;
-      }
-      node = node.repObject.dom_element.node;
-      var panel = Firebug.chrome.selectPanel("html");
-      panel.select(node);
-    },
+	if (table) {
+		row = getChildByClass(event.target.offsetParent, "tableRow");
+		tbody = table.children[1];
+
+		for (var i = 0; i < tbody.children.length; i++) {
+			var flag = false;
+			var row = tbody.children[i];
+			node = row;
+
+			for (var j = 0; j < row.children.length; j++) {
+				var cell = row.children[j];
+
+				for (var k=0; k<cell.classList.length;k++) {
+
+					if (cell.classList[k] ==  "gridCellSelected") {
+						flag = true;
+						break;
+					}//end if
+				}//end for
+
+				if (flag == true) break;
+			}
+
+			if (flag == true) break;
+		}
+		node = node.repObject.dom_element.node;
+
+	} else {
+		FBTrace.sysout("zip event", event);
+		table = getChildByClass(event.target.offsetParent, "domTable");
+		//row = getChildByClass(event.target.offsetParent, "treeRow");
+
+		var rows = table.rows;
+		tbody = table.children[0];
+
+		for (var i = 0; i < rows.length; i++) {
+			var flag = false;
+			var row = rows[i];//tbody.children[i];
+			node = row;
+			FBTrace.sysout("row:", row);
+			for (var k=0; k<row.classList.length;k++) {
+
+				if (row.classList[k] ==  "gridRowSelected") {
+					flag = true;
+					break;
+				}//end if
+			}//end for
+
+			if (flag == true) break;
+		}
+		FBTrace.sysout("node: ", node);
+		node = node.repObject.dom_element.node;
+	}
+
+	var panel = Firebug.chrome.selectPanel("html");
+	panel.select(node);
+},
 
     /**
      * onClick
@@ -209,12 +246,12 @@ with (FBL) {
 	tag:
 	  TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, onclick: "$onClick", tabindex: 0, onkeypress: "$onKeyPressedTable"},
 	    THEAD(
-	      TR({"class": "gridHeaderRow a11yFocus", id: "listTableHeader", "role": "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow"},
-	        TH({"class": "gridHeaderCell gridCell", id: "listEleCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Element")),
-		    TH({"class": "gridHeaderCell gridCell", id: "listOrderCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Order")),
-		    TH({"class": "gridHeaderCell gridCell", id: "listIDCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "ID")), //TAG("$headerTag", {header: "Source"}))),
-	        TH({"class": "gridHeaderCell gridCell", id: "listClassCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Class")),
-	        TH({"class": "gridHeaderCell gridCell", id: "listXpathCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "XPath"))
+	      TR({class: "gridHeaderRow a11yFocus", id: "listTableHeader", "role": "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow"},
+	        TH({class: "gridHeaderCell gridCell", id: "listEleCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Element")),
+		    TH({class: "gridHeaderCell gridCell", id: "listOrderCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Order")),
+		    TH({class: "gridHeaderCell gridCell", id: "listIDCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "ID")), //TAG("$headerTag", {header: "Source"}))),
+	        TH({class: "gridHeaderCell gridCell", id: "listClassCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Class")),
+	        TH({class: "gridHeaderCell gridCell", id: "listXpathCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "XPath"))
 	      ) //end TR
 	    ),
 		TBODY(
@@ -223,7 +260,7 @@ with (FBL) {
 	  ),
 	    
 	  row:
-	    TR({class: "treeRow", $hasChildren: "$member.hasChildren", _repObject: "$member.value", 
+	    TR({class: "treeRow", $hasChildren: "$member.hasChildren", _newObject: "$member", _repObject: "$member.value", 
 	    	level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onfocus: "$onFocus", onclick: "$highlightTreeRow"},
 		  TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
 		    TAG("$member.tag", {'member' :"$member", 'object': "$member.value"})
@@ -344,7 +381,7 @@ with (FBL) {
 	    	if (!hasClass(row, "opened")) {
 			  var level = parseInt(row.getAttribute("level"));
 			  setClass(row, "opened");
-			  var repObject = row.repObject;
+			  var repObject = row.newObject;
 				
 			  if (repObject) {
 	            var members = this.getMembers(repObject.children, level+1);
