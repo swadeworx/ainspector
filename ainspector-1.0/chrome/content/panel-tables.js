@@ -70,8 +70,7 @@ with (FBL) {
   AINSPECTOR_FB.tables.tablesToolbarPlate = domplate({
     toolbar : DIV( {class : "nav-menu"},
                 TAG("$toolbarButtons", {toolbar_buttons : "$toolbar_buttons"}),
-                BUTTON({class: "button", onclick: "$toHtmlPanel"}, "HTML Panel" )
-                
+                BUTTON({class: "button", onclick: "$toHTMLPanel"}, "HTML Panel" )
               ), 
   
     toolbarButtons : UL ({class : "yui-nav focusTabList toolbarLinks", role : "tablist", onkeypress : "$AINSPECTOR_FB.toolbarUtil.onToolbarKeyPress", "aria-label" :  "element views"},
@@ -83,45 +82,77 @@ with (FBL) {
                 
     ),
     
-    /**
-     * toHtmlView
-     * 
-     * @desc redirect to the HTML view of Firebug
-     * 
-     * @param event event triggered on a row in the Links Table
-     */
-    toHtmlPanel: function(event) {
+	/**
+	 * @function toHTMLPanel
+	 * 
+	 * @desc redirect to the HTML view of Firebug
+	 * 
+	 * @param event event triggered on a row/cell
+	 */
+	toHTMLPanel: function(event) {
+	var table = getChildByClass(event.target.offsetParent, "ai-table-list-items");
+	var row =  null;
+	var tbody = null;
+	var child;
+	var node = null;
 
-      var table = getChildByClass(event.target.offsetParent, "ai-table-list-items");
-      FBTrace.sysout("inside pane-images table", table);
+	if (table) {
+		row = getChildByClass(event.target.offsetParent, "tableRow");
+		tbody = table.children[1];
 
-	  var row =  getChildByClass(event.target.offsetParent, "tableRow");
-      var child;
-      var tbody = table.children[1];
-      var node = null;
+		for (var i = 0; i < tbody.children.length; i++) {
+			var flag = false;
+			var row = tbody.children[i];
+			node = row;
 
-          for (var i = 0; i < tbody.children.length; i++) {
-            var flag = false;
-            var row = tbody.children[i];
-            node = row;
-            for (var j = 0; j < row.children.length; j++) {
-          	var cell = row.children[j];
-            for (var k=0; k<cell.classList.length;k++) {
-              if (cell.classList[k] ==  "gridCellSelected") {
-                flag = true;
-                break;
-              }//end if
-            }//end for
-            if (flag == true) break;
-          }
-            if (flag == true) break;
-          }
-          node = node.repObject.dom_element.node;
+			for (var j = 0; j < row.children.length; j++) {
+				var cell = row.children[j];
 
-      
-      var panel = Firebug.chrome.selectPanel("html");
-      panel.select(node);
-    },
+				for (var k=0; k<cell.classList.length;k++) {
+
+					if (cell.classList[k] ==  "gridCellSelected") {
+						flag = true;
+						break;
+					}//end if
+				}//end for
+
+				if (flag == true) break;
+			}
+
+			if (flag == true) break;
+		}
+		node = node.repObject.dom_element.node;
+
+	} else {
+		FBTrace.sysout("zip event", event);
+		table = getChildByClass(event.target.offsetParent, "domTable");
+		//row = getChildByClass(event.target.offsetParent, "treeRow");
+
+		var rows = table.rows;
+		tbody = table.children[0];
+
+		for (var i = 0; i < rows.length; i++) {
+			var flag = false;
+			var row = rows[i];//tbody.children[i];
+			node = row;
+			FBTrace.sysout("row:", row);
+			for (var k=0; k<row.classList.length;k++) {
+
+				if (row.classList[k] ==  "gridRowSelected") {
+					flag = true;
+					break;
+				}//end if
+			}//end for
+
+			if (flag == true) break;
+		}
+		FBTrace.sysout("node: ", node);
+		node = node.repObject.dom_element.node;
+	}
+
+	var panel = Firebug.chrome.selectPanel("html");
+	panel.select(node);
+},
 
     
     /**

@@ -73,7 +73,8 @@ FBL.ns(function() { with (FBL) {
        var dom_element = selection.dom_element; 
        if (dom_element)
          this.rebuild(this.showOnRulesTabSelect(dom_element));
-       else this.rebuild(this.showOnRulesTabSelect(selection.value.dom_element));
+       //else this.rebuild(this.showOnRulesTabSelect(selection.value.dom_element));
+       else this.rebuild(this.showOnRulesTabSelect(selection));
      },
      
      /**
