@@ -78,7 +78,7 @@ FBL.ns(function() { with (FBL) {
      },
      
      /**
-      * show
+      * @function show
       * 
       * @desc
       * 
