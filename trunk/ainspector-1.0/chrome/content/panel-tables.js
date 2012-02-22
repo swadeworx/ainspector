@@ -73,9 +73,10 @@ with (FBL) {
                 BUTTON({class: "button", onclick: "$toHTMLPanel"}, "HTML Panel" )
               ), 
   
-    toolbarButtons : UL ({class : "yui-nav focusTabList toolbarLinks", role : "tablist", onkeypress : "$AINSPECTOR_FB.toolbarUtil.onToolbarKeyPress", "aria-label" :  "element views"},
+    toolbarButtons : UL ({class : "yui-nav focusTabList toolbarLinks", role : "tablist", onkeypress : "$AINSPECTOR_FB.toolbarUtil.onToolbarKeyPress", "aria-label" :  "toolbarbutton views"},
                        FOR("obj", "$toolbar_buttons",
-                         LI({id: "$obj.name", class : "$obj|AINSPECTOR_FB.toolbarUtil.getToolbarButtonClass focusTab", onclick: "$onClick", tabindex : "$obj|AINSPECTOR_FB.toolbarUtil.getTabIndex", role : "tab", "aria-selected" : "$obj|AINSPECTOR_FB.toolbarUtil.getSelectedState", onfocus : "$onToolbarFocus"},
+                         LI({id: "$obj.name", class : "$obj|AINSPECTOR_FB.toolbarUtil.getToolbarButtonClass focusTab", onclick: "$onClickToolbarButton", tabindex : "$obj|AINSPECTOR_FB.toolbarUtil.getTabIndex", 
+			   role : "tab", "aria-selected" : "$obj|AINSPECTOR_FB.toolbarUtil.getSelectedState", onfocus : "$onToolbarFocus"},
                              "$obj.name"
                          )//end LI
                        )//end for
@@ -155,29 +156,27 @@ with (FBL) {
 },
 
     
-    /**
-     * onClick
-     * 
-     * @desc
-     * 
-     * @param event
-     */
-    onClick : function(event) {
-      var toolbar_button = event.currentTarget.id;
-      
-      this.showOnSelectButton(toolbar_button);
-    },
+/**
+ * @function onClickToolbarButton
+ * 
+ * @desc 
+ * 
+ * @param event mouse event
+ */
+onClickToolbarButton : function(event) {
+	var toolbar_button = event.currentTarget.id;
+	this.showOnSelectButton(toolbar_button);
+},
     showOnSelectButton : function(toolbar_button_id) {
 
     	clearNode(panel.table);
         clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
-
         if (toolbar_button_id == "Tree View") {
     	  panel.table = AINSPECTOR_FB.tables.tablesTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.tables.tablesTreeTemplate);
     	  AINSPECTOR_FB.tables.select(child_elements[0]);
     	  Firebug.currentContext.getPanel('Rules').sView(true, child_elements[0]);
         
-        } else {
+        } else if (toolbar_button_id == "List View") {
           panel.table = AINSPECTOR_FB.tables.tablesTreeTemplate.tag.append( {object: table_elements}, panel.panelNode, AINSPECTOR_FB.tables.tablesTreeTemplate);
       	  AINSPECTOR_FB.tables.select(table_elements[0]);
       	  Firebug.currentContext.getPanel('Rules').sView(true, table_elements[0]);
@@ -193,7 +192,7 @@ with (FBL) {
     
       if (!elem) return;
       
-      var category = getClassValue(elem, "ruleCategory");
+      var category = getClassValue(elem, "toolbarButtonView");
       FBTrace.sysout("catewgory: "+ category);
       FBTrace.sysout("elem: ", elem);
 
@@ -239,9 +238,10 @@ with (FBL) {
     tag:
 	  TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, onclick: "$onClick", tabindex: 0, onkeypress: "$onKeyPressedTable"},
 	    THEAD(
-	      TR({"class": "gridHeaderRow a11yFocus", id: "tableTableHeader", "role": "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow"},
-	        TH({"class": "gridHeaderCell gridCell", id: "tableTagCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Tag")),
-	        TH({"class": "gridHeaderCell gridCell", id: "tableInfoCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({"class": "gridHeaderCellBox"}, "Information"))
+	      TR({class: "gridHeaderRow a11yFocus", id: "tableTableHeader", role: "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow"},
+	        TH({class: "gridHeaderCell gridCell", id: "tableTagCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Tag")),
+	        TH({class: "gridHeaderCell gridCell", id: "tableInfoCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Information")),
+	        TH({class: "gridHeaderCell gridCell", id: "tableInfoCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Accessibility Summary"))
 	      ) //end TR
 	    ), //end THEAD
 	    TBODY(
@@ -251,25 +251,65 @@ with (FBL) {
     
 	  row:
 	    TR({class: "treeRow", $hasChildren: "$member.hasChildren", _newObject: "$member", _repObject: "$member.value", 
-	    	level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onfocus: "$onFocus", onclick: "$highlightTreeRow"},
+	    	level: "$member.level", tabindex: "-1", onkeypress: "$onKeyPressedRow", onclick: "$onClickTreeRow"},
 		  TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
 		    TAG("$member.tag", {'member' :"$member", 'object': "$member.value"})
 		  ),
-		  TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.information")
+		  TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.information"),
+		  TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
+			TAG("$member.sevTag", {'member' :"$member", 'object': "$member.value"}))
 	    ),
 
       strTag : DIV({class: "treeLabel"},"$member.name"),
+      strTagPass : DIV({class: "passMsgTxt"}, "$member.acc_summary"),
+      strTagViolation : DIV({class: "violationMsgTxt"}, "$member.acc_summary"),
+      strTagManual : DIV({class: "manualMsgTxt"}, "$member.acc_summary"),
+      strTagHidden : DIV({class: "hiddenMsgTxt"}, "$member.acc_summary"),
+      strTagRecommendation : DIV({class: "recommendationMsgTxt"}, "$member.acc_summary"),
+      strTagInfo : DIV({class: "infoMsgTxt"}, "$member.acc_summary"),
+      strTagWarn : DIV({class: "warnMsgTxt"}, "$member.acc_summary"),
 
-	  loop:
-	    FOR("member", "$members", TAG("$row", {member: "$member"})),
+	loop:
+	  FOR("member", "$members", TAG("$row", {member: "$member"})),
+		
+	/**
+     * @function onClickTreeRow
+     * 
+     * @desc helper function to call highlight
+     * 
+     * @param {Event} event - even triggered when a row is selected in a panel
+     * @property {Object} selection - present selected row info to be passed to the side panel 
+     */
+    onClickTreeRow : function(event){
+		    	  
+	  panel.selection = Firebug.getRepObject(event.target);
+	  FBTrace.sysout("panel: zupzupzupz", panel);
+	  AINSPECTOR_FB.flatListTemplateUtil.highlightTreeRow(event);
+	  
+	  
+	},
 
-	  memberIterator: function(object) {
-	    return this.getMembers(object);
-	  },
+    /**
+	 * @function memberIterator
+	 * 
+	 * @desc
+	 * 
+	 * @param object to iterate through
+	 */
+	memberIterator: function(object) {
+	  return this.getMembers(object);
+    },
 
-	  onClick: function(event) {
-			    
-		if (!isLeftClick(event)) return;
+    /**
+	 * @function onClick
+	 * 
+	 * @desc
+	 * 
+	 * @param event
+	 */
+	onClick: function(event) {
+
+	  if (!isLeftClick(event)) return;
 
 	    var row = getAncestorByClass(event.target, "treeRow");
 		var label = getAncestorByClass(event.target, "treeLabel");
@@ -277,6 +317,13 @@ with (FBL) {
 		if (label && hasClass(row, "hasChildren")) this.toggleRow(row);
 	  },
 
+	/**
+	 * @function onKeyPressedTable
+	 * 
+	 * @desc
+	 * 
+	 * @param event
+	 */
 	  onKeyPressedTable: function(event) {
 		
 		switch(event.keyCode) {
@@ -290,9 +337,14 @@ with (FBL) {
 	    }
 	  },
 
-	  isTreeRow: function(node) {
-		return hasClass(node, "treeRow");
-	  },
+    /**
+     * @function isTreeRow
+     * 
+     * @param {Object} node
+     */
+    isTreeRow: function(node) {
+	  return hasClass(node, "treeRow");
+    },
 
 	  onKeyPressedRow: function(event) {
 		event.stopPropagation();
@@ -331,35 +383,42 @@ with (FBL) {
             
           case 13: //Enter
             event.preventDefault();
-            var links = event.target.getElementsByClassName('objectLink');
+            
           
-            if (links[0]) AINSPECTOR.util.event.dispatchMouseEvent(links[0], 'click');
+            
       		break;
 		}
 	  },
 
-      onFocus: function(event) {
-		 FBTrace.sysout("inside onfocus"); 
-        var links = event.target.getElementsByClassName('objectLink');
-        
-        if (links[0]) AINSPECTOR.util.event.dispatchMouseEvent(links[0], 'mouseover');
-      },
+	/**
+	 * @function closeRow
+	 * 
+	 * @desc close a row when clicked on a twisty open image on the panel
+	 * 
+	 * @param row table row
+	 */
+	closeRow: function(row) {
 
-	  closeRow: function(row) {
-		
-    	if (hasClass(row, "opened")) {
-		  var level = parseInt(row.getAttribute("level"));
-		  removeClass(row, "opened");
-		  var tbody = row.parentNode;
-		
-		  for (var firstRow = row.nextSibling; firstRow; firstRow = row.nextSibling) {
-			
+	if (hasClass(row, "opened")) {
+		var level = parseInt(row.getAttribute("level"));
+		removeClass(row, "opened");
+		var tbody = row.parentNode;
+
+		for (var firstRow = row.nextSibling; firstRow; firstRow = row.nextSibling) {
+
 			if (parseInt(firstRow.getAttribute("level")) <= level) break;
 			tbody.removeChild(firstRow);
 		  }
 	    }
       },
 
+	/**
+	 * @function openRow
+	 * 
+	 * @desc open a row when clicked on a twisty close image on the panel
+	 * 
+	 * @param row table row
+	 */
       openRow: function(row) {
 		
     	if (!hasClass(row, "opened")) {
@@ -402,6 +461,7 @@ with (FBL) {
 
 	  createMember: function(name, value, level)  {
 	  //  FBTrace.sysout(' createMember : ', value);
+	    var acc = value.dom_element.getAccessibility();
 		return {
 		  name: value.dom_element.tag_name, //name,
 		  role_level: (value.dom_element.role) ? value.dom_element.role : value.level,
@@ -413,10 +473,35 @@ with (FBL) {
 	      label: (value.dom_element.children != null) ? "" : value,
 	      level: level,
 	      indent: level * 16,
-	      tag: this.strTag
+	      tag: this.strTag,
+	      acc_summary: acc.label,
+	      sevTag: this.getAccessibility(value)
 	    };
 	  },
 	  
+	  getAccessibility : function(object){
+		var severity =  object.dom_element.getAccessibility().label;
+		var styleSeverityTag;
+		if (severity == "Pass")  styleSeverityTag = this.strTagPass;
+		if (severity == "Violation") styleSeverityTag = this.strTagViolation;
+		if (severity == "Manual Check") styleSeverityTag = this.strTagManual;
+		if (severity == "Hidden") styleSeverityTag = this.strTagHidden;
+		if (severity == "Recommendation") styleSeverityTag = this.strTagRecommendation;
+		if (severity == "Information") styleSeverityTag = this.strTagInfo;
+		if (severity == "Warning") styleSeverityTag = this.strTagWarn;
+		
+		return styleSeverityTag;
+	  },
+	  
+/**
+ * @function getChildrenEle
+ * 
+ * @desc
+ * 
+ * @param element
+ * 
+ * @return child_cache_elements|null
+ */
 	  getChildrenEle: function(element){
 		var tag_name = element.dom_element; 
 	    if (tag_name == 'h1' || tag_name == 'h2' || tag_name == 'h3' ||
@@ -427,6 +512,13 @@ with (FBL) {
 	    }
 	  },
 	  
+/**
+ * @function hasChildElements
+ * 
+ * @desc
+ * 
+ * @param element
+ */
 	  hasChildElements: function(element){
 		if (typeof element.has_element_children === 'undefined') { 
 		  

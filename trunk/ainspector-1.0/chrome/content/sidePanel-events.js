@@ -140,7 +140,18 @@ FBL.ns(function() { with (FBL) {
       */
      rebuild: function(resultArray){
        this.panelNode.id = "ainspector-side-panel";
-	   attributesTemplate.tag.replace({object: resultArray}, this.panelNode);
+       FBTrace.sysout("resultArray: ", resultArray);
+       var flag = true;
+   	   for(var i in resultArray){ if(resultArray.hasOwnProperty(i)){flag = false;}}
+       FBTrace.sysout("flag: "+ flag);
+
+   	   if (flag) {
+   	       FBTrace.sysout("flag: "+ flag);
+
+    	   emptyTemplate.tag.replace({object: resultArray}, this.panelNode);
+       } else {
+    	   attributesTemplate.tag.replace({object: resultArray}, this.panelNode);    	    
+       }
      }
    });
   
@@ -166,7 +177,24 @@ FBL.ns(function() { with (FBL) {
 	        ) //end TBODY  
 	      )
 	  });
-  
+  var emptyTemplate = domplate(BaseRep, {
+	    
+	    tag:
+	      TABLE({class: "ai-sidepanel-table", cellpadding: 0, cellspacing: 0, role: "treegrid"},
+	        THEAD(
+	          TR({class: "gridHeaderRow gridRow", id: "rulesTableHeader", "role": "row", tabindex: "0"},
+	            TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, "Events"),
+	            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, "Value"),
+	            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, "Descritpion")
+	          )
+	        ),  
+	        TBODY(
+	            TR({class: "tableRow a11yFocus", role: "row"},
+	              TD(DIV({class: "gridLabel"},"none"))
+	            ) //end TR
+	        ) //end TBODY  
+	      )
+	  });
   var BaseRep = domplate(Firebug.Rep, {
 	    
 	    /**

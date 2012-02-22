@@ -29,8 +29,10 @@ FBL.ns(function() { with (FBL) {
 	 * 
 	 */
 	watchWindow : function(context, win){
-	  FBTrace.sysout("watchWindow: ");	
+	  FBTrace.sysout("watchWindow: ", win);
+	  FBTrace.sysout("watchWindow: ", win.top);
 	  if (win == win.top) {
+		FBTrace.sysout("watchWindow: in if");  
 		context.window.addEventListener("load", this.ainspectorOnLoad, false);
 		context.window.addEventListener("beforeunload", this.ainspectorOnUnload, false);
 		context.window.addEventListener("DOMContentLoaded", this.ainspectorOnDOMContentLoaded, false);

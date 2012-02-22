@@ -275,7 +275,8 @@ AINSPECTOR_FB.headLandmarkView.headingsTreeTemplate = domplate({
 		TR({class: "gridHeaderRow a11yFocus", id: "tableTableHeader", role: "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow"},
 		  TH({class: "gridHeaderCell gridCell", id: "headEleCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Element")),
 		  TH({class: "gridHeaderCell gridCell", id: "headRoleCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Role/Level")),
-		  TH({class: "gridHeaderCell gridCell", id: "headNameCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Name"))
+		  TH({class: "gridHeaderCell gridCell", id: "headNameCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Name")),
+		  TH({class: "gridHeaderCell gridCell", id: "headNameCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Accessibility Summary"))
 		) //end TR
 	  ), //end THEAD
 	  TBODY(
@@ -291,10 +292,20 @@ AINSPECTOR_FB.headLandmarkView.headingsTreeTemplate = domplate({
 		),
 		TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
 		 "$member.role_level"),
-		TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.text")
+		TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.text"),
+		TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
+		  TAG("$member.sevTag", {'member' :"$member", 'object': "$member.value"}))
+		     
 	),
 
 	strTag : DIV({class: "treeLabel"},"$member.name"),
+	strTagPass : DIV({class: "passMsgTxt"}, "$member.acc_summary"),
+    strTagViolation : DIV({class: "violationMsgTxt"}, "$member.acc_summary"),
+    strTagManual : DIV({class: "manualMsgTxt"}, "$member.acc_summary"),
+    strTagHidden : DIV({class: "hiddenMsgTxt"}, "$member.acc_summary"),
+    strTagRecommendation : DIV({class: "recommendationMsgTxt"}, "$member.acc_summary"),
+    strTagInfo : DIV({class: "infoMsgTxt"}, "$member.acc_summary"),
+    strTagWarn : DIV({class: "warnMsgTxt"}, "$member.acc_summary"),
 
 	loop:
 	  FOR("member", "$members", TAG("$row", {member: "$member"})),
@@ -547,6 +558,8 @@ getMembers: function(object, level) {
  */
 createMember: function(name, value, level)  {
 	//  FBTrace.sysout(' createMember : ', value);
+    var acc = value.dom_element.getAccessibility();
+
 	return {
 	  name: value.dom_element.tag_name, //name,
 	  role_level: (value.dom_element.role) ? value.dom_element.role : value.level,
@@ -557,9 +570,25 @@ createMember: function(name, value, level)  {
 	  label: (value.dom_element.children != null) ? "" : value,
 	  level: level,
 	  indent: level*2,
-	  tag: this.strTag
+	  tag: this.strTag,
+	  acc_summary: acc.label,
+      sevTag: this.getAccessibility(value)
 	};
 },
+
+getAccessibility : function(object){
+	var severity =  object.dom_element.getAccessibility().label;
+	var styleSeverityTag;
+	if (severity == "Pass")  styleSeverityTag = this.strTagPass;
+	if (severity == "Violation") styleSeverityTag = this.strTagViolation;
+	if (severity == "Manual Check") styleSeverityTag = this.strTagManual;
+	if (severity == "Hidden") styleSeverityTag = this.strTagHidden;
+	if (severity == "Recommendation") styleSeverityTag = this.strTagRecommendation;
+	if (severity == "Information") styleSeverityTag = this.strTagInfo;
+	if (severity == "Warning") styleSeverityTag = this.strTagWarn;
+	
+	return styleSeverityTag;
+  },
 
 /**
  * @function getChildrenEle
@@ -632,26 +661,27 @@ AINSPECTOR_FB.headLandmarkView.landmarksTemplate = domplate({
 	  TABLE({class: "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "", role: "treegrid", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressTable"},
       THEAD(
         TR({class: "gridHeaderRow gridRow", id: "imgTableHeader", role: "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader"},
-            TH({class: "gridHeaderCell gridCell", id: "lmOrderHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Order")),
             TH({class: "gridHeaderCell gridCell", id: "lmElementHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Element")),
             TH({class: "gridHeaderCell gridCell", id: "lmRoleHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Role")),
-            TH({class: "gridHeaderCell gridCell", id: "lmNameHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Name"))
+            TH({class: "gridHeaderCell gridCell", id: "lmNameHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Name")),
+            TH({class: "gridHeaderCell gridCell", id: "lmOrderHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Accessibility Summary"))
+
         ) //end TR
       ), //end THEAD
       TBODY(
         FOR("object", "$landmark_elements",
           TR({class: "tableRow  gridRow", role: "row", id: "$object.cache_id", _repObject:"$object", onclick: "$onClickRow", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
-            TD({class: "imgOrderCol gridCell gridCol", id:"imgOrderCol" , role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
-              DIV({class: "gridContent", _repObject:"$object"}, "$object.document_order")
-            ),
             TD({class: "imgEleCol gridCell gridCol ",  id:"imgSrcCol", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
               DIV({class: "gridContent", _repObject:"$object"}, "$object.dom_element.tag_name")
             ),
             TD({class: "imgTextCol gridCell gridCol ",  id:"imgSrcCol", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
               DIV({class: "gridContent", _repObject:"$object"}, "$object.dom_element.role")
             ),
+            TD({class: "imgOrderCol gridCell gridCol", id:"imgOrderCol" , role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+              DIV({class: "gridContent", _repObject:"$object"}, "$object.name")
+            ),
             TD({class: "imgSourceCol gridCell gridCol ", id: "imgTextCol", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
-              DIV({class: "gridContent", _repObject:"$object", title: "$object.source"}, "$object.name")
+              DIV({class: "gridContent", _repObject:"$object", title: "$object.source"}, TAG("$object|getAccessibility", {'object': '$object'}))
             )
           )//end TR   
         ) //end FOR
@@ -671,6 +701,34 @@ AINSPECTOR_FB.headLandmarkView.landmarksTemplate = domplate({
 	    panel.selection = Firebug.getRepObject(event.target);
 	    FBTrace.sysout("panel: zupzupzupz", panel);
 	    AINSPECTOR_FB.flatListTemplateUtil.highlightRow(event);
+    },
+    
+    strTagPass : DIV({class: "passMsgTxt"}, "$object|getSummary"),
+    strTagViolation : DIV({class: "violationMsgTxt"}, "$object|getSummary"),
+    strTagManual : DIV({class: "manualMsgTxt"}, "$object|getSummary"),
+    strTagHidden : DIV({class: "hiddenMsgTxt"}, "$object|getSummary"),
+    strTagRecommendation : DIV({class: "recommendationMsgTxt"}, "$object|getSummary"),
+    strTagInfo : DIV({class: "infoMsgTxt"}, "$object|getSummary"),
+    strTagWarn : DIV({class: "warnMsgTxt"}, "$object|getSummary"),
+    
+    getAccessibility : function(object){
+	  
+	  var severity =  object.dom_element.getAccessibility().label;
+	  var styleSeverityTag;
+	  
+	  if (severity == "Pass")  styleSeverityTag = this.strTagPass;
+	  else if (severity == "Violation") styleSeverityTag = this.strTagViolation;
+	  else if (severity == "Manual Check") styleSeverityTag = this.strTagManual;
+	  else if (severity == "Hidden") styleSeverityTag = this.strTagHidden;
+	  else if (severity == "Recommendation") styleSeverityTag = this.strTagRecommendation;
+	  else if (severity == "Information") styleSeverityTag = this.strTagInfo;
+	  else styleSeverityTag = this.strTagWarn;
+
+	  return styleSeverityTag;
+    },
+  
+    getSummary : function(object){
+	  return object.dom_element.getAccessibility().label;
     }
   });
 
@@ -692,27 +750,59 @@ AINSPECTOR_FB.headLandmarkView.headingsTemplate = domplate({
 	  TABLE({class: "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "", role: "treegrid", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressTable"},
       THEAD(
         TR({class: "gridHeaderRow gridRow", id: "imgTableHeader", role: "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader"},
-            TH({class: "gridHeaderCell gridCell", id: "headOrderHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Order")),
+            TH({class: "gridHeaderCell gridCell", id: "headOrderHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Element")),
             TH({class: "gridHeaderCell gridCell", id: "headLevelHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Level")),
-            TH({class: "gridHeaderCell gridCell", id: "headNameHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Name"))
+            TH({class: "gridHeaderCell gridCell", id: "headNameHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Name")),
+            TH({class: "gridHeaderCell gridCell", id: "headNameHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Accessibility Summary"))
         ) //end TR
       ), //end THEAD
       TBODY(
         FOR("object", "$heading_elements",
           TR({class: "tableRow  gridRow", role: "row", id: "$object.cache_id", _repObject:"$object", onclick: "$AINSPECTOR_FB.headLandmarkView.landmarksTemplate.onClickRow", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
             TD({class: "imgOrderCol gridCell gridCol", id:"imgOrderCol" , role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
-              DIV({class: "gridContent", _repObject:"$object"}, "$object.document_order")
+              DIV({class: "gridContent", _repObject:"$object"}, "$object.dom_element.tag_name")
             ),
             TD({class: "imgEleCol gridCell gridCol ",  id:"imgSrcCol", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
               DIV({class: "gridContent", _repObject:"$object"}, "$object.level")
             ),
             TD({class: "imgSourceCol gridCell gridCol ", id: "imgTextCol", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
               DIV({class: "gridContent", _repObject:"$object", title: "$object.source"}, "$object.name")
+            ),
+            TD({class: "imgSourceCol gridCell gridCol ", id: "imgTextCol", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+              DIV({class: "gridContent", _repObject:"$object", title: "$object.source"}, TAG("$object|getAccessibility", {'object': '$object'}))
             )
           )//end TR   
         ) //end FOR
       )// end TBODY
-    ) // end inner TABLE
+    ), // end inner TABLE
+    
+    strTagPass : DIV({class: "passMsgTxt"}, "$object|getSummary"),
+    strTagViolation : DIV({class: "violationMsgTxt"}, "$object|getSummary"),
+    strTagManual : DIV({class: "manualMsgTxt"}, "$object|getSummary"),
+    strTagHidden : DIV({class: "hiddenMsgTxt"}, "$object|getSummary"),
+    strTagRecommendation : DIV({class: "recommendationMsgTxt"}, "$object|getSummary"),
+    strTagInfo : DIV({class: "infoMsgTxt"}, "$object|getSummary"),
+    strTagWarn : DIV({class: "warnMsgTxt"}, "$object|getSummary"),
+    
+    getAccessibility : function(object){
+	  
+	  var severity =  object.dom_element.getAccessibility().label;
+	  var styleSeverityTag;
+	  
+	  if (severity == "Pass")  styleSeverityTag = this.strTagPass;
+	  else if (severity == "Violation") styleSeverityTag = this.strTagViolation;
+	  else if (severity == "Manual Check") styleSeverityTag = this.strTagManual;
+	  else if (severity == "Hidden") styleSeverityTag = this.strTagHidden;
+	  else if (severity == "Recommendation") styleSeverityTag = this.strTagRecommendation;
+	  else if (severity == "Information") styleSeverityTag = this.strTagInfo;
+	  else styleSeverityTag = this.strTagWarn;
+
+	  return styleSeverityTag;
+    },
+  
+    getSummary : function(object){
+	  return object.dom_element.getAccessibility().label;
+    }
   });
 }
 

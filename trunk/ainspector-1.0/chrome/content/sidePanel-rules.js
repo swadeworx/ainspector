@@ -70,7 +70,7 @@ FBL.ns(function() { with (FBL) {
       */
      onKeyPress: function(event) {
    
-	   FBTrace.sysout("Inside rulesSidePanel-onKeyPress", event);
+	   FBTrace.sysout("Inside rulesSidePanel-onKeyPress********************************", event);
        var current_row;
        var next_row;
        var previous_row;
@@ -78,19 +78,25 @@ FBL.ns(function() { with (FBL) {
        var next_cell;
        
 	   if (event.keyCode == KeyEvent.DOM_VK_UP) {
-		 current_row = getAncestorByClass(event.target, "tableRow");
-    	 FBTrace.sysout("up..." , current_row);
-    	 previous_row = current_row.previousSibling;
+		 //current_row = getAncestorByClass(event.target, "tableRow");
+    	 //FBTrace.sysout("up..." , current_row);
+    	 previous_row = findPrevious(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow); //current_row.previousSibling;
     	 FBTrace.sysout("previous_row" , previous_row);
     	 result = previous_row.repObject.dom_element;
-         rule_result_array = this.getRuleResults(result);
+         rule_result_array = this.showOnRulesTabSelect(result);
          if (rule_result_array.length > 0) this.rebuild(rule_result_array);
       
 	   } else if (event.keyCode == KeyEvent.DOM_VK_DOWN) {
+		 FBTrace.sysout("............................next_row......................................");
     	 current_row = getAncestorByClass(event.target, "tableRow");
+    	 FBTrace.sysout("current_row" , current_row);
+
     	 next_row = current_row.nextSibling;
+    	 //next_row = findNext(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow, true);
+    	 FBTrace.sysout("next_row" , next_row);
+
     	 result = next_row.repObject.dom_element;
-         rule_result_array = this.getRuleResults(result);
+         rule_result_array = this.showOnRulesTabSelect(result);
        
          if (rule_result_array.length > 0) this.rebuild(rule_result_array);
        
@@ -347,6 +353,7 @@ FBL.ns(function() { with (FBL) {
       */
      rebuild: function(resultArray){
        this.panelNode.id = "ainspector-side-panel";
+       FBTrace.sysout("resultArray: ", resultArray);
 	   rulesTemplate.tag.replace({object: resultArray}, this.panelNode);
      },
    
@@ -431,22 +438,50 @@ FBL.ns(function() { with (FBL) {
     tag:
       TABLE({class: "ai-sidepanel-table", cellpadding: 0, cellspacing: 0, role: "treegrid"},
         THEAD(
-          TR({class: "gridHeaderRow gridRow", id: "rulesTableHeader", "role": "row", tabindex: "0"},
+          TR({class: "gridHeaderRow gridRow", id: "rulesTableHeader", role: "row", tabindex: "0"},
             TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, "Results"),
             TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, "Message")
           )
         ),  
         TBODY(
           FOR("obj", "$object",
-            TR({class: "tableRow a11yFocus", role: "row"},
-              TD({class: "resultsCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridLabel"},"$obj.label")),
-              TD({class: "messagesCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridLabel"},"$obj.description"))
+            TR({class: "tableRow gridRow", role: "row"},
+              TD({class: "resultsCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, 
+            	DIV({class: "gridContent"}, TAG("$obj|getAccessibility", {'object': '$obj'}))),
+              TD({class: "messagesCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, 
+            	DIV({class: "gridContent"},"$obj.description"))
             ) //end TR
           ) 
         ) //end TBODY  
-      )
-  });
+      ),
+      
+      strTagPass : DIV({class: "passMsgTxt"}, "$object|getSeverity"),
+      strTagViolation : DIV({class: "violationMsgTxt"}, "$object|getSeverity"),
+      strTagManual : DIV({class: "manualMsgTxt"}, "$object|getSeverity"),
+      strTagHidden : DIV({class: "hiddenMsgTxt"}, "$object|getSeverity"),
+      strTagRecommendation : DIV({class: "recommendationMsgTxt"}, "$object|getSeverity"),
+      strTagInfo : DIV({class: "infoMsgTxt"}, "$object|getSeverity"),
+      strTagWarn : DIV({class: "warnMsgTxt"}, "$object|getSeverity"),
+      
+      getAccessibility : function(object){
+  	    var severity =  object.label;
+		var styleSeverityTag;
+		if (severity == "Pass")  styleSeverityTag = this.strTagPass;
+		if (severity == "Violation") styleSeverityTag = this.strTagViolation;
+		if (severity == "Manual Check") styleSeverityTag = this.strTagManual;
+		if (severity == "Hidden") styleSeverityTag = this.strTagHidden;
+		if (severity == "Recommendation") styleSeverityTag = this.strTagRecommendation;
+		if (severity == "Information") styleSeverityTag = this.strTagInfo;
+		if (severity == "Warning") styleSeverityTag = this.strTagWarn;
 
+		return styleSeverityTag;
+    },
+    
+    getSeverity : function(object){
+  	  return object.label;
+    }
+  });
+  
   Firebug.registerPanel(rulesSidePanel);
 
 }});
