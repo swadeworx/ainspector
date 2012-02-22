@@ -589,6 +589,25 @@ FBL.ns(function() {with (FBL) {
     	}
       }
       return k;
+    },
+    
+    /**
+     * @function 
+     * 
+     * @desc
+     * 
+     * @param {}
+     * @param {}
+     * 
+     * @return
+     */
+     findNextRow: function(node, class_name){
+      
+      FBTrace.sysout("node: ", node);
+      FBTrace.sysout("class_name: ", class_name);
+      var table = getAncestorByClass(node, "ai-table-list-items");
+      FBTrace.sysout("table: ", table);
+
     }
   };
   
@@ -646,7 +665,7 @@ FBL.ns(function() {with (FBL) {
         elem.setAttribute("tabindex", "0");
         setClass(elem, "selected");
         var currentView = panel;
-        showOnSelectButton();
+        //showOnSelectButton();
         
       }
     },
@@ -708,6 +727,9 @@ FBL.ns(function() {with (FBL) {
           event.preventDefault();
           
           break;
+          
+        case KeyEvent.DOM_VK_TAB:
+        	FBTrace.sysout("event: ", event);
         } //end switch
         //return tabs[newIndex];
       },
@@ -881,15 +903,22 @@ FBL.ns(function() {with (FBL) {
 		  
 	    case 38: //up
 		  var row = findPrevious(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow);
-		  if (row) row.focus();
+		  if (row) {
+		    row.focus();
+		    AINSPECTOR_FB.flatListTemplateUtil.highlightRow(event, row);
+		  }
 		  break;
 		case 39: //right
 		  var cell = AINSPECTOR_FB.ainspectorUtil.getChildByClass(event.target, "gridCell");
 		  if (cell) cell.focus();
 		  break;
 		case 40: //down
-		  var row = findNext(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow);
-		  if (row) row.focus();
+		  var row = findNext(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow, true);
+		  FBTrace.sysout("row: ", row);
+		  if (row) {
+		    row.focus();
+		    AINSPECTOR_FB.flatListTemplateUtil.highlightRow(event, row);
+		  }
 		  break;
 	  }
     },
@@ -1067,6 +1096,8 @@ FBL.ns(function() {with (FBL) {
       var tbody = table.children[1]; //nomber of rows in a table
       var row;
       var cell;
+      FBTrace.sysout("table: ", table);
+      FBTrace.sysout("current_row: ", current_row);
 
       if (!current_row) { //to highlight header cells
     	current_row =  getAncestorByClass(event.target, "gridHeaderRow");
@@ -1093,17 +1124,27 @@ FBL.ns(function() {with (FBL) {
     	  if (count >= no_of_cells) break;
         }
         if (count >= no_of_cells) {
+          FBTrace.sysout("gridRowSelected is removed from", row);	
     	  AINSPECTOR_FB.ainspectorUtil.removeClass(row, "gridRowSelected");
+    	  if (event.keyCode == 38 || event.keyCode == 37) {
+        	  current_row = tbody.children[i-1]; 
+              FBTrace.sysout("keycode==38", current_row);	
+
+          } else if (event.keyCode == 40 || event.keyCode == 39){
+        	  current_row = tbody.children[i+1]; 
+              FBTrace.sysout("keycode==40", current_row);	
+
+          }
     	  break;
     	}
         
       }
-      AINSPECTOR_FB.ainspectorUtil.setClass(current_row, "gridRowSelected");
-
-      for (var c=0; c< current_row.children.length; c++) {
-    	AINSPECTOR_FB.ainspectorUtil.setClass(current_row.children[c], "gridCellSelected");
-      }
       
+        AINSPECTOR_FB.ainspectorUtil.setClass(current_row, "gridRowSelected");
+
+        for (var c=0; c< current_row.children.length; c++) {
+    	  AINSPECTOR_FB.ainspectorUtil.setClass(current_row.children[c], "gridCellSelected");
+        }
     },
     
     /**

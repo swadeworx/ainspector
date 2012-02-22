@@ -71,9 +71,11 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
 	      TR({class: "gridHeaderRow a11yFocus", id: "tableTableHeader", "role": "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow"},
 	        TH({class: "gridHeaderCell gridCell", id: "colConEleCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Elements")),
 	        TH({class: "gridHeaderCell gridCell", id: "colConColorCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Color")),
-	        TH({class: "gridHeaderCell gridCell", id: "colConBgCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Background")),
+	        TH({class: "gridHeaderCell gridCell", id: "colConBgCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "BG Color")),
+	        TH({class: "gridHeaderCell gridCell", id: "colConBgiCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Large")),
+	        TH({class: "gridHeaderCell gridCell", id: "colConBgiCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "BG Img")),
 	        TH({class: "gridHeaderCell gridCell", id: "colConCCRCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "CCR")),
-	        TH({class: "gridHeaderCell gridCell", id: "colConBgiCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "BG Image"))
+	        TH({class: "gridHeaderCell gridCell", id: "colConBgiCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Accessibility Summary"))
 	      ) //end TR
 	    ), //end THEAD
 	    TBODY(
@@ -89,9 +91,12 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
 		  ),
 		  TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.color"),
 		  TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.background_color"),
+		  TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.is_large_font"),
+		  TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.background_image"),
 		  TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.color_contrast_ratio"),
-		  TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.background_image")
-	    ),
+		  TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
+     		TAG("$member.sevTag", {'member' :"$member", 'object': "$member.value"}))
+ 	    ),
 	    
 	  childrow : 
 	    TR({class: "treeRow", _newObject: "$member", _repObject: "$member.value", 
@@ -101,13 +106,22 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
 	      ),
 	      TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.color"),
 	      TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.background_color"),
+	      TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.is_large_font"),
+	      TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.background_image"),
 	      TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.color_contrast_ratio"),
-	      TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.background_image")
+	      TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
+			TAG("$member.sevTag", {'member' :"$member", 'object': "$member.value"}))
+		  ),
     
-      ),
+      strTag : DIV({class: "treeLabel"},"$member.count"),
+      strTagPass : DIV({class: "passMsgTxt"}, "$member.acc_summary"),
+      strTagViolation : DIV({class: "violationMsgTxt"}, "$member.acc_summary"),
+      strTagManual : DIV({class: "manualMsgTxt"}, "$member.acc_summary"),
+      strTagHidden : DIV({class: "hiddenMsgTxt"}, "$member.acc_summary"),
+      strTagRecommendation : DIV({class: "recommendationMsgTxt"}, "$member.acc_summary"),
+      strTagInfo : DIV({class: "infoMsgTxt"}, "$member.acc_summary"),
+      strTagWarn : DIV({class: "warnMsgTxt"}, "$member.acc_summary"),
       
-      
-strTag : DIV({class: "treeLabel"},"$member.count"),
 	  loop:
 	    FOR("member", "$members", TAG("$childrow", {member: "$member"})),
 
@@ -152,7 +166,8 @@ strTag : DIV({class: "treeLabel"},"$member.count"),
 		  },
 
 	  createMember: function(name, value, level)  {
-	  //  FBTrace.sysout(' createMember : ', value);
+	    var cc_summary = value.getColorContrastSummary();
+	    FBTrace.sysout(' cc_summary : ', cc_summary);
 		if (level == 0) return {
 		  count: value.dom_elements.length,
 		  role_level: (value.dom_elements.role) ? value.dom_elements.role : value.level,
@@ -165,7 +180,10 @@ strTag : DIV({class: "treeLabel"},"$member.count"),
 	      value: (value != null) ? value : "",
 	      level: level,
 	      indent: level * 16,
-	      tag: this.strTag
+	      tag: this.strTag,
+	      is_large_font: value.is_large_font,
+	      acc_summary: cc_summary.label,
+	      sevTag: this.getAccessibility(value)
 	    };
 	    else return {
 	      color: value.color,
@@ -173,10 +191,27 @@ strTag : DIV({class: "treeLabel"},"$member.count"),
 		  color_contrast_ratio: value.color_contrast_ratio,
 	      background_image: value.background_image,
 	      tag_name: value.tag_name,
-      	      tag: this.strTag
+	      indent: level * 16,
+      	  tag: this.strTag,
+      	  is_large_font: value.is_large_font,
+	      acc_summary: cc_summary.label,
+	      sevTag: this.getAccessibility(value)
 	    };
 	  },
-
+	  
+	  getAccessibility : function(object){
+		var severity =  object.getColorContrastSummary().label;
+		var styleSeverityTag;
+		if (severity == "Pass")  styleSeverityTag = this.strTagPass;
+		if (severity == "Violation") styleSeverityTag = this.strTagViolation;
+		if (severity == "Manual Check") styleSeverityTag = this.strTagManual;
+		if (severity == "Hidden") styleSeverityTag = this.strTagHidden;
+		if (severity == "Recommendation") styleSeverityTag = this.strTagRecommendation;
+		if (severity == "Information") styleSeverityTag = this.strTagInfo;
+		if (severity == "Warning") styleSeverityTag = this.strTagWarn;
+		
+		return styleSeverityTag;
+	  },
 	  onKeyPressedTable: function(event) {
 		
 		switch(event.keyCode) {

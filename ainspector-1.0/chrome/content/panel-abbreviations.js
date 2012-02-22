@@ -251,7 +251,9 @@ with (FBL) {
           TR({class: "gridHeaderRow gridRow", id: "imgTableHeader", role: "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader"},
               TH({class: "gridHeaderCell gridCell", id: "imgElementHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Element")),
               TH({class: "gridHeaderCell gridCell", id: "imgOrderHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Language")),
-              TH({class: "gridHeaderCell gridCell", id: "imgOrderHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Text"))
+              TH({class: "gridHeaderCell gridCell", id: "imgOrderHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Text")),
+              TH({class: "gridHeaderCell gridCell", id: "imgOrderHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Accessibility Summary"))
+              
           ) //end TR
         ), //end THEAD
         TBODY(
@@ -265,11 +267,21 @@ with (FBL) {
               ),
               TD({class: "imgOrderCol gridCell gridCol", id:"imgOrderCol" , role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({class: "gridContent", _repObject:"$object"}, " ")
-              )
+              ),
+              TD({class: "imgOrderCol gridCell gridCol", id:"imgOrderCol" , role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+            	TAG("$object|getAccessibility", {'object': '$object'}))
             )//end TR   
           ) //end FOR
         )// end TBODY
       ), // end inner TABLE
+      
+      strTagPass : DIV({class: "passMsgTxt"}, "$object|getSummary"),
+      strTagViolation : DIV({class: "violationMsgTxt"}, "$object|getSummary"),
+      strTagManual : DIV({class: "manualMsgTxt"}, "$object|getSummary"),
+      strTagHidden : DIV({class: "hiddenMsgTxt"}, "$object|getSummary"),
+      strTagRecommendation : DIV({class: "recommendationMsgTxt"}, "$object|getSummary"),
+      strTagInfo : DIV({class: "infoMsgTxt"}, "$object|getSummary"),
+      strTagWarn : DIV({class: "warnMsgTxt"}, "$object|getSummary"),
       
       
       /**
@@ -284,7 +296,25 @@ with (FBL) {
     	  
   	    panel.selection = Firebug.getRepObject(event.target);
   	    AINSPECTOR_FB.flatListTemplateUtil.highlightRow(event);
-      }
+      },
+      
+      getAccessibility : function(object){
+      	var severity =  object.dom_element.getAccessibility().label;
+  		var styleSeverityTag;
+  		if (severity == "Pass")  styleSeverityTag = this.strTagPass;
+  		if (severity == "Violation") styleSeverityTag = this.strTagViolation;
+  		if (severity == "Manual Check") styleSeverityTag = this.strTagManual;
+  		if (severity == "Hidden") styleSeverityTag = this.strTagHidden;
+  		if (severity == "Recommendation") styleSeverityTag = this.strTagRecommendation;
+  		if (severity == "Information") styleSeverityTag = this.strTagInfo;
+  		if (severity == "Warning") styleSeverityTag = this.strTagWarn;
+
+  		return styleSeverityTag;
+        },
+        
+        getSummary : function(object){
+      	return object.dom_element.getAccessibility().label;
+        }
     });
   
   
@@ -304,7 +334,8 @@ with (FBL) {
 	      TR({class: "gridHeaderRow ", id: "imgTableHeader", role: "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader"},
 	        TH({class: "gridHeaderCell gridCell", id: "abbrEleCol"}, DIV({class: "gridHeaderCellBox"}, "Element")),
 	        TH({class: "gridHeaderCell gridCell", id: "abbrCol"}, DIV({class: "gridHeaderCellBox"}, "Abbreviation")),
-	        TH({class: "gridHeaderCell gridCell", id: "abbrTitleCol"}, DIV({class: "gridHeaderCellBox"}, "Title"))
+	        TH({class: "gridHeaderCell gridCell", id: "abbrTitleCol"}, DIV({class: "gridHeaderCellBox"}, "Title")),
+            TH({class: "gridHeaderCell gridCell", id: "imgOrderHeaderCol"}, DIV({class: "gridHeaderCellBox"}, "Accessibility Summary"))
 	      ) //end TR
 		), //end THEAD
 		TBODY(
@@ -332,10 +363,19 @@ with (FBL) {
 		TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
 		  "$member.abbreviation_text|getValue"
 		),
-		TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.title")
+		TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.title"),
+		TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
+		  TAG("$member.sevTag", {'member' :"$member", 'object': "$member.value"}))
 	  ),
 	  
-	strTag : DIV({class: "treeLabel"},"$member.length"),  
+	strTag : DIV({class: "treeLabel"},"$member.length"), 
+	strTagPass : DIV({class: "passMsgTxt"}, "$member.acc_summary"),
+    strTagViolation : DIV({class: "violationMsgTxt"}, "$member.acc_summary"),
+    strTagManual : DIV({class: "manualMsgTxt"}, "$member.acc_summary"),
+    strTagHidden : DIV({class: "hiddenMsgTxt"}, "$member.acc_summary"),
+    strTagRecommendation : DIV({class: "recommendationMsgTxt"}, "$member.acc_summary"),
+    strTagInfo : DIV({class: "infoMsgTxt"}, "$member.acc_summary"),
+    strTagWarn : DIV({class: "warnMsgTxt"}, "$member.acc_summary"),
 
 	loop:
 	  FOR("member", "$members", TAG("$childrow", {member: "$member"})),
@@ -394,7 +434,8 @@ with (FBL) {
 	 * @desc create an object of display properties to loop through the row and childrow constructors 
 	 */
 	createMember: function(name, value, level)  {
-	
+	  
+	   
 	  if (level == 0) {  
 		
 		return {
@@ -409,7 +450,7 @@ with (FBL) {
 		  tag: this.strTag
 		};
 	  } else {
-				
+		var acc = value.getAccessibility();		
 		return {
 		  tagname: value.tag_name, //name,
 	      //role_level: (value.dom_element.role) ? value.dom_element.role : value.level,
@@ -419,10 +460,27 @@ with (FBL) {
           level: level,
           indent: level * 16,
           title: value.title,
-	  tag: this.strTag
+	      tag: this.strTag,
+	      acc_summary: acc.label,
+	      sevTag: this.getAccessibility(value)
         };	
 	  }
 	},
+	
+	getAccessibility : function(object){
+		var severity =  object.getAccessibility().label;
+		FBTrace.sysout("severity: " + severity);
+		var styleSeverityTag;
+		if (severity == "Pass")  styleSeverityTag = this.strTagPass;
+		if (severity == "Violation") styleSeverityTag = this.strTagViolation;
+		if (severity == "Manual Check") styleSeverityTag = this.strTagManual;
+		if (severity == "Hidden") styleSeverityTag = this.strTagHidden;
+		if (severity == "Recommendation") styleSeverityTag = this.strTagRecommendation;
+		if (severity == "Information") styleSeverityTag = this.strTagInfo;
+		if (severity == "Warning") styleSeverityTag = this.strTagWarn;
+		
+		return styleSeverityTag;
+	  },
 	
 	/**
 	 * @function onClick
