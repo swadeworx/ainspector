@@ -1,8 +1,10 @@
-/* SMF A11y Grade screen */
 .domTable {
     width: 100%;
 }
 
+.treeRow .memberLabelCell {
+  text-align: left;
+}
 .treeRow.hasChildren .treeLabel {
     background-image:url(chrome://firebug/skin/twistyClosed.png);
     background-repeat:no-repeat;
@@ -24,20 +26,46 @@
     background-color: #121212;
 }
 
-.failMsgTxt:first-letter {color: red; font-size: large;}
-.warnMsgTxt:first-letter {color: orange; font-size: large;}
-.suggestionMsgTxt:first-letter {color: brown; font-size: large;}
-.passMsgTxt:first-letter {color: green; font-size: large;}
+.styleLabel {
+    font-style: italic;
+    font-size: 90%;
+    font-weight: normal;
+    color: gray;
+}
 
-.treeRow.hasChildren .treeLabel:hover, .treeRow.hasChildren .treeLabel:focus {
-    color: blue;
-    cursor: pointer;
-    text-decoration: underline;
+.violationMsgTxt {
+	 background-color: #b22222; 
+	 color: #FFFFFF;
+   width:50%;
+}
+.manualMsgTxt {
+	color: #b22222;
+}
+.hiddenMsgTxt {
+	 color: #333333; 
+	 font-size: small; 
+	 font-weight: bold;
+}
+.passMsgTxt {
+	color: green;
+}
+.recommendationMsgTxt {
+	 background-color: #DAA520;
+	 color: #ffffff;
+   font-weight: bold;
+   width:80%;
+}
+.warnMsgTxt {
+  background-color: #333333;
+  color: white;
+  font-weight: bold;
+  width:25%;
+}
+.infoMsgTxt {
+  color: purple;
 }
 
 table:focus, .treeLabelxx:focus, .treeRow:focus {
-    outline: 2px solid #FF9933;
-    -moz-outline-radius: 5px;    
 }
 
 /* END A11y Grade screen */

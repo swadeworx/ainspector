@@ -96,11 +96,14 @@ body {
 #ainspector-side-panel td.resultsCol {
   text-align: left;
   padding-left: 2em;
+  color: grey;
+  
 }
 
 #ainspector-side-panel td.messagesCol {
   text-align: left; 
   padding-left: 5em;
+  color: grey;
 }
 
 #ainspector-side-panel tr.gridHeaderRow {
