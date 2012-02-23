@@ -167,7 +167,6 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
 
 	  createMember: function(name, value, level)  {
 	    var cc_summary = value.getColorContrastSummary();
-	    FBTrace.sysout(' cc_summary : ', cc_summary);
 		if (level == 0) return {
 		  count: value.dom_elements.length,
 		  role_level: (value.dom_elements.role) ? value.dom_elements.role : value.level,

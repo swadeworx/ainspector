@@ -184,6 +184,27 @@ with (FBL) {
       },
 
     
-    viewContainer : DIV({style : "display:none"})
+    viewContainer : DIV({style : "display:none"}),
+    
+    emptyTemplate = domplate({
+        tag:
+          TABLE({class: "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "", role: "treegrid"},
+            THEAD(
+              TR({class: "gridHeaderRow gridRow", role: "row", tabindex: "0"},		
+                FOR("header", "$header_elements",
+                  TH({class: "gridHeaderCell gridCell", role: "columnheader"}, DIV({class: "gridHeaderCellBox"}, "$header")),
+                )
+              )
+            ),
+            TBODY (
+              TR({class: "tableRow a11yFocus", role: "row"},
+    	        TD(DIV({class: "gridLabel"},"none"))
+              ) //end TR
+            )
+          )
+          
+      });
   }
+  
+  
 }

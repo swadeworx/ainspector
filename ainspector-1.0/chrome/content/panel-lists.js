@@ -97,9 +97,9 @@ with (FBL) {
 
 	  var row;
       var child;
-      var tbody;
-      var node;
-
+      var tbody=null;
+      var node=null;
+var row = null;
 	if (table) {
 		row = getChildByClass(event.target.offsetParent, "tableRow");
 		tbody = table.children[1];
@@ -133,8 +133,8 @@ with (FBL) {
 		//row = getChildByClass(event.target.offsetParent, "treeRow");
 
 		var rows = table.rows;
-		tbody = table.children[0];
-
+		//tbody = table.children[0];
+        if (table.rows && table.rows.length > 0){
 		for (var i = 0; i < rows.length; i++) {
 			var flag = false;
 			var row = rows[i];//tbody.children[i];
@@ -152,8 +152,10 @@ with (FBL) {
 		}
 		FBTrace.sysout("node: ", node);
 		node = node.repObject.dom_element.node;
+	  } else {
+		node = event.target.offsetParent.ownerPanel.selection.dom_element.node;
+ 	  }    
 	}
-
 	var panel = Firebug.chrome.selectPanel("html");
 	panel.select(node);
 },

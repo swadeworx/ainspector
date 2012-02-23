@@ -150,6 +150,7 @@ FBL.ns(function() { with (FBL) {
 
     	   emptyTemplate.tag.replace({object: resultArray}, this.panelNode);
        } else {
+    	   
     	   attributesTemplate.tag.replace({object: resultArray}, this.panelNode);    	    
        }
      }
@@ -157,26 +158,31 @@ FBL.ns(function() { with (FBL) {
   
   var attributesTemplate = domplate(BaseRep, {
 	    
-	    tag:
-	      TABLE({class: "ai-sidepanel-table", cellpadding: 0, cellspacing: 0, role: "treegrid"},
-	        THEAD(
-	          TR({class: "gridHeaderRow gridRow", id: "rulesTableHeader", "role": "row", tabindex: "0"},
-	            TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, "Events"),
-	            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, "Value"),
-	            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, "Descritpion")
-	          )
-	        ),  
-	        TBODY(
-	          FOR("obj", "$object",
-	            TR({class: "tableRow a11yFocus", role: "row"},
-	              TD({class: "resultsCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridLabel"},"$obj.label")),
-	              TD({class: "messagesCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridLabel"},"$obj.value")),
-	              TD({class: "messagesCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridLabel"},"$obj.description"))
-	            ) //end TR
-	          ) 
-	        ) //end TBODY  
-	      )
-	  });
+    tag:
+      TABLE({class: "ai-sidepanel-table", cellpadding: 0, cellspacing: 0, role: "treegrid"},
+        THEAD(
+          TR({class: "gridHeaderRow gridRow", id: "rulesTableHeader", "role": "row", tabindex: "0"},
+            TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, "Events"),
+            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, "Value"),
+            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, "Descritpion")
+          )
+        ),  
+        TBODY(
+          FOR("obj", "$object",
+            TR({class: "tableRow a11yFocus", role: "row"},
+              TD({class: "resultsCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridLabel"},"$obj.label")),
+              TD({class: "messagesCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridLabel"},"$obj.value|getValue")),
+              TD({class: "messagesCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridLabel"},"$obj.description|getValue"))
+            ) //end TR
+          ) 
+        ) //end TBODY  
+      ),
+      
+      getValue : function(value){
+          if (value != undefined) return value;
+          else return "";
+      }
+  });
   var emptyTemplate = domplate(BaseRep, {
 	    
 	    tag:

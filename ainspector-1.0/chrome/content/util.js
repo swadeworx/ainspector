@@ -240,7 +240,18 @@ FBL.ns(function() {with (FBL) {
   
   AINSPECTOR_FB.ainspectorUtil = {
 	
-	loadCSSToStylePanel : function(document){
+	hasProperty : function(elements){
+	  var flag = true;
+	
+	  for(var key in elements) {
+        if (elements.hasOwnProperty(key)) {
+	      flag = false;
+	      break;
+	    }
+	  }
+	  return flag;
+    },
+    loadCSSToStylePanel : function(document){
 
 	  this.loadCSS("chrome://ainspector/content/css/ainspector-panel.css", document);
       this.loadCSS("chrome://ainspector/content/css/fonts-min.css", document);
@@ -1345,4 +1356,82 @@ FBL.ns(function() {with (FBL) {
 		    }
           };
 };
+
+AINSPECTOR_FB.event = {
+
+
+	    /**
+	     * Hash of subscribers where the key is the event name and the value is an array of callbacks-type objects
+	     * The callback objects have keys "callback" which is the function to be called and "that" which is the value
+	     * to be assigned to the "this" object when the function is called
+	     */
+	    subscribers: {},
+
+	    /**
+	     * Adds a new listener
+	     *
+	     * @param {String} event_name Name of the event
+	     * @param {Function} callback A function to be called when the event fires
+	     * @param {Object} that Object to be assigned to the "this" value of the callback function
+	     */
+	    addListener: function(event_name, callback, that) {
+	        if (typeof this.subscribers[event_name] === 'undefined') {
+	            this.subscribers[event_name] = [];
+	        }
+	        this.subscribers[event_name].push({callback: callback, that: that});
+	    },
+
+	    /**
+	     * Removes a listener
+	     *
+	     * @param {String} event_name Name of the event
+	     * @param {Function} callback The callback function that was added as a listener
+	     * @return {Boolean} TRUE is the listener was removed successfully, FALSE otherwise (for example in cases when the listener doesn't exist)
+	     */
+	    removeListener: function(event_name, callback) {
+	        var i;
+	        for (i in this.subscribers[event_name]) {
+	            if (this.subscribers[event_name][i].callback === callback) {
+	                this.subscribers[event_name].splice(i, 1);
+	                return true;
+	            }
+	        }
+	        return false;
+	    },
+
+	    /**
+	     * Fires the event
+	     *
+	     * @param {String} event_nama Name of the event
+	     * @param {Object} event_object Any object that will be passed to the subscribers, can be anything
+	     */
+	    fire: function(event_name, event_object) {
+	        var i, listener;
+
+	        if (typeof this.subscribers[event_name] === 'undefined') {
+	            return false;
+	        }
+
+	        for (i = 0; i < this.subscribers[event_name].length; i++) {
+	            listener = this.subscribers[event_name][i];
+	            listener.callback.call(listener.that, event_object);
+	        }
+	        return true;
+	    },
+	    dispatchMouseEvent : function (node, eventType, clientX, clientY, button) {
+	        if (!clientX)
+	            clientX = 0;
+	        if (!clientY)
+	            clientY = 0;
+	        if (!button)
+	            button = 0;
+	        if (typeof node == "string")
+	            node = $(node);
+	        var doc = node.ownerDocument;
+	        var event = doc.createEvent('MouseEvents');
+	        event.initMouseEvent(eventType, true, true, doc.defaultView,
+	            0, 0, 0, clientX, clientY, false, false, false, false, button, null);
+	        node.dispatchEvent(event);
+	    },
+	};
 });

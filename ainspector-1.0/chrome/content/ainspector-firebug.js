@@ -31,12 +31,11 @@ FBL.ns(function() { with (FBL) {
 	watchWindow : function(context, win){
 	  FBTrace.sysout("watchWindow: ", win);
 	  FBTrace.sysout("watchWindow: ", win.top);
-	  if (win == win.top) {
-		FBTrace.sysout("watchWindow: in if");  
+	  //if (win == win.top) {
 		context.window.addEventListener("load", this.ainspectorOnLoad, false);
 		context.window.addEventListener("beforeunload", this.ainspectorOnUnload, false);
 		context.window.addEventListener("DOMContentLoaded", this.ainspectorOnDOMContentLoaded, false);
-	  }	
+	  //}	
 	},
 	
 	/**
@@ -44,11 +43,11 @@ FBL.ns(function() { with (FBL) {
 	 */
 	unWatchWindow : function(context, win){
 	  FBTrace.sysout("watchWindow: ");	
-	  if (win == win.top) {
+	  //if (win == win.top) {
 		context.window.removeEventListener("load", this.ainspectorOnLoad, false);
 		context.window.removeEventListener("beforeunload", this.ainspectorOnUnload, false);
 		context.window.removeEventListener("DOMContentLoaded", this.ainspectorOnDOMContentLoaded, false);
-	  }	
+	  //}	
 	},
 	
 	/**
@@ -59,8 +58,8 @@ FBL.ns(function() { with (FBL) {
 	 * @param {Event} event
 	 */
 	ainspectorOnLoad : function(event){
-		
-	  var win = event.currentTarget;
+	  FBTrace.sysout("@@@@@@@@@@@@@@@@@@@ainspectorOnLoad @@@@@@@@@@@@@@");
+      var win = event.currentTarget;
 	  var firebug_context;
 	  
 	  if (win != Firebug.currentContext.window) {
@@ -68,9 +67,31 @@ FBL.ns(function() { with (FBL) {
 	  } else {
 		firebug_context = Firebug.currentContext;  
 	  }
-	  firebug_context.getPanel("AInspector");
+	 FBTrace.sysout("firebug_context: ", firebug_context);
+	 FBTrace.sysout("firebug_context buttons: ", firebug_context.browser.chrome.$("radio-toolbar"));
+	 var toolbarbuttons = firebug_context.browser.chrome.$("radio-toolbar").children;
+	 var toolbar_id = null;
+	 for (var i=0; i < toolbarbuttons.length; i=i+2){
+		if (toolbarbuttons[i].checked == true) {
+		  if (i != 0) toolbarbuttons[i].checked = false;
+		  toolbar_id = toolbarbuttons[i];
+		  break;
+		}
+	 }
+	 
+	 firebug_context.browser.chrome.$("radio-toolbar").children[0].checked = true;
+	 cache_object = AINSPECTOR_FB.cacheUtil.updateCache();
+	 /* var panel = firebug_context.getPanel("AInspector");
 	  cache_object = AINSPECTOR_FB.cacheUtil.updateCache();
-	  
+	  FBTrace.sysout("panel @@@@@@@@@@@@@@", panel);
+
+	  //var toolbarbutton = Firebug.currentContext.window.document.getElementById("ainspector_images_view_button");
+	  var toolbarbutton = panel.document.getElementById("ainspector_images_view_button");
+	  FBTrace.sysout("toolbarButton @@@@@@@@@@@@@@", toolbarbutton);
+	  if (toolbarbutton) toolbarbutton.checked = flag;
+	  */
+      AINSPECTOR_FB.event.fire('onload', {'window': win });
+
 	  AINSPECTOR_FB.equivalents.equivalentsView(firebug_context, panel_name, cache_object);
 	},
 	
@@ -82,7 +103,34 @@ FBL.ns(function() { with (FBL) {
 	 * @param {Event} event
 	 */
 	ainspectorOnUnLoad : function(event) {
+		/*var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+	      .getInterface(Components.interfaces.nsIWebNavigation)
+	      .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+	      .rootTreeItem
+	      .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+	      .getInterface(Components.interfaces.nsIDOMWindow);
+
+	    mainWindow.gBrowser.removeProgressListener(AINSPECTOR_FB.tabProgressListener);*/
 		
+		var win = event.currentTarget;
+        // fire onUnload event.
+        var fbcontext;
+        
+        if (win !== Firebug.currentContext.window) {
+            fbcontext = TabWatcher.getContextByWindow(win);
+        } else {
+            fbcontext = Firebug.currentContext;
+        }
+        AINSPECTOR_FB.event.fire('onUnload', {'window': win});
+        if (fbcontext !== Firebug.currentContext) {
+            return;
+        }
+        
+	},
+	
+	ainspectorOnDOMContentLoaded : function (event){
+		var win = event.currentTarget;
+        AINSPECTOR.util.event.fire('onDOMContentLoaded', {'window': win});
 	},
     
     /**
@@ -201,16 +249,20 @@ FBL.ns(function() { with (FBL) {
         clearNode(panel.panelNode);
         clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
       }
-        
-      var toolbar_buttons = [{name: "All", selected: true, first:true},
-                               {name: "Duplicate HREF"},
-                                {name: "Duplicate NAME"}, 
-                                {name: "AREA"}];
-        
+		FBTrace.sysout("inside links view1");
+		var toolbar_buttons = [{name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.all"), selected: true, first:true},
+		                                   {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.duplicateHref")}, 
+		                                   {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.duplicateName")},
+		                                   {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.area")}];
+      
+		FBTrace.sysout("inside links view3");
+
       AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
+		FBTrace.sysout("inside links view2");
 
       var toolbar = panel.document.createElement("div");
       toolbar.id = "toolbarDiv";
+      FBTrace.sysout("cache_object: links", cache_object);
       var links_cache = cache_object.dom_cache.links_cache;
       FBTrace.sysout("links cache: ", links_cache);
         
@@ -228,7 +280,7 @@ FBL.ns(function() { with (FBL) {
          	  
     	var panel = context.getPanel(panel_name, true);
 
-        /* Clear the panel before writing anything onto the report*/
+    	/* Clear the panel before writing anything onto the report*/
         if (panel) {
           clearNode(panel.panelNode);
           clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
@@ -340,10 +392,14 @@ FBL.ns(function() { with (FBL) {
     updateCache: function() {
 
       var ruleset_result_cache;
+      var doc;
+      var url;
       try { 
-        var doc = window.content.document;
+        doc = window.content.document;
+        url = window.content.location.href;
       } catch(e) {
-        var doc  = window.opener.parent.content.document;
+        doc  = window.opener.parent.content.document;
+        url = window.opener.parent.content.location.href;;
       } // end try
 
       /*cache_object = new OpenAjax.a11y.RulesetEvaluation();
@@ -358,7 +414,7 @@ FBL.ns(function() { with (FBL) {
       FBTrace.sysout("inside updateCache - ruleset : ", ruleset);
 
       if (ruleset) {
-    	ruleset_result_cache = ruleset.evaluate(doc.location.href, doc.title, doc, null, true);
+    	ruleset_result_cache = ruleset.evaluate(url, doc.title, doc, null, true);
         FBTrace.sysout("Ruleset results object for: " , ruleset_result_cache);
       }
       else {

@@ -120,7 +120,7 @@ AINSPECTOR_FB.elementsView.elementsToolbarPlate = domplate({
 
 			if (flag == true) break;
 		}
-		node = node.repObject.dom_element.node;
+		node = node.repObject.node;
 
 	} else {
 		table = getChildByClass(event.target.offsetParent, "domTable");

@@ -130,9 +130,11 @@ with (FBL) {
 		//row = getChildByClass(event.target.offsetParent, "treeRow");
 
 		var rows = table.rows;
-		tbody = table.children[0];
-
-		for (var i = 0; i < rows.length; i++) {
+		//tbody = table.children[0];
+		//If the same domplate is shared by two views, rows/children of the second view(in this case list and tree views)
+		//are not shown in the event. So, we take the dom_element from the selection object we set on the ownerPanel of event 
+		if (table.rows && table.rows.length > 0) {
+		  for (var i = 0; i < rows.length; i++) {
 			var flag = false;
 			var row = rows[i];//tbody.children[i];
 			node = row;
@@ -146,11 +148,14 @@ with (FBL) {
 			}//end for
 
 			if (flag == true) break;
-		}
-		FBTrace.sysout("node: ", node);
-		node = node.repObject.dom_element.node;
+	 	  }
+		  FBTrace.sysout("node: ", node);
+		  node = node.repObject.dom_element.node;
+	  
+	  } else {
+		node = event.target.offsetParent.ownerPanel.selection.dom_element.node;
+	  }
 	}
-
 	var panel = Firebug.chrome.selectPanel("html");
 	panel.select(node);
 },

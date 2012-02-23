@@ -183,7 +183,8 @@ with (FBL) {
     clearNode(panel.table);
     clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
     selected_toolbar_button = toolbar_button_id;
-    
+    FBTrace.sysout("toolbar_button_id href: " + toolbar_button_id);	
+
     if (toolbar_button_id == "All") {
         
       panel.table = AINSPECTOR_FB.links.allLinksTemplate.tableTag.append( {links: link_elements}, panel.panelNode, null);
@@ -191,17 +192,20 @@ with (FBL) {
       Firebug.currentContext.getPanel('Rules').sView(true, link_elements[0]);
      
     } else if (toolbar_button_id == "Duplicate HREF"){
+      FBTrace.sysout("toolbar_button_id href: " + toolbar_button_id);	
    	  var properties = ["Number", "HREF", "Name"];
       panel.table = AINSPECTOR_FB.links.duplicateNameOrHrefTemplate.tag.append( {object: duplicate_href_items, properties: properties}, panel.panelNode, AINSPECTOR_FB.links.duplicateNameOrHrefTemplate);
-      //AINSPECTOR_FB.equivalents.select(duplicate_href_items[0]);
+      AINSPECTOR_FB.equivalents.select(duplicate_href_items[0]);
       FBTrace.sysout("duplicate_href_items: ", duplicate_href_items[0]);
       Firebug.currentContext.getPanel('Rules').sView(true, duplicate_href_items[0]);
     } else if (toolbar_button_id == "Duplicate NAME") {
       var properties = ["Number", "Name", "HREF"];
       panel.table = AINSPECTOR_FB.links.duplicateNameOrHrefTemplate.tag.append( {object: duplicate_name_items, properties:properties}, panel.panelNode, AINSPECTOR_FB.links.duplicateNameOrHrefTemplate);
-      //AINSPECTOR_FB.equivalents.select(duplicate_name_items[0]);
+      AINSPECTOR_FB.equivalents.select(duplicate_name_items[0]);
   	  Firebug.currentContext.getPanel('Rules').sView(true, duplicate_name_items[0]);
-    } 
+    } else {
+    	
+    }
   },
 	    
   /**
@@ -215,6 +219,7 @@ with (FBL) {
 
 	 if (!elem) return;
      var category = getClassValue(elem, "toolbarButtonView");
+     FBTrace.sysout("category:" , category);
 
      if (category) {
        var tabList = getAncestorByClass(elem, "focusTabList");
@@ -235,7 +240,7 @@ with (FBL) {
        setClass(elem, "selected");
        var currentView = panel;
        FBTrace.sysout("panel in selectTab: ", panel);
-       //this.showOnSelectButton(category);
+       this.showOnSelectButton(category);
      }
    },
 	  
