@@ -64,7 +64,15 @@
 .infoMsgTxt {
   color: purple;
 }
-
+.violationRulesMsgTxt {
+  background-color: #b22222; 
+  color: #FFFFFF;
+}
+.recommendationRulesMsgTxt {
+   background-color: #DAA520;
+   color: #ffffff;
+   font-weight: bold;
+}
 table:focus, .treeLabelxx:focus, .treeRow:focus {
 }
 
