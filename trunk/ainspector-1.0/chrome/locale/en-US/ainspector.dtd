@@ -6,6 +6,6 @@
 <!ENTITY  ainspector.toolbarbutton.links.label          "Links">
 <!ENTITY  ainspector.toolbarbutton.lists.label          "Lists">
 <!ENTITY  ainspector.toolbarbutton.tables.label         "Tables">
-<!ENTITY  ainspector.toolbarbutton.abbr.label           "I18N/Abbrev">
+<!ENTITY  ainspector.toolbarbutton.abbr.label           "Abbrev/Lang">
 <!ENTITY  ainspector.toolbarbutton.elements.label       "All Elements">
 <!ENTITY  ainspector.toolbarbutton.navigation.label     "Navigation">
