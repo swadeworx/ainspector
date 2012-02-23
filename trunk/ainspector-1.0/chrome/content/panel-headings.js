@@ -102,7 +102,7 @@ AINSPECTOR_FB.headLandmarkView.headingsToolbarPlate = domplate({
 	if (table) {
 		row = getChildByClass(event.target.offsetParent, "tableRow");
 		tbody = table.children[1];
-
+		if (table.children.length > 0) {
 		for (var i = 0; i < tbody.children.length; i++) {
 			var flag = false;
 			var row = tbody.children[i];
@@ -125,14 +125,23 @@ AINSPECTOR_FB.headLandmarkView.headingsToolbarPlate = domplate({
 			if (flag == true) break;
 		}
 		node = node.repObject.dom_element.node;
+		} else {
+			node = event.target.offsetParent.ownerPanel.selection.dom_element.node;
+		}
 
 	} else {
-		FBTrace.sysout("zip event", event);
+		FBTrace.sysout("event toHtmlPanel", event);
 		table = getChildByClass(event.target.offsetParent, "domTable");
 		//row = getChildByClass(event.target.offsetParent, "treeRow");
+		FBTrace.sysout("table: ", table);
+		
+		//If the same domplate is shared by two views, rows/children of the second view(in this case list and tree views)
+		//are not shown in the event. So, we take the dom_element from the selection object we set on the ownerPanel of event
+		if (table.rows && table.rows.length != 0) {
+			FBTrace.sysout("table.rows ", table.rows);
 
 		var rows = table.rows;
-		tbody = table.children[0];
+		//tbody = table.children[0];
 
 		for (var i = 0; i < rows.length; i++) {
 			var flag = false;
@@ -151,6 +160,9 @@ AINSPECTOR_FB.headLandmarkView.headingsToolbarPlate = domplate({
 		}
 		FBTrace.sysout("node: ", node);
 		node = node.repObject.dom_element.node;
+		} else {
+		  node = event.target.offsetParent.ownerPanel.selection.dom_element.node;	
+		}
 	}
 
 	var panel = Firebug.chrome.selectPanel("html");
@@ -167,7 +179,7 @@ AINSPECTOR_FB.headLandmarkView.headingsToolbarPlate = domplate({
  */
 onClickToolbarButton : function(event) {
 	var toolbar_button = event.currentTarget.id;
-	this.showOnSelectButton(toolbar_button);
+	//this.showOnSelectButton(toolbar_button);
 },
 
 /**
@@ -243,7 +255,7 @@ selectTab : function(elem) {
 		elem.setAttribute("tabindex", "0");
 		setClass(elem, "selected");
 		var currentView = panel;
-		// this.showOnSelectButton(category);
+		this.showOnSelectButton(category);
 	}
 },
 

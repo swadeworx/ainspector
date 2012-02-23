@@ -114,22 +114,29 @@ with (FBL) {
 	if (table) {
 	  row = getChildByClass(event.target.offsetParent, "tableRow");
 	  FBTrace.sysout("row: ", row);
-	  tbody = table.nextSibling.children[1];
-      var rows = tbody.children;
-      FBTrace.sysout("rows: ", rows);
-	  for (var i = 0; i < rows.length; i++) {
-        var flag = false;
-        row = rows[i];
-        node = row;
-        for (var j=0; j<row.classList.length;j++) {
-          if (row.classList[j] ==  "gridRowSelected") {
-            flag = true;
-            break;
-          }//end if
-        }//end for
-        if (flag == true) break;
-      }
-      node = node.repObject.dom_element.node;
+	  if (table.nextSibling && table.nextSibling.children.length > 0) { 
+	    tbody = table.nextSibling.children[1];
+	    var rows = tbody.children;
+	    FBTrace.sysout("rows: ", rows);
+		for (var i = 0; i < rows.length; i++) {
+	      var flag = false;
+	      row = rows[i];
+	      node = row;
+	    
+	      for (var j=0; j<row.classList.length;j++) {
+	      
+	    	if (row.classList[j] ==  "gridRowSelected") {
+	          flag = true;
+	          break;
+	        }//end if
+	      }//end for
+	      if (flag == true) break;
+	    }
+	    node = node.repObject.dom_element.node;
+
+	  }else {
+		  node = event.target.offsetParent.ownerPanel.selection.dom_element.node;
+	  }
 	} else {
 		FBTrace.sysout("zip event", event);
 		table = getChildByClass(event.target.offsetParent, "domTable");
@@ -169,7 +176,7 @@ with (FBL) {
      */
     onClick : function(event) {
       var toolbar_button = event.currentTarget.id;
-      this.showOnSelectButton(toolbar_button);
+     //this.showOnSelectButton(toolbar_button);
     },
 
     /**

@@ -121,7 +121,7 @@ with (FBL) {
 		//row = getChildByClass(event.target.offsetParent, "treeRow");
 
 		var rows = table.rows;
-		tbody = table.children[2];
+		tbody = table.children[0];
 
 		for (var i = 0; i < rows.length; i++) {
 			var flag = false;

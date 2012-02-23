@@ -26,12 +26,11 @@ AINSPECTOR_FB.equivalents = {
 	  FBTrace.sysout("xxxxxxxxxxxxequivalents viewxxxxxxxxxxxxxxxx");
 
 	  if (!panel_name) panel_name = "AInspector";
-	  if (cache_object)
-	    FBTrace.sysout("cache_object: ", cache_object);
-	  if (!cache_object) cache_object = AINSPECTOR_FB.cacheUtil.updateCache();
+	  if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
 	  
+	  FBTrace.sysout("cache_object: ", cache_object);
+
 	  panel = context.getPanel(panel_name, true);
-	  FBTrace.sysout("equivalentsView: ", cache_object);
 
       /* Clear the panel before writing anything onto the report*/
       if (panel) {
@@ -41,21 +40,16 @@ AINSPECTOR_FB.equivalents = {
 
       var toolbar_buttons = [{name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.images"), selected: true, first:true},
                                  {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.images.mediaTab")}];
-	  FBTrace.sysout("0000000000000000000000000");
 
       AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
-	  FBTrace.sysout("1111111111111111111111111");
 
       var toolbar = panel.document.createElement("div");
       toolbar.id = "toolbarDiv";
       var images_cache = cache_object.dom_cache.images_cache;
       images_cache.sortImageElements('document_order', true);
-	  FBTrace.sysout("22222222222222222222222222");
 
      // AINSPECTOR_FB.equivalents.equivalentsView(toolbar_buttons, toolbar, panel, cache_object);
-	  FBTrace.sysout("333333333333333333333333333");
-	  var images_cache = cache_object.dom_cache.images_cache;
-	  
+	  FBTrace.sysout("333333333333AINSPECTOR_FB333333333333333", AINSPECTOR_FB);
       image_elements = images_cache.image_elements;
 	  media_elements = cache_object.dom_cache.media_cache.media_elements;
 	  abbreviation_elements = cache_object.dom_cache.abbreviations_cache.abbreviation_items;
@@ -84,7 +78,7 @@ AINSPECTOR_FB.equivalents = {
      * @property {Object} selection - set an object to the panel to be used by the side panels when selected first time
      */
     select : function(object) {
-      
+      FBTrace.sysout("inside select: ", object);
   	  panel.selection = object;
   	  
       AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[1].children[0]);
@@ -268,7 +262,7 @@ AINSPECTOR_FB.equivalents = {
                 DIV({class: "gridContent", _repObject:"$object"}, "$object.width")
               ),
               TD({class: "imgTextCol gridCell gridCol ",  id:"imgSrcCol", role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
-                DIV({class: "gridContent", _repObject:"$object"}, "$object.alt")
+                DIV({class: "gridContent", _repObject:"$object"}, TAG("$object.alt|getAlt", {'object': '$object'}))
               ),
               TD({class: "imgSourceCol gridCell gridCol ", id: "imgTextCol", role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({class: "gridContent", _repObject:"$object", title: "$object.source"}, "$object.source|getFileName")
@@ -280,7 +274,9 @@ AINSPECTOR_FB.equivalents = {
           ) //end FOR
         )// end TBODY
       ), // end inner TABLE
-      
+
+      styleTag : DIV({class: "styleLabel"},"empty alt"),
+      normalTag : DIV({class: "gridContent"},"$object.alt"),
       strTagPass : DIV({class: "passMsgTxt"}, "$object|getSummary"),
       strTagViolation : DIV({class: "violationMsgTxt"}, "$object|getSummary"),
       strTagManual : DIV({class: "manualMsgTxt"}, "$object|getSummary"),
@@ -288,6 +284,11 @@ AINSPECTOR_FB.equivalents = {
       strTagRecommendation : DIV({class: "recommendationMsgTxt"}, "$object|getSummary"),
       strTagInfo : DIV({class: "infoMsgTxt"}, "$object|getSummary"),
       strTagWarn : DIV({class: "warnMsgTxt"}, "$object|getSummary"),
+      
+      getAlt : function(alt) {
+	    if (alt == undefined) return this.styleTag;
+	    else return this.normalTag;
+      },
       
       /**
        * @function getAccessibility

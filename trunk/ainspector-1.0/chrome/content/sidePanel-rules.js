@@ -28,7 +28,7 @@ FBL.ns(function() { with (FBL) {
      *@param doc
      */
      initialize: function(context, doc) {
-    
+	   FBTrace.sysout("inside initialize of Rules Panel");
 	   this.onKeyPress = bind(this.onKeyPress, this);
 	   this.onCLick = bind(this.setSelection, this);
        Firebug.Panel.initialize.apply(this, arguments);
@@ -166,7 +166,7 @@ FBL.ns(function() { with (FBL) {
 	   
        FBTrace.sysout("inside show() of rules panel");
        Firebug.Panel.show.apply(this, arguments);
-       this.updateSelection();
+       //this.updateSelection();
      },
      
      /**
@@ -439,8 +439,8 @@ FBL.ns(function() { with (FBL) {
       TABLE({class: "ai-sidepanel-table", cellpadding: 0, cellspacing: 0, role: "treegrid"},
         THEAD(
           TR({class: "gridHeaderRow gridRow", id: "rulesTableHeader", role: "row", tabindex: "0"},
-            TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, "Results"),
-            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, "Message")
+            TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, "RuleInfo/Props"),
+            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, "Message/value")
           )
         ),  
         TBODY(
@@ -456,10 +456,10 @@ FBL.ns(function() { with (FBL) {
       ),
       
       strTagPass : DIV({class: "passMsgTxt"}, "$object|getSeverity"),
-      strTagViolation : DIV({class: "violationMsgTxt"}, "$object|getSeverity"),
+      strTagViolation : DIV({class: "violationRulesMsgTxt"}, "$object|getSeverity"),
       strTagManual : DIV({class: "manualMsgTxt"}, "$object|getSeverity"),
       strTagHidden : DIV({class: "hiddenMsgTxt"}, "$object|getSeverity"),
-      strTagRecommendation : DIV({class: "recommendationMsgTxt"}, "$object|getSeverity"),
+      strTagRecommendation : DIV({class: "recommendationRulesMsgTxt"}, "$object|getSeverity"),
       strTagInfo : DIV({class: "infoMsgTxt"}, "$object|getSeverity"),
       strTagWarn : DIV({class: "warnMsgTxt"}, "$object|getSeverity"),
       
