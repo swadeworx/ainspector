@@ -37,8 +37,6 @@ with (FBL) {
       if (!elem) return;
       
       var category = getClassValue(elem, "ruleCategory");
-      FBTrace.sysout("catewgory: ", category);
-      FBTrace.sysout("elem: ", event);
 
       if (category) {
         var tabList = getAncestorByClass(elem, "focusTabList");
@@ -102,10 +100,8 @@ with (FBL) {
     onToolbarKeyPress : function(event) {
       var key = event.keyCode;
       var tabs;
-      FBTrace.sysout("keyCode in widget.js:" , event);
       switch(key) {
         case KeyEvent.DOM_VK_TAB:
-          FBTrace.sysout("TABBBBBBBBBBBBBB");
           break;
         case KeyEvent.DOM_VK_LEFT:
         case KeyEvent.DOM_VK_RIGHT:
@@ -115,16 +111,12 @@ with (FBL) {
           var forward = key == KeyEvent.DOM_VK_RIGHT || key == KeyEvent.DOM_VK_DOWN;
           var tabList = getAncestorByClass(event.target, "focusTabList");
           tabs = tabList.getElementsByClassName("focusTab");
-          FBTrace.sysout("keyCode in widget.js - tablist", tabList);
-          FBTrace.sysout("keyCode in widget.js - tab:", tabs);
           var currentIndex = Array.indexOf(tabs, event.target);
-          FBTrace.sysout("keyCode in widget.js - curIndex:"+ currentIndex);
           if (currentIndex != -1) {
             var newIndex = forward ? ++currentIndex : --currentIndex;
             newIndex = newIndex < 0 ? tabs.length -1 : (newIndex >= tabs.length ? 0 : newIndex);
             
             if (tabs[newIndex]) tabs[newIndex].focus();
-            FBTrace.sysout("newIndex: ", tabs[newIndex]);
           }
           event.stopPropagation();
           event.preventDefault();
@@ -152,11 +144,8 @@ with (FBL) {
        * @param event event triggered on a row in the Links Table
        */
       toHTMLPanel: function(event) {
-        FBTrace.sysout("inside pane-images event", event);
 
         var table = getChildByClass(event.target.offsetParent, "ai-table-list-items");
-        FBTrace.sysout("inside pane-images table", table);
-
   	    var row =  getChildByClass(event.target.offsetParent, "tableRow");
         var child;
         var tbody = table.children[1];

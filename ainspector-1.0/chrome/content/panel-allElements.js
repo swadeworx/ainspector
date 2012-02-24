@@ -19,7 +19,6 @@ with (FBL) {
 	 * @param cache_object
 	 */
 	allElementsPanelView : function(toolbar_buttons, toolbar, panelView, cache_object) {
-	FBTrace.sysout("allElementsPanelView: ", cache_object);
 
 	tree_of_all_elements = cache_object.dom_cache.element_cache.child_dom_elements;
 	list_of_all_elements = cache_object.dom_cache.element_cache.dom_elements;
@@ -29,8 +28,6 @@ with (FBL) {
 
 	var element = panelView.document.createElement("div");
 	element.style.display = "block";
-	FBTrace.sysout("tree_of_all_elements: ", tree_of_all_elements);
-	FBTrace.sysout("list_of_all_elements: ", list_of_all_elements);
 	panelView.panelNode.id = "ainspector-panel"; 
 	panelView.panelNode.appendChild(toolbar);
 	panelView.panelNode.appendChild(element);
@@ -94,7 +91,6 @@ AINSPECTOR_FB.elementsView.elementsToolbarPlate = domplate({
 	var tbody = null;
 	var child;
 	var node;
-	FBTrace.sysout("inside toHTMl panel: ", event);
 	if (table) {
 		row = getChildByClass(event.target.offsetParent, "tableRow");
 		tbody = table.children[1];
@@ -125,7 +121,6 @@ AINSPECTOR_FB.elementsView.elementsToolbarPlate = domplate({
 	} else {
 		table = getChildByClass(event.target.offsetParent, "domTable");
 		//row = getChildByClass(event.target.offsetParent, "treeRow");
-		FBTrace.sysout("inside toHTMl panel else: ", table);
 		var rows = table.rows;
 		tbody = table.children[1];
 
@@ -312,10 +307,7 @@ AINSPECTOR_FB.elementsView.elementsTreeTemplate = domplate({
     onClickTreeRow : function(event){
 		    	  
 	  panel.selection = Firebug.getRepObject(event.target);
-	  FBTrace.sysout("panel: zupzupzupz", panel);
 	  AINSPECTOR_FB.flatListTemplateUtil.highlightTreeRow(event);
-	  
-	  
 	},
 
     /**
@@ -452,8 +444,6 @@ openRow: function(row) {
 	if (!hasClass(row, "opened")) {
 		var level = parseInt(row.getAttribute("level"));
 		setClass(row, "opened");
-		FBTrace.sysout("repObject on Openrow: ", row);
-
 		var repObject = row.newObject;
 		if (repObject) {
 			var members = this.getMembers(repObject.children, level+1);
@@ -508,7 +498,6 @@ highlightRow: function (event) {
  * @param row
  */
 toggleRow: function(row) {
-	FBTrace.sysout("toggleRow: ", row);
 
 	if (hasClass(row, "opened")) {
 		this.closeRow(row);
@@ -537,7 +526,6 @@ getMembers: function(object, level) {
 	  if (object[p].type != 3) //to avoid nosetype 3 (text nodes) on the panel
 	    members.push(this.createMember(p, object[p], level));
 	}
-	FBTrace.sysout("member: ", members);
 	return members;
 },
 
@@ -551,7 +539,6 @@ getMembers: function(object, level) {
  *  @param level
  */
 createMember: function(name, value, level)  {
-	FBTrace.sysout(' createMember : ', value);
 	var acc = "";
     if (typeof value.getAccessibility === 'function') acc = value.getAccessibility();
 

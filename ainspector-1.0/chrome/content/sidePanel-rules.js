@@ -28,7 +28,6 @@ FBL.ns(function() { with (FBL) {
      *@param doc
      */
      initialize: function(context, doc) {
-	   FBTrace.sysout("inside initialize of Rules Panel");
 	   this.onKeyPress = bind(this.onKeyPress, this);
 	   this.onCLick = bind(this.setSelection, this);
        Firebug.Panel.initialize.apply(this, arguments);
@@ -70,7 +69,6 @@ FBL.ns(function() { with (FBL) {
       */
      onKeyPress: function(event) {
    
-	   FBTrace.sysout("Inside rulesSidePanel-onKeyPress********************************", event);
        var current_row;
        var next_row;
        var previous_row;
@@ -81,20 +79,15 @@ FBL.ns(function() { with (FBL) {
 		 //current_row = getAncestorByClass(event.target, "tableRow");
     	 //FBTrace.sysout("up..." , current_row);
     	 previous_row = findPrevious(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow); //current_row.previousSibling;
-    	 FBTrace.sysout("previous_row" , previous_row);
     	 result = previous_row.repObject.dom_element;
          rule_result_array = this.showOnRulesTabSelect(result);
          if (rule_result_array.length > 0) this.rebuild(rule_result_array);
       
 	   } else if (event.keyCode == KeyEvent.DOM_VK_DOWN) {
-		 FBTrace.sysout("............................next_row......................................");
     	 current_row = getAncestorByClass(event.target, "tableRow");
-    	 FBTrace.sysout("current_row" , current_row);
 
     	 next_row = current_row.nextSibling;
     	 //next_row = findNext(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow, true);
-    	 FBTrace.sysout("next_row" , next_row);
-
     	 result = next_row.repObject.dom_element;
          rule_result_array = this.showOnRulesTabSelect(result);
        
@@ -121,7 +114,6 @@ FBL.ns(function() { with (FBL) {
        while (e) {
     	 if ("previousElementSibling" in e) {
     	   e = e.previousSibling;
-    	   FBTrace.sysout("e", e);
     	   k = k+1;
     	 } else {
     	   k = -1;
@@ -164,7 +156,6 @@ FBL.ns(function() { with (FBL) {
       */
      show: function() {
 	   
-       FBTrace.sysout("inside show() of rules panel");
        Firebug.Panel.show.apply(this, arguments);
        //this.updateSelection();
      },
@@ -177,9 +168,7 @@ FBL.ns(function() { with (FBL) {
       * @param element - 
       */
      updateSelection : function() {
-       FBTrace.sysout("updateSelection : ", this.mainPanel);	 
        var selection = this.mainPanel.selection;
-       FBTrace.sysout("updteSelection element: ", selection);
        var dom_element = selection.dom_element; 
        if (dom_element)
          this.rebuild(this.showOnRulesTabSelect(dom_element));
@@ -197,9 +186,7 @@ FBL.ns(function() { with (FBL) {
 	   if (state) {
          try {
     	   result = first_element.dom_element;
-      	   FBTrace.sysout("sView link..............." , result);
            rule_result_array = this.showOnRulesTabSelect(result);
-    	   FBTrace.sysout("rule_result_array length..............." , rule_result_array);
            if (rule_result_array.length > 0) this.rebuild(rule_result_array);
          } catch (er) {
         	 
@@ -211,7 +198,6 @@ FBL.ns(function() { with (FBL) {
 	   if (state) {
          try {
            rule_result_array = this.showOnRulesTabSelect(element);
-    	   FBTrace.sysout("rule_result_array length..............." + rule_result_array.length);
            if (rule_result_array.length > 0) this.rebuild(rule_result_array);
          } catch (er) {
         	 
@@ -228,9 +214,7 @@ FBL.ns(function() { with (FBL) {
       */
      setSelection : function(event) {
    
-	   FBTrace.sysout("event in setSelection:", event);
        var element = Firebug.getRepObject(event.target);
-       FBTrace.sysout("element: ", element);
        
        try {
        if (element.dom_element)
@@ -272,7 +256,6 @@ FBL.ns(function() { with (FBL) {
       */
      getRuleResults: function(rule_results_object){
      
-         FBTrace.sysout("Inside getRuleResults....", rule_results_object);
          var i;
          var resultArray = new Array();
     	 var violations = rule_results_object.rules_violations;
@@ -353,7 +336,6 @@ FBL.ns(function() { with (FBL) {
       */
      rebuild: function(resultArray){
        this.panelNode.id = "ainspector-side-panel";
-       FBTrace.sysout("resultArray: ", resultArray);
        var flag = true;
    	   for (var i in resultArray){ 
    		 if(resultArray.hasOwnProperty(i)){
@@ -362,7 +344,6 @@ FBL.ns(function() { with (FBL) {
    		 }
    	   }
    	   if (flag) {
-	       FBTrace.sysout("flag: "+ flag);
            var header_elements = ["Rule Info/Props", "Message/Value"];
            FBTrace.sysout("this.panelNode: ", this.panelNode.offsetParent.children[1]);
            //clearNode(this.panelNode.offsetParent.children[1]);
@@ -428,7 +409,6 @@ FBL.ns(function() { with (FBL) {
      onClick: function(event) {
    
 	   var node = Firebug.getRepObject(event.target);;
-       FBTrace.sysout("node: ", node);
      }
   });
 

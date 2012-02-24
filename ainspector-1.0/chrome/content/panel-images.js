@@ -23,12 +23,12 @@ AINSPECTOR_FB.equivalents = {
    */
 	//equivalentsView : function(toolbar_buttons, toolbar, panelView, cache_object) {
 	equivalentsView: function(context, panel_name, cache_object) {		
-	  FBTrace.sysout("xxxxxxxxxxxxequivalents viewxxxxxxxxxxxxxxxx");
+	  //FBTrace.sysout("............equivalents view.............");
 
 	  if (!panel_name) panel_name = "AInspector";
 	  if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
 	  
-	  FBTrace.sysout("cache_object: ", cache_object);
+	  //FBTrace.sysout("cache_object: ", cache_object);
 
 	  panel = context.getPanel(panel_name, true);
 
@@ -77,7 +77,6 @@ AINSPECTOR_FB.equivalents = {
      * @property {Object} selection - set an object to the panel to be used by the side panels when selected first time
      */
     select : function(object) {
-      FBTrace.sysout("inside select: ", object);
   	  panel.selection = object;
   	  
       AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[1].children[0]);
@@ -169,7 +168,6 @@ AINSPECTOR_FB.equivalents = {
 
         Firebug.currentContext.getPanel('Rules').sView(true, media_elements[0]);
       } else {
-    	FBTrace.sysout("abbreviation");  
         panel.table = AINSPECTOR_FB.equivalents.abbreviationTemplate.tag.append( {object: abbreviation_elements}, panel.panelNode, AINSPECTOR_FB.equivalents.abbreviationTemplate);
         AINSPECTOR_FB.equivalents.select(abbreviation_elements[0]);
 
@@ -207,7 +205,6 @@ AINSPECTOR_FB.equivalents = {
         elem.setAttribute("tabindex", "0");
         setClass(elem, "selected");
         var currentView = panel;
-        FBTrace.sysout("panel in selectTab: ", panel);
         this.showOnSelectButton(category);
       }
     },

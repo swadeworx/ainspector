@@ -125,7 +125,6 @@ with (FBL) {
 		node = node.repObject.dom_element.node;
 
 	} else {
-		FBTrace.sysout("zip event", event);
 		table = getChildByClass(event.target.offsetParent, "domTable");
 		//row = getChildByClass(event.target.offsetParent, "treeRow");
 
@@ -138,7 +137,6 @@ with (FBL) {
 			var flag = false;
 			var row = rows[i];//tbody.children[i];
 			node = row;
-			FBTrace.sysout("row:", row);
 			for (var k=0; k<row.classList.length;k++) {
 
 				if (row.classList[k] ==  "gridRowSelected") {
@@ -149,7 +147,6 @@ with (FBL) {
 
 			if (flag == true) break;
 	 	  }
-		  FBTrace.sysout("node: ", node);
 		  node = node.repObject.dom_element.node;
 	  
 	  } else {
@@ -198,8 +195,6 @@ onClickToolbarButton : function(event) {
       if (!elem) return;
       
       var category = getClassValue(elem, "toolbarButtonView");
-      FBTrace.sysout("catewgory: "+ category);
-      FBTrace.sysout("elem: ", elem);
 
       if (category) {
         var tabList = getAncestorByClass(elem, "focusTabList");
@@ -219,7 +214,6 @@ onClickToolbarButton : function(event) {
         elem.setAttribute("tabindex", "0");
         setClass(elem, "selected");
         var currentView = panel;
-        FBTrace.sysout("panel in selectTab: ", panel);
         //this.showOnSelectButton(category);
       }
     },
@@ -288,7 +282,6 @@ onClickToolbarButton : function(event) {
     onClickTreeRow : function(event){
 		    	  
 	  panel.selection = Firebug.getRepObject(event.target);
-	  FBTrace.sysout("panel: zupzupzupz", panel);
 	  AINSPECTOR_FB.flatListTemplateUtil.highlightTreeRow(event);
 	  
 	  
@@ -537,7 +530,6 @@ onClickToolbarButton : function(event) {
 	  },
 	  
 	  onClick_htmlView: function(event) {
-		FBTrace.sysout("event::::: ", event.target);
 		var head_landmark = event.target.headLandElement.value;
 	    var node = head_landmark.dom_element.node;
 	    var panel = Firebug.chrome.selectPanel("html");
