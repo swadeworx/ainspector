@@ -2,32 +2,31 @@
 /*  OpenAjax Alliance Control Rules                                 */ 
 /* ---------------------------------------------------------------- */
 
-OpenAjax.a11y.addRules([
+OpenAjax.a11y.all_rules.addRulesFromJSON([
 
 /**
- * @rule CONTROL_1
+ * @object CONTROL_1
  * 
  * @desc textarea, select and input elements of type text, 
  *       password, checkbox, radio and file must have an 
  *       accessible label
  * 
- * @group Controls
- * 
  */
 	     
-{  id              : 'CONTROL_1', 
-   lastUpdated     : '2011-09-16', 
-   cacheDependency : 'controls_cache',
-   cacheProperties : ['dom_element:tag_name','type','id','label',''],
-   language        : "",
-   enabled         : true,  
-   validate        : function (dom_cache, rule_result) {
+{  id                : 'CONTROL_1', 
+   last_updated      : '2011-09-16', 
+   cache_dependency  : 'controls_cache',
+   cache_properties : ['dom_element:tag_name','type','id','label',''],
+   language          : "",
+   enabled           : true,  
+   validate          : function (dom_cache, rule_result) {
    
      var SEVERITY = OpenAjax.a11y.SEVERITY;
    
      var i;
      var ce;
      var tag_name;
+     var control_type;
      var type;
    
      var control_elements   = dom_cache.controls_cache.control_elements;
@@ -39,24 +38,35 @@ OpenAjax.a11y.addRules([
        for (i=0; i < control_elements_len; i++) {
          ce = control_elements[i];
   
-         type = control_elements[i].type;
-     
-         if (type === 'checkbox' ||
-             type === 'file'   ||
-             type === 'password' ||
-             type === 'radio'  ||
-             type === 'select'  ||
-             type === 'text'   ||
-             type === 'textarea') {
+         control_type = control_elements[i].control_type;
+         
+         if (control_type === OpenAjax.a11y.CONTROL_TYPE.CHECKBOX ||
+             control_type === OpenAjax.a11y.CONTROL_TYPE.FILE     ||
+             control_type === OpenAjax.a11y.CONTROL_TYPE.PASSWORD ||
+             control_type === OpenAjax.a11y.CONTROL_TYPE.RADIO    ||
+             control_type === OpenAjax.a11y.CONTROL_TYPE.TEXT) {
+             type = control_elements[i].type;         
+         }
+         else {
+           type = ce.dom_element.tag_name;
+         }
+
+         if (control_type === OpenAjax.a11y.CONTROL_TYPE.CHECKBOX ||
+             control_type === OpenAjax.a11y.CONTROL_TYPE.FILE     ||
+             control_type === OpenAjax.a11y.CONTROL_TYPE.PASSWORD ||
+             control_type === OpenAjax.a11y.CONTROL_TYPE.RADIO    ||
+             control_type === OpenAjax.a11y.CONTROL_TYPE.SELECT   ||
+             control_type === OpenAjax.a11y.CONTROL_TYPE.TEXT     ||
+             control_type === OpenAjax.a11y.CONTROL_TYPE.TEXTAREA ) {
              
-           if (ce.dom_element.computed_style.at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
+           if (ce.dom_element.computed_style.is_visible_to_at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
      
         
              if (ce.label && ce.label.length) {
                rule_result.addResult(SEVERITY.PASS, ce, 'MESSAGE_PASS', [type.toUpperCase()]);     
              }
              else {
-               rule_result.addResult(rule_result.rule_severity, ce, 'MESSAGE_LABEL_MISSING', [type.toUpperCase()]);     
+               rule_result.addResult(SEVERITY.FAIL, ce, 'MESSAGE_LABEL_MISSING', [type.toUpperCase()]);     
              }
            }
            else {
@@ -69,21 +79,17 @@ OpenAjax.a11y.addRules([
 },
 
 /**
- * @rule CONTROL_2
+ * @object CONTROL_2
  * 
  * @desc Every input type image must have an alt or title attribute with content
- * 
- * @group Controls
  */
 	     
-{  id              : 'CONTROL_2', 
-   lastUpdated     : '2011-09-16', 
-   cacheDependency : 'controls_cache',
-   cacheProperties : [],
-   language        : "",
-   enabled         : true,  
-   validateParams  : {},
-   validate        : function (dom_cache, rule_result) {
+{  id                : 'CONTROL_2', 
+   last_updated      : '2011-09-16', 
+   cache_dependency  : 'controls_cache',
+   cache_properties : [],
+   language          : "",
+   validate          : function (dom_cache, rule_result) {
   
      var SEVERITY = OpenAjax.a11y.SEVERITY;
    
@@ -106,13 +112,13 @@ OpenAjax.a11y.addRules([
      
          if (type === 'image') {
       
-           if (ce.dom_element.computed_style.at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
+           if (ce.dom_element.computed_style.is_visible_to_at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
      
              if (ce.label && ce.label.length) {
                rule_result.addResult(SEVERITY.PASS, ce, 'MESSAGE_PASS', [type.toUpperCase()]);     
              }
              else {
-               rule_result.addResult(rule_result.rule_severity, ce, 'MESSAGE_ALT_MISSING', [type.toUpperCase()]);     
+               rule_result.addResult(SEVERITY.FAIL, ce, 'MESSAGE_ALT_MISSING', [type.toUpperCase()]);     
              }
            }
            else {
@@ -125,20 +131,16 @@ OpenAjax.a11y.addRules([
  },
  
 /**
- * @rule CONTROL_3
+ * @object CONTROL_3
  *
  * @desc Groups of radio buttons should be contained in fieldset/legend
- *
- * @group controls
  */
-{ id              : 'CONTROL_3', 
-  lastUpdated     : '2011-09-16', 
-  cacheDependency : 'controls_cache',
-  cacheProperties : [],
-  language        : "",
-  enabled         : true,  
-  validateParams  : {},
-  validate        : function (dom_cache, rule_result) {
+{ id                : 'CONTROL_3', 
+  last_updated      : '2011-09-16', 
+  cache_dependency  : 'controls_cache',
+  cache_properties : [],
+  language          : "",
+  validate          : function (dom_cache, rule_result) {
   
      var SEVERITY   = OpenAjax.a11y.SEVERITY;
      var VISIBILITY = OpenAjax.a11y.VISIBILITY;
@@ -163,7 +165,7 @@ OpenAjax.a11y.addRules([
      
          if (type === 'radio') {
       
-           if (de.computed_style.at == VISIBILITY.VISIBLE) {
+           if (de.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
      
              if (ce.fieldset_element) {
                rule_result.addResult(SEVERITY.PASS, ce, 'MESSAGE_HAS_LEGEND', []);     
@@ -175,7 +177,7 @@ OpenAjax.a11y.addRules([
                    rule_result.addResult(SEVERITY.PASS, ce, 'MESSAGE_HAS_ARIA_LABELLEDBY', []);     
                  }
                  else {
-                   rule_result.addResult(rule_result.rule_severity, ce, 'MESSAGE_LEGEND_MISSING', []);
+                   rule_result.addResult(SEVERITY.FAIL, ce, 'MESSAGE_LEGEND_MISSING', []);
                  }
                }  
                else {
@@ -183,7 +185,7 @@ OpenAjax.a11y.addRules([
                    rule_result.addResult(SEVERITY.PASS, ce, 'MESSAGE_HAS_ARIA_LABEL', []);     
                  }
                  else {
-                   rule_result.addResult(rule_result.rule_severity, ce, 'MESSAGE_LEGEND_MISSING', []);
+                   rule_result.addResult(SEVERITY.FAIL, ce, 'MESSAGE_LEGEND_MISSING', []);
                  }    
                }
              }
@@ -198,20 +200,16 @@ OpenAjax.a11y.addRules([
 },
 
 /**
- * @rule CONTROL_4
+ * @object CONTROL_4
  *
  * @desc Button elements must have text content and input type button must have a value attribute with content
- *
- * @group controls
  */
-{ id              : 'CONTROL_4', 
-  lastUpdated     : '2011-09-16', 
-  cacheDependency : 'controls_cache',
-  cacheProperties : [],
-  language        : "",
-  enabled         : true,  
-  validateParams  : {},
-  validate        : function (dom_cache, rule_result) {
+{ id                : 'CONTROL_4', 
+  last_updated      : '2011-09-16', 
+  cache_dependency  : 'controls_cache',
+  cache_properties : [],
+  language          : "",
+  validate          : function (dom_cache, rule_result) {
 
      var SEVERITY   = OpenAjax.a11y.SEVERITY;
      var VISIBILITY = OpenAjax.a11y.VISIBILITY;
@@ -235,13 +233,13 @@ OpenAjax.a11y.addRules([
      
          if (type === 'button') {
       
-           if (ce.dom_element.computed_style.at == VISIBILITY.VISIBLE) {
+           if (ce.dom_element.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
      
              if (ce.label && ce.label.length) {
                rule_result.addResult(SEVERITY.PASS, ce, 'MESSAGE_HAS_CONTENT', []);     
              }
              else {
-               rule_result.addResult(rule_result.rule_severity, ce, 'MESSAGE_NO_CONTENT', []);     
+               rule_result.addResult(SEVERITY.FAIL, ce, 'MESSAGE_NO_CONTENT', []);     
              }
            }
            else {
@@ -256,20 +254,16 @@ OpenAjax.a11y.addRules([
  
 
 /**
- * @rule CONTROL_5
+ * @object CONTROL_5
  *
  * @desc Textarea, select, input and button elements with id attributes, must have unique id values on the page
- *
- * @group controls
  */
-{ id              : 'CONTROL_5', 
-  lastUpdated     : '2011-09-16', 
-  cacheDependency : 'controls_cache',
-  cacheProperties : [],
-  language        : "",
-  enabled         : true,  
-  validateParams  : {},
-  validate        : function (dom_cache, rule_result) {
+{ id                : 'CONTROL_5', 
+  last_updated      : '2011-09-16', 
+  cache_dependency  : 'controls_cache',
+  cache_properties : [],
+  language          : "",
+  validate          : function (dom_cache, rule_result) {
 
     var SEVERITY   = OpenAjax.a11y.SEVERITY;
    
@@ -290,7 +284,7 @@ OpenAjax.a11y.addRules([
         switch (de.id_unique) { 
         
         case OpenAjax.a11y.ID.NOT_UNIQUE:
-          rule_result.addResult(rule_result.rule_severity, ce, 'MESSAGE_DUPLICATE_ID', [de.id]);
+          rule_result.addResult(SEVERITY.FAIL, ce, 'MESSAGE_DUPLICATE_ID', [de.id]);
           break;          
           
         case OpenAjax.a11y.ID.UNIQUE:
@@ -307,20 +301,16 @@ OpenAjax.a11y.addRules([
 },
  
 /**
- * @rule CONTROL_6
+ * @object CONTROL_6
  * 
  * @desc Label with a for attribute reference does not reference a form control
- *
- * @group controls
  */
-{ id              : 'CONTROL_6', 
-  lastUpdated     : '2011-09-16', 
-  cacheDependency : 'controls_cache',
-  cacheProperties : [],
-  language        : "",
-  enabled         : true,  
-  validateParams  : {},
-  validate        : function (dom_cache, rule_result) {
+{ id                : 'CONTROL_6', 
+  last_updated      : '2011-09-16', 
+  cache_dependency  : 'controls_cache',
+  cache_properties : [],
+  language          : "",
+  validate          : function (dom_cache, rule_result) {
 
     var SEVERITY   = OpenAjax.a11y.SEVERITY;
     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
@@ -355,21 +345,17 @@ OpenAjax.a11y.addRules([
 },
 
 /** 
- * @rule CONTROL 7
+ * @object CONTROL_7
  *
  * @desc Label or legend element should contain content 
- *
- * @group controls
  */
  
-{ id              : 'CONTROL_7', 
-  lastUpdated     : '2011-09-16', 
-  cacheDependency : 'controls_cache',
-  cacheProperties : [],
-  language        : "",
-  enabled         : true,  
-  validateParams  : {},
-  validate        : function (dom_cache, rule_result) {
+{ id                : 'CONTROL_7', 
+  last_updated      : '2011-09-16', 
+  cache_dependency  : 'controls_cache',
+  cache_properties : [],
+  language          : "",
+  validate          : function (dom_cache, rule_result) {
 
     var SEVERITY   = OpenAjax.a11y.SEVERITY;
     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
@@ -388,7 +374,7 @@ OpenAjax.a11y.addRules([
         le = label_elements[i];
         
         if (le.label && le.label.length === 0) {
-          rule_result.addResult(rule_result.rule_severity, le, 'MESSAGE_NO_CONTENT', []);
+          rule_result.addResult(SEVERITY.FAIL, le, 'MESSAGE_NO_CONTENT', []);
         }
         else {
           rule_result.addResult(SEVERITY.PASS, le, 'MESSAGE_HAS_CONTENT', []);        
@@ -401,21 +387,17 @@ OpenAjax.a11y.addRules([
 
 
 /** 
- * @rule CONTROL 8
+ * @object CONTROL 8
  *
  * @desc Fieldset should contain exactly one legend element 
- *
- * @group controls
  */
  
-{ id              : 'CONTROL_8', 
-  lastUpdated     : '2011-09-16', 
-  cacheDependency : 'controls_cache',
-  cacheProperties : [],
-  language        : "",
-  enabled         : true,  
-  validateParams  : {},
-  validate        : function (dom_cache, rule_result) {
+{ id                : 'CONTROL_8', 
+  last_updated      : '2011-09-16', 
+  cache_dependency  : 'controls_cache',
+  cache_properties : [],
+  language          : "",
+  validate          : function (dom_cache, rule_result) {
 
     var SEVERITY   = OpenAjax.a11y.SEVERITY;
     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
@@ -433,11 +415,11 @@ OpenAjax.a11y.addRules([
         fe = fieldset_elements[i];
         
         if (fe.legend_count === 0) {
-          rule_result.addResult(rule_result.rule_severity, fe, 'MESSAGE_NO_LEGEND', []);        
+          rule_result.addResult(SEVERITY.FAIL, fe, 'MESSAGE_NO_LEGEND', []);        
         }
         else {
           if (fe.legend_count > 1) {
-            rule_result.addResult(rule_result.rule_severity, fe, 'MESSAGE_MORE_THAN_ONE', []);        
+            rule_result.addResult(SEVERITY.FAIL, fe, 'MESSAGE_MORE_THAN_ONE', []);        
           }
           else {
             rule_result.addResult(SEVERITY.PASS, fe, 'MESSAGE_ONLY_ONE', []);                  
@@ -450,21 +432,17 @@ OpenAjax.a11y.addRules([
 },
 
 /** 
- * @rule CONTROL 9
+ * @object CONTROL_9
  *
  * @desc Fieldset should contain exactly one legend element 
- *
- * @group controls
  */
  
-{ id              : 'CONTROL_9', 
-  lastUpdated     : '2011-09-16', 
-  cacheDependency : 'controls_cache',
-  cacheProperties : [],
-  language        : "",
-  enabled         : true,  
-  validateParams  : {},
-  validate        : function (dom_cache, rule_result) {
+{ id                : 'CONTROL_9', 
+  last_updated      : '2011-09-16', 
+  cache_dependency  : 'controls_cache',
+  cache_properties : [],
+  language          : "",
+  validate          : function (dom_cache, rule_result) {
 
     var SEVERITY   = OpenAjax.a11y.SEVERITY;
     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
@@ -481,10 +459,10 @@ OpenAjax.a11y.addRules([
       for (i=0; i < control_elements_len; i++) {
         ce = control_elements[i];
         
-        if (ce.dom_element.computed_style.at === VISIBILITY.VISIBLE) {
+        if (ce.dom_element.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
 
           if (ce.label_source === OpenAjax.a11y.SOURCE.TITLE_ATTRIBUTE) {
-            rule_result.addResult(rule_result.rule_severity, ce, 'MESSAGE_USES_TITLE', []);        
+            rule_result.addResult(SEVERITY.FAIL, ce, 'MESSAGE_USES_TITLE', []);        
           }
           else {
             rule_result.addResult(SEVERITY.PASS, ce, 'MESSAGE_DOES_NOT_USE_TITLE', []);                  
@@ -501,23 +479,19 @@ OpenAjax.a11y.addRules([
 },
 
 /**
- * @rule CONTROL_10
+ * @object CONTROL_10
  * 
  * @desc Accessible labels must be unique for every textarea, 
  *       select and input element of type text, password, radio, 
  *       and checkbox on a page
- * 
- * @group Controls
  */
  
-{ id              : 'CONTROL_10', 
-  lastUpdated     : '2011-09-16', 
-  cacheDependency : 'controls_cache',
-  cacheProperties : [],
-  language        : "",
-  enabled         : true,  
-  validateParams  : {},
-  validate        : function (dom_cache, rule_result) {
+{ id                : 'CONTROL_10', 
+  last_updated      : '2011-09-16', 
+  cache_dependency  : 'controls_cache',
+  cache_properties : [],
+  language          : "",
+  validate          : function (dom_cache, rule_result) {
 
     var SEVERITY = OpenAjax.a11y.SEVERITY;
     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
@@ -540,7 +514,7 @@ OpenAjax.a11y.addRules([
   
         type = control_elements[i].type;
      
-        if (ce.dom_element.computed_style.at === OpenAjax.a11y.VISIBILITY.VISIBLE) { 
+        if (ce.dom_element.computed_style.is_visible_to_at === OpenAjax.a11y.VISIBILITY.VISIBLE) { 
           if (type === 'checkbox' ||
               type === 'file'   ||
               type === 'password' ||
@@ -564,7 +538,7 @@ OpenAjax.a11y.addRules([
       for (i=0; i<ces.length; i++) {
         ce = ces[i];
         if (ce.duplicate) {
-          rule_result.addResult(rule_result.rule_severity, ce, 'MESSAGE_DUPLICATE_LABEL', [ce.label]);                
+          rule_result.addResult(SEVERITY.FAIL, ce, 'MESSAGE_DUPLICATE_LABEL', [ce.label]);                
         }
         else {
           rule_result.addResult(SEVERITY.PASS, ce, 'MESSAGE_LABEL_UNIQUE', [ce.label]);        
@@ -576,22 +550,19 @@ OpenAjax.a11y.addRules([
 },
 
 /**
- * @rule CONTROL_11
+ * @object CONTROL_11
  * 
  * @desc If there is more than one form on page, input element of type 
  *       submit and reset must have unique labels in each form using the value attribute
  * 
- * @group Controls
  */
  
-{ id              : 'CONTROL_11', 
-  lastUpdated     : '2011-09-16', 
-  cacheDependency : 'controls_cache',
-  cacheProperties : [],
-  language        : "",
-  enabled         : true,  
-  validateParams  : {},
-  validate        : function (dom_cache, rule_result) {
+{ id                : 'CONTROL_11', 
+  last_updated      : '2011-09-16', 
+  cache_dependency  : 'controls_cache',
+  cache_properties : [],
+  language          : "",
+  validate          : function (dom_cache, rule_result) {
 
     var SEVERITY = OpenAjax.a11y.SEVERITY;
    

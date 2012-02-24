@@ -1,32 +1,35 @@
-  // ****************************************************** 
-  //
-  // Copyright 2011 OpenAjax Alliance
-  //
-  // Licensed under the Apache License, Version 2.0 (the "License");
-  // you may not use this file except in compliance with the License.
-  // You may obtain a copy of the License at
-  //
-  //  http://www.apache.org/licenses/LICENSE-2.0
-  //
-  // Unless required by applicable law or agreed to in writing, software
-  // distributed under the License is distributed on an "AS IS" BASIS,
-  // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  // See the License for the specific language governing permissions and
-  // limitations under the License.
-  //
-  // ****************************************************** 
+/*
+ * Copyright 2011 and 2012 OpenAjax Alliance
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
   
 
+/* ---------------------------------------------------------------- */
+/*                            LogRuleItem                           */
+/* ---------------------------------------------------------------- */
 
-/** ================================================================
-*
-* OpenAjax.a11y.LogRuleItem 
-*
-* @desc Constructor to log information about a rule and its execution time
-*
-* @return LogRuleItem object
-*
-* =============================================================== */
+/**
+ * @constructor LogRuleItem 
+ *
+ * @memberOf OpenAjax.a11y.cache
+ * 
+ * @desc Constructor to log information about a rule and its execution time
+ *
+ * @property  {String}  id       - id of the rule
+ * @property  {String}  message  - Message related to rule execution time or errors
+ * @property  {Number}  time     - time to execute the rule in milleseconds 
+ */
 
 OpenAjax.a11y.LogRuleItem = function () {
  this.id = "";
@@ -34,15 +37,22 @@ OpenAjax.a11y.LogRuleItem = function () {
  this.time  = 0;   
 };
 
-/** ================================================================
-*
-* OpenAjax.a11y.LogRequirementItem 
-*
-* @desc Constructor to log information about a requirement and its execution time
-*
-* @return LogRequirementItem object
-*
-* =============================================================== */
+/* ---------------------------------------------------------------- */
+/*                        LogRequirementItem                        */
+/* ---------------------------------------------------------------- */
+
+/**
+ * @constructor LogRequirementItem 
+ *
+ * @memberOf OpenAjax.a11y
+ * 
+ * @desc Constructor to log information about a requirement and its execution time
+ *
+ * @property  {String}  id       - id of the rule
+ * @property  {String}  message  - Message related to rule execution time or errors
+ * @property  {Number}  time     - time to execute the rule in milleseconds 
+ * @property  {Array}   rules    - List of log rule items associated with the requirement 
+ */
 
 OpenAjax.a11y.LogRequirementItem = function () {
  this.id = "";
@@ -51,15 +61,15 @@ OpenAjax.a11y.LogRequirementItem = function () {
  this.rules = new Array(); 
 };
 
-/** ================================================================
-*
-* OpenAjax.a11y.LogRequirementItem.addLogRule 
-*
-* @desc Adds a LogRuleObject information to a requirement
-*
-* @return nothing
-*
-* =============================================================== */
+/**
+ * @method addLogRule 
+ *
+ * @memberOf OpenAjax.a11y.LogRequirementItem
+ * 
+ * @desc Adds a log rule object information to a requirement
+ *
+ * @param  {LogRuleItem}  rule_item  - Log rule item to add to list of rule items
+ */
 
 OpenAjax.a11y.LogRequirementItem.prototype.addLogRule = function ( rule_item ) {
 
@@ -69,23 +79,49 @@ OpenAjax.a11y.LogRequirementItem.prototype.addLogRule = function ( rule_item ) {
 
 };
 
-/** ================================================================
-*
-* OpenAjax.a11y.Log 
-*
-* @desc Constructor for a Log Object that represents the progress 
-*    and stores the execution times of document evaluation
-*
-* @return Log object
-*
-* =============================================================== */
+/* ---------------------------------------------------------------- */
+/*                              Log                                 */
+/* ---------------------------------------------------------------- */
 
+/** 
+ * @constructor Log 
+ *
+ * @memberOf OpenAjax.a11y
+ * 
+ * @desc Constructor for a Log Object that represents the progress 
+ *    and stores the execution times of document evaluation
+ *
+ * @param  {String}  ruleset_id  -  Id of the current ruleset being used for evaluation  
+ * @param  {String}  ruleset_name        - ruleset_name of the document being evaluates
+ * @param  {Number}  total       - 
+ *
+ * @param  {Function}  progressCallBackFunction  - Function that is periodically called with progress information
+ *
+ * @propery  {String}  ruleset_id   -  Id of the ruleset used in the evaluation  
+ * @propery  {String}  ruleset_name         -  ruleset_name of the ruleset being evaluated
+ *
+ * @propery  {Number}  rules_max   - Total number of rules to process
+ * @propery  {Number}  rule_count  - Current number of rules processed
+ * 
+ * @propery  {Number}  cache_time  - Time to process the cache
+ * @propery  {Number}  total_time  - Time to process the cache and rules 
+ *
+ * @propery  {Function}  progressCallBackFunction  - Call back function to provide information to the user on status
+ *
+ * @propery  {Array}  requirements  -  Array of requirement objects    
+ *
+ * @propery  {Number}  start_time   - Time the evaluation started         
+ * @propery  {Number}  last_time    - Time of last rule         
+ * @propery  {Number}  last_requirement_time - Time of last requirement
+ *  
+ * @propery  {LogRequirementItem}  last_requirement_item 
+ */
 
-OpenAjax.a11y.Log = function (ruleset_id, name, total, progressCallBackFunction) {
+OpenAjax.a11y.Log = function (ruleset_id, ruleset_name, total, progressCallBackFunction) {
 
- this.id      = ruleset_id;
- this.name     = name;
- this.total_count  = total;
+ this.ruleset_id    = ruleset_id;
+ this.ruleset_name  = ruleset_name;
+ this.rules_max = total;
  this.cache_time  = 0;
  this.total_time  = 0;
  this.progressCallBackFunction = progressCallBackFunction;
@@ -97,19 +133,17 @@ OpenAjax.a11y.Log = function (ruleset_id, name, total, progressCallBackFunction)
  this.last_requirement_item = null;
  this.last_requirement_time = this.start_time;
  
- this.count = 0;
+ this.rule_count = 0;
 
 };
 
-/** ================================================================
-*
-* OpenAjax.a11y.Log.addLogRequirement 
-*
-* @desc Adds a LogRequirementObject information to the Log
-*
-* @return nothing
-*
-* =============================================================== */
+/** 
+ * @method addLogRequirement 
+ *
+ * @memberOf OpenAjax.a11y.Log
+ * 
+ * @desc Adds a LogRequirementObject information to the Log
+ */
 
 OpenAjax.a11y.Log.prototype.addLogRequirement = function (requirement_item) {
   
@@ -119,15 +153,15 @@ OpenAjax.a11y.Log.prototype.addLogRequirement = function (requirement_item) {
   
  };  
   
-/** ================================================================
-*
-* OpenAjax.a11y.Log.toString 
-*
-* @desc Generates a String of the log information
-*
-* @return String of the log information
-*
-* =============================================================== */
+/**
+ * @method toString
+ *
+ * @memberOf OpenAjax.a11y.Log
+ *
+ * @desc Creates a text string representation of a Log object 
+ *
+ * @return {String} Returns a text string representation of a Log object
+ */
   
 OpenAjax.a11y.Log.prototype.toString = function () {
   
@@ -135,11 +169,11 @@ OpenAjax.a11y.Log.prototype.toString = function () {
     
  var log_requirements_length = this.requirements.length;
     
- str += "ID         : " + this.id + "\n";
- str += "Name        : " + this.name + "\n";
+ str += "Ruleset ID   : " + this.ruleset_id + "\n";
+ str += "Ruleset Name : " + this.ruleset_name + "\n";
  str += "Cache Creation Time : " + this.timeInMillisecondToString(this.cache_time) + "\n";
  str += "Rule Execution Time : " + this.timeInMillisecondToString(this.total_time-this.cache_time) + "\n";
- str += "Total Time     : " + this.timeInMillisecondToString(this.total_time) + "\n";   
+ str += "Total Time          : " + this.timeInMillisecondToString(this.total_time) + "\n";   
     
  for (var i=0; i < log_requirements_length; i++ ) {
 
@@ -157,15 +191,15 @@ OpenAjax.a11y.Log.prototype.toString = function () {
 };  
   
 
-/** ================================================================
-*
-* OpenAjax.a11y.Log.toXML 
-*
-* @desc Generates a XML representations of the log information
-*
-* @return XML formatted string text of the log information
-*
-* =============================================================== */
+/**
+ * @method toXML
+ *
+ * @memberOf OpenAjax.a11y.Log
+ *
+ * @desc Creates a xml representation of a Log object 
+ *
+ * @return {String} Returns a xml representation of a Log object
+ */
   
 OpenAjax.a11y.Log.prototype.toXML = function () {
    
@@ -175,11 +209,11 @@ OpenAjax.a11y.Log.prototype.toXML = function () {
     
  var log_requirements_length = this.requirements.length;
     
- str += " <id>"      + this.id  + "</ruleset-id>\n";
- str += " <name>"     + this.name + "</ruleset-title>\n";
- str += " <cache-time>"  + this.cache_time  + "</cache-time>\n";
- str += " <rule-time>"   + (this.total_time-this.cache_time) + "</rule-time>\n";
- str += " <total-time>"  + this.total_time  + "</total-time>\n";   
+ str += " <ruleset-id>"   + this.ruleset_id   + "</ruleset-id>\n";
+ str += " <ruleset-name>" + this.ruleset_name + "</ruleset-name>\n";
+ str += " <cache-time>"   + this.cache_time   + "</cache-time>\n";
+ str += " <rule-time>"    + (this.total_time-this.cache_time) + "</rule-time>\n";
+ str += " <total-time>"   + this.total_time   + "</total-time>\n";   
 
  str += " <requirements>\n";   
 
@@ -212,23 +246,23 @@ OpenAjax.a11y.Log.prototype.toXML = function () {
 };  
   
 
-/** ================================================================
-*
-* OpenAjax.a11y.Log.toJSON 
-*
-* @desc Generates a JSON representations of the log information
-*
-* @return JSON formatted string text of the log information
-*
-* =============================================================== */
+/**
+ * @method toJSON
+ *
+ * @memberOf OpenAjax.a11y.Log
+ *
+ * @desc Creates a json representation of a Log object 
+ *
+ * @return {String} Returns a json representation of a Log object
+ */
   
 OpenAjax.a11y.Log.prototype.toJSON = function () {
       
  var i, j;     
  var str ="{\n";
        
- str += " \"id\"     : \"" + this.id              + "\",\n";
- str += " \"name\"    : \"" + this.name             + "\",\n";
+ str += " \"ruleset_id\"     : \"" + this.id              + "\",\n";
+ str += " \"ruleset_name\"    : \"" + this.ruleset_name + "\",\n";
  str += " \"cache-time\" : " + this.cache_time          + ",\n";
  str += " \"rule-time\" : " + (this.total_time-this.cache_time) + ",\n";
  str += " \"total-time\" : " + this.total_time          + ",\n";   
@@ -239,7 +273,7 @@ OpenAjax.a11y.Log.prototype.toJSON = function () {
 
  for (i=0; i < log_requirements_length; i++ ) {
 
-  str += "  { \"id\"   : \"" + this.requirements[i].id+ "\",\n";
+  str += "  { \"requirement_id\"   : \"" + this.requirements[i].id+ "\",\n";
   str += "   \"message\" : \"" + this.requirements[i].message + "\",\n";
   str += "   \"time\"  : " + this.requirements[i].time + ",\n";
      
@@ -249,7 +283,7 @@ OpenAjax.a11y.Log.prototype.toJSON = function () {
    str += "   \"rules\"  : [\n";   
    for (j=0; j <log_rule_length; j++) {
 
-    str += "    { \"id\"   : \"" + this.requirements[i].rules[j].id + "\",\n";
+    str += "    { \"rule_id\"   : \"" + this.requirements[i].rules[j].id + "\",\n";
     str += "     \"message\" : \"" + this.requirements[i].rules[j].message + "\",\n";
     str += "     \"time\"  : " + this.requirements[i].rules[j].time + "\n";
     str += "    },\n";
@@ -269,45 +303,41 @@ OpenAjax.a11y.Log.prototype.toJSON = function () {
  return str;
 };  
 
-/** ================================================================
-*
-* OpenAjax.a11y.Log.consoleStatusLog
-*
-* @desc Outputs progress information to the Firefox console
-*
-* @param message String Message to output to the console 
-* @param time   Object DateTime object of the current time
-* 
-* @return nothing
-*
-* =============================================================== */
+/**
+ * @method consoleStatusLog
+ *
+ * @memberOf OpenAjax.a11y.Log
+ *
+ * @desc Outputs progress information to the Firefox console
+ *
+ * @param {String}  message  - Message to output to the console 
+ * @param {Object}  time     - Object DateTime object of the current time
+ */
   
 OpenAjax.a11y.Log.prototype.consoleStatusLog = function ( message, time ) {
  
  if (!OpenAjax.a11y.LOG_MESSAGES_TO_CONSOLE) return;
   
  if (typeof time == 'number') {
-  OpenAjax.a11y.console( message + ": " + this.timeInMillisecondToString(time) + " (" + this.count + " of " + this.total_count +")");
+  OpenAjax.a11y.console( message + ": " + this.timeInMillisecondToString(time) + " (" + this.rule_count + " of " + this.rules_max +")");
  }
  else {
   OpenAjax.a11y.console( message );    
  }
 }; 
 
-/** ================================================================
-*
-* OpenAjax.a11y.Log.update
-*
-* @desc Calculates execution time and updates progress information
-*
-* @param state  Number Numerical value representing the current 
-*             progress in updating the cache and evaluating rules 
-* @param message String Progress message
-* @param rule_id String id of the current rule being processed
-* 
-* @return nothing
-*
-* =============================================================== */
+/**
+ * @method update
+ *
+ * @memberOf OpenAjax.a11y.Log
+ *
+ * @desc Calculates execution time and updates progress information
+ *
+ * @param  {Number}  state    - Numerical value representing the current 
+ *                              progress in updating the cache and evaluating rules 
+ * @param  {String}  message  - Progress message
+ * @param  {String}  rule_id  - id of the current rule being processed
+ */
   
 OpenAjax.a11y.Log.prototype.update = function (state, message, rule_id) {
 
@@ -362,7 +392,7 @@ OpenAjax.a11y.Log.prototype.update = function (state, message, rule_id) {
   log_rule.time  = change;
   this.last_requirement_item.addLogRule( log_rule );
   this.consoleStatusLog(" " + message, change); 
-  this.count++; 
+  this.rule_count++; 
   break;
 
  case PROGRESS.COMPLETE:
@@ -381,24 +411,24 @@ OpenAjax.a11y.Log.prototype.update = function (state, message, rule_id) {
  } // end switch
  
  if ( this.progressCallBackFunction ) {
-  var percent = Math.round((100 * this.count) / this.total_count);
+  var percent = Math.round((100 * this.rule_count) / this.rules_max);
   var progress_message = message + " (" + this.total_time + " milliseconds)";
   this.progressCallBackFunction(progress_message, percent);
  } 
 
 }; 
 
-/** ================================================================
-*
-* OpenAjax.a11y.Log.timeInMillisecondToString
-*
-* @desc Calculates execution time and updates progress information
-*
-* @param time Number Current time in milliseconds
-* 
-* @return String of the time in milliseconds
-*
-* =============================================================== */
+/**
+ * @method timeInMillisecondToString
+ *
+ * @memberOf OpenAjax.a11y.Log
+ *
+ * @desc Converts a Number to a string
+ *
+ * @param {Number}  time  - Current time in milliseconds
+ * 
+ * @return {String}  Return time in milliseconds
+ */
 
 OpenAjax.a11y.Log.prototype.timeInMillisecondToString = function (time) {
     

@@ -1,5 +1,5 @@
-/**
- * Copyright 2011 OpenAjax Alliance
+/*
+ * Copyright 2011 and 2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,40 +20,53 @@
 
 
 /**
- * MediaCache
+ * @constructor MediaCache
  *
- * @desc Constructor for MediaCache object which contains a list of 
- *    MediaElements representing the accessibility information of
- *    links in a document
+ * @memberOf OpenAjax.a11y.cache
  *
- * @constructs
+ * @desc Creates cache object representing information related to audio, video and other media objects in a document
  *
- * @return  MediaCache object 
+ * @param {DOMCache}   dom_cache   - Reference to the DOMCache object 
+ * 
+ * @property {DOMCache} dom_cache  - Reference to the DOMCache object 
+ *         
+ * @property {Boolean}  up_to_date - Boolean true if the cache has been creating using the current DOMElements, else false
+ *                                   NOTE: This is a common property of all caches and is used when selectively build caches 
+ *                                         based on whether a rule needs the cache
+ *
+ * @property {Array}    media_elements  - List of media element objects in the document 
+ * @property {Number}   length          - Number of media element objects in the list 
+ *
+ * @property {String}   sort_property   - Image element object property the list of media objects is sorted by
+ * @property {Boolean}  sort_ascending  - true if list is sorted in ascending order, otherwise false 
+ *
+ * @property {ResultRuleSummary}  rule_summary_result  - Rule results associated with this cache
  */
 
 OpenAjax.a11y.cache.MediaCache = function (dom_cache) {
 
   this.dom_cache = dom_cache;
+  this.up_to_date = false;
+  
   this.media_elements = [];
+  this.length = 0;
  
   this.sort_property = 'document_order';
   this.sort_ascending = false;
  
-  this.up_to_date = false;
-  this.length = 0;
-
-  return this;
-
+  this.rule_summary_results  = new OpenAjax.a11y.ResultRuleSummary();
 }; 
 
 /**
- * addMediaElement
+ * @method addMediaElement
+ * 
+ * @memberOf OpenAjax.a11y.cache.MediaCache
  *
- * @desc Adds a MediaElement object to a MediaCache object
+ * @desc Adds a media element object to the list of media elements and generates a cache id for the object.
  *
- * @param media_element Object media_element object to add to the link cache
+ * @param  {MediaElement}  media_element  - media element object to add 
  *
- * @return length  Number  length is the number of elements in the cache
+ * @return {Number} Returns the length of the list of media element objects
  */
 
 OpenAjax.a11y.cache.MediaCache.prototype.addMediaElement = function ( media_element ) {
@@ -71,16 +84,34 @@ OpenAjax.a11y.cache.MediaCache.prototype.addMediaElement = function ( media_elem
 };
 
 /**
- * getMediaElementByCacheId
+ * @method getMediaElementByCacheId
+ * 
+ * @memberOf OpenAjax.a11y.cache.MediaCache
  *
- * @desc Returns the MediaElement object with the cache id
+ * @desc Finds the the media element object with the matching cache id
  *
- * @param cache_id String  cache id of the MediaElement object
+ * @param  {String}  cache_id  - Cache id of media element object
  *
- * @return MediaElement object if found, or null if not found 
+ * @return {MediaElement | null} Returns cache media element object if cache id is found, otherwise null
  */
 
 OpenAjax.a11y.cache.MediaCache.prototype.getMediaElementByCacheId = function (cache_id) {
+  return this.getItemByCacheId(cache_id);
+};
+
+/**
+ * @method getItemByCacheId
+ * 
+ * @memberOf OpenAjax.a11y.cache.MediaCache
+ *
+ * @desc Finds the the media element object with the matching cache id
+ *
+ * @param  {String}  cache_id  - Cache id of media element object
+ *
+ * @return {MediaElement | null} Returns cache media element object if cache id is found, otherwise null
+ */
+
+OpenAjax.a11y.cache.MediaCache.prototype.getItemByCacheId = function (cache_id) {
 
   var i;
   var media_elements_len = this.media_elements.length;
@@ -96,11 +127,11 @@ OpenAjax.a11y.cache.MediaCache.prototype.getMediaElementByCacheId = function (ca
 };
 
 /**
- * emptyCache
+ * @method emptyCache
  *
- * @desc Empties the MediaCache of MediaElement objects 
+ * @memberOf OpenAjax.a11y.cache.MediaCache
  *
- * @return none
+ * @desc Resests the media cache object properties and empties all the lists and arrays 
  */
 
 OpenAjax.a11y.cache.MediaCache.prototype.emptyCache = function () {
@@ -113,14 +144,14 @@ OpenAjax.a11y.cache.MediaCache.prototype.emptyCache = function () {
 };
 
 /**
- * updateCacheItems
+ * @method updateCacheItems
  *
- * @desc Updates the MediaCache object by checking to see if a DOMElement
- *    object should be added to this cache
+ * @memberOf OpenAjax.a11y.cache.MediaCache
+ *
+ * @desc Updates the media cache by checking to see if a dom element
+ *          should be added to the cache
  *  
- * @param dom_element Object DOMElement object to check fo inclusion in cache
- *
- * @return nothing
+ * @param  {DOMElement}   dom_element   - dom element object to check for inclusion in media cache
  */
  
 OpenAjax.a11y.cache.MediaCache.prototype.updateCacheItems = function (dom_element) {
@@ -140,14 +171,16 @@ OpenAjax.a11y.cache.MediaCache.prototype.updateCacheItems = function (dom_elemen
 };
 
 /**
- * transverseDOMElementsForMediaElements
+ * @method traverseDOMElementsForMediaElements
  *
- * @desc Traverses the DOMElements to update link elements
+ * @memberOf OpenAjax.a11y.cache.MediaCache
  *
- * @return nothing
+ * @desc Traverses DOMElement objects in the tree to update the media cache 
+ *
+ * @param  {DOMElement}  dom_element - dom element object to check for inclusion in media cache
  */
  
-OpenAjax.a11y.cache.MediaCache.prototype.transverseDOMElementsForMediaElements = function (dom_element) {
+OpenAjax.a11y.cache.MediaCache.prototype.traverseDOMElementsForMediaElements = function (dom_element) {
 
   var i;
 
@@ -157,8 +190,8 @@ OpenAjax.a11y.cache.MediaCache.prototype.transverseDOMElementsForMediaElements =
 
     this.updateCacheItems(dom_element);
   
-    for (i=0; i<dom_element.children.length; i++) {
-      this.transverseDOMElementsForMediaElements(dom_element.children[i]);
+    for (i=0; i<dom_element.child_dom_elements.length; i++) {
+      this.traverseDOMElementsForMediaElements(dom_element.child_dom_elements[i]);
     } // end loop
   }  
   
@@ -166,21 +199,25 @@ OpenAjax.a11y.cache.MediaCache.prototype.transverseDOMElementsForMediaElements =
 
 
 /**
- * updateCache
+ * @method updateCache
  *
- * @desc Traverses the DOMElements to update the color contrast cache
+ * @memberOf OpenAjax.a11y.cache.MediaCache
  *
- * @return nothing
+ * @desc Traverses the DOMElements to update the media cache
+ *       NOTE: This function is only used when the specialized caches
+ *       are build as rules need them.  In this condition, if the rules 
+ *       dependent on the media cache are disabled, this cache would 
+ *       not be updated
  */
  
 OpenAjax.a11y.cache.MediaCache.prototype.updateCache = function () {
   var i;
-  var children = this.dom_cache.element_cache.children;
+  var children = this.dom_cache.element_cache.child_dom_elements;
   var children_len = children.length;
  
   this.dom_cache.log.update(OpenAjax.a11y.PROGRESS.CACHE_START, "Updating media elements cache.");
   for (i=0; i < children_len; i++) {
-    this.transverseDOMElementsForMediaElements(children[i]);
+    this.traverseDOMElementsForMediaElements(children[i]);
   }  
   this.dom_cache.log.update(OpenAjax.a11y.PROGRESS.CACHE_END, "Completed media elements cache update, number of cache items is " + this.length);
 
@@ -188,14 +225,16 @@ OpenAjax.a11y.cache.MediaCache.prototype.updateCache = function () {
 };
 
 /**
- * sortMediaElements
+ * @method sortMediaElements
  *
- * @desc 
+ * @memberOf OpenAjax.a11y.cache.MediaCache
  *
- * @param property  String  property used to sort the cache
- * @param ascending  Boolean true if sort in ascending order; false in descending order
+ * @desc Sorts media element array by a media element object property
  *
- * @return true if list was sorted, false if not
+ * @param {String}   property   - Property of media element object to sort the list
+ * @param {Boolean}  ascending  - true if sort in ascending order; false in descending order
+ *
+ * @return {Boolean}  Returns true if list was sorted, false if not
  */
 
 OpenAjax.a11y.cache.MediaCache.prototype.sortMediaElements = function(property, ascending ) {
@@ -247,16 +286,29 @@ OpenAjax.a11y.cache.MediaCache.prototype.sortMediaElements = function(property, 
 
 };
 
+
+/* ---------------------------------------------------------------- */
+/*                            MediaElement                          */
+/* ---------------------------------------------------------------- */
+
 /**
- * MediaElement
+ * @constructor MediaElement
  *
- * @desc MediaElement is the object used to hold data about a link and references the DOMElement base object
+ * @memberOf OpenAjax.a11y.cache
  *
- * @constructs
+ * @desc Creates media element object representing information related to an object, video, audio, embed or applet element on a web page
  *
- * @param  dom_element     Object  dom_element object provides information about current dom node 
+ * @param  {DOMelement}   dom_element   - The dom element object representing the media element 
  *
- * @return  MediaElement | null
+ * @property  {DOMElement}  dom_element     - Reference to the dom element representing the media element
+ * @property  {String}      cache_id        - String that uniquely identifies the media element object in the cache
+ * @property  {Number}      document_order  - Ordinal position of the media element in the document in relationship to other media elements
+ *
+ * @property  {Number}  is_video               - Constant indicating the probability of the media element including video
+ * @property  {Number}  is_audio               - Constant indicating the probability of the media element including audio
+ * @property  {Number}  has_caption            - Constant indicating the probability of the media element having a caption 
+ * @property  {Number}  has_text_alternative   - Constant indicating the probability of the media element having a text description
+ * @property  {Number}  has_audio_description  - Constant indicating the probability of the media element having an audio description
  */
 
 OpenAjax.a11y.cache.MediaElement = function (dom_element) {
@@ -289,4 +341,117 @@ OpenAjax.a11y.cache.MediaElement = function (dom_element) {
   }
   
 };
+
+/**
+ * @method getResultRules
+ *
+ * @memberOf OpenAjax.a11y.cache.MediaElement
+ *
+ * @desc Returns an array of node results in severity order 
+ *
+ * @return {Array} Returns a array of node results
+ */
+
+OpenAjax.a11y.cache.MediaElement.prototype.getResultRules = function () {
+  return this.dom_element.getResultRules();
+};
+
+/**
+ * @method getStyle
+ *
+ * @memberOf OpenAjax.a11y.cache.MediaElement
+ *
+ * @desc Returns an array of style items 
+ *
+ * @return {Array} Returns a array of style display objects
+ */
+
+OpenAjax.a11y.cache.MediaElement.prototype.getStyle = function () {
+
+  return  this.dom_element.getStyle();
+  
+};
+
+/**
+ * @method getAttributes
+ *
+ * @memberOf OpenAjax.a11y.cache.MediaElement
+ *
+ * @desc Returns an array of attributes for the element, sorted in alphabetical order 
+ *
+ * @param {Boolean}  unsorted  - If defined and true the results will NOT be sorted alphabetically
+ *
+ * @return {Array} Returns a array of attribute display object
+ */
+
+OpenAjax.a11y.cache.MediaElement.prototype.getAttributes = function (unsorted) {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  var properties = this.dom_element.getAttributes(unsorted);
+  
+  cache_nls.addPropertyIfDefined(properties, this, 'is_video');
+  cache_nls.addPropertyIfDefined(properties, this, 'is_audio');
+  cache_nls.addPropertyIfDefined(properties, this, 'has_caption');
+  cache_nls.addPropertyIfDefined(properties, this, 'has_text_alternative');
+  cache_nls.addPropertyIfDefined(properties, this, 'has_audio_description');
+
+  return properties;
+  
+};
+
+/**
+ * @method getCacheProperties
+ *
+ * @memberOf OpenAjax.a11y.cache.MediaElement
+ *
+ * @desc Returns an array of cache properties sorted by property name 
+ *
+ * @param {Boolean}  unsorted  - If defined and true the results will NOT be sorted alphabetically
+ *
+ * @return {Array} Returns a array of cache property display object
+ */
+
+OpenAjax.a11y.cache.MediaElement.prototype.getCacheProperties = function (unsorted) {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  var properties = [];
+  
+  cache_nls.addPropertyIfDefined(properties, this, 'alt_for_comparison');
+  
+  return properties;
+  
+};
+
+/**
+
+ * @method getEvents
+ *
+ * @memberOf OpenAjax.a11y.cache.MediaElement
+ *
+ * @desc Returns an array of events for the element, sorted in alphabetical order 
+ *
+ * @return {Array} Returns a array of event item display objects
+ */
+
+OpenAjax.a11y.cache.MediaElement.prototype.getEvents = function () {
+   
+  return this.dom_element.getEvents();
+  
+};
+
+/**
+ * @method toString
+ *
+ * @memberOf OpenAjax.a11y.cache.MediaElement
+ *
+ * @desc Creates a text string representation of the media element object 
+ *
+ * @return {String} Returns a text string representation of the media element object
+ */
+ 
+ OpenAjax.a11y.cache.MediaElement.prototype.toString = function () {
+   return "Media " + this.document_order + ": " + this.dom_element.tag_name;
+ };
 

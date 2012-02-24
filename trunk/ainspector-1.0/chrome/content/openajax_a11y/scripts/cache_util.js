@@ -1,191 +1,42 @@
-  // ****************************************************** 
-  //
-  // Copyright 2011 OpenAjax Alliance
-  //
-  // Licensed under the Apache License, Version 2.0 (the "License");
-  // you may not use this file except in compliance with the License.
-  // You may obtain a copy of the License at
-  //
-  //  http://www.apache.org/licenses/LICENSE-2.0
-  //
-  // Unless required by applicable law or agreed to in writing, software
-  // distributed under the License is distributed on an "AS IS" BASIS,
-  // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  // See the License for the specific language governing permissions and
-  // limitations under the License.
-  //
-  // ****************************************************** 
-  
-
-
-OpenAjax.a11y.cache.util     = OpenAjax.a11y.cache.util || {};
-  
- /**
- * OpenAjax.a11y extensions to String object
+/**
+ * Copyright 2011 OpenAjax Alliance
  *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
-// string utilities
-if (typeof String.isInteger == "undefined") {
- String.prototype.isInteger = function() {
-  return this.match(/^\d+$/) !== null;
- };
-}
-	
-if (typeof String.trim == "undefined") {
- String.prototype.trim = function() {
-  return this.replace(/^\s+|\s+$/g, '');
- };
-}
+/* ---------------------------------------------------------------- */
+/*        Utilities and String Extensions                           */
+/* ---------------------------------------------------------------- */
 
-if (typeof String.normalizeSpace == "undefined") {
- String.prototype.normalizeSpace = function () {
-  // Replace repeated spaces, newlines and tabs with a single space
-  return this.replace(/^\s*|\s(?=\s)|\s*$/g, "");
- }; // end function normalizeSpace
-}
+/** 
+ * @namespace OpenAjax.a11y.util
+ */
 
-if (typeof String.capitalize == "undefined") {
- String.prototype.capitalize = function() {
-  return this.charAt(0).toUpperCase() + this.slice(1);
- };
-}
+OpenAjax.a11y.util = OpenAjax.a11y.util || {};
 
 
- /**
- * getNameFromChildrenObject
- * 
- * @desc Returns an object with information about the accessible text of a node
+/**
+ * @function UrlExists
+ * @memberOf OpenAjax.a11y.util
  *
- * @param dom_element DOMElement object to get the accessible text
+ * @desc Determines if a URL exits
  *
- * @return object that provides information about the accessible text of the node 
+ * @param {String} url - url to test if it exists
  *
+ * @return  Number  
  */
  
-OpenAjax.a11y.cache.util.getNameFromChildrenObject = function(dom_element) {
-
- function getText(dom_element, strings, texts, alts) {
-  // If text node get the text and return
-  if( dom_element.type == NODE_TYPE.TEXT ) {
-   var text = dom_element.text;
-   strings.push( text );
-   texts.push( text );
-  } else {
-   // if an element for through all the children elements looking for text
-   if( dom_element.type == NODE_TYPE.ELEMENT ) {
-    // check to see if IMG or AREA element and to use ALT content if defined
-    if((dom_element.tag_name == 'img') || (dom_element.tag_name == 'area')) {
-     
-     if (dom_element.alt) {
-       strings.push(dom_element.alt);
-       alts.push(dom_element.alt);
-     }  
-     
-     if( dom_element.node.offsetHeight > o.height ) {
-       o.height = dom_element.node.offsetHeight;
-     } //endif
-     
-     if( dom_element.node.offsetWidth > o.width ) {
-       o.width = dom_element.node.offsetWidth;
-     } //endif
-     
-     o.image_count = o.image_count + 1;
-     
-    } else {
-    
-     for (var i = 0; i < dom_element.children.length; i++ ) {
-      getText( dom_element.children[i], strings, texts, alts);
-     } // endfor
-     
-    } // endif
-    
-   } // endif  
-  } // endif
- } // end function getStrings
-
- // Create return object
- var o = {};
- var name_array = [];
- var name_from_text_nodes_array = [];
- var name_from_image_alt_array = [];
- o.height = 0;
- o.width = 0;
- o.image_count = 0;
-
-
- getText( dom_element, name_array, name_from_text_nodes_array, name_from_image_alt_array); 
- 
- o.name         = name_array.join("").trim().normalizeSpace();
- o.name_from_text_nodes = name_from_text_nodes_array.join("").trim().normalizeSpace().toLowerCase();
- o.name_from_image_alt = name_from_image_alt_array.join("").trim().normalizeSpace().toLowerCase();
- return o;
- 
-}; // end function OpenAjax.cache.util.getAccessibleText
-
-
- /**
- * getNameFromChildren
- * 
- * @desc Returns an object with information about the accessible text of a node
- *
- * @param dom_element DOMElement object to get the accessible text
- *
- * @return object that provides information about the accessible text of the node 
- *
- */
- 
-OpenAjax.a11y.cache.util.getNameFromChildren = function (dom_element) {
- 
- function getTextNodeContent(dom_item, strings) {
-  var i;
-  var children_len;
-
-  if (dom_item.type == NODE_TYPE.TEXT) {
-   strings.push( dom_item.text );
-  } 
-  else {
-   // if an element for through all the children elements looking for text
-   if (dom_item.type == NODE_TYPE.ELEMENT) {
-   
-    // check to see if IMG or AREA element and use ALT content if defined
-    if (((dom_item.tag_name == 'img') || 
-       (dom_item.tag_name == 'area')) &&
-       dom_item.alt && 
-       dom_item.alt.length) {
-      strings.push( dom_item.alt );
-    } else {
-    
-     children_len = dom_item.children.length;
-     
-     for (i=0; i < children_len; i++ ) {
-      getTextNodeContent( dom_item.children[i], strings);
-     } 
-     
-    } 
-   }  
-  } 
- } // end function getTextNodeContent
-
- // Create return object
- var strings = [];
- 
- getTextNodeContent( dom_element, strings); 
- 
- return strings.join("");
-   
-}; // end function OpenAjax.cache.util.getAccessibleText
-
-// ============================
-// UrlExists
-// 
-// @desc Determines if a URL exits
-//
-// @param URL_STATUS
-//
-// ============================
-
-OpenAjax.a11y.cache.util.UrlExists = function (url) {
+OpenAjax.a11y.util.UrlExists = function (url) {
 
  if (OpenAjax.a11y.SUPPORTS_URL_TESTING) {
   try {
@@ -209,16 +60,18 @@ OpenAjax.a11y.cache.util.UrlExists = function (url) {
  
 }; 
 
-// ============================
-// RGBToHex
-// 
-// @desc
-//
-// @param rgb_color
-//
-// ============================
-
-OpenAjax.a11y.cache.util.RGBToHEX = function( rgb_color ) {
+/**
+ * @function RGBToHex
+ * @memberOf OpenAjax.a11y.util
+ * 
+ * @desc Converts an RGB color to Hex values
+ *
+ * @param {String} rgb_color - RGB Color
+ * 
+ * @return  String 
+ */
+ 
+OpenAjax.a11y.util.RGBToHEX = function( rgb_color ) {
 
  function stringToHex(d) {
   var hex = Number(d).toString(16);
@@ -264,3 +117,57 @@ OpenAjax.a11y.cache.util.RGBToHEX = function( rgb_color ) {
  
  return color_hex;
 };
+
+
+/** 
+ * @namespace String
+ */
+
+ /**
+ * @function isInteger
+ * @memberOf String
+ */
+
+// string utilities
+if (typeof String.isInteger == "undefined") {
+ String.prototype.isInteger = function() {
+  return this.match(/^\d+$/) !== null;
+ };
+}
+	
+/**
+ * @function trim
+ * @memberOf String
+ */
+ 
+if (typeof String.trim == "undefined") {
+ String.prototype.trim = function() {
+  return this.replace(/^\s+|\s+$/g, '');
+ };
+}
+
+/**
+ * @function normalizeSpace
+ * @memberOf String
+ */
+
+if (typeof String.normalizeSpace == "undefined") {
+ String.prototype.normalizeSpace = function () {
+  // Replace repeated spaces, newlines and tabs with a single space
+  return this.replace(/^\s*|\s(?=\s)|\s*$/g, "");
+ }; // end function normalizeSpace
+}
+
+/**
+ * @function capitalize
+ * @memberOf String
+ */
+ 
+if (typeof String.capitalize == "undefined") {
+ String.prototype.capitalize = function() {
+  return this.charAt(0).toUpperCase() + this.slice(1);
+ };
+}
+
+
+

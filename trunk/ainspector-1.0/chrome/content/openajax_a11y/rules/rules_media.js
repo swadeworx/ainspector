@@ -1,5 +1,5 @@
 /**
- * Copyright 2011 OpenAjax Alliance
+ * Copyright 2011 and 2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,25 +18,21 @@
 /*            OpenAjax Alliance Media Rules                         */ 
 /* ---------------------------------------------------------------- */
 
-OpenAjax.a11y.addRules([
+OpenAjax.a11y.all_rules.addRulesFromJSON([
 
 /**
+ * @object MEDIA_1
  *
- *  MEDIA 1: Pre-recorded audio must have text alternative
- * 
- * Group: Media
- * 
- * Last update: 
+ * @desc Pre-recorded audio must have text alternative
  */ 
+ 
   {
-    id              : 'MEDIA_1',
-    lastUpdated     : '2011-09-27',
-    cacheDependency : 'lists_cache',
-    cacheProperties : [],
-    language        : "",
-    enabled         : true,
-    validateParams  : {},
-    validate        : function (dom_cache, rule_result) {
+    id                : 'MEDIA_1',
+    last_updated      : '2011-09-27',
+    cache_dependency  : 'lists_cache',
+    cache_properties : [],
+    language          : "",
+    validate          : function (dom_cache, rule_result) {
 
       var SEVERITY   = OpenAjax.a11y.SEVERITY;
       var VISIBILITY = OpenAjax.a11y.VISIBILITY;
@@ -54,7 +50,7 @@ OpenAjax.a11y.addRules([
         me = media_elements[i];
         tag_name = me.dom_element.tag_name;
 
-        if (me.dom_element.computed_style.at === VISIBILITY.VISIBLE) {
+        if (me.dom_element.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
         
           if (me.is_audio === MEDIA.YES || me.is_audio === MEDIA.MAYBE) {
             if (me.has_text_alternative === MEDIA.YES) {
@@ -62,10 +58,10 @@ OpenAjax.a11y.addRules([
             }
             else {          
               if (me.is_audio === MEDIA.MAYBE) {
-                rule_result.addResult(SEVERITY.MANUAL_EVALUATION, me, 'MESSAGE_MAYBE', [tag_name]);            
+                rule_result.addResult(SEVERITY.MANUAL_CHECK, me, 'MESSAGE_MAYBE', [tag_name]);            
               }
               else {
-                rule_result.addResult(SEVERITY.MANUAL_EVALUATION, me, 'MESSAGE_FAIL', []);
+                rule_result.addResult(SEVERITY.MANUAL_CHECK, me, 'MESSAGE_FAIL', []);
               }
             }
           }
@@ -78,22 +74,17 @@ OpenAjax.a11y.addRules([
   },
   
 /**
+ * @object MEDIA_2
  *
- *  MEDIA 2: Pre-recorded video must have text alternative
- * 
- * Group: Media
- * 
- * Last update: 
+ * @desc Pre-recorded video must have audio descriptions
  */ 
   {
-    id              : 'MEDIA_2',
-    lastUpdated     : '2011-09-27',
-    cacheDependency : 'lists_cache',
-    cacheProperties : [],
-    language        : "",
-    enabled         : true,
-    validateParams  : {},
-    validate        : function (dom_cache, rule_result) {
+    id                : 'MEDIA_2',
+    last_updated      : '2011-09-27',
+    cache_dependency  : 'lists_cache',
+    cache_properties : [],
+    language          : "",
+    validate          : function (dom_cache, rule_result) {
 
       var SEVERITY   = OpenAjax.a11y.SEVERITY;
       var VISIBILITY = OpenAjax.a11y.VISIBILITY;
@@ -110,7 +101,7 @@ OpenAjax.a11y.addRules([
         me = media_elements[i];
         tag_name = me.dom_element.tag_name;
 
-        if (me.dom_element.computed_style.at === VISIBILITY.VISIBLE) {
+        if (me.dom_element.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
         
           if (me.is_video === MEDIA.YES || me.is_video === MEDIA.MAYBE) {
           
@@ -119,10 +110,10 @@ OpenAjax.a11y.addRules([
             }
             else {
               if (me.is_video === MEDIA.MAYBE) {
-                rule_result.addResult(SEVERITY.MANUAL_EVALUATION, me, 'MESSAGE_MAYBE', [tag_name]);            
+                rule_result.addResult(SEVERITY.MANUAL_CHECK, me, 'MESSAGE_MAYBE', [tag_name]);            
               }
               else {
-                rule_result.addResult(SEVERITY.MANUAL_EVALUATION, me, 'MESSAGE_FAIL', []);
+                rule_result.addResult(SEVERITY.MANUAL_CHECK, me, 'MESSAGE_FAIL', []);
               }
             }
           }

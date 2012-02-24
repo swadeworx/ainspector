@@ -18,144 +18,116 @@
 /*            OpenAjax Heading and Landmark Cache                   */ 
 /* ---------------------------------------------------------------- */
 
+/* ---------------------------------------------------------------- */
+/*                    LandmarkInfo Object                           */ 
+/* ---------------------------------------------------------------- */
+
 /**
- * LandmarkInfo
+ * @constructor LandmarkInfo
+ *
+ * @memberOf OpenAjax.a11y.cache
  *
  * @desc LandmarkInfo is the constructor for information related to landmarks
  *       in building the headings/landmark cache
  *
- * @constructs
+ * @param {LandmarkInfo}  landmark_info - Current landmark (if any)
  *
- * @return  LandmarkInfo object 
+ * @property {Control Object}  landmark_element  - Parent landmark element 
  */
 
 OpenAjax.a11y.cache.LandmarkInfo = function (landmark_info) {
 
   if (landmark_info) {
     this.landmark_element = landmark_info.landmark_element;
-    this.main_element  = landmark_info.main_element;
   }
   else {
     this.landmark_element = null;
-    this.main_element  = null;
   }
  
 };
 
+/* ---------------------------------------------------------------- */
+/*                     HeadingsLandmarksCache                       */ 
+/* ---------------------------------------------------------------- */
+
 /**
- * LandmarkCache
+ * @constructs HeadingsLandmarksCache
  *
- * @desc Constructor for LandmarkCache object which contains a list of 
- *    LandmarkElements representing the accessibility information of
- *    links in a document
+ * @memberOf OpenAjax.a11y.cache
  *
- * @constructs
+ * @desc HeadingsLandmarksCache is the constructor for lists of heading and landmrk element objects and
+ *       the root of a tree representation of the landmark and heading element relationships
  *
- * @return  LandmarkCache object 
+ * @param {DOMCache}  dom_cache   - Reference to the DOMCache object 
+ * 
+ * @property {DOMCache} dom_cache  - Reference to the DOMCache object 
+ *         
+ * @property {Boolean}  up_to_date - Boolean true if the cache has been creating using the current DOMElements, else false
+ *                                   NOTE: This is a common property of all caches and is used when selectively build caches 
+ *                                          based on whether a rule needs the cache
+ *
+ * @property {Array}  child_cache_elements  - Root array of the tree representation of the landmarks and headings in the document 
+ *
+ * @property {Array}   landmark_elements        - List of all the landmark elements in the document 
+ * @property {String}  landmarks_sort_property  - Name of the landmark element property the landmark elements array is currently sorted
+ * @property {Number}  landmark_length          - The length of the landmark elements list, used in calculating cache id values 
+ *
+ * @property {Array}   heading_elements        - List of all the heading elements in the document 
+ * @property {String}  headings_sort_property  - Name of the heading element property the heading elements array is currently sorted
+ * @property {Number}  heading_length          - The length of the heading elements list, used in calculating cache id values 
+ *
+ * @property {ResultRuleSummary}  rule_summary_result  - Rule results associated with this cache
  */
 
 OpenAjax.a11y.cache.HeadingsLandmarksCache = function (dom_cache) {
 
   this.dom_cache = dom_cache;
- 
-  this.landmark_elements = [];
-  this.heading_elements = [];
-  // List of elements with role=main or h1 elements
-  this.main_elements = [];
- 
-  this.child_elements   = [];
-  this.child_main_elements = [];
- 
-  this.headings_sort_property  = 'document_order';
-  this.landmarks_sort_property = 'document_order';
- 
+  
   this.up_to_date    = false;
  
-  this.child_length   = 0;
-  this.child_main_length = 0;
- 
-  this.heading_length  = 0;
+  this.child_cache_elements   = [];
+  
+  this.landmark_elements = [];
+  this.landmarks_sort_property = 'document_order';
   this.landmark_length  = 0;
-  this.main_length    = 0;
-
-  this.has_title = false;
- 
-  return this;
-
+  
+  this.heading_elements = [];  
+  this.headings_sort_property  = 'document_order';
+  this.heading_length  = 0;
+   
+  this.rule_summary_results  = new OpenAjax.a11y.ResultRuleSummary();
+  
 };
 
 /**
- * addChildElement
+ * @method addChildElement
  *
- * @desc Adds a Landmark or Header Element object to the child_element array
+ * @memberOf OpenAjax.a11y.cache.HeadingsLandmarksCache
  *
- * @param child_element     Object  landmark_element or heading_element object to add to the landmark cache
+ * @desc Adds a landmark or header element object to the root level of a tree of landmark/heading elements  
  *
- * @return length  Number  length is the number of elements in the cache
+ * @param {LandmarkElement | HeadingElement} child_element - Landmark or heading element object to add
  */
 
 OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.addChildElement = function (child_element) {
 
   // item must exist and have the position property
   if (child_element) {
-    this.child_length = this.child_length + 1;
-    this.child_elements.push(child_element);
+    this.child_cache_elements.push(child_element);
   } 
-
-  return this.length;
 
 };
 
 /**
- * addChildMainElement
+ * @method addLandmarkElement
  *
- * @desc Adds a Main Element object to the child_main_elements array
+ * @memberOf OpenAjax.a11y.cache.HeadingsLandmarksCache
  *
- * @param main_element Object  main landmark or heading level 1 object to add to the landmark cache
+ * @desc   Adds a landmark element object to the heading elements list
  *
- * @return nothing
- */
-
-OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.addChildMainElement = function (main_element) {
-
-  if (main_element) {
-    this.child_main_length = this.child_main_length + 1;
-    this.child_main_elements.push(main_element);
-  } 
-};
-
-/**
- * addMainElement
+ * @param  {LandmarkElement} heading_element  - Landmark element object to a landmark elements list
  *
- * @desc Adds a Landmark or Header Element object to the main_elements array
- *
- * @param child_element Object  main landmark or heading level 1 object to add to the landmark cache
- *
- * @return length Number  length is the number of elements in the cache
- */
-
-OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.addMainElement = function (main_element) {
-
-  if (main_element) {
-    this.main_length = this.main_length + 1;
-    main_element.document_order = this.main_length;
-    main_element.cache_id = "main_" + this.main_length;
-    this.main_elements.push(main_element);
-  } 
-
-  return this.length;
-
-};
-
-/**
- *
- * addLandmarkElement
- *
- * @desc Adds a LandmarkElement object to a heading_elements array
- *
- * @param landmark_element Object  landmark_element object to a landmark_elements array
- *
- * @return Number  length is the number of elements in the landmark_elements array
+ * @return {Number} Returns the length of the landmark elements list
  */
 
 OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.addLandmarkElement = function (landmark_element) {
@@ -171,13 +143,15 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.addLandmarkElement = functi
 };
 
 /**
- * addHeadingElement
+ * @method addHeadingElement
  *
- * @desc Adds a HeadingElement object to a heading_elements array
+ * @memberOf OpenAjax.a11y.cache.HeadingsLandmarksCache
  *
- * @param heading_element Object  heading_element object to a heading_elements array
+ * @desc   Adds a heading element object to the heading elements list
  *
- * @return Number  length is the number of elements in the heading_elements array
+ * @param  {HeadingElement} heading_element  - HeadingElement object to a heading_elements array
+ *
+ * @return {Number} Returns the length of the heading elements list
  */
 
 OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.addHeadingElement = function (heading_element) {
@@ -191,15 +165,39 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.addHeadingElement = functio
   return this.heading_length;
 };
 
+/**
+ * @method getItemByCacheId
+ *
+ * @memberOf OpenAjax.a11y.cache.HeadingsLandmarksCache
+ *
+ * @desc  Finds the landmark or heading element object with the cache id value 
+ *
+ * @param  {String}  cache_id  - cache id of a landmark element object
+ *
+ * @return  {LandmarkElement | HeadingElement | null} Returns a landmark element object if cache id found, otherwise null
+ */
+
+OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.getItemByCacheId = function (cache_id) {
+
+  var item = this.getLandmarkElementByCacheId(cache_id);
+  if (item) return item;
+  
+  item = this.getHeadingElementByCacheId(cache_id);
+  
+  return item;
+
+};
 
 /**
- * getLandmarkElementByCacheId
+ * @method getLandmarkElementByCacheId
  *
- * @desc Returns the LandmarkElement object with the id
+ * @memberOf OpenAjax.a11y.cache.HeadingsLandmarksCache
  *
- * @param cache_id String  id of the LandmarkElement object
+ * @desc  Finds the landmark element object with the cache id value 
  *
- * @return LandmarkElement object if found, or null if not found 
+ * @param  {String}  cache_id  - cache id of a landmark element object
+ *
+ * @return  {LandmarkElement | null} Returns a landmark element object if cache id found, otherwise null
  */
 
 OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.getLandmarkElementByCacheId = function (cache_id) {
@@ -218,13 +216,15 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.getLandmarkElementByCacheId
 };
 
 /**
- * getHeadingElementById
+ * @method getHeadingElementByCacheId
  *
- * @desc Returns the HeadingElement object with the id
+ * @memberOf OpenAjax.a11y.cache.HeadingsLandmarksCache
  *
- * @param cache_id String  id of the HeadingElement object
+ * @desc  Finds the heading element object with the cache id value 
  *
- * @return HeadingElement object if found, or null if not found 
+ * @param  {String}  cache_id  - cache id of a heading element object
+ *
+ * @return  {HeadingElement | null}  Returns a heading object if cache id found, otherwise null
  */
 
 OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.getHeadingElementByCacheId = function (cache_id) {
@@ -244,62 +244,41 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.getHeadingElementByCacheId 
 };
 
 /**
- * getMainElementByCacheId
+ * @method initCache
  *
- * @desc Returns the MainElement object with the id
+ * @memberOf OpenAjax.a11y.cache.HeadingsLandmarksCache
  *
- * @param cache_id String  id of the MainElement object
- *
- * @return HeadingElement object if found, or null if not found 
- */
-
-OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.getMainElementByCacheId = function (cache_id) {
- 
-  var i;
-  var main_elements_len = this.main_elements.length;
-
-  if (cache_id) {
-    for (i=0; i<main_elements_len; i++) {
-      if (this.main_elements[i].cache_id == cache_id) {
-        return this.main_elements[i];
-      } 
-    } // end loop
-  }
- 
-  return null;
-};
-
-/**
- * initCache
- *
- * @desc Empties the LandmarkCache of LandmarkElement objects 
- *
- * @return none
+ * @desc Empties the landmark and headings cache 
  */
 
 OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.initCache = function () {
 
-  this.landmark_elements = [];
-  this.headings_elements = [];
-  this.child_elements  = [];
-  this.main_elements = [];
+  this.child_cache_elements  = [];
+  
+  this.up_to_date = false;
  
-  this.landmark_sort_property = 'document_order';
+  this.landmark_elements = [];
+  this.landmark_length = 0;
+  this.landmarks_sort_property = 'document_order';
+  
+  this.heading_elements = [];
+  this.heading_length = 0;
   this.headings_sort_property = 'document_order';
  
-  this.up_to_date = false;
-
 };
 
 /**
- * updateCacheItems
+ * @method updateCacheItems
  *
- * @desc Updates the LandmarkCache object by checking to see if a DOMElement
- *    object should be added to this cache
+ * @memberOf OpenAjax.a11y.cache.HeadingsLandmarksCache
+ *
+ * @desc Updates the landmarks and headings cache by checking to see if a DOMElement
+ *          should be added
  *  
- * @param dom_element Object DOMElement object to check fo inclusion in cache
- *
- * @return LandmarkElement 
+ * @param  {DOMElement}    dom_element    - DOMElement object to check for inclusion in links cache
+ * @param  {LandmarkInfo}  landmark_info  - Information about the current landmarks that are parents to this item
+ * 
+ * @return {LandmarkInfo}  Returns updated landmark info object
  */
  
 OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.updateCacheItems = function (dom_element, landmark_info) {
@@ -334,22 +313,6 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.updateCacheItems = function
   
     li.landmark_element = le;
 
-    if (dom_element.role == 'main') {
-      me = new OpenAjax.a11y.cache.MainElement(dom_element, li.main_element);    
-
-      this.dom_cache.getNameFromARIALabel(me);
-
-      this.addMainElement(me);  
-
-      if (landmark_info.main_element) {
-        landmark_info.main_element.addMainElement(me);
-      } 
-      else {
-        this.addChildMainElement(me);  
-      }
-  
-      li.main_element = me;
-    }
     return li;
   }
  
@@ -371,52 +334,24 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.updateCacheItems = function
       this.addChildElement(he);  
     }
 
-    if (dom_element.tag_name == 'h1') {
-      me = new OpenAjax.a11y.cache.MainElement(dom_element, li.main_element);    
-
-      this.addMainElement(me);  
-
-      if (landmark_info.main_element) {
-        landmark_info.main_element.addChildMainElement(me);
-      } 
-      else {
-        this.addChildMainElement(me);  
-      }  
-    }
     return li;
   }
 
-  if (dom_element.tag_name == 'title' && !this.has_title) {
-    me = new OpenAjax.a11y.cache.MainElement(dom_element, li.main_element);    
-
-    this.addMainElement(me);
-   
-    if (me.role === 'main') this.dom_cache.getNameFromARIALabel(me);
-
-    if (landmark_info.main_element) {
-      landmark_info.main_element.addChildMainElement(me);
-    }
-    else {
-      this.addChildMainElement(me);  
-    }
-   
-    // There is only one title for a document, even when there are frames and iframes
-    this.has_title = true;
-   
-    return li;
-  }
   return li;
+  
 };
 
 /**
- * transverseDOMElementsForLandmarkElements
+ * @method traverseDOMElementsForLandmarkElements
  *
- * @desc Traverses the DOMElements to update landmarkelements
+ * @memberOf OpenAjax.a11y.cache.HeadingsLandmarksCache
  *
- * @return nothing
+ * @desc Traverses DOMElement objects in the tree to update the landmarks and headings cache 
+ *
+ * @param  {DOMElement}  dom_element - DOMElement object to check for inclusion in landmarks and headings cache
  */
  
-OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.transverseDOMElementsForLandmarkElements = function (dom_element, landmark_info) {
+OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.traverseDOMElementsForLandmarkElements = function (dom_element, landmark_info) {
 
   if (!dom_element) return;
 
@@ -424,25 +359,29 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.transverseDOMElementsForLan
 
     var li = this.updateCacheItems(dom_element, landmark_info);
     
-    for (var i = 0; i < dom_element.children.length; i++ ) {
-      this.transverseDOMElementsForLandmarkElements(dom_element.children[i], li);
+    for (var i = 0; i < dom_element.child_dom_elements.length; i++ ) {
+      this.traverseDOMElementsForLandmarkElements(dom_element.child_dom_elements[i], li);
     } 
   }
 };
 
 
 /**
- * updateCache
+ * @method updateCache
  *
- * @desc Traverses the DOMElements to update the landmark cache
+ * @memberOf OpenAjax.a11y.cache.HeadingsLandmarksCache
  *
- * @return nothing
+ * @desc Traverses the DOMElements to update the landmarks and heading cache
+ *       NOTE: This function is only used when the specialized caches
+ *       are build as rules need them.  In this condition, if the rules 
+ *       dependent on the landmark and headings cache are disabled, this 
+ *       cache would not be updated
  */
  
 OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.updateCache = function () {
   var i;
   var li;
-  var children = this.dom_cache.element_cache.children;
+  var children = this.dom_cache.element_cache.child_dom_elements;
   var children_len = children.length;
  
   this.initCache();
@@ -451,7 +390,7 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.updateCache = function () {
  
   this.dom_cache.log.update(OpenAjax.a11y.PROGRESS.CACHE_START, "Updating landmark elements cache.");
   for (i=0; i < children_len; i++) {
-    this.transverseDOMElementsForLandmarkElements(children[i], li);
+    this.traverseDOMElementsForLandmarkElements(children[i], li);
   }  
   this.dom_cache.log.update(OpenAjax.a11y.PROGRESS.CACHE_END, "Completed landmark elements cache update, number of cache items is " + this.length);
 
@@ -460,14 +399,16 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.updateCache = function () {
 
 
 /**
- * sortLandmarkElements
+ * @method sortLandmarkElements
  *
- * @desc 
+ * @memberOf OpenAjax.a11y.cache.HeadingsLandmarksCache
  *
- * @param property  String  property used to sort the cache
- * @param ascending  Boolean true if sort in ascending order; false in descending order
+ * @desc    Sorts the landmark elements list based on a property of the landmark element object
  *
- * @return true if list was sorted, false if not
+ * @param   {String}   property   - LandmarkElement object property used to sort the cache
+ * @param   {Boolean}  ascending  - true if sort in ascending order; false in descending order
+ *
+ * @return  {Boolean}  Return true if list was sorted; false was not sorted due to an error
  */
 
 OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.sortLandmarkElements = function(property, ascending ) {
@@ -518,14 +459,16 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.sortLandmarkElements = func
 };
 
 /**
- * sortHeadingElements
+ * @method sortHeadingElements
  *
- * @desc 
+ * @memberOf OpenAjax.a11y.cache.HeadingsLandmarksCache
  *
- * @param property  String  property used to sort the cache
- * @param ascending  Boolean true if sort in ascending order; false in descending order
+ * @desc  Sorts the heading_elements array based on a property of the HeadingElement object
  *
- * @return true if list was sorted, false if not
+ * @param {String}   property   - HeadingElement object property used to sort the cache
+ * @param {Boolean}  ascending  -  true if sort in ascending order; false in descending order
+ *
+ * @return  {Boolean}  true if list was sorted, false if not
  */
 
 OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.sortHeadingElements = function(property, ascending ) {
@@ -577,82 +520,215 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.sortHeadingElements = funct
 
 };
 
+/* ---------------------------------------------------------------- */
+/*                       LandmarkElement                            */ 
+/* ---------------------------------------------------------------- */
+
 /**
- * LandmarkElement
- * 
- * @desc LandmarkElement is the object contains information about landmarks
+ * @constructor LandmarkElement
  *
- * @constructs
+ * @memberOf OpenAjax.a11y.cache
  *
- * @param  dom_element     Object dom_element object provides information about current dom node 
- * @param  parent_element    Object landmark element object provides information about a parent landmark element 
+ * @desc Creates a landmark element object used to hold information about a landmark 
  *
- * @return  LandmarkElement | null
+ * @param  {DOMelement}       dom_element      - The dom element object representing the landmark element 
+ * @param  {LandmarkElement}  parent_landmark  - Information about the parent landmark (NOTE: can be null)
+ *
+ * @property  {DOMElement}  dom_element     - Reference to the dom element representing the landmark element
+ * @property  {String}      cache_id        - String that uniquely identifies the cache element object in the cache
+ * @property  {Number}      document_order  - Ordinal position of the landmark element in the document in relationship to other landmark elements
+ *
+ * @property  {Array}  child_cache_elements  - Array of child cache landmark and heading element objects as part of cache landmark and header tree 
+ *
+ * @property  {String}   label                  - Accessible label of the landmark 
+ * @property  {Number}   label_length           - Length of label text 
+ * @property  {Number}   label_source           - Constant representing the source of the label (i.e. aria-label, aria-labelledby, title...) 
+ * @property  {String}   label_for_comparison   - Accessible label for comparison (i.e. lowercase, trimmed and space normalized)
  */
 
 OpenAjax.a11y.cache.LandmarkElement = function (dom_element, parent_landmark) {
 
-  this.document_order    = 0;
-  this.dom_element      = dom_element;
-  this.child_elements    = [];
+  this.dom_element           = dom_element;
+  this.cache_id              = "";
+  this.document_order        = 0;
 
-  this.parent_landmark    = parent_landmark;
+  this.child_cache_elements  = [];
+
+  this.parent_landmark       = parent_landmark;
  
-  this.label         = "";
+  this.label                 = "";
+  this.label_length          = 0;
+  this.label_source          = OpenAjax.a11y.SOURCE.NONE;
   this.label_for_comparison  = "";
  
 };
 
-
 /**
- * addChildElement
- * 
- * @desc add a child element reference to child_elements array 
+ * @method addChildElement
  *
- * @constructs
+ * @memberOf OpenAjax.a11y.cache.LandmarkElement
  *
- * @param  child_element    Object landmark or header element object is the child 
+ * @desc Adds a LandmarkElement or HeaderElement object to the tree of landmark/heading elements  
  *
- * @return  nothing
+ * @param {LandmarkElement | HeadingElement}  child_element  - Landmark element or heading element object to add 
  */
 
 OpenAjax.a11y.cache.LandmarkElement.prototype.addChildElement = function (child_element) {
 
   if (child_element) {
-    this.child_elements.push(child_element); 
+    this.child_cache_elements.push(child_element); 
   }  
 
 }; 
 
 
 /**
- * toString
- * 
- * @desc returns a text string representing the object
+ * @method getResultRules
  *
- * @return  String
+ * @memberOf OpenAjax.a11y.cache.LandmarkElement
+ *
+ * @desc Returns an array of node results in severity order 
+ *
+ * @return {Array} Returns a array of node results
+ */
+
+OpenAjax.a11y.cache.LandmarkElement.prototype.getResultRules = function () {
+  return this.dom_element.getResultRules();
+};
+
+/**
+ * @method getStyle
+ *
+ * @memberOf OpenAjax.a11y.cache.LandmarkElement
+ *
+ * @desc Returns an array of style items 
+ *
+ * @return {Array} Returns a array of style display objects
+ */
+
+OpenAjax.a11y.cache.LandmarkElement.prototype.getStyle = function () {
+
+  return this.dom_element.getStyle();
+  
+};
+
+/**
+ * @method getAttributes
+ *
+ * @memberOf OpenAjax.a11y.cache.LandmarkElement
+ *
+ * @desc Returns an array of attributes for the element, sorted in alphabetical order 
+ *
+ * @param {Boolean}  unsorted  - If defined and true the results will NOT be sorted alphabetically
+ *
+ * @return {Array} Returns a array of attribute display object
+ */
+
+OpenAjax.a11y.cache.LandmarkElement.prototype.getAttributes = function (unsorted) {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  var attributes = this.dom_element.getAttributes();
+  
+//  cache_nls.addPropertyIfDefined(attributes, this, 'tag_name');
+  
+  if (!unsorted) this.dom_element.sortItems(attributes);
+  
+  return attributes;
+};
+
+/**
+ * @method getCacheProperties
+ *
+ * @memberOf OpenAjax.a11y.cache.LandmarkElement
+ *
+ * @desc Returns an array of cache properties sorted by property name 
+ *
+ * @param {Boolean}  unsorted  - If defined and true the results will NOT be sorted alphabetically
+ *
+ * @return {Array} Returns a array of cache property display object
+ */
+
+OpenAjax.a11y.cache.LandmarkElement.prototype.getCacheProperties = function (unsorted) {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+
+  var properties = this.dom_element.getCacheProperties(unsorted);
+
+  cache_nls.addPropertyIfDefined(properties, this, 'label');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_for_comparison');
+
+  if (!unsorted) this.dom_element.sortItems(properties);
+
+  return properties;
+};
+
+/**
+
+ * @method getEvents
+ *
+ * @memberOf OpenAjax.a11y.cache.LandmarkElement
+ *
+ * @desc Returns an array of events for the element, sorted in alphabetical order 
+ *
+ * @return {Array} Returns a array of event item display objects
+ */
+
+OpenAjax.a11y.cache.LandmarkElement.prototype.getEvents = function () {
+   
+  return this.dom_element.getEvents();
+  
+};
+
+/**
+ * @method toString
+ *
+ * @memberOf OpenAjax.a11y.cache.LandmarkElement
+ *
+ * @desc Returns a text string representation of the landmark element 
+ *
+ * @return {String} Returns string represention the landmark element object
  */
  
 OpenAjax.a11y.cache.LandmarkElement.prototype.toString = function () {
- return "Landmark " + this.document_order;  
+ if (this.label && this.label_length) {
+   return this.dom_element.role + " landmark: " + this.label;  
+ }
+ else {
+   return this.dom_element.role + " landmark: no label";   
+ }
 }; 
 
+/* ---------------------------------------------------------------- */
+/*                       HeadingElement                             */ 
+/* ---------------------------------------------------------------- */
 
 /**
- * HeadingElement
+ * @constructor HeadingElement
  *
- * @desc HeadingElement is the object used to hold data about a heading and inherits the DOMObject base object
+ * @memberOf OpenAjax.a11y.cache
  *
- * @constructs
+ * @desc Creates a heading element object used to hold information about a h1 - h6 heading elements 
  *
- * @param  dom_element  Object  dom_element object provides information about current dom node 
+ * @param  {DOMelement}       dom_element      - The dom element object representing the heading element 
  *
- * @return  HeadingElement | null
+ * @property  {DOMElement}  dom_element     - Reference to the dom element representing the optgroup element
+ * @property  {String}      cache_id        - String that uniquely identifies the cache element object in the cache
+ * @property  {Number}      document_order  - Ordinal position of the heading element in the document in relationship to other heading elements
+ *
+ * @property  {String}   name                  - Calculated accessible name of the heading 
+ * @property  {Number}   name_length           - Length of accessible name 
+ * @property  {String}   name_for_comparison   - Accessible name for comparison (i.e. lowercase, trimmed and space normalized)
+ * @property  {String}   name_from_text_nodes  - Accessible name content from text nodes
+ * @property  {String}   name_from_image_alt   - Accessible name content from alt content of images
+ * @property  {Number}   image_count           - Number of images that are descendents of the link
+ * @property  {Boolean}  text_only_from_image  - true if accessble name is onky from an image, otherwise false 
  */
 
 OpenAjax.a11y.cache.HeadingElement = function (dom_element) {
  
-  this.dom_element = dom_element;
+  this.dom_element     = dom_element;
+  this.cache_id        = "";
+  this.document_order  = 0;
    
   switch( dom_element.tag_name ) {
   case 'h1':
@@ -684,189 +760,139 @@ OpenAjax.a11y.cache.HeadingElement = function (dom_element) {
     break;
   } // end switch
 
-  var ano = OpenAjax.a11y.cache.util.getNameFromChildrenObject(dom_element);
+  var ano = dom_element.getTextObject();
   
-  this.name          = ano.name;
-  this.name_for_comparison  = ano.name.toLowerCase().trim();
+  this.name                  = ano.name;
+  this.name_length           = ano.name.length;
+  this.name_for_comparison   = ano.name.normalizeSpace().toLowerCase();
   this.name_from_text_nodes  = ano.name_from_text_nodes;
-  this.name_from_image_alt  = ano.name_from_image_alt;
-  this.image_count      = ano.image_count;
+  this.name_from_image_alt   = ano.name_from_image_alt;
+  this.image_count           = ano.image_count;
   this.text_only_from_image  = (ano.name_from_text_nodes.length === 0) && (ano.name_from_image_alt.length > 0);
   
   return this;
     
 };
 
+
 /**
- * toString
- * 
- * @desc returns a text string representing the object
+ * @method getResultRules
  *
- * @return  String
+ * @memberOf OpenAjax.a11y.cache.HeadingElement
+ *
+ * @desc Returns an array of node results in severity order 
+ *
+ * @return {Array} Returns a array of node results
+ */
+
+OpenAjax.a11y.cache.HeadingElement.prototype.getResultRules = function () {
+  return this.dom_element.getResultRules();
+};
+
+/**
+ * @method getStyle
+ *
+ * @memberOf OpenAjax.a11y.cache.HeadingElement
+ *
+ * @desc Returns an array of style items 
+ *
+ * @return {Array} Returns a array of style display objects
+ */
+
+OpenAjax.a11y.cache.HeadingElement.prototype.getStyle = function () {
+
+  return this.dom_element.getStyle();
+  
+};
+
+/**
+ * @method getAttributes
+ *
+ * @memberOf OpenAjax.a11y.cache.HeadingElement
+ *
+ * @desc Returns an array of attributes for the element, sorted in alphabetical order 
+ *
+ * @param {Boolean}  unsorted  - If defined and true the results will NOT be sorted alphabetically
+ *
+ * @return {Array} Returns a array of attribute display object
+ */
+
+OpenAjax.a11y.cache.HeadingElement.prototype.getAttributes = function (unsorted) {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  var attributes = this.dom_element.getAttributes();
+  
+//  cache_nls.addPropertyIfDefined(attributes, this, 'tag_name');
+  
+  if (!unsorted) this.dom_element.sortItems(attributes);
+  
+  return attributes;
+};
+
+/**
+ * @method getCacheProperties
+ *
+ * @memberOf OpenAjax.a11y.cache.HeadingElement
+ *
+ * @desc Returns an array of cache properties sorted by property name 
+ *
+ * @param {Boolean}  unsorted  - If defined and true the results will NOT be sorted alphabetically
+ *
+ * @return {Array} Returns a array of cache property display object
+ */
+
+OpenAjax.a11y.cache.HeadingElement.prototype.getCacheProperties = function (unsorted) {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+
+  var properties = this.dom_element.getCacheProperties(unsorted);
+
+ cache_nls.addPropertyIfDefined(properties, this, 'name');
+ cache_nls.addPropertyIfDefined(properties, this, 'name_for_comparison');
+ cache_nls.addPropertyIfDefined(properties, this, 'name_from_text_nodes');
+ cache_nls.addPropertyIfDefined(properties, this, 'name_from_image_alt');
+ cache_nls.addPropertyIfDefined(properties, this, 'image_count');
+ cache_nls.addPropertyIfDefined(properties, this, 'text_only_from_image');
+ 
+  if (!unsorted) this.dom_element.sortItems(properties);
+
+  return properties;
+};
+
+/**
+
+ * @method getEvents
+ *
+ * @memberOf OpenAjax.a11y.cache.HeadingElement
+ *
+ * @desc Returns an array of events for the element, sorted in alphabetical order 
+ *
+ * @return {Array} Returns a array of event item display objects
+ */
+
+OpenAjax.a11y.cache.HeadingElement.prototype.getEvents = function () {
+   
+  return this.dom_element.getEvents();
+  
+};
+
+
+/**
+ * @method toString
+ *
+ * @memberOf OpenAjax.a11y.cache.HeadingElement
+ *
+ * @desc Returns a text string representation of the heading (h1-h6) element 
+ *
+ * @return {String} Returns string represention the heading element object
  */
   
 OpenAjax.a11y.cache.HeadingElement.prototype.toString = function() {
-  return "Heading " + this.document_order;
-};
-
-/**
- * MainElement
- * 
- * @desc MainElement is the object contains information about h1 and main landmarks
- *
- * @constructs
- *
- * @param  dom_element     Object dom_element object provides information about current dom node 
- * @param  parent_element    Object landmark element object provides information about a parent landmark element 
- *
- * @return  MainElement | null
- */
-
-OpenAjax.a11y.cache.MainElement = function (dom_element, parent_landmark) {
-
-  this.document_order    = 0;
-  this.dom_element       = dom_element;
-  this.main_elements     = [];
-  this.is_title           = false; 
-
-  this.parent_landmark    = parent_landmark; // restricted to main landmarks
-
-  switch (dom_element.tag_name) {
- 
-  case 'h1':
-    this.name  = OpenAjax.a11y.cache.util.getNameFromChildren(dom_element);
-    this.name_for_comparison  = this.name.toLowerCase().trim();
-    this.level = 1;
-    break;
- 
-  case 'title':
-    this.name    = OpenAjax.a11y.cache.util.getNameFromChildren(dom_element);
-    this.name_for_comparison  = this.name.toLowerCase().trim();
-    this.is_title = true;
-    this.role    = 'title';
-    break;
- 
-  default: 
-    this.name                 = "";
-    this.name_for_comparison  = ""; 
-    break;  
-  } 
-
-}; 
-
-
-/**
- * addMainElement
- * 
- * @desc add a child element reference to child_elements array 
- *
- * @constructs
- *
- * @param  child_element    Object landmark or header element object is the child 
- *
- * @return  nothing
- */
-
-OpenAjax.a11y.cache.MainElement.prototype.addChildMainElement = function (main_element) {
-
-  if (main_element) {
-    this.main_elements.push(main_element); 
-  }  
-
-}; 
-
-/**
- * toString
- * 
- * @desc returns a text string representing the object
- *
- * @return  String
- */
-  
-OpenAjax.a11y.cache.MainElement.prototype.toString = function () {
- if (this.dom_element.tag_name == "h1" ) {
-  return "h1: " + this.name; 
- }
- else { 
-  return this.dom_element.tag_name + "[@role=main]: " + this.label;  
- } 
-
-};
-
-/**
- * getH1InformationForMainRole
- * 
- * @desc get information about H1 elements that are children of a MAIN landmark
- *
- * @return  object
- */
-
-OpenAjax.a11y.cache.MainElement.prototype.getH1InformationForMainRole = function () {
-
-
-  var i;
-  var me;
-  
-  var h1_info = {};
-  h1_info.has_h1 = false;
-  h1_info.has_label = false;
-
-  if (this.dom_element.role !== 'main') return h1_info;
-  
-  var ids = this.dom_element.aria_labelledby;
-
-  var main_elements     = this.main_elements;
-  var main_elements_len = main_elements.length; 
-  
-  for (i=0; i<main_elements_len; i++) {
-  
-    me = main_elements[i];
-    
-    if (me.level==1) {
-      h1_info.has_h1 = true;
-    
-      if ((me.dom_element.id.length) &&
-          (ids.indexOf(me.dom_element.id)>=0)) {
-        h1_info.has_label = true;          
-      }
-    } 
-  } // end loop
-  
-  return h1_info;
-  
-};
-
-/**
- * isH1UsedAsLabelForMainRole
- * 
- * @desc Determine if an H1 element is being used as a label for a main Role
- *
- * @return  Boolean
- */
-
-OpenAjax.a11y.cache.MainElement.prototype.isH1UsedAsLabelForMainRole = function () {
-
-  if (!this.level ||
-      this.level !== 1 ||
-      this.dom_element.id.length === 0 ||
-      this.parent_landmark === null) {
-    return false;
-  }  
-
-  var me = this.parent_landmark;
-  
-  while (me.dom_element.role !== 'main' && me.parent_landmark) {
-    me = me.parent_landmark;
+  if (this.name && this.name_length) {
+    return "H" + this.level + ": " + this.name;
   }
-  
-  if ( me && 
-       me.dom_element.role === 'main' && 
-       me.dom_element.aria_labelledby.indexOf(this.dom_element.id) >= 0) {
-    return true;   
+  else {
+    return "H" + this.level + ": no content";
   }
-  
-  return false;
-  
+
 };
-
-

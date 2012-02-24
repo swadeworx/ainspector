@@ -1,5 +1,5 @@
-/**
- * Copyright 2011 OpenAjax Alliance
+/*
+ * Copyright 2011 and 2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,281 +19,502 @@
 /* ---------------------------------------------------------------- */
 
 /**
- * ImageCache
+ * @constructor ImagesCache
  *
- * @desc Constructor for ImageCache object which contains a list of 
- *    ImageElements representing the accessibility information of
- *    images in a document
+ * @memberOf OpenAjax.a11y.cache
  *
- * @constructs
+ * @desc Creates cache object representing information related to images in a document
  *
- * @return  ImageCache object 
+ * @param {DOMCache}   dom_cache   - Reference to the DOMCache object 
+ * 
+ * @property {DOMCache} dom_cache  - Reference to the DOMCache object 
+ *         
+ * @property {Boolean}  up_to_date - Boolean true if the cache has been creating using the current DOMElements, else false
+ *                                   NOTE: This is a common property of all caches and is used when selectively build caches 
+ *                                         based on whether a rule needs the cache
+ *
+ * @property {Array}    image_elements  - List of image element objects in the document 
+ * @property {Number}   length          - Number of image element objects in the list 
+ *
+ * @property {String}   sort_property   - Image element object property the list of link objects is sorted by
+ * @property {Boolean}  sort_ascending  - true if list is sorted in ascending order, otherwise false
+ *
+ * @property {ResultRuleSummary}  rule_summary_result  - Rule results associated with this cache
  */
   
 OpenAjax.a11y.cache.ImagesCache = function (dom_cache) {
 
- this.dom_cache = dom_cache;
- this.image_elements = [];
- this.sort_property = 'document_order';
- this.up_to_date = false;
- this.length = 0;
+  this.dom_cache = dom_cache;
+  this.up_to_date = false;
+ 
+  this.image_elements = [];
+  this.length = 0;
+ 
+  this.sort_property  = 'document_order';
+  this.sort_ascending = true;
 
- return this;
-
+  this.rule_summary_results  = new OpenAjax.a11y.ResultRuleSummary();
 }; 
 
 /**
- * addImageElement
+ * @method addImageElement
+ * 
+ * @memberOf OpenAjax.a11y.cache.ImagesCache
  *
- * @desc Adds a ImageElement object to a ImageCache object
+ * @desc Adds a image element to the list of image elements and generates a cache id for the object.
  *
- * @param image_element Object  image_element object to add to the image cache
+ * @param  {ImageElement}  image_element  - image element object to add 
  *
- * @return length  Number  length is the number of elements in the cache
+ * @return {Number} Returns the length of the list of image element objects
  */
 
 OpenAjax.a11y.cache.ImagesCache.prototype.addImageElement = function (image_element) {
 
- // item must exist and have the position property
- if (image_element) {
-  this.length = this.length + 1;
-  image_element.cache_id = "image_" + this.length; 
-  image_element.document_order = this.length;
-  this.image_elements.push(image_element);
- } 
+  // item must exist and have the position property
+  if (image_element) {
+    this.length = this.length + 1;
+    image_element.cache_id = "image_" + this.length; 
+    image_element.document_order = this.length;
+    this.image_elements.push(image_element);
+  } 
 
- return this.length;
+  return this.length;
 
 };
 
 
 /**
- * getImageElementByCacheId
+ * @deprecated getImageElementByCacheId
+ * 
+ * @memberOf OpenAjax.a11y.cache.ImagesCache
  *
- * @desc Returns the ImageElement object with the cache id
+ * @desc Finds the the image element object with the matching cache id
  *
- * @param cache_id String  cache id of the ImageElement object
+ * @param  {String}  cache_id  - Cache id of image element object
  *
- * @return ImageElement object if found, or null if not found 
+ * @return {ImageElement | null} Returns cache image element object if cache id is found, otherwise null
  */
 
 OpenAjax.a11y.cache.ImagesCache.prototype.getImageElementByCacheId = function (cache_id) {
+  return this.getItemByCacheId(cache_id);
+};
 
- var i;
- var image_elements_len = this.image_elements.length;
+/**
+ * @method getItemByCacheId
+ * 
+ * @memberOf OpenAjax.a11y.cache.ImagesCache
+ *
+ * @desc Finds the the image element object with the matching cache id
+ *
+ * @param  {String}  cache_id  - Cache id of image element object
+ *
+ * @return {ImageElement | null} Returns cache image element object if cache id is found, otherwise null
+ */
 
- if (cache_id && cache_id.length) {  
-  for (i=0; i < image_elements_len; i++) {
-   if (this.image_elements[i].cache_id == cache_id) {
-    return this.image_elements[i];
-   }
-  } // end loop
- } 
+OpenAjax.a11y.cache.ImagesCache.prototype.getItemByCacheId = function (cache_id) {
+
+  var i;
+  var image_elements_len = this.image_elements.length;
+
+  if (cache_id && cache_id.length) {  
+    for (i=0; i < image_elements_len; i++) {
+      if (this.image_elements[i].cache_id == cache_id) {
+        return this.image_elements[i];
+      }
+    } // end loop
+  } 
 
  return null;
 };
 
 
 /**
- * emptyCache
+ * @method emptyCache
  *
- * @desc Empties the ImageCache of ImageElement objects 
+ * @memberOf OpenAjax.a11y.cache.ImagesCache
  *
- * @return none
+ * @desc Resests the ImagesCache object properties and empties all the lists and arrays 
  */
 
 OpenAjax.a11y.cache.ImagesCache.prototype.emptyCache = function () {
 
- this.image_elements.length = 0;
- this.sort_property = 'document_order';
- this.up_to_date = false;
+  this.image_elements.length = 0;
+  this.sort_property = 'document_order';
+  this.up_to_date = false;
 
 };
 
 /**
- * updateCacheItem
+ * @method updateCacheItems
  *
- * @desc Updates the ImagesCache object by checking to see if a DOMElement
- *    object should be added to this cache
+ * @memberOf OpenAjax.a11y.cache.ImagesCache
+ *
+ * @desc Updates the images cache object by checking to see if a dom element
+ *          should be added to the cache
  *  
- * @param dom_element Object DOMElement object to check fo inclusion in images cache
- *
- * @return nothing
+ * @param  {DOMElement}   dom_element   - dom element object to check for inclusion in images cache
  */
  
 OpenAjax.a11y.cache.ImagesCache.prototype.updateCacheItems = function (dom_element) {
 
- if ((dom_element.tag_name == 'img') ||
-   (dom_element.tag_name == 'area')) {
+  if ((dom_element.tag_name == 'img') ||
+      (dom_element.tag_name == 'area') ||
+      (dom_element.tag_name == 'canvas')) {
 
-  var image_element = new OpenAjax.a11y.cache.ImageElement(dom_element, this.dom_cache.base_url);    
-  this.dom_cache.images_cache.addImageElement(image_element);
+    var image_element = new OpenAjax.a11y.cache.ImageElement(dom_element, this.dom_cache.base_url);    
+    this.dom_cache.images_cache.addImageElement(image_element);
   
- }
+  }
   
 };
 
 /**
- * transverseDOMElementsForImageElements
+ * @method traverseDOMElementsForImageElements
  *
- * @desc Traverses the DOMElements to update image elements
+ * @memberOf OpenAjax.a11y.cache.ImagesCache
  *
- * @return nothing
+ * @desc Traverses DOMElement objects in the tree to update the images cache 
+ *
+ * @param  {DOMElement}  dom_element - dom element object to check for inclusion in images cache
  */
  
-OpenAjax.a11y.cache.ImagesCache.prototype.transverseDOMElementsForImageElements = function (dom_element) {
+OpenAjax.a11y.cache.ImagesCache.prototype.traverseDOMElementsForImageElements = function (dom_element) {
 
- if (!dom_element) return;
+  if (!dom_element) return;
 
- if (dom_element.type == NODE_TYPE.ELEMENT) {
+  if (dom_element.type == NODE_TYPE.ELEMENT) {
 
-  this.updateCacheItems(dom_element);
+    this.updateCacheItems(dom_element);
   
-  for (var i = 0; i < dom_element.children.length; i++ ) {
-   this.transverseDOMElementsForImageElements(dom_element.children[i]);
-  } // end loop
-  
- }  
+    for (var i = 0; i < dom_element.child_dom_elements.length; i++ ) {
+      this.traverseDOMElementsForImageElements(dom_element.child_dom_elements[i]);
+    } // end loop
+  }  
   
 }; 
 
 /**
- * updateCache
+ * @method updateCache
  *
- * @desc Traverses the DOMElements to update the image cache
+ * @memberOf OpenAjax.a11y.cache.ImagesCache
  *
- * @return nothing
+ * @desc Traverses the DOMElements to update the images cache
+ *       NOTE: This function is only used when the specialized caches
+ *       are build as rules need them.  In this condition, if the rules 
+ *       dependent on the links cache are disabled, this cache would 
+ *       not be updated
  */
  
 OpenAjax.a11y.cache.ImagesCache.prototype.updateCache = function () {
- var i;
- var children = this.dom_cache.element_cache.children;
- var children_len = children.length;
+  var i;
+  var children = this.dom_cache.element_cache.child_dom_elements;
+  var children_len = children.length;
  
- this.dom_cache.log.update(OpenAjax.a11y.PROGRESS.CACHE_START, "Updating image elements cache.");
- for (i=0; i < children_len; i++) {
-  this.transverseDOMElementsForImageElements(children[i]);
- }  
- this.dom_cache.log.update(OpenAjax.a11y.PROGRESS.CACHE_END, "Completed image elements cache update, number of cache items is " + this.length);
+  this.dom_cache.log.update(OpenAjax.a11y.PROGRESS.CACHE_START, "Updating image elements cache.");
+  for (i=0; i < children_len; i++) {
+    this.traverseDOMElementsForImageElements(children[i]);
+  }  
+  this.dom_cache.log.update(OpenAjax.a11y.PROGRESS.CACHE_END, "Completed image elements cache update, number of cache items is " + this.length);
 
- this.up_to_date = true;
+  this.up_to_date = true;
 };
 
 /**
- * sortImageElements
+ * @method sortImageElements
  *
- * @desc 
+ * @memberOf OpenAjax.a11y.cache.ImagesCache
  *
- * @param property  String  property used to sort the cache
- * @param ascending  Boolean true if sort in ascending order; false in descending order
+ * @desc Sorts image element array by image element object property
  *
- * @return true if list was sorted, false if not
+ * @param {String}   property   - Property of image element object to sort the list
+ * @param {Boolean}  ascending  - true if sort in ascending order; false in descending order
+ *
+ * @return {Boolean}  Returns true if list was sorted, false if not
  */
 
 OpenAjax.a11y.cache.ImagesCache.prototype.sortImageElements = function(property, ascending ) {
 
- var swapped = false;
- var temp = null;
- var i;
+  var swapped = false;
+  var temp = null;
+  var i;
 
- if( this.image_elements && this.image_elements.length && !this.image_elements[0][property] ) {
-  return false;
- } // endif
+  if( this.image_elements && this.image_elements.length && !this.image_elements[0][property] ) {
+    return false;
+  } // endif
 
- var image_elements_len = this.image_elements.length;
+  var image_elements_len = this.image_elements.length;
 
- if( ascending ) {
-  do{
-    swapped = false;
-    for (i = 1; i < image_elements_len; i++ ) {
-     if (this.image_elements[i-1][property] > this.image_elements[i][property]) {
-      // swap the values
-      temp = this.image_elements[i-1];
-      this.image_elements[i-1] = this.image_elements[i];
-      this.image_elements[i] = temp;
-      swapped = true;
-     } 
-    } // end loop
+  if( ascending ) {
+    do{
+      swapped = false;
+      for (i = 1; i < image_elements_len; i++ ) {
+        if (this.image_elements[i-1][property] > this.image_elements[i][property]) {
+          // swap the values
+          temp = this.image_elements[i-1];
+          this.image_elements[i-1] = this.image_elements[i];
+          this.image_elements[i] = temp;
+          swapped = true;
+        } 
+      } // end loop
+    } while (swapped);
+  }
+  else {
+    do {
+      swapped = false;
+      for (i = 1; i < image_elements_len; i++) {
+        if (this.image_elements[i-1][property] < this.image_elements[i][property]) {
+          // swap the values
+          temp = this.image_elements[i-1];
+          this.image_elements[i-1] = this.image_elements[i];
+          this.image_elements[i] = temp;
+          swapped = true;
+        } 
+      } // end loop
+    } while (swapped);
+  } 
 
-  } while (swapped);
- }
- else {
-  do {
-   swapped = false;
-   for (i = 1; i < image_elements_len; i++) {
-    if (this.image_elements[i-1][property] < this.image_elements[i][property]) {
-     // swap the values
-     temp = this.image_elements[i-1];
-     this.image_elements[i-1] = this.image_elements[i];
-     this.image_elements[i] = temp;
-     swapped = true;
-    } 
-   } // end loop
-  } while (swapped);
- } 
+  this.sort_property = property;
 
- this.sort_property = property;
-
- return true;
-
+  return true;
 }; 
 
-/**
- * ImageElement
- *
- * @desc ImageElement is the object used to hold information about an image and inherits the DOMObject base object
- *
- * @constructs
- *
- * @param  dom_element  Object  dom_element object provides information about current dom node 
- *
- * @return  ImageElement | null
- */ 
+/* ---------------------------------------------------------------- */
+/*                            ImageElement                          */
+/* ---------------------------------------------------------------- */
 
+/**
+ * @constructor ImageElement
+ *
+ * @memberOf OpenAjax.a11y.cache
+ *
+ * @desc Creates image element object representing information related to an image or area element on a web page
+ *
+ * @param  {DOMelement}   dom_element   - The dom element object representing the image or area element 
+ *
+ * @property  {DOMElement}  dom_element     - Reference to the dom element representing the image or area element
+ * @property  {String}      cache_id        - String that uniquely identifies the cache element object in the cache
+ * @property  {Number}      document_order  - Ordinal position of the image or area element in the document in relationship to other image or area elements
+ *
+ * @property  {String}   source    - The url in the src property of an image element or href property of an area element 
+ * @property  {String}   longdesc  - The url in the longdesc property of an image element  
+ *
+ * @property  {String}   alt                   - Calculated accessible name of the link 
+ * @property  {String}   alt_for_comparison   - Accessible name for comparison (i.e. lowercase, trimmed and space normalized)
+ * @property  {Number}   alt_length           - Number of images that are descendents of the link
+ *  
+ * @property  {Number}   height  - Height of the image in pixels
+ * @property  {Number}   width   - Width of the image in pixels
+ */
+ 
 OpenAjax.a11y.cache.ImageElement = function (dom_element, base_url) {
 
- if (!dom_element) return null;  
+  var alt_value;
 
- var node = dom_element.node;
+  if (!dom_element) return null;  
+
+  var node = dom_element.node;
  
- this.dom_element = dom_element;
+  this.dom_element    = dom_element;
+  this.cache_id       = "";
+  this.document_order = 0;
 
- this.source     = node.src;
- 
- if (node.tag_name == 'area') {
-  this.source     = node.href;
- }
- 
- if (this.dom_element.has_alt_attribute || this.dom_element.node.alt.length) {
-  this.has_alt  = true;
-  this.alt    = node.alt;
-  this.alt_length = this.alt.length;
-  this.alt_for_comparison = this.alt.trim().normalizeSpace().toLowerCase();
- }
- else {
-  this.has_alt = false;
-  this.alt  = null;
-  this.alt_length = null;
-  this.alt_for_comparison = null;
- }
-
- this.longdesc = node.getAttribute('longdesc');
-
- if (this.longdesc) {
-  if (this.longdesc.indexOf('http:') == -1 ) {
-   this.longdesc = base_url + this.longdesc;
+  if (dom_element.tag_name == 'img') {
+    this.source = node.src;
   }
-  this.has_longdesc = true;
- }
- else {
-  this.has_longdesc = false;
-  this.longdesc  = null;
- }
+  
+  if (dom_element.tag_name == 'area') {
+    this.href  = node.href;
+  }
 
- this.height   = node.offsetHeight;
- this.width    = node.offsetWidth;
+  this.longdesc = node.getAttribute('longdesc');
 
- return this;
+  if (node.alt) {
+    if (dom_element.has_alt_attribute || node.alt.length) {
+      this.alt    = node.alt;
+      this.alt_length = this.alt.length;
+      this.alt_for_comparison = this.alt.normalizeSpace().toLowerCase();
+    }
+    else {
+      this.alt_for_comparison = null;
+    }
+  }
+  else {
+    alt_value = node.getAttribute('alt');
+    
+    if (alt_value) {
+      this.alt = alt.value;
+      this.alt_length = this.alt.length;
+      this.alt_for_comparison = this.alt.normalizeSpace().toLowerCase();
+    }
+    else {
+      this.alt_for_comparison = null;    
+    }
+  }
+
+
+  if (this.longdesc) {
+    if (this.longdesc.indexOf('http:') == -1 ) {
+      this.longdesc = base_url + this.longdesc;
+    }
+    this.has_longdesc = true;
+  }
+  else {
+    this.has_longdesc = false;
+    this.longdesc  = null;
+  }
+
+  this.height   = node.offsetHeight;
+  this.width    = node.offsetWidth;
+
+  return this;
 };
+
+/**
+ * @method getResultRules
+ *
+ * @memberOf OpenAjax.a11y.cache.ImageElement
+ *
+ * @desc Returns an array of node results in severity order 
+ *
+ * @return {Array} Returns a array of node results
+ */
+
+OpenAjax.a11y.cache.ImageElement.prototype.getResultRules = function () {
+  return this.dom_element.getResultRules();
+};
+
+/**
+ * @method getStyle
+ *
+ * @memberOf OpenAjax.a11y.cache.ImageElement
+ *
+ * @desc Returns an array of style items 
+ *
+ * @return {Array} Returns a array of style display objects
+ */
+
+OpenAjax.a11y.cache.ImageElement.prototype.getStyle = function () {
+
+  return  this.dom_element.getStyle();
+  
+};
+
+/**
+ * @method getAttributes
+ *
+ * @memberOf OpenAjax.a11y.cache.ImageElement
+ *
+ * @desc Returns an array of attributes for the element, sorted in alphabetical order 
+ *
+ * @param {Boolean}  unsorted  - If defined and true the results will NOT be sorted alphabetically
+ *
+ * @return {Array} Returns a array of attribute display object
+ */
+
+OpenAjax.a11y.cache.ImageElement.prototype.getAttributes = function (unsorted) {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  var attributes = this.dom_element.getAttributes(unsorted);
+     
+  cache_nls.addPropertyIfDefined(attributes, this, 'href');
+  cache_nls.addPropertyIfDefined(attributes, this, 'source');
+  cache_nls.addPropertyIfDefined(attributes, this, 'longdesc');
+  
+  return attributes;
+  
+};
+
+/**
+ * @method getCacheProperties
+ *
+ * @memberOf OpenAjax.a11y.cache.ImageElement
+ *
+ * @desc Returns an array of cache properties sorted by property name 
+ *
+ * @param {Boolean}  unsorted  - If defined and true the results will NOT be sorted alphabetically
+ *
+ * @return {Array} Returns a array of cache property display object
+ */
+
+OpenAjax.a11y.cache.ImageElement.prototype.getCacheProperties = function (unsorted) {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  var properties = [];
+  
+  cache_nls.addPropertyIfDefined(properties, this, 'alt_length');
+  cache_nls.addPropertyIfDefined(properties, this, 'alt_for_comparison');
+  cache_nls.addPropertyIfDefined(properties, this, 'height');
+  cache_nls.addPropertyIfDefined(properties, this, 'width');
+  
+  return properties;
+  
+};
+
+/**
+
+ * @method getEvents
+ *
+ * @memberOf OpenAjax.a11y.cache.ImageElement
+ *
+ * @desc Returns an array of events for the element, sorted in alphabetical order 
+ *
+ * @return {Array} Returns a array of event item display objects
+ */
+
+OpenAjax.a11y.cache.ImageElement.prototype.getEvents = function () {
+   
+  return this.dom_element.getEvents();
+  
+};
+
+
+/**
+ * @method getAltTextNLS
+ *
+ * @memberOf OpenAjax.a11y.cache.ImageElement
+ *
+ * @desc Returns an object with an NLS localized string and style properties
+ *       If alt attribute is empty a empty alt text message will the returned 
+ *
+ * @return {String | Object} Returns a String if the alt attribute has content, 
+ *                            but if label is empty it returns an object 
+ *                            with a 'label and 'style' property
+ */
+
+OpenAjax.a11y.cache.ImageElement.prototype.getAltTextNLS = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  var alt_style = {};
+  
+  if (this.alt_length) {
+    return this.alt;
+  }
+  else {
+    return cache_nls.getEmptyAltTextMessageNLS();
+  }
+  
+};
+
+/**
+ * @method toString
+ *
+ * @memberOf OpenAjax.a11y.cache.ImageElement
+ *
+ * @desc Creates a text string representation of the image element object 
+ *
+ * @return {String} Returns a text string representation of the image element object
+ */
+ 
+ OpenAjax.a11y.cache.ImageElement.prototype.toString = function () {
+   if (this.alt_length) {
+     return this.dom_element.tag_name + " : " + this.alt;
+   }
+   else {
+     return this.dom_element.tag_name + " : no alt text";   
+   }
+ };
 
 
