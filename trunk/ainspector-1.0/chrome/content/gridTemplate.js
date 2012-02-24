@@ -77,8 +77,6 @@ with (FBL) {
       if (!elem) return;
       
       var category = getClassValue(elem, "elementview");
-      FBTrace.sysout("category: ", category);
-      FBTrace.sysout("elem: ", elem);
       if (category) {
         var tabList = getAncestorByClass(elem, "focusTabList");
         
@@ -253,14 +251,10 @@ with (FBL) {
        */
       hightlightRow: function (event) {
 	    //Firebug.InsideOutBox.highlight(event.target);
-	    FBTrace.sysout("highlight: ", event);
 	    var colorObj = {content: "SkyBlue", padding: "SlateBlue", border: "#444444", margin: "#EDFF64"};
 	    var offset = getLTRBWH(Firebug.getRepObject(event.target));
         var x = offset.left, y = offset.top;
         var w = offset.width, h = offset.height;
-        FBTrace.sysout("offset: ", offset);
-        FBTrace.sysout("x: ", x);
-        FBTrace.sysout("y: ", y);
      },
        
       /**

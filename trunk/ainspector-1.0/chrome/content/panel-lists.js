@@ -34,9 +34,6 @@ with (FBL) {
 	  panelView.panelNode.appendChild(toolbar);
 	  panelView.panelNode.appendChild(element);
 	  
-	  
-	  FBTrace.sysout("panelView: ", panelView);
-	        
 	  panel = panelView;
 	  panel.table = AINSPECTOR_FB.lists.listTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.lists.listTreeTemplate);
       this.select(child_elements[0]);
@@ -90,16 +87,14 @@ with (FBL) {
      * @param event event triggered on a row in the Links Table
      */
     toHTMLPanel: function(event) {
-      FBTrace.sysout("inside pane-images event", event);
 
       var table = getChildByClass(event.target.offsetParent, "ai-table-list-items");
-      FBTrace.sysout("inside pane-images table", table);
 
 	  var row;
       var child;
       var tbody=null;
       var node=null;
-var row = null;
+      var row = null;
 	if (table) {
 		row = getChildByClass(event.target.offsetParent, "tableRow");
 		tbody = table.children[1];
@@ -128,7 +123,6 @@ var row = null;
 		node = node.repObject.dom_element.node;
 
 	} else {
-		FBTrace.sysout("zip event", event);
 		table = getChildByClass(event.target.offsetParent, "domTable");
 		//row = getChildByClass(event.target.offsetParent, "treeRow");
 
@@ -139,7 +133,6 @@ var row = null;
 			var flag = false;
 			var row = rows[i];//tbody.children[i];
 			node = row;
-			FBTrace.sysout("row:", row);
 			for (var k=0; k<row.classList.length;k++) {
 
 				if (row.classList[k] ==  "gridRowSelected") {
@@ -150,7 +143,6 @@ var row = null;
 
 			if (flag == true) break;
 		}
-		FBTrace.sysout("node: ", node);
 		node = node.repObject.dom_element.node;
 	  } else {
 		node = event.target.offsetParent.ownerPanel.selection.dom_element.node;
@@ -362,10 +354,8 @@ var row = null;
 		  },
 
 	      onFocus: function(event) {
-			 FBTrace.sysout("inside onfocus"); 
-	        var links = event.target.getElementsByClassName('objectLink');
-	        
-	        if (links[0]) AINSPECTOR.util.event.dispatchMouseEvent(links[0], 'mouseover');
+//	        var links = event.target.getElementsByClassName('objectLink');
+	//        if (links[0]) AINSPECTOR.util.event.dispatchMouseEvent(links[0], 'mouseover');
 	      },
 
 		  closeRow: function(row) {
@@ -425,7 +415,7 @@ var row = null;
 		  },
 
 		  createMember: function(name, value, level)  {
-		    FBTrace.sysout(' createMember : ', value);
+		   // FBTrace.sysout(' createMember : ', value);
       	    var acc = value.dom_element.getAccessibility();
 			return {
 			  role_level: (value.dom_element.role) ? value.dom_element.role : value.level,
@@ -468,7 +458,6 @@ var row = null;
 		  
 		  getAccessibility : function(object){
 			var severity =  object.dom_element.getAccessibility().label;
-			FBTrace.sysout("severity: ", severity);
 			var styleSeverityTag;
 			if (severity == "Pass")  styleSeverityTag = this.strTagPass;
 			if (severity == "Violation") styleSeverityTag = this.strTagViolation;
@@ -482,7 +471,6 @@ var row = null;
 		  },
 		  
 		  onClick_htmlView: function(event) {
-			FBTrace.sysout("event::::: ", event.target);
 			var head_landmark = event.target.headLandElement.value;
 		    var node = head_landmark.dom_element.node;
 		    var panel = Firebug.chrome.selectPanel("html");

@@ -35,7 +35,6 @@ with (FBL) {
       
       var ruleset_id = 'WCAG20_TRANS';
       var ruleset = OpenAjax.a11y.all_rulesets.getRuleset(ruleset_id);
-      FBTrace.sysout("inside updateCache - ruleset : ", ruleset);
 
       if (ruleset) {
     	ruleset_result_cache = ruleset.evaluate(url, doc.title, doc, null, true);
@@ -45,7 +44,6 @@ with (FBL) {
     	FBTrace.sysout("  ** Ruleset with the id '" + ruleset_id + "' not found!!");
       }
       AINSPECTOR_FB.result_ruleset = ruleset_result_cache;
-      FBTrace.sysout("ruleset_result_cache: ", ruleset_result_cache);
       return ruleset_result_cache;
     }
   };
@@ -70,12 +68,10 @@ with (FBL) {
 	    if (flags & AINSPECTOR_FB.STATE_STOP && flags & AINSPECTOR_FB.STATE_IS_WINDOW) {
 	
 	    var location_href = webProgress.DOMWindow.location.href;
-	      FBTrace.sysout('onStateChange () location_href: ' + location_href + "..." + AINSPECTOR_FB.top_location_href);
 	      if (location_href == AINSPECTOR_FB.top_location_href) {
 		      FBTrace.sysout('onStateChange () location_href: ' + location_href + "..." + AINSPECTOR_FB.top_location_href);
 
 	    	  AINSPECTOR_FB.cacheUtil.updateCache();
-	    	  FBTrace.sysout("AINSPECTOR_FB in onStateChange(): ", AINSPECTOR_FB);
 //	    	  AINSPECTOR_FB.equivalents.equivalentsView(Firebug.currentContext, "AInspector", AINSPECTOR_FB.result_ruleset);
 	      }
 	    }
@@ -139,10 +135,7 @@ with (FBL) {
   };
   
   AINSPECTOR_FB.setStateToolbarAndMenus = function(window, flag){
-	FBTrace.sysout("window: ", window);
 	var toolbarbutton = window.document.getElementById("images_media_button");
-	FBTrace.sysout("toolbarButton: ", toolbarbutton);
-
 	if (toolbarbutton) toolbarbutton.checked = flag;
   };
   

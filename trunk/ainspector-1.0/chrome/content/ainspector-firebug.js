@@ -29,8 +29,7 @@ FBL.ns(function() { with (FBL) {
 	 * 
 	 */
 	watchWindow : function(context, win){
-	  FBTrace.sysout("watchWindow: ", win);
-	  FBTrace.sysout("watchWindow: ", win.top);
+//	  FBTrace.sysout("watchWindow: ", win);
 	  //if (win == win.top) {
 		context.window.addEventListener("load", this.ainspectorOnLoad, false);
 		context.window.addEventListener("beforeunload", this.ainspectorOnUnload, false);
@@ -42,7 +41,6 @@ FBL.ns(function() { with (FBL) {
 	 * 
 	 */
 	unWatchWindow : function(context, win){
-	  FBTrace.sysout("watchWindow: ");	
 	  //if (win == win.top) {
 		context.window.removeEventListener("load", this.ainspectorOnLoad, false);
 		context.window.removeEventListener("beforeunload", this.ainspectorOnUnload, false);
@@ -58,7 +56,7 @@ FBL.ns(function() { with (FBL) {
 	 * @param {Event} event
 	 */
 	ainspectorOnLoad : function(event){
-	  FBTrace.sysout("@@@@@@@@@@@@@@@@@@@ainspectorOnLoad @@@@@@@@@@@@@@");
+	  FBTrace.sysout("............ainspectorOnLoad ..........", event);
       var win = event.currentTarget;
 	  var firebug_context;
 	  
@@ -67,8 +65,6 @@ FBL.ns(function() { with (FBL) {
 	  } else {
 		firebug_context = Firebug.currentContext;  
 	  }
-	 FBTrace.sysout("firebug_context: ", firebug_context);
-	 FBTrace.sysout("firebug_context buttons: ", firebug_context.browser.chrome.$("radio-toolbar"));
 	 var toolbarbuttons = firebug_context.browser.chrome.$("radio-toolbar").children;
 	 var toolbar_id = null;
 	 for (var i=0; i < toolbarbuttons.length; i=i+2){
@@ -249,22 +245,17 @@ FBL.ns(function() { with (FBL) {
         clearNode(panel.panelNode);
         clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
       }
-		FBTrace.sysout("inside links view1");
 		var toolbar_buttons = [{name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.all"), selected: true, first:true},
 		                                   {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.duplicateHref")}, 
 		                                   {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.duplicateName")},
 		                                   {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.area")}];
       
-		FBTrace.sysout("inside links view3");
 
       AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
-		FBTrace.sysout("inside links view2");
 
       var toolbar = panel.document.createElement("div");
       toolbar.id = "toolbarDiv";
-      FBTrace.sysout("cache_object: links", cache_object);
       var links_cache = cache_object.dom_cache.links_cache;
-      FBTrace.sysout("links cache: ", links_cache);
         
       AINSPECTOR_FB.links.linksPanel(panel, toolbar, toolbar_buttons, links_cache);
     },
@@ -411,7 +402,6 @@ FBL.ns(function() { with (FBL) {
       
       var ruleset_id = 'WCAG20_TRANS';
       var ruleset = OpenAjax.a11y.all_rulesets.getRuleset(ruleset_id);
-      FBTrace.sysout("inside updateCache - ruleset : ", ruleset);
 
       if (ruleset) {
     	ruleset_result_cache = ruleset.evaluate(url, doc.title, doc, null, true);

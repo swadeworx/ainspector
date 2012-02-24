@@ -33,7 +33,6 @@ with (FBL) {
 	  panelView.panelNode.id = "ainspector-panel"; 
 	  panelView.panelNode.appendChild(toolbar);
 	  panelView.panelNode.appendChild(element);
-	  FBTrace.sysout("links", links_cache);
 		  
 	  link_elements = links_cache.link_elements;
 	  duplicate_name_items = links_cache.duplicate_name_items;
@@ -94,10 +93,7 @@ with (FBL) {
 	 */
 	toHTMLPanel: function(event) {
 	
-	  FBTrace.sysout("inside pane-images event", event.target);
-
 	  var table = getChildByClass(event.target.offsetParent, "ai-table-list-items");
-	  FBTrace.sysout("inside pane-images table", table);
 
 	  var row =  null;
 	  var child;
@@ -129,7 +125,6 @@ with (FBL) {
 	    }
 	    node = node.repObject.dom_element.node;
       } else {
-	    FBTrace.sysout("zip event", event);
 	    table = getChildByClass(event.target.offsetParent, "domTable");
 		//row = getChildByClass(event.target.offsetParent, "treeRow");
 
@@ -140,7 +135,6 @@ with (FBL) {
 		  var flag = false;
 		  var row = rows[i];//tbody.children[i];
 		  node = row;
-		  FBTrace.sysout("row:", row);
 		
 		  for (var k=0; k<row.classList.length;k++) {
 
@@ -152,7 +146,6 @@ with (FBL) {
 
 		  if (flag == true) break;
 	    }
-	    FBTrace.sysout("node: ", node);
 	    node = node.repObject.dom_element.node;
 	  }
       var panel = Firebug.chrome.selectPanel("html");
@@ -168,7 +161,6 @@ with (FBL) {
    */
   onClickToolbarButton : function(event) {
 	var toolbar_button = event.currentTarget.id;
-    FBTrace.sysout("event: ", event);
     this.showOnSelectButton(toolbar_button);
   },
 
@@ -183,7 +175,6 @@ with (FBL) {
     clearNode(panel.table);
     clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
     selected_toolbar_button = toolbar_button_id;
-    FBTrace.sysout("toolbar_button_id href: " + toolbar_button_id);	
 
     if (toolbar_button_id == "All") {
         
@@ -192,11 +183,9 @@ with (FBL) {
       Firebug.currentContext.getPanel('Rules').sView(true, link_elements[0]);
      
     } else if (toolbar_button_id == "Duplicate HREF"){
-      FBTrace.sysout("toolbar_button_id href: " + toolbar_button_id);	
    	  var properties = ["Number", "HREF", "Name"];
       panel.table = AINSPECTOR_FB.links.duplicateNameOrHrefTemplate.tag.append( {object: duplicate_href_items, properties: properties}, panel.panelNode, AINSPECTOR_FB.links.duplicateNameOrHrefTemplate);
       AINSPECTOR_FB.equivalents.select(duplicate_href_items[0]);
-      FBTrace.sysout("duplicate_href_items: ", duplicate_href_items[0]);
       Firebug.currentContext.getPanel('Rules').sView(true, duplicate_href_items[0]);
     } else if (toolbar_button_id == "Duplicate NAME") {
       var properties = ["Number", "Name", "HREF"];
@@ -219,8 +208,6 @@ with (FBL) {
 
 	 if (!elem) return;
      var category = getClassValue(elem, "toolbarButtonView");
-     FBTrace.sysout("category:" , category);
-
      if (category) {
        var tabList = getAncestorByClass(elem, "focusTabList");
 	        
@@ -239,7 +226,6 @@ with (FBL) {
        elem.setAttribute("tabindex", "0");
        setClass(elem, "selected");
        var currentView = panel;
-       FBTrace.sysout("panel in selectTab: ", panel);
        this.showOnSelectButton(category);
      }
    },
@@ -441,7 +427,6 @@ with (FBL) {
 	    var members = [];
 			
 	    for (var p in object) members.push(this.createMember(p, object[p], level));
-	    FBTrace.sysout("members: ", members);
 	    return members;
 	  },
 
@@ -451,8 +436,6 @@ with (FBL) {
 	   * @desc create an object of display properties to loop through the row and childrow constructors 
 	   */
 	  createMember: function(name, value, level)  {
-	  
-		FBTrace.sysout("value: ", value);
 	  
 		if (level == 0) {  
 		  return {
@@ -529,9 +512,7 @@ with (FBL) {
        */
       onClickTreeRow : function(event){
     	
-		FBTrace.sysout("event", event);  
 	    panel.selection = Firebug.getRepObject(event.target);
-	    FBTrace.sysout("panel: zupzupzupz", panel);
 	    AINSPECTOR_FB.flatListTemplateUtil.highlightTreeRow(event);
 	  },
 
@@ -621,9 +602,7 @@ with (FBL) {
 	    if (!hasClass(row, "opened")) {
 		  var level = parseInt(row.getAttribute("level"));
 		  setClass(row, "opened");
-		  FBTrace.sysout("row: ", row);
 		  var repObject = row.newObject;
-		  FBTrace.sysout("rep: ", repObject);
 		
 		  if (repObject) {
 	        var members = this.getMembers(repObject.duplicates, level+1);
@@ -642,7 +621,6 @@ with (FBL) {
        */
       toggleRow: function(row) {
 		
-    	FBTrace.sysout("row in toggle: ", row);
 	    if (hasClass(row, "opened")) {
 	      this.closeRow(row);
 	    } else {

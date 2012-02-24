@@ -23,7 +23,6 @@ with (FBL) {
 	headingsPanelView : function(head_land_toolbar_buttons, toolbar, panelView, cache_object) {
 
 	var head_land_cache = cache_object.dom_cache.headings_landmarks_cache;
-	FBTrace.sysout("cache_object: ", cache_object);
 	child_elements = head_land_cache.child_cache_elements;
 	landmark_elements = head_land_cache.landmark_elements;
 	heading_elements = head_land_cache.heading_elements;
@@ -130,24 +129,17 @@ AINSPECTOR_FB.headLandmarkView.headingsToolbarPlate = domplate({
 		}
 
 	} else {
-		FBTrace.sysout("event toHtmlPanel", event);
 		table = getChildByClass(event.target.offsetParent, "domTable");
-		//row = getChildByClass(event.target.offsetParent, "treeRow");
-		FBTrace.sysout("table: ", table);
 		
 		//If the same domplate is shared by two views, rows/children of the second view(in this case list and tree views)
 		//are not shown in the event. So, we take the dom_element from the selection object we set on the ownerPanel of event
 		if (table.rows && table.rows.length != 0) {
-			FBTrace.sysout("table.rows ", table.rows);
-
 		var rows = table.rows;
-		//tbody = table.children[0];
 
 		for (var i = 0; i < rows.length; i++) {
 			var flag = false;
 			var row = rows[i];//tbody.children[i];
 			node = row;
-			FBTrace.sysout("row:", row);
 			for (var k=0; k<row.classList.length;k++) {
 
 				if (row.classList[k] ==  "gridRowSelected") {
@@ -158,7 +150,6 @@ AINSPECTOR_FB.headLandmarkView.headingsToolbarPlate = domplate({
 
 			if (flag == true) break;
 		}
-		FBTrace.sysout("node: ", node);
 		node = node.repObject.dom_element.node;
 		} else {
 		  node = event.target.offsetParent.ownerPanel.selection.dom_element.node;	
@@ -195,7 +186,6 @@ showOnSelectButton : function(toolbar_button_id) {
 	clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
 
 	if (toolbar_button_id == "Tree View") {
-		FBTrace.sysout("child_elements.....................................: ", child_elements);
 		panel.table = AINSPECTOR_FB.headLandmarkView.headingsTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.headLandmarkView.headingsTreeTemplate);
 		AINSPECTOR_FB.headLandmarkView.select(child_elements[0]);
 
@@ -214,9 +204,7 @@ showOnSelectButton : function(toolbar_button_id) {
 
 		Firebug.currentContext.getPanel('Rules').sView(true, heading_elements[0]);
 	} else {
-		FBTrace.sysout("landmark_elements : ", landmark_elements);  
 		panel.table = AINSPECTOR_FB.headLandmarkView.landmarksTemplate.tableTag.append( {landmark_elements: landmark_elements}, panel.panelNode, AINSPECTOR_FB.headLandmarkView.landmarksTemplate);
-		FBTrace.sysout("panel.table: ", panel.table);
 		AINSPECTOR_FB.headLandmarkView.select(landmark_elements[0]);
 
 		Firebug.currentContext.getPanel('Rules').sView(true, landmark_elements[0]);
@@ -333,10 +321,7 @@ AINSPECTOR_FB.headLandmarkView.headingsTreeTemplate = domplate({
     onClickTreeRow : function(event){
 		    	  
 	  panel.selection = Firebug.getRepObject(event.target);
-	  FBTrace.sysout("panel: zupzupzupz", panel);
 	  AINSPECTOR_FB.flatListTemplateUtil.highlightTreeRow(event);
-	  
-	  
 	},
 
     /**
@@ -473,7 +458,6 @@ openRow: function(row) {
 	if (!hasClass(row, "opened")) {
 		var level = parseInt(row.getAttribute("level"));
 		setClass(row, "opened");
-		FBTrace.sysout("repObject on Openrow: ", row);
 
 		var repObject = row.newObject;
 		if (repObject) {
@@ -529,7 +513,6 @@ highlightRow: function (event) {
  * @param row
  */
 toggleRow: function(row) {
-	FBTrace.sysout("toggleRow: ", row);
 
 	if (hasClass(row, "opened")) {
 		this.closeRow(row);
@@ -555,7 +538,6 @@ getMembers: function(object, level) {
 	var members = [];
 
 	for (var p in object) members.push(this.createMember(p, object[p], level));
-	FBTrace.sysout("member: ", members);
 	return members;
 },
 
@@ -711,7 +693,6 @@ AINSPECTOR_FB.headLandmarkView.landmarksTemplate = domplate({
     onClickRow : function(event){
   	  
 	    panel.selection = Firebug.getRepObject(event.target);
-	    FBTrace.sysout("panel: zupzupzupz", panel);
 	    AINSPECTOR_FB.flatListTemplateUtil.highlightRow(event);
     },
     

@@ -22,30 +22,14 @@ with (FBL) {
       var color_contrast_cache = cache_object.dom_cache.color_contrast_cache; 
       
       var color_contrast_items = color_contrast_cache.color_contrast_items;
-      FBTrace.sysout("color_contrast_cache: ", color_contrast_cache);
       clearNode(panelView.table);
-	        
-
-      FBTrace.sysout("panelv: ", panelView);
 	  panelView.panelNode.id = "ainspector-panel"; 
-
-      
 	  panel.table = AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate.tag.replace( {object: color_contrast_items}, panelView.panelNode, AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate);
-      FBTrace.sysout("1111111111111111111111111111");
-
 	 // var element = panelView.document.createElement("div");
-
 	  //panelView.panelNode.appendChild(element);
-      FBTrace.sysout("22222222222222222222222222");
-	  
 	  panel = panelView;
-	  
-	  FBTrace.sysout("panel: ", panelView);
-	 
 	  panel.selection = color_contrast_items[0];
-  	  
       AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[1].children[0]);
-
 	  Firebug.currentContext.getPanel('Rules').showContrastOrAllElements(true, panel.selection);
     }
  };
@@ -127,7 +111,6 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
 	  highlightTreeRow : function(event){
 			    	  
 		panel.selection = Firebug.getRepObject(event.target);
-		FBTrace.sysout("panel: zupzupzupz", panel);
 		AINSPECTOR_FB.flatListTemplateUtil.highlightTreeRow(event);
   	  },
 
@@ -152,7 +135,6 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
 	    var members = [];
 		
 	    for (var p in object) members.push(this.createMember(p, object[p], level));
-	    FBTrace.sysout("members: ", members);
 		return members;
 		  },
 
@@ -264,10 +246,9 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
 	  },
 
       onFocus: function(event) {
-		 FBTrace.sysout("inside onfocus"); 
-        var links = event.target.getElementsByClassName('objectLink');
+        //var links = event.target.getElementsByClassName('objectLink');
         
-        if (links[0]) AINSPECTOR.util.event.dispatchMouseEvent(links[0], 'mouseover');
+       // if (links[0]) AINSPECTOR.util.event.dispatchMouseEvent(links[0], 'mouseover');
       },
 
 	  closeRow: function(row) {
@@ -291,7 +272,6 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
 		  var level = parseInt(row.getAttribute("level"));
 		  setClass(row, "opened");
 		  var repObject = row.newObject;
-		  FBTrace.sysout("row: ", row);
 		  if (repObject) {
             var members = this.getMembers(repObject.children, level+1);
 			
@@ -309,7 +289,6 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
 	  },
 
 	  onClick_htmlView: function(event) {
-		FBTrace.sysout("event::::: ", event.target);
 		var head_landmark = event.target.headLandElement.value;
 	    var node = head_landmark.dom_element.node;
 	    var panel = Firebug.chrome.selectPanel("html");

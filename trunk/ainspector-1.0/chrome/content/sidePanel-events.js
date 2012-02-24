@@ -67,9 +67,7 @@ FBL.ns(function() { with (FBL) {
       * @param element - 
       */
      updateSelection : function() {
-       FBTrace.sysout("updateSelection : ", this.mainPanel);	 
        var selection = this.mainPanel.selection;
-       FBTrace.sysout("updteSelection element: ", selection);
        var dom_element = selection.dom_element; 
        if (dom_element)
          this.rebuild(this.showOnRulesTabSelect(dom_element));
@@ -85,7 +83,6 @@ FBL.ns(function() { with (FBL) {
       */
      show: function(state) {
 	   
-       FBTrace.sysout("Inside show of eventsSidePanel.js");
        Firebug.Panel.show.apply(this, arguments);
        this.updateSelection();
      },
@@ -99,8 +96,6 @@ FBL.ns(function() { with (FBL) {
       */
      setSelection: function(event) {
    
-	   FBTrace.sysout("event in setSelection:", event);
-       FBTrace.sysout("repObject", Firebug.getRepObject(event.target));
        var element = Firebug.getRepObject(event.target);
        if (element.dom_element)
          this.rebuild(this.showOnRulesTabSelect(element.dom_element));
@@ -121,8 +116,6 @@ FBL.ns(function() { with (FBL) {
        var cache_item = cache_item;
        var events = cache_item.getEvents();
        var rule_result_array = new Array();
-	   FBTrace.sysout("events", events);
-
 
        for(var i=0; i<events.length; i++){
     	 rule_result_array.push({"label": events[i].label, "value": events[i].value, "description": events[i].description});
@@ -140,14 +133,10 @@ FBL.ns(function() { with (FBL) {
       */
      rebuild: function(resultArray){
        this.panelNode.id = "ainspector-side-panel";
-       FBTrace.sysout("resultArray: ", resultArray);
        var flag = true;
    	   for(var i in resultArray){ if(resultArray.hasOwnProperty(i)){flag = false;}}
-       FBTrace.sysout("flag: "+ flag);
 
    	   if (flag) {
-   	       FBTrace.sysout("flag: "+ flag);
-
     	   emptyTemplate.tag.replace({object: resultArray}, this.panelNode);
        } else {
     	   

@@ -326,7 +326,6 @@ FBL.ns(function() {with (FBL) {
       
       var colIndex = 0;
       if(!column) return;
-      FBTrace.sysout("Inside sortColumn....");
       var numerical = !this.hasClass(column, "alphaValue");
 
       for (column = column.previousElementSibling; column; ) {
@@ -614,11 +613,7 @@ FBL.ns(function() {with (FBL) {
      */
      findNextRow: function(node, class_name){
       
-      FBTrace.sysout("node: ", node);
-      FBTrace.sysout("class_name: ", class_name);
       var table = getAncestorByClass(node, "ai-table-list-items");
-      FBTrace.sysout("table: ", table);
-
     }
   };
   
@@ -740,7 +735,6 @@ FBL.ns(function() {with (FBL) {
           break;
           
         case KeyEvent.DOM_VK_TAB:
-        	FBTrace.sysout("event: ", event);
         } //end switch
         //return tabs[newIndex];
       },
@@ -925,7 +919,6 @@ FBL.ns(function() {with (FBL) {
 		  break;
 		case 40: //down
 		  var row = findNext(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow, true);
-		  FBTrace.sysout("row: ", row);
 		  if (row) {
 		    row.focus();
 		    AINSPECTOR_FB.flatListTemplateUtil.highlightRow(event, row);
@@ -1107,8 +1100,6 @@ FBL.ns(function() {with (FBL) {
       var tbody = table.children[1]; //nomber of rows in a table
       var row;
       var cell;
-      FBTrace.sysout("table: ", table);
-      FBTrace.sysout("current_row: ", current_row);
 
       if (!current_row) { //to highlight header cells
     	current_row =  getAncestorByClass(event.target, "gridHeaderRow");
@@ -1135,15 +1126,12 @@ FBL.ns(function() {with (FBL) {
     	  if (count >= no_of_cells) break;
         }
         if (count >= no_of_cells) {
-          FBTrace.sysout("gridRowSelected is removed from", row);	
     	  AINSPECTOR_FB.ainspectorUtil.removeClass(row, "gridRowSelected");
     	  if (event.keyCode == 38 || event.keyCode == 37) {
         	  current_row = tbody.children[i-1]; 
-              FBTrace.sysout("keycode==38", current_row);	
 
           } else if (event.keyCode == 40 || event.keyCode == 39){
         	  current_row = tbody.children[i+1]; 
-              FBTrace.sysout("keycode==40", current_row);	
 
           }
     	  break;

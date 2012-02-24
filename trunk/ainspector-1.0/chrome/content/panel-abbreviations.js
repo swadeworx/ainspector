@@ -85,7 +85,6 @@ with (FBL) {
      * @param event event triggered on a row/cell of a Abbrev/Language toolbar buttons
      */
     toHTMLPanel: function(event) {
-	  FBTrace.sysout("inside toHTMl panel: ", event);
 	  var table = getChildByClass(event.target.offsetParent, "ai-table-list-items");
 	  var row =  null;
 	  var tbody = null;
@@ -127,7 +126,6 @@ with (FBL) {
 			var flag = false;
 			var row = rows[i];//tbody.children[i];
 			node = row;
-			FBTrace.sysout("row:", row);
 			for (var k=0; k<row.classList.length;k++) {
 
 				if (row.classList[k] ==  "gridRowSelected") {
@@ -138,7 +136,6 @@ with (FBL) {
 
 			if (flag == true) break;
 		}
-		FBTrace.sysout("node: ", node);
 		node = node.repObject.node;
 	}
       
@@ -216,7 +213,6 @@ with (FBL) {
         elem.setAttribute("tabindex", "0");
         setClass(elem, "selected");
         var currentView = panel;
-        FBTrace.sysout("panel in selectTab: ", panel);
         //this.showOnSelectButton(category);
       }
     },
@@ -396,7 +392,6 @@ with (FBL) {
     onClickTreeRow : function(event){
 		    	  
 	  panel.selection = Firebug.getRepObject(event.target);
-	  FBTrace.sysout("panel: zupzupzupz", panel);
 	  AINSPECTOR_FB.flatListTemplateUtil.highlightTreeRow(event);
 	  
 	  
@@ -469,7 +464,6 @@ with (FBL) {
 	
 	getAccessibility : function(object){
 		var severity =  object.getAccessibility().label;
-		FBTrace.sysout("severity: " + severity);
 		var styleSeverityTag;
 		if (severity == "Pass")  styleSeverityTag = this.strTagPass;
 		if (severity == "Violation") styleSeverityTag = this.strTagViolation;
