@@ -1,5 +1,5 @@
 /**
- * Copyright 2011 OpenAjax Alliance
+ * Copyright 2011 and 2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,26 +18,24 @@
 /*            OpenAjax Alliance Link Rules                         */ 
 /* ---------------------------------------------------------------- */
 
-OpenAjax.a11y.addRules([
+OpenAjax.a11y.all_rules.addRulesFromJSON([
       
 /**
- * Link 1 
+ * @object LINK_1 
  * 
  * @desc Links should have minimum dimensions for selecting and reading
- *
- * Group 11: Link Rule
- * 
- * Last update: 2011-03-31
  */
  
-{ id       : 'LINK_1', 
-  lastUpdated   : '2011-07-11', 
-  cacheDependency : 'links_cache',
-  cacheProperties : ['height', 'width', 'graphical'],
-  language    : "",
-  enabled     : true,
-  validate    : function (dom_cache, rule_result) {
-      
+{ id                : 'LINK_1', 
+  last_updated      : '2011-07-11', 
+  cache_dependency  : 'links_cache',
+  cache_properties : ['height', 'width', 'graphical'],
+  language          : "",
+  validate          : function (dom_cache, rule_result) {
+
+   var SEVERITY   = OpenAjax.a11y.SEVERITY;
+   var VISIBILITY = OpenAjax.a11y.VISIBILITY;
+
    var i;   
    var MIN_HEIGHT = 12;
    var MIN_WIDTH = 12;
@@ -61,7 +59,7 @@ OpenAjax.a11y.addRules([
      
      // test if link is visible in a graphical rendering
      
-     if (computed_style.graphical == OpenAjax.a11y.VISIBILITY.VISIBLE) {
+     if (computed_style.is_visible_onscreen == OpenAjax.a11y.VISIBILITY.VISIBLE) {
      
       if (link_element.href && link_element.href.length) {       
        
@@ -73,11 +71,11 @@ OpenAjax.a11y.addRules([
           rule_result.addResult(OpenAjax.a11y.SEVERITY.PASS, link_element, 'MESSAGE_PASS', [link_element.height, link_element.width, MIN_HEIGHT, MIN_WIDTH]);
         }
         else {
-         rule_result.addResult(rule_result.rule_severity, link_element, 'MESSAGE_TO_SMALL', [link_element.height, link_element.width, MIN_HEIGHT, MIN_WIDTH]);
+         rule_result.addResult(SEVERITY.FAIL, link_element, 'MESSAGE_TO_SMALL', [link_element.height, link_element.width, MIN_HEIGHT, MIN_WIDTH]);
         }
        }
        else {
-         rule_result.addResult(rule_result.MANUAL_EVALUATION, link_element, 'MESSAGE_MANUAL', []);
+         rule_result.addResult(rule_result.MANUAL_CHECK, link_element, 'MESSAGE_MANUAL', []);
        }
       } 
       else {
@@ -94,85 +92,19 @@ OpenAjax.a11y.addRules([
  },
       
 /*
- * Link 2
+ * @object LINK_2
  *
  * @desc Links with the same HREF should have the same link text.
- *
- * Group 11: Link Rule
- * 
- * Last update: 2011-03-31
  */
 	     
 {
-  id              : 'LINK_2', 
-  lastUpdated     : '2011-07-11', 
-  cacheDependency : 'links_cache',
-  cacheProperties : ['name', 'href'],
-  language        : "",
-  enabled         : true,
-  validate        : function (dom_cache, rule_result) {
+  id                : 'LINK_2', 
+  last_updated      : '2011-07-11', 
+  cache_dependency  : 'links_cache',
+  cache_properties : ['name', 'href'],
+  language          : "",
+  validate          : function (dom_cache, rule_result) {
   
-      var SEVERITY   = OpenAjax.a11y.SEVERITY;
-      var VISIBILITY = OpenAjax.a11y.VISIBILITY;
-
-      var i, j;
-
-      var dn;
-      var le;
-
-      var link_elements;
-      var link_elements_len;
-
-      var duplicate_names     = dom_cache.links_cache.duplicate_names;
-      var duplicate_names_len = duplicate_names.length;
-      
-      var all_share_same_href;
-
-      for (i = 0; i < duplicate_names_len; i++) {
-        dn = duplicate_names[i];
-        
-        all_share_same_href = true;
-        
-        link_elements     = dn.link_elements;
-        link_elements_len = link_elements.length;
-        
-        for (j = 0; j < link_elements_len; j++) {
-          if (link_elements[j].href !== dn.href) all_share_same_href = false;
-        } // end loop
-        
-        for (j = 0; j < link_elements_len; j++) {
-          le = link_elements[j];
-          if (all_share_same_href) {
-            rule_result.addResult(SEVERITY.PASS, le, 'MESSAGE_PASS', [link_elements_len]);
-          }
-          else {
-            rule_result.addResult(rule_result.rule_severity, le, 'MESSAGE_FAIL', [link_elements_len]);          
-          }
-        } // end loop
-        
-      } // end loop
-   
-  } // end validate function
- },
-
- // ------------------------
- // Link 3: Links with the different HREFs should have the unique link text.
- // Group 11: Link Rule
- // 
- // Last update: 2011-03-31
- // ------------------------
-	     
- {
-  id              : 'LINK_3', 
-  lastUpdated     : '2011-07-11', 
-  groupCode       : 'GROUP_11',
-  cacheDependency : 'links_cache',
-  cacheProperties : ['name', 'href'],
-  language        : "",
-  enabled         : true,
-  validateParams  : {},
-  validate        : function (dom_cache, rule_result) {
-
       var SEVERITY   = OpenAjax.a11y.SEVERITY;
       var VISIBILITY = OpenAjax.a11y.VISIBILITY;
 
@@ -184,13 +116,13 @@ OpenAjax.a11y.addRules([
       var link_elements;
       var link_elements_len;
 
-      var duplicate_hrefs     = dom_cache.links_cache.duplicate_hrefs;
-      var duplicate_hrefs_len = duplicate_hrefs.length;
+      var duplicate_href_items     = dom_cache.links_cache.duplicate_href_items;
+      var duplicate_href_items_len = duplicate_href_items.length;
       
       var all_share_same_name;
 
-      for (i = 0; i < duplicate_hrefs_len; i++) {
-        dh = duplicate_hrefs[i];
+      for (i = 0; i < duplicate_href_items_len; i++) {
+        dh = duplicate_href_items[i];
         
         all_share_same_name = true;
         
@@ -207,7 +139,65 @@ OpenAjax.a11y.addRules([
             rule_result.addResult(SEVERITY.PASS, le, 'MESSAGE_PASS', [link_elements_len]);
           }
           else {
-            rule_result.addResult(rule_result.rule_severity, le, 'MESSAGE_FAIL', [link_elements_len]);          
+            rule_result.addResult(SEVERITY.FAIL, le, 'MESSAGE_FAIL', [link_elements_len]);          
+          }
+        } // end loop
+        
+      } // end loop
+   
+  } // end validate function
+ },
+
+/**
+ * @object LINK_3
+ *
+ * @desc Links with the different HREFs should have the unique link text.
+ */ 
+	     
+ {
+  id                : 'LINK_3', 
+  last_updated      : '2011-07-11', 
+  groupCode         : 'GROUP_11',
+  cache_dependency  : 'links_cache',
+  cache_properties : ['name', 'href'],
+  language          : "",
+  validate          : function (dom_cache, rule_result) {
+
+      var SEVERITY   = OpenAjax.a11y.SEVERITY;
+      var VISIBILITY = OpenAjax.a11y.VISIBILITY;
+
+      var i, j;
+
+      var dn;
+      var le;
+
+      var link_elements;
+      var link_elements_len;
+
+      var duplicate_name_items     = dom_cache.links_cache.duplicate_name_items;
+      var duplicate_name_items_len = duplicate_name_items.length;
+      
+      var all_share_same_href;
+
+      for (i = 0; i < duplicate_name_items_len; i++) {
+        dn = duplicate_name_items[i];
+        
+        all_share_same_href = true;
+        
+        link_elements     = dn.link_elements;
+        link_elements_len = link_elements.length;
+        
+        for (j = 0; j < link_elements_len; j++) {
+          if (link_elements[j].href !== dn.href) all_share_same_href = false;
+        } // end loop
+        
+        for (j = 0; j < link_elements_len; j++) {
+          le = link_elements[j];
+          if (all_share_same_href) {
+            rule_result.addResult(SEVERITY.PASS, le, 'MESSAGE_PASS', [link_elements_len]);
+          }
+          else {
+            rule_result.addResult(SEVERITY.FAIL, le, 'MESSAGE_FAIL', [link_elements_len]);          
           }
         } // end loop
         

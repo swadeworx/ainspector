@@ -1,38 +1,51 @@
+/**
+ * Copyright 2011 and 2012 OpenAjax Alliance
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 /* ---------------------------------------------------------------- */
 /*      OpenAjax Alliance Table Rules                               */
 /* ---------------------------------------------------------------- */
 
-OpenAjax.a11y.addRules([
+OpenAjax.a11y.all_rules.addRulesFromJSON([
       
 /** 
- * @rule TABLE_1
+ * @object TABLE_1
  * 
- * @desc If a table is a data table, 
- *       each table cell in the first column must be either a TH element or TD element with scope value of 'col'
- *       and/or each row must contain at least one TH element or a TD with scope value of 'row'
- * 
- * @group Table Rule
- * 
- * @updated 2011-10-11 
+ * @desc If a table is a data table, the rule tests if each table cell in the first column is 
+ *       either a TH element or TD element with scope value of 'col' and/or each row contains at 
+ *       at least one TH element or a TD with scope value of 'row'
  */
- { id       : 'TABLE_1', 
-   lastUpdated   : '2011-09-17', 
-   cacheDependency : 'tables_cache',
-   cacheProperties : ['is_header','is_th','scope','header_content'],
-   language    : "",
-   enabled     : true,
-   validateParams : {}, 
-   validate    : function (dom_cache, rule_result) {
+ { id                : 'TABLE_1', 
+   last_updated      : '2011-09-17', 
+   cache_dependency  : 'tables_cache',
+   cache_properties : ['is_data_table', 'first_row_th_count', 'first_row_cell_count'],
+   language          : "",
+   validate          : function (dom_cache, rule_result) {
    
      var SEVERITY = OpenAjax.a11y.SEVERITY;
    
      var i;
      var te;
-     var info;
+     var info_row;
+     var info_column;
       
      var table_elements   = dom_cache.tables_cache.table_elements;
      var table_elements_len = table_elements.length;
    
+
+     
      // Check to see if valid cache reference
      if (table_elements && table_elements_len) {
      
@@ -41,50 +54,68 @@ OpenAjax.a11y.addRules([
 
          if (te.is_data_table) {
      
-           if (te.dom_element.computed_style.at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
+           if (te.dom_element.computed_style.is_visible_to_at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
       
-             info = te.headerCellsInFirstRow(); 
+             info_row = te.headerCellsInFirstRow(); 
+             
+             te.first_row_th_count   = info_row.th_count;
+             te.first_row_cell_count = info_row.total;
 
-             if (info.count && info.total && info.count == info.total) {
-               rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS', [info.count]);     
+             info_column = te.headerCellsInFirstColumn(); 
+
+             te.first_column_th_count   = info_column.th_count;
+             te.first_column_cell_count = info_column.total;
+
+             if (info_row.th_count == info_row.total && info_column.th_count == info_column.total) {
+               rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS_BOTH', [info_row.total, info_column.total]);     
              }
              else {
-               rule_result.addResult(rule_result.rule_severity, te, 'MESSAGE_NOT_ALL_HEADERS', [info.count, info.total]);     
+               if (info_row.th_count == info_row.total) {
+                 rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS_ROW', [info_row.total]);     
+               }
+               else {               
+                 if (info_column.th_count == info_column.total) {
+                   rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS_COLUMN', [info_column.total]);     
+                 }
+                 else {
+                   rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_VIOLATION', [info_row.th_count, info_row.total, info_column.th_count, info_column.total]);
+                 }  
+               }  
              }
            }
            else {
-             rule_result.addResult(SEVERITY.NA, te, 'MESSAGE_HIDDEN', []);     
+             rule_result.addResult(SEVERITY.HIDDEN, te, 'MESSAGE_HIDDEN', []);     
            }
          }   
+         else {
+           rule_result.addResult(SEVERITY.NA, te, 'MESSAGE_NOT_DATA_TABLE', []);
+         }
        } // end loop
      }   
-   } // end valifdation function
+   } // end validation function
  },
  
 /** 
- * @rule TABLE_2 
+ * @object TABLE_2T 
  *
- * @desc A data table should have a caption element with content.
- *
- * @group Table Rule 
- * 
- * @updated 2011-10-11  
+ * @desc Tests if a table has either an effective caption or an effective summary with content.
  */
- { id       : 'TABLE_2', 
-   lastUpdated   : '2011-09-17', 
-   cacheDependency : 'tables_cache',
-   cacheProperties : ['caption'],
-   language    : "",
-   enabled     : true,
-   validateParams : {}, 
-   validate    : function (dom_cache, rule_result) {
+ { id                : 'TABLE_2T', 
+   last_updated      : '2011-09-17', 
+   cache_dependency  : 'tables_cache',
+   cache_properties : ['is_data_table', 'effective_caption', 'effective_summary'],
+   language          : "",
+   validate          : function (dom_cache, rule_result) {
    
-     var SEVERITY = OpenAjax.a11y.SEVERITY;
-     var table_elements   = dom_cache.tables_cache.table_elements;
-     var table_elements_len = table_elements.length;
+     var SEVERITY           = OpenAjax.a11y.SEVERITY;
      var i;   
      var te;
-   
+
+     var table_elements     = dom_cache.tables_cache.table_elements;
+     var table_elements_len = table_elements.length;
+
+     
+
      // Check to see if valid cache reference
      if (table_elements && table_elements_len) {
        
@@ -93,17 +124,23 @@ OpenAjax.a11y.addRules([
        
          if (te.is_data_table) {
        
-           if (te.dom_element.computed_style.at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
+           if (te.dom_element.computed_style.is_visible_to_at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
        
-             if (te.caption && te.caption.length > 0) {
-               rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS', [te.caption]);     
+             if ((te.effective_caption && te.effective_caption.length > 0) ||
+                 (te.effective_summary && te.effective_summary.length > 0)) {
+               if (te.effective_caption && te.effective_caption.length > 0) {    
+                 rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS', [te.effective_caption]);     
+               }
+               else {
+                 rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS', [te.effective_summary]);                    
+               }
              }
              else {
-               rule_result.addResult(rule_result.rule_severity, te, 'MESSAGE_CAPTION_MISSING', []);     
+               rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_VIOLATION', []);
              }
            }
            else {
-             rule_result.addResult(SEVERITY.NA, te, 'MESSAGE_HIDDEN', []);     
+             rule_result.addResult(SEVERITY.HIDDEN, te, 'MESSAGE_HIDDEN', []);     
            } 
          }
          else {
@@ -114,31 +151,29 @@ OpenAjax.a11y.addRules([
    } // end validation function
  },
  
-/**
- * @rule TABLE_3
+/** 
+ * @object TABLE_2S 
  *
- * @desc If a table is a data table, a data table should have a summary attribute with content.
- * 
- * @group Table Rule
- * 
- * @updated 2011-10-11 
+ * @desc  If there is only one data table on a page, the rule tests the table for an effective caption.
  */
-
- { id             : 'TABLE_3', 
-   lastUpdated     : '2011-09-17', 
-   cacheDependency : 'tables_cache',
-   cacheProperties : ['summary'],
-   language        : "",
-   enabled         : true,
-   validateParams  : {}, 
-   validate        : function (dom_cache, rule_result) {
+ { id                : 'TABLE_2S', 
+   last_updated      : '2011-09-17', 
+   cache_dependency  : 'tables_cache',
+   cache_properties : ['is_data_table', 'effective_caption'],
+   language          : "",
+   enabled           : true,
+   validate          : function (dom_cache, rule_result) {
    
-     var SEVERITY = OpenAjax.a11y.SEVERITY;
-     var table_elements   = dom_cache.tables_cache.table_elements;
-     var table_elements_len = table_elements.length;
+     var SEVERITY           = OpenAjax.a11y.SEVERITY;
+     
      var i;   
      var te;
-   
+
+     var table_elements     = dom_cache.tables_cache.table_elements;
+     var table_elements_len = table_elements.length;
+
+
+     
      // Check to see if valid cache reference
      if (table_elements && table_elements_len) {
        
@@ -146,60 +181,120 @@ OpenAjax.a11y.addRules([
          te = table_elements[i];
        
          if (te.is_data_table) {
-           
-           if (te.dom_element.computed_style.at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
        
-             if (te.summary && te.summary.length > 0) {
-               rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS', [te.summary]);     
+           if (te.dom_element.computed_style.is_visible_to_at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
+       
+             if (te.effective_caption && te.effective_caption.length > 0) {
+               rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS', [te.effective_caption]);     
              }
              else {
-               rule_result.addResult(rule_result.rule_severity, te, 'MESSAGE_SUMMARY_MISSING', []);     
+               rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_VIOLAION', []);
              }
            }
            else {
-             rule_result.addResult(SEVERITY.NA, te, 'MESSAGE_HIDDEN', []);     
-           }
+             rule_result.addResult(SEVERITY.HIDDEN, te, 'MESSAGE_HIDDEN', []);     
+           } 
          }
          else {
-           rule_result.addResult(SEVERITY.NA, te, 'MESSAGE_NOT_DATA_TABLE', []);   
-         }  
+           rule_result.addResult(SEVERITY.NA, te, 'MESSAGE_NOT_DATA_TABLE', []);     
+         }
        } // end loop
      } 
    } // end validation function
  },
- 
+  
 /**
- * @rule TABLE_4
+ * @object TABLE_2M
  *
- * @desc    If a table has both a caption element/aria-labelledby attribute and 
- *          a summary/aria-describedby attribute, 
- *          the summary content must be unique from the caption content 
- * 
- * @group Table Rule
- * 
- * @updated 2011-10-11 
- *
- * =============================================================== */
- 
- { id              : 'TABLE_4', 
-   lastUpdated     : '2011-09-17', 
-   cacheDependency : 'tables_cache',
-   cacheProperties : ['is_th'],
-   language        : "",
-   enabled         : true,
-   validateParams  : {}, 
-   validate        : function (dom_cache, rule_result) {
+ * @desc   If there is more than one data table on a page, the rule tests the table for an effective caption.
+ */
+ { id                : 'TABLE_2M', 
+   last_updated      : '2011-12-14', 
+   cache_dependency  : 'tables_cache',
+   cache_properties : ['is_data_table', 'effective_caption'],
+   language          : "",
+   validate          : function (dom_cache, rule_result) {
    
      var SEVERITY = OpenAjax.a11y.SEVERITY;
      var VISIBILITY = OpenAjax.a11y.VISIBILITY;
      
+     var i;   
+     var te;
+     var tc;
+
      var table_elements = dom_cache.tables_cache.table_elements;
+     var table_elements_len = table_elements.length;
+     
+     var data_table_count = 0;
+
+
+     
+     // Check to see if valid cache reference
+     if (table_elements && table_elements_len) {
+     
+       for (i=0; i < table_elements_len; i++) {
+         te = table_elements[i];
+         if (te.is_complex_data_table && te.dom_element.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) data_table_count++;
+       } // loop
+     
+       for (i=0; i < table_elements_len; i++) {
+         te = table_elements[i];
+       
+         if (te.is_data_table) {
+       
+           if (te.dom_element.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
+       
+             if (data_table_count <= 1 ) {
+               rule_result.addResult(SEVERITY.NA, te, 'MESSAGE_ONLY_ONE', []);         
+             }
+             else {
+               if (te.effective_caption && te.effective_caption.length > 0) {
+                 rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS', [te.effective_caption]);
+               } 
+               else {
+                 rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_VIOLATION', []);
+               }
+             }  
+           }
+           else {
+             rule_result.addResult(SEVERITY.HIDDEN, te, 'MESSAGE_HIDDEN', []);
+           } 
+         }
+         else {
+           rule_result.addResult(SEVERITY.NA, te, 'MESSAGE_NOT_DATA_TABLE', []);
+         } 
+       }
+     }    
+  } // end validation function
+},
+
+/**
+ * @object TABLE_3
+ *
+ * @desc  Tests when a table has both and effective caption and effective summary that the two are unique 
+ */
+ 
+ { id                : 'TABLE_3', 
+   last_updated      : '2011-09-17', 
+   cache_dependency  : 'tables_cache',
+   cache_properties : ['effective_caption', 'effective_summary'],
+   language          : "",
+   validate          : function (dom_cache, rule_result) {
+   
+     var SEVERITY = OpenAjax.a11y.SEVERITY;
+     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
+     
+     var table_elements     = dom_cache.tables_cache.table_elements;
      var table_elements_len = table_elements.length;
 
 	 var i;   
      var te;
      var tc;
+     var ec;
+     var es;
+
      
+
      // Check to see if valid cache reference
      if (table_elements && table_elements_len) {
      
@@ -207,286 +302,406 @@ OpenAjax.a11y.addRules([
          te = table_elements[i];
       
          if (te.is_data_table) {
-           if (te.dom_element.computed_style.at == VISIBILITY.VISIBLE) {
-             if ((te.summary && te.summary.length > 0) && (te.caption && te.caption.length > 0)) {
-               if (te.summary !== te.caption) {
-                 rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_UNIQUE', []);     
+           if (te.dom_element.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
+           
+             if ((te.effective_summary && te.effective_summary.length > 0) && 
+                 (te.effective_caption && te.effective_caption.length > 0)) {
+              
+               if (te.effective_summary_for_comparison != te.effective_caption_for_comparison) {
+                 rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_UNIQUE', [te.effective_caption, te.effective_summary]);     
                }
                else {
-                 rule_result.addResult(rule_result.rule_severity, te, 'MESSAGE_NOT_UNIQUE', []);     
+                 rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_NOT_UNIQUE', [te.effective_caption, te.effective_summary]);     
                }
+             }
+             else {
+               rule_result.addResult(SEVERITY.NA, te, 'MESSAGE_MISSING', []);     
              }
            }
            else {
-             rule_result.addResult(SEVERITY.NA, te, 'MESSAGE_HIDDEN', []);     
+             rule_result.addResult(SEVERITY.HIDDEN, te, 'MESSAGE_HIDDEN', []);     
            }
-         }  
+         }
+         else {
+           rule_result.addResult(SEVERITY.NA, te, 'MESSAGE_NOT_DATA_TABLE', []);     
+         }         
        } // end loop
      }
-   } // end valifdation function
+   } // end validation function
  },
 
 /** 
- * @rule TABLE_5
+ * @object TABLE_4
  *
- * @desc    Each data table must include column and/or row headers:  
- *          The first cell in each column must be a th element,
- *          and/or each row must contain at least one th element.
- * @group Table Rule
- * 
- * @updated 2011-10-11 
- *
- * =============================================================== */
+ * @desc    Tests if table headers use TH elements instead of TD with SCOPE
+ */
  
- { id              : 'TABLE_5', 
-   lastUpdated     : '2011-09-17', 
-   cacheDependency : 'tables_cache',
-   cacheProperties : ['is_th'],
-   language        : "",
-   enabled         : true,
-   validateParams  : {}, 
-   validate        : function (dom_cache, rule_result) {
+ { id                : 'TABLE_4', 
+   last_updated      : '2011-09-17', 
+   cache_dependency  : 'tables_cache',
+   cache_properties : ['scope'],
+   language          : "",
+   validate          : function (dom_cache, rule_result) {
    
-     var SEVERITY = OpenAjax.a11y.SEVERITY;
+     function checkDataTableForUseOfTHElement(table_elements) {
+       var j;
+       var tce;
+       var max = table_elements.length;
+       
+       for (j = 0; j < max; j++) {
+         tce = table_elements[j];
+         
+         // do not recurse nested tables
+         if (tce.table_type === TABLE.TABLE_ELEMENT) return;
+         
+         if (tce.table_type === TABLE.TH_ELEMENT) {
+           
+           if (tce.dom_element.tag_name == 'th') {
+             rule_result.addResult(SEVERITY.PASS, tce, 'MESSAGE_IS_TH', []);                            
+           }
+           else {
+             rule_result.addResult(SEVERITY.FAIL, tce, 'MESSAGE_VIOLATION', []);              
+           }
+         } 
+         
+         if (tce.child_cache_elements && tce.child_cache_elements.length) checkDataTableForUseOfTHElement(tce.child_cache_elements);          
+         
+       } // end loop    
+         
+     } // end function
+   
+     var SEVERITY   = OpenAjax.a11y.SEVERITY;
      var VISIBILITY = OpenAjax.a11y.VISIBILITY;
+     var TABLE      = OpenAjax.a11y.TABLE;
      
-     var table_elements = dom_cache.tables_cache.table_elements;
+     var table_elements     = dom_cache.tables_cache.table_elements;
      var table_elements_len = table_elements.length;
      
      var i;   
      var te;
      var tc;
      var info;
+     
+     // Check to see if valid cache reference
+     if (table_elements && table_elements_len) {
+
+       for (i=0; i < table_elements_len; i++) {
+         te = table_elements[i];
+      
+         if (te.is_data_table) {
+           if (te.dom_element.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
+             checkDataTableForUseOfTHElement(te.child_cache_elements);            
+           }
+           else {
+             rule_result.addResult(SEVERITY.HIDDEN, te, 'MESSAGE_HIDDEN', []);     
+           }
+         }
+         else {
+           rule_result.addResult(SEVERITY.NA, te, 'MESSAGE_NOT_DATA_TABLE', []);     
+         }
+         
+       } // end loop
+     } 
+  } // end validation function
+},
+
+/**
+ * @object TABLE_5
+ *
+ * @desc   The rule tests the table for an effective summary.
+ */
+ { id                : 'TABLE_5', 
+   last_updated      : '2011-12-14', 
+   cache_dependency  : 'tables_cache',
+   cache_properties : ['effective_summary'],
+   language          : "",
+   validate          : function (dom_cache, rule_result) {
    
+     var SEVERITY = OpenAjax.a11y.SEVERITY;
+     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
+     
+     var table_elements = dom_cache.tables_cache.table_elements;
+     var table_elements_len = table_elements.length;
+     
+     var i;   
+     var te;
+     var tc;
+   
+     var data_table_count = 0;
+       
      // Check to see if valid cache reference
      if (table_elements && table_elements_len) {
      
        for (i=0; i < table_elements_len; i++) {
          te = table_elements[i];
-
+       
          if (te.is_data_table) {
-     
-           if (te.dom_element.computed_style.at == VISIBILITY.VISIBLE) {
-      
-             info = te.headerCellsInFirstRow(); 
-
-             if (info.th_count) {
-             
-               if (info.total && info.th_count == info.total) {
-                 rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS', [info.th_count]);     
-               } 
-               else {
-                 rule_result.addResult(rule_result.rule_severity, te, 'MESSAGE_FAIL', [info.th_count, info.total]);
-               } 
-             }  
+       
+           if (te.dom_element.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
+       
+             if (te.effective_summary && te.effective_summary.length > 0) {
+               rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS', [te.effective_summary]);
+             } 
              else {
-               info = te.headerCellsInFirstColumn();
-               
-               if (info.th_count && info.total && info.th_count == info.total) {
-                 rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS', [info.th_count]);     
-               
-               } else {
-                 rule_result.addResult(rule_result.rule_severity, te, 'MESSAGE_FAIL', [info.th_count, info.total]);
-               }     
-             }
+               rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_VIOLATION', []);
+             }  
            }
            else {
-             rule_result.addResult(SEVERITY.NA, te, 'MESSAGE_HIDDEN', []);     
-           }
-         }   
-       } // end loop
-     } 
-  } // end valifdation function
+             rule_result.addResult(SEVERITY.HIDDEN, te, 'MESSAGE_HIDDEN', []);
+           } 
+         }
+         else {
+           rule_result.addResult(SEVERITY.NA, te, 'MESSAGE_NOT_DATA_TABLE', []);
+         } 
+       }
+     }    
+  } // end validation function
 },
+
+
 /**
- * @rule TABLE_6
+ * @object TABLE_6
  *
  * @desc    Each TH element with content in a complex table 
  *          must have an id attribute, whose id value must be unique 
  *          on the page
- *
- * @group Table Rule
- * 
- * @updated 2011-10-11 
  */
- { id              : 'TABLE_6', 
-   lastUpdated     : '2011-09-17', 
-   cacheDependency : 'tables_cache',
-   cacheProperties : ['is_header','dom_element.id'],
-   language        : "",
-   enabled         : true,
-   validateParams  : {}, 
-   validate        : function (dom_cache, rule_result) {
+ { id                : 'TABLE_6', 
+   last_updated      : '2011-09-17', 
+   cache_dependency  : 'tables_cache',
+   cache_properties : ['id'],
+   language          : "",
+   validate          : function (dom_cache, rule_result) {
    
-     var SEVERITY = OpenAjax.a11y.SEVERITY;
-     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
-     
-     var i,j,k;
-     var te;
-      
-     var table_elements   = dom_cache.tables_cache.table_elements;
-     var table_elements_len = table_elements.length;
-     
-     var cells;
-     var cell;
-     var last_cell = null;
-     
-     var max_row;
-     var max_column;
-   
-     // Check to see if valid cache reference
-     if (table_elements && table_elements_len) {
-     
-       for (i=0; i < table_elements_len; i++) {
-         te = table_elements[i];
+     function checkComplexDataTableHeadingsForUniqueIds(table_element) {
 
-         if (te.is_complex_data_table) {
+       function testHeaderCellForUniqueId(table_elements) {
+         var j;
+         var tce;
+         var max = table_elements.length;
+       
+         for (j = 0; j < max; j++) {
+           tce = table_elements[j];
 
-           cells       = te.cells;  
-           max_row     = te.max_row;
-           max_column  = te.max_column;
+           // do not traverse nested tables
+           if (tce.table_type === TABLE.TABLE_ELEMENT) checkComplexDataTableHeadingsForUniqueIds(tce);  
 
-           for(j=0; j<max_row; j++) {
+           switch (tce.table_type) {
+         
+           case TABLE.TH_ELEMENT:
+         
+             total++;
+         
+             if (!tce.text_content) tce.text_content = tce.dom_element.getText().normalizeSpace();               
            
-             for(k=0; k<max_column; k++) {
-               
-               cell = cells[j][k];
-               
-               if (!cell || !cell.is_th || last_cell === cell) break;
-               
-               if (cell.dom_element.computed_style.at === VISIBILITY.VISIBLE) {
-                
-                 if (cell.cell_content.length !== 0) {                 
+               if (tce.text_content.length !== 0) {                 
                  
-                   if (cell.dom_element.id_unique == OpenAjax.a11y.ID.NOT_UNIQUE) {
-                     rule_result.addResult(rule_result.rule_severity, cell, 'MESSAGE_ID_NOT_UNIQUE', [cell.dom_element.id]);     
-                   }
-                   else {
-                     if (cell.dom_element.id_unique == OpenAjax.a11y.ID.NOT_DEFINED) {
-                       rule_result.addResult(rule_result.rule_severity, cell, 'MESSAGE_ID_NOT_DEFINED', []);     
-                     }
-                     else {
-                       rule_result.addResult(SEVERITY.PASS, cell, 'MESSAGE_PASS', []);    
-                     }                     
-                   }
+                 if (tce.dom_element.id_unique === ID.NOT_UNIQUE) {
+                   rule_result.addResult(SEVERITY.FAIL, tce, 'MESSAGE_NOT_UNIQUE_VIOLATION', [tce.dom_element.id]);              
+                   count++;
                  }
                  else {
-                   rule_result.addResult(SEVERITY.NA, cell, 'MESSAGE_NO_CONTENT', []);    
+                   if (tce.dom_element.id_unique === ID.NOT_DEFINED) {
+                     rule_result.addResult(SEVERITY.FAIL, tce, 'MESSAGE_NO_ID_VIOLATION', []);              
+                     count++;
+                   }
+                   else {
+                     rule_result.addResult(SEVERITY.PASS, tce, 'MESSAGE_PASS', []);    
+                   }                     
                  }
                }
                else {
-                 rule_result.addResult(SEVERITY.NA, cell, 'MESSAGE_HIDDEN', []);     
+                 rule_result.addResult(SEVERITY.MANUAL_CHECK, tce, 'MESSAGE_NO_CONTENT', []);    
                }
-               
-               last_cell = cell;
+             break;
 
-             }  
-           }
-         }
-       } // end loop
-     } 
-   } // end valifdation function
- },
+           case TABLE.TD_ELEMENT:
+             rule_result.addResult(SEVERITY.NA, tce, 'MESSAGE_DATA_CELL', []);                                        
+             break;
+           
+           default:
+             break;
 
-/**
- * @rule TABLE_7
- *
- * @desc  If a table is a complex data table, all the TD elements must have a headers attribute that point to TH elements in the same table
- *
- * @group Table Rule
- * 
- * @updated 2011-10-11 
- */
- { id              : 'TABLE_7', 
-   lastUpdated     : '2011-09-17', 
-   cacheDependency : 'tables_cache',
-   cacheProperties : ['headers'],
-   language        : "",
-   enabled         : true,
-   validateParams  : {}, 
-   validate        : function (dom_cache, rule_result) {
-   
-     var SEVERITY = OpenAjax.a11y.SEVERITY;
-     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
-     
-     var i, j, k ;   
-     var te;
-     var te_row;
-     var te_row_len;
-     
-     var cell;
-     var last_cell;
-   
-     var count;
-     var content;
-   
-     var table_elements   = dom_cache.tables_cache.table_elements;
-     var table_elements_len = table_elements.length;
-   
-     // Check to see if valid cache reference
-     if (table_elements && table_elements_len) {
-     
-       for (i=0; i < table_elements_len; i++) {
-         te = table_elements[i];
-     
-         if (te.is_complex_data_table && 
-            (te.dom_element.computed_style.at == VISIBILITY.VISIBLE)) {
-     
-           count = 0;
-           
-           for (j=0; j<te.max_row; j++) {
-           
-             te_row = te.cells[j];
-             te_row_len = te_row.length;
-             
-             for (k=0; k<te_row_len; k++) {
-              
-               cell = te_row[k];
-              
-               if (cell && (cell != last_cell) && !cell.is_header && cell.cell_content && cell.cell_content.length) {  
-              
-                 if (!cell.headers || !cell.headers_array || cell.headers_array.length === 0) count++;
+           } // end switch  
          
-               } 
-               
-               last_cell = cell;
+           if (tce.child_cache_elements && tce.child_cache_elements.length) testHeaderCellForUniqueId(tce.child_cache_elements);         
+       
+         } // end loop
+     
+       } // end function
 
-             }  // end loop
-           }  // end loop      
-           
+
+       var count = 0;
+       var total = 0;
+
+       if (table_element.dom_element.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
+
+         if (table_element.is_complex_data_table) { 
+
+           testHeaderCellForUniqueId(table_element.child_cache_elements);
+
            if (count === 0) {      
-             rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS', []);                
+             rule_result.addResult(SEVERITY.INFORMATIONAL, table_element, 'MESSAGE_TABLE_PASS', [total]);                
            }
            else {
-             rule_result.addResult(rule_result.rule_severity, te, 'MESSAGE_MISSING_HEADERS', [count]);                
+             rule_result.addResult(SEVERITY.INFORMATIONAL, table_element, 'MESSAGE_TABLE_PROBLEM_IDS', [count, total]);                
            }
-
          }
          else {
-           rule_result.addResult(SEVERITY.NA, te, 'MESSAGE_HIDDEN', []);          
+           if (table_element.is_data_table) {
+             rule_result.addResult(SEVERITY.NA, table_element, 'MESSAGE_TABLE_SIMPLE_DATA_TABLE', []);                    
+           }
+           else {
+             rule_result.addResult(SEVERITY.NA, table_element, 'MESSAGE_TABLE_LAYOUT_TABLE', []);                    
+           }  
          }
-       } // end loop
-     } 
-   } // end valifdation function
+       }
+       else {
+         rule_result.addResult(SEVERITY.NA, table_element, 'MESSAGE_TABLE_HIDDEN', []);          
+       }
+     }
+
+     var SEVERITY   = OpenAjax.a11y.SEVERITY;
+     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
+     var TABLE      = OpenAjax.a11y.TABLE;
+     var ID         = OpenAjax.a11y.ID;
+     
+     var i;   
+           
+     var child_cache_elements     = dom_cache.tables_cache.child_cache_elements;
+     var child_cache_elements_len = child_cache_elements.length;
+
+
+     
+     for (i = 0; i < child_cache_elements_len; i++) {
+       checkComplexDataTableHeadingsForUniqueIds(child_cache_elements[i]);     
+     } // end loop
+     
+   } // end validation function
  },
 
 /**
- * @rule TABLE_8
+ * @object TABLE_7
  *
- * @desc   If a table is a complex data table, it must have a summary attribute with content.
- *
- * @group Table Rule
- * 
- * @updated 2011-10-11
+ * @desc  If a table is a complex data table, all the TD elements must have a headers attribute that point to TH elements in the same table
  */
- { id              : 'TABLE_8', 
-   lastUpdated     : '2011-09-17', 
-   cacheDependency : 'tables_cache',
-   cacheProperties : ['summary'],
-   language        : "",
-   enabled         : true,
-   validateParams  : {}, 
-   validate        : function (dom_cache, rule_result) {
+ { id                : 'TABLE_7', 
+   last_updated      : '2011-09-17', 
+   cache_dependency  : 'tables_cache',
+   cache_properties : ['headers'],
+   language          : "",
+   validate          : function (dom_cache, rule_result) {
+
+     function checkComplexDataTableForDataCellHeaders(table_element) {
+
+       function testForDataCellHeaders(table_elements) {
+         var j;
+         var tce;
+         var max = table_elements.length;
+       
+         for (j = 0; j < max; j++) {
+           tce = table_elements[j];
+
+           // do not traverse nested tables
+           if (tce.table_type === TABLE.TABLE_ELEMENT) checkComplexDataTableForDataCellHeaders(tce);  
+
+           switch (tce.table_type) {
+         
+           case TABLE.TD_ELEMENT:
+         
+             if (!tce.text_content) tce.text_content = tce.dom_element.getText().normalizeSpace();               
+           
+             if (tce.headers && tce.headers_array && tce.headers_array.length > 0) {
+               rule_result.addResult(SEVERITY.PASS, tce, 'MESSAGE_HAS_HEADERS', []);                                                    
+               total++;       
+             }
+             else {
+               if (tce.text_content.length) {
+                 rule_result.addResult(SEVERITY.FAIL, tce, 'MESSAGE_MISSING_VIOLATION', []);              
+               
+                 total++;     
+                 count++;
+               }
+               else {
+                 rule_result.addResult(SEVERITY.MANUAL_CHECK, tce, 'MESSAGE_DATA_CELL_IS_EMPTY', []);                                         
+               }
+             }
+             break;
+
+           case TABLE.TH_ELEMENT:
+             rule_result.addResult(SEVERITY.NA, tce, 'MESSAGE_HEADER_CELL', []);                                        
+             break;
+           
+           default:
+             break;
+
+           } // end switch  
+         
+           if (tce.child_cache_elements && tce.child_cache_elements.length) testForDataCellHeaders(tce.child_cache_elements);         
+       
+         } // end loop
+     
+       } // end function
+
+
+       var count = 0;
+       var total = 0;
+
+       if (table_element.dom_element.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
+
+         if (table_element.is_complex_data_table) { 
+
+           testForDataCellHeaders(table_element.child_cache_elements);
+
+           if (count === 0) {      
+             rule_result.addResult(SEVERITY.INFORMATIONAL, table_element, 'MESSAGE_TABLE_PASS', [total]);                
+           }
+           else {
+             rule_result.addResult(SEVERITY.INFORMATIONAL, table_element, 'MESSAGE_TABLE_MISSING_HEADERS', [count, total]);                
+           }
+         }
+         else {
+           if (table_element.is_data_table) {
+             rule_result.addResult(SEVERITY.NA, table_element, 'MESSAGE_TABLE_SIMPLE_DATA_TABLE', []);                    
+           }
+           else {
+             rule_result.addResult(SEVERITY.NA, table_element, 'MESSAGE_TABLE_LAYOUT_TABLE', []);                    
+           }  
+         }
+       }
+       else {
+         rule_result.addResult(SEVERITY.NA, table_element, 'MESSAGE_TABLE_HIDDEN', []);          
+       }
+       
+     } // end function
+
+     var SEVERITY   = OpenAjax.a11y.SEVERITY;
+     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
+     var TABLE      = OpenAjax.a11y.TABLE;
+     
+     var i;   
+           
+     var child_cache_elements     = dom_cache.tables_cache.child_cache_elements;
+     var child_cache_elements_len = child_cache_elements.length;
+       
+     for (i = 0; i < child_cache_elements_len; i++) {
+       checkComplexDataTableForDataCellHeaders(child_cache_elements[i]);     
+     } // end loop
+     
+   } // end validation function
+ },
+ 
+/**
+ * @object TABLE_8
+ *
+ * @desc     If a table is a complex data table, the rule tests if the table has an effective summary
+ */
+ { id                : 'TABLE_8', 
+   last_updated      : '2011-12-14', 
+   cache_dependency  : 'tables_cache',
+   cache_properties : ['effective_summary'],
+   language          : "",
+   validate          : function (dom_cache, rule_result) {
    
      var SEVERITY = OpenAjax.a11y.SEVERITY;
      var VISIBILITY = OpenAjax.a11y.VISIBILITY;
@@ -498,369 +713,242 @@ OpenAjax.a11y.addRules([
      var te;
      var tc;
    
+
+     
      // Check to see if valid cache reference
      if (table_elements && table_elements_len) {
-       
+     
        for (i=0; i < table_elements_len; i++) {
          te = table_elements[i];
        
          if (te.is_complex_data_table) {
        
-           if (te.dom_element.computed_style.at == VISIBILITY.VISIBLE) {
+           if (te.dom_element.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
        
-             if (te.summary && te.summary.length > 0) {
-               rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS', []);
+             if (te.effective_summary && te.effective_summary.length > 0) {
+               rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS', [te.effective_summary]);
              } 
              else {
-               rule_result.addResult(rule_result.rule_severity, te, 'MESSAGE_FAIL', []);
-             }
+               rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_VIOLATION', []);
+             }  
            }
            else {
-             rule_result.addResult(SEVERITY.NA, te, 'MESSAGE_HIDDEN', []);
+             rule_result.addResult(SEVERITY.HIDDEN, te, 'MESSAGE_HIDDEN', []);
            } 
          }
+         else {
+           rule_result.addResult(SEVERITY.NA, te, 'MESSAGE_NOT_COMPLEX_DATA_TABLE', []);
+         } 
        }
      }    
-  } // end valifdation function
-},
-
-/**
- * @rule TABLE_9
- *
- * @desc  If there is more than one data table on a page, each data table must have a 
- *         summary attribute with content that is unique on the page
- *
- * @group Table Rule
- *  
- * @updated 2011-10-11 
- */
- { id             : 'TABLE_9', 
-   lastUpdated     : '2011-09-17', 
-   cacheDependency : 'tables_cache',
-   cacheProperties : ['summary'],
-   language        : "",
-   enabled         : true,
-   validateParams  : {}, 
-   validate        : function (dom_cache, rule_result) {
-   
-     var SEVERITY = OpenAjax.a11y.SEVERITY;
-     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
-       
-     var table_elements   = dom_cache.tables_cache.table_elements;
-     var table_elements_len = table_elements.length;
-   
-     var summaries = [];
-     var summaries_len;
-     var item;
-     var i, j;   
-     var s1, s2;
-     var te;
-   
-     // Check to see if valid cache reference
-     if (table_elements && table_elements_len) {
-
-       for (i=0; i < table_elements_len; i++) {
-         te = table_elements[i];
-
-         if (te.is_data_table && (te.dom_element.computed_style.at == VISIBILITY.VISIBLE)) {
-      
-           item = {};
-           item.index = i;
-           item.summary = te.summary;
-           item.summary_for_comparison = te.summary_for_comparison;
-           item.unique = true;
-           if (item.summary && item.summary.length) { 
-             item.summary = item.summary.toLowerCase().trim();
-             summaries.push(item);
-           } 
-         }
-       } // end loop
-     } 
-   
-     summaries_len = summaries.length;
-   
-     if (summaries_len>1) {
-   
-       for (i=0; i<summaries_len; i++) {
-         s1 = summaries[i];
-       
-         for (j=(i+1); j<summaries_len; j++) {
-           s2 = summaries[j];
-       
-           if (s1.summary_for_comparison == s2.summary_for_comparison) {
-             s1.unique = false;
-             s2.unique = false;
-             break;
-           }
-         }
-       } // end loop
-     
-       for (i=0; i<summaries_len; i++) {
-         s1 = summaries[i];
-        
-         if (s1.unique) {
-           rule_result.addResult(SEVERITY.PASS, table_elements[s1.index], 'MESSAGE_UNIQUE', [s1.summary]);    
-         }
-         else {
-           rule_result.addResult(rule_result.rule_severity, table_elements[s1.index], 'MESSAGE_NOT_UNIQUE', [s1.summary]);          
-         }
-       } // end loop
-     }
-   } // end validation function
+  } // end validation function
  },
  
 /**
- * @rule TABLE_10
- *
- * @desc     If there is more than one data table on a page, each data table 
- *           should have a caption element with content that is unique on the page
- * @group Table Rule
- * 
- * @updated 2011-10-11
- */
- { id              : 'TABLE_10', 
-   lastUpdated     : '2011-09-17', 
-   cacheDependency : 'tables_cache',
-   cacheProperties : ['caption'],
-   language        : "",
-   enabled         : true,
-   validateParams  : {}, 
-   validate        : function (dom_cache, rule_result) {
-   
-     var SEVERITY = OpenAjax.a11y.SEVERITY;
-     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
-       
-     var table_elements   = dom_cache.tables_cache.table_elements;
-     var table_elements_len = table_elements.length;
-   
-     var captions = [];
-     var captions_len;
-     var item;
-     var i, j;   
-     var c1, c2;
-     var te;
-   
-     // Check to see if valid cache reference
-     if (table_elements && table_elements_len) {
-     
-       for (i=0; i < table_elements_len; i++) {
-         te = table_elements[i];
-     
-         if (te.is_data_table && (te.dom_element.computed_style.at == VISIBILITY.VISIBLE)) {
-      
-           item = {};
-           item.index   = i;
-           item.caption = te.caption;
-           item._for_comparison = te.caption_for_comparison;
-           item.unique     = true;
-           
-           if (item.caption && item.caption.length) { 
-             captions.push(item);
-           }  
-         }
-       } // end loop
-     } 
-     captions_len = captions.length;
-    
-     if (captions_len > 1 ) {
-       
-       for (i=0; i<captions_len; i++) {
-         c1 = captions[i];
-       
-         for (j=(i+1); j<captions_len; j++) {
-           c2 = captions[j];
-           
-           if (c1.caption_for_comparison == c2.caption_for_comparison) {
-             c1.unique = false;
-             c2.unique = false;
-             break;
-           }
-         } // end loop
-       } // end loop
-     
-       for (i=0; i<captions_len; i++) {
-         c1 = captions[i];
-         
-         if (c1.unique) {
-           rule_result.addResult(SEVERITY.PASS, table_elements[c1.index], 'MESSAGE_UNIQUE', [c1.caption]);    
-         }
-         else {
-           rule_result.addResult(rule_result.rule_severity, table_elements[c1.index], 'MESSAGE_NOT_UNIQUE', [c1.caption]);          
-         }
-       } // end loop 
-     }
-     else {
-       // there was only one or none data tables
-       if (captions_len == 1 && table_elements[0]) {
-         rule_result.addResult(SEVERITY.NA, table_elements[0], 'MESSAGE_NA', []);
-       }     
-     }
-   } // end validation function
- },
- 
-/**
- * @rule TABLE_11
+ * @object LAYOUT_1
  *
  * @desc     Do not use nested tables more than 1 column wide  
  *           for positioning content outside of landmarks.
  *           Fails with one or more one levels of nesting.
- * 
- * @group Table Rule
- * 
- * @updated 2011-10-11
  */
- { id              : 'TABLE_11', 
-   lastUpdated     : '2011-09-17', 
-   cacheDependency : 'tables_cache',
-   cacheProperties : ['columns'],
-   language        : "",
-   enabled         : true,
-   validateParams  : {}, 
-   validate        : function (dom_cache, rule_result) {
-
-     function setResultTableChildren(table_elements, severity, message) {
-      
-       var i;
-       var te;
-      
-       for (i=0; i<table_elements.length; i++) {
-         te = table_elements[i];
-         
-         if (!te.is_data_table) rule_result.addResult(severity, te, message, []);   
-         
-         if ( te.child_tables && te.child_tables.length) {
-           setResultTableChildren(te.child_tables, severity, message);     
-         }    
-       }    
-         
-     }
-
-     function checkForTableNesting(table_elements, parent_is_a_nesting_table, count) {
-      
-       var i;
-       var te;
-                    
-       for (i=0; i<table_elements.length; i++) {
-         te = table_elements[i];  
-       
-         if (te.is_data_table) {
-           setResultTableChildren(te.child_tables, SEVERITY.WARNING, 'MESSAGE_LAYOUT_INSIDE_DATA');
+ { id                : 'LAYOUT_1',
+   last_updated      : '2011-09-17',
+   cache_dependency  : 'tables_cache',
+   cache_properties : ['is_data_table', 'max_row', 'max_column', 'nesting_level'],
+   language          : "",
+   validate          : function (dom_cache, rule_result) {
+     
+     function getNestingLevel(table_element, level) {
+     
+       var l = level;
+       var pte = table_element.parent_table_element;
+     
+       if (pte) {
+         if (pte.is_data_table || pte.max_column == 1) {
+           l = getNestingLevel(pte, level);           
          }
-         else {           
-                      
-           if (te.max_column > 1) {
-             rule_result.addResult(rule_result.rule_severity, te, 'MESSAGE_NESTED_LAYOUT', [count]);   
-             checkForTableNesting(te.child_tables, true, (count+1));
-           }
-           else {
-             rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_ONE_COLUMN', [te.max_row]);   
-             checkForTableNesting(te.child_tables, false, (count+1));             
-           }           
-         }          
-       }        
+         else {
+           l = getNestingLevel(pte, (level+1));
+         }
+       }
+       return l;
      }
      
-     var SEVERITY = OpenAjax.a11y.SEVERITY;
+     var SEVERITY   = OpenAjax.a11y.SEVERITY;
+     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
+    
+     var i;
+     var te;
+     var nesting_level;
+    
+     var table_elements     = dom_cache.tables_cache.table_elements;
+     var table_elements_len = table_elements.length;
+
+     // Check to see if valid cache reference
+     if (table_elements && table_elements_len) {
+     
+       for (i=0; i < table_elements_len; i++) {
+       
+         te = table_elements[i];
+         
+         if (te.dom_element.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
+         
+           if (!te.is_data_table) {
+
+             nesting_level = getNestingLevel(te, 0);
+
+             te.nesting_level = nesting_level;
+
+             if (te.max_column === 1)  {
+               rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS_ONE_COLUMN', []);          
+             }  
+             else {
+         
+               if (nesting_level === 0) {
+                 rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS_NOT_NESTED', []);               
+               } 
+               else {
+                 rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_VIOLATION', [te.max_column, nesting_level]);
+               }  
+             }
+           }
+           else {
+             rule_result.addResult(SEVERITY.NA, te, 'MESSAGE_NOT_LAYOUT_TABLE', []);                     
+           }
+         }
+         else {
+           rule_result.addResult(SEVERITY.HIDDEN, te, 'MESSAGE_HIDDEN', []);
+         } 
+       } // end loop
+     }  
+     
+   }  // end validation function
+ },
+ 
+/**
+ * @object LAYOUT_2
+ *
+ * @desc     Do not use nested tables more than 1 column wide for positioning within a landmark. 
+ *           Fails with one or more one levels of nesting.
+ */
+ { id                : 'LAYOUT_2', 
+   last_updated      : '2011-09-17', 
+   cache_dependency  : 'tables_cache',
+   cache_properties : ['is_data_table', 'max_row', 'max_column', 'nesting_level'],
+   language          : "",
+   validate          : function (dom_cache, rule_result) {
+   
+     var SEVERITY   = OpenAjax.a11y.SEVERITY;
+     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
+    
+     var i;
+     var te;
+     var nesting_level;
+    
+     var table_elements     = dom_cache.tables_cache.table_elements;
+     var table_elements_len = table_elements.length;
+     
+
+     // Check to see if valid cache reference
+     if (table_elements && table_elements_len) {
+     
+       for (i=0; i < table_elements_len; i++) {
+       
+         te = table_elements[i];
+         
+         if (te.dom_element.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
+         
+           if (!te.is_data_table) {
+                      
+             if (te.max_column > 1)  {
+
+               rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_VIOLATION', [te.max_row, te.max_column]);
+               
+             }  
+             else {
+               rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS', []);          
+             }
+           }
+           else {
+             rule_result.addResult(SEVERITY.NA, te, 'MESSAGE_NOT_LAYOUT_TABLE', []);                     
+           }
+         }
+         else {
+           rule_result.addResult(SEVERITY.HIDDEN, te, 'MESSAGE_HIDDEN', []);
+         } 
+       } // end loop
+     }  
+  } // end validation function        
+},
+ 
+/**
+ * @object LAYOUT_3
+ *
+ * @desc  If table is used for layout, the rule tests if the table element and any of its child table 
+ *        related elements (i.e. tbody, tr, td) have a role attribute with the value 'presentation' (role="presentation")
+ */
+ { id                : 'LAYOUT_3', 
+   last_updated      : '2011-09-17', 
+   cache_dependency  : 'tables_cache',
+   cache_properties : ['role'],
+   language          : "",
+   validate          : function (dom_cache, rule_result) {
+   
+     function checkLayoutTableForRolePresentation(element) {
+     
+       var j;
+       
+       var de = element.dom_element;
+       
+       var cce     = element.child_cache_elements;
+       var cce_len = cce.length;     
+       
+       if (de.role && de.role == 'presentation') {
+         rule_result.addResult(SEVERITY.PASS, element, 'MESSAGE_PASS', [de.tag_name]);       
+       }
+       else {
+         rule_result.addResult(SEVERITY.FAIL, element, 'MESSAGE_VIOLATION', [de.tag_name]);
+       }
+
+       for (j = 0; j < cce_len; j++) {
+         // do not recursively go into other tables
+         if (cce[j].table_type !== TABLE.TABLE_ELEMENT) checkLayoutTableForRolePresentation(cce[j]);
+       }
+     
+     }
+   
+     var SEVERITY   = OpenAjax.a11y.SEVERITY;
+     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
+     var TABLE      = OpenAjax.a11y.TABLE;
     
      var i;
      var te;
     
-     var child_tables = dom_cache.tables_cache.child_tables;
-     var child_tables_len = child_tables.length;
-     
-     for (i=0; i<child_tables_len; i++) {
-       te = child_tables[i];  
-       
-       if (te.is_data_table) {
-         setResultTableChildren(te.child_tables, SEVERITY.WARNING, 'MESSAGE_LAYOUT_INSIDE_DATA');
-       }
-       else {           
-                   
-         if (te.max_column > 1) {
-           rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_TOP_LEVEL', [te.max_row, te.max_column]);   
-           checkForTableNesting(te.child_tables, true, 1);
-         }
-         else {
-           rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_ONE_COLUMN', [te.max_row]);   
-           checkForTableNesting(te.child_tables, false, 1);             
-         }           
-       }          
-     }     
-     
-   }  // end valifdation function
- },
- 
-/**
- * @rule TABLE_12
- *
- * @desc     Do not use nested tables more than 1 column wide for positioning within a landmark. 
- *           Fails with one or more one levels of nesting.
- * @group Table Rule
- * 
- * @updated 2011-10-11
- */
- { id              : 'TABLE_12', 
-   lastUpdated     : '2011-09-17', 
-   cacheDependency : 'tables_cache',
-   cacheProperties : ['columns'],
-   language        : "",
-   enabled         : true,
-   validateParams  : {}, 
-   validate        : function (dom_cache, rule_result) {
-   
-     var SEVERITY = OpenAjax.a11y.SEVERITY;
-       
-     var tables_elements_len;
-     var tables_element;
-        
-  } // end valifdation function
-},
- 
-/**
- * @rule TABLE_13
- *
- * @desc  If tables are used for layout, verify the content is meaningful when table markup is ignored.
- *
- * @group Table Rule
- * 
- * @updated 2011-10-11
- *
- * =============================================================== */
- { id              : 'TABLE_13', 
-   lastUpdated     : '2011-09-17', 
-   cacheDependency : 'tables_cache',
-   cacheProperties : ['columns'],
-   language        : "",
-   enabled         : true,
-   validateParams  : {}, 
-   validate        : function (dom_cache, rule_result) {
-   
-     var SEVERITY = OpenAjax.a11y.SEVERITY;
-     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
-        
-     var table_elements = dom_cache.tables_cache.table_elements;
-     var table_elements_len = table_elements;
-    
-     var i;   
-     var te;
-     var tc;
+     var table_elements     = dom_cache.tables_cache.table_elements;
+     var table_elements_len = table_elements.length;
      
      // Check to see if valid cache reference
      if (table_elements && table_elements_len) {
      
        for (i=0; i < table_elements_len; i++) {
+       
          te = table_elements[i];
          
-         if (te.dom_element.computed_style.at == VISIBILITY.VISIBLE) {
+         if (te.dom_element.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
          
-           if (!te.is_data_table)  rule_result.addResult(SEVERITY.rule_severity, te, 'MESSAGE_VERIFY', []);
+           if (!te.is_data_table) {
+             checkLayoutTableForRolePresentation(te);
+           }
+           else {
+             rule_result.addResult(SEVERITY.NA, te, 'MESSAGE_NOT_LAYOUT_TABLE', []);                     
+           }
          }
          else {
-           rule_result.addResult(rule_result.rule_severity, te, 'MESSAGE_HIDDEN', []);
+           rule_result.addResult(SEVERITY.HIDDEN, te, 'MESSAGE_HIDDEN', []);
          } 
-       }
+       } // end loop
      }  
-   } // end valifdation function
+   } // end validation function
  }  
 ]); 
 

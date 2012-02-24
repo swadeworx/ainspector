@@ -136,6 +136,21 @@ OpenAjax.a11y.PROGRESS = OpenAjax.a11y.PROGRESS || {
 };
 
 /**
+ * @constant RULE
+ * @memberOf OpenAjax.a11y
+ * @type Number
+ * @desc Defines a required or recommended rule 
+ *
+ * @example
+ * OpenAjax.a11y.RULE.REQUIRED               
+ * OpenAjax.a11y.RULE.RECOMMENDATION               
+ */
+OpenAjax.a11y.RULE = OpenAjax.a11y.RULE || {
+  REQUIRED       : 1,
+  RECOMMENDATION : 2
+};
+
+/**
  * @constant SEVERITY
  * @memberOf OpenAjax.a11y
  * @type Number
@@ -144,25 +159,27 @@ OpenAjax.a11y.PROGRESS = OpenAjax.a11y.PROGRESS || {
  * @example
  * OpenAjax.a11y.SEVERITY.NA               
  * OpenAjax.a11y.SEVERITY.PASS             
+ * OpenAjax.a11y.SEVERITY.FAIL             
  * OpenAjax.a11y.SEVERITY.VIOLATION        
  * OpenAjax.a11y.SEVERITY.RECOMMENDATION   
- * OpenAjax.a11y.SEVERITY.MANUAL_EVALUATION
+ * OpenAjax.a11y.SEVERITY.MANUAL_CHECK
  * OpenAjax.a11y.SEVERITY.WARNING          
  * OpenAjax.a11y.SEVERITY.HIDDEN           
  * OpenAjax.a11y.SEVERITY.INFORMATIONAL    
  * OpenAjax.a11y.SEVERITY.NOT_EVALUATED    
  */
 OpenAjax.a11y.SEVERITY = OpenAjax.a11y.SEVERITY || {
-  NA                     : 0,
-  PASS                   : 1,
-  VIOLATION              : 2,
-  RECOMMENDATION         : 3,
-  MANUAL_EVALUATION      : 4,
-  WARNING                : 5,  // This is some type of coding inconsistency that may be related to accessibility
-  HIDDEN                 : 6,  // Content is hidden and not tested for accessibility
-  INFORMATIONAL          : 7,
-  NOT_EVALUATED          : 8,
-  NONE                   : 9
+  NA             : 0,
+  PASS           : 1,
+  FAIL           : 2,
+  VIOLATION      : 2,
+  RECOMMENDATION : 3,
+  MANUAL_CHECK   : 4,
+  WARNING        : 5,  // This is some type of coding inconsistency that may be related to accessibility
+  HIDDEN         : 6,  // Content is hidden and not tested for accessibility
+  INFORMATIONAL  : 7,
+  NOT_EVALUATED  : 8,
+  NONE           : 9
 };
 
 /**
@@ -179,7 +196,7 @@ OpenAjax.a11y.SEVERITY_STYLE = [
   "passed",
   "violation",
   "recommendation",
-  "manual_evaluation",
+  "manual_check",
   "warning",
   "hidden",
   "informational",
@@ -235,7 +252,7 @@ OpenAjax.a11y.STATUS = OpenAjax.a11y.STATUS || {
  * OpenAjax.a11y.REFERENCES.UNKNOWN          
  * OpenAjax.a11y.REFERENCES.REQUIREMENT      
  * OpenAjax.a11y.REFERENCES.TECHNIQUE        
- * OpenAjax.a11y.REFERENCES.MANUAL_EVALUATION
+ * OpenAjax.a11y.REFERENCES.MANUAL_CHECK
  * OpenAjax.a11y.REFERENCES.BEST_PRACTICE 
  * OpenAjax.a11y.REFERENCES.AUTHORING     
  * OpenAjax.a11y.REFERENCES.OTHER         
@@ -244,7 +261,7 @@ OpenAjax.a11y.REFERENCES = OpenAjax.a11y.REFERENCES || {
   UNKNOWN                  : 0,
   REQUIREMENT              : 1,
   TECHNIQUE                : 2,
-  MANUAL_EVALUATION        : 3,
+  MANUAL_CHECK        : 3,
   BEST_PRACTICE            : 4,
   AUTHORING                : 5,
   OTHER                    : 6
@@ -1167,7 +1184,8 @@ OpenAjax.a11y.cache.ColorContrastCache.prototype.addColorContrastItem = function
   
   var i;
   
-  var cci = null;
+  var cci;
+  var cs;
   var color_contrast_items_len = this.color_contrast_items.length;
   var found = false;
   
@@ -1183,15 +1201,19 @@ OpenAjax.a11y.cache.ColorContrastCache.prototype.addColorContrastItem = function
 
   for (i = 0; i < color_contrast_items_len; i++) {
     cci = this.color_contrast_items[i];
+    cs = dom_element.computed_style;
     
     // OpenAjax.a11y.console("color compare " + dom_element.computed_style.color + " with " + item.color );
     
-    if ( cci && cci.color &&
-    (dom_element.computed_style.color_hex == cci.color) &&
-    (dom_element.computed_style.background_color_hex == cci.background_color) &&
-    ((dom_element.computed_style.background_image == cci.background_image) &&
-    (dom_element.computed_style.background_repeat == cci.background_repeat) &&
-    (dom_element.computed_style.background_position ==cci.background_position))) {
+    if ( cci && 
+         cci.color &&
+         (cs.color_hex     == cci.color)         &&
+         (cs.is_large_font == cci.is_large_font) &&
+         (cs.background_color_hex == cci.background_color) &&
+         ((cs.background_image == 'none' && cci.background_image == 'none') ||
+          ((cs.background_image    == cci.background_image) &&
+           (cs.background_repeat   == cci.background_repeat) &&
+           (cs.background_position == cci.background_position)))) {
       
       cci.dom_elements.push(dom_element);
       cci.node_count = cci.dom_elements.length;
@@ -1205,8 +1227,8 @@ OpenAjax.a11y.cache.ColorContrastCache.prototype.addColorContrastItem = function
   // end loop
   
   if (!found) {
-    var cs = dom_element.computed_style;
-    cci = new OpenAjax.a11y.cache.ColorContrastItem(cs.font_family, cs.font_size, cs.font_weight, cs.color_hex, cs.background_color_hex, cs.background_image, cs.background_repeat, cs.background_position, cs.color_contrast_ratio, dom_element.character_count);
+    cs = dom_element.computed_style;
+    cci = new OpenAjax.a11y.cache.ColorContrastItem(cs.font_family, cs.font_size, cs.font_weight, cs.color_hex, cs.background_color_hex, cs.background_image, cs.background_repeat, cs.background_position, cs.is_large_font, cs.color_contrast_ratio, dom_element.character_count);
     
     cci.dom_elements.push(dom_element);
     cci.node_count = cci.dom_elements.length;
@@ -1489,7 +1511,7 @@ OpenAjax.a11y.cache.ColorContrastCache.prototype.toString = function () {
  * @property  {String}   dom_elements - List of dom elements with the same color contrast item properties
  */
 
-OpenAjax.a11y.cache.ColorContrastItem = function (font_family, font_size, font_weight, color, bg_color, bg_image, bg_repeat, bg_position, ccr, count) {
+OpenAjax.a11y.cache.ColorContrastItem = function (font_family, font_size, font_weight, color, bg_color, bg_image, bg_repeat, bg_position, is_large_font, ccr, count) {
 
   this.cache_id = "";
 
@@ -1505,7 +1527,7 @@ OpenAjax.a11y.cache.ColorContrastItem = function (font_family, font_size, font_w
   this.color_contrast_ratio = ccr;
   this.character_count = count;
   
-  this.is_large_font = (font_size >= 18) || ((font_size >= 14) && (font_weight > 400));
+  this.is_large_font = is_large_font;
   
   this.dom_elements = [];
 };
@@ -1614,7 +1636,6 @@ OpenAjax.a11y.cache.ColorContrastItem.prototype.getCacheProperties = function (u
 };
 
 /**
-
  * @method getEvents
  *
  * @memberOf OpenAjax.a11y.cache.ColorContrastItem
@@ -1627,6 +1648,108 @@ OpenAjax.a11y.cache.ColorContrastItem.prototype.getCacheProperties = function (u
 OpenAjax.a11y.cache.ColorContrastItem.prototype.getEvents = function () {
    
   return [];
+  
+};
+
+/**
+ * @method getColorContrastSummary
+ *
+ * @memberOf OpenAjax.a11y.cache.ColorContrastItem
+ *
+ * @desc Returns the worst severity level of color contrast rules
+ *
+ * @return {Object} Results an object wiith two properties: 'severity' : nls value of the severity, 'style' : a severity styling constant
+ */
+
+OpenAjax.a11y.cache.ColorContrastItem.prototype.getColorContrastSummary = function () {
+
+  
+  function hasRule(node_results, rules) {
+  
+    var i;
+    var j;
+    
+    var node_results_len = node_results.length;
+    var rules_len        = rules.length;
+    
+    for (i = 0; i < node_results_len; i++ ) {
+      for (j = 0; j < rules_len; j++) {
+        if (node_results[i].rule_result.rule.rule_id == rules[j]) return true;
+      }
+    }
+    return false;
+  }
+
+  var i;
+  
+  var cache_nls      = OpenAjax.a11y.cache_nls;
+  var SEVERITY       = OpenAjax.a11y.SEVERITY;
+  var SEVERITY_STYLE = OpenAjax.a11y.SEVERITY_STYLE;
+  var severity;
+  var last_severity_value;
+  var a = {};
+  var last_a = {};
+
+  severity = cache_nls.getSeverityNLS(SEVERITY.NONE); 
+  a.label    = severity.label;
+  a.style    = SEVERITY_STYLE[SEVERITY.NONE];
+  
+  var color_rules = ['COLOR_1', 'COLOR_2'];
+
+  last_severity_value = SEVERITY.NONE;
+
+  for (i = 0; i < this.dom_elements.length; i++ ) {
+  
+    var de = this.dom_elements[i];
+
+    if (last_severity_value == SEVERITY.NONE && 
+        hasRule(de.rules_hidden, color_rules)) {
+      severity = cache_nls.getSeverityNLS(SEVERITY.HIDDEN);
+      a.style    = SEVERITY_STYLE[SEVERITY.HIDDEN];
+      last_severity_value = SEVERITY.HIDDEN;
+    }
+
+    if ((last_severity_value == SEVERITY.NONE ||
+         last_severity_value == SEVERITY.HIDDEN) &&
+        hasRule(de.rules_passed, color_rules)) {
+      severity = cache_nls.getSeverityNLS(SEVERITY.PASS);
+      a.style  = SEVERITY_STYLE[SEVERITY.PASS];
+      last_severity_value = SEVERITY.PASS;
+    }
+
+    if ((last_severity_value == SEVERITY.NONE ||
+         last_severity_value == SEVERITY.HIDDEN ||
+         last_severity_value == SEVERITY.PASS) &&
+        hasRule(de.rules_recommendations, color_rules)) {
+      severity = cache_nls.getSeverityNLS(SEVERITY.RECOMMENDATION);
+      a.style  = SEVERITY_STYLE[SEVERITY.RECOMMENDATION];
+      last_severity_value = SEVERITY.RECOMMENDATION;
+    }
+
+    if ((last_severity_value == SEVERITY.NONE ||
+         last_severity_value == SEVERITY.HIDDEN ||
+         last_severity_value == SEVERITY.PASS ||
+         last_severity_value == SEVERITY.RECOMMENDATION) &&
+        hasRule(de.rules_manual_checks, color_rules)) {
+      severity = cache_nls.getSeverityNLS(SEVERITY.MANUAL_CHECK);
+      a.style  = SEVERITY_STYLE[SEVERITY.MANUAL_CHECK];
+      last_severity_value = SEVERITY.MANUAL_CHECK;
+    }
+
+    if (hasRule(de.rules_violations, color_rules)) {
+      severity = cache_nls.getSeverityNLS(SEVERITY.VIOLATION);
+      a.style  = SEVERITY_STYLE[SEVERITY.VIOLATION];
+      break;
+    }
+
+  }  
+
+  a.label       = severity.label;
+  a.abbrev      = severity.abbrev;
+  a.description = severity.description;
+  a.tooltip     = severity.tooltip;
+
+  return a;
   
 };
 
@@ -1998,6 +2121,7 @@ OpenAjax.a11y.cache.ControlsCache.prototype.updateCacheItems = function (dom_ele
   case 'legend':
     le = new OpenAjax.a11y.cache.LegendElement(dom_element, control_info);
     le.label = this.getElementTextContent(le, false);
+    le.label_length = le.label.length;
 
     this.addLabelElement(le); 
   
@@ -2018,7 +2142,8 @@ OpenAjax.a11y.cache.ControlsCache.prototype.updateCacheItems = function (dom_ele
   case 'label':
     le = new OpenAjax.a11y.cache.LabelElement(dom_element, control_info);
     le.label = this.getElementTextContent(le, false);
-
+    le.label_length = le.label.length;
+    
     this.addLabelElement(le); 
   
     if (control_info.control_element) {
@@ -2131,6 +2256,7 @@ OpenAjax.a11y.cache.ControlsCache.prototype.updateCacheItems = function (dom_ele
   
     if (dom_element.node.label && dom_element.node.label.length) {
       oe.label = dom_element.node.label;  
+      oe.label_length = oe.label.length;
     } 
  
     if (control_info.control_element) {
@@ -2147,6 +2273,8 @@ OpenAjax.a11y.cache.ControlsCache.prototype.updateCacheItems = function (dom_ele
     oe = new OpenAjax.a11y.cache.OptionElement(dom_element, control_info);
   
     oe.label = this.getElementTextContent(oe, false);
+    oe.label_length = oe.label.length;
+
   
     if (control_info.control_element) {
       control_info.control_element.addChildControl(oe);   
@@ -2485,11 +2613,13 @@ OpenAjax.a11y.cache.ControlsCache.prototype.calculateLabelsUsingARIA = function 
  
     if ( (ce.dom_element.aria_labelledby && ce.dom_element.aria_labelledby.length) || 
          (ce.dom_element.aria_label && ce.dom_element.aria_label.length)) {
+         
       this.dom_cache.getNameFromARIALabel(ce);
       
       // If title attribute is the result clear label for use of other labeling techniques
       if (ce.label_source == OpenAjax.a11y.SOURCE.TITLE_ATTRIBUTE) {
         ce.label = "";
+        ce.label_length = 0;
         ce.label_for_comparison = "";
         ce.label_source =  OpenAjax.a11y.SOURCE.NONE;
       }
@@ -2538,11 +2668,13 @@ OpenAjax.a11y.cache.ControlsCache.prototype.calculateLabelsByReference = functio
         if (ce.label === "" && 
           ce.fieldset_element && 
           ce.fieldset_element.legend_element) {
-          ce.label = ce.fieldset_element.legend_element.label + " ";   
+          ce.label = ce.fieldset_element.legend_element.label + " ";
+          ce.label_length = ce.label.length;
         }
     
         le.unused_label = false;
         ce.label += le.label + " ";
+        ce.label_length = ce.label.length;
         ce.label_source = OpenAjax.a11y.SOURCE.LABEL_REFERENCE;
         ce.label_for_comparison = ce.label.normalizeSpace().toLowerCase();
       }
@@ -2581,6 +2713,7 @@ OpenAjax.a11y.cache.ControlsCache.prototype.calculateLabelsByEncapsulation = fun
     case OpenAjax.a11y.CONTROL_TYPE.BUTTON:
       if (ce.dom_element.tag_name == 'button') {
         ce.label = this.getElementTextContent(ce, false);
+        ce.label_length = ce.label.length;
         ce.label_source = OpenAjax.a11y.SOURCE.CHILD_TEXT_NODES;
         ce.label_for_comparison = ce.label.normalizeSpace().toLowerCase();        
       }
@@ -2592,11 +2725,13 @@ OpenAjax.a11y.cache.ControlsCache.prototype.calculateLabelsByEncapsulation = fun
     
         // Add fieldset/legend information if defined
         if (ce.fieldset_element && 
-          ce.fieldset_element.legend_element) {
+            ce.fieldset_element.legend_element) {
           ce.label = ce.fieldset_element.legend_element.label + " ";   
+          ce.label_length = ce.label.length;
         }
        
         ce.label += ce.label_element.label + " ";
+        ce.label_length = ce.label.length;
         ce.label_source = OpenAjax.a11y.SOURCE.LABEL_ENCAPSULATION;
         ce.label_for_comparison = ce.label.normalizeSpace().toLowerCase();
       }
@@ -2635,10 +2770,12 @@ OpenAjax.a11y.cache.ControlsCache.prototype.calculateLabelsByTitle = function ()
       // Add fieldset/legend information if defined
       if (ce.fieldset_element && 
         ce.fieldset_element.legend_element) {
-        ce.label = ce.fieldset_element.legend_element.label;   
+        ce.label = ce.fieldset_element.legend_element.label; 
+        ce.label_length = ce.label.length;
       }
        
       ce.label += ce.dom_element.title;
+      ce.label_length = ce.label.length;
       ce.label_source = OpenAjax.a11y.SOURCE.TITLE_ATTRIBUTE;
       ce.label_for_comparison = ce.label.normalizeSpace().toLowerCase();
     }
@@ -3038,6 +3175,7 @@ OpenAjax.a11y.cache.LegendElement = function (dom_element, control_info) {
   this.fieldset_element = control_info.fieldset_element;
   
   this.label = "";
+  this.label_length = 0;
   this.label_for_comparison = "";
 
   if (control_info.fieldset_element) {
@@ -3210,6 +3348,7 @@ OpenAjax.a11y.cache.LabelElement = function (dom_element, control_info) {
  this.control_type = OpenAjax.a11y.CONTROL_TYPE.LABEL;
 
  this.label = "";
+ this.label_length = 0;
  this.label_for_comparison = "";
 
  this.fieldset_element = control_info.fieldset_element;
@@ -3368,6 +3507,7 @@ OpenAjax.a11y.cache.LabelElement.prototype.toString = function () {
  * @property  {Number}      control_type          - Constant indicating the type of cache control object  
  *
  * @property  {String}      label                 - Calculated label for the input element 
+ * @property  {Number}      label_length          - Length of the label property 
  * @property  {Number}      label_source          - Constant representing how a label was calculated 
  * @property  {String}      label_for_comparison  - Label for comparison (lowercase, space normalization and trimmed)
  *
@@ -3398,6 +3538,7 @@ OpenAjax.a11y.cache.InputElement = function (dom_element, control_info) {
 
   this.control_type  = OpenAjax.a11y.CONTROL_TYPE.UNKOWN; 
   this.label = "";
+  this.label_length = 0;
   this.label_source = OpenAjax.a11y.SOURCE.NONE;
   this.label_for_comparison = "";
 
@@ -3408,6 +3549,7 @@ OpenAjax.a11y.cache.InputElement = function (dom_element, control_info) {
   case 'button':
     this.control_type  = OpenAjax.a11y.CONTROL_TYPE.BUTTON; 
     this.label = node.value; 
+    this.label_length = this.label.length;
     this.label_source = OpenAjax.a11y.SOURCE.VALUE_ATTRIBUTE;
     this.label_for_comparison = this.label.normalizeSpace().toLowerCase();
     break;
@@ -3440,17 +3582,20 @@ OpenAjax.a11y.cache.InputElement = function (dom_element, control_info) {
     this.control_type  = OpenAjax.a11y.CONTROL_TYPE.IMAGE; 
     if (node.alt) {
       this.label = node.alt; 
+      this.label_length = this.label.length;
       this.label_source = OpenAjax.a11y.SOURCE.ALT_ATTRIBUTE;
       this.label_for_comparison = this.label.normalizeSpace().toLowerCase();
     }
     else {
       if (node.title) {
         this.label = node.title;
+        this.label_length = this.label.length;
         this.label_source = OpenAjax.a11y.SOURCE.TITLE_ATTRIBUTE;
         this.label_for_comparison = this.label.normalizeSpace().toLowerCase();
       }
       else {
         this.label = "";
+        this.label_length = 0;
         this.label_source = OpenAjax.a11y.SOURCE.NONE;
         this.label_for_comparison = "";
       }   
@@ -3461,11 +3606,13 @@ OpenAjax.a11y.cache.InputElement = function (dom_element, control_info) {
     this.control_type  = OpenAjax.a11y.CONTROL_TYPE.SUBMIT; 
     if (node.value) {
       this.label = node.value; 
+      this.label_length = this.label.length;
       this.label_source = OpenAjax.a11y.SOURCE.VALUE_ATTRIBUTE;
       this.label_for_comparison = this.label.normalizeSpace().toLowerCase();
     }
     else {
       this.label = this.type.capitalize();
+      this.label_length = this.label.length;
       this.label_source = OpenAjax.a11y.SOURCE.BUTTON_TYPE;
       this.label_for_comparison = this.label.normalizeSpace().toLowerCase();
     }
@@ -3475,11 +3622,13 @@ OpenAjax.a11y.cache.InputElement = function (dom_element, control_info) {
     this.control_type  = OpenAjax.a11y.CONTROL_TYPE.RESET; 
     if (node.value) {
       this.label = node.value; 
+      this.label_length = this.label.length;
       this.label_source = OpenAjax.a11y.SOURCE.VALUE_ATTRIBUTE;
       this.label_for_comparison = this.label.normalizeSpace().toLowerCase();
     }
     else {
       this.label = this.type.capitalize();
+      this.label_length = this.label.length;
       this.label_source = OpenAjax.a11y.SOURCE.BUTTON_TYPE;
       this.label_for_comparison = this.label.normalizeSpace().toLowerCase();
     }
@@ -3598,6 +3747,35 @@ OpenAjax.a11y.cache.InputElement.prototype.getEvents = function () {
 };
 
 /**
+ * @method getLabelNLS
+ *
+ * @memberOf OpenAjax.a11y.cache.InputElement
+ *
+ * @desc Returns an object with an NLS localized string and style properties
+ *       If label is empty a missing label message will the returned 
+ *
+ * @return {String | Object} Returns a String if the label has content, 
+ *                            but if label is empty it returns an object 
+ *                            with a 'label and 'style' property
+ */
+
+OpenAjax.a11y.cache.InputElement.prototype.getLabelNLS = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  var label_style = {};
+  
+  if (this.label_length) {
+    return this.label;
+  }
+  else {
+    return cache_nls.getMissingLabelMessageNLS();
+  }
+  
+};
+
+
+/**
  * @method toString
  *
  * @memberOf OpenAjax.a11y.cache.InputElement
@@ -3636,6 +3814,7 @@ OpenAjax.a11y.cache.InputElement.prototype.toString = function () {
  * @property  {FieldsetElement}  fieldset_element - Reference to any fieldset elements this button element is nested in
  *
  * @property  {String}      label                 - Calculated label for the button element 
+ * @property  {Number}      label_length          - Length of the label property 
  * @property  {String}      label_for_comparison  - Label for comparison (lowercase, space normalization and trimmed)
  *
  * @property  {String}      readonly              - The value of the readonly attribute 
@@ -3654,6 +3833,7 @@ OpenAjax.a11y.cache.ButtonElement = function (dom_element, control_info) {
   this.control_type = OpenAjax.a11y.CONTROL_TYPE.BUTTON; 
  
   this.label  = "";
+  this.label_length = 0;
   this.label_for_comparison = "";
  
   this.readonly  = node.readonly;
@@ -3776,6 +3956,34 @@ OpenAjax.a11y.cache.ButtonElement.prototype.getEvents = function () {
 };
 
 /**
+ * @method getLabelNLS
+ *
+ * @memberOf OpenAjax.a11y.cache.ButtonElement
+ *
+ * @desc Returns an object with an NLS localized string and style properties
+ *       If label is empty a missing label message will the returned 
+ *
+ * @return {String | Object} Returns a String if the label has content, 
+ *                            but if label is empty it returns an object 
+ *                            with a 'label and 'style' property
+ */
+
+OpenAjax.a11y.cache.ButtonElement.prototype.getLabelNLS = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  var label_style = {};
+  
+  if (this.label_length) {
+    return this.label;
+  }
+  else {
+    return cache_nls.getMissingLabelMessageNLS();
+  }
+  
+};
+
+/**
  * @method toString
  *
  * @memberOf OpenAjax.a11y.cache.ButtonElement
@@ -3811,6 +4019,7 @@ OpenAjax.a11y.cache.ButtonElement.prototype.toString = function () {
  * @property  {Number}      control_type          - Constant indicating the type of cache control object  
  *
  * @property  {String}      label                 - Calculated label for the textarea element 
+ * @property  {Number}      label_length          - Length of the label property 
  * @property  {String}      label_for_comparison  - Label for comparison (lowercase, space normalization and trimmed)
  *
  * @property  {LabelElement}     label_element    - Reference to any label element that this input is nested in
@@ -3941,6 +4150,36 @@ OpenAjax.a11y.cache.TextareaElement.prototype.getEvents = function () {
   return this.dom_element.getEvents();
   
 };
+
+/**
+ * @method getLabelNLS
+ *
+ * @memberOf OpenAjax.a11y.cache.TextareaElement
+ *
+ * @desc Returns an object with an NLS localized string and style properties
+ *       If label is empty a missing label message will the returned 
+ *
+ * @return {String | Object} Returns a String if the label has content, 
+ *                            but if label is empty it returns an object 
+ *                            with a 'label and 'style' property
+ */
+
+OpenAjax.a11y.cache.TextareaElement.prototype.getLabelNLS = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  var label_style = {};
+  
+  if (this.label_length) {
+    return this.label;
+  }
+  else {
+    return cache_nls.getMissingLabelMessageNLS();
+  }
+  
+};
+
+
 /**
  * @method toString
  *
@@ -3981,6 +4220,7 @@ OpenAjax.a11y.cache.TextareaElement.prototype.toString = function () {
  * @property  {FieldsetElement}  fieldset_element - Reference to any fieldset elements this select element is nested in
  *
  * @property  {String}      label                 - Calculated label for the select element 
+ * @property  {Number}      label_length          - Length of the label property 
  * @property  {String}      label_for_comparison  - Label for comparison (lowercase, space normalization and trimmed)
  * @property  {String}      size                  - The value of the size attribute 
  * @property  {String}      multiple              - The value of the multiple attribute
@@ -4001,6 +4241,7 @@ OpenAjax.a11y.cache.SelectElement = function (dom_element, control_info) {
   var node = dom_element.node;
 
   this.label = "";
+  this.label_length = 0;
   this.label_for_comparison = "";
 
   this.size   = node.size;
@@ -4145,6 +4386,34 @@ OpenAjax.a11y.cache.SelectElement.prototype.getEvents = function () {
 };
 
 /**
+ * @method getLabelNLS
+ *
+ * @memberOf OpenAjax.a11y.cache.SelectElement
+ *
+ * @desc Returns an object with an NLS localized string and style properties
+ *       If label is empty a missing label message will the returned 
+ *
+ * @return {String | Object} Returns a String if the label has content, 
+ *                            but if label is empty it returns an object 
+ *                            with a 'label and 'style' property
+ */
+
+OpenAjax.a11y.cache.SelectElement.prototype.getLabelNLS = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  var label_style = {};
+  
+  if (this.label_length) {
+    return this.label;
+  }
+  else {
+    return cache_nls.getMissingLabelMessageNLS();
+  }
+  
+};
+
+/**
  * @method toString
  *
  * @memberOf OpenAjax.a11y.cache.SelectElement
@@ -4181,6 +4450,7 @@ OpenAjax.a11y.cache.SelectElement.prototype.toString = function () {
  * @property  {SelectElement}  select_element     - Reference to the select element that this optgroup is nested in
  *
  * @property  {String}      label                 - Calculated label for the select element 
+ * @property  {Number}      label_length          - Length of the label property 
  * @property  {String}      label_for_comparison  - Label for comparison (lowercase, space normalization and trimmed)
  */
 
@@ -4196,6 +4466,7 @@ OpenAjax.a11y.cache.OptgroupElement = function (dom_element, control_info) {
  this.select_element = control_info.select_element;
          
  this.label = dom_element.node.label;
+ this.label_length = this.label.length;
  this.label_for_comparison = this.label.normalizeSpace().toLowerCase();
  
 };
@@ -4848,7 +5119,7 @@ OpenAjax.a11y.cache.DOMText = function (node, parent_element) {
  *
  * @property {Array}      rules_violations          - Array of NodeResult objects with severity of 'Violation'
  * @property {Array}      rules_recommendations     - Array of NodeResult objects with severity of 'Recommendation'
- * @property {Array}      rules_manual_evaluations  - Array of NodeResult objects with severity of 'Manual Evaluation'
+ * @property {Array}      rules_manual_checks       - Array of NodeResult objects with severity of 'Manual Check'
  * @property {Array}      rules_informational       - Array of NodeResult objects with severity of 'Informational'
  * @property {Array}      rules_passed              - Array of NodeResult objects with severity of 'Passed'
  * @property {Array}      rules_hidden              - Array of NodeResult objects with severity of 'Hidden'
@@ -4966,7 +5237,7 @@ OpenAjax.a11y.cache.DOMElement = function (node, parent_dom_element) {
  // Create areas to store rule results associates with this node
  this.rules_violations                = [];
  this.rules_recommendations           = [];
- this.rules_manual_evaluations        = [];
+ this.rules_manual_checks             = [];
  this.rules_informational             = [];
  this.rules_passed                    = [];
  this.rules_hidden                    = [];
@@ -5027,14 +5298,12 @@ OpenAjax.a11y.cache.DOMElement.prototype.getResultRules = function () {
   var result_nodes = [];
   
   addResultNodes(this.rules_violations);
-  addResultNodes(this.rules_manual_evaluations);
+  addResultNodes(this.rules_manual_checks);
   addResultNodes(this.rules_recommendations);
   addResultNodes(this.rules_warnings);
   addResultNodes(this.rules_passed);
   addResultNodes(this.rules_informational);
   addResultNodes(this.rules_hidden); 
-  
-//  OpenAjax.a11y.console("Node " + this.cache_id + " number of rule results: " + result_nodes.length);
   
   return result_nodes;
   
@@ -5066,11 +5335,11 @@ OpenAjax.a11y.cache.DOMElement.prototype.getHasDescribedBy = function () {
  *
  * @desc Returns the worst severity level of rule results  
  *
- * @return {Object} Results an object wiith two properties: 'severiy' : nls value of the severity, 'style' : a seveirty styling constant
+ * @return {Object} Results an object wiith two properties: 'severity' : nls value of the severity, 'style' : a severity styling constant
  */
 
 OpenAjax.a11y.cache.DOMElement.prototype.getAccessibility = function () {
-
+   
   var cache_nls      = OpenAjax.a11y.cache_nls;
   var SEVERITY       = OpenAjax.a11y.SEVERITY;
   var SEVERITY_STYLE = OpenAjax.a11y.SEVERITY_STYLE;
@@ -5096,9 +5365,9 @@ OpenAjax.a11y.cache.DOMElement.prototype.getAccessibility = function () {
     a.style    = SEVERITY_STYLE[SEVERITY.WARNING];
   }
   
-  if (this.rules_manual_evaluations.length) {
-    severity = cache_nls.getSeverityNLS(SEVERITY.MANUAL_EVALUATION);
-    a.style    = SEVERITY_STYLE[SEVERITY.MANUAL_EVALUATION];
+  if (this.rules_manual_checks.length) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.MANUAL_CHECK);
+    a.style    = SEVERITY_STYLE[SEVERITY.MANUAL_CHECK];
   }
 
   if (this.rules_recommendations.length) {
@@ -5116,9 +5385,90 @@ OpenAjax.a11y.cache.DOMElement.prototype.getAccessibility = function () {
   a.description = severity.description;
   a.tooltip     = severity.tooltip;
 
+
   return a;
   
 };
+
+/**
+ * @method getColorContrastSummary
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMElement
+ *
+ * @desc Returns the worst severity level for color contrast rules  
+ *
+ * @return {Object} Results an object wiith two properties: 'severity' : nls value of the severity, 'style' : a severity styling constant
+ */
+
+OpenAjax.a11y.cache.DOMElement.prototype.getColorContrastSummary = function () {
+   
+  function hasRule(node_results, rules) {
+  
+    var i;
+    var j;
+    
+    var node_results_len = node_results.length;
+    var rules_len        = rules.length;
+    
+    for (i = 0; i < node_results_len; i++ ) {
+      for (j = 0; j < rules_len; j++) {
+        if (node_results[i].rule_result.rule.rule_id == rules[j]) return true;
+      }
+    }
+    return false;
+  }
+
+  var i;
+  
+  var cache_nls      = OpenAjax.a11y.cache_nls;
+  var SEVERITY       = OpenAjax.a11y.SEVERITY;
+  var SEVERITY_STYLE = OpenAjax.a11y.SEVERITY_STYLE;
+  var severity;
+  var last_severity_value;
+  var a = {};
+  var last_a = {};
+
+  severity = cache_nls.getSeverityNLS(SEVERITY.NONE); 
+  a.label    = severity.label;
+  a.style    = SEVERITY_STYLE[SEVERITY.NONE];
+  
+  var color_rules = ['COLOR_1', 'COLOR_2'];
+
+  if (hasRule(this.rules_hidden, color_rules)) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.HIDDEN);
+    a.style    = SEVERITY_STYLE[SEVERITY.HIDDEN];
+  }
+
+  if (hasRule(this.rules_passed, color_rules)) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.PASS);
+    a.style  = SEVERITY_STYLE[SEVERITY.PASS];
+  }
+
+  if (hasRule(this.rules_recommendations, color_rules)) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.RECOMMENDATION);
+    a.style  = SEVERITY_STYLE[SEVERITY.RECOMMENDATION];
+    last_severity_value = SEVERITY.RECOMMENDATION;
+  }
+
+  if (hasRule(this.rules_manual_checks, color_rules)) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.MANUAL_CHECK);
+    a.style  = SEVERITY_STYLE[SEVERITY.MANUAL_CHECK];
+  }
+
+  if (hasRule(this.rules_violations, color_rules)) {
+      severity = cache_nls.getSeverityNLS(SEVERITY.VIOLATION);
+      a.style  = SEVERITY_STYLE[SEVERITY.VIOLATION];
+  }
+
+  a.label       = severity.label;
+  a.abbrev      = severity.abbrev;
+  a.description = severity.description;
+  a.tooltip     = severity.tooltip;
+
+  return a;
+  
+};
+
 
 /**
  * @method getAttributes
@@ -5136,7 +5486,7 @@ OpenAjax.a11y.cache.DOMElement.prototype.getAttributes = function (unsorted) {
  
   var attributes  = [];
   
-  cache_nls.addPropertyIfDefined(attributes, this, 'id');  
+  if (this.id.length) cache_nls.addPropertyIfDefined(attributes, this, 'id');  
   cache_nls.addPropertyIfDefined(attributes, this, 'class_name');
   cache_nls.addPropertyIfDefined(attributes, this, 'role');
   
@@ -5146,7 +5496,9 @@ OpenAjax.a11y.cache.DOMElement.prototype.getAttributes = function (unsorted) {
   cache_nls.addPropertyIfDefined(attributes, this, 'aria_label');
   cache_nls.addPropertyIfDefined(attributes, this, 'aria_labelledby');
   
-  if (this.tag_name === 'img' || this.tag_name === 'area' || this.tag_name === 'applet') cache_nls.addPropertyIfDefined(attributes, this, 'alt');
+  if (this.tag_name === 'img'  || 
+      this.tag_name === 'area' || 
+      this.tag_name === 'applet') cache_nls.addPropertyIfDefined(attributes, this, 'alt');
   
   if (!unsorted) this.sortItems(attributes);
   
@@ -5155,21 +5507,102 @@ OpenAjax.a11y.cache.DOMElement.prototype.getAttributes = function (unsorted) {
 };
 
 /**
+ * @method hasEvents
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMElement
+ *
+ * @desc Returns if an element has user interface events attached to it
+ *
+ * @return {String} Returns "Yes" if event user interface event handlers are attached to the node, otherwise empty string
+ */
+
+OpenAjax.a11y.cache.DOMElement.prototype.hasEvents = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+ 
+  var has_event = false;
+  
+  has_event = has_event || this.events.has_blur;
+  has_event = has_event || this.events.has_change;
+  has_event = has_event || this.events.has_click;
+  has_event = has_event || this.events.has_double_click;
+  has_event = has_event || this.events.has_focus;
+  has_event = has_event || this.events.has_key_down;
+  has_event = has_event || this.events.has_key_press;
+  has_event = has_event || this.events.has_key_up;
+  has_event = has_event || this.events.has_load;
+  has_event = has_event || this.events.has_mouse_down;
+  has_event = has_event || this.events.has_mouse_up;
+  has_event = has_event || this.events.has_mouse_move;
+  has_event = has_event || this.events.has_mouse_out;
+  has_event = has_event || this.events.has_mouse_over;
+
+  if (has_event) return cache_nls.getCacheNLS().boolean_values.true_value;
+  
+  return "";
+};
+
+/**
  * @method getEvents
  *
  * @memberOf OpenAjax.a11y.cache.DOMElement
  *
- * @desc Returns an array of attributes for the element, sorted in alphabetical order 
+ * @desc Returns an array of objects representing events associated with the element 
  *
- * @return {Array} Returns a array of node results
+ * @return {Array} Returns a array of event object results
  */
 
 OpenAjax.a11y.cache.DOMElement.prototype.getEvents = function () {
 
+  function addHasEvent(event_type, on_element, on_ancestor) {
+  
+    var o = {};
+    
+    o.label = event_type;
+    o.on_element        = nls_false;
+    o.on_element_style  = "no";
+    o.on_ancestor       = nls_false;
+    o.on_ancestor_style = "no";
+
+    if (on_element) {
+      o.on_element        = nls_true;
+      o.on_element_style  = "yes";
+    }
+    
+    if (on_ancestor) {
+      o.on_ancestor       = nls_true;
+      o.on_ancestor_style = "yes";
+    }  
+
+    events.push(o);
+  
+  }
+
   var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  var nls_false = cache_nls.getCacheNLS().boolean_values.false_value;
+  var nls_true  = cache_nls.getCacheNLS().boolean_values.true_value;
  
   var events = [];
   
+  addHasEvent('blur',          this.events.has_blur,          this.events.ancestor_has_blur);
+  addHasEvent('focus',         this.events.has_focus,         this.events.ancestor_has_focus);
+  
+  addHasEvent('click',         this.events.has_click,         this.events.ancestor_has_click);
+  addHasEvent('double click',  this.events.has_double_click,  this.events.ancestor_has_double_click);
+
+  addHasEvent('key down',      this.events.has_key_down,      this.events.ancestor_has_key_down);
+  addHasEvent('key press',     this.events.has_key_press,     this.events.ancestor_has_key_press);
+  addHasEvent('key down',      this.events.has_key_up,        this.events.ancestor_has_key_up);
+
+  addHasEvent('mouse down',    this.events.has_mouse_down,    this.events.ancestor_has_mouse_down);
+  addHasEvent('mouse up',      this.events.has_mouse_up,      this.events.ancestor_has_mouse_up);
+  addHasEvent('mouse move',    this.events.has_mouse_move,    this.events.ancestor_has_mouse_move);
+  addHasEvent('mouse out',     this.events.has_mouse_out,     this.events.ancestor_has_mouse_out);
+  addHasEvent('mouse over',    this.events.has_mouse_over,    this.events.ancestor_has_mouse_over);
+
+  addHasEvent('change',        this.events.has_change,        this.events.ancestor_has_change);
+
   return events;
 
 };
@@ -6228,6 +6661,7 @@ OpenAjax.a11y.cache.DOMCache.prototype.getNameFromARIALabel = function (element)
  }
 
  element.label = label;
+ element.label_length = label.length;
  element.label_source = label_source;
  element.label_for_comparison = label.normalizeSpace().toLowerCase();
 
@@ -6868,6 +7302,8 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.sortHeadingElements = funct
  * @property  {Array}  child_cache_elements  - Array of child cache landmark and heading element objects as part of cache landmark and header tree 
  *
  * @property  {String}   label                  - Accessible label of the landmark 
+ * @property  {Number}   label_length           - Length of label text 
+ * @property  {Number}   label_source           - Constant representing the source of the label (i.e. aria-label, aria-labelledby, title...) 
  * @property  {String}   label_for_comparison   - Accessible label for comparison (i.e. lowercase, trimmed and space normalized)
  */
 
@@ -6882,6 +7318,8 @@ OpenAjax.a11y.cache.LandmarkElement = function (dom_element, parent_landmark) {
   this.parent_landmark       = parent_landmark;
  
   this.label                 = "";
+  this.label_length          = 0;
+  this.label_source          = OpenAjax.a11y.SOURCE.NONE;
   this.label_for_comparison  = "";
  
 };
@@ -7013,7 +7451,7 @@ OpenAjax.a11y.cache.LandmarkElement.prototype.getEvents = function () {
  */
  
 OpenAjax.a11y.cache.LandmarkElement.prototype.toString = function () {
- if (this.label && this.label.length) {
+ if (this.label && this.label_length) {
    return this.dom_element.role + " landmark: " + this.label;  
  }
  else {
@@ -7039,6 +7477,7 @@ OpenAjax.a11y.cache.LandmarkElement.prototype.toString = function () {
  * @property  {Number}      document_order  - Ordinal position of the heading element in the document in relationship to other heading elements
  *
  * @property  {String}   name                  - Calculated accessible name of the heading 
+ * @property  {Number}   name_length           - Length of accessible name 
  * @property  {String}   name_for_comparison   - Accessible name for comparison (i.e. lowercase, trimmed and space normalized)
  * @property  {String}   name_from_text_nodes  - Accessible name content from text nodes
  * @property  {String}   name_from_image_alt   - Accessible name content from alt content of images
@@ -7085,6 +7524,7 @@ OpenAjax.a11y.cache.HeadingElement = function (dom_element) {
   var ano = dom_element.getTextObject();
   
   this.name                  = ano.name;
+  this.name_length           = ano.name.length;
   this.name_for_comparison   = ano.name.normalizeSpace().toLowerCase();
   this.name_from_text_nodes  = ano.name_from_text_nodes;
   this.name_from_image_alt   = ano.name_from_image_alt;
@@ -7209,7 +7649,7 @@ OpenAjax.a11y.cache.HeadingElement.prototype.getEvents = function () {
  */
   
 OpenAjax.a11y.cache.HeadingElement.prototype.toString = function() {
-  if (this.name && this.name.length) {
+  if (this.name && this.name_length) {
     return "H" + this.level + ": " + this.name;
   }
   else {
@@ -7377,7 +7817,8 @@ OpenAjax.a11y.cache.ImagesCache.prototype.emptyCache = function () {
 OpenAjax.a11y.cache.ImagesCache.prototype.updateCacheItems = function (dom_element) {
 
   if ((dom_element.tag_name == 'img') ||
-     (dom_element.tag_name == 'area')) {
+      (dom_element.tag_name == 'area') ||
+      (dom_element.tag_name == 'canvas')) {
 
     var image_element = new OpenAjax.a11y.cache.ImageElement(dom_element, this.dom_cache.base_url);    
     this.dom_cache.images_cache.addImageElement(image_element);
@@ -7526,6 +7967,8 @@ OpenAjax.a11y.cache.ImagesCache.prototype.sortImageElements = function(property,
  
 OpenAjax.a11y.cache.ImageElement = function (dom_element, base_url) {
 
+  var alt_value;
+
   if (!dom_element) return null;  
 
   var node = dom_element.node;
@@ -7534,21 +7977,37 @@ OpenAjax.a11y.cache.ImageElement = function (dom_element, base_url) {
   this.cache_id       = "";
   this.document_order = 0;
 
-  this.source     = node.src;
- 
-  if (node.tag_name == 'area') {
-    this.source     = node.href;
+  if (dom_element.tag_name == 'img') {
+    this.source = node.src;
+  }
+  
+  if (dom_element.tag_name == 'area') {
+    this.href  = node.href;
   }
 
   this.longdesc = node.getAttribute('longdesc');
 
-  if (dom_element.has_alt_attribute || node.alt.length) {
-    this.alt    = node.alt;
-    this.alt_length = this.alt.length;
-    this.alt_for_comparison = this.alt.normalizeSpace().toLowerCase();
+  if (node.alt) {
+    if (dom_element.has_alt_attribute || node.alt.length) {
+      this.alt    = node.alt;
+      this.alt_length = this.alt.length;
+      this.alt_for_comparison = this.alt.normalizeSpace().toLowerCase();
+    }
+    else {
+      this.alt_for_comparison = null;
+    }
   }
   else {
-    this.alt_for_comparison = null;
+    alt_value = node.getAttribute('alt');
+    
+    if (alt_value) {
+      this.alt = alt.value;
+      this.alt_length = this.alt.length;
+      this.alt_for_comparison = this.alt.normalizeSpace().toLowerCase();
+    }
+    else {
+      this.alt_for_comparison = null;    
+    }
   }
 
 
@@ -7615,12 +8074,13 @@ OpenAjax.a11y.cache.ImageElement.prototype.getAttributes = function (unsorted) {
 
   var cache_nls = OpenAjax.a11y.cache_nls;
   
-  var properties = this.dom_element.getAttributes(unsorted);
+  var attributes = this.dom_element.getAttributes(unsorted);
      
-  cache_nls.addPropertyIfDefined(properties, this, 'alt');
-  cache_nls.addPropertyIfDefined(properties, this, 'longdesc');
-
-  return properties;
+  cache_nls.addPropertyIfDefined(attributes, this, 'href');
+  cache_nls.addPropertyIfDefined(attributes, this, 'source');
+  cache_nls.addPropertyIfDefined(attributes, this, 'longdesc');
+  
+  return attributes;
   
 };
 
@@ -7644,6 +8104,8 @@ OpenAjax.a11y.cache.ImageElement.prototype.getCacheProperties = function (unsort
   
   cache_nls.addPropertyIfDefined(properties, this, 'alt_length');
   cache_nls.addPropertyIfDefined(properties, this, 'alt_for_comparison');
+  cache_nls.addPropertyIfDefined(properties, this, 'height');
+  cache_nls.addPropertyIfDefined(properties, this, 'width');
   
   return properties;
   
@@ -7663,6 +8125,35 @@ OpenAjax.a11y.cache.ImageElement.prototype.getCacheProperties = function (unsort
 OpenAjax.a11y.cache.ImageElement.prototype.getEvents = function () {
    
   return this.dom_element.getEvents();
+  
+};
+
+
+/**
+ * @method getAltTextNLS
+ *
+ * @memberOf OpenAjax.a11y.cache.ImageElement
+ *
+ * @desc Returns an object with an NLS localized string and style properties
+ *       If alt attribute is empty a empty alt text message will the returned 
+ *
+ * @return {String | Object} Returns a String if the alt attribute has content, 
+ *                            but if label is empty it returns an object 
+ *                            with a 'label and 'style' property
+ */
+
+OpenAjax.a11y.cache.ImageElement.prototype.getAltTextNLS = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  var alt_style = {};
+  
+  if (this.alt_length) {
+    return this.alt;
+  }
+  else {
+    return cache_nls.getEmptyAltTextMessageNLS();
+  }
   
 };
 
@@ -10595,8 +11086,8 @@ OpenAjax.a11y.cache.DOMElementComputedStyle = function (dom_element, parent_elem
  this.display  = "";
  this.visibility = "";
  
- this.graphical = OpenAjax.a11y.VISIBILITY.UNKNOWN; 
- this.at    = OpenAjax.a11y.VISIBILITY.UNKNOWN;
+ this.is_visible_onscreen = OpenAjax.a11y.VISIBILITY.UNKNOWN; 
+ this.is_visible_to_at    = OpenAjax.a11y.VISIBILITY.UNKNOWN;
  
  this.color   = "";
  this.background_color = "";
@@ -10701,26 +11192,28 @@ OpenAjax.a11y.cache.DOMElementComputedStyle = function (dom_element, parent_elem
    this.display.length ) { 
   if ((this.visibility == 'hidden') ||
     (this.display == 'none')) {
-   this.graphical = OpenAjax.a11y.VISIBILITY.HIDDEN;
-   this.at    = OpenAjax.a11y.VISIBILITY.HIDDEN;
+   this.is_visible_onscreen = OpenAjax.a11y.VISIBILITY.HIDDEN;
+   this.is_visible_to_at    = OpenAjax.a11y.VISIBILITY.HIDDEN;
   }
   else {
    if (this.position == "absolute" &&
      (parseInt(this.top,10) < 0 || parseInt(this.left,10) < 0)) {
-    this.graphical = OpenAjax.a11y.VISIBILITY.HIDDEN;
+    this.is_visible_onscreen = OpenAjax.a11y.VISIBILITY.HIDDEN;
    }
    else {
-    this.graphical = OpenAjax.a11y.VISIBILITY.VISIBLE;
+    this.is_visible_onscreen = OpenAjax.a11y.VISIBILITY.VISIBLE;
    }
    
    if (dom_element.role == "presentation") {
-    this.at = OpenAjax.a11y.VISIBILITY.HIDDEN;  
+    this.is_visible_to_at = OpenAjax.a11y.VISIBILITY.HIDDEN;  
    } 
    else {
-    this.at = OpenAjax.a11y.VISIBILITY.VISIBLE;     
+    this.is_visible_to_at = OpenAjax.a11y.VISIBILITY.VISIBLE;     
    }
   }
  } 
+
+ this.is_large_font = (parseInt(this.font_size,10) >= 18) || ((parseInt(this.font_size,10) >= 14) && (parseInt(this.font_weight,10) >= 300));
 
 };
 
@@ -13367,7 +13860,7 @@ OpenAjax.a11y.cache.TitleMainCache.prototype.updateCache = function () {
  *
  * @desc Creates a main landmark element object used to hold information about a main landmark 
  *
- * @param  {DOMelement}   dom_element      - The dom element object representing the landmark element 
+ * @param  {DOMElement}   dom_element      - The dom element object representing the landmark element 
  * @param  {MainElement}  parent_landmark  - Information about the parent landmark (NOTE: can be null)
  *
  * @property  {DOMElement}   dom_element      - Reference to the dom element representing the main landmark element
@@ -13380,6 +13873,11 @@ OpenAjax.a11y.cache.TitleMainCache.prototype.updateCache = function () {
  *
  * @property  {Array}   h1_elements  -  List of all the h1 heading elements in the main landmark
  * @property  {Number}  type         -  Constant representing the type of main landmark
+ *
+ * @property  {String}   label                  - Accessible label of the landmark 
+ * @property  {Number}   label_length           - Length of label text 
+ * @property  {Number}   label_source           - Constant representing the source of the label (i.e. aria-label, aria-labelledby, title...) 
+ * @property  {String}   label_for_comparison   - Accessible label for comparison (i.e. lowercase, trimmed and space normalized)
  */
 
 OpenAjax.a11y.cache.MainElement = function (dom_element, parent_landmark) {
@@ -13390,10 +13888,15 @@ OpenAjax.a11y.cache.MainElement = function (dom_element, parent_landmark) {
 
   this.child_cache_elements = [];
   this.h1_elements          = [];
-  this.main_type                 = OpenAjax.a11y.MAIN.ROLE_MAIN;
+  this.main_type            = OpenAjax.a11y.MAIN.ROLE_MAIN;
   
   this.parent_landmark = parent_landmark; // restricted to main landmarks
  
+  this.label                 = "";
+  this.label_length          = 0;
+  this.label_source          = OpenAjax.a11y.SOURCE.NONE;
+  this.label_for_comparison  = "";
+
 }; 
 
 
@@ -13543,7 +14046,7 @@ OpenAjax.a11y.cache.MainElement.prototype.getEvents = function () {
  */
   
 OpenAjax.a11y.cache.MainElement.prototype.toString = function () {
-  if (this.label.length) {
+  if (this.label_length) {
     return this.dom_element.tag_name + "[role=main]: " + this.label;  
   } 
   else {  
@@ -13575,6 +14078,7 @@ OpenAjax.a11y.cache.MainElement.prototype.toString = function () {
  * @property  {Boolean}  is_label_for_main  - true if h1 is being used as a label for main landmark, otherwise false
  *
  * @property  {String}   name                  - Calculated accessible name of the heading 
+ * @property  {Number}   name_length           - Length of accessible name 
  * @property  {String}   name_for_comparison   - Accessible name for comparison (i.e. lowercase, trimmed and space normalized)
  */
 
@@ -13590,6 +14094,7 @@ OpenAjax.a11y.cache.H1Element = function (dom_element, parent_landmark) {
   this.is_label_for_main = false;
 
   this.name                 = dom_element.getText();
+  this.name_length          = this.name.length;
   this.name_for_comparison  = this.name.normalizeSpace().toLowerCase();
   
 }; 
@@ -13760,6 +14265,7 @@ OpenAjax.a11y.cache.H1Element.prototype.toString = function () {
  * @property  {Number}   type  -  Constant representing the title element 
  *
  * @property  {String}   name                  - Calculated accessible name of the heading 
+ * @property  {Number}   name_length           - Length of accessible name 
  * @property  {String}   name_for_comparison   - Accessible name for comparison (i.e. lowercase, trimmed and space normalized)
  */
 
@@ -13774,6 +14280,7 @@ OpenAjax.a11y.cache.TitleElement = function (dom_element, parent_landmark) {
   this.parent_landmark    = parent_landmark; // restricted to main landmarks
 
   this.name                 = dom_element.getText();
+  this.name_length          = this.name.length;
   this.name_for_comparison  = this.name.normalizeSpace().toLowerCase();
   
 }; 
@@ -14444,7 +14951,7 @@ OpenAjax.a11y.ResultNode.prototype.toHTML = function (ruleset_nls) {
  * @property  {String}   cache_id       - ID used to identify the rule result object (uses the same value as the associated rule cache id)
  *
  * @property  {Rule}     rule           - Reference to the assciated rule
- * @property  {Number}   rule_severity  - The level of implementation required for the ruleset
+ * @property  {Number}   rule_type      - The type of rule: required or recommended
  * @property  {Number}   rule_priority  - The importance of the rule relative to other rules in the requirement
  * @property  {Number}   rule_status    - The status of the rule in the ruleset
  * @property  {Boolean}  rule_enabled   - True if rule was evaluated, false if rule was disabled
@@ -14452,9 +14959,8 @@ OpenAjax.a11y.ResultNode.prototype.toHTML = function (ruleset_nls) {
  * @property  {Object}   requirement    - Reference to the requirement associated with the rule 
  *
  * @property  {Array}  nodes_passed              - Array of all the node results that passed
- * @property  {Array}  nodes_violations          - Array of all the node results that violations
- * @property  {Array}  nodes_recommendations     - Array of all the node results that recommendations
- * @property  {Array}  nodes_manual_evaluations  - Array of all the node results that require manual evaluations
+ * @property  {Array}  nodes_failed              - Array of all the node results that failed
+ * @property  {Array}  nodes_manual_checks  - Array of all the node results that require manual evaluations
  * @property  {Array}  nodes_informational       - Array of all the node results that are informational
  * @property  {Array}  nodes_hidden              - Array of all the node results that are hidden
  * @property  {Array}  nodes_warnings            - Array of all the node results that are warnings
@@ -14464,7 +14970,7 @@ OpenAjax.a11y.ResultNode.prototype.toHTML = function (ruleset_nls) {
 OpenAjax.a11y.ResultRule = function (ruleset_rule, requirement) {
 
   this.rule            = ruleset_rule.rule;
-  this.rule_severity   = ruleset_rule.severity; 
+  this.rule_type       = ruleset_rule.type; 
   this.rule_priority   = ruleset_rule.priority;
   this.rule_status     = ruleset_rule.status;
   this.rule_enabled    = ruleset_rule.enabled;
@@ -14472,12 +14978,9 @@ OpenAjax.a11y.ResultRule = function (ruleset_rule, requirement) {
   this.cache_id        = ruleset_rule.rule.rule_id;
   this.requirement     = requirement;
  
-  this.result_max_severity = OpenAjax.a11y.SEVERITY.NA;
- 
   this.nodes_passed               = [];
-  this.nodes_violations           = [];
-  this.nodes_recommendations      = [];
-  this.nodes_manual_evaluations   = [];
+  this.nodes_failed               = [];
+  this.nodes_manual_checks   = [];
   this.nodes_informational        = [];
   this.nodes_hidden               = [];
   this.nodes_warnings             = [];
@@ -14501,6 +15004,9 @@ OpenAjax.a11y.ResultRule = function (ruleset_rule, requirement) {
 OpenAjax.a11y.ResultRule.prototype.addResult = function (severity, cache_item, message_id, message_arguments) {
 
   var SEVERITY = OpenAjax.a11y.SEVERITY;
+  var RULE     = OpenAjax.a11y.RULE;
+  
+  var node_severity;
 
   var dom_element_item = null; 
  
@@ -14513,11 +15019,23 @@ OpenAjax.a11y.ResultRule.prototype.addResult = function (severity, cache_item, m
     }
   }  
   
-  var node_result = new OpenAjax.a11y.ResultNode(this, severity, cache_item, message_id, message_arguments);
+  node_severity = severity;
+  
+  if (severity === SEVERITY.FAIL) {
+  
+    if (this.rule_type === RULE.REQUIRED) {
+      node_severity = SEVERITY.VIOLATION;
+    }
+    else {
+      node_severity = SEVERITY.RECOMMENDATION;
+    }  
+  }
+  
+  var node_result = new OpenAjax.a11y.ResultNode(this, node_severity, cache_item, message_id, message_arguments);
  
 //  OpenAjax.a11y.console("Add Result for " + this.rule.rule_id + ": " + severity + " " + cache_item.cache_id);
 
-  switch (severity) {
+  switch (node_severity) {
  
   case SEVERITY.NA: 
     this.nodes_na.push(node_result);
@@ -14529,29 +15047,24 @@ OpenAjax.a11y.ResultRule.prototype.addResult = function (severity, cache_item, m
     if (dom_element_item) dom_element_item.rules_hidden.push(node_result);
     break;
 
-  case SEVERITY.WARNING: 
-    this.nodes_warnings.push(node_result);
-    if (dom_element_item) dom_element_item.rules_warnings.push(node_result);
-    break;
- 
   case SEVERITY.PASS:
     this.nodes_passed.push(node_result);
     if (dom_element_item) dom_element_item.rules_passed.push(node_result);
     break;
   
   case SEVERITY.VIOLATION:
-    this.nodes_violations.push(node_result);
+    this.nodes_failed.push(node_result);
     if (dom_element_item) dom_element_item.rules_violations.push(node_result);
     break;
   
   case SEVERITY.RECOMMENDATION:
-    this.nodes_recommendations.push(node_result);
+    this.nodes_failed.push(node_result);
     if (dom_element_item) dom_element_item.rules_recommendations.push(node_result);
     break;
   
-  case SEVERITY.MANUAL_EVALUATION:
-    this.nodes_manual_evaluations.push(node_result);
-    if (dom_element_item) dom_element_item.rules_manual_evaluations.push(node_result);
+  case SEVERITY.MANUAL_CHECK:
+    this.nodes_manual_checks.push(node_result);
+    if (dom_element_item) dom_element_item.rules_manual_checks.push(node_result);
     break;
 
   case SEVERITY.INFORMATIONAL:
@@ -14603,7 +15116,7 @@ OpenAjax.a11y.ResultRule.prototype.getResultNodes = function () {
   var result_nodes = [];
   
   addResultNodes(this.nodes_violations);
-  addResultNodes(this.nodes_manual_evaluations);
+  addResultNodes(this.nodes_manual_checks);
   addResultNodes(this.nodes_recommendations);
   addResultNodes(this.nodes_warnings);
   addResultNodes(this.nodes_passed);
@@ -14646,7 +15159,7 @@ OpenAjax.a11y.ResultRule.prototype.getResultNodeByCacheId = function (cache_id) 
   node_result = checkResultNodeList(this.nodes_violations);
   if (node_result) return node_result;
   
-  node_result = checkResultNodeList(this.nodes_manual_evaluations);
+  node_result = checkResultNodeList(this.nodes_manual_checks);
   if (node_result) return node_result;
   
   node_result = checkResultNodeList(this.nodes_recommendations);
@@ -14684,25 +15197,7 @@ OpenAjax.a11y.ResultRule.prototype.getResultNodeByCacheId = function (cache_id) 
 
 OpenAjax.a11y.ResultRule.prototype.toString = function () {
 
- var str = "";
- 
- if (this.nodes_passed.length)                 str += this.nodes_passed.length + " P, " ;
-
- if (this.nodes_violations.length)             str += this.nodes_violations.length + " V, " ;
-
- if (this.nodes_recommendations.length)        str += this.nodes_recommendations.length + " R, " ;
-
- if (this.nodes_manual_evaluations.length)    str += this.nodes_manual_evaluations.length + " ME, " ;
-
- if (this.nodes_warnings.length)         str += this.nodes_warnings.length + " W, " ;
-
- if (this.nodes_informational.length)        str += this.nodes_informational.length + " I, " ;
-
- if (this.nodes_hidden.length)               str += this.nodes_hidden.length + " H, " ;
-
- if (this.nodes_na.length)                   str += this.nodes_na.length + " NA, " ;
-
- if (str.length > 2) str = str.substr(0,(str.length-2));
+ var str = ""; 
 
  return str;
 };
@@ -14720,30 +15215,68 @@ OpenAjax.a11y.ResultRule.prototype.toString = function () {
  * @desc Creates an object that contains summary information from a group
  *          of rule result objects
  *
- * @property  {Object}   success_criteria  - Reference to the associated ruleset success criteria
- * @property  {Array}    ruleset_rules     - Array of ruleset rule objects associated with the success criterion
+ * @property  {Number}  total_number_of_required_rules          - Total number of required rules
+ * @property  {Number}  required_rules_all_pass                 - Number of rules where all the nodes pass
+ * @property  {Number}  required_rules_with_fail                - Number of rules with at least one node failing
+ * @property  {Number}  required_rules_with_manual_checks  - Number of rules with at least one node requiring a manual check
+ *  
+ * @property  {Array}  required_rule_results                    - Rule result objects for required rules
+ *
+ * @property  {Number}  required_rules_nodes_that_pass          - Number of nodes that pass required rules
+ * @property  {Number}  required_rules_nodes_that_fail          - Number of nodes that fail required rules
+ * @property  {Number}  required_rules_nodes_manual_checks - Number of nodes that required manual checks of rules
+ * @property  {Number}  required_rules_nodes_informational      
+ * @property  {Number}  required_rules_nodes_hidden             
+ * @property  {Number}  required_rules_nodes_na                 
+ *
+ * @property  {Number}  total_number_of_recommended_rules 
+ *  
+ * @property  {Number}  recommended_rules_all_pass                
+ * @property  {Number}  recommended_rules_with_fail               
+ * @property  {Number}  recommended_rules_with_manual_checks 
+  
+ * @property  {Array}  recommended_rule_results   
+
+ * @property  {Number}  recommended_rules_nodes_that_pass          
+ * @property  {Number}  recommended_rules_nodes_that_fail          
+ * @property  {Number}  recommended_rules_nodes_manual_checks 
+ * @property  {Number}  recommended_rules_nodes_informational      
+ * @property  {Number}  recommended_rules_nodes_hidden             
+ * @property  {Number}  recommended_rules_nodes_na                 
  */
  
 OpenAjax.a11y.ResultRuleSummary = function () {
 
-  this.total_number_of_rules = 0;
+  this.total_number_of_required_rules = 0;
   
-  this.rules_all_pass                = 0;
-  this.rules_with_violations         = 0;
-  this.rules_with_recommendations    = 0;
-  this.rules_with_manual_evaluations = 0;
-  this.rules_with_warnings           = 0;
+  this.required_rules_all_pass                = 0;
+  this.required_rules_with_fail               = 0;
+  this.required_rules_with_manual_checks = 0;
   
-  this.rule_results     = [];
+  this.required_rule_results     = [];
 
-  this.total_nodes_passed               = 0;
-  this.total_nodes_violations           = 0;
-  this.total_nodes_recommendations      = 0;
-  this.total_nodes_manual_evaluations   = 0;
-  this.total_nodes_informational        = 0;
-  this.total_nodes_hidden               = 0;
-  this.total_nodes_warnings             = 0;
-  this.total_nodes_na                   = 0;
+  this.required_rules_nodes_that_pass          = 0;
+  this.required_rules_nodes_that_fail          = 0;
+  this.required_rules_nodes_manual_checks      = 0;
+  this.required_rules_nodes_informational      = 0;
+  this.required_rules_nodes_hidden             = 0;
+  this.required_rules_nodes_na                 = 0;
+
+  this.total_number_of_recommended_rules = 0;
+  
+  this.recommended_rules_all_pass                = 0;
+  this.recommended_rules_with_fail               = 0;
+  this.recommended_rules_with_manual_checks = 0;
+  this.recommended_rules_with_warnings           = 0;
+  
+  this.recommended_rule_results     = [];
+
+  this.recommended_rules_nodes_that_pass          = 0;
+  this.recommended_rules_nodes_that_fail          = 0;
+  this.recommended_rules_nodes_manual_checks      = 0;
+  this.recommended_rules_nodes_informational      = 0;
+  this.recommended_rules_nodes_hidden             = 0;
+  this.recommended_rules_nodes_na                 = 0;
 
 };
 
@@ -14762,38 +15295,57 @@ OpenAjax.a11y.ResultRuleSummary = function () {
  
 OpenAjax.a11y.ResultRuleSummary.prototype.addRuleResult = function (rule_result) {
 
-  this.rule_results.push(rule_result);
+  if (rule_result.rule_type == OpenAjax.a11y.RULE.REQUIRED) {
 
-  this.total_number_of_rules++;
+    this.required_rule_results.push(rule_result);
+    
+    this.total_number_of_required_rules++;
 
-  if (rule_result.nodes_passed.length &&
-      rule_result.nodes_violations.length === 0 &&
-      rule_result.nodes_recommendations.length === 0 &&
-      rule_result.nodes_manual_evaluations.length === 0) 
-    this.rules_all_pass++;
+    if (rule_result.nodes_passed.length &&
+        rule_result.nodes_failed.length === 0 &&
+        rule_result.nodes_manual_checks.length === 0) 
+      this.required_rules_all_pass ++;
 
+    if (rule_result.nodes_failed.length) 
+      this.required_rules_with_fail++;
 
-  if (rule_result.nodes_violations.length) 
-    this.rules_with_violations++;
+    if (rule_result.nodes_manual_checks.length) 
+      this.required_rules_with_manual_checks++;
 
-  if (rule_result.nodes_recommendations.length) 
-    this.rules_with_recommendations++;
+    this.required_rules_nodes_that_pass          += rule_result.nodes_passed.length;
+    this.required_rules_nodes_that_fail          += rule_result.nodes_failed.length;
+    this.required_rules_nodes_manual_checks      += rule_result.nodes_manual_checks.length;
+    this.required_rules_nodes_informational      += rule_result.nodes_informational.length;
+    this.required_rules_nodes_hidden             += rule_result.nodes_hidden.length;
+    this.required_rules_nodes_na                 += rule_result.nodes_na.length;
 
-  if (rule_result.nodes_warnings.length) 
-    this.rules_with_warnings++;
+  } 
+  else {
+  
+    this.recommended_rule_results.push(rule_result);
+    
+    this.total_number_of_recommended_rules++;
 
-  if (rule_result.nodes_manual_evaluations.length) 
-    this.rules_with_manual_evaluations++;
+    if (rule_result.nodes_passed.length &&
+        rule_result.nodes_failed.length === 0 &&
+        rule_result.nodes_manual_checks.length === 0) 
+      this.recommended_rules_all_pass ++;
 
-  this.total_nodes_passed               += rule_result.nodes_passed.length;
-  this.total_nodes_violations           += rule_result.nodes_violations.length;
-  this.total_nodes_recommendations      += rule_result.nodes_recommendations.length;
-  this.total_nodes_manual_evaluations   += rule_result.nodes_manual_evaluations.length;
-  this.total_nodes_informational        += rule_result.nodes_informational.length;
-  this.total_nodes_hidden               += rule_result.nodes_hidden.length;
-  this.total_nodes_warnings             += rule_result.nodes_warnings.length;
-  this.total_nodes_na                   += rule_result.nodes_na.length;
+    if (rule_result.nodes_failed.length) 
+      this.recommended_rules_with_fail++;
 
+    if (rule_result.nodes_manual_checks.length) 
+      this.recommended_rules_with_manual_checks++;
+
+    this.recommended_rules_nodes_that_pass          += rule_result.nodes_passed.length;
+    this.recommended_rules_nodes_that_fail          += rule_result.nodes_failed.length;
+    this.recommended_rules_nodes_manual_checks      += rule_result.nodes_manual_checks.length;
+    this.recommended_rules_nodes_informational      += rule_result.nodes_informational.length;
+    this.recommended_rules_nodes_hidden             += rule_result.nodes_hidden.length;
+    this.recommended_rules_nodes_na                 += rule_result.nodes_na.length;
+  
+  }
+  
 };
 
  /** 
@@ -14811,16 +15363,28 @@ OpenAjax.a11y.ResultRuleSummary.prototype.addRuleResult = function (rule_result)
  
 OpenAjax.a11y.ResultRuleSummary.prototype.getResultRuleByCacheId = function (cache_id) {
 
+  var i;
   var rr;
-  var rule_results     = this.rule_results;
+  var rule_results     = this.required_rule_results;
   var rule_results_len = rule_results.length;
 
-  for (var i = 0; i < rule_results_len; i++ ) {
+  for (i = 0; i < rule_results_len; i++ ) {
     rr = rule_results[i];
     
     if (rr.cache_id === cache_id) return rr;
   
   }
+
+  rule_results     = this.recommended_rule_results;
+  rule_results_len = rule_results.length;
+
+  for (i = 0; i < rule_results_len; i++ ) {
+    rr = rule_results[i];
+    
+    if (rr.cache_id === cache_id) return rr;
+  
+  }
+
 
   return null;
   
@@ -14899,6 +15463,8 @@ OpenAjax.a11y.CacheNLS.prototype.getCacheNLS = function() {
  *
  * @desc Returns the severity object with NLS information
  *
+ * @param  {Number}  severity  -  The constant representing the severity of the results
+ *
  * @return {Object} Returns an object with the four properties: 'label', 'abbrev', 'description' snf 'tooltip'
  */
  
@@ -14915,6 +15481,9 @@ OpenAjax.a11y.CacheNLS.prototype.getSeverityNLS = function(severity) {
  *
  * @desc Returns the label, human readable value and description of a cache property
  * 
+ * @param  {String}           property  - The object property
+ * @param  {String | Number}  value     - Current value of a property
+ *
  * @return {Object} Returns object with three properties 'label', 'value' and 'description'
  */
  
@@ -14961,6 +15530,8 @@ OpenAjax.a11y.CacheNLS.prototype.getLabelAndValueNLS = function (property, value
  * @memberOf OpenAjax.a11y.CacheNLS
  *
  * @desc Returns the label and description of a cache property
+ *
+ * @param  {String}  property  - The object property
  * 
  * @return {Object} Returns object with two properties 'label' and 'description'
  */
@@ -14989,6 +15560,144 @@ OpenAjax.a11y.CacheNLS.prototype.getLabelNLS = function (property) {
     return info;
   
 };
+
+/**
+ * @method getValueNLS
+ *
+ * @memberOf OpenAjax.a11y.CacheNLS
+ *
+ * @desc Returns the value of a cache property
+ *
+ * @param  {String}           property  - The object property
+ * @param  {String | Number}  value     - Current value of a property
+ * 
+ * @return {String} Returns string with the localized value of a property
+ */
+ 
+OpenAjax.a11y.CacheNLS.prototype.getValueNLS = function (property, value) {
+  
+    var str = "";  // return object 
+       
+    var nls_cache = this.nls[OpenAjax.a11y.locale];
+    
+    if (nls_cache) {
+     
+      var cp = nls_cache.cache_properties[property];
+      
+      // if null return default
+      if (!cp) return value;
+
+      if (typeof value == 'boolean') {
+      
+        if (value)
+          str = nls_cache.boolean_values.true_value;
+        else
+          str = nls_cache.boolean_values.false_value;
+          
+      }
+      else {
+        if (cp.values) str = cp.values[value];
+      }  
+              
+    } 
+    
+    return str;
+  
+};
+
+/**
+ * @method getBooleanNLS
+ *
+ * @memberOf OpenAjax.a11y.CacheNLS
+ *
+ * @desc Returns the NLS boolean value 
+ *
+ * @param {Boolean}  value  - A boolean value to get the NLS string
+ * 
+ * @return {String} Returns string with the localized boolean value 
+ */
+ 
+OpenAjax.a11y.CacheNLS.prototype.getBooleanNLS = function (value) {
+  
+  var str = "";  // return object 
+       
+  var nls_cache = this.nls[OpenAjax.a11y.locale];
+    
+  if (nls_cache) {
+     
+    if (typeof value == 'boolean') {
+      
+      if (value)
+        str = nls_cache.boolean_values.true_value;
+      else
+        str = nls_cache.boolean_values.false_value;
+    }
+  } 
+    
+  return str;
+  
+};
+
+
+/**
+ * @method getMissingLabelMessageNLS
+ *
+ * @memberOf OpenAjax.a11y.CacheNLS
+ *
+ * @desc Returns the missing form control label message and style
+ * 
+ * @return {String} Returns an object with a 'label' and 'style' property
+ */
+ 
+OpenAjax.a11y.CacheNLS.prototype.getMissingLabelMessageNLS = function () {
+  
+    var label_style;  // return object    
+       
+    var nls_cache = this.nls[OpenAjax.a11y.locale];    
+    
+    if (nls_cache) {
+     
+      label_style = nls_cache.missing_label;
+      
+      // if null return default
+      if (!label_style) return "";
+             
+    } 
+    
+    return label_style;
+  
+};
+
+/**
+ * @method getEmptyAltTextMessageNLS
+ *
+ * @memberOf OpenAjax.a11y.CacheNLS
+ *
+ * @desc Returns the empty alt text message message and style
+ * 
+ * @return {String} Returns an object with a 'label' and 'style' property
+ */
+ 
+OpenAjax.a11y.CacheNLS.prototype.getEmptyAltTextMessageNLS = function () {
+  
+    var label_style;  // return object    
+       
+    var nls_cache = this.nls[OpenAjax.a11y.locale];    
+    
+    if (nls_cache) {
+     
+      label_style = nls_cache.empty_alt_text;
+      
+      // if null return default
+      if (!label_style) return "";
+             
+    } 
+    
+    return label_style;
+  
+};
+
+
 
 /**
  * @method addItemIfDefined
@@ -15023,11 +15732,11 @@ OpenAjax.a11y.CacheNLS.prototype.addPropertyIfDefined = function (list, item, pr
 
 
 /* ---------------------------------------------------------------- */
-/*                       WCAG20NLS                                 */
+/*                       WCAG20                                     */
 /* ---------------------------------------------------------------- */
 
 /**
- * @constructor WCAG20NLS
+ * @constructor WCAG20
  *
  * @memberOf OpenAjax.a11y
  *
@@ -15036,7 +15745,7 @@ OpenAjax.a11y.CacheNLS.prototype.addPropertyIfDefined = function (list, item, pr
  * @property  {Array}   nls - Associative array of WCAG 2.0 information 
  */
 
-OpenAjax.a11y.WCAG20NLS = function() {
+OpenAjax.a11y.WCAG20 = function() {
 
   this.nls = {};
   
@@ -15045,7 +15754,7 @@ OpenAjax.a11y.WCAG20NLS = function() {
 /**
  * @method addNLS
  *
- * @memberOf OpenAjax.a11y.WCAG20NLS
+ * @memberOf OpenAjax.a11y.WCAG20
  *
  * @desc Adds a localized version of WCAG 2.0 requirements to the cache 
  *
@@ -15053,7 +15762,7 @@ OpenAjax.a11y.WCAG20NLS = function() {
  * @param  {Object}  nls     - Localized WCAG 2.0 object
  */
 
-OpenAjax.a11y.WCAG20NLS.prototype.addNLS = function(locale, nls) {
+OpenAjax.a11y.WCAG20.prototype.addNLS = function(locale, nls) {
 
   var item;
   var  p,  p_id,  np;  /* WCAG 2.0 Principle */
@@ -15065,7 +15774,7 @@ OpenAjax.a11y.WCAG20NLS.prototype.addNLS = function(locale, nls) {
   if (!nls.title)  OpenAjax.a11y.console("Missing title property for WCAG 2.0 with locale: "        + locale);
   if (!nls.url)    OpenAjax.a11y.console("Missing abbreviation property for WCAG 2.0 with locale: " + locale);
   
-  var wcag20 = new OpenAjax.a11y.WCAG20(locale, nls.abbrev, nls.title, nls.url);
+  var wcag20 = new OpenAjax.a11y.WCAG20NLS(locale, nls.abbrev, nls.title, nls.url);
 
 //  OpenAjax.a11y.console("WCAG 2.0 " + nls.title + " for " + locale); 
 
@@ -15082,7 +15791,7 @@ OpenAjax.a11y.WCAG20NLS.prototype.addNLS = function(locale, nls) {
       
 //      OpenAjax.a11y.console("Principle " + p.title); 
       
-      np = new OpenAjax.a11y.WCAG20_Principle(p_id, p.title, p.description, p.url);
+      np = new OpenAjax.a11y.WCAG20NLSPrinciple(p_id, p.title, p.description, p.url);
       
       for (g_id in p.guidelines) {
       
@@ -15090,13 +15799,13 @@ OpenAjax.a11y.WCAG20NLS.prototype.addNLS = function(locale, nls) {
     
 //        OpenAjax.a11y.console("  Guideline " + g.title); 
       
-        ng = new OpenAjax.a11y.WCAG20_Guideline(np, g_id, g.title, g.description, g.url);
+        ng = new OpenAjax.a11y.WCAG20NLSGuideline(np, g_id, g.title, g.description, g.url);
 
         for (sc_id in g.success_criteria) {
       
           sc = g.success_criteria[sc_id];
     
-          sc = new OpenAjax.a11y.WCAG20_Success_Criteria(np, ng, sc_id, sc.level, sc.title, sc.description, sc.url);
+          sc = new OpenAjax.a11y.WCAG20NLSSuccessCriteria(np, ng, sc_id, sc.level, sc.title, sc.description, sc.url);
           
 //          OpenAjax.a11y.console("    Success Criteria " + sc.title); 
       
@@ -15120,13 +15829,13 @@ OpenAjax.a11y.WCAG20NLS.prototype.addNLS = function(locale, nls) {
 /**
  * @method getNLS
  *
- * @memberOf OpenAjax.a11y.WCAG20NLS
+ * @memberOf OpenAjax.a11y.WCAG20
  *
  * @desc Returns an object with a localized version of WCAG 2.0 requirements 
  *
  */
 
-OpenAjax.a11y.WCAG20NLS.prototype.getNLS = function() {
+OpenAjax.a11y.WCAG20.prototype.getNLS = function() {
 
   return this.nls[OpenAjax.a11y.locale];
   
@@ -15137,13 +15846,13 @@ OpenAjax.a11y.WCAG20NLS.prototype.getNLS = function() {
 /**
  * @method getNLSItemById
  *
- * @memberOf OpenAjax.a11y.WCAG20NLS
+ * @memberOf OpenAjax.a11y.WCAG20
  *
  * @desc Returns an object with a localized version of WCAG 2.0 requirements 
  *
  */
 
-OpenAjax.a11y.WCAG20NLS.prototype.getNLSItemById = function(id) {
+OpenAjax.a11y.WCAG20.prototype.getNLSItemById = function(id) {
 
   var i, j, k;
   var p, g, sc;
@@ -15179,11 +15888,11 @@ OpenAjax.a11y.WCAG20NLS.prototype.getNLSItemById = function(id) {
 };
 
 /* ---------------------------------------------------------------- */
-/*                       WCAG20                                     */
+/*                       WCAG20NLS                                     */
 /* ---------------------------------------------------------------- */
 
 /**
- * @constructor WCAG20
+ * @constructor WCAG20NLS
  *
  * @memberOf OpenAjax.a11y
  *
@@ -15202,7 +15911,7 @@ OpenAjax.a11y.WCAG20NLS.prototype.getNLSItemById = function(id) {
  * @property  {Array}   principles - Array of WCAG 2.0 principle objects associated with the principle
  */
 
-OpenAjax.a11y.WCAG20 = function(locale, abbrev, title, url) {
+OpenAjax.a11y.WCAG20NLS = function(locale, abbrev, title, url) {
 
   this.locale = locale;    
   this.abbrev = abbrev;    
@@ -15217,11 +15926,11 @@ OpenAjax.a11y.WCAG20 = function(locale, abbrev, title, url) {
 
 
 /* ---------------------------------------------------------------- */
-/*                       WCAG20_Principle                           */
+/*                       WCAG20NLSPrinciple                           */
 /* ---------------------------------------------------------------- */
 
 /**
- * @constructor WCAG20_Principle
+ * @constructor WCAG20NLSPrinciple
  *
  * @memberOf OpenAjax.a11y
  *
@@ -15240,7 +15949,7 @@ OpenAjax.a11y.WCAG20 = function(locale, abbrev, title, url) {
  * @property  {Array}   guidelines - Array of WCAG 2.0 guideline objects associated with the principle
  */
 
-OpenAjax.a11y.WCAG20_Principle = function(principle_id, title, description, url) {
+OpenAjax.a11y.WCAG20NLSPrinciple = function(principle_id, title, description, url) {
 
   this.principle_id = principle_id;    
   this.title        = title;    
@@ -15252,24 +15961,24 @@ OpenAjax.a11y.WCAG20_Principle = function(principle_id, title, description, url)
 };
 
 /* ---------------------------------------------------------------- */
-/*                       WCAG20_Guideline                           */
+/*                       WCAG20NLSGuideline                           */
 /* ---------------------------------------------------------------- */
 
 /**
- * @constructor WCAG20_Guideline
+ * @constructor WCAG20NLSGuideline
  *
  * @memberOf OpenAjax.a11y
  *
  * @desc WCAg 2.0 Guideline information with properties with localized NLS values 
  *
- * @param  {WCAG20_Principle}  principle  - Principle object reference 
+ * @param  {WCAG20NLSPrinciple}  principle  - Principle object reference 
  *
  * @param  {String}  guideline_id  - Guideline id 
  * @param  {String}  title         - Title of the guideline
  * @param  {String}  description   - Description of the guideline 
  * @param  {String}  url           - URL to information on the guideline
  *
- * @property  {WCAG20_Principle}  principle  - Principle object reference 
+ * @property  {WCAG20NLSPrinciple}  principle  - Principle object reference 
  *
  * @property  {String}  guideline_id  - Guideline id 
  * @property  {String}  title         - Title of the guideline 
@@ -15279,7 +15988,7 @@ OpenAjax.a11y.WCAG20_Principle = function(principle_id, title, description, url)
  * @property  {Array}   success_criteria  - Array of WCAG 2.0 success criteria objects associated with the principle
  */
 
-OpenAjax.a11y.WCAG20_Guideline = function(principle, guideline_id, title, description, url) {
+OpenAjax.a11y.WCAG20NLSGuideline = function(principle, guideline_id, title, description, url) {
 
   this.principle     = principle;    
   
@@ -15294,18 +16003,18 @@ OpenAjax.a11y.WCAG20_Guideline = function(principle, guideline_id, title, descri
 };
 
 /* ---------------------------------------------------------------- */
-/*                       WCAG20_Success_Criteria                    */
+/*                       WCAG20NLSSuccessCriteria                    */
 /* ---------------------------------------------------------------- */
 
 /**
- * @constructor WCAG20_Success_Criteria
+ * @constructor WCAG20NLSSuccessCriteria
  *
  * @memberOf OpenAjax.a11y
  *
  * @desc  WCAG 2.0 Success Criteria information with properties with localized NLS values 
  *
- * @param  {WCAG20_Principle}  principle  - Principle object reference 
- * @param  {WCAG20_Guideline}  guideline  - Guideline object reference
+ * @param  {WCAG20NLSPrinciple}  principle  - Principle object reference 
+ * @param  {WCAG20NLSGuideline}  guideline  - Guideline object reference
  *
  * @param  {String}  sc_id        - WCAG 2.0 Sucess cCriteria id   
  * @param  {String}  level        - Level of importance of a requirement
@@ -15313,8 +16022,8 @@ OpenAjax.a11y.WCAG20_Guideline = function(principle, guideline_id, title, descri
  * @param  {String}  description  - Description of the success criteria
  * @param  {String}  url          - URL to information on the requirement
  *
- * @property  {WCAG20_Principle}  principle  - Principle object reference 
- * @property  {WCAG20_Guideline}  guideline  - Guideline object reference
+ * @property  {WCAG20NLSPrinciple}  principle  - Principle object reference 
+ * @property  {WCAG20NLSGuideline}  guideline  - Guideline object reference
  *
  * @property  {String}  sc_id      - Requirement 
  * @property  {String}  title      - Title of the requirement 
@@ -15323,7 +16032,7 @@ OpenAjax.a11y.WCAG20_Guideline = function(principle, guideline_id, title, descri
  * @property  {Array}   resources  - URL to information on the requirement
  */
 
-OpenAjax.a11y.WCAG20_Success_Criteria = function(principle, guideline, sc_id, level, title, description, url) {
+OpenAjax.a11y.WCAG20NLSSuccessCriteria = function(principle, guideline, sc_id, level, title, description, url) {
 
   this.principle  = principle;    
   this.guideline  = guideline;    
@@ -15349,7 +16058,7 @@ OpenAjax.a11y.WCAG20_Success_Criteria = function(principle, guideline, sc_id, le
  * @param {ResourceInfo}  resource  - Resource object to add 
  */
 
-OpenAjax.a11y.WCAG20_Success_Criteria.prototype.addResource = function(resource) {
+OpenAjax.a11y.WCAG20NLSSuccessCriteria.prototype.addResource = function(resource) {
 
   this.resources.push(resource);
   
@@ -15459,11 +16168,117 @@ OpenAjax.a11y.Rulesets.prototype.addRuleset = function(type, ruleset_data) {
 
 OpenAjax.a11y.Rulesets.prototype.getRuleset = function(ruleset_id) {
 
-  for (var i = 0; i < this.rulesets.length; i++ ) {
+  var i;
+  
+  for (i = 0; i < this.rulesets.length; i++ ) {
      if (this.rulesets[i].id === ruleset_id) return this.rulesets[i]; 
   }
 
   return null;
+};
+
+/**
+ * @method getAllRulesets
+ *
+ * @memberOf OpenAjax.a11y.Rulesets
+ *
+ * @desc Gets NLS ruleset information for all rulesets  
+ *
+ * @returns  {Array}  ruleset_id  - Array of objects that contain NLS information about a ruleset
+ */
+
+OpenAjax.a11y.Rulesets.prototype.getAllRulesets = function() {
+
+  var i;
+  var rulesets = [];
+  var ruleset;
+  var o;
+  
+  for (i = 0; i < this.rulesets.length; i++) {
+  
+    ruleset = this.rulesets[i];
+      
+    o = new Object();
+  
+    o.ruleset_id      = ruleset.id;
+    o.ruleset_version = ruleset.ruleset_version;
+
+    o.ruleset_title   = ruleset.ruleset_title;
+    
+    o.ruleset_description = ruleset.ruleset_description;            
+
+    o.author_name = ruleset.ruleset_author_name;
+    o.author_url = ruleset.ruleset_author_url;
+
+    rulesets.push(o);
+  }
+
+  return rulesets;
+};
+
+
+/* ---------------------------------------------------------------- */
+/*                          WCAG20Result                            */
+/* ---------------------------------------------------------------- */
+
+/** 
+ * @constructor WCAG20Result
+ *
+ * @memberOf OpenAjax.a11y
+ *
+ * @desc Constructor for an object that contains a the results of 
+ *          the evaluation for a WCAG 2.0 Principle
+ *
+ * @param  {RulesetPrinciple}  ruleset_principle  - Ruleset Principle object
+ *
+ * @property  {WCAG20RulesetPrinciple}   ruleset_principle        - Reference to the associated ruleset principle
+ * @property  {ResultSummaryRule}        rule_summary_results     - Reference to the rule summary information for the guideline 
+ * @property  {Array}                    result_guidelines        - Array of ruleset rule objects associated with the success criterion
+ */
+ 
+OpenAjax.a11y.WCAG20Result = function (ruleset) {
+
+  this.ruleset = ruleset;
+  this.rule_summary_results   = new OpenAjax.a11y.ResultRuleSummary();
+  this.rule_a_summary_results = new OpenAjax.a11y.ResultRuleSummary();
+  this.rule_aa_summary_results = new OpenAjax.a11y.ResultRuleSummary();
+  this.rule_aaa_summary_results = new OpenAjax.a11y.ResultRuleSummary();
+  
+  this.principle_results = [];
+
+};
+
+/** 
+ * @method addPrincipleResult
+ *
+ * @memberOf OpenAjax.a11y.WCAG20Result
+ *
+ * @desc Add principle result object
+ *
+ * @param  {WCAG20ResultPrinciple}  principle_result  - Principle result object to add
+ */
+ 
+OpenAjax.a11y.WCAG20Result.prototype.addPrincipleResult = function (principle_result) {
+
+  this.principle_results.push(principle_result);
+
+};
+
+/**
+ * @method toString
+ *
+ * @memberOf OpenAjax.a11y.cache.WCAG20Result
+ *
+ * @desc Creates a text string representation of the WCAG20 result object 
+ *
+ * @return {String} Returns a text string representation of the WCAG20 result object
+ */
+
+OpenAjax.a11y.WCAG20Result.prototype.toString = function () {
+
+ var str = "";
+ 
+ return str;
 };
 
 /* ---------------------------------------------------------------- */
@@ -15608,13 +16423,13 @@ OpenAjax.a11y.WCAG20RulesetSuccessCriterion.prototype.addRulesetRule = function 
  * @property  {Boolean}  enabled   - Initial value for the enabled property
  */
  
-OpenAjax.a11y.WCAG20RulesetRule = function (id, severity, priority, status, enabled) {
+OpenAjax.a11y.WCAG20RulesetRule = function (id, type, priority, status, enabled) {
 
    var r = OpenAjax.a11y.all_rules.getRuleByRuleId(id);
    
    this.rule     = null;
    this.rule_id  = id;
-   this.severity = severity;
+   this.type     = type;
    this.prioirty = priority;
    this.status   = status;
    this.enabled  = enabled;
@@ -15627,7 +16442,7 @@ OpenAjax.a11y.WCAG20RulesetRule = function (id, severity, priority, status, enab
 };
 
 /* ---------------------------------------------------------------- */
-/*                       WCAG20Ruleset                             */
+/*                       WCAG20Ruleset                              */
 /* ---------------------------------------------------------------- */
 
 /**
@@ -15675,7 +16490,7 @@ OpenAjax.a11y.WCAG20Ruleset = function (ruleset_data) {
   var  r_id,  rr_data,  rr_new;  // variables for creating RulesetRule objects
  
   this.type = "WCAG20";
-  this.name = {};
+  this.title = {};
 
   // Check for ruleset id
 
@@ -15690,28 +16505,68 @@ OpenAjax.a11y.WCAG20Ruleset = function (ruleset_data) {
   // Check for ruleset version
 
   if (ruleset_data['version']) {
-    this.version  = ruleset_data['version'];
+    this.ruleset_version  = ruleset_data['version'];
   } 
   else {
     OpenAjax.a11y.console("  ** Ruleset missing version");
     return null;
   }
 
-  // Check for default and localized ruleset name 
+  // Check for default and localized ruleset title
 
-  if (ruleset_data.name && ruleset_data.name['default']) {
-    this.default_name = ruleset_data.name['default'];
+  if (ruleset_data.title && ruleset_data.title['default']) {
+    this.ruleset_title = ruleset_data.title['default'];
     
-    // get localized names for a ruleset
+    // get localized name for ruleset
     
-    for (locale in ruleset_data.name) {
-      this.name[locale] = ruleset_data.name[locale];
+    if (ruleset_data.title[OpenAjax.a11y.locale]) {
+      this.ruleset_title = ruleset_data.title[OpenAjax.a11y.locale];
     }
     
   } 
   else {
-    OpenAjax.a11y.console("  ** Ruleset " + this.id + " missing default name");
+    OpenAjax.a11y.console("  ** Ruleset " + this.id + " missing default title");
     return null;
+  }
+
+  // Check for ruleset last updated property 
+
+  if (ruleset_data['last_updated']) {
+    this.ruleset_updated  = ruleset_data['last_updated'];
+  } 
+  else {
+    OpenAjax.a11y.console("  ** Ruleset missing last updated date, set to null");
+    this.ruleset_updated  = "0000-00-00";
+  }
+
+  // Check for default and localized ruleset descriptions
+
+  if (ruleset_data.description && ruleset_data.description['default']) {
+    this.ruleset_description = ruleset_data.description['default'];
+    
+    // get localized name for ruleset
+    
+    if (ruleset_data.description[OpenAjax.a11y.locale]) {
+      this.ruleset_description = ruleset_data.description[OpenAjax.a11y.locale];
+    }
+    
+  } 
+  else {
+    OpenAjax.a11y.console("  ** Ruleset " + this.id + " missing default description");
+    this.ruleset_description = "no description";
+  }
+
+  // Check for default and localized ruleset descriptions
+
+  if (ruleset_data.author && ruleset_data.author.name) {
+    this.ruleset_author_name = ruleset_data.author.name;
+    if (ruleset_data.author.url) this.ruleset_author_url = ruleset_data.author.url;
+    else this.ruleset_author_url = "no author url";    
+  } 
+  else {
+    OpenAjax.a11y.console("  ** Ruleset " + this.id + " missing author information");
+    this.ruleset_author_name = "no author";
+    this.ruleset_author_url  = "no author url";
   }
 
   // Check for ruleset last updated property 
@@ -15780,14 +16635,14 @@ OpenAjax.a11y.WCAG20Ruleset = function (ruleset_data) {
               
                   rr_data = sc_data.rules[r_id];
                   
-                  if (typeof rr_data.severity === 'number' && 
+                  if (typeof rr_data.type     === 'number' && 
                       typeof rr_data.priority === 'number' && 
                       typeof rr_data.status   === 'number' ) {
 
                     if (typeof rr_data.enabled === 'boolean')
-                      rr_new = new OpenAjax.a11y.WCAG20RulesetRule(r_id, rr_data.severity, rr_data.priority, rr_data.status, rr_data.enabled);
+                      rr_new = new OpenAjax.a11y.WCAG20RulesetRule(r_id, rr_data.type, rr_data.priority, rr_data.status, rr_data.enabled);
                     else  
-                      rr_new = new OpenAjax.a11y.WCAG20RulesetRule(r_id, rr_data.severity, rr_data.priority, rr_data.status, true);
+                      rr_new = new OpenAjax.a11y.WCAG20RulesetRule(r_id, rr_data.type, rr_data.priority, rr_data.status, true);
   
                     rsc_new.addRulesetRule(rr_new);  
                     
@@ -15795,7 +16650,10 @@ OpenAjax.a11y.WCAG20Ruleset = function (ruleset_data) {
                      
                   }
                   else {
-                    OpenAjax.a11y.console("        ** Ruleset rule " + r_id + " is missing one of the required properties: severity, priority, status");              
+                    OpenAjax.a11y.console("      type: " + rr_data.type);
+                    OpenAjax.a11y.console("  priority: " + rr_data.priority);
+                    OpenAjax.a11y.console("    status: " + rr_data.status);
+                    OpenAjax.a11y.console("        ** Ruleset rule " + r_id + " is missing one of the required properties: type, priority, status");              
                   }
         
                 } // end loop
@@ -15848,12 +16706,6 @@ OpenAjax.a11y.WCAG20Ruleset = function (ruleset_data) {
   return this;
 };
 
-
-OpenAjax.a11y.WCAG20Ruleset.prototype.newRequest = function () {
-  
-    
-};
-  
 /**
  * @method evaluate
  *
@@ -15897,7 +16749,7 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.evaluate = function (url, title, doc, prog
 
     this.dom_cache = new OpenAjax.a11y.cache.DOMCache(url, title, doc, this.log);      
 
-    this.result = new OpenAjax.a11y.ResultWCAG20(this, url, title); 
+    this.result = new OpenAjax.a11y.WCAG20Result(this, url, title); 
 
     this.dom_cache.updateDOMElementCache();
     if (build_cache) { 
@@ -15911,7 +16763,7 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.evaluate = function (url, title, doc, prog
     
       rp = rps[i];
     
-      principle_result = new OpenAjax.a11y.ResultPrinciple(rp);
+      principle_result = new OpenAjax.a11y.WCAG20ResultPrinciple(rp);
       this.result.addPrincipleResult(principle_result);
     
       if (rp && rp.enabled) {
@@ -15923,7 +16775,7 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.evaluate = function (url, title, doc, prog
 
           rg = rgs[j];
       
-          guideline_result = new OpenAjax.a11y.ResultGuideline(rg);
+          guideline_result = new OpenAjax.a11y.WCAG20ResultGuideline(rg);
           principle_result.addGuidelineResult(guideline_result);
     
           if (rg && rg.enabled) {
@@ -15935,7 +16787,7 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.evaluate = function (url, title, doc, prog
             
               rsc = rscs[k];
       
-              success_criterion_result = new OpenAjax.a11y.ResultSuccessCriterion(rsc);
+              success_criterion_result = new OpenAjax.a11y.WCAG20ResultSuccessCriterion(rsc);
               guideline_result.addSuccessCriterionResult(success_criterion_result);
               
               this.log.update(PROGRESS.REQUIREMENT, rsc.id, rsc.id);
@@ -15994,6 +16846,25 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.evaluate = function (url, title, doc, prog
                      guideline_result.rule_summary_results.addRuleResult(rule_result);
                      principle_result.rule_summary_results.addRuleResult(rule_result);
                      this.result.rule_summary_results.addRuleResult(rule_result);
+                     
+                     switch (rsc.level) {
+                     
+                     case 'LEVEL_A':
+                       this.result.rule_a_summary_results.addRuleResult(rule_result);
+                       break;
+                     
+                     case 'LEVEL_AA':
+                       this.result.rule_aa_summary_results.addRuleResult(rule_result);
+                       break;
+                     
+                     case 'LEVEL_AAA':
+                       this.result.rule_aaa_summary_results.addRuleResult(rule_result);
+                       break;
+                       
+                     default:
+                       break;
+                       
+                     } // end switch
 
                    }
                    else {
@@ -16043,11 +16914,11 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.evaluate = function (url, title, doc, prog
  };
  
 /* ---------------------------------------------------------------- */
-/*              ResultSuccessCriterion                              */
+/*              WCAG20ResultSuccessCriterion                              */
 /* ---------------------------------------------------------------- */
 
 /** 
- * @constructor ResultSuccessCriterion
+ * @constructor WCAG20ResultSuccessCriterion
  *
  * @memberOf OpenAjax.a11y
  *
@@ -16060,7 +16931,7 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.evaluate = function (url, title, doc, prog
  * @property  {Array}    rule_summary_results - Array of ruleset rule objects associated with the success criterion
  */
  
-OpenAjax.a11y.ResultSuccessCriterion = function (success_criterion) {
+OpenAjax.a11y.WCAG20ResultSuccessCriterion = function (success_criterion) {
 
   this.success_criterion = success_criterion;
   this.rule_summary_results      = new OpenAjax.a11y.ResultRuleSummary();
@@ -16070,14 +16941,14 @@ OpenAjax.a11y.ResultSuccessCriterion = function (success_criterion) {
 /** 
  * @method addRuleResult
  *
- * @memberOf OpenAjax.a11y.ResultSuccessCriterion
+ * @memberOf OpenAjax.a11y.WCAG20ResultSuccessCriterion
  *
  * @desc Add rule result object
  *
  * @param  {ResultRule}  rule_result  - Rule result object to add
  */
  
-OpenAjax.a11y.ResultSuccessCriterion.prototype.addRuleResult = function (success_criterion_result) {
+OpenAjax.a11y.WCAG20ResultSuccessCriterion.prototype.addRuleResult = function (success_criterion_result) {
 
   this.success_criterion_results.push(success_criterion_result);
 
@@ -16086,14 +16957,14 @@ OpenAjax.a11y.ResultSuccessCriterion.prototype.addRuleResult = function (success
 /** 
  * @method getRequirement
  *
- * @memberOf OpenAjax.a11y.ResultSuccessCriterion
+ * @memberOf OpenAjax.a11y.WCAG20ResultSuccessCriterion
  *
  * @desc Returns a NLS localized title for the rquirement
  *
  * @return {Array} Returns string with a localized version of the requirement
  */
  
-OpenAjax.a11y.ResultSuccessCriterion.prototype.getRequirement = function () {
+OpenAjax.a11y.WCAG20ResultSuccessCriterion.prototype.getRequirement = function () {
 
   var sc_nls = OpenAjax.a11y.all_wcag20_nls.getNLSItemById(this.success_criterion.id); 
   
@@ -16107,14 +16978,14 @@ OpenAjax.a11y.ResultSuccessCriterion.prototype.getRequirement = function () {
 /**
  * @method toString
  *
- * @memberOf OpenAjax.a11y.cache.ResultSuccessCriterion
+ * @memberOf OpenAjax.a11y.cache.WCAG20ResultSuccessCriterion
  *
  * @desc Creates a text string representation of the success criterion result object 
  *
  * @return {String} Returns a text string representation of the rule result object
  */
 
-OpenAjax.a11y.ResultSuccessCriterion.prototype.toString = function () {
+OpenAjax.a11y.WCAG20ResultSuccessCriterion.prototype.toString = function () {
 
  var str = "";
  
@@ -16122,11 +16993,11 @@ OpenAjax.a11y.ResultSuccessCriterion.prototype.toString = function () {
 };
 
 /* ---------------------------------------------------------------- */
-/*                        ResultGuideline                           */
+/*                        WCAG20ResultGuideline                           */
 /* ---------------------------------------------------------------- */
 
 /** 
- * @constructor ResultGuideline
+ * @constructor WCAG20ResultGuideline
  *
  * @memberOf OpenAjax.a11y
  *
@@ -16140,7 +17011,7 @@ OpenAjax.a11y.ResultSuccessCriterion.prototype.toString = function () {
  * @property  {Array}                    result_sucess_creiteria  - Array of ruleset rule objects associated with the success criterion
  */
  
-OpenAjax.a11y.ResultGuideline = function (ruleset_guideline) {
+OpenAjax.a11y.WCAG20ResultGuideline = function (ruleset_guideline) {
 
   this.ruleset_guideline = ruleset_guideline;
   this.rule_summary_results = new OpenAjax.a11y.ResultRuleSummary();
@@ -16151,14 +17022,14 @@ OpenAjax.a11y.ResultGuideline = function (ruleset_guideline) {
 /** 
  * @method addSuccessCriterionResult
  *
- * @memberOf OpenAjax.a11y.ResultGuideline
+ * @memberOf OpenAjax.a11y.WCAG20ResultGuideline
  *
  * @desc Add success criterion result object
  *
- * @param  {ResultSuccessCriterion}  success_criterion_result  - Success criterion result object to add
+ * @param  {WCAG20ResultSuccessCriterion}  success_criterion_result  - Success criterion result object to add
  */
  
-OpenAjax.a11y.ResultGuideline.prototype.addSuccessCriterionResult = function (success_criterion_result) {
+OpenAjax.a11y.WCAG20ResultGuideline.prototype.addSuccessCriterionResult = function (success_criterion_result) {
 
   this.success_criteria_results.push(success_criterion_result);
 
@@ -16167,14 +17038,14 @@ OpenAjax.a11y.ResultGuideline.prototype.addSuccessCriterionResult = function (su
 /**
  * @method toString
  *
- * @memberOf OpenAjax.a11y.cache.ResultGuideline
+ * @memberOf OpenAjax.a11y.cache.WCAG20ResultGuideline
  *
  * @desc Creates a text string representation of the guideline result object 
  *
  * @return {String} Returns a text string representation of the guideline result object
  */
 
-OpenAjax.a11y.ResultGuideline.prototype.toString = function () {
+OpenAjax.a11y.WCAG20ResultGuideline.prototype.toString = function () {
 
  var str = "";
  
@@ -16182,11 +17053,11 @@ OpenAjax.a11y.ResultGuideline.prototype.toString = function () {
 };
 
 /* ---------------------------------------------------------------- */
-/*                        ResultPrinciple                           */
+/*                        WCAG20ResultPrinciple                           */
 /* ---------------------------------------------------------------- */
 
 /** 
- * @constructor ResultPrinciple
+ * @constructor WCAG20ResultPrinciple
  *
  * @memberOf OpenAjax.a11y
  *
@@ -16200,7 +17071,7 @@ OpenAjax.a11y.ResultGuideline.prototype.toString = function () {
  * @property  {Array}                    result_guidelines        - Array of ruleset rule objects associated with the success criterion
  */
  
-OpenAjax.a11y.ResultPrinciple = function (ruleset_principle) {
+OpenAjax.a11y.WCAG20ResultPrinciple = function (ruleset_principle) {
 
   this.ruleset_principle = ruleset_principle;
   this.rule_summary_results = new OpenAjax.a11y.ResultRuleSummary();
@@ -16211,14 +17082,14 @@ OpenAjax.a11y.ResultPrinciple = function (ruleset_principle) {
 /** 
  * @method addGuidelineResult
  *
- * @memberOf OpenAjax.a11y.ResultPrinciple
+ * @memberOf OpenAjax.a11y.WCAG20ResultPrinciple
  *
  * @desc Add guideline result object
  *
- * @param  {ResultGuideline}  guideline_result  - Guideline result object to add
+ * @param  {WCAG20ResultGuideline}  guideline_result  - Guideline result object to add
  */
  
-OpenAjax.a11y.ResultPrinciple.prototype.addGuidelineResult = function (guideline_result) {
+OpenAjax.a11y.WCAG20ResultPrinciple.prototype.addGuidelineResult = function (guideline_result) {
 
   this.guideline_results.push(guideline_result);
 
@@ -16227,79 +17098,20 @@ OpenAjax.a11y.ResultPrinciple.prototype.addGuidelineResult = function (guideline
 /**
  * @method toString
  *
- * @memberOf OpenAjax.a11y.cache.ResultPrinciple
+ * @memberOf OpenAjax.a11y.cache.WCAG20ResultPrinciple
  *
  * @desc Creates a text string representation of the principle result object 
  *
  * @return {String} Returns a text string representation of the principle result object
  */
 
-OpenAjax.a11y.ResultPrinciple.prototype.toString = function () {
+OpenAjax.a11y.WCAG20ResultPrinciple.prototype.toString = function () {
 
  var str = "";
  
  return str;
 };
 
-/* ---------------------------------------------------------------- */
-/*                          ResultWCAG20                            */
-/* ---------------------------------------------------------------- */
-
-/** 
- * @constructor ResultWCAG20
- *
- * @memberOf OpenAjax.a11y
- *
- * @desc Constructor for an object that contains a the results of 
- *          the evaluation for a WCAG 2.0 Principle
- *
- * @param  {RulesetPrinciple}  ruleset_principle  - Ruleset Principle object
- *
- * @property  {WCAG20RulesetPrinciple}   ruleset_principle        - Reference to the associated ruleset principle
- * @property  {ResultSummaryRule}        rule_summary_results     - Reference to the rule summary information for the guideline 
- * @property  {Array}                    result_guidelines        - Array of ruleset rule objects associated with the success criterion
- */
- 
-OpenAjax.a11y.ResultWCAG20 = function (ruleset) {
-
-  this.ruleset = ruleset;
-  this.rule_summary_results = new OpenAjax.a11y.ResultRuleSummary();
-  this.principle_results = [];
-
-};
-
-/** 
- * @method addPrincipleResult
- *
- * @memberOf OpenAjax.a11y.ResultWCAG20
- *
- * @desc Add principle result object
- *
- * @param  {ResultPrinciple}  principle_result  - Principle result object to add
- */
- 
-OpenAjax.a11y.ResultWCAG20.prototype.addPrincipleResult = function (principle_result) {
-
-  this.principle_results.push(principle_result);
-
-};
-
-/**
- * @method toString
- *
- * @memberOf OpenAjax.a11y.cache.ResultPrinciple
- *
- * @desc Creates a text string representation of the WCAG20 result object 
- *
- * @return {String} Returns a text string representation of the WCAG20 result object
- */
-
-OpenAjax.a11y.ResultWCAG20.prototype.toString = function () {
-
- var str = "";
- 
- return str;
-};
 
 
 
@@ -16852,7 +17664,7 @@ OpenAjax.a11y.all_rules      = OpenAjax.a11y.all_rules      || new OpenAjax.a11y
  * @desc Object containing data and methods related to localized versions of WCAG 2.0 requirements 
  */
 
-OpenAjax.a11y.all_wcag20_nls = OpenAjax.a11y.all_wcag20_nls || new OpenAjax.a11y.WCAG20NLS();
+OpenAjax.a11y.all_wcag20_nls = OpenAjax.a11y.all_wcag20_nls || new OpenAjax.a11y.WCAG20();
 
 /**
  * @function all_rulsets
@@ -16867,7 +17679,7 @@ OpenAjax.a11y.all_wcag20_nls = OpenAjax.a11y.all_wcag20_nls || new OpenAjax.a11y
 OpenAjax.a11y.all_rulesets   = OpenAjax.a11y.all_rulesets   || new OpenAjax.a11y.Rulesets();
 
 /**
- * Copyright 2011 OpenAjax Alliance
+ * Copyright 2011 and 2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16917,33 +17729,43 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
      */
     reference_media_contants: ['Undefined', 'No', 'Maybe', 'Yes'],
     
+    missing_label : {
+      label : "no label",
+      style : "missing_label"
+    },
+    
+    empty_alt_text : {
+      label : "empty alt",
+      style : "empty_alt"
+    },
+    
     /**
      * Severity of not passing a rule for a particular requirement set, like WCAG 2.0
      */
     severities: [{ label       : 'Not Applicable', 
-                   abbrev      : 'na', 
+                   abbrev      : 'N/A', 
                    description : 'The rule is not applicable to an element',
-                   tooltip     : 'The number of elements that are not applicable to an element'
+                   tooltip     : 'The number of elements to which the rule did not apply'
                   },
                  { label       : 'Pass', 
                    abbrev      : 'P', 
                    description : 'The element passed the rule',
-                   tooltip     : 'The number of elements that passed required and recommended rules'
+                   tooltip     : 'The number of elements that passed the rule'
                   },
                  { label       : 'Violation', 
                    abbrev      : 'V', 
                    description : 'The element failed the rule and the rule is required',
-                   tooltip     : 'The number of elements that failed required rules'
+                   tooltip     : 'The number of elements that failed'
                   },
                  { label       : 'Recommendation', 
                    abbrev      : 'R', 
                    description : 'The element failed the rule and the rule is recommended',
                    tooltip     : 'The number of elements that failed recommended rules'
                   },
-                 { label       : 'Manual Evaluation', 
-                   abbrev      : 'ME', 
-                   description : 'The element requires manual inspection to determine if it meets ruleset requirements',
-                   tooltip     : 'The number of elements that require manual inspection for determining if requirements were met'
+                 { label       : 'Manual Check', 
+                   abbrev      : 'MC', 
+                   description : 'The element requires human inspection and judgement to determine if the requirement has been met',
+                   tooltip     : 'The number of elements that require manual checks for determining if requirements were met'
                   },
                  { label       : 'Warning', 
                    abbrev      : 'W', 
@@ -17143,37 +17965,47 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
       },
 
     /*
+     * Image Cache object attributes
+     */
+      'source' : {
+        label       : 'src',
+        description : 'Value of the src attribute'
+      },
+
+
+    /*
      * Media Cache object properties
      */
 
       'is_video'  : {
         label       : 'Video',
         description :  'Does the media object contain video',
-        values      :  ['undefined', 'No', 'Maybe', 'Yes']
+        values      :  ['undefined', 'No', ' ? ', 'Yes']
+        
       },
 
       'is_audio'  : {
         label       : 'Audio',
         description :  'Does the media object contain audio',
-        values      :  ['undefined', 'No', 'Maybe', 'Yes']
+        values      :  ['undefined', 'No', ' ? ', 'Yes']
       },
 
       'has_caption'  : {
         label       : 'Caption',
         description :  'Does the media object have captions',
-        values      :  ['undefined', 'No', 'Maybe', 'Yes']
+        values      :  ['undefined', 'No', ' ? ', 'Yes']
       },
 
       'has_text_alternative' : {
         label       : 'Text Equivalent',
         description :  'Does the media object have a text equivalent',
-        values      :  ['undefined', 'No', 'Maybe', 'Yes']
+        values      :  ['undefined', 'No', ' ? ', 'Yes']
       },
       
-      'has_audio_alternative' : {
+      'has_audio_description' : {
         label       : 'Audio Equivalent',
         description :  'Does the media object have a audio equivalent',
-        values      :  ['undefined', 'No', 'Maybe', 'Yes']
+        values      :  ['undefined', 'No', ' ? ', 'Yes']
       },
       
     /*
@@ -18552,7 +19384,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
    id                : 'COLOR_1', 
    last_updated      : '2011-07-11', 
    cache_dependency  : 'color_contrast_cache',
-   cache_properties : ['font_size', 'font_weight', 'color_hex', 'background_color_hex', 'background_image', 'color_contrast_ratio'],
+   cache_properties : ['color_hex', 'background_color_hex', 'background_image', 'is_large_font', 'color_contrast_ratio'],
    language          : "",
    validate          : function (dom_cache, rule_result) {
   
@@ -18577,7 +19409,10 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
       for (i=0; i<color_contrast_len; i++) {
    
         cci = dom_cache.color_contrast_cache.color_contrast_items[i];
-   
+
+        // if color contrast raio is undefined, skip this item
+        if (!cci.color_contrast_ratio) continue;
+
         if ((cci.color_contrast_ratio >= MIN_CCR_NORMAL_FONT) ||
           ((cci.color_contrast_ratio >= MIN_CCR_LARGE_FONT) && (cci.is_large_font))) {
      
@@ -18588,7 +19423,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
             args = [cci.color_contrast_ratio];
           }
           else {
-            severity = SEVERITY.MANUAL_EVALUATION;
+            severity = SEVERITY.MANUAL_CHECK;
             message_id = 'MESSAGE_MANUAL_PASS';
             args = [cci.color_contrast_ratio];
           }           
@@ -18597,12 +19432,12 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         
           // Fails color contrast requirements
           if (cci.background_image == "none") {
-            severity  = rule_result.rule_severity;
+            severity  = SEVERITY.FAIL;
             message_id = 'MESSAGE_FAIL';
             args = [cci.color_contrast_ratio];
           }
           else {
-            severity  = SEVERITY.MANUAL_EVALUATION;
+            severity  = SEVERITY.MANUAL_CHECK;
             message_id = 'MESSAGE_MANUAL_FAIL';
             args = [cci.color_contrast_ratio];
           }     
@@ -18614,7 +19449,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 
         for (j=0; j<dom_elements_len; j++) {
           de = cci.dom_elements[j];
-          if (de.computed_style.graphical === OpenAjax.a11y.VISIBILITY.VISIBLE) {
+          if (de.computed_style.is_visible_onscreen === OpenAjax.a11y.VISIBILITY.VISIBLE) {
             rule_result.addResult(severity, de, message_id, args);
           } 
           else {
@@ -18638,7 +19473,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
    id                : 'COLOR_2', 
    last_updated      : '2011-07-11', 
    cache_dependency  : 'color_contrast_cache',
-   cache_properties : ['font_size', 'font_weight', 'color_hex', 'background_color_hex', 'background_image', 'color_contrast_ratio'],
+   cache_properties  : ['color_hex', 'background_color_hex', 'background_image', 'is_large_font', 'color_contrast_ratio'],
    language          : "",
    validate          : function (dom_cache, rule_result) {
   
@@ -18661,9 +19496,12 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
       var args = [];
 
      
-      for (i=0; i<color_contrast_len; i++) {
+      for (i = 0; i < color_contrast_len; i++) {
    
         cci = dom_cache.color_contrast_cache.color_contrast_items[i];
+        
+        // if color contrast raio is undefined, skip this item
+        if (!cci.color_contrast_ratio) continue;
    
         if ((cci.color_contrast_ratio >= MIN_CCR_NORMAL_FONT) ||
           ((cci.color_contrast_ratio >= MIN_CCR_LARGE_FONT) && (cci.is_large_font))) {
@@ -18675,7 +19513,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
             args = [cci.color_contrast_ratio];
           }
           else {
-            severity = SEVERITY.MANUAL_EVALUATION;
+            severity = SEVERITY.MANUAL_CHECK;
             message_id = 'MESSAGE_MANUAL_PASS';
             args = [cci.color_contrast_ratio];
           }           
@@ -18684,12 +19522,12 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         
           // Fails color contrast requirements
           if (cci.background_image == "none") {
-            severity  = rule_result.rule_severity;
+            severity  = SEVERITY.FAIL;
             message_id = 'MESSAGE_FAIL';
             args = [cci.color_contrast_ratio];
           }
           else {
-            severity  = SEVERITY.MANUAL_EVALUATION;
+            severity  = SEVERITY.MANUAL_CHECK;
             message_id = 'MESSAGE_MANUAL_FAIL';
             args = [cci.color_contrast_ratio];
           }     
@@ -18701,7 +19539,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 
         for (j=0; j<dom_elements_len; j++) {
           de = cci.dom_elements[j];
-          if (de.computed_style.graphical === OpenAjax.a11y.VISIBILITY.VISIBLE) {
+          if (de.computed_style.is_visible_onscreen === OpenAjax.a11y.VISIBILITY.VISIBLE) {
             rule_result.addResult(severity, de, message_id, args);
           } 
           else {
@@ -18779,14 +19617,14 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
              control_type === OpenAjax.a11y.CONTROL_TYPE.TEXT     ||
              control_type === OpenAjax.a11y.CONTROL_TYPE.TEXTAREA ) {
              
-           if (ce.dom_element.computed_style.at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
+           if (ce.dom_element.computed_style.is_visible_to_at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
      
         
              if (ce.label && ce.label.length) {
                rule_result.addResult(SEVERITY.PASS, ce, 'MESSAGE_PASS', [type.toUpperCase()]);     
              }
              else {
-               rule_result.addResult(rule_result.rule_severity, ce, 'MESSAGE_LABEL_MISSING', [type.toUpperCase()]);     
+               rule_result.addResult(SEVERITY.FAIL, ce, 'MESSAGE_LABEL_MISSING', [type.toUpperCase()]);     
              }
            }
            else {
@@ -18832,13 +19670,13 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
      
          if (type === 'image') {
       
-           if (ce.dom_element.computed_style.at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
+           if (ce.dom_element.computed_style.is_visible_to_at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
      
              if (ce.label && ce.label.length) {
                rule_result.addResult(SEVERITY.PASS, ce, 'MESSAGE_PASS', [type.toUpperCase()]);     
              }
              else {
-               rule_result.addResult(rule_result.rule_severity, ce, 'MESSAGE_ALT_MISSING', [type.toUpperCase()]);     
+               rule_result.addResult(SEVERITY.FAIL, ce, 'MESSAGE_ALT_MISSING', [type.toUpperCase()]);     
              }
            }
            else {
@@ -18885,7 +19723,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
      
          if (type === 'radio') {
       
-           if (de.computed_style.at == VISIBILITY.VISIBLE) {
+           if (de.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
      
              if (ce.fieldset_element) {
                rule_result.addResult(SEVERITY.PASS, ce, 'MESSAGE_HAS_LEGEND', []);     
@@ -18897,7 +19735,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
                    rule_result.addResult(SEVERITY.PASS, ce, 'MESSAGE_HAS_ARIA_LABELLEDBY', []);     
                  }
                  else {
-                   rule_result.addResult(rule_result.rule_severity, ce, 'MESSAGE_LEGEND_MISSING', []);
+                   rule_result.addResult(SEVERITY.FAIL, ce, 'MESSAGE_LEGEND_MISSING', []);
                  }
                }  
                else {
@@ -18905,7 +19743,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
                    rule_result.addResult(SEVERITY.PASS, ce, 'MESSAGE_HAS_ARIA_LABEL', []);     
                  }
                  else {
-                   rule_result.addResult(rule_result.rule_severity, ce, 'MESSAGE_LEGEND_MISSING', []);
+                   rule_result.addResult(SEVERITY.FAIL, ce, 'MESSAGE_LEGEND_MISSING', []);
                  }    
                }
              }
@@ -18953,13 +19791,13 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
      
          if (type === 'button') {
       
-           if (ce.dom_element.computed_style.at == VISIBILITY.VISIBLE) {
+           if (ce.dom_element.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
      
              if (ce.label && ce.label.length) {
                rule_result.addResult(SEVERITY.PASS, ce, 'MESSAGE_HAS_CONTENT', []);     
              }
              else {
-               rule_result.addResult(rule_result.rule_severity, ce, 'MESSAGE_NO_CONTENT', []);     
+               rule_result.addResult(SEVERITY.FAIL, ce, 'MESSAGE_NO_CONTENT', []);     
              }
            }
            else {
@@ -19004,7 +19842,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         switch (de.id_unique) { 
         
         case OpenAjax.a11y.ID.NOT_UNIQUE:
-          rule_result.addResult(rule_result.rule_severity, ce, 'MESSAGE_DUPLICATE_ID', [de.id]);
+          rule_result.addResult(SEVERITY.FAIL, ce, 'MESSAGE_DUPLICATE_ID', [de.id]);
           break;          
           
         case OpenAjax.a11y.ID.UNIQUE:
@@ -19094,7 +19932,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         le = label_elements[i];
         
         if (le.label && le.label.length === 0) {
-          rule_result.addResult(rule_result.rule_severity, le, 'MESSAGE_NO_CONTENT', []);
+          rule_result.addResult(SEVERITY.FAIL, le, 'MESSAGE_NO_CONTENT', []);
         }
         else {
           rule_result.addResult(SEVERITY.PASS, le, 'MESSAGE_HAS_CONTENT', []);        
@@ -19135,11 +19973,11 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         fe = fieldset_elements[i];
         
         if (fe.legend_count === 0) {
-          rule_result.addResult(rule_result.rule_severity, fe, 'MESSAGE_NO_LEGEND', []);        
+          rule_result.addResult(SEVERITY.FAIL, fe, 'MESSAGE_NO_LEGEND', []);        
         }
         else {
           if (fe.legend_count > 1) {
-            rule_result.addResult(rule_result.rule_severity, fe, 'MESSAGE_MORE_THAN_ONE', []);        
+            rule_result.addResult(SEVERITY.FAIL, fe, 'MESSAGE_MORE_THAN_ONE', []);        
           }
           else {
             rule_result.addResult(SEVERITY.PASS, fe, 'MESSAGE_ONLY_ONE', []);                  
@@ -19179,10 +20017,10 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
       for (i=0; i < control_elements_len; i++) {
         ce = control_elements[i];
         
-        if (ce.dom_element.computed_style.at === VISIBILITY.VISIBLE) {
+        if (ce.dom_element.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
 
           if (ce.label_source === OpenAjax.a11y.SOURCE.TITLE_ATTRIBUTE) {
-            rule_result.addResult(rule_result.rule_severity, ce, 'MESSAGE_USES_TITLE', []);        
+            rule_result.addResult(SEVERITY.FAIL, ce, 'MESSAGE_USES_TITLE', []);        
           }
           else {
             rule_result.addResult(SEVERITY.PASS, ce, 'MESSAGE_DOES_NOT_USE_TITLE', []);                  
@@ -19234,7 +20072,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   
         type = control_elements[i].type;
      
-        if (ce.dom_element.computed_style.at === OpenAjax.a11y.VISIBILITY.VISIBLE) { 
+        if (ce.dom_element.computed_style.is_visible_to_at === OpenAjax.a11y.VISIBILITY.VISIBLE) { 
           if (type === 'checkbox' ||
               type === 'file'   ||
               type === 'password' ||
@@ -19258,7 +20096,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
       for (i=0; i<ces.length; i++) {
         ce = ces[i];
         if (ce.duplicate) {
-          rule_result.addResult(rule_result.rule_severity, ce, 'MESSAGE_DUPLICATE_LABEL', [ce.label]);                
+          rule_result.addResult(SEVERITY.FAIL, ce, 'MESSAGE_DUPLICATE_LABEL', [ce.label]);                
         }
         else {
           rule_result.addResult(SEVERITY.PASS, ce, 'MESSAGE_LABEL_UNIQUE', [ce.label]);        
@@ -19318,7 +20156,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   id                : 'HEADING_1', 
   last_updated      : '2011-09-16', 
   cache_dependency  : 'title_main_cache',
-  cache_properties  : ['dom_element:tag_name'],
+  cache_properties  : ['tag_name'],
   language          : "",
   validate          : function (dom_cache, rule_result) {
   
@@ -19340,17 +20178,17 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         for (i=0; i<main_elements_len; i++ ) {
           me = main_elements[i];
 
-          if (me.dom_element.computed_style.at === VISIBILITY.INVISIBLE) {
+          if (me.dom_element.computed_style.is_visible_to_at === VISIBILITY.INVISIBLE) {
             rule_result.addResult(SEVERITY.HIDDEN, me, 'MESSAGE_H1_HIDDEN', []);                      
           }
           else {
             if (me.dom_element.tag_name == 'h1') {
-              if (me.name && name.length > 0) {
+              if (me.name && me.name_length > 0) {
                 rule_result.addResult(SEVERITY.PASS, me, 'MESSAGE_HAS_H1', []);
                 h1_count++;
               }
               else {
-                rule_result.addResult(rule_result.rule_severity, me, 'MESSAGE_H1_NO_CONTENT', []);
+                rule_result.addResult(SEVERITY.FAIL, me, 'MESSAGE_H1_NO_CONTENT', []);
               }
             }
           }  
@@ -19362,10 +20200,10 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         te = dom_cache.title_main_cache.main_elements[0];
         // Use title if defined to mark failure
         if (te) {
-          rule_result.addResult(rule_result.rule_severity, te, 'MESSAGE_H1_MISSING', []);
+          rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_H1_MISSING', []);
         } 
         else {
-          rule_result.addResult(rule_result.rule_severity, null, 'MESSAGE_H1_MISSING', []);
+          rule_result.addResult(SEVERITY.FAIL, null, 'MESSAGE_H1_MISSING', []);
         }
      }
   } // end validate function
@@ -19381,7 +20219,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   id              : 'HEADING_2', 
   last_updated     : '2011-09-16', 
   cache_dependency : 'headings_landmarks_cache',
-  cache_properties : ['dom_element:tag_name', 'name'],
+  cache_properties : ['tag_name', 'name'],
   language        : "",
   validate        : function (dom_cache, rule_result) {
   
@@ -19418,7 +20256,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
            he = heading_elements[i];
            if (he.level == level) {
              he.unique = true;
-             if (he.dom_element.computed_style.at === VISIBILITY.VISIBLE) heading_list.push(he);
+             if (he.dom_element.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) heading_list.push(he);
            }
            else {
              if (he.level < level) {
@@ -19456,12 +20294,12 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         
         for(i=0; i<heading_elements_len; i++) {
           he = heading_elements[i];
-          if (he.dom_element.computed_style.at === VISIBILITY.VISIBLE) {
+          if (he.dom_element.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
             if (he.unique) {          
               rule_result.addResult(SEVERITY.PASS, he, 'MESSAGE_UNIQUE', []);            
             }
             else {
-              rule_result.addResult(rule_result.rule_severity, he, 'MESSAGE_NOT_UNIQUE', []);            
+              rule_result.addResult(SEVERITY.FAIL, he, 'MESSAGE_NOT_UNIQUE', []);            
             }
           }
         } // end loop
@@ -19479,7 +20317,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   id                : 'HEADING_3', 
   last_updated      : '2011-09-16', 
   cache_dependency  : 'headings_landmarks_cache',
-  cache_properties  : ['dom_element:tag_name', 'name'],
+  cache_properties  : ['tag_name', 'name'],
   language          : "",
   validate          : function (dom_cache, rule_result) {
 
@@ -19497,8 +20335,8 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
       
         for(i=0; i<heading_elements_len; i++) {
           he = heading_elements[i];
-          if (he.dom_element.computed_style.at === VISIBILITY.VISIBLE) {
-            rule_result.addResult(rule_result.rule_severity, he, 'MESSAGE_CHECK', []);            
+          if (he.dom_element.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
+            rule_result.addResult(SEVERITY.FAIL, he, 'MESSAGE_CHECK', []);            
           }
           else {
             rule_result.addResult(SEVERITY.HIDDEN, he, 'MESSAGE_HIDDEN', []);                      
@@ -19521,7 +20359,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   id                : 'HEADING_4', 
   last_updated      : '2011-09-16', 
   cache_dependency  : 'headings_landmarks_cache',
-  cache_properties  : ['dom_element:tag_name', 'name'],
+  cache_properties  : ['tag_name', 'name'],
   language          : "",
   validate          : function (dom_cache, rule_result) {
 
@@ -19531,7 +20369,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         while (i < heading_elements_len) {
           he = heading_elements[i];
           i++;
-          if (he.dom_element.computed_style.at == VISIBILITY.VISIBLE) {
+          if (he.dom_element.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
             return he;
           }  
           rule_result.addResult(SEVERITY.HIDDEN, he, 'MESSAGE_HIDDEN', []);                      
@@ -19557,7 +20395,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         }      
         
         while (he.level > (he_last.level+1)) {
-          rule_result.addResult(rule_result.rule_severity, he, 'MESSAGE_IMPROPER_NESTING', []);                      
+          rule_result.addResult(SEVERITY.FAIL, he, 'MESSAGE_IMPROPER_NESTING', []);                      
           he      = getNextVisibleHeading(); 
           if (he === null) return;
         }
@@ -19593,7 +20431,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   id                : 'HEADING_5', 
   last_updated      : '2011-09-16', 
   cache_dependency  : 'headings_landmarks_cache',
-  cache_properties  : ['dom_element:tag_name', 'dom_element:role', 'name'],
+  cache_properties  : ['tag_name', 'role', 'name'],
   language          : "",
   validate          : function (dom_cache, rule_result) {
   
@@ -19610,7 +20448,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   id                : 'HEADING_6', 
   last_updated      : '2011-09-16', 
   cache_dependency  : 'headings_landmarks_cache',
-  cache_properties  : ['dom_element:tag_name', 'dom_element:only_image', 'name'],
+  cache_properties  : ['tag_name', 'only_image', 'name'],
   language          : "",
   validate          : function (dom_cache, rule_result) {
 
@@ -19631,8 +20469,8 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         for (i=0; i<heading_elements_len; i++ ) {
           he = heading_elements[i];
 
-          if (he.dom_element.computed_style.at !== VISIBILITY.INVISIBLE && he.dom_element.only_image) {
-            rule_result.addResult(rule_result.rule_severity, he, 'MESSAGE_ONLY_IMAGE', []);
+          if (he.dom_element.computed_style.is_visible_to_at !== VISIBILITY.INVISIBLE && he.dom_element.only_image) {
+            rule_result.addResult(SEVERITY.FAIL, he, 'MESSAGE_ONLY_IMAGE', []);
           }
           else {
             rule_result.addResult(SEVERITY.PASS, he, 'MESSAGE_HAS_TEXT', []);          
@@ -19653,7 +20491,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   id                : 'HEADING_7', 
   last_updated      : '2011-09-16', 
   cache_dependency  : 'headings_landmarks_cache',
-  cache_properties  : ['dom_element.tag_name', 'name'],
+  cache_properties  : ['tag_name', 'name'],
   language          : "",
   validate          : function (dom_cache, rule_result) {
 
@@ -19663,6 +20501,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   
       var i;
       var he;
+      var de;
 
       var heading_elements     = dom_cache.headings_landmarks_cache.heading_elements;
       var heading_elements_len = heading_elements.length;
@@ -19671,10 +20510,11 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
       
         for (i=0; i<heading_elements_len; i++ ) {
           he = heading_elements[i];
+          de = he.dom_element;
 
-          if ((he.dom_element.computed_style.at !== VISIBILITY.INVISIBLE ) && 
-              ( !he.name || he.name.length === 0 )) {
-            rule_result.addResult(rule_result.rule_severity, he, 'MESSAGE_EMPTY', []);
+          if ((de.computed_style.is_visible_to_at !== VISIBILITY.INVISIBLE ) && 
+              ( !he.name || he.name_length === 0 )) {
+            rule_result.addResult(SEVERITY.FAIL, he, 'MESSAGE_EMPTY', []);
           }            
         } // end loop
       }
@@ -19690,7 +20530,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   id                : 'HEADING_8_EN', 
   last_updated      : '2011-09-16', 
   cache_dependency  : 'headings_landmarks_cache',
-  cache_properties  : ['dom_element:tag_name', 'name', 'name:length'],
+  cache_properties  : ['tag_name', 'name', 'name_length'],
   language          : "en-us en-br",
   validate          : function (dom_cache, rule_result) {
 
@@ -19701,20 +20541,20 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   
       var i;
       var he;
-      var len;
+      var de;
 
       var heading_elements     = dom_cache.headings_landmarks_cache.heading_elements;
       var heading_elements_len = heading_elements.length;
       
       if (heading_elements && heading_elements.length) {
       
-        for (i=0; i<heading_elements_len; i++ ) {
+        for (i = 0; i < heading_elements_len; i++) {
           he = heading_elements[i];
+          de = he.dom_element;
           
-          if (he.dom_element.computed_style.at !== VISIBILITY.INVISIBLE  && he.name ) {
-            len = he.name.length;
-            if (len > MAX_HEADING_LENGTH ) {
-              rule_result.addResult(rule_result.rule_severity, he, 'MESSAGE_TO_LONG', [len,MAX_HEADING_LENGTH]);
+          if (de.computed_style.is_visible_to_at !== VISIBILITY.INVISIBLE  && he.name) {
+            if (he.name_length > MAX_HEADING_LENGTH ) {
+              rule_result.addResult(SEVERITY.FAIL, he, 'MESSAGE_TO_LONG', [he.name_length, MAX_HEADING_LENGTH]);
             }  
           }            
         } // end loop
@@ -19741,7 +20581,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 { id                : 'IMAGE_1', 
   last_updated      : '2011-09-16', 
   cache_dependency  : 'images_cache',
-  cache_properties : ['alt', 'alt_length', 'dom_element:role', 'dom_element:computed_style:at'],
+  cache_properties  : ['has_alt_attribute', 'alt_length', 'role', 'at'],
   language          : "",
   validate          : function (dom_cache, rule_result) {
  
@@ -19749,6 +20589,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 
     var i;
     var ie;
+    var de;
     var image_elements   = dom_cache.images_cache.image_elements;
     var image_elements_len = image_elements.length;
        
@@ -19757,18 +20598,19 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
      
       for (i=0; i < image_elements_len; i++) {
         ie = image_elements[i];
+        de = ie.dom_element;
      
-        if (ie.dom_element.hasAttrWithValue('role', 'presentation')) {     
+        if (de.hasAttrWithValue('role', 'presentation')) {     
           rule_result.addResult(SEVERITY.NA, ie, 'MESSAGE_PRESENTATION', []);     
         }
         else {      
-          if (ie.dom_element.computed_style.at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
+          if (de.computed_style.is_visible_to_at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
           
-            if (ie.has_alt) {
+            if (de.has_alt_attribute) {
               rule_result.addResult(SEVERITY.PASS, ie, 'MESSAGE_PASS', []);     
             }
             else {
-              rule_result.addResult(rule_result.rule_severity, ie, 'MESSAGE_ALT_MISSING', []);     
+              rule_result.addResult(SEVERITY.FAIL, ie, 'MESSAGE_ALT_MISSING', []);     
             }
           }
           else {
@@ -19788,7 +20630,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 { id                : 'IMAGE_2', 
   last_updated      : '2011-09-16', 
   cache_dependency  : 'images_cache',
-  cache_properties : ['longdesc', 'dom_element:role', 'dom_element:computed_style:at'],
+  cache_properties : ['longdesc', 'role', 'at'],
   language          : "",
   validate          : function (dom_cache, rule_result) {
 
@@ -19797,20 +20639,23 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 
     var i;
     var ie = null;
+    var de;
     var image_elements   = dom_cache.images_cache.image_elements;
     var image_elements_len = image_elements.length;
 
     // Check to see if valid cache reference
     if (image_elements && image_elements_len) {
      
-      for (i=0; i < image_elements_len; i++) {
+      for (i = 0; i < image_elements_len; i++) {
         ie = image_elements[i];     
+        de = ie.dom_element;
+        
         if (ie.longdesc) {
-          if (ie.dom_element.hasAttrWithValue('role', 'presentation')) {     
+          if (de.hasAttrWithValue('role', 'presentation')) {     
             rule_result.addResult(SEVERITY.NA, ie, 'MESSAGE_PRESENTATION', []);     
           }
           else {      
-            if (ie.dom_element.computed_style.at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
+            if (de.computed_style.is_visible_to_at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
             
               switch (OpenAjax.a11y.util.UrlExists(ie.longdesc)) {
          
@@ -19819,15 +20664,15 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
                 break;
           
               case URL_RESULT.INVALID:
-                rule_result.addResult(rule_result.rule_severity, ie, 'MESSAGE_FAIL', [ie.longdesc]);     
+                rule_result.addResult(SEVERITY.FAIL, ie, 'MESSAGE_FAIL', [ie.longdesc]);     
                 break;
           
               case URL_RESULT.NOT_TESTED:
-                rule_result.addResult(SEVERITY.MANUAL_EVALUATION, ie, 'MESSAGE_NOT_TESTED', [ie.longdesc]);     
+                rule_result.addResult(SEVERITY.MANUAL_CHECK, ie, 'MESSAGE_NOT_TESTED', [ie.longdesc]);     
                 break;
          
               default:
-                rule_result.addResult(SEVERITY.MANUAL_EVALUATION, ie, 'MESSAGE_ERROR', [ie.longdesc]);
+                rule_result.addResult(SEVERITY.MANUAL_CHECK, ie, 'MESSAGE_ERROR', [ie.longdesc]);
                 break;
               } 
             }
@@ -19852,7 +20697,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 { id                : 'IMAGE_3', 
   last_updated      : '2011-09-16', 
   cache_dependency  : 'images_cache',
-  cache_properties : ['alt', 'dom_element:role', 'dom_element:computed_style:at'],
+  cache_properties : ['has_alt_attribute', 'role', 'at'],
   language          : "",
   validate          : function (dom_cache, rule_result) {
   
@@ -19860,6 +20705,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   
     var i;
     var ie;
+    var de;
     var pos;
     var file_name;
    
@@ -19871,12 +20717,13 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
      
       for (i=0; i < image_elements_len; i++) {
         ie = image_elements[i];     
+        de = ie.dom_element;
         
         if (ie.source && 
-            ie.has_alt && 
+            de.has_alt_attribute && 
             ie.alt_length) {
                   
-            if (ie.dom_element.computed_style.at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
+            if (de.computed_style.is_visible_to_at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
               pos = ie.source.lastIndexOf('/');    
               file_name = ie.source.substring((pos+1)).toLowerCase();
         
@@ -19884,7 +20731,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
               if (file_name.indexOf('.') >= 0) {
          
                 if (ie.alt_for_comparison.indexOf(file_name) >= 0 ) {
-                  rule_result.addResult(rule_result.rule_severity, ie, 'MESSAGE_FAIL', [file_name]);                 
+                  rule_result.addResult(SEVERITY.FAIL, ie, 'MESSAGE_FAIL', [file_name]);                 
                 }
                 else {
                    rule_result.addResult(SEVERITY.NA, ie, 'MESSAGE_NA', []);                 
@@ -19914,7 +20761,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 { id                : 'IMAGE_4_EN', 
   last_updated      : '2011-09-16', 
   cache_dependency  : 'images_cache',
-  cache_properties : ['alt', 'alt_length', 'dom_element:role', 'dom_element:computed_style:at'],
+  cache_properties : ['has_alt_attribute', 'alt_length', 'role', 'at'],
   language          : "en-us en-br",
   validate          : function (dom_cache, rule_result) {
       
@@ -19924,6 +20771,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 
     var i;
     var ie;
+    var de;
     var image_elements   = dom_cache.images_cache.image_elements;
     var image_elements_len = image_elements.length;
        
@@ -19932,15 +20780,16 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
      
       for (i=0; i < image_elements_len; i++) {
         ie = image_elements[i];
+        de = ie.dom_element;
      
-        if (ie.dom_element.hasAttrWithValue('role', 'presentation') ||
-            ie.dom_element.computed_style.at != OpenAjax.a11y.VISIBILITY.VISIBLE ||
-            !ie.has_alt) {     
+        if (de.hasAttrWithValue('role', 'presentation') ||
+            de.computed_style.is_visible_to_at != OpenAjax.a11y.VISIBILITY.VISIBLE ||
+            !de.has_alt_attribute) {     
           rule_result.addResult(SEVERITY.NA, ie, 'MESSAGE_NA', []);     
         }
         else {      
           if (ie.alt_length > MAX_ALT_TEXT_LENGTH) {
-            rule_result.addResult(rule_result.rule_severity, ie, 'MESSAGE_ALT_TO_LONG', [ie.alt_length, MAX_ALT_TEXT_LENGTH]);     
+            rule_result.addResult(SEVERITY.FAIL, ie, 'MESSAGE_ALT_TO_LONG', [ie.alt_length, MAX_ALT_TEXT_LENGTH]);     
           }
           else {      
             rule_result.addResult(SEVERITY.PASS, ie, 'MESSAGE_PASS', [ie.alt_length, MAX_ALT_TEXT_LENGTH]);     
@@ -19959,7 +20808,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 { id                : 'IMAGE_4_FR', 
   last_updated      : '2011-09-16', 
   cache_dependency  : 'images_cache',
-  cache_properties : ['alt', 'alt_length', 'dom_element:role', 'dom_element:computed_style:at'],
+  cache_properties  : ['has_alt_attribute', 'alt_length', 'role', 'at'],
   language          : "fr",
   validate          : function (dom_cache, rule_result) {
       
@@ -19968,18 +20817,20 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     
     var i;
     var ie;
+    var de;
     var image_elements   = dom_cache.images_cache.image_elements;
     var image_elements_len = image_elements.length;
        
     // Check to see if valid cache reference
     if (image_elements && image_elements_len) {
     
-      for (i=0; i < image_elements_len; i++) {
+      for (i = 0; i < image_elements_len; i++) {
         ie = image_elements[i];
+        de = ie.dom_element;
      
-        if (ie.dom_element.hasAttrWithValue('role', 'presentation') ||
-            ie.dom_element.computed_style.at != OpenAjax.a11y.VISIBILITY.VISIBLE ||
-            !ie.has_alt) {     
+        if (de.hasAttrWithValue('role', 'presentation') ||
+            de.computed_style.is_visible_to_at != OpenAjax.a11y.VISIBILITY.VISIBLE ||
+            !de.has_alt_attribute) {     
           rule_result.addResult(SEVERITY.NA, ie, 'MESSAGE_NA', []);     
         }
         else {      
@@ -20003,7 +20854,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 { id                : 'IMAGE_5', 
   last_updated      : '2011-09-16', 
   cache_dependency  : 'images_cache',
-  cache_properties : ['alt', 'height', 'width', 'dom_element:role', 'dom_element:computed_style:at'],
+  cache_properties  : ['has_alt_attribute', 'height', 'width', 'role', 'at'],
   language          : "",
   validate          : function (dom_cache, rule_result) {
 
@@ -20011,23 +20862,25 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 
     var i;
     var ie;
+    var de;
     var image_elements   = dom_cache.images_cache.image_elements;
     var image_elements_len = image_elements.length;
 
     // Check to see if valid cache reference
     if (image_elements && image_elements_len) {
      
-      for (i=0; i < image_elements_len; i++) {
+      for (i = 0; i < image_elements_len; i++) {
         ie = image_elements[i];     
+        de = ie.dom_element;
 
-        if (ie.dom_element.hasAttrWithValue('role', 'presentation') ||
-            ie.dom_element.computed_style.at != OpenAjax.a11y.VISIBILITY.VISIBLE ||
-            !ie.has_alt) {     
+        if (de.hasAttrWithValue('role', 'presentation') ||
+            de.computed_style.is_visible_to_at != OpenAjax.a11y.VISIBILITY.VISIBLE ||
+            !de.has_alt_attribute) {     
           rule_result.addResult(SEVERITY.NA, ie, 'MESSAGE_NA', []);     
         }
         else {      
           if ((ie.height == 1 || ie.width == 1) && ie.alt_length > 0 ) {
-            rule_result.addResult(rule_result.rule_severity, ie, 'MESSAGE_ALT_NOT_EMPTY', []);     
+            rule_result.addResult(SEVERITY.FAIL, ie, 'MESSAGE_ALT_NOT_EMPTY', []);     
           }
           else {      
             rule_result.addResult(SEVERITY.NA, ie, 'MESSAGE_PASS', []);     
@@ -20046,7 +20899,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 { id                : 'IMAGE_6', 
   last_updated      : '2011-09-16', 
   cache_dependency  : 'images_cache',
-  cache_properties : ['alt', 'height', 'width', 'dom_element:role', 'dom_element:computed_style:at'],
+  cache_properties  : ['alt', 'height', 'width', 'role', 'at'],
   language          : "",
   validate          : function (dom_cache, rule_result) {
     
@@ -20054,6 +20907,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 
     var i;
     var ie;
+    var de;
     var image_elements   = dom_cache.images_cache.image_elements;
     var image_elements_len = image_elements.length;
 
@@ -20061,12 +20915,13 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     if (image_elements && image_elements_len) {
      
       for (i=0; i < image_elements_len; i++) {
-        ie = image_elements[i];   
+        ie = image_elements[i];
+        de = ie.dom_element;
 
-        if (ie.dom_element.computed_style.at != OpenAjax.a11y.VISIBILITY.VISIBLE) {
+        if (de.computed_style.is_visible_to_at != OpenAjax.a11y.VISIBILITY.VISIBLE) {
  
-          if (ie.has_alt && ie.alt_length === 0) {     
-            rule_result.addResult(rule_result.rule_severity, ie, 'MESSAGE_VERIFY', []);     
+          if (de.has_alt_attribute && ie.alt_length === 0) {     
+            rule_result.addResult(SEVERITY.FAIL, ie, 'MESSAGE_VERIFY', []);     
           }
           else {      
             rule_result.addResult(SEVERITY.NA, ie, 'MESSAGE_NA', []);     
@@ -20119,7 +20974,10 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   cache_properties : ['height', 'width', 'graphical'],
   language          : "",
   validate          : function (dom_cache, rule_result) {
-      
+
+   var SEVERITY   = OpenAjax.a11y.SEVERITY;
+   var VISIBILITY = OpenAjax.a11y.VISIBILITY;
+
    var i;   
    var MIN_HEIGHT = 12;
    var MIN_WIDTH = 12;
@@ -20143,7 +21001,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
      
      // test if link is visible in a graphical rendering
      
-     if (computed_style.graphical == OpenAjax.a11y.VISIBILITY.VISIBLE) {
+     if (computed_style.is_visible_onscreen == OpenAjax.a11y.VISIBILITY.VISIBLE) {
      
       if (link_element.href && link_element.href.length) {       
        
@@ -20155,11 +21013,11 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
           rule_result.addResult(OpenAjax.a11y.SEVERITY.PASS, link_element, 'MESSAGE_PASS', [link_element.height, link_element.width, MIN_HEIGHT, MIN_WIDTH]);
         }
         else {
-         rule_result.addResult(rule_result.rule_severity, link_element, 'MESSAGE_TO_SMALL', [link_element.height, link_element.width, MIN_HEIGHT, MIN_WIDTH]);
+         rule_result.addResult(SEVERITY.FAIL, link_element, 'MESSAGE_TO_SMALL', [link_element.height, link_element.width, MIN_HEIGHT, MIN_WIDTH]);
         }
        }
        else {
-         rule_result.addResult(rule_result.MANUAL_EVALUATION, link_element, 'MESSAGE_MANUAL', []);
+         rule_result.addResult(rule_result.MANUAL_CHECK, link_element, 'MESSAGE_MANUAL', []);
        }
       } 
       else {
@@ -20223,7 +21081,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
             rule_result.addResult(SEVERITY.PASS, le, 'MESSAGE_PASS', [link_elements_len]);
           }
           else {
-            rule_result.addResult(rule_result.rule_severity, le, 'MESSAGE_FAIL', [link_elements_len]);          
+            rule_result.addResult(SEVERITY.FAIL, le, 'MESSAGE_FAIL', [link_elements_len]);          
           }
         } // end loop
         
@@ -20281,7 +21139,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
             rule_result.addResult(SEVERITY.PASS, le, 'MESSAGE_PASS', [link_elements_len]);
           }
           else {
-            rule_result.addResult(rule_result.rule_severity, le, 'MESSAGE_FAIL', [link_elements_len]);          
+            rule_result.addResult(SEVERITY.FAIL, le, 'MESSAGE_FAIL', [link_elements_len]);          
           }
         } // end loop
         
@@ -20345,7 +21203,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 
         if (le.isListOfLinks(MINIMUM_LI_ELEMENTS)) {
           if (le.dom_element.hasAttrWithValue('role', 'navigation')) {
-            rule_result.addResult(rule_result.rule_severity, le, 'MESSAGE_ROLE_NAV_ON_LIST',
+            rule_result.addResult(SEVERITY.FAIL, le, 'MESSAGE_ROLE_NAV_ON_LIST',
                                     [le.dom_element.tag_name]);
           }
           else {
@@ -20353,7 +21211,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
               rule_result.addResult(SEVERITY.PASS, le, 'MESSAGE_HAS_ROLE_NAV', [le.dom_element.tag_name]);
             }
             else {
-              rule_result.addResult(rule_result.rule_severity, le, 'MESSAGE_MISSING_ROLE_NAV',
+              rule_result.addResult(SEVERITY.FAIL, le, 'MESSAGE_MISSING_ROLE_NAV',
                                       [le.dom_element.tag_name]);
             }
           }
@@ -20414,7 +21272,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         me = media_elements[i];
         tag_name = me.dom_element.tag_name;
 
-        if (me.dom_element.computed_style.at === VISIBILITY.VISIBLE) {
+        if (me.dom_element.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
         
           if (me.is_audio === MEDIA.YES || me.is_audio === MEDIA.MAYBE) {
             if (me.has_text_alternative === MEDIA.YES) {
@@ -20422,10 +21280,10 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
             }
             else {          
               if (me.is_audio === MEDIA.MAYBE) {
-                rule_result.addResult(SEVERITY.MANUAL_EVALUATION, me, 'MESSAGE_MAYBE', [tag_name]);            
+                rule_result.addResult(SEVERITY.MANUAL_CHECK, me, 'MESSAGE_MAYBE', [tag_name]);            
               }
               else {
-                rule_result.addResult(SEVERITY.MANUAL_EVALUATION, me, 'MESSAGE_FAIL', []);
+                rule_result.addResult(SEVERITY.MANUAL_CHECK, me, 'MESSAGE_FAIL', []);
               }
             }
           }
@@ -20465,7 +21323,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         me = media_elements[i];
         tag_name = me.dom_element.tag_name;
 
-        if (me.dom_element.computed_style.at === VISIBILITY.VISIBLE) {
+        if (me.dom_element.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
         
           if (me.is_video === MEDIA.YES || me.is_video === MEDIA.MAYBE) {
           
@@ -20474,10 +21332,10 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
             }
             else {
               if (me.is_video === MEDIA.MAYBE) {
-                rule_result.addResult(SEVERITY.MANUAL_EVALUATION, me, 'MESSAGE_MAYBE', [tag_name]);            
+                rule_result.addResult(SEVERITY.MANUAL_CHECK, me, 'MESSAGE_MAYBE', [tag_name]);            
               }
               else {
-                rule_result.addResult(SEVERITY.MANUAL_EVALUATION, me, 'MESSAGE_FAIL', []);
+                rule_result.addResult(SEVERITY.MANUAL_CHECK, me, 'MESSAGE_FAIL', []);
               }
             }
           }
@@ -20545,7 +21403,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 
          if (te.is_data_table) {
      
-           if (te.dom_element.computed_style.at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
+           if (te.dom_element.computed_style.is_visible_to_at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
       
              info_row = te.headerCellsInFirstRow(); 
              
@@ -20569,19 +21427,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
                    rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS_COLUMN', [info_column.total]);     
                  }
                  else {
-                   switch (rule_result.rule_severity) {
-                   case SEVERITY.VIOLATION:
-                     rule_result.addResult(rule_result.rule_severity, te, 'MESSAGE_VIOLATION', [info_row.th_count, info_row.total, info_column.th_count, info_column.total]);
-                     break;
-                     
-                   case SEVERITY.RECOMMENDATION:
-                     rule_result.addResult(rule_result.rule_severity, te, 'MESSAGE_RECOMMENDATION', [info_row.th_count, info_row.total, info_column.th_count, info_column.total]);
-                     break;
-                     
-                   default:
-                     rule_result.addResult(rule_result.rule_severity, te, 'MESSAGE_MANUAL', [info_row.th_count, info_row.total, info_column.th_count, info_column.total]);
-                     break;
-                   } // end switch  
+                   rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_VIOLATION', [info_row.th_count, info_row.total, info_column.th_count, info_column.total]);
                  }  
                }  
              }
@@ -20627,7 +21473,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
        
          if (te.is_data_table) {
        
-           if (te.dom_element.computed_style.at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
+           if (te.dom_element.computed_style.is_visible_to_at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
        
              if ((te.effective_caption && te.effective_caption.length > 0) ||
                  (te.effective_summary && te.effective_summary.length > 0)) {
@@ -20639,19 +21485,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
                }
              }
              else {
-               switch (rule_result.rule_severity) {
-               case SEVERITY.VIOLATION:
-                 rule_result.addResult(rule_result.rule_severity, te, 'MESSAGE_VIOLATION', []);
-                 break;
-                    
-               case SEVERITY.RECOMMENDATION:
-                 rule_result.addResult(rule_result.rule_severity, te, 'MESSAGE_RECOMMENDATION', []);
-                 break;
-                     
-               default:
-                 rule_result.addResult(rule_result.rule_severity, te, 'MESSAGE_MANUAL', []);
-                 break;
-               } // end switch  
+               rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_VIOLATION', []);
              }
            }
            else {
@@ -20697,26 +21531,13 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
        
          if (te.is_data_table) {
        
-           if (te.dom_element.computed_style.at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
+           if (te.dom_element.computed_style.is_visible_to_at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
        
              if (te.effective_caption && te.effective_caption.length > 0) {
                rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS', [te.effective_caption]);     
              }
              else {
-               switch (rule_result.rule_severity) {
-
-               case SEVERITY.VIOLATION:
-                 rule_result.addResult(SEVERITY.VIOLATION, te, 'MESSAGE_VIOLAION', []);
-                 break;
-
-               case SEVERITY.RECOMMENDATION:
-                 rule_result.addResult(SEVERITY.RECOMMENDATION, te, 'MESSAGE_RECOMMENDATION', []);
-                 break;
-
-               default:
-                 rule_result.addResult(rule_result.rule_severity, te, 'MESSAGE_MANUAL', []);
-                 break;
-               }
+               rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_VIOLAION', []);
              }
            }
            else {
@@ -20762,7 +21583,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
      
        for (i=0; i < table_elements_len; i++) {
          te = table_elements[i];
-         if (te.is_complex_data_table && te.dom_element.computed_style.at == VISIBILITY.VISIBLE) data_table_count++;
+         if (te.is_complex_data_table && te.dom_element.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) data_table_count++;
        } // loop
      
        for (i=0; i < table_elements_len; i++) {
@@ -20770,7 +21591,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
        
          if (te.is_data_table) {
        
-           if (te.dom_element.computed_style.at == VISIBILITY.VISIBLE) {
+           if (te.dom_element.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
        
              if (data_table_count <= 1 ) {
                rule_result.addResult(SEVERITY.NA, te, 'MESSAGE_ONLY_ONE', []);         
@@ -20780,20 +21601,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
                  rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS', [te.effective_caption]);
                } 
                else {
-                 switch (rule_result.rule_severity) {
-                 
-                 case SEVERITY.VIOLATION:
-                   rule_result.addResult(SEVERITY.VIOLATION, te, 'MESSAGE_VIOLATION', []);
-                   break;
-                   
-                 case SEVERITY.RECOMMENDATION:
-                   rule_result.addResult(SEVERITY.RECOMMENDATION, te, 'MESSAGE_RECOMMENDATION', []);
-                   break;
-                   
-                 default:
-                   rule_result.addResult(rule_result.rule_severity, te, 'MESSAGE_MANUAL', []);
-                   break;
-                 } // end switch  
+                 rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_VIOLATION', []);
                }
              }  
            }
@@ -20843,7 +21651,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
          te = table_elements[i];
       
          if (te.is_data_table) {
-           if (te.dom_element.computed_style.at == VISIBILITY.VISIBLE) {
+           if (te.dom_element.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
            
              if ((te.effective_summary && te.effective_summary.length > 0) && 
                  (te.effective_caption && te.effective_caption.length > 0)) {
@@ -20852,7 +21660,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
                  rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_UNIQUE', [te.effective_caption, te.effective_summary]);     
                }
                else {
-                 rule_result.addResult(rule_result.rule_severity, te, 'MESSAGE_NOT_UNIQUE', [te.effective_caption, te.effective_summary]);     
+                 rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_NOT_UNIQUE', [te.effective_caption, te.effective_summary]);     
                }
              }
              else {
@@ -20901,20 +21709,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
              rule_result.addResult(SEVERITY.PASS, tce, 'MESSAGE_IS_TH', []);                            
            }
            else {
-             switch (rule_result.rule_severity) {
-             
-             case SEVERITY.VIOLATION:
-               rule_result.addResult(SEVERITY.VIOLATION, tce, 'MESSAGE_VIOLATION', []);              
-               break;
-               
-             case SEVERITY.RECOMMENDATION:
-               rule_result.addResult(SEVERITY.RECOMMENDATION, tce, 'MESSAGE_RECOMMENDATION', []);              
-               break;
-               
-             default:  
-               rule_result.addResult(rule_result.rule_severity, tce, 'MESSAGE_MANUAL', []);              
-               break;
-             } // end switch  
+             rule_result.addResult(SEVERITY.FAIL, tce, 'MESSAGE_VIOLATION', []);              
            }
          } 
          
@@ -20935,8 +21730,6 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
      var te;
      var tc;
      var info;
-
-
      
      // Check to see if valid cache reference
      if (table_elements && table_elements_len) {
@@ -20945,7 +21738,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
          te = table_elements[i];
       
          if (te.is_data_table) {
-           if (te.dom_element.computed_style.at == VISIBILITY.VISIBLE) {
+           if (te.dom_element.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
              checkDataTableForUseOfTHElement(te.child_cache_elements);            
            }
            else {
@@ -20993,26 +21786,13 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
        
          if (te.is_data_table) {
        
-           if (te.dom_element.computed_style.at == VISIBILITY.VISIBLE) {
+           if (te.dom_element.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
        
              if (te.effective_summary && te.effective_summary.length > 0) {
                rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS', [te.effective_summary]);
              } 
              else {
-               switch (rule_result.rule_severity) {
-               
-               case SEVERITY.VIOLATION:
-                 rule_result.addResult(SEVERITY.VIOLATION, te, 'MESSAGE_VIOLATION', []);
-                 break;
-                 
-               case SEVERITY.RECOMMENDATION:
-                 rule_result.addResult(SEVERITY.RECOMMENDATION, te, 'MESSAGE_RECOMMENDATION', []);
-                 break;
-                   
-               default:
-                 rule_result.addResult(rule_result.rule_severity, te, 'MESSAGE_MANUAL', []);
-                 break;
-               } // end switch  
+               rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_VIOLATION', []);
              }  
            }
            else {
@@ -21066,38 +21846,12 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
                if (tce.text_content.length !== 0) {                 
                  
                  if (tce.dom_element.id_unique === ID.NOT_UNIQUE) {
-                   switch (rule_result.rule_severity) {
-             
-                   case SEVERITY.VIOLATION:
-                     rule_result.addResult(SEVERITY.VIOLATION, tce, 'MESSAGE_NOT_UNIQUE_VIOLATION', [tce.dom_element.id]);              
-                     break;
-               
-                   case SEVERITY.RECOMMENDATION:
-                     rule_result.addResult(SEVERITY.RECOMMENDATION, tce, 'MESSAGE_NOT_UNIQUE_RECOMMENDATION', [tce.dom_element.id]);              
-                     break;
-               
-                   default:  
-                     rule_result.addResult(rule_result.rule_severity, tce, 'MESSAGE_NOT_UNIQUE_MANUAL', [tce.dom_element.id]);              
-                      break;
-                   } // end switch  
+                   rule_result.addResult(SEVERITY.FAIL, tce, 'MESSAGE_NOT_UNIQUE_VIOLATION', [tce.dom_element.id]);              
                    count++;
                  }
                  else {
                    if (tce.dom_element.id_unique === ID.NOT_DEFINED) {
-                     switch (rule_result.rule_severity) {
-             
-                     case SEVERITY.VIOLATION:
-                       rule_result.addResult(SEVERITY.VIOLATION, tce, 'MESSAGE_NO_ID_VIOLATION', []);              
-                       break;
-               
-                     case SEVERITY.RECOMMENDATION:
-                       rule_result.addResult(SEVERITY.RECOMMENDATION, tce, 'MESSAGE_NO_ID_RECOMMENDATION', []);              
-                       break;
-               
-                     default:  
-                       rule_result.addResult(rule_result.rule_severity, tce, 'MESSAGE_NO_ID_MANUAL', []);              
-                        break;
-                     } // end switch  
+                     rule_result.addResult(SEVERITY.FAIL, tce, 'MESSAGE_NO_ID_VIOLATION', []);              
                      count++;
                    }
                    else {
@@ -21106,7 +21860,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
                  }
                }
                else {
-                 rule_result.addResult(SEVERITY.MANUAL_EVALUATION, tce, 'MESSAGE_NO_CONTENT', []);    
+                 rule_result.addResult(SEVERITY.MANUAL_CHECK, tce, 'MESSAGE_NO_CONTENT', []);    
                }
              break;
 
@@ -21129,7 +21883,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
        var count = 0;
        var total = 0;
 
-       if (table_element.dom_element.computed_style.at === VISIBILITY.VISIBLE) {
+       if (table_element.dom_element.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
 
          if (table_element.is_complex_data_table) { 
 
@@ -21212,27 +21966,13 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
              }
              else {
                if (tce.text_content.length) {
-               
-                 switch (rule_result.rule_severity) {
-             
-                 case SEVERITY.VIOLATION:
-                   rule_result.addResult(SEVERITY.VIOLATION, tce, 'MESSAGE_MISSING_VIOLATION', []);              
-                   break;
-               
-                 case SEVERITY.RECOMMENDATION:
-                   rule_result.addResult(SEVERITY.RECOMMENDATION, tce, 'MESSAGE_MISSING_RECOMMENDATION', []);              
-                   break;
-               
-                 default:  
-                   rule_result.addResult(rule_result.rule_severity, tce, 'MESSAGE_MISSING_MANUAL', []);              
-                   break;
-                 } // end switch  
+                 rule_result.addResult(SEVERITY.FAIL, tce, 'MESSAGE_MISSING_VIOLATION', []);              
                
                  total++;     
                  count++;
                }
                else {
-                 rule_result.addResult(SEVERITY.MANUAL_EVALUATION, tce, 'MESSAGE_DATA_CELL_IS_EMPTY', []);                                         
+                 rule_result.addResult(SEVERITY.MANUAL_CHECK, tce, 'MESSAGE_DATA_CELL_IS_EMPTY', []);                                         
                }
              }
              break;
@@ -21256,7 +21996,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
        var count = 0;
        var total = 0;
 
-       if (table_element.dom_element.computed_style.at === VISIBILITY.VISIBLE) {
+       if (table_element.dom_element.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
 
          if (table_element.is_complex_data_table) { 
 
@@ -21332,27 +22072,13 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
        
          if (te.is_complex_data_table) {
        
-           if (te.dom_element.computed_style.at == VISIBILITY.VISIBLE) {
+           if (te.dom_element.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
        
              if (te.effective_summary && te.effective_summary.length > 0) {
                rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS', [te.effective_summary]);
              } 
              else {
-             
-               switch (rule_result.rule_severity) {
-                 
-               case SEVERITY.VIOLATION:
-                 rule_result.addResult(SEVERITY.VIOLATION, te, 'MESSAGE_VIOLATION', []);
-                 break;
-                   
-               case SEVERITY.RECOMMENDATION:
-                 rule_result.addResult(SEVERITY.RECOMMENDATION, te, 'MESSAGE_RECOMMENDATION', []);
-                 break;
-                   
-               default:
-                 rule_result.addResult(rule_result.rule_severity, te, 'MESSAGE_MANUAL', []);
-                 break;
-               } // end switch  
+               rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_VIOLATION', []);
              }  
            }
            else {
@@ -21414,7 +22140,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
        
          te = table_elements[i];
          
-         if (te.dom_element.computed_style.at == VISIBILITY.VISIBLE) {
+         if (te.dom_element.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
          
            if (!te.is_data_table) {
 
@@ -21431,21 +22157,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
                  rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS_NOT_NESTED', []);               
                } 
                else {
-               
-                 switch (rule_result.rule_severity) {
-                 
-                 case SEVERITY.VIOLATION:
-                   rule_result.addResult(SEVERITY.VIOLATION, te, 'MESSAGE_VIOLATION', [te.max_column, nesting_level]);
-                   break;
-                   
-                 case SEVERITY.RECOMMENDATION:
-                   rule_result.addResult(SEVERITY.RECOMMENDATION, te, 'MESSAGE_RECOMMENDATION', [te.max_column, nesting_level]);
-                   break;
-                   
-                 default:
-                   rule_result.addResult(rule_result.rule_severity, te, 'MESSAGE_MANUAL', [te.max_column, nesting_level]);
-                   break;
-                 } // end switch  
+                 rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_VIOLATION', [te.max_column, nesting_level]);
                }  
              }
            }
@@ -21493,26 +22205,13 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
        
          te = table_elements[i];
          
-         if (te.dom_element.computed_style.at == VISIBILITY.VISIBLE) {
+         if (te.dom_element.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
          
            if (!te.is_data_table) {
                       
              if (te.max_column > 1)  {
 
-               switch (rule_result.rule_severity) {
-
-               case SEVERITY.VIOLATION:
-                 rule_result.addResult(SEVERITY.MANUAL_EVALUATION, te, 'MESSAGE_VIOLATION', [te.max_row, te.max_column]);
-                 break;
-                 
-               case SEVERITY.RECOMENDATION:
-                 rule_result.addResult(SEVERITY.MANUAL_EVALUATION, te, 'MESSAGE_RECOMMENDATION', [te.max_row, te.max_column]);
-                 break;
-                 
-               default:
-                 rule_result.addResult(SEVERITY.MANUAL_EVALUATION, te, 'MESSAGE_RECOMMENDATION', [te.max_row, te.max_column]);
-                 break;
-               } // end switch  
+               rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_VIOLATION', [te.max_row, te.max_column]);
                
              }  
              else {
@@ -21557,21 +22256,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
          rule_result.addResult(SEVERITY.PASS, element, 'MESSAGE_PASS', [de.tag_name]);       
        }
        else {
-         switch (rule_result.rule_severity) {
-
-           case SEVERITY.VIOLATION:
-             rule_result.addResult(SEVERITY.VIOLATION, element, 'MESSAGE_VIOLATION', [de.tag_name]);
-             break;
-                 
-          case SEVERITY.RECOMENDATION:
-            rule_result.addResult(SEVERITY.RECOMMENDATION, element, 'MESSAGE_RECOMMENDATION', [de.tag_name]);
-            break;
-                 
-          default:
-            rule_result.addResult(rule_result.rule_severity, element, 'MESSAGE_RECOMMENDATION', [de.tag_name]);
-            break;
-          } // end switch         
-          
+         rule_result.addResult(SEVERITY.FAIL, element, 'MESSAGE_VIOLATION', [de.tag_name]);
        }
 
        for (j = 0; j < cce_len; j++) {
@@ -21598,7 +22283,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
        
          te = table_elements[i];
          
-         if (te.dom_element.computed_style.at == VISIBILITY.VISIBLE) {
+         if (te.dom_element.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
          
            if (!te.is_data_table) {
              checkLayoutTableForRolePresentation(te);
@@ -21654,7 +22339,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
               rule_result.addResult(SEVERITY.PASS, me, 'MESSAGE_HAS_TITLE', []);              
             }
             else {
-              rule_result.addResult(rule_result.rule_severity, me, 'MESSAGE_NO_TITLE', []);
+              rule_result.addResult(SEVERITY.FAIL, me, 'MESSAGE_NO_TITLE', []);
             }
           }
         }
@@ -21701,7 +22386,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
                 rule_result.addResult(SEVERITY.PASS, me, 'MESSAGE_H1_IS_LABEL', []);
               }                 
               else {
-                rule_result.addResult(rule_result.rule_severity, me, 'MESSAGE_H1_NOT_LABEL', []);
+                rule_result.addResult(SEVERITY.FAIL, me, 'MESSAGE_H1_NOT_LABEL', []);
               }
             }
             else {
@@ -21745,14 +22430,14 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         for (i=0; i<main_elements_len; i++ ) {
           me = main_elements[i];
 
-          if (me.dom_element.computed_style.at === VISIBILITY.VISIBLE) {
+          if (me.dom_element.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
 
             if (me.dom_element.main_type == OpenAjax.a11y.MAIN.H1_ELEMENT) { 
               if (me.is_label_for_main) {
                 rule_result.addResult(SEVERITY.PASS, me, 'MESSAGE_H1_IS_LABEL', []);
               }                 
               else {
-                rule_result.addResult(rule_result.rule_severity, me, 'MESSAGE_H1_NOT_LABEL', []);
+                rule_result.addResult(SEVERITY.FAIL, me, 'MESSAGE_H1_NOT_LABEL', []);
               }
             }  
           }  
@@ -21791,11 +22476,22 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 
 OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
 
-  name : {
+  title : {
     'default' : "WCAG 2.0 Transitional",
     'en-us'   : "WCAG 2.0 Transitional"
   },   
+
+  description : {
+    'default' : "Transitional ruleset based on current WCAG 2.0 sufficient techniques, when relavent techniques are available.  Recommendations are based on web accessibility and usability best practices using the features of the HTML and ARIA specifications.",
+    'en-us'   : "Transitional ruleset based on current WCAG 2.0 sufficient techniques, when relavent techniques are available.  Recommendations are based on web accessibility and usability best practices using the features of the HTML and ARIA specifications."  
+  },
   
+  author : {
+    name : "OpenAjax Accessibility Working Group",
+    url  : "http://www.openajax.org/member/wiki/Accessibility"
+  } , 
+  
+ 
   id            : "WCAG20_TRANS",
   version       : "1.0",
   last_updated  : "2012-01-19",
@@ -21825,7 +22521,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Image 1
                 //
                 'IMAGE_1' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -21834,7 +22530,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Image 2
                 //
                 'IMAGE_2' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -21843,7 +22539,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Image 3
                 //
                 'IMAGE_3' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -21852,7 +22548,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Image 4 engish
                 //
                 'IMAGE_4_EN' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -21861,7 +22557,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Image 4 french
                 //
                 'IMAGE_4_FR' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -21870,7 +22566,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Image 5
                 //
                 'IMAGE_5' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -21879,7 +22575,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Image 6
                 //
                 'IMAGE_6' : {
-                   severity : OpenAjax.a11y.SEVERITY.MANUAL_EVALUATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -21903,7 +22599,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Media 1
                 //
                 'MEDIA_1' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -21912,7 +22608,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Image 6
                 //
                 'MEDIA_2' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22001,7 +22697,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Table
                 //
                 'TABLE_1' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22011,7 +22707,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Table
                 //
                 'TABLE_2T' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P2,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22021,7 +22717,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Table 
                 //
                 'TABLE_2S' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P2,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22031,7 +22727,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Table 
                 //
                 'TABLE_2M' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P2,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22041,7 +22737,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Table 
                 //
                 'TABLE_3' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22051,7 +22747,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Table 
                 //
                 'TABLE_4' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22061,7 +22757,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Table 
                 //
                 'TABLE_5' : {
-                   severity : OpenAjax.a11y.SEVERITY.MANUAL_EVALUATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22071,7 +22767,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Table 
                 //
                 'TABLE_6' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22081,7 +22777,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Table 
                 //
                 'TABLE_7' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22091,7 +22787,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Table 
                 //
                 'TABLE_8' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22101,7 +22797,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Landmark/Header
                 //
                 'LANDMARK_1' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22111,7 +22807,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group List
                 //
                 'LIST_1' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22129,7 +22825,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Style: Table Rule
                 //
                 'LAYOUT_1' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22139,7 +22835,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Style: Table Rule
                 //
                 'LAYOUT_2' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22149,7 +22845,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Style: Table Rule
                 //
                 'LAYOUT_3' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22198,7 +22894,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Style: Link Rule
                 //
                 'COLOR_1' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22225,7 +22921,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Style: Link Rule
                 //
                 'HEADING_6' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22242,7 +22938,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Color 2
                 //
                 'COLOR_2' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22402,7 +23098,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group 11: 
                 //
                 'HEADING_1' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22420,7 +23116,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group 11: 
                 //
                 'TITLE_1' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22430,7 +23126,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group 11: 
                 //
                 'TITLE_2' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22440,7 +23136,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group 
                 //
                 'TITLE_3' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22466,7 +23162,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group 11: Link Rule
                 //
                 'LINK_1' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P2,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22492,7 +23188,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Headings and Landmarks
                 //
                 'HEADING_2' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22502,7 +23198,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Headings and Landmarks
                 //
                 'HEADING_3' : {
-                   severity : OpenAjax.a11y.SEVERITY.MANUAL_EVALUATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22512,7 +23208,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Headings and Landmarks
                 //
                 'HEADING_8_EN' : {
-                   severity : OpenAjax.a11y.SEVERITY.MANUAL_EVALUATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22522,7 +23218,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Controls
                 //
                 'CONTROL_10' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22532,7 +23228,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Controls
                 //
                 'CONTROL_11' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22565,7 +23261,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group 11: Link Rule
                 //
                 'LINK_2' : {
-                   severity : OpenAjax.a11y.SEVERITY.INFORMATIONAL,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P3,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22575,7 +23271,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group 11: Link Rule
                 //
                 'LINK_3' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22593,7 +23289,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Headings and Landmarks
                 //
                 'HEADING_4' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22603,7 +23299,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Headings and Landmarks
                 //
                 'HEADING_5' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22613,7 +23309,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Headings and Landmarks
                 //
                 'HEADING_7' : {
-                   severity : OpenAjax.a11y.SEVERITY.WARNING,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22757,7 +23453,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Controls
                 //
                 'CONTROL_1' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22767,7 +23463,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Controls
                 //
                 'CONTROL_2' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22777,7 +23473,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Controls
                 //
                 'CONTROL_3' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22787,7 +23483,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Controls
                 //
                 'CONTROL_4' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22797,7 +23493,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Controls
                 //
                 'CONTROL_5' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22807,7 +23503,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Controls
                 //
                 'CONTROL_6' : {
-                   severity : OpenAjax.a11y.SEVERITY.WARNING,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22817,7 +23513,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Controls
                 //
                 'CONTROL_7' : {
-                   severity : OpenAjax.a11y.SEVERITY.WARNING,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22827,7 +23523,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Controls
                 //
                 'CONTROL_8' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22837,7 +23533,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Controls
                 //
                 'CONTROL_9' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -22933,20 +23629,26 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
  */
 
 /* --------------------------------------------------------------------------- */
-/* OpenAjax Alliance (OAA) Ruleset for WCAG 2.0 Transitional (Beta)           */
+/* OpenAjax Alliance (OAA) Ruleset for WCAG 2.0 (Beta)           */
 /* --------------------------------------------------------------------------- */
    
 
 OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
 
-  name : {
-    'default' : "WCAG 2.0 ARIA",
-    'en-us'   : "WCAG 2.0 ARIA"
+  title : {
+    'default' : "WCAG 2.0 ARIA Strict",
+    'en-us'   : "WCAG 2.0 ARIA Strict"
   },   
   
   description : {
-  
+    'default' : "WCAG 2.0 ARIA strict ruleset is based on best practice design patterns to improve accessibility and usability with the features available with HTML and ARIA specifications to meet WCAG 2.0 success criteria.",
+    'en-us'   : "WCAG 2.0 ARIA strict ruleset is based on best practice design patterns to improve accessibility and usability with the features available with HTML and ARIA specifications to meet WCAG 2.0 success criteria."  
   },
+  
+  author : {
+    name : "OpenAjax Accessibility Working Group",
+    url  : "http://www.openajax.org/member/wiki/Accessibility"
+  } , 
   
   id            : "WCAG20_ARIA",
   version       : "1.0",
@@ -22977,25 +23679,25 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Image 1
                 //
                 'IMAGE_1' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
-                   priority : OpenAjax.a11y.PRIORITY.P1,
-                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
-                   enabled  : true
+                  type     : OpenAjax.a11y.RULE.REQUIRED,
+                  priority : OpenAjax.a11y.PRIORITY.P1,
+                  status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                  enabled  : true
                 },
                 //
                 // Image 2
                 //
                 'IMAGE_2' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
-                   priority : OpenAjax.a11y.PRIORITY.P1,
-                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
-                   enabled  : true
+                  type     : OpenAjax.a11y.RULE.REQUIRED,
+                  priority : OpenAjax.a11y.PRIORITY.P1,
+                  status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                  enabled  : true
                 },
                 //
                 // Image 3
                 //
                 'IMAGE_3' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23004,7 +23706,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Image 4 engish
                 //
                 'IMAGE_4_EN' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23013,7 +23715,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Image 4 french
                 //
                 'IMAGE_4_FR' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23022,7 +23724,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Image 5
                 //
                 'IMAGE_5' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23031,10 +23733,10 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Image 6
                 //
                 'IMAGE_6' : {
-                   severity : OpenAjax.a11y.SEVERITY.MANUAL_EVALUATION,
-                   priority : OpenAjax.a11y.PRIORITY.P1,
-                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
-                   enabled  : true
+                  type     : OpenAjax.a11y.RULE.REQUIRED,
+                  priority : OpenAjax.a11y.PRIORITY.P1,
+                  status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                  enabled  : true
                 }
               }
             }
@@ -23055,7 +23757,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Media 1
                 //
                 'MEDIA_1' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23064,7 +23766,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Image 6
                 //
                 'MEDIA_2' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23153,7 +23855,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Table
                 //
                 'TABLE_1' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23163,7 +23865,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Table
                 //
                 'TABLE_2T' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P2,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23173,7 +23875,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Table 
                 //
                 'TABLE_2S' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P2,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23183,7 +23885,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Table 
                 //
                 'TABLE_2M' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P2,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23193,7 +23895,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Table 
                 //
                 'TABLE_3' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23203,7 +23905,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Table 
                 //
                 'TABLE_4' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23213,7 +23915,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Table 
                 //
                 'TABLE_5' : {
-                   severity : OpenAjax.a11y.SEVERITY.MANUAL_EVALUATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23223,7 +23925,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Table 
                 //
                 'TABLE_6' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23233,7 +23935,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Table 
                 //
                 'TABLE_7' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23243,7 +23945,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Table 
                 //
                 'TABLE_8' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23253,7 +23955,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Landmark/Header
                 //
                 'LANDMARK_1' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23263,7 +23965,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group List
                 //
                 'LIST_1' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23281,7 +23983,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Style: Table Rule
                 //
                 'LAYOUT_1' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23291,7 +23993,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Style: Table Rule
                 //
                 'LAYOUT_2' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23301,7 +24003,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Style: Table Rule
                 //
                 'LAYOUT_3' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23350,7 +24052,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Style: Link Rule
                 //
                 'COLOR_1' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23377,7 +24079,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Style: Link Rule
                 //
                 'HEADING_6' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23394,7 +24096,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Color 2
                 //
                 'COLOR_2' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23554,7 +24256,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group 11: 
                 //
                 'HEADING_1' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23572,7 +24274,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group 11: 
                 //
                 'TITLE_1' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23582,7 +24284,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group 11: 
                 //
                 'TITLE_2' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23592,7 +24294,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group 
                 //
                 'TITLE_3' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23618,7 +24320,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group 11: Link Rule
                 //
                 'LINK_1' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P2,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23644,7 +24346,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Headings and Landmarks
                 //
                 'HEADING_2' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23654,7 +24356,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Headings and Landmarks
                 //
                 'HEADING_3' : {
-                   severity : OpenAjax.a11y.SEVERITY.MANUAL_EVALUATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23664,7 +24366,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Headings and Landmarks
                 //
                 'HEADING_8_EN' : {
-                   severity : OpenAjax.a11y.SEVERITY.MANUAL_EVALUATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23674,7 +24376,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Controls
                 //
                 'CONTROL_10' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23684,7 +24386,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Controls
                 //
                 'CONTROL_11' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23717,7 +24419,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group 11: Link Rule
                 //
                 'LINK_2' : {
-                   severity : OpenAjax.a11y.SEVERITY.INFORMATIONAL,
+                   type     : OpenAjax.a11y.SEVERITY.INFORMATIONAL,
                    priority : OpenAjax.a11y.PRIORITY.P3,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23727,7 +24429,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group 11: Link Rule
                 //
                 'LINK_3' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23745,7 +24447,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Headings and Landmarks
                 //
                 'HEADING_4' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23755,7 +24457,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Headings and Landmarks
                 //
                 'HEADING_5' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23765,7 +24467,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Headings and Landmarks
                 //
                 'HEADING_7' : {
-                   severity : OpenAjax.a11y.SEVERITY.WARNING,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23909,7 +24611,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Controls
                 //
                 'CONTROL_1' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23919,7 +24621,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Controls
                 //
                 'CONTROL_2' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23929,7 +24631,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Controls
                 //
                 'CONTROL_3' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23939,7 +24641,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Controls
                 //
                 'CONTROL_4' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23949,7 +24651,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Controls
                 //
                 'CONTROL_5' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23959,7 +24661,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Controls
                 //
                 'CONTROL_6' : {
-                   severity : OpenAjax.a11y.SEVERITY.WARNING,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23969,7 +24671,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Controls
                 //
                 'CONTROL_7' : {
-                   severity : OpenAjax.a11y.SEVERITY.WARNING,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23979,7 +24681,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Controls
                 //
                 'CONTROL_8' : {
-                   severity : OpenAjax.a11y.SEVERITY.VIOLATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23989,7 +24691,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group: Controls
                 //
                 'CONTROL_9' : {
-                   severity : OpenAjax.a11y.SEVERITY.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true

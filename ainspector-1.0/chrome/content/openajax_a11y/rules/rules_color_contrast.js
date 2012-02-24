@@ -2,7 +2,7 @@
 // OpenAjax Alliance Rules 
 // Rule group: Styling Rules
 //
-OpenAjax.a11y.addRules([
+OpenAjax.a11y.all_rules.addRulesFromJSON([
       
  // ------------------------
  // Color 1: Color contrast ratio must be > 4.5 for normal text, or > 3.1 for large text
@@ -10,18 +10,17 @@ OpenAjax.a11y.addRules([
  // 
  // Last update: 2011-03-31
  // ------------------------
-	     
+ 
  {
-   id              : 'COLOR_1', 
-   lastUpdated     : '2011-07-11', 
-   cacheDependency : 'color_contrast_cache',
-   cacheProperties : ['font_size', 'font_weight', 'color_hex', 'background_color_hex', 'background_image', 'color_contrast_ratio'],
-   language        : "",
-   enabled         : true,  
-   validate    : function (dom_cache, rule_result) {
+   id                : 'COLOR_1', 
+   last_updated      : '2011-07-11', 
+   cache_dependency  : 'color_contrast_cache',
+   cache_properties : ['color_hex', 'background_color_hex', 'background_image', 'is_large_font', 'color_contrast_ratio'],
+   language          : "",
+   validate          : function (dom_cache, rule_result) {
   
       var MIN_CCR_NORMAL_FONT = 4.5;
-      var MIN_CCR_LARGE_FONT =  3.1;
+      var MIN_CCR_LARGE_FONT  = 3.1;
   
       var SEVERITY = OpenAjax.a11y.SEVERITY;
   
@@ -41,7 +40,10 @@ OpenAjax.a11y.addRules([
       for (i=0; i<color_contrast_len; i++) {
    
         cci = dom_cache.color_contrast_cache.color_contrast_items[i];
-   
+
+        // if color contrast raio is undefined, skip this item
+        if (!cci.color_contrast_ratio) continue;
+
         if ((cci.color_contrast_ratio >= MIN_CCR_NORMAL_FONT) ||
           ((cci.color_contrast_ratio >= MIN_CCR_LARGE_FONT) && (cci.is_large_font))) {
      
@@ -52,7 +54,7 @@ OpenAjax.a11y.addRules([
             args = [cci.color_contrast_ratio];
           }
           else {
-            severity = SEVERITY.MANUAL_EVALUATION;
+            severity = SEVERITY.MANUAL_CHECK;
             message_id = 'MESSAGE_MANUAL_PASS';
             args = [cci.color_contrast_ratio];
           }           
@@ -61,12 +63,12 @@ OpenAjax.a11y.addRules([
         
           // Fails color contrast requirements
           if (cci.background_image == "none") {
-            severity  = rule_result.rule_severity;
+            severity  = SEVERITY.FAIL;
             message_id = 'MESSAGE_FAIL';
             args = [cci.color_contrast_ratio];
           }
           else {
-            severity  = SEVERITY.MANUAL_EVALUATION;
+            severity  = SEVERITY.MANUAL_CHECK;
             message_id = 'MESSAGE_MANUAL_FAIL';
             args = [cci.color_contrast_ratio];
           }     
@@ -78,7 +80,7 @@ OpenAjax.a11y.addRules([
 
         for (j=0; j<dom_elements_len; j++) {
           de = cci.dom_elements[j];
-          if (de.computed_style.graphical === OpenAjax.a11y.VISIBILITY.VISIBLE) {
+          if (de.computed_style.is_visible_onscreen === OpenAjax.a11y.VISIBILITY.VISIBLE) {
             rule_result.addResult(severity, de, message_id, args);
           } 
           else {
@@ -99,13 +101,12 @@ OpenAjax.a11y.addRules([
  // ------------------------
 	     
  {
-   id       : 'COLOR_2', 
-   lastUpdated   : '2011-07-11', 
-   cacheDependency : 'color_contrast_cache',
-   cacheProperties : ['font_size', 'font_weight', 'color_hex', 'background_color_hex', 'background_image', 'color_contrast_ratio'],
-   language    : "",
-   enabled     : true,  
-   validate    : function (dom_cache, rule_result) {
+   id                : 'COLOR_2', 
+   last_updated      : '2011-07-11', 
+   cache_dependency  : 'color_contrast_cache',
+   cache_properties  : ['color_hex', 'background_color_hex', 'background_image', 'is_large_font', 'color_contrast_ratio'],
+   language          : "",
+   validate          : function (dom_cache, rule_result) {
   
       var MIN_CCR_NORMAL_FONT = 7;
       var MIN_CCR_LARGE_FONT = 4.5;
@@ -126,9 +127,12 @@ OpenAjax.a11y.addRules([
       var args = [];
 
      
-      for (i=0; i<color_contrast_len; i++) {
+      for (i = 0; i < color_contrast_len; i++) {
    
         cci = dom_cache.color_contrast_cache.color_contrast_items[i];
+        
+        // if color contrast raio is undefined, skip this item
+        if (!cci.color_contrast_ratio) continue;
    
         if ((cci.color_contrast_ratio >= MIN_CCR_NORMAL_FONT) ||
           ((cci.color_contrast_ratio >= MIN_CCR_LARGE_FONT) && (cci.is_large_font))) {
@@ -140,7 +144,7 @@ OpenAjax.a11y.addRules([
             args = [cci.color_contrast_ratio];
           }
           else {
-            severity = SEVERITY.MANUAL_EVALUATION;
+            severity = SEVERITY.MANUAL_CHECK;
             message_id = 'MESSAGE_MANUAL_PASS';
             args = [cci.color_contrast_ratio];
           }           
@@ -149,12 +153,12 @@ OpenAjax.a11y.addRules([
         
           // Fails color contrast requirements
           if (cci.background_image == "none") {
-            severity  = rule_result.rule_severity;
+            severity  = SEVERITY.FAIL;
             message_id = 'MESSAGE_FAIL';
             args = [cci.color_contrast_ratio];
           }
           else {
-            severity  = SEVERITY.MANUAL_EVALUATION;
+            severity  = SEVERITY.MANUAL_CHECK;
             message_id = 'MESSAGE_MANUAL_FAIL';
             args = [cci.color_contrast_ratio];
           }     
@@ -166,7 +170,7 @@ OpenAjax.a11y.addRules([
 
         for (j=0; j<dom_elements_len; j++) {
           de = cci.dom_elements[j];
-          if (de.computed_style.graphical === OpenAjax.a11y.VISIBILITY.VISIBLE) {
+          if (de.computed_style.is_visible_onscreen === OpenAjax.a11y.VISIBILITY.VISIBLE) {
             rule_result.addResult(severity, de, message_id, args);
           } 
           else {
@@ -177,8 +181,7 @@ OpenAjax.a11y.addRules([
       } // end loop    
     }
   }
-       
-      
+
  ]); 
 
 

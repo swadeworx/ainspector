@@ -1,56 +1,77 @@
-  // ****************************************************** 
-  //
-  // Copyright 2011 OpenAjax Alliance
-  //
-  // Licensed under the Apache License, Version 2.0 (the "License");
-  // you may not use this file except in compliance with the License.
-  // You may obtain a copy of the License at
-  //
-  //  http://www.apache.org/licenses/LICENSE-2.0
-  //
-  // Unless required by applicable law or agreed to in writing, software
-  // distributed under the License is distributed on an "AS IS" BASIS,
-  // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  // See the License for the specific language governing permissions and
-  // limitations under the License.
-  //
-  // ****************************************************** 
-  
+/*
+ * Copyright 2011 and 2012 OpenAjax Alliance
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
- /** ===============================================================
+ 
+/**
+ * @constructor DOMElementComputedStyle
  *
- * DOMElementComputedStyle
+ * @memberOf OpenAjax.a11y.cache
+ * 
+ * @desc Create a dom element computed style object is used to add style properties to dom element cache objects 
+ * 
+ * @param  {DOMElement}  dom_element     - dom element node to add computed style information to 
+ * @param  {DOMElement}  parent_element  - parent dom element node for computing inherited properties 
  *
- * DOMElementComputedStyle is used to add common properties to cache objects 
+ * @property  {String}  display     - Computed value of the CSS 'display' property
+ * @property  {String}  visibility  - Computed value of the CSS 'visibility' property
  *
- * @param  node       Object  dom node object 
- * @param  parent_style   Object  DOMElementComputedStyle of the parent node from the DOM 
+ * @property  {Number}  graphical   - Constant representing the graphical visibility of the element (i.e is it visible to people with sight)
+ * @property  {Number}  at          - Constant representing the assistive technology visibility of the element (i.e is it visible to people using a screen reader)
+ * 
+ * @property  {String}  color                 - Computed value of the CSS 'color' property
+ * @property  {String}  color_hex             - Computed value of the CSS 'color' property in hexidecimal format
+ * @property  {String}  opacity               - Computed value of the CSS 'opacity' property
+ * @property  {String}  background_color      - Computed value of the CSS 'background-color' property
+ * @property  {String}  background_color_hex  - Computed value of the CSS 'background-color' property in hexidecimal format
+ * @property  {String}  background_image      - Computed value of the CSS 'background-image' property
+ * @property  {String}  background_repeat     - Computed value of the CSS 'background-repeat' property
+ * @property  {String}  background_position   - Computed value of the CSS 'background-position' property
  *
- * @return  DOMElementComputedStyle 
+ * @property  {String}  font_family  - Computed value of the CSS 'font-family' property
+ * @property  {String}  font_size    - Computed value of the CSS 'font-size' property
+ * @property  {String}  font_weight  - Computed value of the CSS 'font-weight' property
  *
- ================================================================ */
+ * @property  {String}  position  - Computed value of the CSS 'position' property
+ * @property  {String}  left      - Computed value of the CSS 'left' property  
+ * @property  {String}  top       - Computed value of the CSS 'top' property
+ * @property  {String}  width     - Computed value of the width of the rendered element in pixels  
+ * @property  {String}  height    - Computed value of the height of the rendered element in pixels
+ */
  
 OpenAjax.a11y.cache.DOMElementComputedStyle = function (dom_element, parent_element) {
 
- function normalizeBackgroundImage(value, parent_element) {
+  function normalizeBackgroundImage(value, parent_element) {
 
-  var v = value;
+    var v = value;
 
-  if ((v === undefined) || 
-    (v == 'inherit') || 
-    (v === '')) {
+    if ((value.toLowerCase() === 'inherit') || 
+        (value.toLowerCase() === 'none') || 
+        (value === '')) {
     
-   if (parent_element) {  
-    v = parent_style.background_image;
-   }
-   else {
-    v = 'none';
-   }
-  }  
+      if (parent_element) {  
+        v = parent_element.computed_style.background_image;
+      }
+      else {
+        v = 'none';
+      }
+    }  
   
-  return v;
+    return v;
   
- } // end function
+  } // end function
 
  function  normalizeFontSize(value, parent_element) {
   if (value.toLowerCase() == 'inherit') {
@@ -128,8 +149,8 @@ OpenAjax.a11y.cache.DOMElementComputedStyle = function (dom_element, parent_elem
  this.display  = "";
  this.visibility = "";
  
- this.graphical = OpenAjax.a11y.VISIBILITY.UNKNOWN; 
- this.at    = OpenAjax.a11y.VISIBILITY.UNKNOWN;
+ this.is_visible_onscreen = OpenAjax.a11y.VISIBILITY.UNKNOWN; 
+ this.is_visible_to_at    = OpenAjax.a11y.VISIBILITY.UNKNOWN;
  
  this.color   = "";
  this.background_color = "";
@@ -142,18 +163,18 @@ OpenAjax.a11y.cache.DOMElementComputedStyle = function (dom_element, parent_elem
  this.top     = "";
  
  // check to see if getComputedStyle is defined for the engine 
- if (!window.getComputedStyle) return this;
+ if (!window.getComputedStyle) return;
  
  var style = window.getComputedStyle(dom_element.node, null);  
    
- this.display   = style.getPropertyValue("display");
+ this.display    = style.getPropertyValue("display");
  this.visibility = style.getPropertyValue("visibility");
  
- this.color        = style.getPropertyValue("color");
- this.opacity       = style.getPropertyValue("opacity");
- this.background_color  = style.getPropertyValue("background-color");
- this.background_image  = normalizeBackgroundImage(style.getPropertyValue("background-image"), parent_element);
- this.background_repeat  = style.getPropertyValue("background-repeat");
+ this.color               = style.getPropertyValue("color");
+ this.opacity             = style.getPropertyValue("opacity");
+ this.background_color    = style.getPropertyValue("background-color");
+ this.background_image    = normalizeBackgroundImage(style.getPropertyValue("background-image"), parent_element);
+ this.background_repeat   = style.getPropertyValue("background-repeat");
  this.background_position = style.getPropertyValue("background-position");
  
  this.font_family = style.getPropertyValue("font-family");  
@@ -189,7 +210,7 @@ OpenAjax.a11y.cache.DOMElementComputedStyle = function (dom_element, parent_elem
   }   
  } 
  else {
-  this.background_color_hex = OpenAjax.a11y.cache.util.RGBToHEX(style.getPropertyValue("background-color")); 
+  this.background_color_hex = OpenAjax.a11y.util.RGBToHEX(style.getPropertyValue("background-color")); 
  }
 
  if (parent_element && 
@@ -214,7 +235,7 @@ OpenAjax.a11y.cache.DOMElementComputedStyle = function (dom_element, parent_elem
    this.color_hex = parent_style.color_hex;
   }
   else {
-   this.color_hex = OpenAjax.a11y.cache.util.RGBToHEX(style.getPropertyValue("color"));
+   this.color_hex = OpenAjax.a11y.util.RGBToHEX(style.getPropertyValue("color"));
   }
     
   if (this.font_family == 'inherit') {
@@ -234,40 +255,40 @@ OpenAjax.a11y.cache.DOMElementComputedStyle = function (dom_element, parent_elem
    this.display.length ) { 
   if ((this.visibility == 'hidden') ||
     (this.display == 'none')) {
-   this.graphical = OpenAjax.a11y.VISIBILITY.HIDDEN;
-   this.at    = OpenAjax.a11y.VISIBILITY.HIDDEN;
+   this.is_visible_onscreen = OpenAjax.a11y.VISIBILITY.HIDDEN;
+   this.is_visible_to_at    = OpenAjax.a11y.VISIBILITY.HIDDEN;
   }
   else {
    if (this.position == "absolute" &&
      (parseInt(this.top,10) < 0 || parseInt(this.left,10) < 0)) {
-    this.graphical = OpenAjax.a11y.VISIBILITY.HIDDEN;
+    this.is_visible_onscreen = OpenAjax.a11y.VISIBILITY.HIDDEN;
    }
    else {
-    this.graphical = OpenAjax.a11y.VISIBILITY.VISIBLE;
+    this.is_visible_onscreen = OpenAjax.a11y.VISIBILITY.VISIBLE;
    }
    
    if (dom_element.role == "presentation") {
-    this.at = OpenAjax.a11y.VISIBILITY.HIDDEN;  
+    this.is_visible_to_at = OpenAjax.a11y.VISIBILITY.HIDDEN;  
    } 
    else {
-    this.at = OpenAjax.a11y.VISIBILITY.VISIBLE;     
+    this.is_visible_to_at = OpenAjax.a11y.VISIBILITY.VISIBLE;     
    }
   }
  } 
 
-
- return this;  
+ this.is_large_font = (parseInt(this.font_size,10) >= 18) || ((parseInt(this.font_size,10) >= 14) && (parseInt(this.font_weight,10) >= 300));
 
 };
 
-  /**
-  * OpenAjax.a11y.cache.DOMElementComputedStyle.calculateColorContrast
-  *  
-  * @desc
-  * 
-  * @return Number representing the color contrast ratio 
-  *
-  */ 
+/**
+ * @method calculateColorContrast
+ *  
+ * @memberOf OpenAjax.a11y.cache.DOMElementComputedStyle
+ * 
+ * @desc Calculates a color contrast raio (CCR) value for the element style object 
+ *
+ * @return {Number}  Returns a number representing the color contrast ratio (CCR)
+ */ 
 
 OpenAjax.a11y.cache.DOMElementComputedStyle.prototype.calculateColorContrastRatio = function () {
 
@@ -288,14 +309,17 @@ OpenAjax.a11y.cache.DOMElementComputedStyle.prototype.calculateColorContrastRati
 };
 
 
-  /**
-  * OpenAjax.a11y.cache.DOMElementComputedStyle.getLuminance
-  *  
-  * @desc Get the luminance value of a hex incoded color 
-  * 
-  * @return Number representing the limnance value
-  *
-  */ 
+/**
+ * @method getLuminance
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMElementComputedStyle
+ * 
+ * @desc Get the luminance value of a hex incoded color 
+ *
+ * @param {String}  color  - Hex representation of a CSS color value
+ * 
+ * @return {Number}  Returns a number representing the limnance value
+ */ 
 
 OpenAjax.a11y.cache.DOMElementComputedStyle.prototype.getLuminance = function (color) {
 
@@ -319,16 +343,16 @@ OpenAjax.a11y.cache.DOMElementComputedStyle.prototype.getLuminance = function (c
 			
 };
 
-  /**
-  * toString
-  *  
-  * @desc Get the luminance value of a hex incoded color 
-  * 
-  * @return Number representing the limnance value
-  *
-  */ 
+/**
+ * @method toString
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMElementComputedStyle
+ *
+ * @desc Creates a text string representation of the computed style object 
+ *
+ * @return {String} Returns a text string representation of the computed style object
+ */ 
 
 OpenAjax.a11y.cache.DOMElementComputedStyle.prototype.toString = function (color) {
- return "Computed style " + this.color_hex + " " + this.background_color_hex + " " + this.color_contrast_ratio; 
-
+  return "Computed style " + this.color_hex + " " + this.background_color_hex + " " + this.color_contrast_ratio; 
 };

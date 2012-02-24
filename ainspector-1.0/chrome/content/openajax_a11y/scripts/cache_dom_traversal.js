@@ -1,5 +1,5 @@
-/**
- * Copyright 2011 OpenAjax Alliance
+/*
+ * Copyright 2011 and 2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,32 +14,57 @@
  * limitations under the License.
  */
 
-// DOM Node Type Constants 
-
-var NODE_TYPE = {};
-
-NODE_TYPE.ELEMENT  = 1;
-NODE_TYPE.ATTRIBUTE = 2;
-NODE_TYPE.TEXT   = 3;
-NODE_TYPE.COMMENT  = 8;
-NODE_TYPE.DOCUMENT = 9;
-
 /* ---------------------------------------------------------------- */
 /*                            DOMCache                              */
 /* ---------------------------------------------------------------- */
 
 /**
- * OpenAjax.a11y.cache.DOMCache
+ * @constructor DOMCache
  *
- * @desc Constructor of a DOMCache Object
- *    Initializes an empty DOM cache and specialized caches
+ * @memberOf OpenAjax.a11y.cache
  *
- * @return DOMCache Object
+ * @desc Constructs a DOMCache Object 
+ *          
+ * @param  {String}  url       - URL of the page being evaluated
+ * @param  {String}  title     - The value of title property of the document being evaluated
+ * @param  {Object}  document  - The document object reference of the document being evaluated
+ * @param  {Object}  log       - The Log object to store progress information during the evaluation
+ *
+ * @property {String}  nls       - NLS cache items for properties
+ * @property {String}  url       - URL of the page being evaluated
+ * @property {String}  base_url  - Base URL of the page being evaluated calculated from the URL
+ * @property {String}  title     - The value of title property of the document being evaluated
+ * @property {Object}  document  - The document object reference of the document being evaluated
+ * @property {Object}  log       - The Log object to store progress information during the evaluation
+ *
+ * DOM cache element objects
+ * @property {Object}  element_cache          - dom element cache for all elements
+ * @property {Object}  element_with_id_cache  - dom element cache items with a defined id
+ *
+ * Specialize cache element objects
+ * @property {Object}  abbreviations_cache       - Cache of abbreviation elements 
+ * @property {Object}  color_contrast_cache      - Cache of abbreviation items
+ * @property {Object}  controls_cache            - Cache of form controls and widgets
+ * @property {Object}  headings_landmarks_cache  - Cache of headings and abbreviations
+ * @property {Object}  title_main_cache          - Cache of title, h1 and main landmark elements
+ * @property {Object}  images_cache              - Cache of image and area elements
+ * @property {Object}  languages_cache           - Cache of language change items
+ * @property {Object}  links_cache               - Cache of a and area elements
+ * @property {Object}  lists_cache               - Cache of list elements
+ * @property {Object}  media_cache               - Cache of media elements
+ * @property {Object}  tables_cache              - Cache of table elements
+ *
+ * @example
+ *
+ * var dom_cache = new OpenAjax.a11y.cache.DOMCache(url, title, doc, locale, log); 
+ * dom_cache.updateDOMElementCache();
+ * dom_cache.updateAllCaches();
  */
 
-OpenAjax.a11y.cache.DOMCache = function (url, title, document, language, log) {
+OpenAjax.a11y.cache.DOMCache = function (url, title, document, log) {
 
-
+ this.nls = OpenAjax.a11y.cache_nls.getCacheNLS();
+ 
  this.url = url;
  this.base_url = this.url;
 
@@ -53,24 +78,17 @@ OpenAjax.a11y.cache.DOMCache = function (url, title, document, language, log) {
 
  this.title = title;
  this.document = document;
- this.language = language;
  this.log = log;
 
- OpenAjax.a11y.console("\n  TITLE: " + this.title);
- OpenAjax.a11y.console("   URL: " + this.url);
- OpenAjax.a11y.console("BASE URL: " + this.base_url);
- OpenAjax.a11y.console("LANGUAGE: " + this.language + "\n\n");
 };
-
+ 
 /**
- *
- * initCache
+ * @method initCache
+ * @memberOf OpenAjax.a11y.cache.DOMCache
  *
  * @desc Initialize specialized caches
  *    The specialized caches will be updated all at once or or when
  *    needed by a rule depending on how an evaluation is requested
- *
- * @return nothing
  */
 
 OpenAjax.a11y.cache.DOMCache.prototype.initCache = function () {
@@ -82,6 +100,7 @@ OpenAjax.a11y.cache.DOMCache.prototype.initCache = function () {
  this.color_contrast_cache     = new OpenAjax.a11y.cache.ColorContrastCache(this);
  this.controls_cache           = new OpenAjax.a11y.cache.ControlsCache(this);
  this.headings_landmarks_cache = new OpenAjax.a11y.cache.HeadingsLandmarksCache(this);
+ this.title_main_cache         = new OpenAjax.a11y.cache.TitleMainCache(this);
  this.images_cache             = new OpenAjax.a11y.cache.ImagesCache(this);
  this.languages_cache          = new OpenAjax.a11y.cache.LanguagesCache(this);
  this.links_cache              = new OpenAjax.a11y.cache.LinksCache(this);
@@ -92,7 +111,8 @@ OpenAjax.a11y.cache.DOMCache.prototype.initCache = function () {
 };
 
 /**
- * isUpToDate
+ * @method isUpToDate
+ * @memberOf OpenAjax.a11y.cache.DOMCache
  *
  * @desc Checks to see if the specified cache is up to date
  *
@@ -113,13 +133,15 @@ OpenAjax.a11y.cache.DOMCache.prototype.isUpToDate = function (cache_name) {
 };
 
 /**
- * updateCache
+ * @method updateCache
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMCache
  *
  * @desc Updates the specified cache
  *
  * @param cache_name String name of the cache to update
  *
- * @return Boolean true if cache is updated, false if cache does not exist
+ * @return {Boolean} Returns true if cache is updated, false if cache does not exist
  */
 
 OpenAjax.a11y.cache.DOMCache.prototype.updateCache = function (cache_name) {
@@ -136,24 +158,27 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateCache = function (cache_name) {
 };
 
 /**
- * traverseDOMElementsForAllCaches
+ * @method traverseDOMElementsForAllCaches
+ * @memberOf OpenAjax.a11y.cache.DOMCache
  *
  * @desc Updates all the specialized caches at one time, in general this
  *    is faster than updating the caches individually based on the
  *    needs of rules, but may create caches that will not be used if
  *    some rules are disabled
  *
- * @param dom_element     Object Current DOMElement object being processed
- * @param landmark_info    Object
- * @param table_info      Object
- * @param control_info     Object
- * @param language_element   Object Current LanguageElement object that contains the DOMElement
+ * @param  dom_element       Object  Current DOMElement object being processed
+ * @param  landmark_info     Object  LandmarkInfo object containing current landmark and heading information for tree representations
+ * @param  main_info         Object  MainInfo object containing current main, h1 and title information for tree representations
+ * @param  table_info        Object  TableInfo object containing current table information for tree representations
+ * @param  control_info      Object  ControlInfo object containing current control information for tree representations
+ * @param  list_info         Object  Current LanguageElement object that contains the DOMElement
  *
  * @return none
  */
 
 OpenAjax.a11y.cache.DOMCache.prototype.traverseDOMElementsForAllCaches = function (dom_element,
                                           landmark_info,
+                                          main_info,
                                           table_info,
                                           control_info,
                                           list_info) {
@@ -172,39 +197,42 @@ OpenAjax.a11y.cache.DOMCache.prototype.traverseDOMElementsForAllCaches = functio
 
   var ci = this.controls_cache.updateCacheItems(dom_element, control_info);
   var hi = this.headings_landmarks_cache.updateCacheItems(dom_element, landmark_info);
-  var li = this.lists_cache.update(dom_element, list_info);
+  var li = this.lists_cache.updateCacheItems(dom_element, list_info);
   var ti = this.tables_cache.updateCacheItems(dom_element, table_info);
+  var mi = this.title_main_cache.updateCacheItems(dom_element, main_info);
 
-  var children_length = dom_element.children.length;
+  var children_length = dom_element.child_dom_elements.length;
   for (var i = 0; i<children_length; i++ ) {
-   this.traverseDOMElementsForAllCaches(dom_element.children[i], hi, ti, ci, li);
+   this.traverseDOMElementsForAllCaches(dom_element.child_dom_elements[i], hi, mi, ti, ci, li);
   } // end loop
  }
 };
 
 
 /**
+ * @method updateAllCaches
+ * @memberOf OpenAjax.a11y.cache.DOMCache
  *
- * updateAllCaches
- *
- * @desc Updates all the defined specialized caches
+ * @desc Traverses the DOMElements and 
+ *       calls the update function to see which specialized caches want information on this element
  *
  * @return none
  */
 
 OpenAjax.a11y.cache.DOMCache.prototype.updateAllCaches = function () {
  var i;
- var children = this.element_cache.children;
+ var children = this.element_cache.child_dom_elements;
  var children_len = children.length;
 
  var hi = new OpenAjax.a11y.cache.LandmarkInfo(null);
+ var mi = new OpenAjax.a11y.cache.MainInfo(null);
  var ti = new OpenAjax.a11y.cache.TableInfo(null);
  var ci = new OpenAjax.a11y.cache.ControlInfo(null);
  var li = new OpenAjax.a11y.cache.ListInfo(null);
 
  this.log.update(OpenAjax.a11y.PROGRESS.CACHE_START, "Updating all caches");
  for (i=0; i < children_len; i++) {
-  this.traverseDOMElementsForAllCaches(children[i], hi, ti, ci, li);
+  this.traverseDOMElementsForAllCaches(children[i], hi, mi, ti, ci, li);
  }
 
  this.controls_cache.calculateControlLabels();
@@ -214,10 +242,10 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateAllCaches = function () {
 };
 
 /**
+ * @method updateDOMElementCache
+ * @memberOf OpenAjax.a11y.cache.DOMCache
  *
- * updateDOMElementCache
- *
- * @desc Updates a DOMElement caches that are used by specialized caches
+ * @desc Updates a DOMElement object caches by traversing the DOM of the browser object
  *
  * @return DOMCache Object
  */
@@ -250,16 +278,20 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateDOMElementCache = function () {
  // Identify elements with duplicate ID values
  this.element_with_id_cache.checkForUniqueIDs();
 
+ // Calculate aria-descriptions
+ this.calculateDescriptions();
+
  return this;
 
 };
 
 /**
- * addTitleDOMElement
+ * @method addTitleDOMElement
+ * @memberOf OpenAjax.a11y.cache.DOMCache
  *
  * @desc Adds a DOMElement to represent a TITLE
  *
- * @return 
+ * @return Nothing
  */
 
 OpenAjax.a11y.cache.DOMCache.prototype.addTitleDOMElement = function () {
@@ -308,7 +340,8 @@ OpenAjax.a11y.cache.DOMCache.prototype.addTitleDOMElement = function () {
 };
 
 /**
- * updateDOMElements
+ * @method updateDOMElements
+ * @memberOf OpenAjax.a11y.cache.DOMCache
  *
  * @desc Traverse document DOM and create a tree of DOMElement objects.
  *    The DOMElement objects will be used to generate more specific
@@ -316,8 +349,8 @@ OpenAjax.a11y.cache.DOMCache.prototype.addTitleDOMElement = function () {
  *    Additional information is collected on tables to be used in
  *    creating the table cache
  *
- * @param node        Object  node is the current node object tbing analyzed
- * @param parent_dom_element Object  DOMElement object that is the parent of the current node
+ * @param  {Object} node               - node is the current node object tbing analyzed
+ * @param  {Object} parent_dom_element - DOMElement object that is the parent of the current node
  *
  * return nothing
  */
@@ -335,6 +368,7 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateDOMElements = function (node, paren
 
   case NODE_TYPE.ELEMENT:
     // OpenAjax.a11y.console(node.tagName);
+    
 
     var dom_element = new OpenAjax.a11y.cache.DOMElement(node, parent_dom_element);
 
@@ -343,6 +377,7 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateDOMElements = function (node, paren
     this.element_cache.addDOMElement(dom_element);
 
     if (parent_dom_element) {
+      parent_dom_element.has_element_children = true;
       parent_dom_element.addChild(dom_element);
     }
     else {
@@ -407,13 +442,36 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateDOMElements = function (node, paren
 };
 
 /**
- * getNameFromARIALabel
+ * @method calculateDescriptions
  *
- * @desc
+ * @memberOf OpenAjax.a11y.cache.DOMCache
  *
- * @param control_element   Object
+ * @desc Calculates a description if a element has an aria-describedby attribute defined
+ */
+
+OpenAjax.a11y.cache.DOMCache.prototype.calculateDescriptions = function () {
+
+  var de;
+  var dom_elements     = this.element_cache.dom_elements;
+  var dom_elements_len = dom_elements.length;
+
+  for (var i = 0; i < dom_elements_len; i++ ) {
+    de = dom_elements[i];
+    
+    if (de.aria_describedby) {
+      de.calculated_aria_description = this.getTextFromIDs(de.aria_describedby);  
+    }
+  }
+};
+
+/**
+ * @method getNameFromARIALabel
  *
- * @return none
+ * @memberOf OpenAjax.a11y.cache.DOMCache
+ *
+ * @desc Add an ARIA label to cache element if aria-labelledy or aria-label attributes are defined
+ *
+ * @param {Object} element - Cache element object
  */
 
 OpenAjax.a11y.cache.DOMCache.prototype.getNameFromARIALabel = function (element) {
@@ -423,7 +481,7 @@ OpenAjax.a11y.cache.DOMCache.prototype.getNameFromARIALabel = function (element)
   var label = "";
   var label_source = SOURCE.NONE;
   var de = element.dom_element;
-
+  
   if (de.aria_labelledby) {
     label = this.element_with_id_cache.getTextFromIds(de.aria_labelledby);
     label_source = SOURCE.ARIA_LABELLEDBY;
@@ -442,21 +500,42 @@ OpenAjax.a11y.cache.DOMCache.prototype.getNameFromARIALabel = function (element)
  }
 
  element.label = label;
+ element.label_length = label.length;
  element.label_source = label_source;
- element.label_for_comparison = label.toLowerCase().trim();
+ element.label_for_comparison = label.normalizeSpace().toLowerCase();
 
 };
 
 /**
- * sortArrayOfObjects
+ * @method getNameFromARIALabel
+ * @memberOf OpenAjax.a11y.cache.DOMCache
+ *
+ * @desc Returns the text content of the elements identified in the list of ids
+ *
+ * @param {String}  ids  An string with space separated ids
+ *
+ * @return String
+ */
+
+OpenAjax.a11y.cache.DOMCache.prototype.getTextFromIDs = function (ids) {
+
+  if (!ids || ids.length === 0) return ""; 
+  
+  return this.element_with_id_cache.getTextFromIds(ids);
+
+};
+
+/**
+ * @method sortArrayOfObjects
+ * @memberOf OpenAjax.a11y.cache.DOMCache
  *
  * @desc Sort an array of objects by one of its properties and marks any properties that are duplicates
  *
- * @param objects   Array    array of objects to sort
- * @param property  String   text string of property to sort
- * @param ascending Boolean  whether to sort ascending or descending
+ * @param {Array}   objects   - Array of objects to sort
+ * @param {String}  property  - Text string of property to sort
+ * @param {Boolean} ascending - True sort by ascending values otherwise sort by descending values
  *
- * @return array of sorted objects
+ * @return Array of sorted objects
  */
 
 OpenAjax.a11y.cache.DOMCache.prototype.sortArrayOfObjects = function(objects, property, ascending ) {

@@ -1,5 +1,5 @@
-/**
- * Copyright 2011 OpenAjax Alliance
+/*
+ * Copyright 2011, 2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,34 +14,49 @@
  * limitations under the License.
  */
 
+
 /* ---------------------------------------------------------------- */
 /*                            LanguagesCache                        */
 /* ---------------------------------------------------------------- */
 
-
 /**
-*
-* LanguagesCache
-*
-* @desc 
-*
-* @constructs
-*
-* @return   LanguagesCache object
-*/
-
+ * @constructor LanguagesCache
+ *
+ * @memberOf OpenAjax.a11y.cache
+ *
+ * @desc Constructor for languages cache object which contains a list of 
+ *    language items representing the language changes of content 
+ *    in the in a document. The language items also contain a list of all the 
+ *    dom element objects that share the same language
+ *
+ * @param {DOMCache}   dom_cache   - Reference to the DOMCache object 
+ * 
+ * @property {DOMCache} dom_cache  - Reference to the DOMCache object 
+ * @property {Boolean}  up_to_date - Boolean true if the cache has been creating using the current DOMElements, else false
+ *                                   NOTE: This is a common property of all caches and is used when selectively build caches 
+ *                                         based on whether a rule needs the cache
+ *
+ * @property {String}    sort_property   - Property of language item that the list is sorted on  
+ * @property {Boolean}   sort_ascending  - true if list is sorted by ascending values, otherwsie false 
+ *
+ * @property {Array}    language_items  - List of language items 
+ * @property {Number}   length          - Number of language items in list 
+ *
+ * @property {ResultRuleSummary}  rule_summary_result  - Rule results associated with this cache
+ */
 OpenAjax.a11y.cache.LanguagesCache = function (dom_cache) {
     
-    this.dom_cache = dom_cache;
-    this.language_items =[];
+  this.dom_cache  = dom_cache;
+  this.up_to_date = false;
     
-    this.sort_property = 'lang';
-    this.sort_ascending = false;
+  this.language_items =[];
+  this.length = 0;
+        
+  this.sort_property  = 'lang';
+  this.sort_ascending = false;
+
+  this.rule_summary_results  = new OpenAjax.a11y.ResultRuleSummary();
     
-    this.up_to_date = false;
-    this.length = 0;
-    
-    return this;
 };
 
 /**
@@ -54,6 +69,14 @@ OpenAjax.a11y.cache.LanguagesCache = function (dom_cache) {
  * @param dom_element Object   DOM Element object to add to a color contrast item in the cache
  *
  * @return nothing
+ * @method addLanguageItem
+ *
+ * @memberOf OpenAjax.a11y.cache.LanguagesCache
+ *
+ * @desc Adds a DOM Element object with an language property to the langauge item list.
+ *       If the abreviation item does not exist the function will create one
+ *
+ * @param {DOMElement}  dom_element  - dom element to add to a abbreviation list
  */
 
 OpenAjax.a11y.cache.LanguagesCache.prototype.addLanguageItem = function (dom_element) {
@@ -82,56 +105,87 @@ OpenAjax.a11y.cache.LanguagesCache.prototype.addLanguageItem = function (dom_ele
 };
 
 /**
- * getLanguageItemByCacheId
+ * @deprecated getLanguageItemByCacheId
  *
- * @desc Returns the ColorContrastItem object with the id
+ * @memberOf OpenAjax.a11y.cache.languagesCache
  *
- * @param id String   id of the ColorContrastItem object
+ * @desc Returns the language item object with the cache id
  *
- * @return LanguageItem object if found, or null if not found
+ * @param {String}  cache_id  - cache id of the language item object
+ *
+ * @return {LanguageItem} Returns language item object if cache id found, otherwise null  
  */
 
 OpenAjax.a11y.cache.LanguagesCache.prototype.getLanguageItemByCacheId = function (cache_id) {
-    
-    var i;
-    var language_items_len = this.language_items.length;
-    
-    if (cache_id && cache_id.length) {
-        for (i = 0; i < language_items_len; i++) {
-            if (this.language_items[i].cache_id == cache_id) {
-                return this.language_items[i];
-            }
-        }
-    }
-    
-    return null;
+  return this.getItemByCacheId(cache_id);
 };
 
 /**
- * emptyList
+ * @method getItemByCacheId
  *
- * @desc Empties all the ColorContrastItem Objects items from the color
- *       contrast cache
+ * @memberOf OpenAjax.a11y.cache.languagesCache
  *
- * @return none
+ * @desc Returns the language item object with the cache id
+ *
+ * @param {String}  cache_id  - cache id of the language item object
+ *
+ * @return {LanguageItem} Returns language item object if cache id found, otherwise null  
  */
 
-OpenAjax.a11y.cache.LanguagesCache.prototype.emptyList = function () {
+OpenAjax.a11y.cache.LanguagesCache.prototype.getItemByCacheId = function (cache_id) {
+    
+  var i, j;
+  var li, de;
+  var dom_elements, dom_elements_len;
+  
+  var language_items     = this.language_items;
+  var language_items_len = language_items.length;
+    
+  if (cache_id && cache_id.length) {
+  
+    for (i = 0; i < language_items_len; i++) {
+      li = language_items[i];
+      
+      if (li.cache_id == cache_id) return li;
+      
+      dom_elements     = li.dom_elements;
+      dom_elements_len = dom_elements.length;
+      
+      for (j = 0; j < dom_elements_len; j++ ) {
+        de = dom_elements[j];
+        if (de.cache_id == cache_id) return de;
+      } // end loop
+    } // end loop  
+  }
+    
+  return null;
+  
+};
+
+/**
+ * @method emptyCache
+ *
+ * @memberOf OpenAjax.a11y.cache.LanguagesCache
+ *
+ * @desc Empties all the language items from the cache
+ */
+
+OpenAjax.a11y.cache.LanguagesCache.prototype.emptyCache = function () {
     
     this.language_items.length = 0;
     this.up_to_date = false;
 };
 
 /**
- * updateCacheItems
+ * @method updateCacheItems
  *
- * @desc Updates the LanguagesCache object with information from a DOMElement object
+ * @memberOf OpenAjax.a11y.cache.LanguagesCache
+ *
+ * @desc Updates the language cache object with information from a dom element object
  *       This is used during the creation of the cache and is used by the functions for
  *       either creating the cache all at one time or selectively
  *
- * @param dom_element Object DOM Element object to add to the color contrast cache
- *
- * @return nothing
+ * @param {DOMElement}  dom_element  - DOM Element object to add to the language cache
  */
 
 OpenAjax.a11y.cache.LanguagesCache.prototype.updateCacheItems = function (dom_element) {
@@ -142,14 +196,14 @@ OpenAjax.a11y.cache.LanguagesCache.prototype.updateCacheItems = function (dom_el
 };
 
 /**
- * transverseDOMElementsForLanguages
+ * @method traverseDOMElementsForLanguages
  *
- * @desc Traverses the DOMElements to update the languages cache
+ * @memberOf OpenAjax.a11y.cache.LanguagesCache
  *
- * @return nothing
+ * @desc Traverses the DOMElements to update the language cache
  */
 
-OpenAjax.a11y.cache.LanguagesCache.prototype.transverseDOMElementsForLanguages = function (dom_element) {
+OpenAjax.a11y.cache.LanguagesCache.prototype.traverseDOMElementsForLanguages = function (dom_element) {
     
     var i;
     if (! dom_element) return;
@@ -158,102 +212,107 @@ OpenAjax.a11y.cache.LanguagesCache.prototype.transverseDOMElementsForLanguages =
         
         this.updateCacheItems(dom_element);
         
-        for (i = 0; i < dom_element.children.length; i++) {
-            this.transverseDOMElementsForColorContrast(dom_element.children[i]);
+        for (i = 0; i < dom_element.child_dom_elements.length; i++) {
+            this.traverseDOMElementsForLanguages(dom_element.child_dom_elements[i]);
         }
         // end loop
     }
 };
 
 /**
- * updateCache
+ * @method updateCache
  *
- * @desc 
- * @return nothing
+ * @memberOf OpenAjax.a11y.cache.LanguagesCache
+ *
+ * @desc Traverses the DOMElements to update the language cache
+ *    This function is used to update the language cache 
+ *    when needed by a rule, it sets the up to date flag when done
  */
 
 OpenAjax.a11y.cache.LanguagesCache.prototype.updateCache = function () {
     var i;
-    var children = this.dom_cache.element_cache.children;
+    var children = this.dom_cache.element_cache.child_dom_elements;
     var children_len = children.length;
     
     this.dom_cache.log.update(OpenAjax.a11y.PROGRESS.CACHE_START, "Updating language cache.");
     for (i = 0; i < children_len; i++) {
-        this.transverseDOMElementsForLanguages(children[i]);
+        this.traverseDOMElementsForLanguages(children[i]);
     }
     this.dom_cache.log.update(OpenAjax.a11y.PROGRESS.CACHE_END, "Completed language cache update, number of cache items is " + this.length);
     
     this.up_to_date = true;
 };
 
+
 /**
- * sortCCRItems
+ * @method sortLanguageItems
  *
- * @desc
+ * @memberOf OpenAjax.a11y.cache.LanguagesCache
  *
- * @param ascending   Boolean  true if sort in ascending order; false in descending order
+ * @desc Sorts languages by language property
  *
- * @return true if list was sorted, false if not
+ * @param {Boolean}  ascending  - true if sort in ascending order; false in descending order
+ *
+ * @return {Boolean}  Returns true if list was sorted, false if not
  */
 
-OpenAjax.a11y.cache.LanguagesCache.prototype.sortCCRItems = function (ascending) {
-    
-    var swapped = false;
-    var temp = null;
-    var i;
-    
-    if (! this.color_contrast_items || (this.color_contrast_items.length === 0)) {
-        return false;
-    }
-    // endif
-    
-    this.sort_ascending = ascending;
-    
-    var color_contrast_items_len = this.color_contrast_items.length;
-    
-    if (ascending) {
-        do {
-            swapped = false;
-            for (i = 1; i < color_contrast_items_len; i++) {
-                if (parseInt(this.color_contrast_items[i - 1].color_contrast_ratio, 10) > parseInt(this.color_contrast_items[i].color_contrast_ratio, 10)) {
-                    // swap the values
-                    temp = this.color_contrast_items[i - 1];
-                    this.color_contrast_items[i - 1] = this.color_contrast_items[i];
-                    this.color_contrast_items[i] = temp;
-                    swapped = true;
-                }
-            }
-            // end loop
-        }
-        while (swapped);
-    } else {
-        do {
-            swapped = false;
-            for (i = 1; i < color_contrast_items_len; i++) {
-                if (parseInt(this.color_contrast_items[i - 1].color_contrast_ratio, 10) < parseInt(this.color_contrast_items[i].color_contrast_ratio, 10)) {
-                    // swap the values
-                    temp = this.color_contrast_items[i - 1];
-                    this.color_contrast_items[i - 1] = this.color_contrast_items[i];
-                    this.color_contrast_items[i] = temp;
-                    swapped = true;
-                }
-            }
-            // end loop
-        }
-        while (swapped);
-    }
-    
-    this.sort_property = 'color_contrast_ratio';
-    
-    return true;
-};
+OpenAjax.a11y.cache.LanguagesCache.prototype.sortLanguageItems = function(ascending) {
+
+  var swapped = false;
+  var temp = null;
+  var i;
+
+  if( !this.language_items || (this.language_items.length === 0)) {
+    return false;
+  } // endif
+
+  this.sort_ascending = ascending;
+ 
+  var language_items_len = this.language_items.length;
+
+  if( ascending ) {
+    do{
+      swapped = false;
+      for (i = 1; i < language_items_len; i++ ) {
+        if (this.language_items[i-1].language > this.language_items[i].language) {
+          // swap the values
+          temp = this.language_items[i-1];
+          this.language_items[i-1] = this.language_items[i];
+          this.language_items[i] = temp;
+          swapped = true;
+        } 
+      } // end loop
+    } while (swapped);
+  }
+  else {
+    do {
+      swapped = false;
+      for (i = 1; i < language_items_len; i++ ) {
+        if (this.language_items[i-1].language < this.language_items[i].language) {
+          // swap the values
+          temp = this.language_items[i-1];
+          this.language_items[i-1] = this.language_items[i];
+          this.language_items[i] = temp;
+          swapped = true;
+        } 
+      } // end loop
+    } while (swapped);
+  } 
+
+  this.sort_property = 'language';
+ 
+  return true;
+
+}; 
 
 /**
- * toString
+ * @method toString
  *
- * @desc Return a string representation of the color contrast cache
+ * @memberOf OpenAjax.a11y.cache.LanguagesCache
  *
- * @return   String
+ * @desc Returns a text string representation of the language cache object 
+ *
+ * @return {String} Returns string represention the language cache object
  */
 
 OpenAjax.a11y.cache.LanguagesCache.prototype.toString = function () {
@@ -272,30 +331,45 @@ OpenAjax.a11y.cache.LanguagesCache.prototype.toString = function () {
     return str;
 };
 
+/* ---------------------------------------------------------------- */
+/*                      LanguageItem                                */ 
+/* ---------------------------------------------------------------- */
+
 /**
- * LanguageItem
+ * @constructor LanguageItem
  *
- * @desc Constructor for ColorContrastItem object which contains information
- *       about a unique set of color contrast features of the web page
+ * @memberOf OpenAjax.a11y.cache
  *
- * @constructs
+ * @desc Constructor for languages item object which contains information
+ *       about dom elements that share the same abbreviation 
+ * 
+ * @param  {String}  language  - language reference value
+ *         
+ * @property  {String}  language   - text of abbreviation
+ * @property  {String}  cache_id   - String that uniquely identifies the cache element in the cache
  *
- * @return   LanguageItem object
+ * @property  {Array}   dom_elements  - List of dom elements associated with the language reference 
+ * @property  {Number}  count         - Number of dom elements that share this language reference
  */
- 
+  
 OpenAjax.a11y.cache.LanguageItem = function (language) {
     
-    this.language = language;
-    this.dom_elements = [];
+  this.cach_id = "";
+  
+  this.language = language;
+  this.dom_elements = [];
+  this.count = 0;
     
 };
 
 /**
- * addDOMElement
+ * @method addDOMElement
  *
- * @desc 
+ * @memberOf OpenAjax.a11y.cache.LanguageItem
  *
- * @return   nothing
+ * @desc  Adds a dom element object to the list of dom elements associated with this language reference 
+ *
+ * @param  {DOMElement} dom_element  - dom element object to add
  */
 
 OpenAjax.a11y.cache.LanguageItem.prototype.addDOMElement = function (dom_element) {
@@ -306,12 +380,13 @@ OpenAjax.a11y.cache.LanguageItem.prototype.addDOMElement = function (dom_element
 };
 
 /**
- * toString
+ * @method toString
  *
- * @desc Provide information about the language item as a text
- *       string.
+ * @memberOf OpenAjax.a11y.cache.LanguageItem
  *
- * @return   String
+ * @desc Returns a text string representation of the language reference object 
+ *
+ * @return {String} Returns string represention the language reference object
  */
 
 OpenAjax.a11y.cache.LanguageItem.prototype.toString = function () {
