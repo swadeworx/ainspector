@@ -130,7 +130,7 @@ FBL.ns(function() { with (FBL) {
 	
 	ainspectorOnDOMContentLoaded : function (event){
 		var win = event.currentTarget;
-        AINSPECTOR.util.event.fire('onDOMContentLoaded', {'window': win});
+        AINSPECTOR_FB.event.fire('onDOMContentLoaded', {'window': win});
 	},
     
     /**

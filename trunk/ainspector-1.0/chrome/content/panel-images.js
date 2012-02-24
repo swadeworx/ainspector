@@ -49,7 +49,6 @@ AINSPECTOR_FB.equivalents = {
       images_cache.sortImageElements('document_order', true);
 
      // AINSPECTOR_FB.equivalents.equivalentsView(toolbar_buttons, toolbar, panel, cache_object);
-	  FBTrace.sysout("333333333333AINSPECTOR_FB333333333333333", AINSPECTOR_FB);
       image_elements = images_cache.image_elements;
 	  media_elements = cache_object.dom_cache.media_cache.media_elements;
 	  abbreviation_elements = cache_object.dom_cache.abbreviations_cache.abbreviation_items;
