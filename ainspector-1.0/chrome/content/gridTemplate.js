@@ -1,3 +1,4 @@
+var AINSPECTOR_FB = AINSPECTOR_FB || {};
 with (FBL) {
   
   panel : null;
@@ -283,5 +284,59 @@ with (FBL) {
         AINSPECTOR_FB.ainspectorUtil.sortColumn(table, column);
       }
    });
+  
+  AINSPECTOR_FB.emptyTemplate = domplate(AINSPECTOR_FB.BaseRep, {
+	    
+	    tag:
+	      TABLE({class: "ai-sidepanel-table", cellpadding: 0, cellspacing: 0, role: "treegrid"},
+	        THEAD(
+	          TR({class: "gridHeaderRow gridRow", id: "rulesTableHeader", "role": "row", tabindex: "0"},
+	            FOR("header", "$header_elements",
+	              TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, "$header")
+	            )
+	          )
+	        ),  
+	        TBODY(
+	            TR({class: "tableRow a11yFocus", role: "row"},
+	              TD(DIV({class: "gridLabel"},"none"))
+	            ) //end TR
+	        ) //end TBODY  
+	      )
+	  });
+  
+  AINSPECTOR_FB.emptyPanelTemplate = domplate({
+	    
+	    tag:
+	      TABLE({class: "ai-table-list-items", cellpadding: 0, cellspacing: 0, role: "treegrid"},
+	        THEAD(
+	          TR({class: "gridHeaderRow gridRow", id: "rulesTableHeader", role: "row", tabindex: "0"},
+	            FOR("header", "$header_elements",
+	              TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, "$header")
+	            )
+	          )
+	        ),  
+	        TBODY(
+	            TR({class: "tableRow a11yFocus", role: "row"},
+	              TD(DIV({class: "gridLabel"},"none"))
+	            ) //end TR
+	        ) //end TBODY  
+	      )
+	  });
+  AINSPECTOR_FB.BaseRep = domplate(Firebug.Rep, {
+	    
+	    /**
+	     * getNaturalTag
+	     * 
+	     * @desc
+	     * 
+	     * @param value
+	     */
+		  getNaturalTag: function(value) {
+	    
+		  var rep = Firebug.getRep(value);
+	      var tag = rep.shortTag ? rep.shortTag : rep.tag;
+	      return tag;
+	    }
+	  });
 
 }

@@ -354,7 +354,23 @@ FBL.ns(function() { with (FBL) {
      rebuild: function(resultArray){
        this.panelNode.id = "ainspector-side-panel";
        FBTrace.sysout("resultArray: ", resultArray);
-	   rulesTemplate.tag.replace({object: resultArray}, this.panelNode);
+       var flag = true;
+   	   for (var i in resultArray){ 
+   		 if(resultArray.hasOwnProperty(i)){
+   		   flag = false;
+   		   break;
+   		 }
+   	   }
+   	   if (flag) {
+	       FBTrace.sysout("flag: "+ flag);
+           var header_elements = ["Rule Info/Props", "Message/Value"];
+           FBTrace.sysout("this.panelNode: ", this.panelNode.offsetParent.children[1]);
+           //clearNode(this.panelNode.offsetParent.children[1]);
+ 	      AINSPECTOR_FB.emptyTemplate.tag.replace({header_elements: header_elements}, this.panelNode);
+   	   } else {
+ 	   
+   		   rulesTemplate.tag.replace({object: resultArray}, this.panelNode);
+       }
      },
    
      /**

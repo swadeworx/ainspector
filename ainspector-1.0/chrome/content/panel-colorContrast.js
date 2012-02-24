@@ -23,49 +23,36 @@ with (FBL) {
       
       var color_contrast_items = color_contrast_cache.color_contrast_items;
       FBTrace.sysout("color_contrast_cache: ", color_contrast_cache);
-
+      clearNode(panelView.table);
 	        
 
       FBTrace.sysout("panelv: ", panelView);
 	  panelView.panelNode.id = "ainspector-panel"; 
 
       
-	  panelView.table = AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate.tag.replace( {object: color_contrast_items}, panelView.panelNode, AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate);
-	  
-	  var element = panelView.document.createElement("div");
+	  panel.table = AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate.tag.replace( {object: color_contrast_items}, panelView.panelNode, AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate);
+      FBTrace.sysout("1111111111111111111111111111");
 
-	  panelView.panelNode.appendChild(element);
+	 // var element = panelView.document.createElement("div");
+
+	  //panelView.panelNode.appendChild(element);
+      FBTrace.sysout("22222222222222222222222222");
 	  
 	  panel = panelView;
 	  
-	  FBTrace.sysout("panel: ", panel);
+	  FBTrace.sysout("panel: ", panelView);
 	 
 	  panel.selection = color_contrast_items[0];
   	  
       AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[1].children[0]);
 
 	  Firebug.currentContext.getPanel('Rules').showContrastOrAllElements(true, panel.selection);
-    },
-    
-    /**
-     * @function select
-     * 
-     * @desc sets the first row object in to the panel and highlight() function to highlight the first row 
-     * 
-     * @param {Object} object - first image object in the images cache
-     * @property {Object} selection - set an object to the panel to be used by the side panels when selected first time
-     */
-    select : function(object) {
-      
-  	  panel.selection = object;
-  	  
-      AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[1].children[0]);
-      
     }
  };
 
 AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
     tag:
+    	
 	  TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, onclick: "$onClick", tabindex: 0, onkeypress: "$onKeyPressedTable"},
 	    THEAD(
 	      TR({class: "gridHeaderRow a11yFocus", id: "tableTableHeader", "role": "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow"},
@@ -89,11 +76,11 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
 		  TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
 		    TAG("$member.tag", {'member' :"$member", 'object': "$member"}) 
 		  ),
-		  TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.color"),
-		  TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.background_color"),
-		  TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.is_large_font"),
-		  TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.background_image"),
-		  TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.color_contrast_ratio"),
+		  TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.color|getValue"),
+		  TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.background_color|getValue"),
+		  TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.is_large_font|getValue"),
+		  TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.background_image|getValue"),
+		  TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.color_contrast_ratio|getValue"),
 		  TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
      		TAG("$member.sevTag", {'member' :"$member", 'object': "$member.value"}))
  	    ),
@@ -104,11 +91,11 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
 	      TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
 			  "$member.tag_name"
 	      ),
-	      TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.color"),
-	      TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.background_color"),
-	      TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.is_large_font"),
-	      TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.background_image"),
-	      TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.color_contrast_ratio"),
+	      TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.color|getValue"),
+	      TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.background_color|getValue"),
+	      TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.is_large_font|getValue"),
+	      TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.background_image|getValue"),
+	      TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.color_contrast_ratio|getValue"),
 	      TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
 			TAG("$member.sevTag", {'member' :"$member", 'object': "$member.value"}))
 		  ),
@@ -125,6 +112,10 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
 	  loop:
 	    FOR("member", "$members", TAG("$childrow", {member: "$member"})),
 
+	    getValue : function(value){
+    		if (value != undefined) return value;
+    		else return "";
+		},
 	  /**
 	   * @function highlightTreeRow
 	   * 

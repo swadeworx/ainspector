@@ -151,12 +151,12 @@ FBL.ns(function() { with (FBL) {
     	   emptyTemplate.tag.replace({object: resultArray}, this.panelNode);
        } else {
     	   
-    	   attributesTemplate.tag.replace({object: resultArray}, this.panelNode);    	    
+    	   eventsTemplate.tag.replace({object: resultArray}, this.panelNode);    	    
        }
      }
    });
   
-  var attributesTemplate = domplate(BaseRep, {
+  var eventsTemplate = domplate(BaseRep, {
 	    
     tag:
       TABLE({class: "ai-sidepanel-table", cellpadding: 0, cellspacing: 0, role: "treegrid"},
