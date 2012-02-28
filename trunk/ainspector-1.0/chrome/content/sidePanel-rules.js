@@ -1,3 +1,19 @@
+/**
+ * Copyright 2011 University Of Illinois
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 FBL.ns(function() { with (FBL) {
 
   var main_panel = AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.name");
@@ -74,21 +90,53 @@ FBL.ns(function() { with (FBL) {
        var previous_row;
        var prev_cell;
        var next_cell;
+       FBTrace.sysout("event in rules tab: ", event);
        
-	   if (event.keyCode == KeyEvent.DOM_VK_UP) {
+       var table_rows = event.target.offsetParent.rows;
+       FBTrace.sysout("table_rows:", table_rows);
+       var no_of_rows = table_rows.length;
+       var flag = false;
+       for (var row=0; row < no_of_rows; row++) {
+    	 var class_list = table_rows[row].classList;
+    	 var class_name_it = 0;
+    	 for (class_name_it; class_name_it < class_list.length; class_name_it++) {
+    	   if (class_list[class_name_it] == "gridRowSelected") {
+    		 flag = true;
+    		 break;
+    	   }	 
+    	 }
+    	 if (flag == true){
+    	   current_row = table_rows[row];
+    	   if (row < no_of_rows) {
+    	     
+    		 if (row == 1) previous_row = table_rows[no_of_rows-1];
+    	     else previous_row = table_rows[row-1];
+    	     
+    	     next_row = table_rows[row+1];
+    	   } else { //if we reach end of the table row then go back to first row
+      	     next_row = table_rows[1]; //table_rows[0] is the header row
+      	     previous_row = table_rows[row-1];
+    	   }
+    	   break;
+    	 }
+       }
+       if (event.keyCode == KeyEvent.DOM_VK_UP) {
 		 //current_row = getAncestorByClass(event.target, "tableRow");
     	 //FBTrace.sysout("up..." , current_row);
-    	 previous_row = findPrevious(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow); //current_row.previousSibling;
+    	 //previous_row = findPrevious(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow); //current_row.previousSibling;
     	 result = previous_row.repObject.dom_element;
          rule_result_array = this.showOnRulesTabSelect(result);
          if (rule_result_array.length > 0) this.rebuild(rule_result_array);
       
 	   } else if (event.keyCode == KeyEvent.DOM_VK_DOWN) {
-    	 current_row = getAncestorByClass(event.target, "tableRow");
+    	 //current_row = getAncestorByClass(event.target, "gridRow");
+    	 FBTrace.sysout("current_row..." , current_row);
+    	 //next_row = current_row.nextSibling;
+    	 
 
-    	 next_row = current_row.nextSibling;
     	 //next_row = findNext(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow, true);
-    	 result = next_row.repObject.dom_element;
+		 FBTrace.sysout("next_row..." , next_row);
+		 result = next_row.repObject.dom_element;
          rule_result_array = this.showOnRulesTabSelect(result);
        
          if (rule_result_array.length > 0) this.rebuild(rule_result_array);
