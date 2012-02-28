@@ -1,6 +1,22 @@
+/**
+ * Copyright 2011 University Of Illinois
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 var AINSPECTOR_FB = AINSPECTOR_FB || {};
 
-FBL.ns(function() {with (FBL) {
+FBL.ns(function() { with (FBL) {
   
   var classNameReCache={};
   
@@ -251,6 +267,15 @@ FBL.ns(function() {with (FBL) {
 	  }
 	  return flag;
     },
+    
+    truncateText : function(text_content){
+    	
+      var max_text_length = 40;
+      var truncated_text = text_content.substring(0, max_text_length);
+      truncated_text = truncated_text + "...";
+      return truncated_text;
+    },
+    
     loadCSSToStylePanel : function(document){
 
 	  this.loadCSS("chrome://ainspector/content/css/ainspector-panel.css", document);
@@ -903,7 +928,7 @@ FBL.ns(function() {with (FBL) {
 	onKeyPressRow: function(event){
 	  
 	  event.stopPropagation();
-
+      
       switch(event.keyCode) {
 		  
 	    case 38: //up
@@ -929,6 +954,42 @@ FBL.ns(function() {with (FBL) {
     
     /**
 	 * @function onKeyPressRow
+	 * 
+	 * @desc focus on a row with the keyboard events
+	 * 
+	 * @param event event triggered when any keyboard's right, left, up and down arrows are pressed
+	 */
+	onKeyPressTreeRow: function(event){
+	  
+	  event.stopPropagation();
+      
+      switch(event.keyCode) {
+		  
+	    case 38: //up
+		  var row = findPrevious(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow);
+		  if (row) {
+		    row.focus();
+		    AINSPECTOR_FB.flatListTemplateUtil.highlightTreeRow(event, row);
+		  }
+		  break;
+		case 39: //right
+		  var cell = AINSPECTOR_FB.ainspectorUtil.getChildByClass(event.target, "gridCell");
+		  if (cell) cell.focus();
+		  break;
+		case 40: //down
+			  FBTrace.sysout("event in keypress to highlight: ", event);
+		  var row = findNext(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow);
+		  FBTrace.sysout("row: ", row);
+		  if (row) {
+		    row.focus();
+		    AINSPECTOR_FB.flatListTemplateUtil.highlightTreeRow(event, row);
+		  }
+		  break;
+	  }
+    },
+    
+    /**
+	 * @function onKeyPressHeaderRow
 	 * 
 	 * @desc focus on a row with the keyboard events
 	 * 
@@ -1192,6 +1253,13 @@ FBL.ns(function() {with (FBL) {
         }
         if (count >= no_of_cells) {
     	  AINSPECTOR_FB.ainspectorUtil.removeClass(row, "gridRowSelected");
+    	  if (event.keyCode == 38 || event.keyCode == 37) {
+        	  current_row = tbody.children[i-1]; 
+
+          } else if (event.keyCode == 40 || event.keyCode == 39){
+        	  current_row = tbody.children[i+1]; 
+
+          }
     	  break;
     	}
         
