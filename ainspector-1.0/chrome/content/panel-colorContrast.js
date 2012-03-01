@@ -100,7 +100,7 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
 			TAG("$member.sevTag", {'member' :"$member", 'object': "$member.value"}))
 		  ),
     
-      strTag : DIV({class: "treeLabel"},"$member.count"),
+      strTag : DIV({class: "treeLabel"},"$member.no_of_elements"),
       strTagPass : DIV({class: "passMsgTxt"}, "$member.acc_summary"),
       strTagViolation : DIV({class: "violationMsgTxt"}, "$member.acc_summary"),
       strTagManual : DIV({class: "manualMsgTxt"}, "$member.acc_summary"),
@@ -157,14 +157,13 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
 	  createMember: function(name, value, level)  {
 	    var cc_summary = value.getColorContrastSummary();
 		if (level == 0) return {
-		  count: value.dom_elements.length,
-		  role_level: (value.dom_elements.role) ? value.dom_elements.role : value.level,
+		  no_of_elements: value.dom_text_nodes.length,
 		  color: value.color,
 		  background_color: value.background_color,
 		  color_contrast_ratio: value.color_contrast_ratio,
 		  background_image: value.background_image,
-	      hasChildren: (value.dom_elements.length > 0) ? true : false,
-	      children: value.dom_elements,
+	      hasChildren: (value.dom_text_nodes.length > 0) ? true : false,
+	      children: value.dom_text_nodes,
 	      value: (value != null) ? value : "",
 	      level: level,
 	      indent: level * 16,
