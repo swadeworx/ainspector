@@ -19,7 +19,17 @@ FBL.ns(function() { with (FBL) {
   var main_panel = AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.name");
   var side_panel_name = AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.sidepanel.attributes.name");
   var side_panel_title = AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.sidepanel.attributes.title");
+  //var toolbarbuttons = Firebug.currentContext.browser.chrome.$("radio-toolbar").children;
+   /*FBTrace.sysout("selected toolbar button in main panel: " );
 
+   for (var i=0; i < toolbarbuttons.length; i=i+2){ 	    
+  	if (toolbarbuttons[i].checked == true && toolbarbuttons[i].id == "colorContrast_button") {
+ 	      FBTrace.sysout("selected toolbar button in main panel: " + toolbarbuttons[i].id);
+ 	     my_panel = "";
+	      break;
+	    }
+   }*/
+   
   /**
    * @panel attributesSidePanel displaying Rule results for the current selected 
    * row in the Navigation button,
@@ -46,7 +56,8 @@ FBL.ns(function() { with (FBL) {
      *@param doc
      */
      initialize: function(context, doc) {
-    
+	      FBTrace.sysout("selected toolbar button in main panel: " );
+
 	   this.onCLick = bind(this.setSelection, this);
        Firebug.Panel.initialize.apply(this, arguments);
      },
@@ -193,4 +204,20 @@ FBL.ns(function() { with (FBL) {
 	  });
  
   Firebug.registerPanel(attributesSidePanel);
+  
+  AINSPECTOR_FB.getParentPanel = function() {
+      
+      var toolbarbuttons = firebug_context.browser.chrome.$("radio-toolbar").children;
+      var parent_panel = "main_panel";
+      for (var i=0; i < toolbarbuttons.length; i=i+2){
+  	
+   	 if (toolbarbuttons[i].checked == true && toolbarbuttons[i].id == "colorContrast_button") {
+   	   FBTrace.sysout("selected toolbar button in main panel: " + toolbarbuttons[i].id);
+   	   parent_panel = "";
+   	   break;
+  	     }
+      }
+      return parent_panel;
+    };
+    
 }});

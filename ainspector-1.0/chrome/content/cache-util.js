@@ -49,12 +49,12 @@ with (FBL) {
       cache_object.dom_cache.links_cache.sortLinkElements('document_order', true);
       FBTrace.sysout("cache...............", cache_object);*/
       
-      var ruleset_id = 'WCAG20_TRANS';
+      var ruleset_id = 'WCAG20_ARIA_TRANS';
       var ruleset = OpenAjax.a11y.all_rulesets.getRuleset(ruleset_id);
 
       if (ruleset) {
     	ruleset_result_cache = ruleset.evaluate(url, doc.title, doc, null, true);
-        FBTrace.sysout("Ruleset results object for: " , ruleset_result_cache);
+        //FBTrace.sysout("Ruleset results object for: " , ruleset_result_cache);
       }
       else {
     	FBTrace.sysout("  ** Ruleset with the id '" + ruleset_id + "' not found!!");

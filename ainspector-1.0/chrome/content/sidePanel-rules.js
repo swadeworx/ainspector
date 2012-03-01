@@ -125,7 +125,7 @@ FBL.ns(function() { with (FBL) {
     	 //FBTrace.sysout("up..." , current_row);
     	 //previous_row = findPrevious(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow); //current_row.previousSibling;
     	 result = previous_row.repObject.dom_element;
-         rule_result_array = this.showOnRulesTabSelect(result);
+         rule_result_array = this.showOnRuleResultsTabSelect(result);
          if (rule_result_array.length > 0) this.rebuild(rule_result_array);
       
 	   } else if (event.keyCode == KeyEvent.DOM_VK_DOWN) {
@@ -137,7 +137,7 @@ FBL.ns(function() { with (FBL) {
     	 //next_row = findNext(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow, true);
 		 FBTrace.sysout("next_row..." , next_row);
 		 result = next_row.repObject.dom_element;
-         rule_result_array = this.showOnRulesTabSelect(result);
+         rule_result_array = this.showOnRuleResultsTabSelect(result);
        
          if (rule_result_array.length > 0) this.rebuild(rule_result_array);
        
@@ -219,9 +219,9 @@ FBL.ns(function() { with (FBL) {
        var selection = this.mainPanel.selection;
        var dom_element = selection.dom_element; 
        if (dom_element)
-         this.rebuild(this.showOnRulesTabSelect(dom_element));
+         this.rebuild(this.showOnRuleResultsTabSelect(dom_element));
        else 
-         this.rebuild(this.showOnRulesTabSelect(selection.value.dom_element));
+         this.rebuild(this.showOnRuleResultsTabSelect(selection.value.dom_element));
      },
      
      /**
@@ -234,7 +234,7 @@ FBL.ns(function() { with (FBL) {
 	   if (state) {
          try {
     	   result = first_element.dom_element;
-           rule_result_array = this.showOnRulesTabSelect(result);
+           rule_result_array = this.showOnRuleResultsTabSelect(result);
            if (rule_result_array.length > 0) this.rebuild(rule_result_array);
          } catch (er) {
         	 
@@ -245,8 +245,9 @@ FBL.ns(function() { with (FBL) {
      showContrastOrAllElements: function(state, element){
 	   if (state) {
          try {
-           rule_result_array = this.showOnRulesTabSelect(element);
-           if (rule_result_array.length > 0) this.rebuild(rule_result_array);
+           rule_result_array = this.showOnRuleResultsTabSelect(element);
+           //if (rule_result_array.length > 0) this.rebuild(rule_result_array);
+           this.rebuild(rule_result_array);
          } catch (er) {
         	 
          }
@@ -266,115 +267,37 @@ FBL.ns(function() { with (FBL) {
        
        try {
        if (element.dom_element)
-         this.rebuild(this.showOnRulesTabSelect(element.dom_element));
-       //else if (element.value.dom_element) this.rebuild(this.showOnRulesTabSelect(element.value.dom_element));
-       //else if (element.value) this.rebuild(this.showOnRulesTabSelect(element.value)); //for colorcontrast
-       else this.rebuild(this.showOnRulesTabSelect(element));
+         this.rebuild(this.showOnRuleResultsTabSelect(element.dom_element));
+       //else if (element.value.dom_element) this.rebuild(this.showOnRuleResultsTabSelect(element.value.dom_element));
+       //else if (element.value) this.rebuild(this.showOnRuleResultsTabSelect(element.value)); //for colorcontrast
+       else this.rebuild(this.showOnRuleResultsTabSelect(element));
        } catch(e) {
     	   
        }
      },
      
      /**
-      * @function showOnRulesTabSelect
+      * @function showOnRuleResultsTabSelect
       * 
       * @desc
       * 
       * @param {Object} cache_item
       */
-     showOnRulesTabSelect : function(cache_item) {
+     showOnRuleResultsTabSelect : function(cache_item) {
        
        var cache_item = cache_item;
        var rule_results = cache_item.getResultRules();
        var rule_result_array = new Array();
 
        for(var i=0; i<rule_results.length; i++){
-   	     rule_result_array.push({"label": rule_results[i].getSeverity().label, "description": rule_results[i].toString()});
+   	     rule_result_array.push({"label": rule_results[i].getSeverity().label, 
+   	    	                     "id": rule_results[i].cache_id,
+   	    	                     "description": rule_results[i].toString()});
        }
        return rule_result_array;
        
      },
     
-     /**
-      * @function getRuleResults
-      * 
-      * @param rule_results_object
-      * 
-      * @return resultArray;
-      */
-     getRuleResults: function(rule_results_object){
-     
-         var i;
-         var resultArray = new Array();
-    	 var violations = rule_results_object.rules_violations;
-    	 var manual_evaluations = rule_results_object.rules_manual_evaluations;
-    	 var recommendations = rule_results_object.rules_recommendations;
-         var informational = rule_results_object.rules_informational;
-         var passed = rule_results_object.rules_passed;
-         var not_applicable = rule_results_object.rules_na;
-         var hidden = rule_results_object.rules_hidden;
-         var warnings = rule_results_object.rules_warnings;
-         
-         if (violations && violations.length>0) {
-         
-           for (i = 0; i < violations.length; i++) {
-             resultArray.push({severity: "Violation", message: violations[i]});
-           }
-         }
-
-         if (manual_evaluations && manual_evaluations.length>0) {
-         
-           for (i = 0; i < manual_evaluations.length; i++) {
-             resultArray.push({severity: "Manual Evaluation", message: manual_evaluations[i]});
-           }
-         }
-
-         if (recommendations && recommendations.length>0) {
-         
-           for (i = 0; i < recommendations.length; i++) {
-             resultArray.push({severity: "Recommendation", message: recommendations[i]});
-           }
-         }
-
-         if (informational && informational.length>0) {
-         
-           for (i = 0; i < informational.length; i++) {
-             resultArray.push({severity: "Information", message: informational[i]});
-           } 
-         }
-       
-         if (passed && passed.length>0) {
-         
-           for (i = 0; i < passed.length; i++) {
-             resultArray.push({severity: "Pass", message: passed[i]});
-           }
-         }
-
-         if (not_applicable && not_applicable.length>0) {
-         
-           for (i = 0; i < not_applicable.length; i++) {
-             resultArray.push({severity: "NA", message: not_applicable[i]});
-           }
-         }
-         
-         if (hidden && hidden.length>0) {
-             
-           for (i = 0; i < hidden.length; i++) {
-             resultArray.push({severity: "Hidden", message: hidden[i]});
-           }
-         }
-         
-         if (warnings && warnings.length>0) {
-             
-           for (i = 0; i < warnings.length; i++) {
-             resultArray.push({severity: "Warning", message: warnings[i]});
-           }
-         }
-         
-         return resultArray;
-    	 
-     },
-     
      /**
       * @function rebuild
       * 
@@ -392,7 +315,7 @@ FBL.ns(function() { with (FBL) {
    		 }
    	   }
    	   if (flag) {
-           var header_elements = ["Rule Info/Props", "Message/Value"];
+           var header_elements = ["Result", "Rule ID", "Message"];
            FBTrace.sysout("this.panelNode: ", this.panelNode.offsetParent.children[1]);
            //clearNode(this.panelNode.offsetParent.children[1]);
  	      AINSPECTOR_FB.emptyTemplate.tag.replace({header_elements: header_elements}, this.panelNode);
@@ -483,8 +406,9 @@ FBL.ns(function() { with (FBL) {
       TABLE({class: "ai-sidepanel-table", cellpadding: 0, cellspacing: 0, role: "treegrid"},
         THEAD(
           TR({class: "gridHeaderRow gridRow", id: "rulesTableHeader", role: "row", tabindex: "0"},
-            TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, "RuleInfo/Props"),
-            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, "Message/value")
+            TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, "Result"),
+            TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, "Rule ID"),
+            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, "Message")
           )
         ),  
         TBODY(
@@ -492,6 +416,8 @@ FBL.ns(function() { with (FBL) {
             TR({class: "tableRow gridRow", role: "row"},
               TD({class: "resultsCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, 
             	DIV({class: "gridContent"}, TAG("$obj|getAccessibility", {'object': '$obj'}))),
+              TD({class: "cacheIDCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, 
+                DIV({class: "gridContent"},"$obj.id")),
               TD({class: "messagesCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, 
             	DIV({class: "gridContent"},"$obj.description"))
             ) //end TR

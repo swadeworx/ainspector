@@ -151,7 +151,7 @@ FBL.ns(function() { with (FBL) {
        this.panelNode.id = "ainspector-side-panel";
        var flag = true;
    	   for(var i in resultArray){ if(resultArray.hasOwnProperty(i)){flag = false;}}
-
+   	   FBTrace.sysout("flag: " + flag);
    	   if (flag) {
     	   emptyTemplate.tag.replace({object: resultArray}, this.panelNode);
        } else {

@@ -149,11 +149,26 @@ FBL.ns(function() { with (FBL) {
       */
      rebuild: function(resultArray){
        this.panelNode.id = "ainspector-side-panel";
-	   attributesTemplate.tag.replace({object: resultArray}, this.panelNode);
+       
+       var flag = true;
+   	   for (var i in resultArray){ 
+   		 if(resultArray.hasOwnProperty(i)){
+   		   flag = false;
+   		   break;
+   		 }
+   	   }
+   	   if (flag) {
+         var header_elements = ["CSS Property", "Value"];
+         FBTrace.sysout("this.panelNode: ", this.panelNode.offsetParent.children[1]);
+        //clearNode(this.panelNode.offsetParent.children[1]);
+	      AINSPECTOR_FB.emptyTemplate.tag.replace({header_elements: header_elements}, this.panelNode);
+	   } else {
+	     styleTemplate.tag.replace({object: resultArray}, this.panelNode);
+       }
      }
    });
   
-  var attributesTemplate = domplate(BaseRep, {
+  var styleTemplate = domplate(BaseRep, {
 	    
 	    tag:
 	      TABLE({class: "ai-sidepanel-table", cellpadding: 0, cellspacing: 0, role: "treegrid"},
