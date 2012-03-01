@@ -93,18 +93,8 @@ FBL.ns(function() { with (FBL) {
 	 
 	 firebug_context.browser.chrome.$("radio-toolbar").children[0].checked = true;
 	 cache_object = AINSPECTOR_FB.cacheUtil.updateCache();
-	 /* var panel = firebug_context.getPanel("AInspector");
-	  cache_object = AINSPECTOR_FB.cacheUtil.updateCache();
-	  FBTrace.sysout("panel @@@@@@@@@@@@@@", panel);
-
-	  //var toolbarbutton = Firebug.currentContext.window.document.getElementById("ainspector_images_view_button");
-	  var toolbarbutton = panel.document.getElementById("ainspector_images_view_button");
-	  FBTrace.sysout("toolbarButton @@@@@@@@@@@@@@", toolbarbutton);
-	  if (toolbarbutton) toolbarbutton.checked = flag;
-	  */
-      AINSPECTOR_FB.event.fire('onload', {'window': win });
-
-	  AINSPECTOR_FB.equivalents.equivalentsView(firebug_context, panel_name, cache_object);
+     AINSPECTOR_FB.event.fire('onload', {'window': win });
+     AINSPECTOR_FB.equivalents.equivalentsView(firebug_context, panel_name, cache_object);
 	},
 	
 	/**
@@ -235,8 +225,7 @@ FBL.ns(function() { with (FBL) {
       
       var head_land_toolbar_buttons = [{name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.headings.tree"), selected: true, first:true},
                                    {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.titleMain")}, 
-                                   {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.headings")},
-                                   {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.landmarks")}];
+                                   {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.noLandmark")}];
       
       AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
 
@@ -416,7 +405,7 @@ FBL.ns(function() { with (FBL) {
       cache_object.dom_cache.links_cache.sortLinkElements('document_order', true);
       FBTrace.sysout("cache...............", cache_object);*/
       
-      var ruleset_id = 'WCAG20_TRANS';
+      var ruleset_id = 'WCAG20_ARIA_TRANS';
       var ruleset = OpenAjax.a11y.all_rulesets.getRuleset(ruleset_id);
 
       if (ruleset) {

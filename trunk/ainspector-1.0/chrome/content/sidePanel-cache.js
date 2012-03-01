@@ -85,9 +85,10 @@ FBL.ns(function() { with (FBL) {
      updateSelection : function() {
        var selection = this.mainPanel.selection;
        var dom_element = selection.dom_element; 
-       if (dom_element)
-         this.rebuild(this.showOnRulesTabSelect(dom_element));
-       else this.rebuild(this.showOnRulesTabSelect(selection.value.dom_element));
+       //if (dom_element)
+         //this.rebuild(this.showOnRulesTabSelect(dom_element));
+       //else this.rebuild(this.showOnRulesTabSelect(selection.value.dom_element));
+       this.rebuild(this.showOnRulesTabSelect(selection));
      },
      
      /**
@@ -113,11 +114,10 @@ FBL.ns(function() { with (FBL) {
      setSelection: function(event) {
    
        var element = Firebug.getRepObject(event.target);
-       if (element.dom_element)
-         this.rebuild(this.showOnRulesTabSelect(element.dom_element));
-    //   else if (element.value.dom_element) this.rebuild(this.showOnRulesTabSelect(element.value.dom_element));
-       else this.rebuild(this.showOnRulesTabSelect(element)); //for colorcontrast
-
+       //if (element.dom_element)
+         //this.rebuild(this.showOnRulesTabSelect(element.dom_element));
+       //else this.rebuild(this.showOnRulesTabSelect(element)); //for colorcontrast
+       this.rebuild(this.showOnRulesTabSelect(element));
      },
      
      /**
@@ -159,7 +159,7 @@ FBL.ns(function() { with (FBL) {
 	      TABLE({class: "ai-sidepanel-table", cellpadding: 0, cellspacing: 0, role: "treegrid"},
 	        THEAD(
 	          TR({class: "gridHeaderRow gridRow", id: "rulesTableHeader", "role": "row", tabindex: "0"},
-	            TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, "Cache Property"),
+	            TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, "A11y Property"),
 	            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, "Value"),
 	            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, "Description")
 	          )
