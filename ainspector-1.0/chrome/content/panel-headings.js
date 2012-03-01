@@ -22,7 +22,7 @@ with (FBL) {
   heading_elements: null;
   child_elements: null;
   title_main_elements: null;
-  landmark_elements: null;
+  content_outside_landmarks: null;
 
   AINSPECTOR_FB.headLandmarkView = {  
 
@@ -40,7 +40,8 @@ with (FBL) {
 
 	var head_land_cache = cache_object.dom_cache.headings_landmarks_cache;
 	child_elements = head_land_cache.child_cache_elements;
-	landmark_elements = head_land_cache.landmark_elements;
+	content_outside_landmarks = head_land_cache.content_outside_of_landmarks;
+	FBTrace.sysout("content_outside_landmarks: ", content_outside_landmarks);
 	heading_elements = head_land_cache.heading_elements;
 	title_main_elements = cache_object.dom_cache.title_main_cache.main_elements;
 
@@ -92,7 +93,7 @@ AINSPECTOR_FB.headLandmarkView.headingsToolbarPlate = domplate({
 
 	toolbarButtons : UL ({class : "yui-nav focusTabList toolbarLinks", role : "tablist", onkeypress : "$AINSPECTOR_FB.toolbarUtil.onToolbarKeyPress", "aria-label" :  "toolbarbutton views"},
 			FOR("obj", "$toolbar_buttons",
-					LI({id: "$obj.name", class : "$obj|AINSPECTOR_FB.toolbarUtil.getToolbarButtonClass focusTab", onclick: "$onClickToolbarButton", tabindex : "$obj|AINSPECTOR_FB.toolbarUtil.getTabIndex", 
+					LI({id: "$obj.name", class : "$obj|AINSPECTOR_FB.toolbarUtil.getToolbarButtonClass focusTab", tabindex : "$obj|AINSPECTOR_FB.toolbarUtil.getTabIndex", 
 						role : "tab", "aria-selected" : "$obj|AINSPECTOR_FB.toolbarUtil.getSelectedState", onfocus : "$onToolbarFocus"},
 						"$obj.name"
 					)//end LI
@@ -197,11 +198,14 @@ onClickToolbarButton : function(event) {
  * @param toolbar_button_id
  */
 showOnSelectButton : function(toolbar_button_id) {
-
-	clearNode(panel.table);  // clear the content of the panel 
+    FBTrace.sysout("before panel.table", panel);
+    FBTrace.sysout("toolbar_button_id: " + toolbar_button_id);
+    
+	if (panel.table)clearNode(panel.table);  // clear the content of the panel 
 	clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
-
-	if (toolbar_button_id == "Tree View") {
+	FBTrace.sysout("after panel.table", panel);
+	if (toolbar_button_id == "Tree View" || toolbar_button_id == "Tree") {
+		if (panel.table)clearNode(panel.table);  // clear the content of the panel
 		panel.table = AINSPECTOR_FB.headLandmarkView.headingsTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.headLandmarkView.headingsTreeTemplate);
 		AINSPECTOR_FB.headLandmarkView.select(child_elements[0]);
 
@@ -211,7 +215,13 @@ showOnSelectButton : function(toolbar_button_id) {
 		panel.table = AINSPECTOR_FB.headLandmarkView.headingsTreeTemplate.tag.append( {object: title_main_elements}, panel.panelNode, AINSPECTOR_FB.headLandmarkView.headingsTreeTemplate);
 		AINSPECTOR_FB.headLandmarkView.select(title_main_elements[0]);
 		Firebug.currentContext.getPanel('Rules').sView(true, title_main_elements[0]);
-	} else if (toolbar_button_id == "Headings") {
+	} else {
+		panel.table = AINSPECTOR_FB.headLandmarkView.noLandmarksTemplate.tableTag.append( {content_outside_landmarks: content_outside_landmarks}, panel.panelNode, AINSPECTOR_FB.headLandmarkView.noLandmarksTemplate);
+		AINSPECTOR_FB.headLandmarkView.select(content_outside_landmarks[0]);
+
+		Firebug.currentContext.getPanel('Rules').sView(true, content_outside_landmarks[0]);
+    }
+	/* else if (toolbar_button_id == "Headings") {
 		var properties = ["Order", "Level", "Name"];
 
 
@@ -220,12 +230,11 @@ showOnSelectButton : function(toolbar_button_id) {
 
 		Firebug.currentContext.getPanel('Rules').sView(true, heading_elements[0]);
 	} else {
-		panel.table = AINSPECTOR_FB.headLandmarkView.landmarksTemplate.tableTag.append( {landmark_elements: landmark_elements}, panel.panelNode, AINSPECTOR_FB.headLandmarkView.landmarksTemplate);
-		AINSPECTOR_FB.headLandmarkView.select(landmark_elements[0]);
+		panel.table = AINSPECTOR_FB.headLandmarkView.landmarksTemplate.tableTag.append( {content_outside_landmarks: content_outside_landmarks}, panel.panelNode, AINSPECTOR_FB.headLandmarkView.landmarksTemplate);
+		AINSPECTOR_FB.headLandmarkView.select(content_outside_landmarks[0]);
 
-		Firebug.currentContext.getPanel('Rules').sView(true, landmark_elements[0]);
-	}
-
+		Firebug.currentContext.getPanel('Rules').sView(true, content_outside_landmarks[0]);
+	}*/
 },
 
 /**
@@ -658,13 +667,13 @@ onClick_htmlView: function(event) {
 
 
 /**
- * @Domplate landmarksTemplate
+ * @Domplate noLandmarksTemplate
  * 
  * @Desc template object, create HTML mark up showed upon clicking the images toolbar button
  * 
  * @return flat list of images to be displayed on the panel
  */
-AINSPECTOR_FB.headLandmarkView.landmarksTemplate = domplate({
+AINSPECTOR_FB.headLandmarkView.noLandmarksTemplate = domplate({
   
 	  tableTag:
     
@@ -672,25 +681,20 @@ AINSPECTOR_FB.headLandmarkView.landmarksTemplate = domplate({
       THEAD(
         TR({class: "gridHeaderRow gridRow", id: "imgTableHeader", role: "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader"},
             TH({class: "gridHeaderCell gridCell", id: "lmElementHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Element")),
-            TH({class: "gridHeaderCell gridCell", id: "lmRoleHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Role")),
-            TH({class: "gridHeaderCell gridCell", id: "lmNameHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Name")),
-            TH({class: "gridHeaderCell gridCell", id: "lmOrderHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Accessibility Summary"))
-
+            TH({class: "gridHeaderCell gridCell", id: "lmNameHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Content")),
+            TH({class: "gridHeaderCell gridCell", id: "lmOrderHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell", title: "Accessibility Summary"}, DIV({class: "gridHeaderCellBox"}, "A11y"))
         ) //end TR
       ), //end THEAD
       TBODY(
-        FOR("object", "$landmark_elements",
+        FOR("object", "$content_outside_landmarks",
           TR({class: "tableRow  gridRow", role: "row", id: "$object.cache_id", _repObject:"$object", onclick: "$onClickRow", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
-            TD({class: "imgEleCol gridCell gridCol ",  id:"imgSrcCol", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
-              DIV({class: "gridContent", _repObject:"$object"}, "$object.dom_element.tag_name")
+            TD({class: "gridCell gridCol ", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+              DIV({class: "gridContent", _repObject:"$object"}, "$object.parent_element.tag_name")
             ),
-            TD({class: "imgTextCol gridCell gridCol ",  id:"imgSrcCol", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
-              DIV({class: "gridContent", _repObject:"$object"}, "$object.dom_element.role")
+            TD({class: "gridCell gridCol ", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+              DIV({class: "gridContent", _repObject:"$object"}, "$object.text|AINSPECTOR_FB.ainspectorUtil.truncateText")
             ),
-            TD({class: "imgOrderCol gridCell gridCol", id:"imgOrderCol" , role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
-              DIV({class: "gridContent", _repObject:"$object"}, "$object.name")
-            ),
-            TD({class: "imgSourceCol gridCell gridCol ", id: "imgTextCol", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+            TD({class: "gridCell gridCol ", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
               DIV({class: "gridContent", _repObject:"$object", title: "$object.source"}, TAG("$object|getAccessibility", {'object': '$object'}))
             )
           )//end TR   
@@ -721,8 +725,9 @@ AINSPECTOR_FB.headLandmarkView.landmarksTemplate = domplate({
     strTagWarn : DIV({class: "warnMsgTxt"}, "$object|getSummary"),
     
     getAccessibility : function(object){
+	  FBTrace.sysout("object.getAccessibility(): ", object.getAccessibility());
+	  var severity =  object.getAccessibility().label;
 	  
-	  var severity =  object.dom_element.getAccessibility().label;
 	  var styleSeverityTag;
 	  
 	  if (severity == "Pass")  styleSeverityTag = this.strTagPass;
@@ -737,7 +742,7 @@ AINSPECTOR_FB.headLandmarkView.landmarksTemplate = domplate({
     },
   
     getSummary : function(object){
-	  return object.dom_element.getAccessibility().label;
+	  return object.getAccessibility().label;
     }
   });
 
