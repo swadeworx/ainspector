@@ -37,23 +37,49 @@ with (FBL) {
 	 * @param panel
 	 * @param links
 	 */
-	linksPanel : function(panelView, toolbar, toolbar_buttons, links_cache) {
+	viewPanel : function(context, panel_name, cache_object) {
 	    
+	  if (!panel_name) panel_name = "AInspector";
+	  if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
+	  
+	  //FBTrace.sysout("cache_object: ", cache_object);
+
+	  panel = context.getPanel(panel_name, true);
+	  
+	  var panel = context.getPanel(panel_name, true);
+
+      /* Clear the panel before writing anything onto the report*/
+      if (panel) {
+        clearNode(panel.panelNode);
+        clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+      }
+		var toolbar_buttons = [{name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.all"), selected: true, first:true},
+		                                   {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.duplicateHref")}, 
+		                                   {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.duplicateName")},
+		                                   {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.area")}];
+      
+
+      AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
+
+      var toolbar = panel.document.createElement("div");
+      toolbar.id = "toolbarDiv";
+      var links_cache = cache_object.dom_cache.links_cache;
+	  
 	  AINSPECTOR_FB.links.linksToolbar.toolbar.replace({toolbar_buttons : toolbar_buttons}, toolbar, AINSPECTOR_FB.links.linksToolbar);
 	      
-	  var element = panelView.document.createElement("div");
+	  var element = panel.document.createElement("div");
 	  element.style.display = "block";
 		  
 	  toolbar.style.display = "block";
 		  
-	  panelView.panelNode.id = "ainspector-panel"; 
-	  panelView.panelNode.appendChild(toolbar);
-	  panelView.panelNode.appendChild(element);
+	  panel.panelNode.id = "ainspector-panel"; 
+	  panel.panelNode.appendChild(toolbar);
+	  panel.panelNode.appendChild(element);
 		  
 	  link_elements = links_cache.link_elements;
 	  duplicate_name_items = links_cache.duplicate_name_items;
 	  duplicate_href_items = links_cache.duplicate_href_items;
-	  panel = panelView;
+
 	  panel.table = AINSPECTOR_FB.links.allLinksTemplate.tableTag.append({link_elements: link_elements}, panel.panelNode, null);
 	  this.select(links_cache.link_elements[0]);
 	  Firebug.currentContext.getPanel('Rules').sView(true, links_cache.link_elements[0]);

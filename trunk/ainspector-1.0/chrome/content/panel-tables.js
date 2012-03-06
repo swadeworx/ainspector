@@ -31,30 +31,45 @@ with (FBL) {
 	 * 
 	 * @param head_land_toolbar_buttons
 	 * @param toolbar
-	 * @param panelView
+	 * @param panel
 	 * @param cache_object
 	 * @returns
 	 */
-	 tablesPanelView : function(toolbar_buttons, toolbar, panelView, cache_object) {
-	        
+	 viewPanel : function(context, panel_name, cache_object) {		
+
+		  if (!panel_name) panel_name = "AInspector";
+		  if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
+		  
+		  panel = context.getPanel(panel_name, true);
+
+	      /* Clear the panel before writing anything onto the report*/
+	      if (panel) {
+	        clearNode(panel.panelNode);
+	        clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+	      }
+
+	      var toolbar_buttons = [{name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.tables.tree"), selected: true, first:true},
+	                                       {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.tables.list")}];
+	          
+	      AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
+
+	      var toolbar = panel.document.createElement("div");
+	      toolbar.id = "toolbarDiv";
+	      
       var tables_cache = cache_object.dom_cache.tables_cache; 
       
       table_elements = tables_cache.table_elements;
       child_elements = tables_cache.child_cache_elements;
 
       AINSPECTOR_FB.tables.tablesToolbarPlate.toolbar.replace({toolbar_buttons : toolbar_buttons}, toolbar, AINSPECTOR_FB.tables.tablesToolbarPlate);
-	  //toolbar.style.display = "block";
-       var element = panelView.document.createElement("div");
+
+      var element = panel.document.createElement("div");
 	  element.style.display = "block";
-	  panelView.panelNode.id = "ainspector-panel"; 
-	  panelView.panelNode.appendChild(toolbar);
-          panelView.panelNode.appendChild(element);
-	        
-	  panel = panelView;
+	  panel.panelNode.id = "ainspector-panel"; 
+	  panel.panelNode.appendChild(toolbar);
+      panel.panelNode.appendChild(element);
 
-
-
-	  panel.table = AINSPECTOR_FB.tables.tablesTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.tables.tablesTreeTemplate);
+      panel.table = AINSPECTOR_FB.tables.tablesTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.tables.tablesTreeTemplate);
 	  this.select(child_elements[0]);
 	  Firebug.currentContext.getPanel('Rules').sView(true, child_elements[0]);
     },

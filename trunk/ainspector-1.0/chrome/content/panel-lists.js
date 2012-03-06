@@ -25,32 +25,50 @@ with (FBL) {
   AINSPECTOR_FB.lists = {
     
     /**
-	 * panelsView
+	 * @function viewPanel
 	 * 
 	 * @desc
 	 * 
 	 * @param toolbar_buttons
 	 * @param toolbar
-	 * @param panelView
+	 * @param panel
 	 * @param cacheResult
 	 * @returns
 	 */
-    listPanelView : function(toolbar_buttons, toolbar, panelView, lists_cache) {
-	        
-	  list_elements = lists_cache.container_elements;
+    viewPanel : function(context, panel_name, cache_object) {
+
+  	  if (!panel_name) panel_name = "AInspector";
+  	  if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
+  	  panel = context.getPanel(panel_name, true);
+  	 
+  	  /* Clear the panel before writing anything onto the report*/
+        if (panel) {
+        	clearNode(panel.panelNode);
+          clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+        }
+
+        var toolbar_buttons = [{name: "Tree View", selected: true, first:true},
+                               {name: "List View"}];
+  
+        AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
+  
+        var toolbar = panel.document.createElement("div");
+        toolbar.id = "toolbarDiv";
+        var lists_cache = cache_object.dom_cache.lists_cache;    
+	    list_elements = lists_cache.container_elements;
       child_elements = lists_cache.child_cache_elements;
 
       AINSPECTOR_FB.lists.listToolbarPlate.toolbar.replace({toolbar_buttons : toolbar_buttons}, toolbar, AINSPECTOR_FB.lists.listToolbarPlate);
 	  //toolbar.style.display = "block";
 	  
-	  var element = panelView.document.createElement("div");
+	  var element = panel.document.createElement("div");
 	  element.style.display = "block";
 	  
-	  panelView.panelNode.id = "ainspector-panel"; 
-	  panelView.panelNode.appendChild(toolbar);
-	  panelView.panelNode.appendChild(element);
+	  panel.panelNode.id = "ainspector-panel"; 
+	  panel.panelNode.appendChild(toolbar);
+	  panel.panelNode.appendChild(element);
 	  
-	  panel = panelView;
+	  panel = panel;
 	  panel.table = AINSPECTOR_FB.lists.listTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.lists.listTreeTemplate);
       this.select(child_elements[0]);
 	  Firebug.currentContext.getPanel('Rules').sView(true, child_elements[0]);

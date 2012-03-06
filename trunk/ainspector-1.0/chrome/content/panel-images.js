@@ -22,8 +22,8 @@ with (FBL) {
   image_elements: null;
   media_elements: null;
   abbreviation_elements: null;
-
-AINSPECTOR_FB.equivalents = {
+  
+  AINSPECTOR_FB.equivalents = {
 		  
   /**
    * @function equivalentsView 
@@ -38,7 +38,7 @@ AINSPECTOR_FB.equivalents = {
    * 
    */
 	//equivalentsView : function(toolbar_buttons, toolbar, panelView, cache_object) {
-	equivalentsView: function(context, panel_name, cache_object) {		
+	viewPanel: function(context, panel_name, cache_object) {		
 	  //FBTrace.sysout("............equivalents view.............");
 
 	  if (!panel_name) panel_name = "AInspector";
@@ -99,6 +99,8 @@ AINSPECTOR_FB.equivalents = {
       
     }
   }; //end of equivalents
+  
+  //AINSPECTOR_FB.toolbar_button = AINSPECTOR_FB.equivalents;
   
   /**
    * @function equivToolbarPlate
