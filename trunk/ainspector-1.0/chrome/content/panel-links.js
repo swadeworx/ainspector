@@ -221,18 +221,18 @@ with (FBL) {
     if (toolbar_button_id == "All") {
         
       panel.table = AINSPECTOR_FB.links.allLinksTemplate.tableTag.append( {links: link_elements}, panel.panelNode, null);
-      AINSPECTOR_FB.equivalents.select(link_elements[0]);
+      AINSPECTOR_FB.images.select(link_elements[0]);
       Firebug.currentContext.getPanel('Rules').sView(true, link_elements[0]);
      
     } else if (toolbar_button_id == "Duplicate HREF"){
    	  var properties = ["Number", "HREF", "Name"];
       panel.table = AINSPECTOR_FB.links.duplicateNameOrHrefTemplate.tag.append( {object: duplicate_href_items, properties: properties}, panel.panelNode, AINSPECTOR_FB.links.duplicateNameOrHrefTemplate);
-      AINSPECTOR_FB.equivalents.select(duplicate_href_items[0]);
+      AINSPECTOR_FB.images.select(duplicate_href_items[0]);
       Firebug.currentContext.getPanel('Rules').sView(true, duplicate_href_items[0]);
     } else if (toolbar_button_id == "Duplicate NAME") {
       var properties = ["Number", "Name", "HREF"];
       panel.table = AINSPECTOR_FB.links.duplicateNameOrHrefTemplate.tag.append( {object: duplicate_name_items, properties:properties}, panel.panelNode, AINSPECTOR_FB.links.duplicateNameOrHrefTemplate);
-      AINSPECTOR_FB.equivalents.select(duplicate_name_items[0]);
+      AINSPECTOR_FB.images.select(duplicate_name_items[0]);
   	  Firebug.currentContext.getPanel('Rules').sView(true, duplicate_name_items[0]);
     } else {
     	
