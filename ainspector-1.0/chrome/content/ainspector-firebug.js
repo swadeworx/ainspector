@@ -82,7 +82,7 @@ FBL.ns(function() { with (FBL) {
 		firebug_context = Firebug.currentContext;  
 	  }
 	 var toolbarbuttons = firebug_context.browser.chrome.$("radio-toolbar").children;
-	 var toolbar_button = "equivalents";
+	 var toolbar_button = "images";
 	 for (var i=0; i < toolbarbuttons.length; i=i+2){
 		if (toolbarbuttons[i].checked == true) {
 		  //if (i != 0) toolbarbuttons[i].checked = false;
@@ -95,7 +95,7 @@ FBL.ns(function() { with (FBL) {
 	 //firebug_context.browser.chrome.$("radio-toolbar").children[0].checked = true;
 	 cache_object = AINSPECTOR_FB.cacheUtil.updateCache();
      AINSPECTOR_FB.event.fire('onload', {'window': win });
-	 FBTrace.sysout("window : " , window.AINSPECTOR_FB[toolbar_button]);
+	 FBTrace.sysout("window : " , window);
 	 window.AINSPECTOR_FB[toolbar_button].viewPanel(firebug_context, panel_name, cache_object);
 	},
 	

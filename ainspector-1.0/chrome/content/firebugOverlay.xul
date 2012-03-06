@@ -10,6 +10,7 @@
   <script type="application/x-javascript" src="chrome://ainspector/content/a11y.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/ainspector.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-images.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/panel-media.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-lists.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-controls.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-tables.js"/>
@@ -34,7 +35,8 @@
   <script type="application/x-javascript" src="chrome://ainspector/content/openajax_a11y/openajax_a11y_all.js"/>
   
   <commandset id="mainCommandSet"> 
-    <command id="ainspector_images_view_button" oncommand="AINSPECTOR_FB.equivalents.viewPanel(Firebug.currentContext)"/>
+    <command id="ainspector_images_view_button" oncommand="AINSPECTOR_FB.images.viewPanel(Firebug.currentContext)"/>
+    <command id="ainspector_media_view_button" oncommand="AINSPECTOR_FB.media.viewPanel(Firebug.currentContext)"/>
     <command id="ainspector_controls_view_button" oncommand="AINSPECTOR_FB.controls.viewPanel(Firebug.currentContext)"/>
     <command id="ainspector_color_contrast_view_button" oncommand="AINSPECTOR_FB.colorContrast.viewPanel(Firebug.currentContext)"/>
     <command id="ainspector_headings_landmarks_view_button" oncommand="AINSPECTOR_FB.headLandmarks.viewPanel(Firebug.currentContext)"/>
@@ -53,7 +55,9 @@
         <toolbarseparator/>
 	      <toolbox> 
           <toolbar id="radio-toolbar">
-            <toolbarbutton id="equivalents" label="&ainspector.toolbarbutton.images.label;" class="toolbar-text-button fbInternational" checked="true" command="ainspector_images_view_button" type="radio" group="RadioGroup"/>
+            <toolbarbutton id="images" label="&ainspector.toolbarbutton.images.label;" class="toolbar-text-button fbInternational" checked="true" command="ainspector_images_view_button" type="radio" group="RadioGroup"/>
+            <toolbarseparator/>
+            <toolbarbutton id="media" label="&ainspector.toolbarbutton.media.label;" class="toolbar-text-button fbInternational" command="ainspector_media_view_button" type="radio" group="RadioGroup"/>
             <toolbarseparator/>
             <toolbarbutton id="controls" label="&ainspector.toolbarbutton.controls.label;" class="toolbar-text-button fbInternational" command="ainspector_controls_view_button" type="radio" group="RadioGroup"/>
             <toolbarseparator/>
