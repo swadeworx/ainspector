@@ -34,15 +34,15 @@
   <script type="application/x-javascript" src="chrome://ainspector/content/openajax_a11y/openajax_a11y_all.js"/>
   
   <commandset id="mainCommandSet"> 
-    <command id="ainspector_images_view_button" oncommand="AINSPECTOR_FB.equivalents.equivalentsView(Firebug.currentContext)"/>
-    <command id="ainspector_controls_view_button" oncommand="Firebug.ainspectorModule.controlsView(Firebug.currentContext)"/>
-    <command id="ainspector_color_contrast_view_button" oncommand="Firebug.ainspectorModule.colorContrastView(Firebug.currentContext)"/>
-    <command id="ainspector_headings_landmarks_view_button" oncommand="Firebug.ainspectorModule.headingsView(Firebug.currentContext)"/>
-    <command id="ainspector_links_view_button" oncommand="Firebug.ainspectorModule.linksView(Firebug.currentContext)"/>
-    <command id="ainspector_lists_view_button" oncommand="Firebug.ainspectorModule.listsView(Firebug.currentContext)"/>
-    <command id="ainspector_tables_view_button" oncommand="Firebug.ainspectorModule.tablesView(Firebug.currentContext)"/>
-    <command id="ainspector_abbr_view_button" oncommand="Firebug.ainspectorModule.abbrView(Firebug.currentContext)"/>
-    <command id="ainspector_elements_view_button" oncommand="Firebug.ainspectorModule.elementsView(Firebug.currentContext)"/>
+    <command id="ainspector_images_view_button" oncommand="AINSPECTOR_FB.equivalents.viewPanel(Firebug.currentContext)"/>
+    <command id="ainspector_controls_view_button" oncommand="AINSPECTOR_FB.controls.viewPanel(Firebug.currentContext)"/>
+    <command id="ainspector_color_contrast_view_button" oncommand="AINSPECTOR_FB.colorContrast.viewPanel(Firebug.currentContext)"/>
+    <command id="ainspector_headings_landmarks_view_button" oncommand="AINSPECTOR_FB.headLandmarks.viewPanel(Firebug.currentContext)"/>
+    <command id="ainspector_links_view_button" oncommand="AINSPECTOR_FB.links.viewPanel(Firebug.currentContext)"/>
+    <command id="ainspector_lists_view_button" oncommand="AINSPECTOR_FB.lists.viewPanel(Firebug.currentContext)"/>
+    <command id="ainspector_tables_view_button" oncommand="AINSPECTOR_FB.tables.viewPanel(Firebug.currentContext)"/>
+    <command id="ainspector_abbr_view_button" oncommand="AINSPECTOR_FB.abbrLanguage.viewPanel(Firebug.currentContext)"/>
+    <command id="ainspector_elements_view_button" oncommand="AINSPECTOR_FB.elements.viewPanel(Firebug.currentContext)"/>
 
     <command id="ainspector_navigation_view_button" oncommand="Firebug.ainspectorModule.navigationView(Firebug.currentContext)"/>
   </commandset> 
@@ -53,23 +53,23 @@
         <toolbarseparator/>
 	      <toolbox> 
           <toolbar id="radio-toolbar">
-            <toolbarbutton id="images_media_button" label="&ainspector.toolbarbutton.images.label;" class="toolbar-text-button fbInternational" checked="true" command="ainspector_images_view_button" type="radio" group="RadioGroup"/>
+            <toolbarbutton id="equivalents" label="&ainspector.toolbarbutton.images.label;" class="toolbar-text-button fbInternational" checked="true" command="ainspector_images_view_button" type="radio" group="RadioGroup"/>
             <toolbarseparator/>
-            <toolbarbutton id="controls_button" label="&ainspector.toolbarbutton.controls.label;" class="toolbar-text-button fbInternational" command="ainspector_controls_view_button" type="radio" group="RadioGroup"/>
+            <toolbarbutton id="controls" label="&ainspector.toolbarbutton.controls.label;" class="toolbar-text-button fbInternational" command="ainspector_controls_view_button" type="radio" group="RadioGroup"/>
             <toolbarseparator/>
-            <toolbarbutton id="colorContrast_button" label="&ainspector.toolbarbutton.colorContrast.label;" class="toolbar-text-button fbInternational" command="ainspector_color_contrast_view_button" type="radio" group="RadioGroup"/> 
+            <toolbarbutton id="colorContrast" label="&ainspector.toolbarbutton.colorContrast.label;" class="toolbar-text-button fbInternational" command="ainspector_color_contrast_view_button" type="radio" group="RadioGroup"/> 
             <toolbarseparator/>
-            <toolbarbutton id="headings_landmarks_button" label="&ainspector.toolbarbutton.headings.label;" class="toolbar-text-button fbInternational" command= "ainspector_headings_landmarks_view_button" type="radio" group="RadioGroup"/>
+            <toolbarbutton id="headLandmarks" label="&ainspector.toolbarbutton.headings.label;" class="toolbar-text-button fbInternational" command= "ainspector_headings_landmarks_view_button" type="radio" group="RadioGroup"/>
             <toolbarseparator/>
-            <toolbarbutton id="links_button" label="&ainspector.toolbarbutton.links.label;" class="toolbar-text-button fbInternational" command= "ainspector_links_view_button" type="radio" group="RadioGroup"/>
+            <toolbarbutton id="links" label="&ainspector.toolbarbutton.links.label;" class="toolbar-text-button fbInternational" command= "ainspector_links_view_button" type="radio" group="RadioGroup"/>
             <toolbarseparator/>
-            <toolbarbutton id="lists_button" label="&ainspector.toolbarbutton.lists.label;" class="toolbar-text-button fbInternational" command="ainspector_lists_view_button" type="radio" group="RadioGroup"/> 
+            <toolbarbutton id="lists" label="&ainspector.toolbarbutton.lists.label;" class="toolbar-text-button fbInternational" command="ainspector_lists_view_button" type="radio" group="RadioGroup"/> 
             <toolbarseparator/>
-            <toolbarbutton id="tables_button" label="&ainspector.toolbarbutton.tables.label;" class="toolbar-text-button fbInternational" command="ainspector_tables_view_button" type="radio" group="RadioGroup"/> 
+            <toolbarbutton id="tables" label="&ainspector.toolbarbutton.tables.label;" class="toolbar-text-button fbInternational" command="ainspector_tables_view_button" type="radio" group="RadioGroup"/> 
             <toolbarseparator/>
-            <toolbarbutton id="abbr_lang_button" label="&ainspector.toolbarbutton.abbr.label;" class="toolbar-text-button fbInternational" command="ainspector_abbr_view_button" type="radio" group="RadioGroup"/> 
+            <toolbarbutton id="abbrLanguage" label="&ainspector.toolbarbutton.abbr.label;" class="toolbar-text-button fbInternational" command="ainspector_abbr_view_button" type="radio" group="RadioGroup"/> 
             <toolbarseparator/>
-            <toolbarbutton id="elements_button" label="&ainspector.toolbarbutton.elements.label;" class="toolbar-text-button fbInternational" command="ainspector_elements_view_button" type="radio" group="RadioGroup"/> 
+            <toolbarbutton id="elements" label="&ainspector.toolbarbutton.elements.label;" class="toolbar-text-button fbInternational" command="ainspector_elements_view_button" type="radio" group="RadioGroup"/> 
             <toolbarseparator/>
           </toolbar>   
         </toolbox>  
