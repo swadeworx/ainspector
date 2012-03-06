@@ -29,21 +29,36 @@ with (FBL) {
 	 * 
 	 * @param head_land_toolbar_buttons
 	 * @param toolbar
-	 * @param panelView
+	 * @param panel
 	 * @param cache_object
 	 * @returns
 	 */
-	 colorContrastPanelView : function(panelView, cache_object) {
-	        
-      var color_contrast_cache = cache_object.dom_cache.color_contrast_cache; 
+	 viewPanel : function(context, panel_name, cache_object) {		
+		  FBTrace.sysout("............context.............", context.browser.chrome.getSelectedSidePanel());
+
+		  if (!panel_name) panel_name = "AInspector";
+		  if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
+		  
+		  //FBTrace.sysout("cache_object: ", cache_object);
+
+		  panel = context.getPanel(panel_name, true);
+
+	      /* Clear the panel before writing anything onto the report*/
+	      if (panel) {
+	        clearNode(panel.panelNode);
+	        clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+	      }
+
+      AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document); 
+
+	  var color_contrast_cache = cache_object.dom_cache.color_contrast_cache; 
       
       var color_contrast_items = color_contrast_cache.color_contrast_items;
-      clearNode(panelView.table);
-	  panelView.panelNode.id = "ainspector-panel"; 
-	  panel.table = AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate.tag.replace( {object: color_contrast_items}, panelView.panelNode, AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate);
-	 // var element = panelView.document.createElement("div");
-	  //panelView.panelNode.appendChild(element);
-	  panel = panelView;
+      clearNode(panel.table);
+	  panel.panelNode.id = "ainspector-panel"; 
+	  panel.table = AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate.tag.replace( {object: color_contrast_items}, panel.panelNode, AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate);
+	 // var element = panel.document.createElement("div");
+	  //panel.panelNode.appendChild(element);
 	  panel.selection = color_contrast_items[0];
       AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[1].children[0]);
 	  Firebug.currentContext.getPanel('Rules').showContrastOrAllElements(true, panel.selection);

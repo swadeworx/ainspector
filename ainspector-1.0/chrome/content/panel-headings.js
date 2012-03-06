@@ -24,20 +24,39 @@ with (FBL) {
   title_main_elements: null;
   content_outside_landmarks: null;
 
-  AINSPECTOR_FB.headLandmarkView = {  
+  AINSPECTOR_FB.headLandmarks= {  
 
 	/**
-	 * @function headingsPanelView
+	 * @function viewPanel
 	 * 
 	 * @desc
 	 * 
 	 * @param head_land_toolbar_buttons
 	 * @param toolbar
-	 * @param panelView
+	 * @param panel
 	 * @param cache_object
 	 */
-	headingsPanelView : function(head_land_toolbar_buttons, toolbar, panelView, cache_object) {
+	viewPanel : function(context, panel_name, cache_object) {
 
+	  if (!panel_name) panel_name = "AInspector";
+	  if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
+	  panel = context.getPanel(panel_name, true);
+	 
+	  /* Clear the panel before writing anything onto the report*/
+      if (panel) {
+      	clearNode(panel.panelNode);
+        clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+      }
+      
+      var head_land_toolbar_buttons = [{name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.headings.tree"), selected: true, first:true},
+                                   {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.titleMain")}, 
+                                   {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.noLandmark")}];
+      
+      AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
+
+      var toolbar = panel.document.createElement("div");
+      toolbar.id = "toolbarDiv";
+		
 	var head_land_cache = cache_object.dom_cache.headings_landmarks_cache;
 	child_elements = head_land_cache.child_cache_elements;
 	content_outside_landmarks = head_land_cache.content_outside_of_landmarks;
@@ -45,19 +64,17 @@ with (FBL) {
 	heading_elements = head_land_cache.heading_elements;
 	title_main_elements = cache_object.dom_cache.title_main_cache.main_elements;
 
-	AINSPECTOR_FB.headLandmarkView.headingsToolbarPlate.toolbar.replace({head_land_toolbar_buttons : head_land_toolbar_buttons}, toolbar, AINSPECTOR_FB.headLandmarkView.headingsToolbarPlate);
+	AINSPECTOR_FB.headLandmarks.headingsToolbarPlate.toolbar.replace({head_land_toolbar_buttons : head_land_toolbar_buttons}, toolbar, AINSPECTOR_FB.headLandmarks.headingsToolbarPlate);
 	// toolbar.style.display = "block";
 
-	var element = panelView.document.createElement("div");
+	var element = panel.document.createElement("div");
 	element.style.display = "block";
 
-	panelView.panelNode.id = "ainspector-panel"; 
-	panelView.panelNode.appendChild(toolbar);
-	panelView.panelNode.appendChild(element);
+	panel.panelNode.id = "ainspector-panel"; 
+	panel.panelNode.appendChild(toolbar);
+	panel.panelNode.appendChild(element);
 
-	panel = panelView;
-
-	panel.table = AINSPECTOR_FB.headLandmarkView.headingsTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.headLandmarkView.headingsTreeTemplate);
+	panel.table = AINSPECTOR_FB.headLandmarks.headingsTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.headLandmarks.headingsTreeTemplate);
 	this.select(child_elements[0]);
 	Firebug.currentContext.getPanel('Rules').sView(true, child_elements[0]);
 },
@@ -84,7 +101,7 @@ select : function(object) {
  * 
  * @desc template creates the content for navigation button
  */
-AINSPECTOR_FB.headLandmarkView.headingsToolbarPlate = domplate({
+AINSPECTOR_FB.headLandmarks.headingsToolbarPlate = domplate({
 	toolbar : DIV( {class : "nav-menu"},
 			TAG("$toolbarButtons", {toolbar_buttons : "$head_land_toolbar_buttons"}),
 			BUTTON({class: "button", onclick: "$toHTMLPanel"}, "HTML Panel" )
@@ -206,18 +223,18 @@ showOnSelectButton : function(toolbar_button_id) {
 	FBTrace.sysout("after panel.table", panel);
 	if (toolbar_button_id == "Tree View" || toolbar_button_id == "Tree") {
 		if (panel.table)clearNode(panel.table);  // clear the content of the panel
-		panel.table = AINSPECTOR_FB.headLandmarkView.headingsTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.headLandmarkView.headingsTreeTemplate);
-		AINSPECTOR_FB.headLandmarkView.select(child_elements[0]);
+		panel.table = AINSPECTOR_FB.headLandmarks.headingsTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.headLandmarks.headingsTreeTemplate);
+		AINSPECTOR_FB.headLandmarks.select(child_elements[0]);
 
 		Firebug.currentContext.getPanel('Rules').sView(true, child_elements[0]);
 
 	} else if (toolbar_button_id == "Title/Main/H1"){
-		panel.table = AINSPECTOR_FB.headLandmarkView.headingsTreeTemplate.tag.append( {object: title_main_elements}, panel.panelNode, AINSPECTOR_FB.headLandmarkView.headingsTreeTemplate);
-		AINSPECTOR_FB.headLandmarkView.select(title_main_elements[0]);
+		panel.table = AINSPECTOR_FB.headLandmarks.headingsTreeTemplate.tag.append( {object: title_main_elements}, panel.panelNode, AINSPECTOR_FB.headLandmarks.headingsTreeTemplate);
+		AINSPECTOR_FB.headLandmarks.select(title_main_elements[0]);
 		Firebug.currentContext.getPanel('Rules').sView(true, title_main_elements[0]);
 	} else {
-		panel.table = AINSPECTOR_FB.headLandmarkView.noLandmarksTemplate.tableTag.append( {content_outside_landmarks: content_outside_landmarks}, panel.panelNode, AINSPECTOR_FB.headLandmarkView.noLandmarksTemplate);
-		AINSPECTOR_FB.headLandmarkView.select(content_outside_landmarks[0]);
+		panel.table = AINSPECTOR_FB.headLandmarks.noLandmarksTemplate.tableTag.append( {content_outside_landmarks: content_outside_landmarks}, panel.panelNode, AINSPECTOR_FB.headLandmarks.noLandmarksTemplate);
+		AINSPECTOR_FB.headLandmarks.select(content_outside_landmarks[0]);
 
 		Firebug.currentContext.getPanel('Rules').sView(true, content_outside_landmarks[0]);
     }
@@ -225,13 +242,13 @@ showOnSelectButton : function(toolbar_button_id) {
 		var properties = ["Order", "Level", "Name"];
 
 
-		panel.table = AINSPECTOR_FB.headLandmarkView.headingsTemplate.tableTag.append({heading_elements: heading_elements, header_properties: properties}, panel.panelNode, AINSPECTOR_FB.headLandmarkView.headingsTemplate);
-		AINSPECTOR_FB.headLandmarkView.select(heading_elements[0]);
+		panel.table = AINSPECTOR_FB.headLandmarks.headingsTemplate.tableTag.append({heading_elements: heading_elements, header_properties: properties}, panel.panelNode, AINSPECTOR_FB.headLandmarks.headingsTemplate);
+		AINSPECTOR_FB.headLandmarks.select(heading_elements[0]);
 
 		Firebug.currentContext.getPanel('Rules').sView(true, heading_elements[0]);
 	} else {
-		panel.table = AINSPECTOR_FB.headLandmarkView.landmarksTemplate.tableTag.append( {content_outside_landmarks: content_outside_landmarks}, panel.panelNode, AINSPECTOR_FB.headLandmarkView.landmarksTemplate);
-		AINSPECTOR_FB.headLandmarkView.select(content_outside_landmarks[0]);
+		panel.table = AINSPECTOR_FB.headLandmarks.landmarksTemplate.tableTag.append( {content_outside_landmarks: content_outside_landmarks}, panel.panelNode, AINSPECTOR_FB.headLandmarks.landmarksTemplate);
+		AINSPECTOR_FB.headLandmarks.select(content_outside_landmarks[0]);
 
 		Firebug.currentContext.getPanel('Rules').sView(true, content_outside_landmarks[0]);
 	}*/
@@ -292,7 +309,7 @@ viewContainer : DIV({style : "display:none"})
  * 
  * @desc template object, create HTML mark up showed upon clicking the headings toolbar button
  */
-AINSPECTOR_FB.headLandmarkView.headingsTreeTemplate = domplate({
+AINSPECTOR_FB.headLandmarks.headingsTreeTemplate = domplate({
 	
   tag:
 	TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, onclick: "$onClick", tabindex: 0, onkeypress: "$onKeyPressedTable"},
@@ -673,7 +690,7 @@ onClick_htmlView: function(event) {
  * 
  * @return flat list of images to be displayed on the panel
  */
-AINSPECTOR_FB.headLandmarkView.noLandmarksTemplate = domplate({
+AINSPECTOR_FB.headLandmarks.noLandmarksTemplate = domplate({
   
 	  tableTag:
     
@@ -757,7 +774,7 @@ AINSPECTOR_FB.headLandmarkView.noLandmarksTemplate = domplate({
  * 
  * @return flat list of images to be displayed on the panel
  */
-AINSPECTOR_FB.headLandmarkView.headingsTemplate = domplate({
+AINSPECTOR_FB.headLandmarks.headingsTemplate = domplate({
   
 	  tableTag:
     
@@ -772,7 +789,7 @@ AINSPECTOR_FB.headLandmarkView.headingsTemplate = domplate({
       ), //end THEAD
       TBODY(
         FOR("object", "$heading_elements",
-          TR({class: "tableRow  gridRow", role: "row", id: "$object.cache_id", _repObject:"$object", onclick: "$AINSPECTOR_FB.headLandmarkView.landmarksTemplate.onClickRow", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
+          TR({class: "tableRow  gridRow", role: "row", id: "$object.cache_id", _repObject:"$object", onclick: "$AINSPECTOR_FB.headLandmarks.landmarksTemplate.onClickRow", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
             TD({class: "imgOrderCol gridCell gridCol", id:"imgOrderCol" , role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
               DIV({class: "gridContent", _repObject:"$object"}, "$object.dom_element.tag_name")
             ),

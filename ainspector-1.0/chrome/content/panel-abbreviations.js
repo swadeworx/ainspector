@@ -22,35 +22,55 @@ with (FBL) {
   language_elements: null;
   abbreviation_elements: null;
 
-  AINSPECTOR_FB.abbr = {
+  AINSPECTOR_FB.abbrLanguage = {
 		  
   /**
-   * @function abbreviationsView 
+   * @function viewPanel 
    * 
    * @desc
    * 
    * @param {Array} toolbar_buttons - buttons to show on a toolbar
    * @param {Object} toolbar - dom element created to hold the content of the panel. will append to the panel 
-   * @param {Object} panelView - panel 
+   * @param {Object} panel - panel 
    * @param {Object} cache_object - container for image, media and abbreviation element properties
    * 
    */
-  abbreviationsView : function(toolbar_buttons, toolbar, panelView, cache_object) {
+  viewPanel : function(context, panel_name, cache_object) {
 	        
-    abbreviation_elements = cache_object.dom_cache.abbreviations_cache.abbreviation_items;
+	if (!panel_name) panel_name = "AInspector";
+	if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
+	  
+    panel = context.getPanel(panel_name, true);
+
+    /* Clear the panel before writing anything onto the report*/
+    if (panel) {
+     	clearNode(panel.panelNode);
+      clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+    }
+    
+    var toolbar_buttons = [
+        {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.abbr.abbreviationTab"), selected: true, first:true},
+        {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.abbr.languageTab")}];
+        
+    AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
+    var toolbar = panel.document.createElement("div");
+    toolbar.id = "toolbarDiv";
+    
+	abbreviation_elements = cache_object.dom_cache.abbreviations_cache.abbreviation_items;
     language_elements = cache_object.dom_cache.languages_cache;
-	AINSPECTOR_FB.abbr.abbrToolbarPlate.toolbar.replace({toolbar_buttons : toolbar_buttons}, toolbar, AINSPECTOR_FB.abbr.abbrToolbarPlate);
+	AINSPECTOR_FB.abbrLanguage.abbrToolbarPlate.toolbar.replace({toolbar_buttons : toolbar_buttons}, toolbar, AINSPECTOR_FB.abbrLanguage.abbrToolbarPlate);
+	
 	  
-	  var element = panelView.document.createElement("div");
-	  element.style.display = "block";
+	var element = panel.document.createElement("div");
+	element.style.display = "block";
 	  
-	  panelView.panelNode.id = "ainspector-panel"; 
-	  panelView.panelNode.appendChild(toolbar);
-	  panelView.panelNode.appendChild(element);
+	  panel.panelNode.id = "ainspector-panel"; 
+	  panel.panelNode.appendChild(toolbar);
+	  panel.panelNode.appendChild(element);
 	  
-	  panel = panelView;
-	 // panel.table = AINSPECTOR_FB.abbr.languageTemplate.tableTag.append( {language_elements: language_elements}, panel.panelNode, AINSPECTOR_FB.abbr.languageTemplate);
-	  panel.table = AINSPECTOR_FB.abbr.abbreviationTemplate.tag.append( {object: abbreviation_elements}, panel.panelNode, AINSPECTOR_FB.abbr.abbreviationTemplate);
+	  panel = panel;
+	 // panel.table = AINSPECTOR_FB.abbrLanguage.languageTemplate.tableTag.append( {language_elements: language_elements}, panel.panelNode, AINSPECTOR_FB.abbrLanguage.languageTemplate);
+	  panel.table = AINSPECTOR_FB.abbrLanguage.abbreviationTemplate.tag.append( {object: abbreviation_elements}, panel.panelNode, AINSPECTOR_FB.abbrLanguage.abbreviationTemplate);
 	  this.select(abbreviation_elements[0]);
 	  Firebug.currentContext.getPanel('Rules').sView(true, abbreviation_elements[0]);
     },
@@ -70,14 +90,14 @@ with (FBL) {
       AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[1].children[0]);
       
     }
-  }; //end of abbr
+  }; //end of abbrLanguage
   
   /**
    * @function abbrToolbarPlate
    * 
    * @desc template creates a Tool bar in ainpector panel 
    */
-  AINSPECTOR_FB.abbr.abbrToolbarPlate = domplate({
+  AINSPECTOR_FB.abbrLanguage.abbrToolbarPlate = domplate({
     toolbar : DIV( {class : "nav-menu"},
                 TAG("$toolbarButtons", {toolbar_buttons : "$toolbar_buttons"}),
                 BUTTON({class: "button", onclick: "$toHTMLPanel"}, "HTML Panel" )
@@ -186,13 +206,13 @@ with (FBL) {
         
       if (toolbar_button_id == "Language") {
 
-        panel.table = AINSPECTOR_FB.abbr.languageTemplate.tableTag.append( {language_elements: language_elements}, panel.panelNode, AINSPECTOR_FB.abbr.languageTemplate);
-        AINSPECTOR_FB.abbr.select(language_elements[0]);
+        panel.table = AINSPECTOR_FB.abbrLanguage.languageTemplate.tableTag.append( {language_elements: language_elements}, panel.panelNode, AINSPECTOR_FB.abbrLanguage.languageTemplate);
+        AINSPECTOR_FB.abbrLanguage.select(language_elements[0]);
 
     	Firebug.currentContext.getPanel('Rules').sView(true, language_elements[0]);
       } else {
-        panel.table = AINSPECTOR_FB.abbr.abbreviationTemplate.tag.append( {object: abbreviation_elements}, panel.panelNode, AINSPECTOR_FB.abbr.abbreviationTemplate);
-        AINSPECTOR_FB.abbr.select(abbreviation_elements[0]);
+        panel.table = AINSPECTOR_FB.abbrLanguage.abbreviationTemplate.tag.append( {object: abbreviation_elements}, panel.panelNode, AINSPECTOR_FB.abbrLanguage.abbreviationTemplate);
+        AINSPECTOR_FB.abbrLanguage.select(abbreviation_elements[0]);
 
         Firebug.currentContext.getPanel('Rules').sView(true, abbreviation_elements[0]);
       } 	
@@ -254,7 +274,7 @@ with (FBL) {
    * 
    * @return flat list of images to be displayed on the panel
    */
-  AINSPECTOR_FB.abbr.languageTemplate = domplate({
+  AINSPECTOR_FB.abbrLanguage.languageTemplate = domplate({
     
 	  tableTag:
       
@@ -338,7 +358,7 @@ with (FBL) {
    * 
    * @return Two level tree to be displayed on the panel
    */
-  AINSPECTOR_FB.abbr.abbreviationTemplate = domplate({
+  AINSPECTOR_FB.abbrLanguage.abbreviationTemplate = domplate({
     
     tag:
 	  TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, onclick: "$onClick", tabindex: 0, onkeypress: "$onKeyPressedTable"},

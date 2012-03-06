@@ -26,7 +26,7 @@ with (FBL) {
   AINSPECTOR_FB.controls = {
     
     /**
-	 * @function controlsView
+	 * @function viewPanel
 	 * 
 	 * @desc
 	 * 
@@ -36,8 +36,26 @@ with (FBL) {
 	 * @param {Object} cache_object - container for image, media and abbreviation element properties
 	 * 
 	 */
-    controlsView : function(toolbar_buttons, toolbar, panelView, cache_object) {
+    viewPanel : function(context, panel_name, cache_object) {
 	  
+	  if (!panel_name) panel_name = "AInspector";
+	  if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
+	  
+	  panel = context.getPanel(panel_name, true);
+
+      /* Clear the panel before writing anything onto the report*/
+      if (panel) {
+        clearNode(panel.panelNode);
+        clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+      }
+      var toolbar_buttons = [{name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.controls.tree"), selected: true, first:true},
+                                     {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.controls.labels")}, 
+                                     {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.controls")}];
+                             
+      AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
+      var toolbar = panel.document.createElement("div");
+      toolbar.id = "toolbarDiv";
+
 	  var controls_cache = cache_object.dom_cache.controls_cache;
 	  control_elements = controls_cache.control_elements;
       child_elements = controls_cache.child_cache_elements;
@@ -46,14 +64,14 @@ with (FBL) {
 	  AINSPECTOR_FB.controls.controlToolbarPlate.toolbar.replace({toolbar_buttons : toolbar_buttons}, toolbar, AINSPECTOR_FB.controls.controlToolbarPlate);
 	  //toolbar.style.display = "block";
 	  
-	  var element = panelView.document.createElement("div");
+	  var element = panel.document.createElement("div");
 	  element.style.display = "block";
 	  
-	  panelView.panelNode.id = "ainspector-panel"; 
-	  panelView.panelNode.appendChild(toolbar);
-	  panelView.panelNode.appendChild(element);
+	  panel.panelNode.id = "ainspector-panel"; 
+	  panel.panelNode.appendChild(toolbar);
+	  panel.panelNode.appendChild(element);
 	  
-	  panel = panelView;
+	  //panel = panelView;
 	  panel.table = AINSPECTOR_FB.controls.controlTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.controls.controlTreeTemplate);
 	  this.select(child_elements[0]);
 	  Firebug.currentContext.getPanel('Rules').sView(true, child_elements[0]);
@@ -76,7 +94,7 @@ with (FBL) {
     }
 }; //end of imageObject  
 
-  
+  //AINSPECTOR_FB.toolbar_button = AINSPECTOR_FB.controls;
   
   
   /**

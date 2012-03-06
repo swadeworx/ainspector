@@ -22,35 +22,54 @@ with (FBL) {
   list_of_all_elements: null;
   tree_of_all_elements: null;
 
-  AINSPECTOR_FB.elementsView = {  
+  AINSPECTOR_FB.elements = {  
 
 	/**
-	 * @function allElementsPanelView
+	 * @function viewPanel
 	 * 
 	 * @desc
 	 * 
 	 * @param head_land_toolbar_buttons
 	 * @param toolbar
-	 * @param panelView
+	 * @param panel
 	 * @param cache_object
 	 */
-	allElementsPanelView : function(toolbar_buttons, toolbar, panelView, cache_object) {
+	viewPanel : function(context, panel_name, cache_object) {
 
-	tree_of_all_elements = cache_object.dom_cache.element_cache.child_dom_elements;
+	
+	  if (!panel_name) panel_name = "AInspector";
+	  if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
+	  
+	  //FBTrace.sysout("cache_object: ", cache_object);
+
+	  panel = context.getPanel(panel_name, true);
+	  
+	  tree_of_all_elements = cache_object.dom_cache.element_cache.child_dom_elements;
 	list_of_all_elements = cache_object.dom_cache.element_cache.dom_elements;
+	
+	/* Clear the panel before writing anything onto the report*/
+    if (panel) {
+      clearNode(panel.panelNode);
+      clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+    }
+	var toolbar_buttons = [{name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.elements.tree"), selected: true, first:true},
+                           {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.elements.list")}];
 
-	AINSPECTOR_FB.elementsView.elementsToolbarPlate.toolbar.replace({toolbar_buttons : toolbar_buttons}, toolbar, AINSPECTOR_FB.elementsView.elementsToolbarPlate);
+	AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
+
+	var toolbar = panel.document.createElement("div");
+    toolbar.id = "toolbarDiv";
+    
+	AINSPECTOR_FB.elements.elementsToolbarPlate.toolbar.replace({toolbar_buttons : toolbar_buttons}, toolbar, AINSPECTOR_FB.elements.elementsToolbarPlate);
 	// toolbar.style.display = "block";
 
-	var element = panelView.document.createElement("div");
+	var element = panel.document.createElement("div");
 	element.style.display = "block";
-	panelView.panelNode.id = "ainspector-panel"; 
-	panelView.panelNode.appendChild(toolbar);
-	panelView.panelNode.appendChild(element);
+	panel.panelNode.id = "ainspector-panel"; 
+	panel.panelNode.appendChild(toolbar);
+	panel.panelNode.appendChild(element);
 
-	panel = panelView;
-
-	panel.table = AINSPECTOR_FB.elementsView.elementsTreeTemplate.tag.append( {object: tree_of_all_elements}, panel.panelNode, AINSPECTOR_FB.elementsView.elementsTreeTemplate);
+	panel.table = AINSPECTOR_FB.elements.elementsTreeTemplate.tag.append( {object: tree_of_all_elements}, panel.panelNode, AINSPECTOR_FB.elements.elementsTreeTemplate);
 	this.select(tree_of_all_elements[0]);
 	Firebug.currentContext.getPanel('Rules').showContrastOrAllElements(true, tree_of_all_elements[0]);
 },
@@ -77,7 +96,7 @@ select : function(object) {
  * 
  * @desc template creates the content for navigation button
  */
-AINSPECTOR_FB.elementsView.elementsToolbarPlate = domplate({
+AINSPECTOR_FB.elements.elementsToolbarPlate = domplate({
 	toolbar : DIV( {class : "nav-menu"},
 			TAG("$toolbarButtons", {toolbar_buttons : "$toolbar_buttons"}),
 			BUTTON({class: "button", onclick: "$toHTMLPanel"}, "HTML Panel" )
@@ -188,14 +207,14 @@ showOnSelectButton : function(toolbar_button_id) {
 	clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
 
 	if (toolbar_button_id == "Tree View") {
-		panel.table = AINSPECTOR_FB.elementsView.elementsTreeTemplate.tag.append( {object: tree_of_all_elements}, panel.panelNode, AINSPECTOR_FB.elementsView.elementsTreeTemplate);
-		AINSPECTOR_FB.elementsView.select(tree_of_all_elements[0]);
+		panel.table = AINSPECTOR_FB.elements.elementsTreeTemplate.tag.append( {object: tree_of_all_elements}, panel.panelNode, AINSPECTOR_FB.elements.elementsTreeTemplate);
+		AINSPECTOR_FB.elements.select(tree_of_all_elements[0]);
 
 		Firebug.currentContext.getPanel('Rules').showContrastOrAllElements(true, tree_of_all_elements[0]);
 
 	} else {
-		panel.table = AINSPECTOR_FB.elementsView.elementsTemplate.tableTag.append( {list_of_all_elements: list_of_all_elements}, panel.panelNode, AINSPECTOR_FB.elementsView.elementsTemplate);
-		AINSPECTOR_FB.elementsView.select(list_of_all_elements[0]);
+		panel.table = AINSPECTOR_FB.elements.elementsTemplate.tableTag.append( {list_of_all_elements: list_of_all_elements}, panel.panelNode, AINSPECTOR_FB.elements.elementsTemplate);
+		AINSPECTOR_FB.elements.select(list_of_all_elements[0]);
 
 		Firebug.currentContext.getPanel('Rules').showContrastOrAllElements(true, list_of_all_elements[0]);
 	}
@@ -257,7 +276,7 @@ viewContainer : DIV({style : "display:none"})
  * 
  * @desc template object, create HTML mark up showed upon clicking the headings toolbar button
  */
-AINSPECTOR_FB.elementsView.elementsTreeTemplate = domplate({
+AINSPECTOR_FB.elements.elementsTreeTemplate = domplate({
 	
   tag:
 	TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, onclick: "$onClick", tabindex: 0, onkeypress: "$onKeyPressedTable"},
@@ -601,7 +620,7 @@ getAccessibility : function(object){
  * 
  * @return flat list of images to be displayed on the panel
  */
-AINSPECTOR_FB.elementsView.elementsTemplate = domplate({
+AINSPECTOR_FB.elements.elementsTemplate = domplate({
   
 	  tableTag:
     
