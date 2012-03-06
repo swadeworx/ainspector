@@ -19,6 +19,7 @@ var AINSPECTOR_FB = AINSPECTOR_FB || {};
 with (FBL) {
 
   AINSPECTOR_FB.result_ruleset = null;
+  AINSPECTOR_FB.last_node_highlighted = null;
   
   AINSPECTOR_FB.cacheUtil = {
 	
