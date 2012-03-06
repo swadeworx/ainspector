@@ -1136,7 +1136,7 @@ FBL.ns(function() { with (FBL) {
     highlight : function (row) {
       
       AINSPECTOR_FB.ainspectorUtil.setClass(row, "gridRowSelected");
-      this.highlightCacheItem(row.repObject);
+      this.highlightCacheItemOnBrowser(row.repObject);
       for (var i=0; i< row.children.length; i++) {
       	AINSPECTOR_FB.ainspectorUtil.setClass(row.children[i], "gridCellSelected");
       }
@@ -1203,7 +1203,7 @@ FBL.ns(function() { with (FBL) {
         AINSPECTOR_FB.ainspectorUtil.setClass(current_row, "gridRowSelected");
         FBTrace.sysout("current_row: ", current_row);
         
-        this.highlightCacheItem(current_row.repObject);
+        this.highlightCacheItemOnBrowser(current_row.repObject);
         for (var c=0; c< current_row.children.length; c++) {
     	  AINSPECTOR_FB.ainspectorUtil.setClass(current_row.children[c], "gridCellSelected");
         }
@@ -1267,7 +1267,7 @@ FBL.ns(function() { with (FBL) {
         
       }
       AINSPECTOR_FB.ainspectorUtil.setClass(current_row, "gridRowSelected");
-      this.highlightCacheItem(current_row.repObject);
+      this.highlightCacheItemOnBrowser(current_row.repObject);
       for (var c=0; c< current_row.children.length; c++) {
     	AINSPECTOR_FB.ainspectorUtil.setClass(current_row.children[c], "gridCellSelected");
       }
@@ -1275,13 +1275,13 @@ FBL.ns(function() { with (FBL) {
     },
     
     /**
-     * @function highlightCacheItem
+     * @function highlightCacheItemOnBrowser
      * 
      * @desc highlight the cache_item on the browser when selected on Firebug A11y Panel 
      * 
      * @param cache_item - OAA cache_item to highlight on the browser 
      */
-    highlightCacheItem : function(cache_item){
+    highlightCacheItemOnBrowser : function(cache_item){
 	
       if (!cache_item) return;
       
