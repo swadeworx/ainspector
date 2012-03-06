@@ -1136,7 +1136,7 @@ FBL.ns(function() { with (FBL) {
     highlight : function (row) {
       
       AINSPECTOR_FB.ainspectorUtil.setClass(row, "gridRowSelected");
-
+      this.highlightCacheItem(row.repObject);
       for (var i=0; i< row.children.length; i++) {
       	AINSPECTOR_FB.ainspectorUtil.setClass(row.children[i], "gridCellSelected");
       }
@@ -1201,7 +1201,9 @@ FBL.ns(function() { with (FBL) {
       }
       
         AINSPECTOR_FB.ainspectorUtil.setClass(current_row, "gridRowSelected");
-
+        FBTrace.sysout("current_row: ", current_row);
+        
+        this.highlightCacheItem(current_row.repObject);
         for (var c=0; c< current_row.children.length; c++) {
     	  AINSPECTOR_FB.ainspectorUtil.setClass(current_row.children[c], "gridCellSelected");
         }
@@ -1265,11 +1267,52 @@ FBL.ns(function() { with (FBL) {
         
       }
       AINSPECTOR_FB.ainspectorUtil.setClass(current_row, "gridRowSelected");
-
+      this.highlightCacheItem(current_row.repObject);
       for (var c=0; c< current_row.children.length; c++) {
     	AINSPECTOR_FB.ainspectorUtil.setClass(current_row.children[c], "gridCellSelected");
       }
       
+    },
+    
+    /**
+     * @function highlightCacheItem
+     * 
+     * @desc highlight the cache_item on the browser when selected on Firebug A11y Panel 
+     * 
+     * @param cache_item - OAA cache_item to highlight on the browser 
+     */
+    highlightCacheItem : function(cache_item){
+	
+      if (!cache_item) return;
+      
+      if (AINSPECTOR_FB.last_node_highlighted) AINSPECTOR_FB.last_node_highlighted.style.outline = ""; 
+      
+      // Test to see if the cache item has a dom_element property
+	  if (cache_item.dom_element) {
+	    if (cache_item.dom_element.image_only) {
+	      node = cache_item.dom_element.node.getElementsByTagName("img")[0];
+	    }
+	    else {
+	      node = cache_item.dom_element.node;
+	    }
+	  }
+	  else {
+	    if (cache_item.type == NODE_TYPE.ELEMENT) {
+	      node = cache_item.node;
+	    }
+	    else {
+	      node = cache_item.parent_element.node;
+	    }
+	  }
+
+	  if (node) {
+	    node.style.outline = "medium solid red";
+	    // If true, element is aligned with top of scroll area.
+	    // If false, it is aligned with bottom.
+	    node.scrollIntoView(false);
+	    AINSPECTOR_FB.last_node_highlighted = node;
+	  }
+
     },
     
     /**
