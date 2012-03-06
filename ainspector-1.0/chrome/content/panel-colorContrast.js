@@ -34,7 +34,7 @@ with (FBL) {
 	 * @returns
 	 */
 	 viewPanel : function(context, panel_name, cache_object) {		
-		  FBTrace.sysout("............context.............", context.browser.chrome.getSelectedSidePanel());
+		  FBTrace.sysout("............colorContrast.............", context.browser.chrome.getSelectedSidePanel());
 
 		  if (!panel_name) panel_name = "AInspector";
 		  if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
@@ -51,12 +51,19 @@ with (FBL) {
 
       AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document); 
 
+      var toolbar = panel.document.createElement("div");
+      toolbar.id = "toolbarDiv";
 	  var color_contrast_cache = cache_object.dom_cache.color_contrast_cache; 
-      
+      AINSPECTOR_FB.colorContrast.colorContrastToolbarPlate.toolbar.replace({}, toolbar, AINSPECTOR_FB.colorContrast.colorContrastToolbarPlate);
       var color_contrast_items = color_contrast_cache.color_contrast_items;
-      clearNode(panel.table);
+      var element = panel.document.createElement("div");
+	  element.style.display = "block";
+	  
 	  panel.panelNode.id = "ainspector-panel"; 
-	  panel.table = AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate.tag.replace( {object: color_contrast_items}, panel.panelNode, AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate);
+	  panel.panelNode.appendChild(toolbar);
+	  panel.panelNode.appendChild(element);
+	  
+	  panel.table = AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate.tag.append( {object: color_contrast_items}, panel.panelNode, AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate);
 	 // var element = panel.document.createElement("div");
 	  //panel.panelNode.appendChild(element);
 	  panel.selection = color_contrast_items[0];
@@ -65,6 +72,55 @@ with (FBL) {
     }
  };
 
+ /**
+   * @function colorContrastToolbarPlate
+   * 
+   * @desc template creates a Tool bar in ainpector panel 
+   */
+  AINSPECTOR_FB.colorContrast.colorContrastToolbarPlate = domplate({
+    toolbar : DIV( {class : "nav-menu"},
+                BUTTON({class: "button", onclick: "$toHTMLPanel"}, "HTML Panel" )
+    ), 
+  
+    /**
+     * @function toHTMLPanel
+     * 
+     * @desc redirect to the HTML Panel of Firebug
+     * 
+     * @param event event triggered on a row/cell of a images/media/abbreviation toolbar buttons
+     */
+    toHTMLPanel: function(event) {
+
+      var table = getChildByClass(event.target.offsetParent, "ai-table-list-items");
+	  var row =  getChildByClass(event.target.offsetParent, "tableRow");
+      var child;
+      var tbody = table.children[1];
+      var node = null;
+
+      for (var i = 0; i < tbody.children.length; i++) {
+        var flag = false;
+        var row = tbody.children[i];
+        node = row;
+        for (var j = 0; j < row.children.length; j++) {
+      	var cell = row.children[j];
+        for (var k=0; k<cell.classList.length;k++) {
+          if (cell.classList[k] ==  "gridCellSelected") {
+            flag = true;
+            break;
+          }//end if
+        }//end for
+        if (flag == true) break;
+      }
+        if (flag == true) break;
+      }
+      
+      node = node.repObject.dom_element.node;
+      var panel = Firebug.chrome.selectPanel("html");
+      panel.select(node);
+    },    
+    
+    viewContainer : DIV({style : "display:none"})
+  });
 AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
     tag:
     	
