@@ -30,8 +30,8 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
       var color_contrast_len = dom_cache.color_contrast_cache.color_contrast_items.length;
       var cci;
    
-      var dom_elements_len;
-      var de;
+      var dom_text_nodes_len;
+      var dtn;
 
       var severity;
       var message_id;
@@ -76,15 +76,15 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 
         // update all the DOM Element nodes associated with the Color Contrast Item
 
-        dom_elements_len = cci.dom_elements.length;
+        dom_text_nodes_len = cci.dom_text_nodes.length;
 
-        for (j=0; j<dom_elements_len; j++) {
-          de = cci.dom_elements[j];
-          if (de.computed_style.is_visible_onscreen === OpenAjax.a11y.VISIBILITY.VISIBLE) {
-            rule_result.addResult(severity, de, message_id, args);
+        for (j=0; j<dom_text_nodes_len; j++) {
+          dtn = cci.dom_text_nodes[j];
+          if (dtn.computed_style.is_visible_onscreen === OpenAjax.a11y.VISIBILITY.VISIBLE) {
+            rule_result.addResult(severity, dtn, message_id, args);
           } 
           else {
-            rule_result.addResult(SEVERITY.HIDDEN, de, 'MESSAGE_HIDDEN', []);
+            rule_result.addResult(SEVERITY.HIDDEN, dtn, 'MESSAGE_HIDDEN', []);
           }
         } // end loop
    
@@ -119,8 +119,8 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
       var color_contrast_len = dom_cache.color_contrast_cache.color_contrast_items.length;
       var cci;
    
-      var dom_elements_len;
-      var de;
+      var dom_text_nodes_len;
+      var dtn;
 
       var severity;
       var message_id;
@@ -166,15 +166,15 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 
         // update all the DOM Element nodes associated with the Color Contrast Item
 
-        dom_elements_len = cci.dom_elements.length;
+        dom_text_nodes_len = cci.dom_text_nodes.length;
 
-        for (j=0; j<dom_elements_len; j++) {
-          de = cci.dom_elements[j];
-          if (de.computed_style.is_visible_onscreen === OpenAjax.a11y.VISIBILITY.VISIBLE) {
-            rule_result.addResult(severity, de, message_id, args);
+        for (j=0; j<dom_text_nodes_len; j++) {
+          dtn = cci.dom_text_nodes[j];
+          if (dtn.computed_style.is_visible_onscreen === OpenAjax.a11y.VISIBILITY.VISIBLE) {
+            rule_result.addResult(severity, dtn, message_id, args);
           } 
           else {
-            rule_result.addResult(SEVERITY.HIDDEN, de, 'MESSAGE_HIDDEN', []);
+            rule_result.addResult(SEVERITY.HIDDEN, dtn, 'MESSAGE_HIDDEN', []);
           }
         } // end loop
    

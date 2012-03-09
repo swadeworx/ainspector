@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ OpenAjax.a11y.ResultNode = function (rule_result, severity, cache_item, message_
   this.cache_item  = cache_item;
   this.message_id  = message_id;
   this.message_arguments = message_arguments;
-  this.cache_id    = cache_item.cache_id;
+  this.cache_id    = rule_result.cache_id;
 
 };
 
@@ -95,9 +95,124 @@ OpenAjax.a11y.ResultNode.prototype.getPropertyValue = function (property) {
  */
 
 OpenAjax.a11y.ResultNode.prototype.getSeverity = function () {
-  
+
   return OpenAjax.a11y.cache_nls.getSeverityNLS(this.severity);
+  
+};
+
+
+/**
+ * @method getRule
+ *
+ * @memberOf OpenAjax.a11y.ResultNode
+ *
+ * @desc Returns a rule object associated with this result
+ * 
+ * @return {Rule} Returns a rule object
+ */
+
+OpenAjax.a11y.ResultNode.prototype.getRule = function () {
+
+  return this.rule_result.getRule();
+   
+};
+
+
+/**
+ * @method getRuleId
+ *
+ * @memberOf OpenAjax.a11y.ResultNode
+ *
+ * @desc Returns a NLS localized version of the rule id
+ * 
+ * @return {String} Returns a NLS localized version of the rule id
+ */
+
+OpenAjax.a11y.ResultNode.prototype.getRuleId = function () {
+
+  return this.rule_result.getRuleId();
+   
+};
+
+/**
+ * @method getRuleType
+ *
+ * @memberOf OpenAjax.a11y.ResultNode
+ *
+ * @desc Returns a NLS localized version of the type of rule in a ruleset
+ * 
+ * @return {String} Returns a NLS localized version of the type of rule in the ruleset
+ */
+
+OpenAjax.a11y.ResultNode.prototype.getRuleType = function () {
+
+  return this.rule_result.getRuleType();
+   
+};
+
+
+/**
+ * @method getRuleTitle
+ *
+ * @memberOf OpenAjax.a11y.ResultNode
+ *
+ * @desc Returns a NLS localized string representinf the title of the rule
+ * 
+ * @return {String} NLS localized string
+ */
+
+OpenAjax.a11y.ResultNode.prototype.getRuleTitle = function () {
+
+  return this.rule_result.getRuleTitle();
  
+};
+
+/**
+ * @method getRulePurpose
+ *
+ * @memberOf OpenAjax.a11y.ResultNode
+ *
+ * @desc Returns the purpose  associated with the rule result
+ *
+ * @return {String} Returns a NLS localized string representation the prupose of the rule
+ */
+
+OpenAjax.a11y.ResultNode.prototype.getRulePurpose = function () {
+
+  return this.rule_result.getRulePurpose();
+  
+};
+
+/**
+ * @method getRuleRequirement
+ *
+ * @memberOf OpenAjax.a11y.ResultNode
+ *
+ * @desc Returns the ruleset requirement associated with the rule result
+ *
+ * @return {String} Returns a NLS localized string representation the requirement associated with the rule
+ */
+
+OpenAjax.a11y.ResultNode.prototype.getRuleRequirement = function () {
+
+  return this.rule_result.getRuleRequirement();
+  
+};
+
+/**
+ * @method getSeverityLabel
+ *
+ * @memberOf OpenAjax.a11y.ResultNode
+ *
+ * @desc Returns a NLS localized version of the severity label based on the current NLS setting
+ * 
+ * @return {String} Returns a NLS localized version of the severity
+ */
+
+OpenAjax.a11y.ResultNode.prototype.getSeverityLabel = function () {
+
+  return OpenAjax.a11y.cache_nls.getSeverityNLS(this.severity).label;
+   
 };
 
 /**
@@ -153,6 +268,7 @@ OpenAjax.a11y.ResultNode.prototype.getMessage = function () {
   return this.rule_result.rule.getMessage(this);
   
 };
+
 
 /**
  * @method getDOMElement
@@ -367,7 +483,94 @@ OpenAjax.a11y.ResultRule.prototype.addResult = function (severity, cache_item, m
 };
 
 /**
- * @method getRequirement
+ * @method getRule
+ *
+ * @memberOf OpenAjax.a11y.ResultNode
+ *
+ * @desc Returns a rule object associated with this result
+ * 
+ * @return {Rule} Returns a rule object
+ */
+
+OpenAjax.a11y.ResultRule.prototype.getRule = function () {
+
+  return this.rule;
+   
+};
+
+/**
+ * @method getRuleId
+ *
+ * @memberOf OpenAjax.a11y.ResultRule
+ *
+ * @desc Creates a NLS text string representation of the rule id 
+ *
+ * @return {String} Returns a NLS text string representation of the rule id 
+ */
+
+OpenAjax.a11y.ResultRule.prototype.getRuleId = function () {
+
+  var nls_rules = this.rule.nls[OpenAjax.a11y.locale];
+  
+  return nls_rules.rules[this.rule.rule_id]['ID'];  
+
+};
+
+/**
+ * @method getRuleType
+ *
+ * @memberOf OpenAjax.a11y.ResultRule
+ *
+ * @desc Creates a NLS text string representation of the type of rule (i.e. required, recommended, conditional) 
+ *
+ * @return {String} Returns a NLS text string representation of the rule type 
+ */
+
+OpenAjax.a11y.ResultRule.prototype.getRuleType = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  return cache_nls.getRuleTypeNLS(this.rule_type);  
+
+};
+
+
+/**
+ * @method getRuleTitle
+ *
+ * @memberOf OpenAjax.a11y.ResultRule
+ *
+ * @desc Creates a NLS text string representation of the rule title 
+ *
+ * @return {String} Returns a NLS text string representation of the rule title 
+ */
+
+OpenAjax.a11y.ResultRule.prototype.getRuleTitle = function () {
+
+  return this.rule.getTitle(this.rule_type);  
+
+};
+
+/**
+ * @method getRulePurpose
+ *
+ * @memberOf OpenAjax.a11y.ResultRule
+ *
+ * @desc Creates a NLS text string representation of the rule purpose 
+ *
+ * @return {String} Returns a NLS text string representation of the rule purpose 
+ */
+
+OpenAjax.a11y.ResultRule.prototype.getRulePurpose = function () {
+
+  var nls_rules = this.rule.nls[OpenAjax.a11y.locale];
+  
+  return nls_rules.rules[this.rule.rule_id]['PURPOSE'];  
+
+};
+
+/**
+ * @method getRuleRequirement
  *
  * @memberOf OpenAjax.a11y.ResultRule
  *
@@ -376,8 +579,10 @@ OpenAjax.a11y.ResultRule.prototype.addResult = function (severity, cache_item, m
  * @return {Array} Returns string with a localized version of the requirement
  */
 
-OpenAjax.a11y.ResultRule.prototype.getRequirement = function () {
+OpenAjax.a11y.ResultRule.prototype.getRuleRequirement = function () {
+
  return this.requirement.getRequirement();
+ 
 };
 
 /**
@@ -398,8 +603,7 @@ OpenAjax.a11y.ResultRule.prototype.getResultNodes = function () {
     
     for (i = 0; i < len; i++) {
       result_nodes.push(items[i]);
-    }
-    
+    }    
   }
 
   var result_nodes = [];
@@ -473,6 +677,9 @@ OpenAjax.a11y.ResultRule.prototype.getResultNodeByCacheId = function (cache_id) 
   return null;
   
 };
+
+
+
 
 /**
  * @method toString

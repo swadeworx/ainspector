@@ -26,7 +26,8 @@ OpenAjax.a11y.util = OpenAjax.a11y.util || {};
 
 
 /**
- * @function UrlExists
+ * @function urlExists
+ *
  * @memberOf OpenAjax.a11y.util
  *
  * @desc Determines if a URL exits
@@ -36,9 +37,9 @@ OpenAjax.a11y.util = OpenAjax.a11y.util || {};
  * @return  Number  
  */
  
-OpenAjax.a11y.util.UrlExists = function (url) {
+OpenAjax.a11y.util.urlExists = function (url) {
 
- if (OpenAjax.a11y.SUPPORTS_URL_TESTING) {
+ if (OpenAjax.a11y.SUPPORTS_URL_TESTING && OpenAjax.a11y.URL_TESTING_ENABLED) {
   try {
    var http = new XMLHttpRequest();
    http.open('HEAD', url, false);

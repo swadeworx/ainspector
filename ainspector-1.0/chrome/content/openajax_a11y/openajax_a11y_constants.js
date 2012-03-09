@@ -71,13 +71,28 @@ OpenAjax.a11y.LOG_MESSAGES_TO_CONSOLE = false;
 OpenAjax.a11y.SUPPORTS_EVENT_ANALYSIS = false;  
 
 /**
- * @constant SUPPORTS_URL_TESTING
+ * @constant URL_TESTING_ENABLED
+ *
  * @memberOf OpenAjax.a11y
+ *
  * @type Boolean
  * @default false
  * @desc Enable or disable testing of broken links
  *       the default should be false, due to performance issues
  *       of testing links
+ */
+OpenAjax.a11y.URL_TESTING_ENABLED  = false;  
+
+/**
+ * @constant SUPPORTS_URL_TESTING
+ *
+ * @memberOf OpenAjax.a11y
+ *
+ * @type Boolean
+ *
+ * @default false
+ *
+ * @desc If the user agent supports URL testing this should be set to 'true'
  */
 OpenAjax.a11y.SUPPORTS_URL_TESTING = false;  
 
@@ -89,6 +104,20 @@ var NODE_TYPE = {
   TEXT      : 3,
   COMMENT   : 8,
   DOCUMENT  : 9
+};
+
+
+/**
+ * @constant DEFAULT_PREFS
+ * @memberOf OpenAjax.a11y
+ * @type Object
+ * @desc Default setting for consumers of the OpenAjax cache 
+ */
+
+OpenAjax.a11y.DEFAULT_PREFS = OpenAjax.a11y.DEFAULT_PREFS || {
+  RULESET_ID   : "WCAG20_ARIA_TRANS",
+  WCAG20_LEVEL : 3,
+  BROKEN_LINKS : false
 };
 
 /**
@@ -136,6 +165,23 @@ OpenAjax.a11y.PROGRESS = OpenAjax.a11y.PROGRESS || {
 };
 
 /**
+ * @constant WCAG20_LEVEL
+ * @memberOf OpenAjax.a11y
+ * @type Number
+ * @desc Constants related to the level of importance of a success criteria 
+ * @example
+ * OpenAjax.a11y.WCAG20_LEVEL.A
+ * OpenAjax.a11y.WCAG20_LEVEL.AA
+ * OpenAjax.a11y.WCAG20_LEVEL.AAA
+ */ 
+OpenAjax.a11y.WCAG20_LEVEL = OpenAjax.a11y.WCAG20_LEVEL || {
+  A   : 1,
+  AA  : 2,
+  AAA : 3
+};
+
+
+/**
  * @constant RULE
  * @memberOf OpenAjax.a11y
  * @type Number
@@ -144,10 +190,12 @@ OpenAjax.a11y.PROGRESS = OpenAjax.a11y.PROGRESS || {
  * @example
  * OpenAjax.a11y.RULE.REQUIRED               
  * OpenAjax.a11y.RULE.RECOMMENDATION               
+ * OpenAjax.a11y.RULE.CONDITIONAL               
  */
 OpenAjax.a11y.RULE = OpenAjax.a11y.RULE || {
   REQUIRED       : 1,
-  RECOMMENDATION : 2
+  RECOMMENDATION : 2,
+  CONDITIONAL    : 3
 };
 
 /**
@@ -463,3 +511,36 @@ OpenAjax.a11y.TABLE = OpenAjax.a11y.TABLE || {
   TH_ELEMENT      :  6,
   TD_ELEMENT      :  7
 };
+
+/**
+ * @constant LINK_TYPE
+ * @memberOf OpenAjax.a11y
+ * @type Number
+ * @desc Constants for LINK cache elements
+ * @example
+ * OpenAjax.a11y.LINK_TYPE.EMPTY
+ * OpenAjax.a11y.LINK_TYPE.OTHER
+ * OpenAjax.a11y.LINK_TYPE.INTERNAL
+ * OpenAjax.a11y.LINK_TYPE.HTTP
+ * OpenAjax.a11y.LINK_TYPE.HTTPS
+ * OpenAjax.a11y.LINK_TYPE.FTP
+ * OpenAjax.a11y.LINK_TYPE.FTS
+ * OpenAjax.a11y.LINK_TYPE.FILE
+ * OpenAjax.a11y.LINK_TYPE.JAVASCRIPT
+ * OpenAjax.a11y.LINK_TYPE.MAILTO
+ * OpenAjax.a11y.LINK_TYPE.TARGET
+ */
+OpenAjax.a11y.LINK_TYPE = OpenAjax.a11y.LINK_TYPE || {
+  EMPTY      : 0,
+  OTHER      : 1,
+  INTERNAL   : 2,
+  HTTP       : 3,
+  HTTPS      : 4,
+  FTP        : 5,
+  FTPS       : 6,
+  FILE       : 7,
+  JAVASCRIPT : 8,
+  MAILTO     : 9,
+  TARGET     : 10
+};
+

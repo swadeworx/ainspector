@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -189,7 +189,6 @@ OpenAjax.a11y.cache.DOMCache.prototype.traverseDOMElementsForAllCaches = functio
  if (dom_element.type == NODE_TYPE.ELEMENT) {
 
   this.abbreviations_cache.updateCacheItems(dom_element);
-  this.color_contrast_cache.updateCacheItems(dom_element);
   this.images_cache.updateCacheItems(dom_element);
   this.languages_cache.updateCacheItems(dom_element);
   this.links_cache.updateCacheItems(dom_element);
@@ -205,6 +204,9 @@ OpenAjax.a11y.cache.DOMCache.prototype.traverseDOMElementsForAllCaches = functio
   for (var i = 0; i<children_length; i++ ) {
    this.traverseDOMElementsForAllCaches(dom_element.child_dom_elements[i], hi, mi, ti, ci, li);
   } // end loop
+ } else {
+   this.color_contrast_cache.updateCacheItems(dom_element);
+   this.headings_landmarks_cache.updateCacheItems(dom_element, landmark_info);
  }
 };
 
@@ -264,14 +266,14 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateDOMElementCache = function () {
  if (this.document && this.document.body) {
   // OpenAjax.a11y.console("Creating DOM elements from body element");
   this.log.update(OpenAjax.a11y.PROGRESS.CACHE_START, "Updating DOM elements");
-  this.updateDOMElements(this.document.body, null);
+  this.updateDOMElements(this.document.body, null, null);
   this.log.update(OpenAjax.a11y.PROGRESS.CACHE_END, "Completed DOM element update, new cache includes " + this.element_cache.dom_elements.length + " DOMElement objects");
  }
  // If there are frames start at the top element
  else {
   // OpenAjax.a11y.console("Creating DOM elements with frames");
   this.log.update(OpenAjax.a11y.PROGRESS.CACHE_START, "Updating DOM elements using frames");
-  this.updateDOMElements(this.document, null);
+  this.updateDOMElements(this.document, null, null);
   this.log.update(OpenAjax.a11y.PROGRESS.CACHE_END, "Completed DOM element update, new cache includes " + this.element_cache.dom_elements.length + " DOMElement objects");
  }
 
@@ -317,7 +319,7 @@ OpenAjax.a11y.cache.DOMCache.prototype.addTitleDOMElement = function () {
  
     // get any text nodes associated with the title element
     for (n = node.firstChild; n !== null; n = n.nextSibling) {
-      this.updateDOMElements( n, de);
+      this.updateDOMElements( n, de, null);
     } // end loop
     
   }
@@ -351,11 +353,12 @@ OpenAjax.a11y.cache.DOMCache.prototype.addTitleDOMElement = function () {
  *
  * @param  {Object} node               - node is the current node object tbing analyzed
  * @param  {Object} parent_dom_element - DOMElement object that is the parent of the current node
+ * @param  {Object} previous_sibling   - The DOMElement or DOMText object that is the previous sibling
  *
  * return nothing
  */
 
-OpenAjax.a11y.cache.DOMCache.prototype.updateDOMElements = function (node, parent_dom_element) {
+OpenAjax.a11y.cache.DOMCache.prototype.updateDOMElements = function (node, parent_dom_element, previous_sibling) {
 
   var n;
   var de;
@@ -384,7 +387,7 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateDOMElements = function (node, paren
       this.element_cache.addChild(dom_element);
     }
 
-    if (dom_element.id.length) {
+    if (dom_element.id && dom_element.id.length) {
       // use append so that document_order of the dom_element does not get updated
       
       de = this.element_with_id_cache.getDOMElementById(dom_element.id);
@@ -420,24 +423,46 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateDOMElements = function (node, paren
       break;
 
     } // end switch
+    
+    var ps = null;
 
     for (n = node.firstChild; n !== null; n = n.nextSibling ) {
-      this.updateDOMElements(n, dom_element);
+      ps = this.updateDOMElements(n, dom_element, ps);
     } // end loop
+    
+    return dom_element;
     break;
 
   case NODE_TYPE.TEXT:
     // OpenAjax.a11y.console("DOM node text: " + node.data);
 
    var dom_text = new OpenAjax.a11y.cache.DOMText(node, parent_dom_element);
-   parent_dom_element.addChild(dom_text);
+
+   if (dom_text.text_length) {
+   
+     if (!previous_sibling || previous_sibling.type == NODE_TYPE.ELEMENT) {
+   
+       this.element_cache.addDOMText(dom_text);
+       if (parent_dom_element) parent_dom_element.addChild(dom_text);
+       return dom_text;
+     
+     } else {
+   
+       if (previous_sibiling) previous_sibiling.addText(dom_text.text);
+       return previous_sibling;
+     }  
+   }
+   else {
+     return previous_sibling;
+   }
+   
    break;
 
   default:
     break;
   } // end switch
 
-  return;
+  return null;
 
 };
 

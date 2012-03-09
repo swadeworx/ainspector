@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,14 +65,14 @@ OpenAjax.a11y.cache.ColorContrastCache = function (dom_cache) {
  *
  * @memberOf OpenAjax.a11y.cache.ColorContrastCache
  *
- * @desc Adds a DOM Element object information to a color contrast item in the color contrast
+ * @desc Adds a DOM text object information to a color contrast item in the color contrast
  *       cache, if it does not match any of the current color contrast items it will create a
  *       new color contrast item.
  *
- * @param {DOMElement}  dom_element  - dom element to add to color contrast list
+ * @param {DOMText}  dom_text_node  - dom text_node to add to color contrast list
  */
 
-OpenAjax.a11y.cache.ColorContrastCache.prototype.addColorContrastItem = function (dom_element) {
+OpenAjax.a11y.cache.ColorContrastCache.prototype.addColorContrastItem = function (dom_text_node) {
   
   var i;
   
@@ -81,21 +81,11 @@ OpenAjax.a11y.cache.ColorContrastCache.prototype.addColorContrastItem = function
   var color_contrast_items_len = this.color_contrast_items.length;
   var found = false;
   
-  // Some elements do not have color contrast calculations
-  if ((dom_element.tag_name == "img") ||
-    (dom_element.tag_name   == "area") ||
-    (dom_element.tag_name   == "map") ||
-    (dom_element.tag_name   == "object") ||
-    (dom_element.tag_name   == "embed") ||
-    (dom_element.tag_name   == "applet")) {
-   return;  
-  }
-
   for (i = 0; i < color_contrast_items_len; i++) {
     cci = this.color_contrast_items[i];
-    cs = dom_element.computed_style;
+    cs = dom_text_node.computed_style;
     
-    // OpenAjax.a11y.console("color compare " + dom_element.computed_style.color + " with " + item.color );
+    // OpenAjax.a11y.console("color compare " + dom_text_node.computed_style.color + " with " + item.color );
     
     if ( cci && 
          cci.color &&
@@ -107,10 +97,10 @@ OpenAjax.a11y.cache.ColorContrastCache.prototype.addColorContrastItem = function
            (cs.background_repeat   == cci.background_repeat) &&
            (cs.background_position == cci.background_position)))) {
       
-      cci.dom_elements.push(dom_element);
-      cci.node_count = cci.dom_elements.length;
+      cci.dom_text_nodes.push(dom_text_node);
+      cci.node_count = cci.dom_text_nodes.length;
       
-      cci.addToCharacterCount(dom_element.character_count);
+      cci.addToCharacterCount(dom_text_node.text_length);
       
       found = true;
       break;
@@ -119,11 +109,12 @@ OpenAjax.a11y.cache.ColorContrastCache.prototype.addColorContrastItem = function
   // end loop
   
   if (!found) {
-    cs = dom_element.computed_style;
-    cci = new OpenAjax.a11y.cache.ColorContrastItem(cs.font_family, cs.font_size, cs.font_weight, cs.color_hex, cs.background_color_hex, cs.background_image, cs.background_repeat, cs.background_position, cs.is_large_font, cs.color_contrast_ratio, dom_element.character_count);
+    cs = dom_text_node.computed_style;
     
-    cci.dom_elements.push(dom_element);
-    cci.node_count = cci.dom_elements.length;
+    cci = new OpenAjax.a11y.cache.ColorContrastItem(cs.font_family, cs.font_size, cs.font_weight, cs.color_hex, cs.background_color_hex, cs.background_image, cs.background_repeat, cs.background_position, cs.is_large_font, cs.color_contrast_ratio, dom_text_node.character_count);
+    
+    cci.dom_text_nodes.push(dom_text_node);
+    cci.node_count = cci.dom_text_nodes.length;
     
     this.color_contrast_items.push(cci);
     this.length = this.length + 1;
@@ -162,8 +153,8 @@ OpenAjax.a11y.cache.ColorContrastCache.prototype.getColorContrastItemById = func
 OpenAjax.a11y.cache.ColorContrastCache.prototype.getItemByCacheId = function (cache_id) {
   
   var i, j;
-  var cci, de;
-  var dom_elements, dom_elements_len;
+  var cci, dtn;
+  var dom_text_nodes, dom_text_nodes_len;
 
   var color_contrast_items     = this.color_contrast_items;
   var color_contrast_items_len = color_contrast_items.length;
@@ -178,12 +169,12 @@ OpenAjax.a11y.cache.ColorContrastCache.prototype.getItemByCacheId = function (ca
         return this.color_contrast_items[i];
       }
 
-      dom_elements     = cci.dom_elements;
-      dom_elements_len = dom_elements.length;
+      dom_text_nodes     = cci.dom_text_nodes;
+      dom_text_nodes_len = dom_text_nodes.length;
       
-      for (j = 0; j < dom_elements_len; j++ ) {
-        de = dom_elements[j];
-        if (de.cache_id == cache_id) return de;
+      for (j = 0; j < dom_text_nodes_len; j++ ) {
+        dtn = dom_text_nodes[j];
+        if (dtn.cache_id == cache_id) return dtn;
       } // end loop
 
     } // end loop
@@ -215,12 +206,21 @@ OpenAjax.a11y.cache.ColorContrastCache.prototype.emptyCache = function () {
  *    This is used during the creation of the cache and is used by the functions for
  *    either creating the cache all at one time or selectively
  *
- * @param {DOMElement}  dom_element  - DOM Element object to add to the color contrast cache
+ * @param {DOMText}  dom_text  - DOM text  object to add to the color contrast cache
  */
 
-OpenAjax.a11y.cache.ColorContrastCache.prototype.updateCacheItems = function (dom_element) {
-  
-  this.addColorContrastItem(dom_element);
+OpenAjax.a11y.cache.ColorContrastCache.prototype.updateCacheItems = function (dom_text_node) {
+
+  var tn;
+
+  if (dom_text_node.parent_element) {
+    tn =  dom_text_node.parent_element.tag_name;
+    
+    if (tn != 'script' && tn != 'object' && tn != 'style') {
+      this.addColorContrastItem(dom_text_node);
+    }
+  }  
+    
 };
 
 /**
@@ -237,13 +237,15 @@ OpenAjax.a11y.cache.ColorContrastCache.prototype.traverseDOMElementsForColorCont
   
   if (dom_element.type == NODE_TYPE.ELEMENT) {
     
-    this.updateCacheItems(dom_element);
-    
     for (var i = 0; i < dom_element.child_dom_elements.length; i++) {
       this.traverseDOMElementsForColorContrast(dom_element.child_dom_elements[i]);
     }
     // end loop
   }
+  else {
+    this.updateCacheItems(dom_element);
+  }  
+  
 };
 
 /**
@@ -421,7 +423,7 @@ OpenAjax.a11y.cache.ColorContrastItem = function (font_family, font_size, font_w
   
   this.is_large_font = is_large_font;
   
-  this.dom_elements = [];
+  this.dom_text_nodes = [];
 };
 
 /**
@@ -449,7 +451,7 @@ OpenAjax.a11y.cache.ColorContrastItem.prototype.addToCharacterCount = function (
  */
 
 OpenAjax.a11y.cache.ColorContrastItem.prototype.getResultRules = function () {
-  return this.dom_elements[0].getResultRules();
+  return this.dom_text_nodes[0].getResultRules();
 };
 
 /**
@@ -528,6 +530,27 @@ OpenAjax.a11y.cache.ColorContrastItem.prototype.getCacheProperties = function (u
 };
 
 /**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.ColorContrastItem
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.ColorContrastItem.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return null;
+  }
+  
+  return this[property];
+};
+
+/**
  * @method getEvents
  *
  * @memberOf OpenAjax.a11y.cache.ColorContrastItem
@@ -585,17 +608,18 @@ OpenAjax.a11y.cache.ColorContrastItem.prototype.getColorContrastSummary = functi
   severity = cache_nls.getSeverityNLS(SEVERITY.NONE); 
   a.label    = severity.label;
   a.style    = SEVERITY_STYLE[SEVERITY.NONE];
+  var dtn;
   
   var color_rules = ['COLOR_1', 'COLOR_2'];
 
   last_severity_value = SEVERITY.NONE;
 
-  for (i = 0; i < this.dom_elements.length; i++ ) {
+  for (i = 0; i < this.dom_text_nodes.length; i++ ) {
   
-    var de = this.dom_elements[i];
+    dtn = this.dom_text_nodes[i];
 
     if (last_severity_value == SEVERITY.NONE && 
-        hasRule(de.rules_hidden, color_rules)) {
+        hasRule(dtn.rules_hidden, color_rules)) {
       severity = cache_nls.getSeverityNLS(SEVERITY.HIDDEN);
       a.style    = SEVERITY_STYLE[SEVERITY.HIDDEN];
       last_severity_value = SEVERITY.HIDDEN;
@@ -603,7 +627,7 @@ OpenAjax.a11y.cache.ColorContrastItem.prototype.getColorContrastSummary = functi
 
     if ((last_severity_value == SEVERITY.NONE ||
          last_severity_value == SEVERITY.HIDDEN) &&
-        hasRule(de.rules_passed, color_rules)) {
+        hasRule(dtn.rules_passed, color_rules)) {
       severity = cache_nls.getSeverityNLS(SEVERITY.PASS);
       a.style  = SEVERITY_STYLE[SEVERITY.PASS];
       last_severity_value = SEVERITY.PASS;
@@ -612,7 +636,7 @@ OpenAjax.a11y.cache.ColorContrastItem.prototype.getColorContrastSummary = functi
     if ((last_severity_value == SEVERITY.NONE ||
          last_severity_value == SEVERITY.HIDDEN ||
          last_severity_value == SEVERITY.PASS) &&
-        hasRule(de.rules_recommendations, color_rules)) {
+        hasRule(dtn.rules_recommendations, color_rules)) {
       severity = cache_nls.getSeverityNLS(SEVERITY.RECOMMENDATION);
       a.style  = SEVERITY_STYLE[SEVERITY.RECOMMENDATION];
       last_severity_value = SEVERITY.RECOMMENDATION;
@@ -622,13 +646,13 @@ OpenAjax.a11y.cache.ColorContrastItem.prototype.getColorContrastSummary = functi
          last_severity_value == SEVERITY.HIDDEN ||
          last_severity_value == SEVERITY.PASS ||
          last_severity_value == SEVERITY.RECOMMENDATION) &&
-        hasRule(de.rules_manual_checks, color_rules)) {
+        hasRule(dtn.rules_manual_checks, color_rules)) {
       severity = cache_nls.getSeverityNLS(SEVERITY.MANUAL_CHECK);
       a.style  = SEVERITY_STYLE[SEVERITY.MANUAL_CHECK];
       last_severity_value = SEVERITY.MANUAL_CHECK;
     }
 
-    if (hasRule(de.rules_violations, color_rules)) {
+    if (hasRule(dtn.rules_violations, color_rules)) {
       severity = cache_nls.getSeverityNLS(SEVERITY.VIOLATION);
       a.style  = SEVERITY_STYLE[SEVERITY.VIOLATION];
       break;
@@ -670,7 +694,7 @@ OpenAjax.a11y.cache.ColorContrastItem.prototype.toString = function () {
   str += "  Background Repeat  : " + this.background_repeat + "\n";
   str += "  Color Contrast Ratio : " + this.color_contrast_ratio + "\n";
   str += "  Number of Characters : " + this.character_count + "\n";
-  str += "  Number of Nodes   : " + this.dom_elements.length + "\n\n";
+  str += "  Number of Nodes   : " + this.dom_text_nodes.length + "\n\n";
   
   return str;
 };

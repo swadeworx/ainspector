@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,6 +81,24 @@ OpenAjax.a11y.CacheNLS.prototype.getCacheNLS = function() {
 OpenAjax.a11y.CacheNLS.prototype.getSeverityNLS = function(severity) {
 
   return this.nls[OpenAjax.a11y.locale].severities[severity];
+
+};
+
+/**
+ * @method getRuleTypeNLS
+ *
+ * @memberOf OpenAjax.a11y.CacheNLS
+ *
+ * @desc Returns the NLS localized version of the rule type
+ *
+ * @param  {Number}  rule_type  -  The constant representing the type of rule in a ruleset (i.e. required, recommended, conditional)
+ *
+ * @return {String} Returns an NLS localized string representing the type of rule in the ruleset
+ */
+ 
+OpenAjax.a11y.CacheNLS.prototype.getRuleTypeNLS = function(rule_type) {
+
+  return this.nls[OpenAjax.a11y.locale].rule_types[rule_type];
 
 };
 
@@ -307,6 +325,34 @@ OpenAjax.a11y.CacheNLS.prototype.getEmptyAltTextMessageNLS = function () {
   
 };
 
+/**
+ * @method getMissingALtMessageNLS
+ *
+ * @memberOf OpenAjax.a11y.CacheNLS
+ *
+ * @desc Returns an NLS localized 'missing alt attribute' message
+ * 
+ * @return {String} Returns an object with a 'label' and 'style' property
+ */
+ 
+OpenAjax.a11y.CacheNLS.prototype.getMissingAltMessageNLS = function () {
+  
+    var label_style;  // return object    
+       
+    var nls_cache = this.nls[OpenAjax.a11y.locale];    
+    
+    if (nls_cache) {
+     
+      label_style = nls_cache.missing_alt;
+      
+      // if null return default
+      if (!label_style) return "";
+             
+    } 
+    
+    return label_style;
+  
+};
 
 
 /**

@@ -71,13 +71,28 @@ OpenAjax.a11y.LOG_MESSAGES_TO_CONSOLE = false;
 OpenAjax.a11y.SUPPORTS_EVENT_ANALYSIS = false;  
 
 /**
- * @constant SUPPORTS_URL_TESTING
+ * @constant URL_TESTING_ENABLED
+ *
  * @memberOf OpenAjax.a11y
+ *
  * @type Boolean
  * @default false
  * @desc Enable or disable testing of broken links
  *       the default should be false, due to performance issues
  *       of testing links
+ */
+OpenAjax.a11y.URL_TESTING_ENABLED  = false;  
+
+/**
+ * @constant SUPPORTS_URL_TESTING
+ *
+ * @memberOf OpenAjax.a11y
+ *
+ * @type Boolean
+ *
+ * @default false
+ *
+ * @desc If the user agent supports URL testing this should be set to 'true'
  */
 OpenAjax.a11y.SUPPORTS_URL_TESTING = false;  
 
@@ -89,6 +104,20 @@ var NODE_TYPE = {
   TEXT      : 3,
   COMMENT   : 8,
   DOCUMENT  : 9
+};
+
+
+/**
+ * @constant DEFAULT_PREFS
+ * @memberOf OpenAjax.a11y
+ * @type Object
+ * @desc Default setting for consumers of the OpenAjax cache 
+ */
+
+OpenAjax.a11y.DEFAULT_PREFS = OpenAjax.a11y.DEFAULT_PREFS || {
+  RULESET_ID   : "WCAG20_ARIA_TRANS",
+  WCAG20_LEVEL : 3,
+  BROKEN_LINKS : false
 };
 
 /**
@@ -136,6 +165,23 @@ OpenAjax.a11y.PROGRESS = OpenAjax.a11y.PROGRESS || {
 };
 
 /**
+ * @constant WCAG20_LEVEL
+ * @memberOf OpenAjax.a11y
+ * @type Number
+ * @desc Constants related to the level of importance of a success criteria 
+ * @example
+ * OpenAjax.a11y.WCAG20_LEVEL.A
+ * OpenAjax.a11y.WCAG20_LEVEL.AA
+ * OpenAjax.a11y.WCAG20_LEVEL.AAA
+ */ 
+OpenAjax.a11y.WCAG20_LEVEL = OpenAjax.a11y.WCAG20_LEVEL || {
+  A   : 1,
+  AA  : 2,
+  AAA : 3
+};
+
+
+/**
  * @constant RULE
  * @memberOf OpenAjax.a11y
  * @type Number
@@ -144,10 +190,12 @@ OpenAjax.a11y.PROGRESS = OpenAjax.a11y.PROGRESS || {
  * @example
  * OpenAjax.a11y.RULE.REQUIRED               
  * OpenAjax.a11y.RULE.RECOMMENDATION               
+ * OpenAjax.a11y.RULE.CONDITIONAL               
  */
 OpenAjax.a11y.RULE = OpenAjax.a11y.RULE || {
   REQUIRED       : 1,
-  RECOMMENDATION : 2
+  RECOMMENDATION : 2,
+  CONDITIONAL    : 3
 };
 
 /**
@@ -462,7 +510,41 @@ OpenAjax.a11y.TABLE = OpenAjax.a11y.TABLE || {
   TR_ELEMENT      :  5,
   TH_ELEMENT      :  6,
   TD_ELEMENT      :  7
-};/**
+};
+
+/**
+ * @constant LINK_TYPE
+ * @memberOf OpenAjax.a11y
+ * @type Number
+ * @desc Constants for LINK cache elements
+ * @example
+ * OpenAjax.a11y.LINK_TYPE.EMPTY
+ * OpenAjax.a11y.LINK_TYPE.OTHER
+ * OpenAjax.a11y.LINK_TYPE.INTERNAL
+ * OpenAjax.a11y.LINK_TYPE.HTTP
+ * OpenAjax.a11y.LINK_TYPE.HTTPS
+ * OpenAjax.a11y.LINK_TYPE.FTP
+ * OpenAjax.a11y.LINK_TYPE.FTS
+ * OpenAjax.a11y.LINK_TYPE.FILE
+ * OpenAjax.a11y.LINK_TYPE.JAVASCRIPT
+ * OpenAjax.a11y.LINK_TYPE.MAILTO
+ * OpenAjax.a11y.LINK_TYPE.TARGET
+ */
+OpenAjax.a11y.LINK_TYPE = OpenAjax.a11y.LINK_TYPE || {
+  EMPTY      : 0,
+  OTHER      : 1,
+  INTERNAL   : 2,
+  HTTP       : 3,
+  HTTPS      : 4,
+  FTP        : 5,
+  FTPS       : 6,
+  FILE       : 7,
+  JAVASCRIPT : 8,
+  MAILTO     : 9,
+  TARGET     : 10
+};
+
+/**
  * Copyright 2011 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -490,7 +572,8 @@ OpenAjax.a11y.util = OpenAjax.a11y.util || {};
 
 
 /**
- * @function UrlExists
+ * @function urlExists
+ *
  * @memberOf OpenAjax.a11y.util
  *
  * @desc Determines if a URL exits
@@ -500,9 +583,9 @@ OpenAjax.a11y.util = OpenAjax.a11y.util || {};
  * @return  Number  
  */
  
-OpenAjax.a11y.util.UrlExists = function (url) {
+OpenAjax.a11y.util.urlExists = function (url) {
 
- if (OpenAjax.a11y.SUPPORTS_URL_TESTING) {
+ if (OpenAjax.a11y.SUPPORTS_URL_TESTING && OpenAjax.a11y.URL_TESTING_ENABLED) {
   try {
    var http = new XMLHttpRequest();
    http.open('HEAD', url, false);
@@ -636,7 +719,7 @@ if (typeof String.capitalize == "undefined") {
 
 
 /*
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1070,6 +1153,28 @@ OpenAjax.a11y.cache.AbbreviationItem.prototype.getCacheProperties = function (un
   
 };
 
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.AbbreviationItem
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.AbbreviationItem.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
 /**
 
  * @method getEvents
@@ -1107,7 +1212,7 @@ OpenAjax.a11y.cache.AbbreviationItem.prototype.toString = function () {
 
 
 /*
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1173,14 +1278,14 @@ OpenAjax.a11y.cache.ColorContrastCache = function (dom_cache) {
  *
  * @memberOf OpenAjax.a11y.cache.ColorContrastCache
  *
- * @desc Adds a DOM Element object information to a color contrast item in the color contrast
+ * @desc Adds a DOM text object information to a color contrast item in the color contrast
  *       cache, if it does not match any of the current color contrast items it will create a
  *       new color contrast item.
  *
- * @param {DOMElement}  dom_element  - dom element to add to color contrast list
+ * @param {DOMText}  dom_text_node  - dom text_node to add to color contrast list
  */
 
-OpenAjax.a11y.cache.ColorContrastCache.prototype.addColorContrastItem = function (dom_element) {
+OpenAjax.a11y.cache.ColorContrastCache.prototype.addColorContrastItem = function (dom_text_node) {
   
   var i;
   
@@ -1189,21 +1294,11 @@ OpenAjax.a11y.cache.ColorContrastCache.prototype.addColorContrastItem = function
   var color_contrast_items_len = this.color_contrast_items.length;
   var found = false;
   
-  // Some elements do not have color contrast calculations
-  if ((dom_element.tag_name == "img") ||
-    (dom_element.tag_name   == "area") ||
-    (dom_element.tag_name   == "map") ||
-    (dom_element.tag_name   == "object") ||
-    (dom_element.tag_name   == "embed") ||
-    (dom_element.tag_name   == "applet")) {
-   return;  
-  }
-
   for (i = 0; i < color_contrast_items_len; i++) {
     cci = this.color_contrast_items[i];
-    cs = dom_element.computed_style;
+    cs = dom_text_node.computed_style;
     
-    // OpenAjax.a11y.console("color compare " + dom_element.computed_style.color + " with " + item.color );
+    // OpenAjax.a11y.console("color compare " + dom_text_node.computed_style.color + " with " + item.color );
     
     if ( cci && 
          cci.color &&
@@ -1215,10 +1310,10 @@ OpenAjax.a11y.cache.ColorContrastCache.prototype.addColorContrastItem = function
            (cs.background_repeat   == cci.background_repeat) &&
            (cs.background_position == cci.background_position)))) {
       
-      cci.dom_elements.push(dom_element);
-      cci.node_count = cci.dom_elements.length;
+      cci.dom_text_nodes.push(dom_text_node);
+      cci.node_count = cci.dom_text_nodes.length;
       
-      cci.addToCharacterCount(dom_element.character_count);
+      cci.addToCharacterCount(dom_text_node.text_length);
       
       found = true;
       break;
@@ -1227,11 +1322,12 @@ OpenAjax.a11y.cache.ColorContrastCache.prototype.addColorContrastItem = function
   // end loop
   
   if (!found) {
-    cs = dom_element.computed_style;
-    cci = new OpenAjax.a11y.cache.ColorContrastItem(cs.font_family, cs.font_size, cs.font_weight, cs.color_hex, cs.background_color_hex, cs.background_image, cs.background_repeat, cs.background_position, cs.is_large_font, cs.color_contrast_ratio, dom_element.character_count);
+    cs = dom_text_node.computed_style;
     
-    cci.dom_elements.push(dom_element);
-    cci.node_count = cci.dom_elements.length;
+    cci = new OpenAjax.a11y.cache.ColorContrastItem(cs.font_family, cs.font_size, cs.font_weight, cs.color_hex, cs.background_color_hex, cs.background_image, cs.background_repeat, cs.background_position, cs.is_large_font, cs.color_contrast_ratio, dom_text_node.character_count);
+    
+    cci.dom_text_nodes.push(dom_text_node);
+    cci.node_count = cci.dom_text_nodes.length;
     
     this.color_contrast_items.push(cci);
     this.length = this.length + 1;
@@ -1270,8 +1366,8 @@ OpenAjax.a11y.cache.ColorContrastCache.prototype.getColorContrastItemById = func
 OpenAjax.a11y.cache.ColorContrastCache.prototype.getItemByCacheId = function (cache_id) {
   
   var i, j;
-  var cci, de;
-  var dom_elements, dom_elements_len;
+  var cci, dtn;
+  var dom_text_nodes, dom_text_nodes_len;
 
   var color_contrast_items     = this.color_contrast_items;
   var color_contrast_items_len = color_contrast_items.length;
@@ -1286,12 +1382,12 @@ OpenAjax.a11y.cache.ColorContrastCache.prototype.getItemByCacheId = function (ca
         return this.color_contrast_items[i];
       }
 
-      dom_elements     = cci.dom_elements;
-      dom_elements_len = dom_elements.length;
+      dom_text_nodes     = cci.dom_text_nodes;
+      dom_text_nodes_len = dom_text_nodes.length;
       
-      for (j = 0; j < dom_elements_len; j++ ) {
-        de = dom_elements[j];
-        if (de.cache_id == cache_id) return de;
+      for (j = 0; j < dom_text_nodes_len; j++ ) {
+        dtn = dom_text_nodes[j];
+        if (dtn.cache_id == cache_id) return dtn;
       } // end loop
 
     } // end loop
@@ -1323,12 +1419,21 @@ OpenAjax.a11y.cache.ColorContrastCache.prototype.emptyCache = function () {
  *    This is used during the creation of the cache and is used by the functions for
  *    either creating the cache all at one time or selectively
  *
- * @param {DOMElement}  dom_element  - DOM Element object to add to the color contrast cache
+ * @param {DOMText}  dom_text  - DOM text  object to add to the color contrast cache
  */
 
-OpenAjax.a11y.cache.ColorContrastCache.prototype.updateCacheItems = function (dom_element) {
-  
-  this.addColorContrastItem(dom_element);
+OpenAjax.a11y.cache.ColorContrastCache.prototype.updateCacheItems = function (dom_text_node) {
+
+  var tn;
+
+  if (dom_text_node.parent_element) {
+    tn =  dom_text_node.parent_element.tag_name;
+    
+    if (tn != 'script' && tn != 'object' && tn != 'style') {
+      this.addColorContrastItem(dom_text_node);
+    }
+  }  
+    
 };
 
 /**
@@ -1345,13 +1450,15 @@ OpenAjax.a11y.cache.ColorContrastCache.prototype.traverseDOMElementsForColorCont
   
   if (dom_element.type == NODE_TYPE.ELEMENT) {
     
-    this.updateCacheItems(dom_element);
-    
     for (var i = 0; i < dom_element.child_dom_elements.length; i++) {
       this.traverseDOMElementsForColorContrast(dom_element.child_dom_elements[i]);
     }
     // end loop
   }
+  else {
+    this.updateCacheItems(dom_element);
+  }  
+  
 };
 
 /**
@@ -1529,7 +1636,7 @@ OpenAjax.a11y.cache.ColorContrastItem = function (font_family, font_size, font_w
   
   this.is_large_font = is_large_font;
   
-  this.dom_elements = [];
+  this.dom_text_nodes = [];
 };
 
 /**
@@ -1557,7 +1664,7 @@ OpenAjax.a11y.cache.ColorContrastItem.prototype.addToCharacterCount = function (
  */
 
 OpenAjax.a11y.cache.ColorContrastItem.prototype.getResultRules = function () {
-  return this.dom_elements[0].getResultRules();
+  return this.dom_text_nodes[0].getResultRules();
 };
 
 /**
@@ -1636,6 +1743,27 @@ OpenAjax.a11y.cache.ColorContrastItem.prototype.getCacheProperties = function (u
 };
 
 /**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.ColorContrastItem
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.ColorContrastItem.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return null;
+  }
+  
+  return this[property];
+};
+
+/**
  * @method getEvents
  *
  * @memberOf OpenAjax.a11y.cache.ColorContrastItem
@@ -1693,17 +1821,18 @@ OpenAjax.a11y.cache.ColorContrastItem.prototype.getColorContrastSummary = functi
   severity = cache_nls.getSeverityNLS(SEVERITY.NONE); 
   a.label    = severity.label;
   a.style    = SEVERITY_STYLE[SEVERITY.NONE];
+  var dtn;
   
   var color_rules = ['COLOR_1', 'COLOR_2'];
 
   last_severity_value = SEVERITY.NONE;
 
-  for (i = 0; i < this.dom_elements.length; i++ ) {
+  for (i = 0; i < this.dom_text_nodes.length; i++ ) {
   
-    var de = this.dom_elements[i];
+    dtn = this.dom_text_nodes[i];
 
     if (last_severity_value == SEVERITY.NONE && 
-        hasRule(de.rules_hidden, color_rules)) {
+        hasRule(dtn.rules_hidden, color_rules)) {
       severity = cache_nls.getSeverityNLS(SEVERITY.HIDDEN);
       a.style    = SEVERITY_STYLE[SEVERITY.HIDDEN];
       last_severity_value = SEVERITY.HIDDEN;
@@ -1711,7 +1840,7 @@ OpenAjax.a11y.cache.ColorContrastItem.prototype.getColorContrastSummary = functi
 
     if ((last_severity_value == SEVERITY.NONE ||
          last_severity_value == SEVERITY.HIDDEN) &&
-        hasRule(de.rules_passed, color_rules)) {
+        hasRule(dtn.rules_passed, color_rules)) {
       severity = cache_nls.getSeverityNLS(SEVERITY.PASS);
       a.style  = SEVERITY_STYLE[SEVERITY.PASS];
       last_severity_value = SEVERITY.PASS;
@@ -1720,7 +1849,7 @@ OpenAjax.a11y.cache.ColorContrastItem.prototype.getColorContrastSummary = functi
     if ((last_severity_value == SEVERITY.NONE ||
          last_severity_value == SEVERITY.HIDDEN ||
          last_severity_value == SEVERITY.PASS) &&
-        hasRule(de.rules_recommendations, color_rules)) {
+        hasRule(dtn.rules_recommendations, color_rules)) {
       severity = cache_nls.getSeverityNLS(SEVERITY.RECOMMENDATION);
       a.style  = SEVERITY_STYLE[SEVERITY.RECOMMENDATION];
       last_severity_value = SEVERITY.RECOMMENDATION;
@@ -1730,13 +1859,13 @@ OpenAjax.a11y.cache.ColorContrastItem.prototype.getColorContrastSummary = functi
          last_severity_value == SEVERITY.HIDDEN ||
          last_severity_value == SEVERITY.PASS ||
          last_severity_value == SEVERITY.RECOMMENDATION) &&
-        hasRule(de.rules_manual_checks, color_rules)) {
+        hasRule(dtn.rules_manual_checks, color_rules)) {
       severity = cache_nls.getSeverityNLS(SEVERITY.MANUAL_CHECK);
       a.style  = SEVERITY_STYLE[SEVERITY.MANUAL_CHECK];
       last_severity_value = SEVERITY.MANUAL_CHECK;
     }
 
-    if (hasRule(de.rules_violations, color_rules)) {
+    if (hasRule(dtn.rules_violations, color_rules)) {
       severity = cache_nls.getSeverityNLS(SEVERITY.VIOLATION);
       a.style  = SEVERITY_STYLE[SEVERITY.VIOLATION];
       break;
@@ -1778,7 +1907,7 @@ OpenAjax.a11y.cache.ColorContrastItem.prototype.toString = function () {
   str += "  Background Repeat  : " + this.background_repeat + "\n";
   str += "  Color Contrast Ratio : " + this.color_contrast_ratio + "\n";
   str += "  Number of Characters : " + this.character_count + "\n";
-  str += "  Number of Nodes   : " + this.dom_elements.length + "\n\n";
+  str += "  Number of Nodes   : " + this.dom_text_nodes.length + "\n\n";
   
   return str;
 };
@@ -2930,9 +3059,30 @@ OpenAjax.a11y.cache.FormElement.prototype.getCacheProperties = function () {
   
   var properties = this.dom_element.getCacheProperties();
   
-  
   return properties;
 };
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.FormElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.FormElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
 
 /**
  * @method getEvents
@@ -3106,6 +3256,28 @@ OpenAjax.a11y.cache.FieldsetElement.prototype.getCacheProperties = function (uns
 
   return properties;
 };
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.FieldsetElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.FieldsetElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
 
 /**
  * @method getEvents
@@ -3282,6 +3454,29 @@ OpenAjax.a11y.cache.LegendElement.prototype.getCacheProperties = function (unsor
 };
 
 /**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.LegendElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.LegendElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
+
+
+/**
  * @method getEvents
  *
  * @memberOf OpenAjax.a11y.cache.LegendElement
@@ -3456,6 +3651,27 @@ OpenAjax.a11y.cache.LabelElement.prototype.getCacheProperties = function (unsort
 };
 
 /**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.LabelElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.LabelElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
+/**
  * @method getEvents
  *
  * @memberOf OpenAjax.a11y.cache.LabelElement
@@ -3505,6 +3721,7 @@ OpenAjax.a11y.cache.LabelElement.prototype.toString = function () {
  * @property  {Array}       child_cache_elements  - Array of child cache control elements as part of cache control tree 
  * @property  {String}      type                  - Type of input element  
  * @property  {Number}      control_type          - Constant indicating the type of cache control object  
+ * @property  {String}      name                  - Text content of the name attribute  
  *
  * @property  {String}      label                 - Calculated label for the input element 
  * @property  {Number}      label_length          - Length of the label property 
@@ -3532,6 +3749,7 @@ OpenAjax.a11y.cache.InputElement = function (dom_element, control_info) {
   this.value   = node.value; 
   this.checked = node.checked;
 
+  this.name          = node.getAttribute('name');
   this.required      = node.getAttribute('required');
   this.aria_required = node.getAttribute('aria-required');
   this.aria_invalid  = node.getAttribute('aria-invalid');
@@ -3563,7 +3781,7 @@ OpenAjax.a11y.cache.InputElement = function (dom_element, control_info) {
     break;
     
   case 'radio':
-    this.control_type  = OpenAjax.a11y.CONTROL_TYPE.CHECKBOX; 
+    this.control_type  = OpenAjax.a11y.CONTROL_TYPE.RADIO; 
     break;
     
   case 'text':
@@ -3693,6 +3911,7 @@ OpenAjax.a11y.cache.InputElement.prototype.getAttributes = function (unsorted) {
   var cache_nls = OpenAjax.a11y.cache_nls;
   var attributes = this.dom_element.getAttributes();
   
+  cache_nls.addPropertyIfDefined(attributes, this, 'name');
   cache_nls.addPropertyIfDefined(attributes, this, 'maxlength');
   cache_nls.addPropertyIfDefined(attributes, this, 'readonly');
   cache_nls.addPropertyIfDefined(attributes, this, 'value');
@@ -3724,11 +3943,35 @@ OpenAjax.a11y.cache.InputElement.prototype.getCacheProperties = function (unsort
   var properties = this.dom_element.getCacheProperties(unsorted);
 
   cache_nls.addPropertyIfDefined(properties, this, 'label');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_source');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_for_comparison');
 
   if (!unsorted) this.dom_element.sortItems(properties);
 
   return properties;
 };
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.InputElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.InputElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
 
 /**
  * @method getEvents
@@ -3774,6 +4017,27 @@ OpenAjax.a11y.cache.InputElement.prototype.getLabelNLS = function () {
   
 };
 
+/**
+ * @method getLabelSourceNLS
+ *
+ * @memberOf OpenAjax.a11y.cache.InputElement
+ *
+ * @desc Returns an object with an NLS localized information on the source of the label
+ *
+ * @return {String | Object} Returns a String if the label has content, 
+ *                            but if label is empty it returns an object 
+ *                            with a 'label and 'style' property
+ */
+
+OpenAjax.a11y.cache.InputElement.prototype.getLabelSourceNLS = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  return cache_nls.getValueNLS('label_source', this.label_source);
+  
+};
+
+
 
 /**
  * @method toString
@@ -3808,6 +4072,8 @@ OpenAjax.a11y.cache.InputElement.prototype.toString = function () {
  * @property  {DOMElement}  dom_element  - Reference to the dom element representing the button element
  * @property  {String}      cache_id     - String that uniquely identifies the cache element object in the cache
  *
+ * @property  {String}      name            - Value of the name attribute
+ *
  * @property  {Array}       child_cache_elements  - Array of child cache control elements as part of cache control tree 
  * @property  {Number}      control_type          - Constant indicating the type of cache control object  
  *
@@ -3832,6 +4098,8 @@ OpenAjax.a11y.cache.ButtonElement = function (dom_element, control_info) {
  
   this.control_type = OpenAjax.a11y.CONTROL_TYPE.BUTTON; 
  
+  this.name          = node.getAttribute('name');
+  
   this.label  = "";
   this.label_length = 0;
   this.label_for_comparison = "";
@@ -3932,12 +4200,36 @@ OpenAjax.a11y.cache.ButtonElement.prototype.getCacheProperties = function (unsor
 
   var properties = this.dom_element.getCacheProperties(unsorted);
 
-//  cache_nls.addPropertyIfDefined(properties, this, 'tag_name');
+  cache_nls.addPropertyIfDefined(properties, this, 'label');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_source');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_for_comparison');
 
   if (!unsorted) this.dom_element.sortItems(properties);
 
   return properties;
 };
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.ButtonElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.ButtonElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
 
 /**
  * @method getEvents
@@ -3984,6 +4276,28 @@ OpenAjax.a11y.cache.ButtonElement.prototype.getLabelNLS = function () {
 };
 
 /**
+ * @method getLabelSourceNLS
+ *
+ * @memberOf OpenAjax.a11y.cache.ButtonElement
+ *
+ * @desc Returns an object with an NLS localized information on the source of the label
+ *
+ * @return {String | Object} Returns a String if the label has content, 
+ *                            but if label is empty it returns an object 
+ *                            with a 'label and 'style' property
+ */
+
+OpenAjax.a11y.cache.ButtonElement.prototype.getLabelSourceNLS = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  var label_style = {};
+  
+  return cache_nls.getValueNLS('label_source', this.label_source);
+  
+};
+
+/**
  * @method toString
  *
  * @memberOf OpenAjax.a11y.cache.ButtonElement
@@ -4015,6 +4329,8 @@ OpenAjax.a11y.cache.ButtonElement.prototype.toString = function () {
  * @property  {String}      cache_id        - String that uniquely identifies the cache element object in the cache
  * @property  {Number}      document_order  - Ordinal position of the control element in the document in relationship to other control elements
  *
+ * @property  {String}      name            - Value of the name attribute
+ *
  * @property  {Array}       child_cache_elements  - Array of child cache control elements as part of cache control tree 
  * @property  {Number}      control_type          - Constant indicating the type of cache control object  
  *
@@ -4044,6 +4360,8 @@ OpenAjax.a11y.cache.TextareaElement = function (dom_element, control_info) {
  
   this.label_element  = control_info.label_element;
   this.fieldset_element = control_info.fieldset_element;
+  
+  this.name          = node.getAttribute('name');
   
   this.label  = "";
   this.label_for_comparison = "";
@@ -4128,11 +4446,34 @@ OpenAjax.a11y.cache.TextareaElement.prototype.getCacheProperties = function (uns
 
   var properties = this.dom_element.getCacheProperties(unsorted);
 
-//  cache_nls.addPropertyIfDefined(properties, this, 'tag_name');
+  cache_nls.addPropertyIfDefined(properties, this, 'label');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_source');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_for_comparison');
 
   if (!unsorted) this.dom_element.sortItems(properties);
 
   return properties;
+};
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.TextareaElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.TextareaElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
 };
 
 /**
@@ -4168,8 +4509,6 @@ OpenAjax.a11y.cache.TextareaElement.prototype.getLabelNLS = function () {
 
   var cache_nls = OpenAjax.a11y.cache_nls;
   
-  var label_style = {};
-  
   if (this.label_length) {
     return this.label;
   }
@@ -4179,6 +4518,26 @@ OpenAjax.a11y.cache.TextareaElement.prototype.getLabelNLS = function () {
   
 };
 
+
+/**
+ * @method getLabelSourceNLS
+ *
+ * @memberOf OpenAjax.a11y.cache.TextareaElement
+ *
+ * @desc Returns an object with an NLS localized information on the source of the label
+ *
+ * @return {String | Object} Returns a String if the label has content, 
+ *                            but if label is empty it returns an object 
+ *                            with a 'label and 'style' property
+ */
+
+OpenAjax.a11y.cache.TextareaElement.prototype.getLabelSourceNLS = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  return cache_nls.getValueNLS('label_source', this.label_source);
+  
+};
 
 /**
  * @method toString
@@ -4212,6 +4571,8 @@ OpenAjax.a11y.cache.TextareaElement.prototype.toString = function () {
  * @property  {String}      cache_id        - String that uniquely identifies the cache element object in the cache
  * @property  {Number}      document_order  - Ordinal position of the control element in the document in relationship to other control elements
  *
+ * @property  {String}      name            - Value of the name attribute
+ *
  * @property  {Array}       child_cache_elements  - Array of child cache control elements as part of cache control tree 
  * @property  {Array}       option_elements       - Array of child cache option elements  
  * @property  {Number}      control_type          - Constant indicating the type of cache control object  
@@ -4240,6 +4601,8 @@ OpenAjax.a11y.cache.SelectElement = function (dom_element, control_info) {
 
   var node = dom_element.node;
 
+  this.name          = node.getAttribute('name');
+  
   this.label = "";
   this.label_length = 0;
   this.label_for_comparison = "";
@@ -4362,12 +4725,36 @@ OpenAjax.a11y.cache.SelectElement.prototype.getCacheProperties = function (unsor
 
   var properties = this.dom_element.getCacheProperties(unsorted);
 
-//  cache_nls.addPropertyIfDefined(properties, this, 'tag_name');
+  cache_nls.addPropertyIfDefined(properties, this, 'label');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_source');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_for_comparison');
 
   if (!unsorted) this.dom_element.sortItems(properties);
 
   return properties;
 };
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.SelectElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.SelectElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
 
 /**
  * @method getEvents
@@ -4412,6 +4799,30 @@ OpenAjax.a11y.cache.SelectElement.prototype.getLabelNLS = function () {
   }
   
 };
+
+
+/**
+ * @method getLabelSourceNLS
+ *
+ * @memberOf OpenAjax.a11y.cache.SelectElement
+ *
+ * @desc Returns an object with an NLS localized information on the source of the label
+ *
+ * @return {String | Object} Returns a String if the label has content, 
+ *                            but if label is empty it returns an object 
+ *                            with a 'label and 'style' property
+ */
+
+OpenAjax.a11y.cache.SelectElement.prototype.getLabelSourceNLS = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  var label_style = {};
+  
+  return cache_nls.getValueNLS('label_source', this.label_source);
+  
+};
+
 
 /**
  * @method toString
@@ -4561,12 +4972,36 @@ OpenAjax.a11y.cache.OptgroupElement.prototype.getCacheProperties = function (uns
 
   var properties = this.dom_element.getCacheProperties(unsorted);
 
-//  cache_nls.addPropertyIfDefined(properties, this, 'tag_name');
+  cache_nls.addPropertyIfDefined(properties, this, 'label');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_source');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_for_comparison');
 
   if (!unsorted) this.dom_element.sortItems(properties);
 
   return properties;
 };
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.OptgroupElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.OptgroupElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
 
 /**
  * @method getEvents
@@ -4706,11 +5141,34 @@ OpenAjax.a11y.cache.OptionElement.prototype.getCacheProperties = function (unsor
 
   var properties = this.dom_element.getCacheProperties(unsorted);
 
-//  cache_nls.addPropertyIfDefined(properties, this, 'tag_name');
+  cache_nls.addPropertyIfDefined(properties, this, 'label');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_source');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_for_comparison');
 
   if (!unsorted) this.dom_element.sortItems(properties);
 
   return properties;
+};
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.OptionElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.OptionElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
 };
 
 /**
@@ -4744,7 +5202,7 @@ OpenAjax.a11y.cache.OptionElement.prototype.toString = function () {
  return "OPTION with value=" + this.value; 
 };
 /*
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -4771,6 +5229,7 @@ OpenAjax.a11y.cache.OptionElement.prototype.toString = function () {
  * @desc Creates a DOMElementCache object for represeting a DOM in a web browser
  *         
  * @property {Array}  dom_elements        - A simple array of all the DOMElement objects in the cache
+ * @property {Array}  dom_text            - A simple array of all the DOMText objects in the cache
  * @property {Array}  child_dom_elements  - The roor of a tree of DOMElement objects representing the node relationships on the DOM
  * @property {String} sort_property       - String  The DOMElement property the dom_elements array is sorted by
  * @property {Number} length              - The running length of the dom_elements array used for calculating the cache_id property of a DOMElement
@@ -4779,9 +5238,13 @@ OpenAjax.a11y.cache.OptionElement.prototype.toString = function () {
 OpenAjax.a11y.cache.DOMElementCache = function () {
 
  this.dom_elements = [];
+ this.dom_text = [];
+ 
  this.child_dom_elements = [];
+ 
  this.sort_property = 'document_order';
  this.length = 0;
+ this.text_length = 0;
 
 };
 
@@ -4827,6 +5290,32 @@ OpenAjax.a11y.cache.DOMElementCache.prototype.addDOMElement = function (dom_elem
  }
 
  return this.dom_elements.length;
+
+};
+
+/**
+ * @method addDOMText
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMElementCache
+ *
+ * @desc Adds a DOM text object to the array of all DOM text and calculates the cache ID
+ *
+ * @param {DOMText Object}  dom_text  - DOM text object to add 
+ *
+ * @return  {Number}  Returns the current number of elements in the array of DOM text objects
+ */
+
+OpenAjax.a11y.cache.DOMElementCache.prototype.addDOMText = function (dom_text) {
+
+ // item must exist and have the position property
+ if (dom_text) {
+  this.text_length  += 1;
+  dom_text.document_order = this.text_length;
+  dom_text.cache_id       = "domt_" + this.text_length;
+  this.dom_text.push(dom_text);
+ }
+
+ return this.dom_text.length;
 
 };
 
@@ -5060,17 +5549,417 @@ OpenAjax.a11y.cache.DOMElementCache.prototype.checkForUniqueIDs = function () {
  *
  * @desc DOMText object represents DOM nodes of type text
  * 
+ *
+ * @param  {Object}      node           - The DOM text node 
+ * @param  {DOMElement}  parent_element - DOMElement object that is the current parent in the tree
+ *
+ * @property  {DOMElement}  parent_landmark      - LandmarkElement object that contains this element
+ * @property  {String}      parent_landmark_role - role of parent landmark element 
+ *
+ * @property  {LandmarkElement}  parent_landmark - LandmarkElement object that contains the text content
+ * @property  {String}      parent_landmark_role - role of parent landmark element 
+ *
  * @property {Number}  type - Type of DOM node element or text
  * @property {String}  text - Text content of DOM text node
  *
- * @param  {Object}  node           - The DOM text node 
- * @param  {DOMElement}  parent_element - DOMElement object that is the current parent in the tree
+ * @property {String}  cache_id        - String that uniquely identifies the cache element in the DOMCache
+ * @property {Number}  document_order  - The ordinal position of this DOM text node in the DOM
+ *
+ * @property {Object}  computed_style  - Object that contains information about run time styling of the node
+ * @property {Object}  events          - Object that contains information about event handlers attached to the node and its descendents
+ *
+ * @property {Array}  rules_violations       - Array of NodeResult objects with severity of 'Violation'
+ * @property {Array}  rules_recommendations  - Array of NodeResult objects with severity of 'Recommendation'
+ * @property {Array}  rules_manual_checks    - Array of NodeResult objects with severity of 'Manual Check'
+ * @property {Array}  rules_informational    - Array of NodeResult objects with severity of 'Informational'
+ * @property {Array}  rules_passed           - Array of NodeResult objects with severity of 'Passed'
+ * @property {Array}  rules_hidden           - Array of NodeResult objects with severity of 'Hidden'
+ * @property {Array}  rules_na               - Array of NodeResult objects with severity of 'Not Applicable' 
  */
  
 OpenAjax.a11y.cache.DOMText = function (node, parent_element) {
+
  this.type = NODE_TYPE.TEXT;
  this.text = node.data;
- parent_element.addToCharacterCount(this.text.length);
+ this.parent_element = parent_element;
+ 
+ this.parent_landmark      = null;
+ this.parent_landmark_role = "";
+ 
+ this.text_normalized = this.text.normalizeSpace();
+ var text_length      = this.text_normalized.length;
+ this.text_length     = text_length;
+ 
+ parent_element.addToCharacterCount(text_length);
+ 
+ this.computed_style = parent_element.computed_style;
+ 
+  // Create areas to store rule results associates with this node
+ this.rules_violations                = [];
+ this.rules_recommendations           = [];
+ this.rules_manual_checks             = [];
+ this.rules_informational             = [];
+ this.rules_passed                    = [];
+ this.rules_hidden                    = [];
+ this.rules_warnings                  = [];
+ this.rules_na                        = [];
+};
+
+/**
+ * @method addText
+ *
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMText
+ *
+ * @desc   Check DOMElement for presence of attribute with specified value
+ *
+ * @param  {String} text  - text content to add
+ *
+ * @return {Number}  Length of the normailized text content of the DOM text node
+ */
+
+OpenAjax.a11y.cache.DOMText.prototype.addText = function (text) {
+
+  this.text += text;
+  
+  this.text_normalized = this.text.normalizeSpace();
+  
+  var text_length = this.text_normalized.length;
+
+  parent_element.addToCharacterCount(text_length - this.text_length);
+
+  this.text_length = text_length;
+  
+};
+
+/**
+ * @method getResultRules
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMText
+ *
+ * @desc Returns an array of node results in severity order 
+ *
+ * @return {Array} Returns a array of node results
+ */
+
+OpenAjax.a11y.cache.DOMText.prototype.getResultRules = function () {
+ 
+  function addResultNodes(items) {
+  
+    var len = items.length;
+    
+    for (var i = 0; i < len; i++ ) {
+      result_nodes.push(items[i]);
+    }
+    
+  }
+
+  var result_nodes = [];
+  
+  addResultNodes(this.rules_violations);
+  addResultNodes(this.rules_manual_checks);
+  addResultNodes(this.rules_recommendations);
+  addResultNodes(this.rules_warnings);
+  addResultNodes(this.rules_passed);
+  addResultNodes(this.rules_informational);
+  addResultNodes(this.rules_hidden); 
+  
+  return result_nodes;
+  
+};
+
+/**
+ * @method getAccessibility
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMText
+ *
+ * @desc Returns the worst severity level of rule results  
+ *
+ * @return {Object} Results an object wiith two properties: 'severity' : nls value of the severity, 'style' : a severity styling constant
+ */
+
+OpenAjax.a11y.cache.DOMText.prototype.getAccessibility = function () {
+   
+  var cache_nls      = OpenAjax.a11y.cache_nls;
+  var SEVERITY       = OpenAjax.a11y.SEVERITY;
+  var SEVERITY_STYLE = OpenAjax.a11y.SEVERITY_STYLE;
+  var severity;
+  var a = {};
+
+  severity = cache_nls.getSeverityNLS(SEVERITY.NONE); 
+  a.label    = severity.label;
+  a.style    = SEVERITY_STYLE[SEVERITY.NONE];
+
+  if (this.rules_hidden.length) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.HIDDEN);
+    a.style    = SEVERITY_STYLE[SEVERITY.HIDDEN];
+  }
+  
+  if (this.rules_passed.length) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.PASS);
+    a.style    = SEVERITY_STYLE[SEVERITY.PASS];
+  }
+
+  if (this.rules_warnings.length) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.WARNING);
+    a.style    = SEVERITY_STYLE[SEVERITY.WARNING];
+  }
+  
+  if (this.rules_manual_checks.length) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.MANUAL_CHECK);
+    a.style    = SEVERITY_STYLE[SEVERITY.MANUAL_CHECK];
+  }
+
+  if (this.rules_recommendations.length) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.RECOMMENDATION);
+    a.style    = SEVERITY_STYLE[SEVERITY.RECOMMENDATION];
+  }
+
+  if (this.rules_violations.length) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.VIOLATION);
+    a.style       = SEVERITY_STYLE[SEVERITY.VIOLATION];
+  }
+
+  a.label       = severity.label;
+  a.abbrev      = severity.abbrev;
+  a.description = severity.description;
+  a.tooltip     = severity.tooltip;
+  
+  return a;
+  
+};
+
+/**
+ * @method getAttributes
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMText
+ *
+ * @desc Returns an empty array, text nodes do not have attributes
+ *
+ * @return {Array} Returns a empty array
+ */
+
+OpenAjax.a11y.cache.DOMText.prototype.getAttributes = function (unsorted) {
+
+  return [];
+
+};
+
+/**
+ * @method getEvents
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMText
+ *
+ * @desc Returns an empty array, text nodes do not have events
+ *
+ * @return {Array} Returns a empty array
+ */
+
+OpenAjax.a11y.cache.DOMText.prototype.getEvents = function (unsorted) {
+
+  return [];
+
+};
+
+
+/**
+ * @method getCacheProperties
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMText
+ *
+ * @desc Returns an array of styling information for the element, sorted in alphabetical order 
+ *
+ * @return {Array} Returns a array of NLS objects for styling
+ */
+
+OpenAjax.a11y.cache.DOMText.prototype.getCacheProperties = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+ 
+  var properties  = [];
+
+  cache_nls.addPropertyIfDefined(properties, this, 'text_normalized');
+  cache_nls.addPropertyIfDefined(properties, this, 'text_length');
+  
+  return properties;
+
+};
+
+/**
+ * @method getColorContrastSummary
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMText
+ *
+ * @desc Returns the worst severity level for color contrast rules  
+ *
+ * @return {Object} Results an object wiith two properties: 'severity' : nls value of the severity, 'style' : a severity styling constant
+ */
+
+OpenAjax.a11y.cache.DOMText.prototype.getColorContrastSummary = function () {
+   
+  function hasRule(node_results, rules) {
+  
+    var i;
+    var j;
+    
+    var node_results_len = node_results.length;
+    var rules_len        = rules.length;
+    
+    for (i = 0; i < node_results_len; i++ ) {
+      for (j = 0; j < rules_len; j++) {
+        if (node_results[i].rule_result.rule.rule_id == rules[j]) return true;
+      }
+    }
+    return false;
+  }
+
+  var i;
+  
+  var cache_nls      = OpenAjax.a11y.cache_nls;
+  var SEVERITY       = OpenAjax.a11y.SEVERITY;
+  var SEVERITY_STYLE = OpenAjax.a11y.SEVERITY_STYLE;
+  var severity;
+  var last_severity_value;
+  var a = {};
+  var last_a = {};
+
+  severity = cache_nls.getSeverityNLS(SEVERITY.NONE); 
+  a.label    = severity.label;
+  a.style    = SEVERITY_STYLE[SEVERITY.NONE];
+  
+  var color_rules = ['COLOR_1', 'COLOR_2'];
+
+  if (hasRule(this.rules_hidden, color_rules)) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.HIDDEN);
+    a.style    = SEVERITY_STYLE[SEVERITY.HIDDEN];
+  }
+
+  if (hasRule(this.rules_passed, color_rules)) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.PASS);
+    a.style  = SEVERITY_STYLE[SEVERITY.PASS];
+  }
+
+  if (hasRule(this.rules_recommendations, color_rules)) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.RECOMMENDATION);
+    a.style  = SEVERITY_STYLE[SEVERITY.RECOMMENDATION];
+    last_severity_value = SEVERITY.RECOMMENDATION;
+  }
+
+  if (hasRule(this.rules_manual_checks, color_rules)) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.MANUAL_CHECK);
+    a.style  = SEVERITY_STYLE[SEVERITY.MANUAL_CHECK];
+  }
+
+  if (hasRule(this.rules_violations, color_rules)) {
+      severity = cache_nls.getSeverityNLS(SEVERITY.VIOLATION);
+      a.style  = SEVERITY_STYLE[SEVERITY.VIOLATION];
+  }
+
+  a.label       = severity.label;
+  a.abbrev      = severity.abbrev;
+  a.description = severity.description;
+  a.tooltip     = severity.tooltip;
+
+  return a;
+  
+};
+
+/**
+ * @method getStyle
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMText
+ *
+ * @desc Returns an array of styling information for the element, sorted in alphabetical order 
+ *
+ * @return {Array} Returns a array of NLS objects for styling
+ */
+
+OpenAjax.a11y.cache.DOMText.prototype.getStyle = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+ 
+  var properties  = [];
+
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'display');
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'visibility');
+  
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'color');
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'opacity');
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'background_color');
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'background_image');
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'background_repeat');
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'background_position');
+
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'font_family');
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'font_size');
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'font_weight');
+
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'position');
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'left');
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'top');
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'width');
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'height');
+  
+  return properties;
+
+};
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMText
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number | Object} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.DOMText.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    if (typeof this.computed_style[property] == 'undefined') {
+      if (typeof this.parent_element[property] == 'undefined') {
+        if (this.parent_landmark) {
+          if (typeof this.parent_landmark[property] == 'undefined') {
+            if (typeof this.parent_landmark.dom_element[property] == 'undefined') {
+              return null;
+            }
+            else {
+              return this.parent_landmark.dom_element[property];
+            }
+          }
+          else {  
+            return this.parent_landmark[property];
+          }  
+        }  
+      }  
+      else {  
+        return this.parent_element[property];
+      }  
+    }
+    else {
+      return this.computed_style[property];
+    }  
+  }
+    
+  return this[property];
+};
+
+
+/**
+ * @method getText
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMText
+ *
+ * @desc Returns text content of a DOMText element
+ *
+ * @return {String} Returns the text content dom text node
+ */
+ 
+OpenAjax.a11y.cache.DOMText.prototype.getText = function() {
+  return this.text_normalized;
 };
 
 
@@ -5089,7 +5978,10 @@ OpenAjax.a11y.cache.DOMText = function (node, parent_element) {
  * @property  {String}    xpath               - String that identifies the position of the element in the document
  *
  * @property {Array}      child_dom_elements  - The child DOMElement and DOMText objects of this DOMElement in the tree
- * @property {DOMElement} parent              - The parent DOMElement of this DOMElement in the tree
+ * @property {DOMElement} parent_element      - The parent DOMElement of this DOMElement in the tree
+ *
+ * @property {LandmarkElement}  parent_landmark - LandmarkElement object that contains this element
+ * @property {String}     parent_landmark_role  - role of parent landmark
  *
  * @property {Number}     type                - Type of DOM node is element  
  * @property {Number}     document_order      - The ordinal position of this DOM element node in the DOM
@@ -5158,9 +6050,12 @@ OpenAjax.a11y.cache.DOMElement = function (node, parent_dom_element) {
  this.character_count = 0;
 
  // Save relationships with other elements
- this.parent = parent_dom_element;
+ this.parent_element = parent_dom_element;
  this.child_dom_elements = [];
  this.aria_properties = [];
+ 
+ this.parent_landmark = null;
+ this.parent_landmark_role = "";
 
  // Cache important attributes for accessibility
  i = 0;
@@ -5250,7 +6145,6 @@ OpenAjax.a11y.cache.DOMElement = function (node, parent_dom_element) {
 
 /**
  * @method hasAttrWithValue
- *
  *
  * @memberOf OpenAjax.a11y.cache.DOMElement
  *
@@ -5669,16 +6563,50 @@ OpenAjax.a11y.cache.DOMElement.prototype.getCacheProperties = function () {
   cache_nls.addPropertyIfDefined(properties, this, 'character_count');
   
   cache_nls.addPropertyIfDefined(properties, this, 'calculated_aria_description');
-  
 
-  if (this.tag_name === 'img'   || 
-      this.tag_name === 'area'  || 
-      this.tag_name === 'input' || 
-      this.tag_name === 'applet')  cache_nls.addPropertyIfDefined(properties, this, 'has_alt_attribute');
+  cache_nls.addPropertyIfDefined(properties, this, 'document_order');
+
+  cache_nls.addPropertyIfDefined(properties, this, 'parent_landmark_role');
+  cache_nls.addPropertyIfDefined(properties, this, 'parent_landmark');
 
   return properties;
 
 };
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number | Object} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.DOMElement.prototype.getCachePropertyValue = function (property) {
+
+//  OpenAjax.a11y.console("dom element property: " + property + " value= " + this[property]);
+
+  if (typeof this[property] == 'undefined') {
+     if(typeof this.computed_style[property] == 'undefined') {
+       if(typeof this.events[property] == 'undefined') {
+         return null;
+       }
+       else {
+         return this.events[property]; 
+       }   
+     }
+     else {
+       return this.computed_style[property]; 
+     }
+  }
+  
+  return this[property];
+  
+};
+
 
 /**
  * @method sortItems
@@ -5871,7 +6799,7 @@ OpenAjax.a11y.cache.DOMElement.prototype.EnumerateFirefoxEvents = function (node
 };
 
 /**
- * @method addChildElement
+ * @method addChild
  *
  * @memberOf OpenAjax.a11y.cache.DOMElement
  *
@@ -6160,7 +7088,7 @@ OpenAjax.a11y.cache.DOMElement.prototype.toString = function() {
 };
 
 /*
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -6350,7 +7278,6 @@ OpenAjax.a11y.cache.DOMCache.prototype.traverseDOMElementsForAllCaches = functio
  if (dom_element.type == NODE_TYPE.ELEMENT) {
 
   this.abbreviations_cache.updateCacheItems(dom_element);
-  this.color_contrast_cache.updateCacheItems(dom_element);
   this.images_cache.updateCacheItems(dom_element);
   this.languages_cache.updateCacheItems(dom_element);
   this.links_cache.updateCacheItems(dom_element);
@@ -6366,6 +7293,9 @@ OpenAjax.a11y.cache.DOMCache.prototype.traverseDOMElementsForAllCaches = functio
   for (var i = 0; i<children_length; i++ ) {
    this.traverseDOMElementsForAllCaches(dom_element.child_dom_elements[i], hi, mi, ti, ci, li);
   } // end loop
+ } else {
+   this.color_contrast_cache.updateCacheItems(dom_element);
+   this.headings_landmarks_cache.updateCacheItems(dom_element, landmark_info);
  }
 };
 
@@ -6425,14 +7355,14 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateDOMElementCache = function () {
  if (this.document && this.document.body) {
   // OpenAjax.a11y.console("Creating DOM elements from body element");
   this.log.update(OpenAjax.a11y.PROGRESS.CACHE_START, "Updating DOM elements");
-  this.updateDOMElements(this.document.body, null);
+  this.updateDOMElements(this.document.body, null, null);
   this.log.update(OpenAjax.a11y.PROGRESS.CACHE_END, "Completed DOM element update, new cache includes " + this.element_cache.dom_elements.length + " DOMElement objects");
  }
  // If there are frames start at the top element
  else {
   // OpenAjax.a11y.console("Creating DOM elements with frames");
   this.log.update(OpenAjax.a11y.PROGRESS.CACHE_START, "Updating DOM elements using frames");
-  this.updateDOMElements(this.document, null);
+  this.updateDOMElements(this.document, null, null);
   this.log.update(OpenAjax.a11y.PROGRESS.CACHE_END, "Completed DOM element update, new cache includes " + this.element_cache.dom_elements.length + " DOMElement objects");
  }
 
@@ -6478,7 +7408,7 @@ OpenAjax.a11y.cache.DOMCache.prototype.addTitleDOMElement = function () {
  
     // get any text nodes associated with the title element
     for (n = node.firstChild; n !== null; n = n.nextSibling) {
-      this.updateDOMElements( n, de);
+      this.updateDOMElements( n, de, null);
     } // end loop
     
   }
@@ -6512,11 +7442,12 @@ OpenAjax.a11y.cache.DOMCache.prototype.addTitleDOMElement = function () {
  *
  * @param  {Object} node               - node is the current node object tbing analyzed
  * @param  {Object} parent_dom_element - DOMElement object that is the parent of the current node
+ * @param  {Object} previous_sibling   - The DOMElement or DOMText object that is the previous sibling
  *
  * return nothing
  */
 
-OpenAjax.a11y.cache.DOMCache.prototype.updateDOMElements = function (node, parent_dom_element) {
+OpenAjax.a11y.cache.DOMCache.prototype.updateDOMElements = function (node, parent_dom_element, previous_sibling) {
 
   var n;
   var de;
@@ -6545,7 +7476,7 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateDOMElements = function (node, paren
       this.element_cache.addChild(dom_element);
     }
 
-    if (dom_element.id.length) {
+    if (dom_element.id && dom_element.id.length) {
       // use append so that document_order of the dom_element does not get updated
       
       de = this.element_with_id_cache.getDOMElementById(dom_element.id);
@@ -6581,24 +7512,46 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateDOMElements = function (node, paren
       break;
 
     } // end switch
+    
+    var ps = null;
 
     for (n = node.firstChild; n !== null; n = n.nextSibling ) {
-      this.updateDOMElements(n, dom_element);
+      ps = this.updateDOMElements(n, dom_element, ps);
     } // end loop
+    
+    return dom_element;
     break;
 
   case NODE_TYPE.TEXT:
     // OpenAjax.a11y.console("DOM node text: " + node.data);
 
    var dom_text = new OpenAjax.a11y.cache.DOMText(node, parent_dom_element);
-   parent_dom_element.addChild(dom_text);
+
+   if (dom_text.text_length) {
+   
+     if (!previous_sibling || previous_sibling.type == NODE_TYPE.ELEMENT) {
+   
+       this.element_cache.addDOMText(dom_text);
+       if (parent_dom_element) parent_dom_element.addChild(dom_text);
+       return dom_text;
+     
+     } else {
+   
+       if (previous_sibiling) previous_sibiling.addText(dom_text.text);
+       return previous_sibling;
+     }  
+   }
+   else {
+     return previous_sibling;
+   }
+   
    break;
 
   default:
     break;
   } // end switch
 
-  return;
+  return null;
 
 };
 
@@ -6837,6 +7790,8 @@ OpenAjax.a11y.cache.LandmarkInfo = function (landmark_info) {
  * @property {String}  headings_sort_property  - Name of the heading element property the heading elements array is currently sorted
  * @property {Number}  heading_length          - The length of the heading elements list, used in calculating cache id values 
  *
+ * @property {Array}   elements_with_content   - List of content elements and text nodes outside of landmarks 
+ *
  * @property {ResultRuleSummary}  rule_summary_result  - Rule results associated with this cache
  */
 
@@ -6855,6 +7810,8 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache = function (dom_cache) {
   this.heading_elements = [];  
   this.headings_sort_property  = 'document_order';
   this.heading_length  = 0;
+  
+  this.elements_with_content = [];
    
   this.rule_summary_results  = new OpenAjax.a11y.ResultRuleSummary();
   
@@ -6940,11 +7897,22 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.addHeadingElement = functio
 
 OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.getItemByCacheId = function (cache_id) {
 
-  var item = this.getLandmarkElementByCacheId(cache_id);
+  var i;
+  var elements_with_content     = this.elements_with_content;
+  var elements_with_content_len = elements_with_content.length;
+  var item = null;
+
+  item = this.getLandmarkElementByCacheId(cache_id);
   if (item) return item;
   
   item = this.getHeadingElementByCacheId(cache_id);
-  
+  if (item) return item;
+
+  for (i = 0; i < elements_with_content_len; i++) {
+    item = this.elements_with_content[i];
+    if (item.cache_id == cache_id) return item;
+  }
+
   return item;
 
 };
@@ -7048,56 +8016,83 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.updateCacheItems = function
   var le;
   var he;
   var li = new OpenAjax.a11y.cache.LandmarkInfo(landmark_info);
-
-  if ((dom_element.role == 'region')    ||
-      (dom_element.role == 'main')     || 
-      (dom_element.role == 'navigation')  ||
-      (dom_element.role == 'search')    ||
-      (dom_element.role == 'applicaton')  ||
-      (dom_element.role == 'banner')    ||
-      (dom_element.role == 'complementary') ||
-      (dom_element.role == 'contentinfo')  ||
-      (dom_element.role == 'form')) {
-   
-    le = new OpenAjax.a11y.cache.LandmarkElement(dom_element, landmark_info.landmark_element);    
-
-    this.dom_cache.getNameFromARIALabel(le);
-
-    this.addLandmarkElement(le);
-
-    if (landmark_info.landmark_element) {
-      landmark_info.landmark_element.addChildElement(le);
-    } 
-    else {
-      this.addChildElement(le);  
-    }
   
-    li.landmark_element = le;
-
-    return li;
-  }
- 
-  if ((dom_element.tag_name == 'h1') ||
-      (dom_element.tag_name == 'h2') || 
-      (dom_element.tag_name == 'h3') || 
-      (dom_element.tag_name == 'h4') || 
-      (dom_element.tag_name == 'h5') || 
-      (dom_element.tag_name == 'h6')) {
-   
-    he = new OpenAjax.a11y.cache.HeadingElement(dom_element);    
+  dom_element.parent_landmark = landmark_info.landmark_element;
   
-    this.addHeadingElement(he);
+  if (landmark_info.landmark_element) dom_element.parent_landmark_role = landmark_info.landmark_element.role;
+  
+  if (dom_element.type == NODE_TYPE.ELEMENT) {
 
-    if (landmark_info.landmark_element) {
-      landmark_info.landmark_element.addChildElement(he);  
-    } 
-    else {
-      this.addChildElement(he);  
+    if ((dom_element.role == 'region')    ||
+        (dom_element.role == 'main')     || 
+        (dom_element.role == 'navigation')  ||
+        (dom_element.role == 'search')    ||
+        (dom_element.role == 'applicaton')  ||
+        (dom_element.role == 'banner')    ||
+        (dom_element.role == 'complementary') ||
+        (dom_element.role == 'contentinfo')  ||
+        (dom_element.role == 'form')) {
+   
+      le = new OpenAjax.a11y.cache.LandmarkElement(dom_element, landmark_info.landmark_element);    
+
+      this.dom_cache.getNameFromARIALabel(le);
+
+      this.addLandmarkElement(le);
+
+      if (landmark_info.landmark_element) {
+        landmark_info.landmark_element.addChildElement(le);
+      } 
+      else {
+        this.addChildElement(le);  
+      }
+  
+      li.landmark_element = le;
+
+      return li;
     }
+          
+    // elements that can contain rendered content without having child dom text nodes
+    if ((dom_element.tag_name == 'applet')   ||
+        (dom_element.tag_name == 'area')     ||
+        (dom_element.tag_name == 'button')   ||
+        (dom_element.tag_name == 'canvas')   ||
+        (dom_element.tag_name == 'embed')    ||
+        (dom_element.tag_name == 'input')    ||
+        (dom_element.tag_name == 'img')      ||
+        (dom_element.tag_name == 'object')   ||
+        (dom_element.tag_name == 'textarea') ||
+        (dom_element.tag_name == 'select')) {
+      this.elements_with_content.push(dom_element);
+      return li;
+    }  
 
-    return li;
+    if ((dom_element.tag_name == 'h1') ||
+        (dom_element.tag_name == 'h2') || 
+        (dom_element.tag_name == 'h3') || 
+        (dom_element.tag_name == 'h4') || 
+        (dom_element.tag_name == 'h5') || 
+        (dom_element.tag_name == 'h6')) {
+   
+      he = new OpenAjax.a11y.cache.HeadingElement(dom_element);    
+  
+      this.addHeadingElement(he);
+
+      if (landmark_info.landmark_element) {
+        he.parent_landmark_role = landmark_info.landmark_element.dom_element.role;
+        landmark_info.landmark_element.addChildElement(he);
+      } 
+      else {
+        this.addChildElement(he);  
+      }
+
+      return li;
+    }
+    
   }
-
+  else {
+    if (dom_element.parent_element.tag_name != 'title') this.elements_with_content.push(dom_element);
+  }
+  
   return li;
   
 };
@@ -7417,11 +8412,34 @@ OpenAjax.a11y.cache.LandmarkElement.prototype.getCacheProperties = function (uns
 
   cache_nls.addPropertyIfDefined(properties, this, 'label');
   cache_nls.addPropertyIfDefined(properties, this, 'label_for_comparison');
+  cache_nls.addPropertyIfDefined(properties, this, 'parent_landmark_role');
 
   if (!unsorted) this.dom_element.sortItems(properties);
 
   return properties;
 };
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.LandmarkElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.LandmarkElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
 
 /**
 
@@ -7531,6 +8549,8 @@ OpenAjax.a11y.cache.HeadingElement = function (dom_element) {
   this.image_count           = ano.image_count;
   this.text_only_from_image  = (ano.name_from_text_nodes.length === 0) && (ano.name_from_image_alt.length > 0);
   
+  this.parent_landmark_role = "";
+
   return this;
     
 };
@@ -7614,10 +8634,35 @@ OpenAjax.a11y.cache.HeadingElement.prototype.getCacheProperties = function (unso
  cache_nls.addPropertyIfDefined(properties, this, 'name_from_image_alt');
  cache_nls.addPropertyIfDefined(properties, this, 'image_count');
  cache_nls.addPropertyIfDefined(properties, this, 'text_only_from_image');
+ cache_nls.addPropertyIfDefined(properties, this, 'parent_landmark_role');
  
   if (!unsorted) this.dom_element.sortItems(properties);
 
   return properties;
+};
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.HeadingElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.HeadingElement.prototype.getCachePropertyValue = function (property) {
+
+//  OpenAjax.a11y.console("Heading property: " + property + " value= " + this[property]);
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+  
 };
 
 /**
@@ -7658,7 +8703,7 @@ OpenAjax.a11y.cache.HeadingElement.prototype.toString = function() {
 
 };
 /*
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -7955,6 +9000,7 @@ OpenAjax.a11y.cache.ImagesCache.prototype.sortImageElements = function(property,
  * @property  {Number}      document_order  - Ordinal position of the image or area element in the document in relationship to other image or area elements
  *
  * @property  {String}   source    - The url in the src property of an image element or href property of an area element 
+ * @property  {String}   file_name - The filename of the image
  * @property  {String}   longdesc  - The url in the longdesc property of an image element  
  *
  * @property  {String}   alt                   - Calculated accessible name of the link 
@@ -7976,51 +9022,49 @@ OpenAjax.a11y.cache.ImageElement = function (dom_element, base_url) {
   this.dom_element    = dom_element;
   this.cache_id       = "";
   this.document_order = 0;
+  
+  this.source    = "";
+  this.href      = "";
+  this.file_name = "";
 
   if (dom_element.tag_name == 'img') {
-    this.source = node.src;
+  
+    if (node.src) this.source = node.src;
+    
+    var pos = this.source.lastIndexOf('/');    
+    
+    if (this.source.length && pos >= 0 ) this.file_name = this.source.substring((pos+1)).toLowerCase();
+  
   }
   
   if (dom_element.tag_name == 'area') {
     this.href  = node.href;
   }
 
+  this.alt = null;
+  this.alt_length = 0;
+  this.alt_for_comparison = null;
+
+  if (dom_element.has_alt_attribute) {
+    this.alt        = dom_element.alt;
+    this.alt_length = dom_element.alt.length;
+    this.alt_for_comparison = this.alt.normalizeSpace().toLowerCase();
+  }
+
   this.longdesc = node.getAttribute('longdesc');
-
-  if (node.alt) {
-    if (dom_element.has_alt_attribute || node.alt.length) {
-      this.alt    = node.alt;
-      this.alt_length = this.alt.length;
-      this.alt_for_comparison = this.alt.normalizeSpace().toLowerCase();
-    }
-    else {
-      this.alt_for_comparison = null;
-    }
-  }
-  else {
-    alt_value = node.getAttribute('alt');
-    
-    if (alt_value) {
-      this.alt = alt.value;
-      this.alt_length = this.alt.length;
-      this.alt_for_comparison = this.alt.normalizeSpace().toLowerCase();
-    }
-    else {
-      this.alt_for_comparison = null;    
-    }
-  }
-
-
+  
   if (this.longdesc) {
     if (this.longdesc.indexOf('http:') == -1 ) {
       this.longdesc = base_url + this.longdesc;
     }
     this.has_longdesc = true;
+    this.longdesc_is_broken = OpenAjax.a11y.util.urlExists(this.longdesc);
   }
   else {
     this.has_longdesc = false;
     this.longdesc  = null;
   }
+
 
   this.height   = node.offsetHeight;
   this.width    = node.offsetWidth;
@@ -8106,10 +9150,34 @@ OpenAjax.a11y.cache.ImageElement.prototype.getCacheProperties = function (unsort
   cache_nls.addPropertyIfDefined(properties, this, 'alt_for_comparison');
   cache_nls.addPropertyIfDefined(properties, this, 'height');
   cache_nls.addPropertyIfDefined(properties, this, 'width');
+  cache_nls.addPropertyIfDefined(properties, this, 'document_order');
   
   return properties;
   
 };
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.ImageElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.ImageElement.prototype.getCachePropertyValue = function (property) {
+
+//  OpenAjax.a11y.console("Image property: " + property + " value= " + this[property]);
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};  
 
 /**
 
@@ -8148,11 +9216,16 @@ OpenAjax.a11y.cache.ImageElement.prototype.getAltTextNLS = function () {
   
   var alt_style = {};
   
-  if (this.alt_length) {
-    return this.alt;
+  if (this.dom_element.has_alt_attribute) {
+    if (this.alt_length) {
+      return this.alt;
+    }
+    else {
+      return cache_nls.getEmptyAltTextMessageNLS();
+    }
   }
   else {
-    return cache_nls.getEmptyAltTextMessageNLS();
+    return cache_nls.getMissingAltMessageNLS();
   }
   
 };
@@ -8558,6 +9631,133 @@ OpenAjax.a11y.cache.LanguageItem.prototype.addDOMElement = function (dom_element
     }
 };
 
+
+/**
+ * @method getResultRules
+ *
+ * @memberOf OpenAjax.a11y.cache.LanguageItem
+ *
+ * @desc Returns an array of node results in severity order 
+ *
+ * @return {Array} Returns a array of node results
+ */
+
+OpenAjax.a11y.cache.LanguageItem.prototype.getResultRules = function () {
+  return this.dom_text_nodes[0].getResultRules();
+};
+
+/**
+ * @method getStyle
+ *
+ * @memberOf OpenAjax.a11y.cache.LanguageItem
+ *
+ * @desc Returns an array of style items 
+ *
+ * @return {Array} Returns a array of style display objects
+ */
+
+OpenAjax.a11y.cache.LanguageItem.prototype.getStyle = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  var properties = [];
+  
+  cache_nls.addPropertyIfDefined(properties, this, 'is_large_font');
+  cache_nls.addPropertyIfDefined(properties, this, 'color_contrast_ratio');
+ 
+  cache_nls.addPropertyIfDefined(properties, this, 'color');
+  cache_nls.addPropertyIfDefined(properties, this, 'background_color');
+  cache_nls.addPropertyIfDefined(properties, this, 'background_image');
+  cache_nls.addPropertyIfDefined(properties, this, 'background_repeat');
+  cache_nls.addPropertyIfDefined(properties, this, 'background_position');
+
+  cache_nls.addPropertyIfDefined(properties, this, 'font_family');
+  cache_nls.addPropertyIfDefined(properties, this, 'font_size');
+  cache_nls.addPropertyIfDefined(properties, this, 'font_weight');  
+  
+  return properties;
+  
+};
+
+/**
+ * @method getAttributes
+ *
+ * @memberOf OpenAjax.a11y.cache.LanguageItem
+ *
+ * @desc Returns an array of attributes for the element, sorted in alphabetical order 
+ *
+ * @param {Boolean}  unsorted  - If defined and true the results will NOT be sorted alphabetically
+ *
+ * @return {Array} Returns a array of attribute display object
+ */
+
+OpenAjax.a11y.cache.LanguageItem.prototype.getAttributes = function (unsorted) {
+
+  return [];
+  
+};
+
+/**
+ * @method getCacheProperties
+ *
+ * @memberOf OpenAjax.a11y.cache.LanguageItem
+ *
+ * @desc Returns an array of cache properties sorted by property name 
+ *
+ * @param {Boolean}  unsorted  - If defined and true the results will NOT be sorted alphabetically
+ *
+ * @return {Array} Returns a array of cache property display object
+ */
+
+OpenAjax.a11y.cache.LanguageItem.prototype.getCacheProperties = function (unsorted) {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  var properties = [];
+  
+  cache_nls.addPropertyIfDefined(properties, this, 'language');
+  
+  return properties;
+  
+};
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.LanguageItem
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.LanguageItem.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return null;
+  }
+  
+  return this[property];
+};
+
+/**
+ * @method getEvents
+ *
+ * @memberOf OpenAjax.a11y.cache.LanguageItem
+ *
+ * @desc Returns an array of events for the element, sorted in alphabetical order 
+ *
+ * @return {Array} Returns a array of event item display objects
+ */
+
+OpenAjax.a11y.cache.LanguageItem.prototype.getEvents = function () {
+   
+  return [];
+  
+};
+
 /**
  * @method toString
  *
@@ -8574,7 +9774,7 @@ OpenAjax.a11y.cache.LanguageItem.prototype.toString = function () {
     
 };
 /*
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -9170,19 +10370,52 @@ OpenAjax.a11y.cache.LinkElement = function (dom_element) {
   var ano;
   var href = dom_element.node.href;
 
+  function getTypeOfLink(href, name) {
+  
+    href = href.toLowerCase();
+    
+    if (typeof href != 'string') return OpenAjax.a11y.LINK_TYPE.OTHER;
+
+    if (href.length === 0) { 
+      if (name) 
+        return OpenAjax.a11y.LINK_TYPE.TARGET;
+      else  
+        return OpenAjax.a11y.LINK_TYPE.EMPTY;
+    }    
+    
+    if (href.indexOf('http://') >= 0) return OpenAjax.a11y.LINK_TYPE.HTTP;
+    else
+      if (href.indexOf('https://') >= 0) return OpenAjax.a11y.LINK_TYPE.HTTPS;
+      else
+        if (href.indexOf('ftp://') >= 0) return OpenAjax.a11y.LINK_TYPE.FTP;
+        else
+          if (href.indexOf('ftps://') >= 0) return OpenAjax.a11y.LINK_TYPE.FTPS;
+          else 
+            if (href.indexOf('file://') >= 0) return OpenAjax.a11y.LINK_TYPE.FILE;
+            else 
+              if (href.indexOf('javascript:') >= 0) return OpenAjax.a11y.LINK_TYPE.JAVASCRIPT;
+              else 
+                if (href.indexOf('mailto:') >= 0) return OpenAjax.a11y.LINK_TYPE.MAILTO;
+                else 
+                  if (href[0] === '#') return OpenAjax.a11y.LINK_TYPE.INTERNAL;
+ 
+    return OpenAjax.a11y.LINK_TYPE.HTTP;
+  }
+
+
   function testIfHrefIsURL(url) {
   
     if (typeof href != 'string') return false;
   
-    if (href.indexOf('http://') >= 0) return true;
+    if (url.indexOf('http://') >= 0) return true;
     else
-      if (href.indexOf('https://') >= 0) return true;
+      if (url.indexOf('https://') >= 0) return true;
       else
-        if (href.indexOf('ftp://') >= 0) return true;
+        if (url.indexOf('ftp://') >= 0) return true;
         else
-          if (href.indexOf('ftps://') >= 0) return true;
+          if (url.indexOf('ftps://') >= 0) return true;
           else 
-            if (href.indexOf('file://') >= 0) return true;
+            if (url.indexOf('file://') >= 0) return true;
  
     return false;
   }
@@ -9195,9 +10428,20 @@ OpenAjax.a11y.cache.LinkElement = function (dom_element) {
  
   this.href  = href;
   this.is_url = testIfHrefIsURL(href);
- 
+  if (this.is_url) { 
+    this.is_broken = OpenAjax.a11y.util.urlExists(href);
+  }
+  else {
+    this.is_broken = OpenAjax.a11y.URL_RESULT.NOT_A_URL;
+  }
+
   this.tab_index = dom_element.node.tabIndex;
-  this.name   = dom_element.node.getAttribute("name");
+  
+  this.name_attribute = dom_element.node.getAttribute("name");
+  this.is_target = this.name_attribute && (this.name_attribute.length > 0);
+
+  this.link_type = getTypeOfLink(href, this.name_attribute);
+
   this.target  = dom_element.node.getAttribute("target");
 
   ano = dom_element.getTextObject();
@@ -9273,7 +10517,7 @@ OpenAjax.a11y.cache.LinkElement.prototype.getAttributes = function (unsorted) {
   cache_nls.addPropertyIfDefined(attributes, this, 'href');
 
   cache_nls.addPropertyIfDefined(attributes, this, 'tab_index');
-  cache_nls.addPropertyIfDefined(attributes, this, 'name_attr');
+  cache_nls.addPropertyIfDefined(attributes, this, 'name_attribute');
   cache_nls.addPropertyIfDefined(attributes, this, 'target');
   
   if (!unsorted) this.dom_element.sortItems(attributes);
@@ -9306,11 +10550,35 @@ OpenAjax.a11y.cache.LinkElement.prototype.getCacheProperties = function (unsorte
   cache_nls.addPropertyIfDefined(properties, this, 'image_count');
   cache_nls.addPropertyIfDefined(properties, this, 'text_only_from_image');
 
+  cache_nls.addPropertyIfDefined(properties, this, 'is_broken');
   cache_nls.addPropertyIfDefined(properties, this, 'is_url');
+  cache_nls.addPropertyIfDefined(properties, this, 'is_target');
+  cache_nls.addPropertyIfDefined(properties, this, 'link_type');
 
   if (!unsorted) this.dom_element.sortItems(properties);
 
   return properties;
+};
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.LinkElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.LinkElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
 };
 
 /**
@@ -9326,6 +10594,24 @@ OpenAjax.a11y.cache.LinkElement.prototype.getCacheProperties = function (unsorte
 OpenAjax.a11y.cache.LinkElement.prototype.getEvents = function () {
    
   return this.dom_element.getEvents();
+  
+};
+
+/**
+ * @method getLinkType
+ *
+ * @memberOf OpenAjax.a11y.cache.LinkElement
+ *
+ * @desc Returns an array of style items 
+ *
+ * @return {String} Returns a NLS string representing the type of link
+ */
+
+OpenAjax.a11y.cache.LinkElement.prototype.getLinkType = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  return cache_nls.getValueNLS('link_type', this.link_type);
   
 };
 
@@ -9409,6 +10695,9 @@ OpenAjax.a11y.cache.DuplicateNameItem.prototype.getResultRules = function () {
   return this.dom_element.getResultRules();
 };
 
+
+
+
 /**
  * @method getStyle
  *
@@ -9474,6 +10763,28 @@ OpenAjax.a11y.cache.DuplicateNameItem.prototype.getCacheProperties = function (u
 
   return properties;
 };
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.DuplicateNameItem
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.DuplicateNameItem.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return null;
+  }
+  
+  return this[property];
+};
+
 
 /**
 
@@ -9621,7 +10932,28 @@ OpenAjax.a11y.cache.DuplicateHREFItem.prototype.getCacheProperties = function (u
 };
 
 /**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.DuplicateHREFItem
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
 
+OpenAjax.a11y.cache.DuplicateHREFItem.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return null;
+  }
+  
+  return this[property];
+};
+
+
+/**
  * @method getEvents
  *
  * @memberOf OpenAjax.a11y.cache.DuplicateHREFItem
@@ -10164,6 +11496,27 @@ OpenAjax.a11y.cache.ListElement.prototype.getCacheProperties = function (unsorte
 };
 
 /**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.ListElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.ListElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
+/**
  * @method getEvents
  *
  * @memberOf OpenAjax.a11y.cache.ListElement
@@ -10412,6 +11765,27 @@ OpenAjax.a11y.cache.ContainerElement.prototype.getCacheProperties = function (un
 };
 
 /**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.ContainerElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.ContainerElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
+/**
 
  * @method getEvents
  *
@@ -10479,7 +11853,7 @@ OpenAjax.a11y.cache.ListInfo = function (list_info) {
 
 };
 /*
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -10796,7 +12170,7 @@ OpenAjax.a11y.cache.MediaElement = function (dom_element) {
   this.document_order = 0;
  
   this.dom_element = dom_element;
-
+  
   this.is_video              = OpenAjax.a11y.MEDIA.MAYBE;
   this.is_audio              = OpenAjax.a11y.MEDIA.MAYBE;
   this.has_caption           = OpenAjax.a11y.MEDIA.MAYBE; 
@@ -10868,15 +12242,11 @@ OpenAjax.a11y.cache.MediaElement.prototype.getAttributes = function (unsorted) {
 
   var cache_nls = OpenAjax.a11y.cache_nls;
   
-  var properties = this.dom_element.getAttributes(unsorted);
+  var attributes = this.dom_element.getAttributes(unsorted);
   
-  cache_nls.addPropertyIfDefined(properties, this, 'is_video');
-  cache_nls.addPropertyIfDefined(properties, this, 'is_audio');
-  cache_nls.addPropertyIfDefined(properties, this, 'has_caption');
-  cache_nls.addPropertyIfDefined(properties, this, 'has_text_alternative');
-  cache_nls.addPropertyIfDefined(properties, this, 'has_audio_description');
+//  cache_nls.addPropertyIfDefined(attributes, this, 'alt');
 
-  return properties;
+  return attributes;
   
 };
 
@@ -10898,14 +12268,41 @@ OpenAjax.a11y.cache.MediaElement.prototype.getCacheProperties = function (unsort
   
   var properties = [];
   
+  cache_nls.addPropertyIfDefined(properties, this, 'is_video');
+  cache_nls.addPropertyIfDefined(properties, this, 'is_audio');
+  cache_nls.addPropertyIfDefined(properties, this, 'has_caption');
+  cache_nls.addPropertyIfDefined(properties, this, 'has_text_alternative');
+  cache_nls.addPropertyIfDefined(properties, this, 'has_audio_description');
   cache_nls.addPropertyIfDefined(properties, this, 'alt_for_comparison');
+  cache_nls.addPropertyIfDefined(properties, this, 'document_order');
   
   return properties;
   
 };
 
 /**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.MediaElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
 
+OpenAjax.a11y.cache.MediaElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
+
+/**
  * @method getEvents
  *
  * @memberOf OpenAjax.a11y.cache.MediaElement
@@ -10936,7 +12333,7 @@ OpenAjax.a11y.cache.MediaElement.prototype.getEvents = function () {
  };
 
 /*
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -11294,7 +12691,7 @@ OpenAjax.a11y.cache.DOMElementComputedStyle.prototype.toString = function (color
   return "Computed style " + this.color_hex + " " + this.background_color_hex + " " + this.color_contrast_ratio; 
 };
 /*
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12601,6 +13998,28 @@ OpenAjax.a11y.cache.TableElement.prototype.getCacheProperties = function () {
 };
 
 /**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.TableElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.TableElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
+
+/**
  * @method toString
  *
  * @memberOf OpenAjax.a11y.cache.TableElement
@@ -12760,6 +14179,28 @@ OpenAjax.a11y.cache.CaptionElement.prototype.getCacheProperties = function () {
 };
 
 /**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.CaptionElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.CaptionElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
+
+/**
  * @method toString
  *
  * @memberOf OpenAjax.a11y.cache.CaptionElement
@@ -12900,6 +14341,28 @@ OpenAjax.a11y.cache.THeadElement.prototype.getCacheProperties = function () {
   
   return properties;
 };
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.THeadElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.THeadElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
 
 /**
  * @method getEvents
@@ -13052,6 +14515,28 @@ OpenAjax.a11y.cache.TBodyElement.prototype.getCacheProperties = function () {
 };
 
 /**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.TBodyElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.TBodyElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
+
+/**
  * @method getEvents
  *
  * @memberOf OpenAjax.a11y.cache.TBodyElement
@@ -13200,6 +14685,27 @@ OpenAjax.a11y.cache.TableRowElement.prototype.getCacheProperties = function () {
 
   return this.dom_element.getCacheProperties();
   
+};
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.TableRowElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.TableRowElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
 };
 
 /**
@@ -13452,6 +14958,28 @@ OpenAjax.a11y.cache.TableCellElement.prototype.getCacheProperties = function () 
 };
 
 /**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.TableCellElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.TableCellElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
+
+/**
  * @method getEvents
  *
  * @memberOf OpenAjax.a11y.cache.TableCellElement
@@ -13531,9 +15059,11 @@ OpenAjax.a11y.cache.MainInfo = function (main_info) {
 
   if (main_info) {
     this.main_element  = main_info.main_element;
+    this.body_element  = main_info.body_element;
   }
   else {
     this.main_element  = null;
+    this.body_element  = null;
   }
  
 };
@@ -13563,10 +15093,12 @@ OpenAjax.a11y.cache.MainInfo = function (main_info) {
  * @property {Array}   main_elements  - List of all the main landmark elements in the document 
  * @property {Number}  length         - The length of the main landmark elements list, used in calculating cache id values 
  *
- * @property {Array}    h1_elements             - List of all the h1 heading elements in the document 
- * @property {Boolean}  has_role_main_elements  - True if document contians at lewast one main landmark, otherwise false
- * @property {Boolean}  has_title               - Title element is defined in the document 
+ * @property {Array}    h1_elements         - List of all the h1 heading elements in the document 
+ * @property {Boolean}  has_main_landmarks  - True if document contians at lewast one main landmark, otherwise false
+ * @property {Boolean}  has_title           - Title element is defined in the document 
  *
+ * @property {BodyElement} body_element - The body element is used as a placeholder for items missing in a document like H1 elements and Main landmarks
+ * 
  * @property {ResultRuleSummary}  rule_summary_result  - Rule results associated with this cache
  */
 
@@ -13583,9 +15115,11 @@ OpenAjax.a11y.cache.TitleMainCache = function (dom_cache) {
   
   this.h1_elements   = [];
   
-  this.has_h1_elements        = false;
-  this.has_role_main_elements = false;
-  this.has_title              = false;
+  this.has_h1_elements    = false;
+  this.has_main_landmarks = false;
+  this.has_title          = false;
+  
+  this.body_element = null;
  
   this.rule_summary_results  = new OpenAjax.a11y.ResultRuleSummary();
  
@@ -13609,10 +15143,11 @@ OpenAjax.a11y.cache.TitleMainCache.prototype.initCache = function () {
   this.length        = 0;
   
   this.h1_elements   = [];
+  this.body_element = null;
   
-  this.has_h1_elements        = false;
-  this.has_role_main_elements = false;
-  this.has_title              = false;
+  this.has_h1_elements    = false;
+  this.has_main_landmarks = false;
+  this.has_title          = false;
 
 };
 
@@ -13661,7 +15196,7 @@ OpenAjax.a11y.cache.TitleMainCache.prototype.addH1Element = function (h1_element
  *
  * @desc    Adds a main, h1 or title element object to the main_elements array and cacluates a cache id value
  *
- * @param  {MainElement | H1Element | TitleElement}  main_element  Main, h1 heading or title element object to add 
+ * @param  {MainElement | H1Element | TitleElement | BodyElement}  main_element  Main, h1 heading or title element object to add 
  *
  * @return  {Number}  length is the number of elements in the main_elements list
  */
@@ -13723,11 +15258,12 @@ OpenAjax.a11y.cache.TitleMainCache.prototype.getItemByCacheId = function (cache_
 OpenAjax.a11y.cache.TitleMainCache.prototype.updateCacheItems = function (dom_element, main_info) {
 
   var me;
+  var be;
   var mi = new OpenAjax.a11y.cache.MainInfo(main_info);
 
   if (dom_element.role == 'main') {
-  
-    this.has_role_main_elements = true;
+   
+    this.has_main_landmarks = true;
  
     me = new OpenAjax.a11y.cache.MainElement(dom_element, mi.main_element);    
 
@@ -13775,19 +15311,26 @@ OpenAjax.a11y.cache.TitleMainCache.prototype.updateCacheItems = function (dom_el
 
     this.addMainElement(me);
    
-    if (main_info.main_element) {
-      main_info.main_element.addChildMainElement(me);
-    }
-    else {
-      this.addChildMainElement(me);  
-    }
+    this.addChildMainElement(me);  
    
     // There is only one title for a document, even when there are frames and iframes
     this.has_title = true;
-   
-    return mi;
+    
   }
+
+  if (dom_element.tag_name == 'body' && !this.body_element) {
   
+    be = new OpenAjax.a11y.cache.BodyElement(dom_element, mi.main_element);    
+
+    this.addMainElement(be);
+   
+    this.addChildMainElement(be);  
+   
+    // There is only one body element for a document, even when there are frames and iframes
+    this.body_element = be;
+    
+  }
+
   return mi;
   
 };
@@ -14019,6 +15562,28 @@ OpenAjax.a11y.cache.MainElement.prototype.getCacheProperties = function (unsorte
 };
 
 /**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.MainElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.MainElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
+
+/**
 
  * @method getEvents
  *
@@ -14074,6 +15639,8 @@ OpenAjax.a11y.cache.MainElement.prototype.toString = function () {
  *
  * @property  {MainElement}  parent_landmark  - Information about the parent main landmark (NOTE: can be null)
  *
+ * @property  {Array}  child_cache_elements  - List of child cache title element, main landmarks and h1 heading element objects as part of cache title and main elements tree  
+ *
  * @property  {Number}   type               -  Constant representing the type of main landmark
  * @property  {Boolean}  is_label_for_main  - true if h1 is being used as a label for main landmark, otherwise false
  *
@@ -14089,6 +15656,8 @@ OpenAjax.a11y.cache.H1Element = function (dom_element, parent_landmark) {
   this.document_order  = 0;
   
   this.parent_landmark    = parent_landmark; // restricted to main landmarks
+  this.child_cache_elements = [];   // The child array is always empty for an H1Element
+
   
   this.main_type              = OpenAjax.a11y.MAIN.H1_ELEMENT;
   this.is_label_for_main = false;
@@ -14211,7 +15780,27 @@ OpenAjax.a11y.cache.H1Element.prototype.getCacheProperties = function (unsorted)
 };
 
 /**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.H1Element
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
 
+OpenAjax.a11y.cache.H1Element.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
+/**
  * @method getEvents
  *
  * @memberOf OpenAjax.a11y.cache.H1Element
@@ -14262,6 +15851,8 @@ OpenAjax.a11y.cache.H1Element.prototype.toString = function () {
  *
  * @property  {MainElement}  parent_landmark  - Information about the parent main landmark (NOTE: can be null)
  *
+ * @property  {Array}  child_cache_elements  - List of child cache title element, main landmarks and h1 heading element objects as part of cache title and main elements tree  
+ *
  * @property  {Number}   type  -  Constant representing the title element 
  *
  * @property  {String}   name                  - Calculated accessible name of the heading 
@@ -14278,6 +15869,7 @@ OpenAjax.a11y.cache.TitleElement = function (dom_element, parent_landmark) {
   this.main_type          = OpenAjax.a11y.MAIN.TITLE_ELEMENT;
 
   this.parent_landmark    = parent_landmark; // restricted to main landmarks
+  this.child_cache_elements = [];  // This array is always empty for the title element
 
   this.name                 = dom_element.getText();
   this.name_length          = this.name.length;
@@ -14367,7 +15959,29 @@ OpenAjax.a11y.cache.TitleElement.prototype.getCacheProperties = function (unsort
 };
 
 /**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.TitleElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
 
+OpenAjax.a11y.cache.TitleElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
+
+
+/**
  * @method getEvents
  *
  * @memberOf OpenAjax.a11y.cache.TitleElement
@@ -14396,8 +16010,199 @@ OpenAjax.a11y.cache.TitleElement.prototype.getEvents = function () {
 OpenAjax.a11y.cache.TitleElement.prototype.toString = function () {
   return "TITLE element: " + this.name;  
 };
-/*
- * Copyright 2011 and 2012 OpenAjax Alliance
+
+
+/* ---------------------------------------------------------------- */
+/*                       BodyElement                               */ 
+/* ---------------------------------------------------------------- */
+
+/**
+ * @constructor BodyElement
+ *
+ * @memberOf OpenAjax.a11y.cache
+ *
+ * @desc Creates a body element object used to hold information about a title element
+ *
+ * @param  {DOMelement}   dom_element      - The dom element object representing the heading element 
+ * @param  {MainElement}  parent_landmark  - This is always null since this is the root element
+ *
+ * @property  {DOMElement}   dom_element      - Reference to the dom element representing the optgroup element
+ * @property  {String}       cache_id         - String that uniquely identifies the cache element object in the cache
+ * @property  {Number}       document_order   - Ordinal position of the title and main cache items in the document to other title and main cache items
+ *
+ * @property  {MainElement}  parent_landmark  - Information about the parent main landmark (NOTE: can be null)
+ *
+ * @property  {Array}  child_cache_elements  - List of child cache title element, main landmarks and h1 heading element objects as part of cache title and main elements tree  
+ *
+ * @property  {Number}   type  -  Constant representing the body element 
+ *
+ */
+
+OpenAjax.a11y.cache.BodyElement = function (dom_element, parent_landmark) {
+
+  this.dom_element     = dom_element;
+  this.cache_id        = "";
+  this.document_order  = 0;
+
+  this.main_type          = OpenAjax.a11y.MAIN.BODY_ELEMENT;
+
+  this.child_cache_elements = []; // this is always empty for the body element
+
+  this.parent_landmark    = parent_landmark; // restricted to main landmarks
+  
+  this.num_main_landmarks = 0;          // are defined in landmark rules
+  this.num_visible_main_landmarks = 0;  // are defined in landmark rules
+  
+}; 
+
+/**
+ * @method addChildMainElement
+ *
+ * @memberOf OpenAjax.a11y.cache.BodyElement
+ *
+ * @desc Adds a main landmark  object to the tree of title and main elements  
+ *
+ * @param {MainElement}  main_element  -  Main landmark element object to add 
+ */
+
+OpenAjax.a11y.cache.BodyElement.prototype.addChildMainElement = function (main_element) {
+
+  if (main_element) {
+    this.child_cache_elements.push(main_element); 
+  }  
+
+};
+
+/**
+ * @method getResultRules
+ *
+ * @memberOf OpenAjax.a11y.cache.BodyElement
+ *
+ * @desc Returns an array of node results in severity order 
+ *
+ * @return {Array} Returns a array of node results
+ */
+
+OpenAjax.a11y.cache.BodyElement.prototype.getResultRules = function () {
+  return this.dom_element.getResultRules();
+};
+
+/**
+ * @method getStyle
+ *
+ * @memberOf OpenAjax.a11y.cache.BodyElement
+ *
+ * @desc Returns an array of style items 
+ *
+ * @return {Array} Returns a array of style display objects
+ */
+
+OpenAjax.a11y.cache.BodyElement.prototype.getStyle = function () {
+
+  return this.dom_element.getStyle();
+  
+};
+
+/**
+ * @method getAttributes
+ *
+ * @memberOf OpenAjax.a11y.cache.BodyElement
+ *
+ * @desc Returns an array of attributes for the element, sorted in alphabetical order 
+ *
+ * @param {Boolean}  unsorted  - If defined and true the results will NOT be sorted alphabetically
+ *
+ * @return {Array} Returns a array of attribute display object
+ */
+
+OpenAjax.a11y.cache.BodyElement.prototype.getAttributes = function (unsorted) {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  var attributes = this.dom_element.getAttributes();
+  
+//  cache_nls.addPropertyIfDefined(attributes, this, 'tag_name');
+  
+  if (!unsorted) this.dom_element.sortItems(attributes);
+  
+  return attributes;
+};
+
+/**
+ * @method getCacheProperties
+ *
+ * @memberOf OpenAjax.a11y.cache.BodyElement
+ *
+ * @desc Returns an array of cache properties sorted by property name 
+ *
+ * @param {Boolean}  unsorted  - If defined and true the results will NOT be sorted alphabetically
+ *
+ * @return {Array} Returns a array of cache property display object
+ */
+
+OpenAjax.a11y.cache.BodyElement.prototype.getCacheProperties = function (unsorted) {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+
+  var properties = this.dom_element.getCacheProperties(unsorted);
+ 
+  if (!unsorted) this.dom_element.sortItems(properties);
+
+  return properties;
+};
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.BodyElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.BodyElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
+
+
+/**
+ * @method getEvents
+ *
+ * @memberOf OpenAjax.a11y.cache.BodyElement
+ *
+ * @desc Returns an array of events for the element, sorted in alphabetical order 
+ *
+ * @return {Array} Returns a array of event item display objects
+ */
+
+OpenAjax.a11y.cache.BodyElement.prototype.getEvents = function () {
+   
+  return this.dom_element.getEvents();
+  
+};
+
+/**
+ * @method toString
+ *
+ * @memberOf OpenAjax.a11y.cache.BodyElement
+ *
+ * @desc Returns a text string representation of the title element 
+ *
+ * @return {String} Returns string represention the title element object
+ */
+  
+OpenAjax.a11y.cache.BodyElement.prototype.toString = function () {
+  return "BODY element";  
+};/*
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14457,15 +16262,51 @@ OpenAjax.a11y.Rule = function (nls, rule_id, last_updated, cache_dependency, cac
  * @memberOf OpenAjax.a11y.Rule
  *
  * @desc Returns an localized title for the rule
+ *
+ * @param {Number}  ruleset_rule_type  - Type of rule (i.e. required, recommended, conditional)
  */
-OpenAjax.a11y.Rule.prototype.getTitle = function () {
+OpenAjax.a11y.Rule.prototype.getTitle = function (rule_type) {
 
+  var RULE = OpenAjax.a11y.RULE;
+  
   var nls_rules = this.nls[OpenAjax.a11y.locale];
 
   var str = nls_rules.rules[this.rule_id]['TITLE'];
   
-  if (str) return str;
+  var message;
   
+  var vstr;
+
+  if (str) {
+  
+    vstr = "%s";
+  
+    if (str.indexOf(vstr) >= 0) {
+    
+      switch (rule_type) {
+      case RULE.REQUIRED:
+        message = nls_rules.message_severities.MUST;
+        break;
+
+      case RULE.RECOMMENDATION:
+        message = nls_rules.message_severities.SHOULD;
+        break;
+
+      case RULE.CONDITIONAL:
+        message = nls_rules.message_severities.MAY;
+        break;
+
+      default:
+        message = "";
+        break; 
+      }
+      
+     str = str.replace(vstr, message);  
+    }  
+    
+    return str;
+  }
+      
   return "Title not found for rule: " + this.rule_id;
   
 };
@@ -14500,35 +16341,69 @@ OpenAjax.a11y.Rule.prototype.getPurpose = function () {
  */
 OpenAjax.a11y.Rule.prototype.getMessage = function (node_result) {
 
-    var nls_rules = this.nls[OpenAjax.a11y.locale];
-
-    var i;
-    var message;
-    var str = nls_rules.rules[this.rule_id][node_result.message_id];
+  var nls_rules = this.nls[OpenAjax.a11y.locale];
+  
+  var SEVERITY = OpenAjax.a11y.SEVERITY;
+  
+  var i;
+  var message;
+  var str = nls_rules.rules[this.rule_id][node_result.message_id];
+  
+  if (!str) return nls_rules.missing_message + node_result.message_id;
     
 //    OpenAjax.a11y.console("Rule: " + this.rule_id + " Message: " + str);
-    
-    var vstr; // i.e. %1, %2 ....
-    var len = node_result.message_arguments.length;
+
+  var vstr; // i.e. %1, %2 ....
+  var len = node_result.message_arguments.length;
+
+  // check to see if message has severity dependence
   
-    for (i=0; i<len; i++) { 
-      vstr = "%" + (i+1); 
-      message = node_result.message_arguments[i];
-      if (typeof message === 'string') {
-        message = message.normalizeSpace();
+  vstr = "%s";
+  
+  if (str.indexOf(vstr) >= 0) {
+    
+    switch (node_result.severity) {
+    case SEVERITY.VIOLATION:
+      message = nls_rules.message_severities.MUST;
+      break;
+
+    case SEVERITY.RECOMMENDATION:
+      message = nls_rules.message_severities.SHOULD;
+      break;
+
+    case SEVERITY.MANUAL_CHECK:
+      message = nls_rules.message_severities.MAY;
+      break;
+
+    default:
+      message = "";
+      break; 
+    }
+
+    str = str.replace(vstr, message);  
+  }
+  
+  // Replace 
+  
+  for (i = 0; i < len; i++) { 
+    vstr = "%" + (i+1); 
+    message = node_result.message_arguments[i];
+    
+    if (typeof message === 'string') {
+      message = message.normalizeSpace();
+    }
+    else {
+      if (typeof message === 'number') {
+        message = message.toString();
       }
       else {
-        if (typeof message === 'number') {
-          message = message.toString();
-        }
-        else {
-          message = "";
-        }  
+        message = "";
       }  
-      str = str.replace(vstr, message);
-    } // end loop
+    }  
+    str = str.replace(vstr, message);
+  } // end loop
 
-    return str;
+  return str;
   
 };
 
@@ -14710,7 +16585,7 @@ OpenAjax.a11y.Rules.prototype.validCacheDependency = function (cache_name) {
 
 
 /*
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14760,7 +16635,7 @@ OpenAjax.a11y.ResultNode = function (rule_result, severity, cache_item, message_
   this.cache_item  = cache_item;
   this.message_id  = message_id;
   this.message_arguments = message_arguments;
-  this.cache_id    = cache_item.cache_id;
+  this.cache_id    = rule_result.cache_id;
 
 };
 
@@ -14806,9 +16681,124 @@ OpenAjax.a11y.ResultNode.prototype.getPropertyValue = function (property) {
  */
 
 OpenAjax.a11y.ResultNode.prototype.getSeverity = function () {
-  
+
   return OpenAjax.a11y.cache_nls.getSeverityNLS(this.severity);
+  
+};
+
+
+/**
+ * @method getRule
+ *
+ * @memberOf OpenAjax.a11y.ResultNode
+ *
+ * @desc Returns a rule object associated with this result
+ * 
+ * @return {Rule} Returns a rule object
+ */
+
+OpenAjax.a11y.ResultNode.prototype.getRule = function () {
+
+  return this.rule_result.getRule();
+   
+};
+
+
+/**
+ * @method getRuleId
+ *
+ * @memberOf OpenAjax.a11y.ResultNode
+ *
+ * @desc Returns a NLS localized version of the rule id
+ * 
+ * @return {String} Returns a NLS localized version of the rule id
+ */
+
+OpenAjax.a11y.ResultNode.prototype.getRuleId = function () {
+
+  return this.rule_result.getRuleId();
+   
+};
+
+/**
+ * @method getRuleType
+ *
+ * @memberOf OpenAjax.a11y.ResultNode
+ *
+ * @desc Returns a NLS localized version of the type of rule in a ruleset
+ * 
+ * @return {String} Returns a NLS localized version of the type of rule in the ruleset
+ */
+
+OpenAjax.a11y.ResultNode.prototype.getRuleType = function () {
+
+  return this.rule_result.getRuleType();
+   
+};
+
+
+/**
+ * @method getRuleTitle
+ *
+ * @memberOf OpenAjax.a11y.ResultNode
+ *
+ * @desc Returns a NLS localized string representinf the title of the rule
+ * 
+ * @return {String} NLS localized string
+ */
+
+OpenAjax.a11y.ResultNode.prototype.getRuleTitle = function () {
+
+  return this.rule_result.getRuleTitle();
  
+};
+
+/**
+ * @method getRulePurpose
+ *
+ * @memberOf OpenAjax.a11y.ResultNode
+ *
+ * @desc Returns the purpose  associated with the rule result
+ *
+ * @return {String} Returns a NLS localized string representation the prupose of the rule
+ */
+
+OpenAjax.a11y.ResultNode.prototype.getRulePurpose = function () {
+
+  return this.rule_result.getRulePurpose();
+  
+};
+
+/**
+ * @method getRuleRequirement
+ *
+ * @memberOf OpenAjax.a11y.ResultNode
+ *
+ * @desc Returns the ruleset requirement associated with the rule result
+ *
+ * @return {String} Returns a NLS localized string representation the requirement associated with the rule
+ */
+
+OpenAjax.a11y.ResultNode.prototype.getRuleRequirement = function () {
+
+  return this.rule_result.getRuleRequirement();
+  
+};
+
+/**
+ * @method getSeverityLabel
+ *
+ * @memberOf OpenAjax.a11y.ResultNode
+ *
+ * @desc Returns a NLS localized version of the severity label based on the current NLS setting
+ * 
+ * @return {String} Returns a NLS localized version of the severity
+ */
+
+OpenAjax.a11y.ResultNode.prototype.getSeverityLabel = function () {
+
+  return OpenAjax.a11y.cache_nls.getSeverityNLS(this.severity).label;
+   
 };
 
 /**
@@ -14864,6 +16854,7 @@ OpenAjax.a11y.ResultNode.prototype.getMessage = function () {
   return this.rule_result.rule.getMessage(this);
   
 };
+
 
 /**
  * @method getDOMElement
@@ -15078,7 +17069,94 @@ OpenAjax.a11y.ResultRule.prototype.addResult = function (severity, cache_item, m
 };
 
 /**
- * @method getRequirement
+ * @method getRule
+ *
+ * @memberOf OpenAjax.a11y.ResultNode
+ *
+ * @desc Returns a rule object associated with this result
+ * 
+ * @return {Rule} Returns a rule object
+ */
+
+OpenAjax.a11y.ResultRule.prototype.getRule = function () {
+
+  return this.rule;
+   
+};
+
+/**
+ * @method getRuleId
+ *
+ * @memberOf OpenAjax.a11y.ResultRule
+ *
+ * @desc Creates a NLS text string representation of the rule id 
+ *
+ * @return {String} Returns a NLS text string representation of the rule id 
+ */
+
+OpenAjax.a11y.ResultRule.prototype.getRuleId = function () {
+
+  var nls_rules = this.rule.nls[OpenAjax.a11y.locale];
+  
+  return nls_rules.rules[this.rule.rule_id]['ID'];  
+
+};
+
+/**
+ * @method getRuleType
+ *
+ * @memberOf OpenAjax.a11y.ResultRule
+ *
+ * @desc Creates a NLS text string representation of the type of rule (i.e. required, recommended, conditional) 
+ *
+ * @return {String} Returns a NLS text string representation of the rule type 
+ */
+
+OpenAjax.a11y.ResultRule.prototype.getRuleType = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  return cache_nls.getRuleTypeNLS(this.rule_type);  
+
+};
+
+
+/**
+ * @method getRuleTitle
+ *
+ * @memberOf OpenAjax.a11y.ResultRule
+ *
+ * @desc Creates a NLS text string representation of the rule title 
+ *
+ * @return {String} Returns a NLS text string representation of the rule title 
+ */
+
+OpenAjax.a11y.ResultRule.prototype.getRuleTitle = function () {
+
+  return this.rule.getTitle(this.rule_type);  
+
+};
+
+/**
+ * @method getRulePurpose
+ *
+ * @memberOf OpenAjax.a11y.ResultRule
+ *
+ * @desc Creates a NLS text string representation of the rule purpose 
+ *
+ * @return {String} Returns a NLS text string representation of the rule purpose 
+ */
+
+OpenAjax.a11y.ResultRule.prototype.getRulePurpose = function () {
+
+  var nls_rules = this.rule.nls[OpenAjax.a11y.locale];
+  
+  return nls_rules.rules[this.rule.rule_id]['PURPOSE'];  
+
+};
+
+/**
+ * @method getRuleRequirement
  *
  * @memberOf OpenAjax.a11y.ResultRule
  *
@@ -15087,8 +17165,10 @@ OpenAjax.a11y.ResultRule.prototype.addResult = function (severity, cache_item, m
  * @return {Array} Returns string with a localized version of the requirement
  */
 
-OpenAjax.a11y.ResultRule.prototype.getRequirement = function () {
+OpenAjax.a11y.ResultRule.prototype.getRuleRequirement = function () {
+
  return this.requirement.getRequirement();
+ 
 };
 
 /**
@@ -15109,8 +17189,7 @@ OpenAjax.a11y.ResultRule.prototype.getResultNodes = function () {
     
     for (i = 0; i < len; i++) {
       result_nodes.push(items[i]);
-    }
-    
+    }    
   }
 
   var result_nodes = [];
@@ -15184,6 +17263,9 @@ OpenAjax.a11y.ResultRule.prototype.getResultNodeByCacheId = function (cache_id) 
   return null;
   
 };
+
+
+
 
 /**
  * @method toString
@@ -15389,7 +17471,7 @@ OpenAjax.a11y.ResultRuleSummary.prototype.getResultRuleByCacheId = function (cac
   return null;
   
 };/*
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15471,6 +17553,24 @@ OpenAjax.a11y.CacheNLS.prototype.getCacheNLS = function() {
 OpenAjax.a11y.CacheNLS.prototype.getSeverityNLS = function(severity) {
 
   return this.nls[OpenAjax.a11y.locale].severities[severity];
+
+};
+
+/**
+ * @method getRuleTypeNLS
+ *
+ * @memberOf OpenAjax.a11y.CacheNLS
+ *
+ * @desc Returns the NLS localized version of the rule type
+ *
+ * @param  {Number}  rule_type  -  The constant representing the type of rule in a ruleset (i.e. required, recommended, conditional)
+ *
+ * @return {String} Returns an NLS localized string representing the type of rule in the ruleset
+ */
+ 
+OpenAjax.a11y.CacheNLS.prototype.getRuleTypeNLS = function(rule_type) {
+
+  return this.nls[OpenAjax.a11y.locale].rule_types[rule_type];
 
 };
 
@@ -15697,6 +17797,34 @@ OpenAjax.a11y.CacheNLS.prototype.getEmptyAltTextMessageNLS = function () {
   
 };
 
+/**
+ * @method getMissingALtMessageNLS
+ *
+ * @memberOf OpenAjax.a11y.CacheNLS
+ *
+ * @desc Returns an NLS localized 'missing alt attribute' message
+ * 
+ * @return {String} Returns an object with a 'label' and 'style' property
+ */
+ 
+OpenAjax.a11y.CacheNLS.prototype.getMissingAltMessageNLS = function () {
+  
+    var label_style;  // return object    
+       
+    var nls_cache = this.nls[OpenAjax.a11y.locale];    
+    
+    if (nls_cache) {
+     
+      label_style = nls_cache.missing_alt;
+      
+      // if null return default
+      if (!label_style) return "";
+             
+    } 
+    
+    return label_style;
+  
+};
 
 
 /**
@@ -15715,7 +17843,7 @@ OpenAjax.a11y.CacheNLS.prototype.addPropertyIfDefined = function (list, item, pr
   
 };
 /*
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15773,13 +17901,11 @@ OpenAjax.a11y.WCAG20.prototype.addNLS = function(locale, nls) {
   if (!nls.abbrev) OpenAjax.a11y.console("Missing abbreviation property for WCAG 2.0 with locale: " + locale);
   if (!nls.title)  OpenAjax.a11y.console("Missing title property for WCAG 2.0 with locale: "        + locale);
   if (!nls.url)    OpenAjax.a11y.console("Missing abbreviation property for WCAG 2.0 with locale: " + locale);
+  if (!nls.levels) OpenAjax.a11y.console("Missing levels property for WCAG 2.0 with locale: "        + locale);
   
-  var wcag20 = new OpenAjax.a11y.WCAG20NLS(locale, nls.abbrev, nls.title, nls.url);
-
-//  OpenAjax.a11y.console("WCAG 2.0 " + nls.title + " for " + locale); 
-
-  if (!nls.levels) OpenAjax.a11y.console("Missing levels object for WCAG 2.0 with locale: " + locale);
-
+  var wcag20 = new OpenAjax.a11y.WCAG20NLS(locale, nls.abbrev, nls.title, nls.url, nls.levels);
+  
+ //  OpenAjax.a11y.console("WCAG 2.0 " + nls.title + " for " + locale); 
   
   if (!nls.principles || typeof nls.principles !== 'object') {
     OpenAjax.a11y.console("Missing principles object or not at an object for WCAG 2.0 with locale: " + locale);
@@ -15842,6 +17968,23 @@ OpenAjax.a11y.WCAG20.prototype.getNLS = function() {
 };
 
 
+/**
+ * @method getWCAG20Level
+ *
+ * @memberOf OpenAjax.a11y.WCAG20
+ *
+ * @desc Returns an NLS localized version of WCAG 2.0 level 
+ *
+ * @param {Number}  level  -  Numerical constant defined in OAA cache representing the level
+ */
+
+OpenAjax.a11y.WCAG20.prototype.getWCAG20Level = function(level) {
+
+  var wcag20_nls = this.nls[OpenAjax.a11y.locale];
+
+  return wcag20_nls.levels[level.toString()];
+  
+};
 
 /**
  * @method getNLSItemById
@@ -15850,6 +17993,7 @@ OpenAjax.a11y.WCAG20.prototype.getNLS = function() {
  *
  * @desc Returns an object with a localized version of WCAG 2.0 requirements 
  *
+ * @param {String}  id  -  id for the wcag item to get NLS information
  */
 
 OpenAjax.a11y.WCAG20.prototype.getNLSItemById = function(id) {
@@ -15902,23 +18046,24 @@ OpenAjax.a11y.WCAG20.prototype.getNLSItemById = function(id) {
  * @param  {String}  abbrev - Localized abbreviation of WCAG 2.0 guidelines
  * @param  {String}  title  - Localized title of WCAG 2.0 guidelines 
  * @param  {String}  url    - URL to the translation of WCAG 2.0
+ * @param  {Object}  levels - WCAG 2.0 levels for success criteria
  *
  * @property  {String}  locale - Language code 
  * @property  {String}  abbrev - Localized abbreviation of WCAG 2.0 guidelines
  * @property  {String}  title  - Localized title of WCAG 2.0 guidelines 
  * @property  {String}  url    - URL to the translation of WCAG 2.0
+ * @property  {Object}  levels - WCAG 2.0 levels for success criteria
  *
  * @property  {Array}   principles - Array of WCAG 2.0 principle objects associated with the principle
  */
 
-OpenAjax.a11y.WCAG20NLS = function(locale, abbrev, title, url) {
+OpenAjax.a11y.WCAG20NLS = function(locale, abbrev, title, url, levels) {
 
   this.locale = locale;    
   this.abbrev = abbrev;    
   this.title  = title;    
-  this.url    = url;   
-  
-  this.levels = [];
+  this.url    = url;  
+  this.levels = levels;
   
   this.principles = [];
   
@@ -16089,7 +18234,880 @@ OpenAjax.a11y.ResourceInfo = function(type, title, url) {
 };
 
 /*
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/* ---------------------------------------------------------------- */
+/*                          WCAG20Result                            */
+/* ---------------------------------------------------------------- */
+
+/** 
+ * @constructor WCAG20Result
+ *
+ * @memberOf OpenAjax.a11y
+ *
+ * @desc Constructor for an object that contains a the results of 
+ *          the evaluation for a WCAG 2.0 Principle
+ *
+ * @param  {RulesetPrinciple}  ruleset_principle  - Ruleset Principle object
+ *
+ * @property  {WCAG20RulesetPrinciple}   ruleset_principle        - Reference to the associated ruleset principle
+ * @property  {ResultSummaryRule}        rule_summary_results     - Reference to the rule summary information for the guideline 
+ * @property  {Array}                    result_guidelines        - Array of ruleset rule objects associated with the success criterion
+ */
+ 
+OpenAjax.a11y.WCAG20Result = function (ruleset, url, title) {
+
+  this.ruleset = ruleset;
+  this.title = title;
+  this.url   = url;
+  
+  this.rule_summary_results   = new OpenAjax.a11y.ResultRuleSummary();
+  this.rule_a_summary_results = new OpenAjax.a11y.ResultRuleSummary();
+  this.rule_aa_summary_results = new OpenAjax.a11y.ResultRuleSummary();
+  this.rule_aaa_summary_results = new OpenAjax.a11y.ResultRuleSummary();
+  
+  this.principle_results = [];
+
+};
+
+/** 
+ * @method addPrincipleResult
+ *
+ * @memberOf OpenAjax.a11y.WCAG20Result
+ *
+ * @desc Add principle result object
+ *
+ * @param  {WCAG20ResultPrinciple}  principle_result  - Principle result object to add
+ */
+ 
+OpenAjax.a11y.WCAG20Result.prototype.addPrincipleResult = function (principle_result) {
+
+  this.principle_results.push(principle_result);
+
+};
+
+/**
+ * @method toHTML
+ *
+ * @memberOf OpenAjax.a11y.cache.WCAG20Result
+ *
+ * @desc Creates a html text string representation of the WCAG20 results  
+ *
+ * @return {String} Returns a HTML coded text string representation of the WCAG20 result object
+ */
+
+OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
+
+  function toHtmlRuleSummaryTableStart(id_table, title) {
+  
+    var html = "";
+
+    html += "    <h2 id='h2_" + id_table + "'>" + title + "</h2>\n"; 
+    html += "    <table class='rule_summary' aria-labelledby='h2_" + id_table + "'>\n"; 
+    html += "      <thead>\n";
+    html += "        <tr>\n";
+    html += "          <th rowspan='2'></th>\n";
+    html += "          <th id='" + id_table + "_req_rules' colspan='3' >Required Rules</th>\n";
+    html += "          <th id='" + id_table + "_rec_rules' colspan='3' >Recommended Rules</th>\n";
+    html += "          <th id='" + id_table + "_totals' class='totals' rowspan='2'>Total</th>\n";
+    html += "        </tr>\n";
+    html += "        <tr>\n";
+    html += "          <th class='required_pass'   id='" + id_table + "_all_pass'>All Pass <sup><a href='#" + id_table + "_sup1'>1</a></sup> </th>\n";
+    html += "          <th class='required_fail'   id='" + id_table + "_has_fail'>Violations<sup><a href='#" + id_table + "_sup2'>2</a></sup> </th>\n";
+    html += "          <th class='required_manual' id='" + id_table + "_has_mc' >Manual Checks<sup><a href='#" + id_table + "_sup3'>3</a></sup> </th>\n";
+    html += "          <th class='recommended_pass'>All Pass<sup><a href='#" + id_table + "_sup1'>1</a></sup></th>\n";
+    html += "          <th class='recommended_fail'>Violations<sup><a href='#" + id_table + "_sup2'>2</a></sup></th>\n";
+    html += "          <th class='recommended_manual'>Manual Checks<sup><a href='#" + id_table + "_sup3'>3</a></sup></th>\n";
+    html += "        </tr>\n"; 
+    html += "      </thead>\n";
+    html += "      <tbody>\n";
+    
+    return html;
+    
+  }
+
+  function toHtmlRuleSummaryTableRowSection(id_section, section_title) {
+ 
+    var html = "";
+    
+    html += "        <tr class='section'>\n";
+    html += "          <th class='section' id='" + id_section + "'>" + section_title  + "</th>\n";
+    html += "          <td></td>\n";
+    html += "          <td></td>\n";
+    html += "          <td></td>\n";
+    html += "          <td></td>\n";
+    html += "          <td></td>\n";
+    html += "          <td></td>\n";
+    html += "          <td></td>\n";
+    html += "        </tr>\n";
+   
+    return html;
+ 
+  }
+
+
+  function toHtmlRuleSummaryTableRow(row_count, id_table, id_section, id_row, item_title, rule_summary) {
+ 
+    var cell_class = "";
+ 
+    var total = rule_summary.required_rules_all_pass;
+    total += rule_summary.required_rules_with_fail;
+    total += rule_summary.required_rules_with_manual_checks;
+    total += rule_summary.recommended_rules_all_pass;
+    total += rule_summary.recommended_rules_with_fail;
+    total += rule_summary.recommended_rules_with_manual_checks;
+ 
+    var html = "";
+    
+    if (row_count % 2) html += "        <tr class='odd'>\n";
+    else html += "        <tr class='even'>\n";
+    
+    html += "          <th id='" + id_row + "' headers='" + id_section + "'>" + item_title  + "</th>\n";
+    
+    cell_class = "";
+    if (rule_summary.required_rules_all_pass > 0) cell_class = "required_pass";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_req_rules " + id_table + "_all_pass'>" + rule_summary.required_rules_all_pass           + "</td>\n";
+    
+    cell_class = "";
+    if (rule_summary.required_rules_with_fail > 0) cell_class = "required_fail";
+    html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_req_rules " + id_table + "_has_fail'>" + rule_summary.required_rules_with_fail          + "</td>\n";
+    
+    cell_class = "";
+    if (rule_summary.required_rules_with_manual_checks > 0) cell_class = "required_manual";
+    html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_req_rules " + id_table + "_has_mc'>"   + rule_summary.required_rules_with_manual_checks + "</td>\n";
+    
+    cell_class = "";
+    if (rule_summary.recommended_rules_all_pass > 0) cell_class = "recommended_pass";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_rec_rules " + id_table + "_all_pass'>" + rule_summary.recommended_rules_all_pass           + "</td>\n";
+    
+    cell_class = "";
+    if (rule_summary.recommended_rules_with_fail > 0) cell_class = "recommended_fail";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_rec_rules " + id_table + "_has_fail'>" + rule_summary.recommended_rules_with_fail          + "</td>\n";
+    
+    cell_class = "";
+    if (rule_summary.recommended_rules_with_manual_checks > 0) cell_class = "recommended_manual";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_rec_rules " + id_table + "_has_mc'>"   + rule_summary.recommended_rules_with_manual_checks + "</td>\n";
+    
+    html += "          <td class='totals' headers='" + id_row + " " + id_table + "_totals'>"   + total + "</td>\n";
+    html += "        </tr>\n";
+   
+    return html;
+ 
+  }
+
+  function toHtmlRuleSummaryTableRowTotal(id_table, id_row, item_title, rule_summary) {
+
+    var total = rule_summary.required_rules_all_pass;
+    total += rule_summary.required_rules_with_fail;
+    total += rule_summary.required_rules_with_manual_checks;
+    total += rule_summary.recommended_rules_all_pass;
+    total += rule_summary.recommended_rules_with_fail;
+    total += rule_summary.recommended_rules_with_manual_checks;
+
+    var html = "";
+    
+    html += "        <tr class='totals'>\n";
+    
+    html += "          <th id='" + id_row  + "_total'>Total</th>\n";
+    html += "          <td headers='" + id_row + "_total " + id_table + "_req_rules " + id_table + "_all_pass'>" + rule_summary.required_rules_all_pass           + "</td>\n";
+    html += "          <td headers='" + id_row + "_total " + id_table + "_req_rules " + id_table + "_has_fail'>" + rule_summary.required_rules_with_fail          + "</td>\n";
+    html += "          <td headers='" + id_row + "_total " + id_table + "_req_rules " + id_table + "_has_mc'>"   + rule_summary.required_rules_with_manual_checks + "</td>\n";
+
+    html += "          <td headers='" + id_row + "_total " + id_table + "_rec_rules " + id_table + "_all_pass'>" + rule_summary.recommended_rules_all_pass           + "</td>\n";
+    html += "          <td headers='" + id_row + "_total " + id_table + "_rec_rules " + id_table + "_has_fail'>" + rule_summary.recommended_rules_with_fail          + "</td>\n";
+    html += "          <td headers='" + id_row + "_total " + id_table + "_rec_rules " + id_table + "_has_mc'>"   + rule_summary.recommended_rules_with_manual_checks + "</td>\n";
+    html += "          <td headers='" + id_row + "_total'>"   + total + "</td>\n";
+    html += "        </tr>\n";
+   
+    return html;
+ 
+  }
+
+  function toHtmlRuleSummaryTableEnd() {
+
+    var html = "";
+
+    html += "      </tbody>\n";
+    html += "    </table>\n"; 
+    return html;
+  }
+
+  function toHtmlRuleSummaryTableRefs(id_table) {
+
+    var html = "";
+
+    html += "    <p><sup><a id='" + id_table + "_sup1'>1</a></sup>Number of rules where all elements a rule applied to passed</p>";
+    html += "    <p><sup><a id='" + id_table + "_sup2'>2</a></sup>Number of rules where one or more elements a rule applies resulted in a violation</p>";
+    html += "    <p><sup><a id='" + id_table + "_sup3'>3</a></sup>Number of rules where one or more elements a rule applies resulted in a manual evaluation</p>";
+    return html;
+  }
+
+ 
+ 
+  function toHtmlWCAG20Summary(title, principle_results, wcag20_nls) {
+
+    var i, j;
+    
+    var pr;
+    var gr;
+    
+    var html = "";
+    
+    var id_table = 'summ';
+    var id_principle = "";
+    var id_guideline = "";
+    
+    var id_count = 0;
+    var row_id = "";
+    
+    var t = "Rule Results for '" + title + "'";
+
+    html += "    <div id='summary' role='main' aria-labelledby='main_summary'>\n";
+    html += "      <h1 id='main_summary'>WCAG 2.0 Rule Results Summary</h1>\n";
+    html += "\n"; 
+
+    html += toHtmlRuleSummaryTableStart(id_table, t);
+
+    for (i = 0; i < principle_results.length; i++) {
+    
+      pr = principle_results[i];
+      
+      t = wcag20_nls.getNLSItemById(pr.ruleset_principle.id).title;
+      
+      id_principle = id_table + "_p" + (i+1);
+
+      html += toHtmlRuleSummaryTableRowSection(id_principle, t);
+
+      for (j = 0; j < pr.guideline_results.length; j++) {
+ 
+        gr = pr.guideline_results[j];
+
+        t = wcag20_nls.getNLSItemById(gr.ruleset_guideline.id).title;
+
+        id_guideline = id_table + "_g" + (i+1) + (j+1);
+      
+        if (gr.rule_summary_results) {
+          html += toHtmlRuleSummaryTableRow(j, id_table, id_principle, id_guideline, t, gr.rule_summary_results);
+        }
+        
+      }  
+
+      row_id = id + "_row_" + id_count;
+      id_count += 1;
+      
+      html += toHtmlRuleSummaryTableRowTotal(id_table, id_principle, wcag20_nls.getNLSItemById(pr.ruleset_principle.id).title, pr.rule_summary_results);
+    
+    }
+    
+    html += toHtmlRuleSummaryTableEnd();
+    
+    html += toHtmlRuleSummaryTableRefs();
+
+    html += "\n"; 
+
+    html += "    </div>\n"; 
+
+    return html;
+  
+  }
+
+  function toHtmlWCAG20Guidelines(title_document, guideline_results, wcag20_nls) {
+
+    var i, j;
+    
+    var html = "";
+    
+    var id_table;
+
+    var gr;
+    var id_guideline;
+    var id_gr;
+    var title_guideline = "";
+
+    var scr;    
+    var id_scr;
+    var title_success_criteria = "";
+
+    for (i = 0; i < guideline_results.length; i++) {
+
+      gr    = guideline_results[i];
+      id_guideline = gr.ruleset_guideline.id;
+      id_gr = "gl" + id_guideline;
+      title_guideline = wcag20_nls.getNLSItemById(id_guideline).title;
+      
+      html += "    <div id='" + id_gr + "' role='main' aria-labelledby='" + id_gr + "_summary'>\n";
+      html += "      <h1 id='" + id_gr + "_summary'>Guideline " + id_guideline + " Rule Results Summary</h1>\n";
+      html += "\n"; 
+
+      var t = "Guideline " + id_guideline + " Rule Results for '" + title_document + "'";
+
+      id_table = "gl_table_" + id_gr;
+
+      html += toHtmlRuleSummaryTableStart(id_table, t);
+
+      html += toHtmlRuleSummaryTableRowSection(id_guideline, title_guideline);
+
+      for (j = 0; j < gr.success_criteria_results.length; j++) {
+ 
+        scr = gr.success_criteria_results[j];
+
+        title_success_criterion = wcag20_nls.getNLSItemById(scr.ruleset_success_criterion.id).title;
+        id_success_criterion    = scr.ruleset_success_criterion.id;
+        id_scr  = id_table + id_success_criterion;
+      
+        if (gr.rule_summary_results) {
+          html += toHtmlRuleSummaryTableRow(j, id_table, id_guideline, id_success_criterion, title_success_criterion, scr.rule_summary_results);
+        }  
+      }  
+
+      html += toHtmlRuleSummaryTableRowTotal(id_table, id_guideline, title_guideline, gr.rule_summary_results);
+        
+      html += toHtmlRuleSummaryTableEnd();
+    
+      html += toHtmlRuleSummaryTableRefs(id_gr);
+
+      html += "\n"; 
+
+      html += "    </div>\n"; 
+      
+    }   
+
+    return html;
+  
+  }
+
+
+  function toHtmlStart(title, url) {
+  
+    var html = "";
+    
+    html += "<!DOCTYPE html>\n";
+    
+    html += "<html>\n";
+ 
+    html += "  <head>\n";
+    html += "    <title>WCAG 2.0 Report for " + title + "</title>\n"; 
+    html += "\n"; 
+    html += "    <script type='text/javascript'>\n"; 
+    html += "      var section_ids = []\n"; 
+    html += "      section_ids.push('summary')\n"; 
+    html += "      section_ids.push('gl1.1')\n"; 
+    html += "      section_ids.push('gl1.2')\n"; 
+    html += "      section_ids.push('gl1.3')\n"; 
+    html += "      section_ids.push('gl1.4')\n"; 
+    html += "      section_ids.push('gl2.1')\n"; 
+    html += "      section_ids.push('gl2.2')\n"; 
+    html += "      section_ids.push('gl2.3')\n"; 
+    html += "      section_ids.push('gl2.4')\n"; 
+    html += "      section_ids.push('gl3.1')\n"; 
+    html += "      section_ids.push('gl3.2')\n"; 
+    html += "      section_ids.push('gl3.3')\n"; 
+    html += "      section_ids.push('gl4.1')\n"; 
+    html += "      section_ids.push('images')\n"; 
+    html += "      section_ids.push('controls')\n"; 
+    html += "      section_ids.push('color')\n"; 
+    html += "      section_ids.push('landmarks')\n"; 
+    html += "      section_ids.push('links')\n"; 
+    html += "      section_ids.push('lists')\n"; 
+    html += "      section_ids.push('tables')\n"; 
+    html += "\n"; 
+    html += "      function showOption(id) {\n"; 
+    html += "        var node_show = document.getElementById(id);\n";    
+    html += "        var node;\n";    
+    html += "\n"; 
+    html += "        if (node_show) {\n";    
+    html += "          for (var i = 0; i < section_ids.length; i++) {\n";    
+    html += "            node = document.getElementById(section_ids[i]);\n";    
+    html += "            if (node) node.style.display = 'none';\n";    
+    html += "          }\n";    
+    html += "          node_show.style.display = 'block';\n";    
+    html += "        }\n";    
+    html += "      }\n"; 
+    html += "    </script>\n"; 
+    html += "\n"; 
+    html += "    <style type='text/css'>\n"; 
+    html += "      div[role='banner'] {\n"; 
+    html += "        width: 100%;\n"; 
+    html += "        border-bottom: #dddddd solid thin;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='banner'] p.title {\n"; 
+    html += "        margin: 0;\n"; 
+    html += "        padding: 0;\n"; 
+    html += "        color: #444444;\n"; 
+    html += "        font-size: 150%;\n"; 
+    html += "        font-weight: bold;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div#nav_container {\n"; 
+    html += "        float: left;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='navigation'] {\n"; 
+    html += "        margin: 0;\n"; 
+    html += "        padding: 0;\n"; 
+    html += "        padding-top: 1em;\n"; 
+    html += "        width: 10em;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='navigation'] h2 {\n"; 
+    html += "        margin: 0;\n"; 
+    html += "        padding: 0;\n"; 
+    html += "        padding-bottom: 0.25em;\n"; 
+    html += "        margin-bottom: 0.25em;\n"; 
+    html += "        font-size: 100%;\n"; 
+    html += "        color: #444444;\n"; 
+    html += "        text-align: center;\n"; 
+    html += "        border-bottom: #dddddd solid thin;\n"; 
+    html += "      }\n"; 
+    html += "      div[role='navigation'] ul {\n"; 
+    html += "        margin: 0;\n"; 
+    html += "        padding: 0;\n"; 
+    html += "        width: 90%;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='navigation'] a {\n"; 
+    html += "        width: 100%;\n"; 
+    html += "        display: block;\n"; 
+    html += "        font-size: 100%;\n"; 
+    html += "        font-weight: bold;\n"; 
+    html += "        color: #111111;\n"; 
+    html += "        background-color: #eeeeee;\n"; 
+    html += "        border: thin solid transparent;\n"; 
+    html += "        padding: 0.25em;\n"; 
+    html += "        margin-bottom: 1px;\n"; 
+    html += "        text-decoration: none;\n"; 
+    html += "        text-align: right;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='navigation'] a:focus,\n"; 
+    html += "      div[role='navigation'] a:hover {\n"; 
+    html += "        color: black;\n"; 
+    html += "        background-color: #dddddd;\n"; 
+    html += "        border: thin solid #dddddd;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] {\n"; 
+    html += "        margin-left: 11em;\n"; 
+    html += "        height: 40em;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] h1 {\n"; 
+    html += "        font-size: 150%;\n"; 
+    html += "        text-align: center;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] h2 {\n"; 
+    html += "        font-size: 125%;\n"; 
+    html += "        text-align: left;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] table {\n"; 
+    html += "        margin-bottom: 1.5em;\n";      
+    html += "        border-collapse: collapse;\n";      
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] table th.required_pass,\n"; 
+    html += "      div[role='main'] table th.required_fail,\n"; 
+    html += "      div[role='main'] table th.required_manual,\n"; 
+    html += "      div[role='main'] table th.recommended_pass,\n"; 
+    html += "      div[role='main'] table th.recommended_fail,\n"; 
+    html += "      div[role='main'] table th.recommended_manual,\n"; 
+    html += "      div[role='main'] table th.totals {\n"; 
+    html += "        width: 8em;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] table tbody th.section {\n"; 
+    html += "        padding-top: 1em;\n"; 
+    html += "        text-align: left;\n"; 
+    html += "        font-weight: bold;\n"; 
+    html += "        font-size: 110%;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] table thead th,\n"; 
+    html += "      div[role='main'] table td {\n"; 
+    html += "        text-align: center;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] table th[colspan='3'] {\n"; 
+    html += "        font-size: 120%;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] table tbody th {\n"; 
+    html += "        text-align: left;\n"; 
+    html += "        font-weight: normal;\n";     
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] table tr.even th,\n"; 
+    html += "      div[role='main'] table tr.even td {\n"; 
+    html += "        background-color: #EEEEEE;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] table tr.totals th,\n"; 
+    html += "      div[role='main'] table tr.totals td {\n"; 
+    html += "        border-top: solid black thin;\n"; 
+    html += "        font-weight: bold;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] table tr.totals th {\n"; 
+    html += "        text-align: right;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] table tr.even td.totals,\n"; 
+    html += "      div[role='main'] table tr.odd  td.totals {\n"; 
+    html += "        font-weight: bold;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] table tr.even td.required_pass,\n"; 
+    html += "      div[role='main'] table tr.odd  td.required_pass {\n"; 
+    html += "        color: #007800;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] table tr.even td.required_fail,\n"; 
+    html += "      div[role='main'] table tr.odd  td.required_fail {\n"; 
+    html += "        color: #900000;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] table tr.even td.required_manual,\n"; 
+    html += "      div[role='main'] table tr.odd  td.required_manual {\n"; 
+    html += "        color: #900000;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] table tr.even td.recommended_pass,\n"; 
+    html += "      div[role='main'] table tr.odd  td.recommended_pass {\n"; 
+    html += "        color: #007800;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] table tr.even td.recommended_fail,\n"; 
+    html += "      div[role='main'] table tr.odd  td.recommended_fail {\n"; 
+    html += "        color: #806000;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] table tr.even td.recommended_manual,\n"; 
+    html += "      div[role='main'] table tr.odd  td.recommended_manual {\n"; 
+    html += "        color: #806000;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "    </style>\n"; 
+    html += "\n"; 
+    html += "  </head>\n";
+    html += "\n"; 
+ 
+    html += "  <body onload=\"showOption('summary');\">\n";
+    html += "    <div role='banner'>\n";    
+    html += "      <p class='title'>WCAG 2.0 Report for " + title + "</p>\n"; 
+    html += "      <p class='url'>URL: " + url + "</p>\n"; 
+    html += "    </div>\n";
+    html += "    <div id='nav_container'>\n";    
+    html += "      <div role='navigation' aria-labelledby='wcag20_nav'>\n";    
+    html += "        <h2 id='wcag20_nav'>WCAG 2.0 Options</h2>\n"; 
+    html += "        <ul>\n";   
+    html += "          <li><a href=\"javascript:showOption('summary');\">Summary</a></li>\n";   
+    html += "          <li><a href=\"javascript:showOption('gl1.1');\">Guideline 1.1</a></li>\n";   
+    html += "          <li><a href=\"javascript:showOption('gl1.2');\">Guideline 1.2</a></li>\n";   
+    html += "          <li><a href=\"javascript:showOption('gl1.3');\">Guideline 1.3</a></li>\n";   
+    html += "          <li><a href=\"javascript:showOption('gl1.4');\">Guideline 1.4</a></li>\n";   
+    html += "          <li><a href=\"javascript:showOption('gl2.1');\">Guideline 2.1</a></li>\n";   
+    html += "          <li><a href=\"javascript:showOption('gl2.2');\">Guideline 2.2</a></li>\n";   
+    html += "          <li><a href=\"javascript:showOption('gl2.3');\">Guideline 2.3</a></li>\n";   
+    html += "          <li><a href=\"javascript:showOption('gl2.4');\">Guideline 2.4</a></li>\n";   
+    html += "          <li><a href=\"javascript:showOption('gl3.1');\">Guideline 3.1</a></li>\n";   
+    html += "          <li><a href=\"javascript:showOption('gl3.2');\">Guideline 3.2</a></li>\n";   
+    html += "          <li><a href=\"javascript:showOption('gl3.3');\">Guideline 3.3</a></li>\n";   
+    html += "          <li><a href=\"javascript:showOption('gl4.1');\">Guideline 4.1</a></li>\n";   
+    html += "        </ul>\n";   
+    html += "      </div>\n";    
+    html += "      <div role='navigation' aria-labelledby='element_nav'>\n";    
+    html += "        <h2 id='element_nav'>Element Options</h2>\n"; 
+    html += "        <ul>\n";   
+    html += "          <li><a href=\"javascript:showOption('images');\"   >Images</a></li>\n";   
+    html += "          <li><a href=\"javascript:showOption('controls');\" >Controls</a></li>\n";   
+    html += "          <li><a href=\"javascript:showOption('color');\"    >Color Contrast</a></li>\n";   
+    html += "          <li><a href=\"javascript:showOption('landmarks');\">Landmarks</a></li>\n";   
+    html += "          <li><a href=\"javascript:showOption('links');\"    >Links</a></li>\n";   
+    html += "          <li><a href=\"javascript:showOption('lists');\"    >Lists</a></li>\n";   
+    html += "          <li><a href=\"javascript:showOption('tables');\"   >Tables</a></li>\n";   
+    html += "        </ul>\n";   
+    html += "      </div>\n";     
+    html += "    </div>\n";     
+    return html;
+    
+  }  
+
+  function toHtmlEnd() {
+  
+    var html = "";
+     
+    html += "  </body>\n";
+
+    html += "</html>\n";
+    
+    return html;    
+  }  
+
+
+  var i, j, k, l;  // loop counters
+
+  var pr;
+
+  var wcag20_nls = OpenAjax.a11y.all_wcag20_nls;
+ 
+  var html = "";
+
+  var id_count = 1;
+  var id;
+
+  html += toHtmlStart(this.title, this.url);
+  
+  html += toHtmlWCAG20Summary(this.title, this.principle_results, wcag20_nls);
+  
+  for (i = 0; i < this.principle_results.length; i++ ) {
+
+    pr = this.principle_results[i];
+
+    html += toHtmlWCAG20Guidelines(this.title, pr.guideline_results, wcag20_nls);
+    
+  }  
+
+  html += toHtmlEnd();
+ 
+  return html;
+};
+
+/**
+ * @method toString
+ *
+ * @memberOf OpenAjax.a11y.cache.WCAG20Result
+ *
+ * @desc Creates a text string representation of the WCAG20 result object 
+ *
+ * @return {String} Returns a text string representation of the WCAG20 result object
+ */
+
+OpenAjax.a11y.WCAG20Result.prototype.toString = function () {
+
+  var str = "";
+ 
+  return str;
+};
+
+/* ---------------------------------------------------------------- */
+/*                        WCAG20ResultPrinciple                           */
+/* ---------------------------------------------------------------- */
+
+/** 
+ * @constructor WCAG20ResultPrinciple
+ *
+ * @memberOf OpenAjax.a11y
+ *
+ * @desc Constructor for an object that contains a the results of 
+ *          the evaluation for a WCAG 2.0 Principle
+ *
+ * @param  {RulesetPrinciple}  ruleset_principle  - Ruleset Principle object
+ *
+ * @property  {WCAG20RulesetPrinciple}   ruleset_principle        - Reference to the associated ruleset principle
+ * @property  {ResultSummaryRule}        rule_summary_results     - Reference to the rule summary information for the guideline 
+ * @property  {Array}                    result_guidelines        - Array of ruleset rule objects associated with the success criterion
+ */
+ 
+OpenAjax.a11y.WCAG20ResultPrinciple = function (ruleset_principle) {
+
+  this.ruleset_principle = ruleset_principle;
+  this.rule_summary_results = new OpenAjax.a11y.ResultRuleSummary();
+  this.guideline_results = [];
+
+};
+
+/** 
+ * @method addGuidelineResult
+ *
+ * @memberOf OpenAjax.a11y.WCAG20ResultPrinciple
+ *
+ * @desc Add guideline result object
+ *
+ * @param  {WCAG20ResultGuideline}  guideline_result  - Guideline result object to add
+ */
+ 
+OpenAjax.a11y.WCAG20ResultPrinciple.prototype.addGuidelineResult = function (guideline_result) {
+
+  this.guideline_results.push(guideline_result);
+
+};
+
+/**
+ * @method toString
+ *
+ * @memberOf OpenAjax.a11y.cache.WCAG20ResultPrinciple
+ *
+ * @desc Creates a text string representation of the principle result object 
+ *
+ * @return {String} Returns a text string representation of the principle result object
+ */
+
+OpenAjax.a11y.WCAG20ResultPrinciple.prototype.toString = function () {
+
+ var str = "";
+ 
+ return str;
+};
+
+
+
+/* ---------------------------------------------------------------- */
+/*                        WCAG20ResultGuideline                           */
+/* ---------------------------------------------------------------- */
+
+/** 
+ * @constructor WCAG20ResultGuideline
+ *
+ * @memberOf OpenAjax.a11y
+ *
+ * @desc Constructor for an object that contains a the results of 
+ *          the evaluation for a WCAG 2.0 Guideline
+ *
+ * @param  {WCAG20RulesetGuideline}  ruleset_guideline  - Ruleset guideline object
+ *
+ * @property  {WCAG20RulesetGuideline}   ruleset_guideline        - Reference to the associated ruleset guideline
+ * @property  {ResultSummaryRule}        rule_summary_results     - Reference to the rule summary information for the guideline 
+ * @property  {Array}                    result_sucess_creiteria  - Array of ruleset rule objects associated with the success criterion
+ */
+ 
+OpenAjax.a11y.WCAG20ResultGuideline = function (ruleset_guideline) {
+
+  this.ruleset_guideline = ruleset_guideline;
+  this.rule_summary_results = new OpenAjax.a11y.ResultRuleSummary();
+  this.success_criteria_results = [];
+
+};
+
+/** 
+ * @method addSuccessCriterionResult
+ *
+ * @memberOf OpenAjax.a11y.WCAG20ResultGuideline
+ *
+ * @desc Add success criterion result object
+ *
+ * @param  {WCAG20ResultSuccessCriterion}  success_criterion_result  - Success criterion result object to add
+ */
+ 
+OpenAjax.a11y.WCAG20ResultGuideline.prototype.addSuccessCriterionResult = function (success_criterion_result) {
+
+  this.success_criteria_results.push(success_criterion_result);
+
+};
+
+/**
+ * @method toString
+ *
+ * @memberOf OpenAjax.a11y.cache.WCAG20ResultGuideline
+ *
+ * @desc Creates a text string representation of the guideline result object 
+ *
+ * @return {String} Returns a text string representation of the guideline result object
+ */
+
+OpenAjax.a11y.WCAG20ResultGuideline.prototype.toString = function () {
+
+ var str = "";
+ 
+ return str;
+};
+
+/* ---------------------------------------------------------------- */
+/*              WCAG20ResultSuccessCriterion                        */
+/* ---------------------------------------------------------------- */
+
+/** 
+ * @constructor WCAG20ResultSuccessCriterion
+ *
+ * @memberOf OpenAjax.a11y
+ *
+ * @desc Constructor for an object that contains a the results of 
+ *          the evaluation for a WCAG 2.0 Success Criteria
+ *
+ * @param  {RulesetSuccessCriterion}  ruleset_success_criterion  - Ruleset Success Criterion object
+ *
+ * @property  {Object}   ruleset_success_criteria  - Reference to the associated ruleset success criteria
+ * @property  {Array}    rule_summary_results      - Array of ruleset rule objects associated with the success criterion
+ */
+ 
+OpenAjax.a11y.WCAG20ResultSuccessCriterion = function (ruleset_success_criterion) {
+
+  this.ruleset_success_criterion = ruleset_success_criterion;
+  this.rule_summary_results      = new OpenAjax.a11y.ResultRuleSummary();
+  this.rule_results = [];
+};
+
+/** 
+ * @method addRuleResult
+ *
+ * @memberOf OpenAjax.a11y.WCAG20ResultSuccessCriterion
+ *
+ * @desc Add rule result object
+ *
+ * @param  {ResultRule}  rule_result  - Rule result object to add
+ */
+ 
+OpenAjax.a11y.WCAG20ResultSuccessCriterion.prototype.addRuleResult = function (rule_result) {
+
+  this.rule_results.push(rule_result);
+
+};
+
+/** 
+ * @method getRequirement
+ *
+ * @memberOf OpenAjax.a11y.WCAG20ResultSuccessCriterion
+ *
+ * @desc Returns a NLS localized title for the rquirement
+ *
+ * @return {Array} Returns string with a localized version of the requirement
+ */
+ 
+OpenAjax.a11y.WCAG20ResultSuccessCriterion.prototype.getRequirement = function () {
+
+  var sc_nls = OpenAjax.a11y.all_wcag20_nls.getNLSItemById(this.ruleset_success_criterion.id); 
+  
+  if (sc_nls) 
+    return "WCAG " + sc_nls.title;
+  else
+    return "Title not found";  
+
+};
+
+/**
+ * @method toString
+ *
+ * @memberOf OpenAjax.a11y.cache.WCAG20ResultSuccessCriterion
+ *
+ * @desc Creates a text string representation of the success criterion result object 
+ *
+ * @return {String} Returns a text string representation of the rule result object
+ */
+
+OpenAjax.a11y.WCAG20ResultSuccessCriterion.prototype.toString = function () {
+
+ var str = "";
+ 
+ return str;
+};
+
+/*
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16217,229 +19235,6 @@ OpenAjax.a11y.Rulesets.prototype.getAllRulesets = function() {
 };
 
 
-/* ---------------------------------------------------------------- */
-/*                          WCAG20Result                            */
-/* ---------------------------------------------------------------- */
-
-/** 
- * @constructor WCAG20Result
- *
- * @memberOf OpenAjax.a11y
- *
- * @desc Constructor for an object that contains a the results of 
- *          the evaluation for a WCAG 2.0 Principle
- *
- * @param  {RulesetPrinciple}  ruleset_principle  - Ruleset Principle object
- *
- * @property  {WCAG20RulesetPrinciple}   ruleset_principle        - Reference to the associated ruleset principle
- * @property  {ResultSummaryRule}        rule_summary_results     - Reference to the rule summary information for the guideline 
- * @property  {Array}                    result_guidelines        - Array of ruleset rule objects associated with the success criterion
- */
- 
-OpenAjax.a11y.WCAG20Result = function (ruleset) {
-
-  this.ruleset = ruleset;
-  this.rule_summary_results   = new OpenAjax.a11y.ResultRuleSummary();
-  this.rule_a_summary_results = new OpenAjax.a11y.ResultRuleSummary();
-  this.rule_aa_summary_results = new OpenAjax.a11y.ResultRuleSummary();
-  this.rule_aaa_summary_results = new OpenAjax.a11y.ResultRuleSummary();
-  
-  this.principle_results = [];
-
-};
-
-/** 
- * @method addPrincipleResult
- *
- * @memberOf OpenAjax.a11y.WCAG20Result
- *
- * @desc Add principle result object
- *
- * @param  {WCAG20ResultPrinciple}  principle_result  - Principle result object to add
- */
- 
-OpenAjax.a11y.WCAG20Result.prototype.addPrincipleResult = function (principle_result) {
-
-  this.principle_results.push(principle_result);
-
-};
-
-/**
- * @method toString
- *
- * @memberOf OpenAjax.a11y.cache.WCAG20Result
- *
- * @desc Creates a text string representation of the WCAG20 result object 
- *
- * @return {String} Returns a text string representation of the WCAG20 result object
- */
-
-OpenAjax.a11y.WCAG20Result.prototype.toString = function () {
-
- var str = "";
- 
- return str;
-};
-
-/* ---------------------------------------------------------------- */
-/*                       WCAG20RulesetPrinciple                     */
-/* ---------------------------------------------------------------- */
-
-/**
- * @constructor WCAG20RulesetPrinciple
- *
- * @memberOf OpenAjax.a11y
- *
- * @param    {Boolean} enabled    - Initial value for the enabled property
- *
- * @property {Boolean} enabled            - If true the rules associated with this principle should be evaluated
- * @property {Array}   ruleset_guidelines - Array of WCAG20RulesetGuideline objects
- */
- 
-OpenAjax.a11y.WCAG20RulesetPrinciple = function (id, enabled) {
- 
-   this.id = id;
- 
-   this.enabled = enabled;
-   
-   this.ruleset_guidelines = [];
-
-};
-
-/**
- * @method addRulesetGuideline
- *
- * @memberOf OpenAjax.a11y.WCAG20RulesetPrinciple
- *
- * @param    {WCAG20RulesetGuideline}  guideline - WCAG 2.0 ruleset guideline object to add
- */
- 
-OpenAjax.a11y.WCAG20RulesetPrinciple.prototype.addRulesetGuideline = function (guideline) {
- 
-  this.ruleset_guidelines.push(guideline);
- 
-};
-
-/* ---------------------------------------------------------------- */
-/*                       WCAG20RulesetGuideline                     */
-/* ---------------------------------------------------------------- */
-
-/**
- * @constructor WCAG20RulesetGuideline
- *
- * @memberOf OpenAjax.a11y
- *
- * @param    {Boolean} enabled    - Initial value for the enabled property
- *
- * @property {Boolean} enabled                   - If true the rules associated with this guideline should be evaluated
- * @property {Array}   ruleset_success_criteria  - Array of WCAG20RulesetSuccessCriteria objects
- */
- 
-OpenAjax.a11y.WCAG20RulesetGuideline = function (id, enabled) {
- 
-   this.id = id;
-   
-   this.enabled = enabled;
-   
-   this.ruleset_success_criteria = [];
-
-};
-
-/**
- * @method addRulesetSuccessCriterion
- *
- * @memberOf OpenAjax.a11y.WCAG20RulesetGuideline
- *
- * @param    {WCAG20RulesetSuccessCriteron}  success_criterion - WCAG 2.0 ruleset success criterion object to add
- */
- 
-OpenAjax.a11y.WCAG20RulesetGuideline.prototype.addRulesetSuccessCriterion = function (success_criterion) {
- 
-  this.ruleset_success_criteria.push(success_criterion);
- 
-};
-
-/* ---------------------------------------------------------------- */
-/*                       WCAG20RulesetSuccessCriterion              */
-/* ---------------------------------------------------------------- */
-
-/**
- * @constructor WCAG20RulesetSuccessCriterion
- *
- * @memberOf OpenAjax.a11y
- *
- * @param  {String}   id       - id of the success criterion
- * @param  {Boolean}  enabled  - Initial value for the enabled property
- *
- * @property {String}   id       - id of the success criterion
- * @property {Boolean}  enabled  - If true the rules associated with this success criterion should be evaluated
- * @property {Array}    rules    - Array of rule objects
- */
- 
-OpenAjax.a11y.WCAG20RulesetSuccessCriterion = function (id, enabled) {
- 
-   this.id  = id;
-   this.enabled = enabled;
-   this.ruleset_rules = [];
-
-};
-
-/**
- * @method addRulesetRule
- *
- * @memberOf OpenAjax.a11y.WCAG20RulesetSuccessCriterion
- *
- * @param  {WCAG20RulesetRule}  ruleset_rule  
- */
- 
-OpenAjax.a11y.WCAG20RulesetSuccessCriterion.prototype.addRulesetRule = function (ruleset_rule) {
- 
-  if (ruleset_rule) {
-    this.ruleset_rules.push(ruleset_rule);
-  }
- 
-};
-
-/* ---------------------------------------------------------------- */
-/*                       WCAG20RulesetRule                          */
-/* ---------------------------------------------------------------- */
-
-/**
- * @constructor WCAG20RulesetRule
- *
- * @memberOf OpenAjax.a11y
- *
- * @param  {String}   id        - id of the rule
- * @param  {Number}   severity  - Severity of the rule (NOTE: typically VIOLATION or RECOMMENDATION)
- * @param  {Number}   priority  - Relative priority of this rule compared to other rules for this success criterion
- * @param  {status}   status    - Status of this rule (i.e. accepted, experimential, deprecated)
- * @param  {Boolean}  enabled   - Initial value for the enabled property
- *
- * @param     {String}   rule_id   - id of the rule
- * @property  {Rule}     rule      - Rule object
- * @property  {Number}   severity  - Severity of the rule (NOTE: typically VIOLATION or RECOMMENDATION)
- * @property  {Number}   priority  - Relative priority of this rule compared to other rules for this success criterion
- * @property  {status}   status    - Status of this rule (i.e. accepted, experimential, deprecated)
- * @property  {Boolean}  enabled   - Initial value for the enabled property
- */
- 
-OpenAjax.a11y.WCAG20RulesetRule = function (id, type, priority, status, enabled) {
-
-   var r = OpenAjax.a11y.all_rules.getRuleByRuleId(id);
-   
-   this.rule     = null;
-   this.rule_id  = id;
-   this.type     = type;
-   this.prioirty = priority;
-   this.status   = status;
-   this.enabled  = enabled;
-
-   if (r) 
-     this.rule  = r;
-   else  
-     OpenAjax.a11y.console("  ** Rule with rule id='" + id + "' does not exist!");
-
-};
 
 /* ---------------------------------------------------------------- */
 /*                       WCAG20Ruleset                              */
@@ -16450,20 +19245,31 @@ OpenAjax.a11y.WCAG20RulesetRule = function (id, type, priority, status, enabled)
  *
  * @memberOf OpenAjax.a11y
  *
- * @property {Object} ruleset_data       The title of the document being evaluated
+ * @param  {Object} ruleset_data  -  JSON object representing rule mapping
  *
- * @property {String} title  - The title of the document being evaluated
- * @property {String} url    - The url of the document being evaluated
+ * NOTE: The following properties are defined when the ruleset is loaded
  *
- * @property {Number} number_of_rules  - The number of rules used int he ruleset
+ * @property {String} type                 - String representing the type of ruleset (i.e. WCAG20)          
+ * @property {String} id                   - id of the ruleset           
+ * @property {String} ruleset_title        - NLS localized title of the ruleset           
+ * @property {String} ruleset_description  - Description of the ruleset         
+ * @property {String} ruleset_author_name  - Name of the author(s) or organization         
+ * @property {String} ruleset_author_url   - URL to the author(s) or organization       
+ * @property {String} ruleset_updated      - Last time the ruleset was updated     
+ * @property {Number} number_of_rules      - number of rules in the rule set
  *
- * @property {Object} doc              -  Reference to browser document object model (DOM) that holds the document to be analyzed
- * @property {Object} requirements_nls Reference to requirements NLS object
- * @property {Object} rule_nls         Reference to rule NLS object
- * @property {Object} ruleset          Reference to ruleset object    
- * @property {Object} log              Reference to Log object
- * @property {Object} dom_cache        Reference to DOMCache object
- * @property {Object} ruleset_result   Reference to RulesetResult object
+ * @property {WCAG20RulesetPrinciple} ruleset_principles  - Array of WCAG 2.0 ruleset principle objects          
+ *
+ * NOTE: The following properties are defined after each evaluation
+ *
+ * @property {String} title  - The title of the last document evaluated
+ * @property {String} url    - The url of the last document evaluated
+ *
+ * @property {Object} doc         - Reference to browser document object model (DOM) that holds the document to be analyzed
+ * @property {Object} wcag20_nls  - Reference to WCAG 2.0 NLS object for current language
+ * @property {Object} log         - Reference to Log object
+ * @property {Object} dom_cache   - Reference to DOMCache object
+ * @property {Object} result      - Reference to WCAG20Result object
  *
  * @example
  *
@@ -16490,12 +19296,13 @@ OpenAjax.a11y.WCAG20Ruleset = function (ruleset_data) {
   var  r_id,  rr_data,  rr_new;  // variables for creating RulesetRule objects
  
   this.type = "WCAG20";
-  this.title = {};
+  this.ruleset_title = {};
 
   // Check for ruleset id
 
   if (ruleset_data['id']) {
     this.id  = ruleset_data['id'];
+    OpenAjax.a11y.console("Loading ruleset with the id: " + this.id);
   } 
   else {
     OpenAjax.a11y.console("  ** Ruleset missing id");
@@ -16572,11 +19379,11 @@ OpenAjax.a11y.WCAG20Ruleset = function (ruleset_data) {
   // Check for ruleset last updated property 
 
   if (ruleset_data['last_updated']) {
-    this.updated  = ruleset_data['last_updated'];
+    this.ruleset_updated  = ruleset_data['last_updated'];
   } 
   else {
     OpenAjax.a11y.console("  ** Ruleset missing last updated date, set to null");
-    this.updated  = "0000-00-00";
+    this.ruleset_updated  = "0000-00-00";
   }
 
 
@@ -16599,9 +19406,9 @@ OpenAjax.a11y.WCAG20Ruleset = function (ruleset_data) {
       if (rp_data.guidelines) {
       
         if (typeof rp_data.enabled === 'boolean')
-          rp_new = new OpenAjax.a11y.WCAG20RulesetPrinciple(r_id, rp_data.enabled);
+          rp_new = new OpenAjax.a11y.WCAG20RulesetPrinciple(p_id, rp_data.enabled);
         else  
-          rp_new = new OpenAjax.a11y.WCAG20RulesetPrinciple(r_id, true);
+          rp_new = new OpenAjax.a11y.WCAG20RulesetPrinciple(p_id, true);
 
         for (g_id in rp_data.guidelines) {
 
@@ -16690,7 +19497,6 @@ OpenAjax.a11y.WCAG20Ruleset = function (ruleset_data) {
   // local references to current NLS information, based on current locale setting
   
   this.wcag20_nls  = OpenAjax.a11y.all_wcag20_nls.getNLS();      
-//  this.rule_nls    = OpenAjax.a11y.all_rules.getRuleNLS();      
   
   // References related to evaluating a document
   // Initial values are null, properties are set with the "newResource' method
@@ -16698,12 +19504,69 @@ OpenAjax.a11y.WCAG20Ruleset = function (ruleset_data) {
   this.title = "";
   this.url   = "";
   
-  this.doc               = null;
-  this.log               = null;
-  this.dom_cache         = null;        
-  this.evaluation_result = null; 
-
+  this.doc       = null;
+  this.log       = null;
+  this.dom_cache = null;        
+  this.result    = null; 
+  
   return this;
+
+};
+
+/**
+ * @method setEvaluationLevel
+ *
+ * @memberOf OpenAjax.a11y.WCAG20Ruleset
+ *
+ * @desc Enable and disable rules based on the WCAG level 
+ *
+ * @param  {Number}    level   - Level to success criteria to test
+ */
+ 
+OpenAjax.a11y.WCAG20Ruleset.prototype.setEvaluationLevel = function (level) {
+
+  var i, j, k;
+  
+  var rp;
+  var rg;
+  var rsc;
+  
+  for (i = 0; i < this.ruleset_principles.length; i++) {
+  
+    rp = this.ruleset_principles[i];
+    
+    for (j = 0; j < rp.ruleset_guidelines.length; j++ ) {
+      
+      rg = rp.ruleset_guidelines[j];
+      
+      for (k = 0; k < rg.ruleset_success_criteria.length; k++) {
+        rsc = rg.ruleset_success_criteria[k];
+        
+        if (rsc.level <= level) {
+          rsc.enabled = true;
+        }
+        else {
+          rsc.enabled = false;        
+        }
+      }
+    }
+  }
+};
+
+/**
+ * @method setBrokenLinkTesting
+ *
+ * @memberOf OpenAjax.a11y.WCAG20Ruleset
+ *
+ * @desc Enable and disable the cache from testing for broken urls 
+ *
+ * @param  {Boolean}  broken_links   - If true enables cache to test for broken links
+ */
+ 
+OpenAjax.a11y.WCAG20Ruleset.prototype.setBrokenLinkTesting = function (broken_links) {
+  
+  OpenAjax.a11y.URL_TESTING_ENABLED = broken_links;
+  
 };
 
 /**
@@ -16763,7 +19626,7 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.evaluate = function (url, title, doc, prog
     
       rp = rps[i];
     
-      principle_result = new OpenAjax.a11y.WCAG20ResultPrinciple(rp);
+      principle_result = new OpenAjax.a11y.WCAG20ResultPrinciple(rps[i]);
       this.result.addPrincipleResult(principle_result);
     
       if (rp && rp.enabled) {
@@ -16775,7 +19638,7 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.evaluate = function (url, title, doc, prog
 
           rg = rgs[j];
       
-          guideline_result = new OpenAjax.a11y.WCAG20ResultGuideline(rg);
+          guideline_result = new OpenAjax.a11y.WCAG20ResultGuideline(rgs[j]);
           principle_result.addGuidelineResult(guideline_result);
     
           if (rg && rg.enabled) {
@@ -16832,7 +19695,7 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.evaluate = function (url, title, doc, prog
                        rule.validate( this.dom_cache, rule_result );
                      }  
 
-                     var rule_title  = rule.getTitle();
+                     var rule_title  = rule.getTitle(ruleset_rule.type);
                      
 //                     OpenAjax.a11y.console("Validating rule: " + rule.rule_id + "  " + rule_title);
 
@@ -16913,212 +19776,178 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.evaluate = function (url, title, doc, prog
     
  };
  
+
+
+
 /* ---------------------------------------------------------------- */
-/*              WCAG20ResultSuccessCriterion                              */
+/*                       WCAG20RulesetPrinciple                     */
 /* ---------------------------------------------------------------- */
 
-/** 
- * @constructor WCAG20ResultSuccessCriterion
+/**
+ * @constructor WCAG20RulesetPrinciple
  *
  * @memberOf OpenAjax.a11y
  *
- * @desc Constructor for an object that contains a the results of 
- *          the evaluation for a WCAG 2.0 Success Criteria
+ * @param    {Boolean} enabled    - Initial value for the enabled property
  *
- * @param  {RulesetSuccessCriterion}  ruleset_success_criterion  - Ruleset Success Criterion object
- *
- * @property  {Object}   success_criteria     - Reference to the associated ruleset success criteria
- * @property  {Array}    rule_summary_results - Array of ruleset rule objects associated with the success criterion
+ * @property {Boolean} enabled            - If true the rules associated with this principle should be evaluated
+ * @property {Array}   ruleset_guidelines - Array of WCAG20RulesetGuideline objects
  */
  
-OpenAjax.a11y.WCAG20ResultSuccessCriterion = function (success_criterion) {
-
-  this.success_criterion = success_criterion;
-  this.rule_summary_results      = new OpenAjax.a11y.ResultRuleSummary();
-
-};
-
-/** 
- * @method addRuleResult
- *
- * @memberOf OpenAjax.a11y.WCAG20ResultSuccessCriterion
- *
- * @desc Add rule result object
- *
- * @param  {ResultRule}  rule_result  - Rule result object to add
- */
+OpenAjax.a11y.WCAG20RulesetPrinciple = function (id, enabled) {
  
-OpenAjax.a11y.WCAG20ResultSuccessCriterion.prototype.addRuleResult = function (success_criterion_result) {
-
-  this.success_criterion_results.push(success_criterion_result);
-
-};
-
-/** 
- * @method getRequirement
- *
- * @memberOf OpenAjax.a11y.WCAG20ResultSuccessCriterion
- *
- * @desc Returns a NLS localized title for the rquirement
- *
- * @return {Array} Returns string with a localized version of the requirement
- */
- 
-OpenAjax.a11y.WCAG20ResultSuccessCriterion.prototype.getRequirement = function () {
-
-  var sc_nls = OpenAjax.a11y.all_wcag20_nls.getNLSItemById(this.success_criterion.id); 
-  
-  if (sc_nls) 
-    return "WCAG " + sc_nls.title;
-  else
-    return "Title not found";  
+   this.id = id;
+   
+   this.enabled = enabled;
+   
+   this.ruleset_guidelines = [];
 
 };
 
 /**
- * @method toString
+ * @method addRulesetGuideline
  *
- * @memberOf OpenAjax.a11y.cache.WCAG20ResultSuccessCriterion
+ * @memberOf OpenAjax.a11y.WCAG20RulesetPrinciple
  *
- * @desc Creates a text string representation of the success criterion result object 
- *
- * @return {String} Returns a text string representation of the rule result object
+ * @param    {WCAG20RulesetGuideline}  guideline - WCAG 2.0 ruleset guideline object to add
  */
-
-OpenAjax.a11y.WCAG20ResultSuccessCriterion.prototype.toString = function () {
-
- var str = "";
  
- return str;
+OpenAjax.a11y.WCAG20RulesetPrinciple.prototype.addRulesetGuideline = function (guideline) {
+ 
+  this.ruleset_guidelines.push(guideline);
+ 
 };
 
 /* ---------------------------------------------------------------- */
-/*                        WCAG20ResultGuideline                           */
+/*                       WCAG20RulesetGuideline                     */
 /* ---------------------------------------------------------------- */
 
-/** 
- * @constructor WCAG20ResultGuideline
+/**
+ * @constructor WCAG20RulesetGuideline
  *
  * @memberOf OpenAjax.a11y
  *
- * @desc Constructor for an object that contains a the results of 
- *          the evaluation for a WCAG 2.0 Guideline
+ * @param    {Boolean} enabled    - Initial value for the enabled property
  *
- * @param  {WCAG20RulesetGuideline}  ruleset_guideline  - Ruleset guideline object
- *
- * @property  {WCAG20RulesetGuideline}   ruleset_guideline        - Reference to the associated ruleset guideline
- * @property  {ResultSummaryRule}        rule_summary_results     - Reference to the rule summary information for the guideline 
- * @property  {Array}                    result_sucess_creiteria  - Array of ruleset rule objects associated with the success criterion
+ * @property {Boolean} enabled                   - If true the rules associated with this guideline should be evaluated
+ * @property {Array}   ruleset_success_criteria  - Array of WCAG20RulesetSuccessCriteria objects
  */
  
-OpenAjax.a11y.WCAG20ResultGuideline = function (ruleset_guideline) {
-
-  this.ruleset_guideline = ruleset_guideline;
-  this.rule_summary_results = new OpenAjax.a11y.ResultRuleSummary();
-  this.success_criteria_results = [];
-
-};
-
-/** 
- * @method addSuccessCriterionResult
- *
- * @memberOf OpenAjax.a11y.WCAG20ResultGuideline
- *
- * @desc Add success criterion result object
- *
- * @param  {WCAG20ResultSuccessCriterion}  success_criterion_result  - Success criterion result object to add
- */
+OpenAjax.a11y.WCAG20RulesetGuideline = function (id, enabled) {
  
-OpenAjax.a11y.WCAG20ResultGuideline.prototype.addSuccessCriterionResult = function (success_criterion_result) {
-
-  this.success_criteria_results.push(success_criterion_result);
+   this.id = id;
+   
+   this.enabled = enabled;
+   
+   this.ruleset_success_criteria = [];
 
 };
 
 /**
- * @method toString
+ * @method addRulesetSuccessCriterion
  *
- * @memberOf OpenAjax.a11y.cache.WCAG20ResultGuideline
+ * @memberOf OpenAjax.a11y.WCAG20RulesetGuideline
  *
- * @desc Creates a text string representation of the guideline result object 
- *
- * @return {String} Returns a text string representation of the guideline result object
+ * @param    {WCAG20RulesetSuccessCriteron}  success_criterion - WCAG 2.0 ruleset success criterion object to add
  */
-
-OpenAjax.a11y.WCAG20ResultGuideline.prototype.toString = function () {
-
- var str = "";
  
- return str;
+OpenAjax.a11y.WCAG20RulesetGuideline.prototype.addRulesetSuccessCriterion = function (success_criterion) {
+ 
+  this.ruleset_success_criteria.push(success_criterion);
+ 
 };
 
 /* ---------------------------------------------------------------- */
-/*                        WCAG20ResultPrinciple                           */
+/*                       WCAG20RulesetSuccessCriterion              */
 /* ---------------------------------------------------------------- */
 
-/** 
- * @constructor WCAG20ResultPrinciple
+/**
+ * @constructor WCAG20RulesetSuccessCriterion
  *
  * @memberOf OpenAjax.a11y
  *
- * @desc Constructor for an object that contains a the results of 
- *          the evaluation for a WCAG 2.0 Principle
+ * @param  {String}   id       - id of the success criterion
+ * @param  {Boolean}  enabled  - Initial value for the enabled property
  *
- * @param  {RulesetPrinciple}  ruleset_principle  - Ruleset Principle object
- *
- * @property  {WCAG20RulesetPrinciple}   ruleset_principle        - Reference to the associated ruleset principle
- * @property  {ResultSummaryRule}        rule_summary_results     - Reference to the rule summary information for the guideline 
- * @property  {Array}                    result_guidelines        - Array of ruleset rule objects associated with the success criterion
+ * @property {String}   id       - id of the success criterion
+ * @property {Boolean}  enabled  - If true the rules associated with this success criterion should be evaluated
+ * @property {Array}    rules    - Array of rule objects
  */
  
-OpenAjax.a11y.WCAG20ResultPrinciple = function (ruleset_principle) {
-
-  this.ruleset_principle = ruleset_principle;
-  this.rule_summary_results = new OpenAjax.a11y.ResultRuleSummary();
-  this.guideline_results = [];
-
-};
-
-/** 
- * @method addGuidelineResult
- *
- * @memberOf OpenAjax.a11y.WCAG20ResultPrinciple
- *
- * @desc Add guideline result object
- *
- * @param  {WCAG20ResultGuideline}  guideline_result  - Guideline result object to add
- */
+OpenAjax.a11y.WCAG20RulesetSuccessCriterion = function (id, enabled) {
  
-OpenAjax.a11y.WCAG20ResultPrinciple.prototype.addGuidelineResult = function (guideline_result) {
-
-  this.guideline_results.push(guideline_result);
+   var wcag20_nls = OpenAjax.a11y.all_wcag20_nls;
+ 
+   this.id  = id;
+   
+   this.level = wcag20_nls.getNLSItemById(id).level;
+   
+   this.enabled = enabled;
+   this.ruleset_rules = [];
 
 };
 
 /**
- * @method toString
+ * @method addRulesetRule
  *
- * @memberOf OpenAjax.a11y.cache.WCAG20ResultPrinciple
+ * @memberOf OpenAjax.a11y.WCAG20RulesetSuccessCriterion
  *
- * @desc Creates a text string representation of the principle result object 
- *
- * @return {String} Returns a text string representation of the principle result object
+ * @param  {WCAG20RulesetRule}  ruleset_rule  
  */
-
-OpenAjax.a11y.WCAG20ResultPrinciple.prototype.toString = function () {
-
- var str = "";
  
- return str;
+OpenAjax.a11y.WCAG20RulesetSuccessCriterion.prototype.addRulesetRule = function (ruleset_rule) {
+ 
+  if (ruleset_rule) {
+    this.ruleset_rules.push(ruleset_rule);
+  }
+ 
 };
 
+/* ---------------------------------------------------------------- */
+/*                       WCAG20RulesetRule                          */
+/* ---------------------------------------------------------------- */
 
+/**
+ * @constructor WCAG20RulesetRule
+ *
+ * @memberOf OpenAjax.a11y
+ *
+ * @param  {String}   id        - id of the rule
+ * @param  {Number}   severity  - Severity of the rule (NOTE: typically VIOLATION or RECOMMENDATION)
+ * @param  {Number}   priority  - Relative priority of this rule compared to other rules for this success criterion
+ * @param  {status}   status    - Status of this rule (i.e. accepted, experimential, deprecated)
+ * @param  {Boolean}  enabled   - Initial value for the enabled property
+ *
+ * @param     {String}   rule_id   - id of the rule
+ * @property  {Rule}     rule      - Rule object
+ * @property  {Number}   severity  - Severity of the rule (NOTE: typically VIOLATION or RECOMMENDATION)
+ * @property  {Number}   priority  - Relative priority of this rule compared to other rules for this success criterion
+ * @property  {status}   status    - Status of this rule (i.e. accepted, experimential, deprecated)
+ * @property  {Boolean}  enabled   - Initial value for the enabled property
+ */
+ 
+OpenAjax.a11y.WCAG20RulesetRule = function (id, type, priority, status, enabled) {
 
+   var r = OpenAjax.a11y.all_rules.getRuleByRuleId(id);
+   
+   this.rule     = null;
+   this.rule_id  = id;
+   this.type     = type;
+   this.prioirty = priority;
+   this.status   = status;
+   this.enabled  = enabled;
+
+   if (r) 
+     this.rule  = r;
+   else  
+     OpenAjax.a11y.console("  ** Rule with rule id='" + id + "' does not exist!");
+
+};
 
 
 
 /*
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17640,7 +20469,7 @@ OpenAjax.a11y.locale = "en-us";
  * @desc Object containing data and methods for generating human readable text for cache item properties and values
  */
 
-OpenAjax.a11y.cache_nls      = OpenAjax.a11y.cache_nls      || new OpenAjax.a11y.CacheNLS();
+OpenAjax.a11y.cache_nls = OpenAjax.a11y.cache_nls || new OpenAjax.a11y.CacheNLS();
 
 /**
  * @object all_rules
@@ -17652,7 +20481,7 @@ OpenAjax.a11y.cache_nls      = OpenAjax.a11y.cache_nls      || new OpenAjax.a11y
  * @desc Object containing data and methods related to rules
  */
 
-OpenAjax.a11y.all_rules      = OpenAjax.a11y.all_rules      || new OpenAjax.a11y.Rules();
+OpenAjax.a11y.all_rules = OpenAjax.a11y.all_rules || new OpenAjax.a11y.Rules();
 
 /**
  * @object all_wcag20_nls
@@ -17679,7 +20508,7 @@ OpenAjax.a11y.all_wcag20_nls = OpenAjax.a11y.all_wcag20_nls || new OpenAjax.a11y
 OpenAjax.a11y.all_rulesets   = OpenAjax.a11y.all_rulesets   || new OpenAjax.a11y.Rulesets();
 
 /**
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17708,7 +20537,12 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
      true_value  : 'Yes',
      false_value : 'No'
     }, 
-    
+
+    /*
+     * The types of ways a rule can be included in a ruleset
+     */
+    rule_types: ['Undefined', 'Required', 'Recommendation', 'Conditional'],
+
     /*
      * Relative implementation priorities of complying to rule requirements
      */
@@ -17732,13 +20566,19 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
     missing_label : {
       label : "no label",
       style : "missing_label"
-    },
+    },  
     
     empty_alt_text : {
       label : "empty alt",
       style : "empty_alt"
     },
+
+    missing_alt : {
+      label : "missing alt attribute",
+      style : "empty_alt"
+    },
     
+
     /**
      * Severity of not passing a rule for a particular requirement set, like WCAG 2.0
      */
@@ -17806,27 +20646,27 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
      * DOMElement object properties
      */
 
-      'document_order'        : {
+      'document_order' : {
         label       : 'Order',
-        description :  'The ordinal position of the item in the list',
+        description : 'The ordinal position of the item in the list',
         style       : 'doc_order'
       },
-      'tag_name'              : {
+      'tag_name' : {
         label       : 'Tag Name',
         description : 'Tag (or element) name of the item',
         style       : 'element'
       },
-      'id'                    : { 
+      'id' : { 
         label       : 'id',
         description :  'Value of the id attribute'
       },
-      'id_unique'             : { 
+      'id_unique'   : { 
         label       : 'ID unique',
         description :  'Information about the id attribute value',
         values      : ['Undefined value', 'Not defined', 'Unique', 'Not unique'], 
         style       : ['','','','warning']
       },  
-      'character_count'       : { 
+      'character_count' : { 
         label       : 'Text Count',
         description :  'Number of characters in the text content of this tag'
       },
@@ -17849,6 +20689,10 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
       'has_alt_attribute' : { 
         label       : 'Alt Defined',
         description : 'True if the alt attribute was defined in markup'
+      },
+      'alt_length' : { 
+        label       : 'Alt text length',
+        description : 'The length of the text in the alt text attribute'
       },
       'title'       : { 
         label       : 'title',
@@ -17886,6 +20730,15 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
         label       : 'for',
         description : 'Value of the for attribute of a label element'
       },
+      'parent_landmark_role'  : { 
+        label       : 'Parent landmark role',
+        description : 'Role of the landmark that contains this content'
+      },
+      'parent_landmark'  : { 
+        label       : 'Containing landmark element',
+        description : 'Landmark element that contains this content'
+      },
+
 
     /*
      * Calculated values based on CSS properties
@@ -17972,6 +20825,52 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
         description : 'Value of the src attribute'
       },
 
+
+    /*
+     * Control Cache object attributes
+     */
+      'label_source' : {
+        label       : 'Label Type',
+        description : 'The technique for defining the label',
+        values      : ['unkown', 'none', 'label by reference', 'label encapsulation', 'title attribute', 'value attribute', 'alt attribute', 'button type', 'child text content', 'aria labelledby', 'aria label']
+      },     
+      'num_main_landmarks' : {
+        label       : 'Main landmarks',
+        description : 'Number of main landmarks'
+      },     
+      'num_visible_main_landmarks' : {
+        label       : 'Visibile main landmarks',
+        description : 'Number of visible main landmarks'
+      },     
+    /*
+     * Link Cache object attributes
+     */
+      'is_url' : {
+        label       : 'is a url',
+        description : 'Boolean value indicating if a href contains a URL'
+      },
+      'is_target' : {
+        label       : 'is a target',
+        description : 'Boolean value indicating if the link can be a target'
+      },
+      'link_type' : {
+        label       : 'Type of link',
+        description : 'Type of link',
+        values      : ['empty', 'other', 'internal link', 'link', 'secure link', 'ftp', 'secure ftps', 'file', 'javascript', 'mail to', 'target only']
+      },
+      'is_broken' : {
+        label       : 'Link broken',
+        description : 'Tests to see if the link is broken, valid or has an error',
+        values      : ['unkown',  'broken', 'vaild', 'not tested', 'error']
+      },
+      'name_attribute' : {
+        label       : 'name',
+        description : 'Value of the name attribute'
+      },
+      'target' : {
+        label       : 'target',
+        description : 'Value of the target attribute'
+      },
 
     /*
      * Media Cache object properties
@@ -18075,13 +20974,17 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
         label       : 'Text',
         description :  'Text content of a table cell'
       },              
+      'text_normalized'    : {
+        label       : 'Text',
+        description : 'Text content of a element'
+      },              
       'effective_caption'        : {
         label       : 'Effective Caption',
-        description :  'Effective caption is the text content of a caption element or ARIA labeling'
+        description : 'Effective caption is the text content of a caption element or ARIA labeling'
       },
       'effective_summary'        : {
         label       : 'Effective Summary',
-        description :  'Effective summary is the text content of a summary attribute or an aria-describedby attribute'
+        description : 'Effective summary is the text content of a summary attribute or an aria-describedby attribute'
       },
       'is_data_table'            : {
         label       : 'Data Table',
@@ -18150,7 +21053,13 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
    
 
 OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
-    message_severities: ['must', 'should', 'may need'],  
+    message_severities: {
+      MUST : 'must', 
+      SHOULD: 'should', 
+      MAY: 'may'
+    },
+    
+    missing_message : "The following message id is not defined: ",
     
     caches : {
       'abbreviations_cache'      : 'Abbreviation Rules',
@@ -18171,390 +21080,496 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
     //
     rules: {
         COLOR_1: {
-            MESSAGE_PASS:        'Color 1: The CCR of %1 exceeds the 4.5 for plain text and 3.1 for large text and/or bolded text.',
-            MESSAGE_FAIL:        'Color 1: The CCR of %1 does not exceed CCR of 4.5 for plain text or 3.1 for large and/or bolded text.',
-            MESSAGE_MANUAL_PASS: 'Color 1: The CCR of %1 exceeds CCR requirements, but a background image may reduce this CCR and so a manual check is required.',
-            MESSAGE_MANUAL_FAIL: 'Color 1: The CCR of %1 does not meet CCR requirements, but a background image may imporve the CCR and so a manual check is required.',
-            MESSAGE_HIDDEN:      'Color 1: The element is not displayed visually.',
-            TITLE:               'Color 1: Text content exceed CCR of 4.5 for any size text or 3.1 for large and/or bolded text'
+            ID:                  'COLOR 1',
+            TITLE:               'Text content %s exceed CCR of 4.5 for any size text or 3.1 for large and/or bolded text',
+            PURPOSE:             'Text on the page %s have sufficient contrast for people with low vision to read',
+            MESSAGE_PASS:        'The CCR of %1 exceeds the 4.5 for plain text and 3.1 for large text and/or bolded text.',
+            MESSAGE_FAIL:        'The CCR of %1 does not exceed CCR of 4.5 for plain text or 3.1 for large and/or bolded text.',
+            MESSAGE_MANUAL_PASS: 'The CCR of %1 exceeds CCR requirements, but a background image may reduce this CCR and so a manual check is required.',
+            MESSAGE_MANUAL_FAIL: 'The CCR of %1 does not meet CCR requirements, but a background image may imporve the CCR and so a manual check is required.',
+            MESSAGE_HIDDEN:      'The element is not displayed visually.'
         },
         COLOR_2: {
-            MESSAGE_PASS:        'Color 2: The CCR of %1 exceeds the 7.0 for plain text and 4.5 for large text and/or bolded text.',
-            MESSAGE_FAIL:        'Color 2: The CCR of %1 does not exceed CCR of 7.0 for plain text or 4.5 for large and/or bolded text.',
-            MESSAGE_MANUAL_PASS: 'Color 2: The CCR of %1 exceeds CCR requirements, but a background image may reduce this CCR and so a manual check is required.',
-            MESSAGE_MANUAL_FAIL: 'Color 2: The CCR of %1 does not meet CCR requirements, but a background image may imporve the CCR and so a manual check is required.',
-            MESSAGE_HIDDEN:      'Color 2: The element is not displayed visually.',
-            TITLE:               'Color 2: Text content exceed CCR of 7.0 for any size text or 4.5 for large and/or bolded text'
+            ID:                  'COLOR 2',
+            TITLE:               'Text content exceed CCR of 7.0 for any size text or 4.5 for large and/or bolded text',
+            PURPOSE:             'Text on the page %s have sufficient contrast for people with low vision to read',
+            MESSAGE_PASS:        'The CCR of %1 exceeds the 7.0 for plain text and 4.5 for large text and/or bolded text.',
+            MESSAGE_FAIL:        'The CCR of %1 does not exceed CCR of 7.0 for plain text or 4.5 for large and/or bolded text.',
+            MESSAGE_MANUAL_PASS: 'The CCR of %1 exceeds CCR requirements, but a background image may reduce this CCR and so a manual check is required.',
+            MESSAGE_MANUAL_FAIL: 'The CCR of %1 does not meet CCR requirements, but a background image may imporve the CCR and so a manual check is required.',
+            MESSAGE_HIDDEN:      'The element is not displayed visually.'
         },
         CONTROL_1: {
-            MESSAGE_PASS:          'CONTROL 1: %1 control has label.',
-            MESSAGE_LABEL_MISSING: 'CONTROL 1: %1 control is missing a label.',
-            MESSAGE_HIDDEN:        'CONTROL 1: %1 is hidden from assistive technology, so at users will not have access to the control.',
-            TITLE:                 'CONTROL 1: textarea, select and input elements of type text, password, checkbox, radio and file must have an accessible label'
+            ID:                    'CONTROL 1',
+            TITLE:                 'textarea, select and input elements of type text, password, checkbox, radio and file % have an accessible label',
+            PURPOSE:               'Labels are used by assistive technologies to provide information on the purpose of the form control to people with disabilities and increases the area on the screen for mouse users interact with the control.',
+            MESSAGE_PASS:          '%1 control has label.',
+            MESSAGE_LABEL_MISSING: '%1 control is missing a label.',
+            MESSAGE_HIDDEN:        '%1 is hidden from assistive technology, so at users will not have access to the control.'
         },
         CONTROL_2: {
-            MESSAGE_PASS:          'CONTROL 2: Image button control has label.',
-            MESSAGE_ALT_MISSING:   'CONTROL 2: Image button control is missing alt text.',
-            MESSAGE_HIDDEN:        'CONTROL 2: Image button is hidden from assistive technology, so at users will not have access to the control.',
-            TITLE:                 'CONTROL 2: Every input type image must have an alt or title attribute with content'
+            ID:                    'CONTROL 2',
+            TITLE:                 'Every input type image %s have an alt or title attribute with content',
+            PURPOSE:               'The alt attribute on input type image is used by assistive technologies to provide information on the purpose of the form control to people with disabilities.',
+            MESSAGE_PASS:          'Image button control has label.',
+            MESSAGE_ALT_MISSING:   'Image button control is missing alt text.',
+            MESSAGE_HIDDEN:        'Image button is hidden from assistive technology, so at users will not have access to the control.'
         },
         CONTROL_3: {
-            MESSAGE_HAS_LEGEND:          'CONTROL 3: Radio button uses FIELDSET/LEGEND elements for group labeling',
-            MESSAGE_HAS_ARIA_LABELLEDBY: 'CONTROL 3: Radio button uses ARIA-LABELLEDBY for group labeling',
-            MESSAGE_HAS_ARIA_LABEL:      'CONTROL 3: Radio button uses ARIA-LABEL for group labeling',
-            MESSAGE_LEGEND_MISSING:      'CONTROL 3: Radio button is NOT contained in a FIELDSET/LEGEND elements or using ARIA labeling techniques to include group label',
-            MESSAGE_HIDDEN:              'CONTROL 3: Radio button is hidden from assistive technology, so at users will not have access to the control.',
-            TITLE:                       'CONTROL 3: Groups of radio buttons should be contained in fieldset/legend or aria labeling'
+            ID:                          'CONTROL 3',
+            TITLE:                       'Groups of radio buttons % be contained in fieldset/legend or aria labeling',
+            PURPOSE:                     'The fieldset/legend provides a grouping label to help users of assistive technology understand the context of the radio buton labels.',
+            MESSAGE_HAS_LEGEND:          'Radio button uses FIELDSET/LEGEND elements for group labeling',
+            MESSAGE_HAS_ARIA_LABELLEDBY: 'Radio button uses ARIA-LABELLEDBY for group labeling',
+            MESSAGE_HAS_ARIA_LABEL:      'Radio button uses ARIA-LABEL for group labeling',
+            MESSAGE_LEGEND_MISSING:      'Radio button is NOT contained in a FIELDSET/LEGEND elements or using ARIA labeling techniques to include group label',
+            MESSAGE_HIDDEN:              'Radio button is hidden from assistive technology, so at users will not have access to the control.'
         },
         CONTROL_4: {
-            MESSAGE_HAS_CONTENT: 'CONTROL 4: Button has text content',
-            MESSAGE_NO_CONTENT:  'CONTROL 4: Button has does NOT have text content',
-            MESSAGE_HIDDEN:      'CONTROL 4: Button is hidden from assistive technology, so at users will not have access to the control.',
-            TITLE:               'CONTROL 4: Button elements must have text content and input type button must have a value attribute with content'
+            ID:                  'CONTROL 4',
+            TITLE:               'Button elements % have text content and input type button must have a value attribute with content',
+            PURPOSE:             'The value attribute of a button element is used by assistive technologies to provide information on the purpose of the form control to people with disabilities.',
+            MESSAGE_HAS_CONTENT: 'Button has text content',
+            MESSAGE_NO_CONTENT:  'Button has does NOT have text content',
+            MESSAGE_HIDDEN:      'Button is hidden from assistive technology, so at users will not have access to the control.'
         },
         CONTROL_5: {
-            MESSAGE_UNIQUE_ID:    'CONTROL 5: The id \'%1\' is unique on the page',
-            MESSAGE_DUPLICATE_ID: 'CONTROL 5: The id \'%1\' is NOT unique on the page',
-            TITLE:                'CONTROL 5: Textarea, select, input and button elements with id attributes, must have unique id values on the page'
+            ID:                   'CONTROL 5',
+            TITLE:                'Textarea, select, input and button elements with id attributes, %s have unique id values on the page',
+            PURPOSE:              'Duplicate ids may result in the improper calucation of labels for assistive technologies.',
+            MESSAGE_UNIQUE_ID:    'The id \'%1\' is unique on the page',
+            MESSAGE_DUPLICATE_ID: 'The id \'%1\' is NOT unique on the page'
         },
         CONTROL_6: {
-            MESSAGE_NO_CONTROL: 'CONTROL 6: Label reference points to a %1 element, not a form control',
-            MESSAGE_NO_ELEMENT: 'CONTROL 6: Label does NOT reference any element on the page',
-            TITLE:              'CONTROL 6: Label with a for attribute reference does not reference a form control'
+            ID:                 'CONTROL 6',
+            TITLE:              'Label with a "for" attribute reference does not reference a form control',
+            PURPOSE:            'This may be an improperly referenced for control, since the for attribute is designed to associate a label with a form control.  ',
+            MESSAGE_NO_CONTROL: 'Label reference points to a %1 element, not a form control',
+            MESSAGE_NO_ELEMENT: 'Label does NOT reference any element on the page'
         },
         CONTROL_7: {
-            MESSAGE_NO_CONTENT:  'CONTROL 7: LABEL element does NOT have any content',
-            MESSAGE_HAS_CONTENT: 'CONTROL 7: LABEL element has content',
-            TITLE:               'CONTROL 7: LABEL element or legend element should contain content'
+            ID:                  'CONTROL 7',
+            TITLE:               'LABEL element or legend element %s contain content',
+            PURPOSE:             'Labels without any content cannot describe the purpose of the associated form control.',
+            MESSAGE_NO_CONTENT:  'LABEL element does NOT have any content',
+            MESSAGE_HAS_CONTENT: 'LABEL element has content'
         },
         CONTROL_8: {
-            MESSAGE_NO_LEGEND:     'CONTROL 8: No LEGEND element found for FIELDSET element',
-            MESSAGE_MORE_THAN_ONE: 'CONTROL 8: More than one LEGEND element found for FIELDSET element',
-            MESSAGE_JUST_ONE:      'CONTROL 8: FIELDSET element has just one LEGEND element',
-            TITLE:                 'CONTROL 8: Fieldset should contain exactly one legend element'
+            ID:                    'CONTROL 8',
+            TITLE:                 'Fieldset %s contain exactly one legend element',
+            PURPOSE:               'Multiple legend elements contained in the same fieldset may result in the improper calucation of labels for assistive technologies.',
+            MESSAGE_NO_LEGEND:     'No LEGEND element found for FIELDSET element',
+            MESSAGE_MORE_THAN_ONE: 'More than one LEGEND element found for FIELDSET element',
+            MESSAGE_JUST_ONE:      'FIELDSET element has just one LEGEND element'
         },
         CONTROL_9: {
-            MESSAGE_USES_TITLE:          'CONTROL 9: Avoid using TITLE attribute to label form controls',
-            MESSAGE_DOES_NOT_USE_TITLE : 'CONTROL 9: Does not use TITLE attribute to label form controls',
-            TITLE:                       'CONTROL 9: Avoid using the TITLE attribute to label form control'
+            ID:                          'CONTROL 9',
+            TITLE:                       'TITLE attribute %s not be used to label form controls',
+            PURPOSE:                     'The title attribute was not designed to be a label for form controls and is often used for other purposes in a web page',
+            MESSAGE_USES_TITLE:          'Avoid using TITLE attribute to label form controls',
+            MESSAGE_DOES_NOT_USE_TITLE : 'Does not use TITLE attribute to label form controls'
         },
         CONTROL_10: {
-            MESSAGE_DUPLICATE_LABEL: 'CONTROL 10: The label \'%1\' is NOT unique on the page',
-            MESSAGE_LABEL_UNIQUE:    'CONTROL 10: The label \'%1\' is unique on the page',
-            MESSAGE_HIDDEN:          'CONTROL 10: Form control is hidden from assistive technology, so not tested',
-            TITLE:                   'CONTROL 10: Accessible labels must be unique for every textarea, select and input element of type text, password, radio, and checkbox on a page'
+            ID:                      'CONTROL 10',
+            TITLE:                   'Accessible labels %s be unique for every textarea, select and input element of type text, password, radio, and checkbox on a page',
+            PURPOSE:                 'If may be difficult for people using assistive technologies to understand the puropose of form controls when more than one form control share the same label text content.',
+            MESSAGE_DUPLICATE_LABEL: 'The label \'%1\' is NOT unique on the page',
+            MESSAGE_LABEL_UNIQUE:    'The label \'%1\' is unique on the page',
+            MESSAGE_HIDDEN:          'Form control is hidden from assistive technology, so not tested'
         },
         CONTROL_11: {
-            MESSAGE_DUPLICATE_LABEL: 'CONTROL 11: The label \'%1\' is NOT unique on the page',
-            MESSAGE_LABEL_UNIQUE:    'CONTROL 11: The label is unique on the page',
-            MESSAGE_HIDDEN:          'CONTROL 11: Form control is hidden from assistive technology, so they will not see it',
-            TITLE:                   'CONTROL 11: If there is more than one form on page, input element of type submit and reset must have unique labels using the value attribute'
+            ID:                      'CONTROL 11',
+            TITLE:                   'If there is more than one form on page, input element of type submit and reset %s have unique labels using the value attribute',
+            PURPOSE:                 'If there is more than form on the page the reset and submit buttons should have unique labels to help users of assistive technology understand which form they are reseting or submitting.',
+            MESSAGE_DUPLICATE_LABEL: 'The label \'%1\' is NOT unique on the page',
+            MESSAGE_LABEL_UNIQUE:    'The label is unique on the page',
+            MESSAGE_HIDDEN:          'Form control is hidden from assistive technology, so they will not see it'
         },
         HEADING_1: {
-            MESSAGE_HAS_H1:        'HEADING 1: H1 element is on page and has content',
-            MESSAGE_H1_NO_CONTENT: 'HEADING 1: H1 element does not have text content',
-            MESSAGE_H1_MISSING:    'HEADING 1: Page does not have an H1 element',
-            MESSAGE_H1_HIDDEN:     'HEADING 1: H1 is hidden from assistive technology, so they will not see it',
-            TITLE:                 'HEADING 1: Each page should contain at least one H1 element and each H1 element must have content'
+            ID:                    'HEADING 1',
+            TITLE:                 'Each page should contain at least one H1 element and each H1 element must have content',
+            PURPOSE:               'The H1 element can be used to help provide an accessible title for the web page and mark the beginning of the main content.',
+            MESSAGE_HAS_H1:        'H1 element is on page and has content',
+            MESSAGE_H1_NO_CONTENT: 'H1 element does not have text content',
+            MESSAGE_H1_MISSING:    'Page does not have an H1 element',
+            MESSAGE_H1_HIDDEN:     'H1 is hidden from assistive technology, so they will not see it'
         },
         HEADING_2: {
-            MESSAGE_UNIQUE:     'HEADING 2: Heading is unique',
-            MESSAGE_NOT_UNIQUE: 'HEADING 2: Heading is not unique',
-            TITLE:              'HEADING 2: The text content of headings of the same level that share the same parent heading or landmark role should be unique'
+            ID:                 'HEADING 2',
+            TITLE:              'The text content of headings of the same level that share the same parent heading or landmark role should be unique',
+            PURPOSE:            'Headings can describe the content of a section in the document, it is rare that two sections of a document at the same level would have the same content.',
+            MESSAGE_UNIQUE:     'Heading is unique',
+            MESSAGE_NOT_UNIQUE: 'Heading is not unique'
         },
         HEADING_3: {
-            MESSAGE_CHECK:      'HEADING 3: Check to make sure the heading accurately describes the section of the document',
-            MESSAGE_HIDDEN:     'HEADING 3: Heading is hidden from assistive technology, so they will not see it',
-            TITLE:              'HEADING 3: Heading content should describe the section or sub section'
+            ID:                 'HEADING 3',
+            TITLE:              'Heading content %s describe the section or sub section',
+            PURPOSE:            'Headings can provide information about a section in a document',
+            MESSAGE_CHECK:      'Check to make sure the heading accurately describes the section of the document',
+            MESSAGE_HIDDEN:     'Heading is hidden from assistive technology, so they will not see it'
         },
         HEADING_4: {
-            MESSAGE_PROPER_NESTING:   'HEADING 4: Heading is properly nested',
-            MESSAGE_IMPROPER_NESTING: 'HEADING 4: Heading is not properly nested',
-            MESSAGE_HIDDEN:           'HEADING 4: Content is hidden from assistive technology, so they will not see it',
-            TITLE:                    'HEADING 4: Headings within landmarks must be properly nested, if there are no MAIN landmarks the headings after the last H1 must be properly nested'
+            ID:                       'HEADING 4',
+            TITLE:                    'Headings within landmarks must be properly nested, if there are no MAIN landmarks the headings after the last H1 must be properly nested',
+            PURPOSE:                  'The proper nesting of headings provide information on the relationships between sections of content.',
+            MESSAGE_PROPER_NESTING:   'Heading is properly nested',
+            MESSAGE_IMPROPER_NESTING: 'Heading is not properly nested',
+            MESSAGE_HIDDEN:           'Content is hidden from assistive technology, so they will not see it'
         },
         HEADING_5: {
-            MESSAGE_HIDDEN:     'HEADING 5: Content is hidden from assistive technology, so they will not see it',
-            TITLE:              'HEADING 5: The text content of a heading should not only come from the alt attribute value of img elements.'
+            ID:                 'HEADING 5',
+            TITLE:              'A headings %s not be hidden with CSS display=none',
+            PURPOSE:            'Authors sometimes use CSS display=none on headings to hide them from visual rendering and not aware that this also hides the heading from assistive technology.',
+            MESSAGE_HIDDEN:     'Content is hidden from assistive technology, so they will not see it'
         },
         HEADING_6: {
-            MESSAGE_HAS_TEXT:   'HEADING 6: Heading has text content',
-            MESSAGE_ONLY_IMAGE: 'HEADING 6: Heading content should NOT come only from images',
-            TITLE:              'HEADING 6: Heading element content should not only come alt text of images'
+            ID:                 'HEADING 6',
+            TITLE:              'Heading element content %s not only come alt text of images',
+            PURPOSE:            'Headings made up of only image content may not have the color contrast needed by people with low vision to read.',
+            MESSAGE_HAS_TEXT:   'Heading has text content',
+            MESSAGE_ONLY_IMAGE: 'Heading content should NOT come only from images'
         },
         HEADING_7: {
-            MESSAGE_EMPTY:  'HEADING 7: Heading has no text content',
-            TITLE:          'HEADING 7: Headings must have text content'
+            ID:             'HEADING 7',
+            TITLE:          'Headings %s have text content',
+            PURPOSE:        'Headings without content cannot provide a description of a section of a web page.',
+            MESSAGE_EMPTY:  'Heading has no text content'
         },
         HEADING_8_EN: {
-            MESSAGE_TO_LONG: 'HEADING 8 (English): Heading is %1 characters in length, in general heading should be less %2 characters in length',
-            TITLE:           'HEADING 8 (English): Headings should be concise and therefore typically not contain more than 100 characters (English Only)'
+            ID:              'HEADING 8-EN',
+            TITLE:           'Headings %s be concise and therefore typically not contain more than 100 characters (English Only)',
+            PURPOSE:         '',
+            MESSAGE_TO_LONG: 'Heading is %1 characters in length, in general heading should be less %2 characters in length'
         },
         IMAGE_1: {
-            MESSAGE_PASS:         'IMAGE 1: Image has alt attribute.',
-            MESSAGE_ALT_MISSING:  'IMAGE 1: Alt attribute is missing.',
-            MESSAGE_PRESENTATION: 'IMAGE 1: Image has the role=presentation, this indicates the image is purely stylistic or redundent with text content.',
-            MESSAGE_HIDDEN:       'IMAGE 1: Image is hidden from users of assistive technologies.',
-            TITLE:                'IMAGE 1: Images must have an alt attribute'
+            ID:                   'IMAGE 1',
+            TITLE:                'Each image %s have an alt attribute',
+            PURPOSE:              'People who cannot see the images need to have a text equivalent of the image',
+            MESSAGE_PASS:         'Image has alt attribute.',
+            MESSAGE_ALT_MISSING:  'Alt attribute is missing, image elements not marked as presentational %s be an alt attribute.',
+            MESSAGE_PRESENTATION: 'Image has the role=presentation, this indicates the image is purely stylistic or redundent with text content.',
+            MESSAGE_HIDDEN:       'Image is hidden from users of assistive technologies.'
         },
         IMAGE_2: {
-            MESSAGE_PASS:         'IMAGE 2: Image longdesc %1 is a valid URI.',
-            MESSAGE_FAIL:         'IMAGE 2: Longdesc %1 is a broken link.',
-            MESSAGE_PRESENTATION: 'IMAGE 2: Image has the role=presentation, so the assistive technology user will not have access to longdesc reference.',
-            MESSAGE_HIDDEN:       'IMAGE 2: Image is hidden from users of assistive technologies, so they will not have access to the longdesc reference.',
-            MESSAGE_NOT_TESTED:   'IMAGE 2: The testing of URLs is disabled, you must manually test the longdesc url: %1.',
-            MESSAGE_ERROR:        'IMAGE 2: The testing of URLs resulted in an error, you must manually test the longdesc url: %1.',
-            MESSAGE_NA:           'IMAGE 2: Image does not have a longdesc attribute.',
-            TITLE:                'IMAGE 2: If the longdesc attribute is defined, it must have valid URI'
+            ID:                   'IMAGE 2',
+            TITLE:                'If the longdesc attribute is defined, it %s have valid URI',
+            PURPOSE:              'People who are trying to follow the link to get more detialed information about the image will be confused if the link is broke.',
+            MESSAGE_PASS:         'Image longdesc "%1" is a valid URI.',
+            MESSAGE_FAIL:         'The longdesc reference "%1" %s be a valid url.',
+            MESSAGE_PRESENTATION: 'Image has the role=presentation, so the assistive technology user will not have access to longdesc reference.',
+            MESSAGE_HIDDEN:       'Image is hidden from users of assistive technologies, so they will not have access to the longdesc reference.',
+            MESSAGE_NOT_TESTED:   'The testing of URLs is disabled, you must manually test the longdesc url: %1.',
+            MESSAGE_ERROR:        'The testing of URLs resulted in an error, you must manually test the longdesc url: %1.',
+            MESSAGE_NA:           'Image does not have a longdesc attribute.'
         },
         IMAGE_3: {
-            MESSAGE_NA:           'IMAGE 3: Image does not use the file name as the alt text description',
-            MESSAGE_FAIL:         'IMAGE 3: The file name %1 is being used as the alt text, the alt text should describe the purpose or content of informative images, or be empty if the image is decorative',
-            MESSAGE_HIDDEN:       'IMAGE 3: Image is hidden from users of assistive technologies',
-            MESSAGE_NO_FILE_NAME: 'IMAGE 3: Image alt text does not contain file name',
-            MESSAGE_NO_ALT:       'IMAGE 3: Image does not have ALT text',
-            TITLE:                'IMAGE 3: The file name of the image should not be part of the alt text content (it must have an image file extension)'
+            ID:                   'IMAGE 3',        
+            TITLE:                'The file name of the image %s not be part of the alt text content',
+            PURPOSE:              'The file name in all but a very limited number of situations does not provide any useful information to people who cannot see the image.',
+            MESSAGE_NA:           'Image does not use the file name as the alt text',
+            MESSAGE_FAIL:         'The file name %1 is being used as the alt text, the alt text $s describe the purpose or content of informative images, or be empty if the image is decorative',
+            MESSAGE_HIDDEN:       'Image is hidden from users of assistive technologies, so they will not have access to the alt text content.',
+            MESSAGE_NO_FILE_NAME: 'Image alt text does not contain file name',
+            MESSAGE_NO_ALT:       'Image does not have ALT text'
         },
         IMAGE_4_EN: {
-            MESSAGE_PASS:         'IMAGE 4(English): Image alt text length of %1 is shorter than %2 characters.',
-            MESSAGE_ALT_TO_LONG:  'IMAGE 4(English): Alt text length of %1 is longer than the recommended length of %2, if an image needs a longer description use longdesc attribute or other technique.',
-            MESSAGE_NA :          'IMAGE 4(English): Image is hidden or alt attribute is missing or empty.',
-            TITLE:                'IMAGE 4(English): ALT text quality can often be tested based on the length in characters for English'
+            ID:                   'IMAGE 4-ENGLISH',        
+            TITLE:                'Alt text %s be no more than 100 characters long.',
+            PURPOSE:              'Since alt text is often rendered through speech it should be as succinct as possible.',
+            MESSAGE_PASS:         'The alt text of %1 characters is shorter than the maximum %2 characters.',
+            MESSAGE_ALT_TO_LONG:  'The alt text is %1 characters, the length %s NOT exceed %2 characters.  If an image needs a longer description use the longdesc attribute or other technique to provide a linger description.',
+            MESSAGE_NA :          'Image is hidden, marked as presentation or the alt attribute is missing or empty.'
         },
         IMAGE_4_FR: {
-            MESSAGE_PASS:         'IMAGE 4(french): Image alt text length of %1 is shorter than %2 characters.',
-            MESSAGE_ALT_TO_LONG:  'IMAGE 4(french): Alt text length of %1 is longer than the recommended length of %2, if an image needs a longer description use longdesc attribute or other technique.',
-            MESSAGE_NA:           'IMAGE 4(french): Image is hidden or alt attribute is missing or empty.',
-            TITLE:                'IMAGE 4(french): ALT text quality can often be tested based on the length in characters for English'
+            ID:                   'IMAGE 4-FRENCH',        
+            TITLE:                'ALT text  %s be no more than 120 characters long.',
+            PURPOSE:              'Since alt text is often rendered through speech it should be as succinct as possible.',
+            MESSAGE_PASS:         'The alt text of %1 characters is shorter than the maximum %2 characters.',
+            MESSAGE_ALT_TO_LONG:  'The alt text is %1 characters, the length %s NOT exceed %2 characters.  If an image needs a longer description use the longdesc attribute or other technique to provide a linger description.',
+            MESSAGE_NA :          'Image is hidden, marked as presentation or the alt attribute is missing or empty.'
         },
         IMAGE_5: {
-            MESSAGE_NA:            'IMAGE 5: Image is missing an alt attribute, is hidden or has its role set to presentation.',
-            MESSAGE_ALT_NOT_EMPTY: 'IMAGE 5: Images that are only 1 pixel high or wide must set it\'s alt text to empty.',
-            MESSAGE_PASS:          'IMAGE 5: Image is more than 1 pixel high or wide, hidden, or already has its alt text set to empty.',
-            TITLE:                 'IMAGE 5: If an image has a height or width of 1 pixel its alt text set to empty, role set to presentation or the image removed and use CSS position'
+            ID:                    'IMAGE 5',
+            TITLE:                 'If an image has a height or width of 1 pixel or its alt text set to empty, the image %s set its role attribute to "presentation" or the image %s be removed and CSS %s should be used for positioning.',
+            PURPOSE:               'Small image are usually used for styling and should be marked with role=presentation to make sure assistive technologies ignore them',
+            MESSAGE_NA:            'Image is missing an alt attribute, is hidden or has its role set to presentation.',
+            MESSAGE_ALT_NOT_EMPTY: 'Images that are only 1 pixel high or wide must set it\'s alt text to empty.',
+            MESSAGE_PASS:          'Image is more than 1 pixel high or wide, hidden, or already has its alt text set to empty.'
         },
         IMAGE_6: {
-            MESSAGE_HIDDEN:       'IMAGE 6: Image is hidden from users of assistive technologies.',
-            MESSAGE_NA:           'IMAGE 6: Image has non-empty alt text content ',
-            MESSAGE_VERIFY:       'IMAGE 6: Since the image alt text is empty or role set to presentation, verify the image is purely decotrative',
-            TITLE:                'IMAGE 6: If the alt is empty or role is set presentation verify the image is purely decorative'
+            ID:                   'IMAGE 6',
+            TITLE:                'If the alt is empty or role is set presentation verify the image is used just for styling or decoration',
+            PURPOSE:              'Images used for styling and decoration should be marked with role=presentation to make sure assistive technologies ignore them, if they have important content they should have descriptive alt text',
+            MESSAGE_HIDDEN:       'Image is hidden from users of assistive technologies.',
+            MESSAGE_NA:           'Image has alt text content ',
+            MESSAGE_VERIFY:       'Since the image has no alt attribute, empty alt text, or role is set to presentation, verify the image is purely used for styling or decoration.'
         },
         LANDMARK_1: {
-            MESSAGE_PASS: 'LANDMARK 1: ',
-            MESSAGE_FAIL: 'LANDMARK 1: ',
-            MESSAGE_NA:   'LANDMARK 1: ',
-            TITLE:        'LANDMARK 1: All visible content must be contained within a landmark'
+            ID:             'LANDMARK 1',
+            TITLE:          'Pages %s have main landmark',
+            PURPOSE:        'The main landmark provides an easy way for users of assistive technology to get to the main content of the web page and know where the main content begins and ends.',            
+            MESSAGE_PASS:   'The page has %1 main landmarks',
+            MESSAGE_FAIL:   'The page has no main landmarks',
+            MESSAGE_HIDDEN: 'The page has %1 hidden main landmarks, hidden landmarks cannot be used by people with assistive technologies.'
+        },
+        LANDMARK_2: {
+            ID:             'LANDMARK 2',
+            TITLE:          'All visible content %s be contained within a landmark',
+            PURPOSE:        'Landmarks provide an easy way for users of assistive technology to navigate and identify all of the sections of information on a web page.',            
+            MESSAGE_PASS:   'The \'%1\' element with rendered content is in a %2 landmark',
+            MESSAGE_FAIL:   'The \'%1\' element with rendered content is not contained in a landmark',
+            MESSAGE_HIDDEN: 'The \'%1\' element with content is hidden, if the element can made visible (i.e. through scripting) it would not be in a landmark.'
+        },
+        LANDMARK_3: {
+            ID:             'LANDMARK 3',
+            TITLE:          'If there are two or more landmarks of the same type, they %s have unique labels',
+            PURPOSE:        'When there are two or more landmarks of the same type labels make it possible for people using assistive technology to identify the differences between the landmarks.',            
+            MESSAGE_PASS_ONLY_ONE:  'There is only one %1 landmark in the page',
+            MESSAGE_PASS_UNIQUE:    'The "%1" label is unique for the %2 landmarks',
+            MESSAGE_FAIL_NO_LABEL:  'The %2 landmark does not have a label, when there are more than one of the same type of landmark on the page the landmark needs a label',
+            MESSAGE_FAIL_DUPLICATE: 'The "%1" label is NOT unique for the %2 landmarks',
+            MESSAGE_HIDDEN: 'The %1 landmark is hidden, if the landmark content became visible the label would NOT be unique.'
+        },
+        LANDMARK_4: {
+            ID:                'LANDMARK 4',
+            TITLE:             'Each landmark labels %s describe the content in the landark',
+            PURPOSE:           'Landmark labels make it easier for people using assistive technologies to understand the content of a landmark',
+            MESSAGE_HAS_LABEL: 'Make sure the \'%1\' label described the content of the %2 landmark',
+            MESSAGE_NO_LABEL:  'The %1 landmark does not have a label, make sure the landmark role is appropriate to the content in the landmark and consider adding a descriptive label to provide more detail on the contents of the landark.'
         },
         LINK_1: {
-            MESSAGE_PASS: 'Link 1: The link dimensions of %1 pixels high and %2 pixels wide are larger than the minimum height of %3 pixels and width of %4 pixels.',
-            MESSAGE_TO_SMALL: 'Link 1: The link dimensions of %1 pixels high and %2 pixels wide do meet the minimum height of %3 pixels and width of %4 pixels requirements.',
-            MESSAGE_MANUAL: 'Link 1: The link dimensions could not be calculated.',
-            MESSAGE_HIDDEN: 'Link 1: The link is hidden from the graphical rendering.',
-            MESSAGE_NA: 'Link 1: The link has no HREF content, so it is either an internal target or may have behaviors defined by javascript.',
-            TITLE: 'Link 1: Link should provide minimum target dimensions.'
+            ID:               'LINK 1',
+            TITLE:            'Link %s provide minimum target dimensions.',
+            PURPOSE:          'Small links can be hard for people with physical disabilites to click on and for people with visual imapirments to see.',
+            MESSAGE_PASS:     'The link dimensions of %1 pixels high and %2 pixels wide are larger than the minimum height of %3 pixels and width of %4 pixels.',
+            MESSAGE_TO_SMALL: 'The link dimensions of %1 pixels high and %2 pixels wide do meet the minimum height of %3 pixels and width of %4 pixels requirements.',
+            MESSAGE_MANUAL:   'The link dimensions could not be calculated.',
+            MESSAGE_HIDDEN:   'The link is hidden from the graphical rendering.',
+            MESSAGE_NA:       'The link has no HREF content, so it is either an internal target or may have behaviors defined by javascript.'
         },
         LINK_2: {
-            MESSAGE_PASS: 'Link 2: %1 links with same URL and use the same link text.',
-            MESSAGE_FAIL: 'Link 2: %1 links with the same URL do not have the same link text.',
-            MESSAGE_MANUAL: 'Link 2: It could not be determined if the HREF of this link is shared by other links on the page',
-            MESSAGE_NA: 'Link 2: This link does not share the same URL with any other links on the page.',
-            TITLE: 'Link 2: Links with the same HREF should have the same link text.'
+            ID:              'LINK 2',
+            TITLE:           'Links with the same HREF %s have the same link text.',
+            PURPOSE:         'Conistency of link naming makes interaction with web pages more predictable.',
+            MESSAGE_PASS:    '%1 links with same URL and use the same link text.',
+            MESSAGE_FAIL:    '%1 links with the same URL do not have the same link text.',
+            MESSAGE_MANUAL:  'It could not be determined if the HREF of this link is shared by other links on the page',
+            MESSAGE_NA:      'This link does not share the same URL with any other links on the page.'
         },
 
         LINK_3: {
-            MESSAGE_PASS: 'Link 3: %1 links with the same accessible link name have the same HREF.',
-            MESSAGE_FAIL: 'Link 3: %1 links with the same accessible link name have different HREFs.',
-            MESSAGE_MANUAL: 'Link 3: It could not be determined if the accessible link name is shared with any other links on the page.',
-            MESSAGE_NA: 'Link 3: This link does not share the same accessible link name with any other links on the page or the link role has been overridden.',
-            TITLE: 'Link 3: Links with different HREFs should have unique accessible names.'
+            ID:              'LINK 3',
+            TITLE:           'Links with different HREFs %s have unique accessible names.',
+            PURPOSE:         'Links with the same name but go to different places can be confusing to people with disabilities.',
+            MESSAGE_PASS:    '%1 links with the same accessible link name have the same HREF.',
+            MESSAGE_FAIL:    '%1 links with the same accessible link name have different HREFs.',
+            MESSAGE_MANUAL:  'It could not be determined if the accessible link name is shared with any other links on the page.',
+            MESSAGE_NA:      'This link does not share the same accessible link name with any other links on the page or the link role has been overridden.'
         },
         LIST_1: {
-            MESSAGE_HAS_ROLE_NAV: 'LIST 1: The parent element of this %1 has role=navigation.',
-            MESSAGE_MISSING_ROLE_NAV: 'LIST 1: The parent element of this %1 does not have role=navigation.',
-            MESSAGE_ROLE_NAV_ON_LIST: 'LIST 1: This %1 element should not have role=navigation; it should be placed on its parent element instead.',
-            TITLE: 'LIST 1: A list of navigational links should be contained within an element with role=navigation.'
+            ID:                       'LIST 1',
+            TITLE:                    'A list of navigational links %s be contained within an element with role=navigation.',
+            PURPOSE:                  'Role navigation provides makes it easy for users of asssitive technology to find the navigation links on a web page.',
+            MESSAGE_HAS_ROLE_NAV:     'The parent element of this %1 has role=navigation.',
+            MESSAGE_MISSING_ROLE_NAV: 'The parent element of this %1 does not have role=navigation.',
+            MESSAGE_ROLE_NAV_ON_LIST: 'This %1 element should not have role=navigation; it should be placed on its parent element instead.'
         },
         MEDIA_1: {
-            MESSAGE_PASS:   'MEDIA 1: Text based alternative is available for pre-recorded audio',
-            MESSAGE_MAYBE:  'MEDIA 1: If %1 element is prerecorded audio, verify that a text based alternative to the audio is available',
-            MESSAGE_FAIL:   'MEDIA 1: Text based alternative is NOT available for pre-recorded audio',
-            MESSAGE_HIDDEN: 'MEDIA 1: %1 element is hidden from the visual rendering',
-            TITLE: 'MEDIA 1: Pre-recorded audio must have text based alternatives'
+            ID:             'MEDIA 1',
+            TITLE:          'Pre-recorded audio %s have text based alternatives',
+            PURPOSE:        '',
+            MESSAGE_PASS:   'Text based alternative is available for pre-recorded audio',
+            MESSAGE_MAYBE:  'If %1 element is prerecorded audio, verify that a text based alternative to the audio is available',
+            MESSAGE_FAIL:   'Text based alternative is NOT available for pre-recorded audio',
+            MESSAGE_HIDDEN: '%1 element is hidden from the visual rendering'
         },
         MEDIA_2: {
-            MESSAGE_PASS_TEXT:  'MEDIA 2: Text based alternative is available for pre-recorded video',
-            MESSAGE_PASS_AUDIO: 'MEDIA 2: Audio description is available for pre-recorded video',
-            MESSAGE_PASS_BOTH:  'MEDIA 2: Both an audio description and text based description is available for pre-recorded video',
-            MESSAGE_MAYBE:      'MEDIA 2: If %1 element is prerecorded video, verify that a text based alternative or audio description is available for the video',
-            MESSAGE_FAIL:       'MEDIA 2: Text based alternative or audio description is NOT available for pre-recorded video',
-            MESSAGE_HIDDEN:     'MEDIA 2: %1 element is hidden from the visual rendering',
-            TITLE: 'MEDIA 2: Pre-recorded video must have either text based alternative or audio description'
+            ID:                 'MEDIA 2',
+            TITLE:              'Pre-recorded video %s have either text based alternative or audio description',
+            PURPOSE:            '',
+            MESSAGE_PASS_TEXT:  'Text based alternative is available for pre-recorded video',
+            MESSAGE_PASS_AUDIO: 'Audio description is available for pre-recorded video',
+            MESSAGE_PASS_BOTH:  'Both an audio description and text based description is available for pre-recorded video',
+            MESSAGE_MAYBE:      'If %1 element is prerecorded video, verify that a text based alternative or audio description is available for the video',
+            MESSAGE_FAIL:       'Text based alternative or audio description is NOT available for pre-recorded video',
+            MESSAGE_HIDDEN:     '%1 element is hidden from the visual rendering'
         },
         TABLE_1: {
-            TITLE:                   'TABLE 1: If a table is a data table, the rule tests if each table cell with content in the first row or first column are TH elements or TD elements with scope=col',
+            ID:                      'TABLE 1',
+            TITLE:                   'Data tables %s have header cells in the first row and/or column.',
             PURPOSE:                 'Header cells provide critical context for meaning of the content in data cells to people using speech, since they cannot see the visual relationships.',
-            MESSAGE_PASS_ROW:        'TABLE 1: The first row contains %1 header cells.',
-            MESSAGE_PASS_COLUMN:     'TABLE 1: The first column contains %1 header cells.',
-            MESSAGE_PASS_BOTH:       'TABLE 1: The first row contains %1 header cells and the first column contains %2 header cells.',
-            MESSAGE_VIOLATION:       'TABLE 1: Only %1 out of %2 cells are headers in the first row and only %3 out of %4 cells are headers in the first column, the table must have all th elements or td elements with scope attribute in the first row and/or first column with content.',
-            MESSAGE_RECOMMENDATION:  'TABLE 1: Only %1 out of %2 cells are headers in the first row and only %3 out of %4 cells are headers in the first column, the table should have all th elements or td elements with scope attribute  in the first row and/or first column with content.',
-            MESSAGE_MANUAL:          'TABLE 1: Only %1 out of %2 cells are headers in the first row and only %3 out of %4 cells are headers in the first column, the table may need th elements or td elements with scope attribute cells in the first row and/or first column with content.',
-            MESSAGE_HIDDEN:          'TABLE 1: The table is hidden from people using assistive technologies, so rule was not evaluated.',
-            MESSAGE_NOT_DATA_TABLE:  'TABLE 1: Table is not a data table, rule does not apply.'
+            MESSAGE_PASS_ROW:        'The first row contains %1 header cells.',
+            MESSAGE_PASS_COLUMN:     'The first column contains %1 header cells.',
+            MESSAGE_PASS_BOTH:       'The first row contains %1 header cells and the first column contains %2 header cells.',
+            MESSAGE_VIOLATION:       'Only %1 out of %2 cells are headers in the first row and only %3 out of %4 cells are headers in the first column, the table must have all th elements or td elements with scope attribute in the first row and/or first column with content.',
+            MESSAGE_RECOMMENDATION:  'Only %1 out of %2 cells are headers in the first row and only %3 out of %4 cells are headers in the first column, the table should have all th elements or td elements with scope attribute  in the first row and/or first column with content.',
+            MESSAGE_MANUAL:          'Only %1 out of %2 cells are headers in the first row and only %3 out of %4 cells are headers in the first column, the table may need th elements or td elements with scope attribute cells in the first row and/or first column with content.',
+            MESSAGE_HIDDEN:          'The table is hidden from people using assistive technologies, so rule was not evaluated.',
+            MESSAGE_NOT_DATA_TABLE:  'Table is not a data table, rule does not apply.'
         },
         TABLE_2T: {
-            TITLE:                   'TABLE 2T: If a table is a data table, the rule tests if a caption element or the summary attribute is defined and has content',
+            ID:                      'TABLE 2T',
+            TITLE:                   'Each data table %s have a effective caption with content',
             PURPOSE:                 'It is important to provide an effective caption for a table to identify the purpose of the table and to disern the table from other tables on the page.',
-            TITLE_VIOLATION:         'TABLE 2T: Data tables must have either a caption element or a summary attribute with text content.',
-            TITLE_RECOMMENDATION:    'TABLE 2T: Data tables should have either a caption element or a summary attribute with text content.',
-            TITLE_MANUAL:            'TABLE 2T: Data tables may need to have either a caption element or a summary attribute with text content.',
-            MESSAGE_PASS:            'TABLE 2T: Data table has the caption element or a summary attribute of "%1".',
-            MESSAGE_VIOLATION:       'TABLE 2T: Data table is missing a caption element and summary attribute with text content, the  have either a caption element or a summary attribute with text content.',
-            MESSAGE_RECOMMENDATION:  'TABLE 2T: Data table is missing a caption element and summary attribute with text content, the should have either a caption element or a summary attribute with text content.',
-            MESSAGE_MANUAL:          'TABLE 2T: Data table is missing a caption element and summary attribute with text content, the may need to have either a caption element or a summary attribute with text content.',
-            MESSAGE_NOT_DATA_TABLE:  'TABLE 2T: Table is not a data table, and therefore should not have a caption element.',
-            MESSAGE_HIDDEN:          'TABLE 2T: Table is hidden from users of assistive technologies, so rule was not evaluated.'
+            MESSAGE_PASS:            'Data table has the caption element or a summary attribute of "%1".',
+            MESSAGE_FAIL:            'Data table is missing a caption element and summary attribute with text content, the page %s have either a caption element or a summary attribute with text content.',
+            MESSAGE_NOT_DATA_TABLE:  'Table is not a data table, and therefore should not have a caption element.',
+            MESSAGE_HIDDEN:          'Table is hidden from users of assistive technologies, so rule was not evaluated.'
         },
         TABLE_2S: {
-            TITLE:                   'TABLE 2S: If a page has only one data table, the rule tests to see if the table has an effective caption element with content (at least one printable character)',
+            ID:                      'TABLE 2S',
+            TITLE:                   'If there is only one data table on a page, it %s have an effective caption with content',
             PURPOSE:                 'It is important to provide an effective caption for a table to identify the purpose of the table.',
-            MESSAGE_PASS:            'TABLE 2S: Data table has the effective caption: "%1".',
-            MESSAGE_VIOLATION:       'TABLE 2S: The effective caption is missing or is empty, a data table must have a caption element, aria-label attribute, or arial-labelledby attribute with references to text content that describe the purpose of the table.',
-            MESSAGE_RECOMMENDATION:  'TABLE 2S: The effective caption is missing or is empty, a data table should have a caption element, aria-label attribute, or arial-labelledby attribute with references to text content that describe the purpose of the table.',
-            MESSAGE_MANUAL:          'TABLE 2S: The effective caption is missing or is empty, a data table may need a caption element, aria-label attribute, or arial-labelledby attribute with references to text content that describe the purpose of the table.',
-            MESSAGE_NOT_DATA_TABLE:  'TABLE 2S: Table is not a data table, and therefore should not have an effective caption.',
-            MESSAGE_HIDDEN:          'TABLE 2S: Table is hidden from users of assistive technologies, so rule was not evaluated.'
+            MESSAGE_PASS:            'Data table has the effective caption: "%1".',
+            MESSAGE_FAIL:            'The effective caption is missing or is empty, a data table %s have a caption element, aria-label attribute, or arial-labelledby attribute with references to text content that describe the purpose of the table.',
+            MESSAGE_NOT_DATA_TABLE:  'Table is not a data table, and therefore should not have an effective caption.',
+            MESSAGE_HIDDEN:          'Table is hidden from users of assistive technologies, so rule was not evaluated.'
         },
         TABLE_2M: {
-            TITLE:                   'TABLE 2M: If there is more than one data table, the rule tests if each table has an effective caption',
+            ID:                      'TABLE 2M',
+            TITLE:                   'If there is more than one data table, each data table %s have an effective caption with content.',
             PURPOSE:                 'It is important to provide an effective caption for a table to identify the purpose of the table and to disern the table from other tables on the page.',
-            MESSAGE_PASS:            'TABLE 2M: Table has an effective caption: "%1"',
-            MESSAGE_VIOLATION:       'TABLE 2M: Since there is more than one data table, the table must have a caption element, an arial-label attribute, or an aria-labelledby attribute to create an effective caption.',
-            MESSAGE_RECOMMENDATION:  'TABLE 2M: Since there is more than one data table, the table should have a caption element, an arial-label attribute, or an aria-labelledby attribute to create an effective caption.',
-            MESSAGE_MANUAL:          'TABLE 2M: Since there is more than one data table, the table may need a caption element, an arial-label attribute, or an aria-labelledby attribute to create an effective caption.',
-            MESSAGE_ONLY_ONE:        'TABLE 2M: There is only one visible data table, so the rule was not evaluated.',
-            MESSAGE_HIDDEN:          'TABLE 2M: The table is hidden from people using assistive technologies, so the rule was not evaluated.',
-            MESSAGE_NOT_DATA_TABLE:  'TABLE 2M: The table is not a data table, so the rule was not evaluated.'
+            MESSAGE_PASS:            'Table has an effective caption: "%1"',
+            MESSAGE_FAIL:            'Since there is more than one data table, the table %s have a caption element, an arial-label attribute, or an aria-labelledby attribute to create an effective caption.',
+            MESSAGE_ONLY_ONE:        'There is only one visible data table, so the rule was not evaluated.',
+            MESSAGE_HIDDEN:          'The table is hidden from people using assistive technologies, so the rule was not evaluated.',
+            MESSAGE_NOT_DATA_TABLE:  'The table is not a data table, so the rule was not evaluated.'
         },
         TABLE_3: {
-            TITLE:                    'TABLE 3: If a table is a data table, the rule tests if the effective caption text content is different from the effective summary text content',
+            ID:                       'TABLE 3',
+            TITLE:                    'The effective caption content and effective summary content of each data table %s not be the same',
             PURPOSE:                  'It is important to provide an unique effective captions to more easily disern a table from other tables on the page.',
-            MESSAGE_UNIQUE:           'TABLE 3: The effective caption "%1" is unique from the effective summary "%2".',
-            MESSAGE_NOT_UNIQUE:       'TABLE 3: The effective caption "%1" is the same as the effective summary "%2", the effective caption should be used to describe the purpose of the table and the effective summary information about the data in the table or conclusions the author intended to be understood from viewing the data.',
-            MESSAGE_HIDDEN:           'TABLE 3: Table is hidden from users of assistive technologies, so rule was not evaluated.',
-            MESSAGE_MISSING:          'TABLE 3: Either or both of the effective caption or effective summary are either not defined or are empty, so rule was not evaluated.',
-            MESSAGE_NOT_DATA_TABLE:   'TABLE 3: Table is not a data table, rule does not apply.'
+            MESSAGE_UNIQUE:           'The effective caption "%1" is unique from the effective summary "%2".',
+            MESSAGE_NOT_UNIQUE:       'The effective caption "%1" is the same as the effective summary "%2", the effective caption should be used to describe the purpose of the table and the effective summary information about the data in the table or conclusions the author intended to be understood from viewing the data.',
+            MESSAGE_HIDDEN:           'Table is hidden from users of assistive technologies, so rule was not evaluated.',
+            MESSAGE_MISSING:          'Either or both of the effective caption or effective summary are either not defined or are empty, so rule was not evaluated.',
+            MESSAGE_NOT_DATA_TABLE:   'Table is not a data table, rule does not apply.'
         },
         TABLE_4: {
-            TITLE:                  'TABLE 4: If a table is a data table, the rule tests if the heading cells are th element, instead of td element with a scope attribute',
+            ID:                     'TABLE 4',
+            TITLE:                  'Each data table header cell %s use th elements rather than td element with a scope attribute',
             PURPOSE:                'Using the TH element is a much clearer way of identifying header cells than using the TD element with the SCOPE attribute.',
-            MESSAGE_IS_TH:          'TABLE 4: Heading cell is a th element.',
-            MESSAGE_VIOLATION:      'TABLE 4: Heading cell is NOT a th element, all headings must use th element.',
-            MESSAGE_RECOMMENDATION: 'TABLE 4: Heading cell is NOT a th element, all headings should use th element.',
-            MESSAGE_HIDDEN:         'TABLE 4: Table is hidden from users of assistive technologies, so rule was not evaluated.',
-            MESSAGE_NOT_DATA_TABLE: 'TABLE 4: Table is not a data table, rule does not apply.'
+            MESSAGE_IS_TH:          'Heading cell is a th element.',
+            MESSAGE_VIOLATION:      'Heading cell is NOT a th element, all headings must use th element.',
+            MESSAGE_RECOMMENDATION: 'Heading cell is NOT a th element, all headings should use th element.',
+            MESSAGE_HIDDEN:         'Table is hidden from users of assistive technologies, so rule was not evaluated.',
+            MESSAGE_NOT_DATA_TABLE: 'Table is not a data table, rule does not apply.'
         },
         TABLE_5: {
-            TITLE:                   'TABLE 6: For each data table, the rule tests if the table has an effective summary',
+            ID:                      'TABLE 5',
+            TITLE:                   'Each data tables %s have an effective summary',
             PURPOSE:                 'It is important to provide a description of the content or point of the data table content so that people using speech do not have to read all the cells.',
-            MESSAGE_PASS:            'TABLE 6: Table has an effective caption: "%1"',
-            MESSAGE_VIOLATION:       'TABLE 6: The effective caption is missing or empty, the table must have a summary attribute or an aria-describedby attribute to create effective summary.',
-            MESSAGE_RECOMMENDATION:  'TABLE 6: The effective caption is missing or empty, the table should have a summary attribute or an aria-describedby attribute to create effective summary.',
-            MESSAGE_MANUAL:          'TABLE 6: The effective caption is missing or empty, the table may need a summary attribute or an aria-describedby attribute to create effective summary.',
-            MESSAGE_MORE_THAN_ONE:   'TABLE 6: There is more than one visible data table, so the rule was not evaluated.',
-            MESSAGE_HIDDEN:          'TABLE 6: The table is hidden from people using assistive technologies, so the rule was not evaluated.',
-            MESSAGE_NOT_DATA_TABLE:  'TABLE 6: The table is not a data table, so the rule was not evaluated.'
+            MESSAGE_PASS:            'Table has an effective caption: "%1"',
+            MESSAGE_VIOLATION:       'The effective caption is missing or empty, the table must have a summary attribute or an aria-describedby attribute to create effective summary.',
+            MESSAGE_RECOMMENDATION:  'The effective caption is missing or empty, the table should have a summary attribute or an aria-describedby attribute to create effective summary.',
+            MESSAGE_MANUAL:          'The effective caption is missing or empty, the table may need a summary attribute or an aria-describedby attribute to create effective summary.',
+            MESSAGE_MORE_THAN_ONE:   'There is more than one visible data table, so the rule was not evaluated.',
+            MESSAGE_HIDDEN:          'The table is hidden from people using assistive technologies, so the rule was not evaluated.',
+            MESSAGE_NOT_DATA_TABLE:  'The table is not a data table, so the rule was not evaluated.'
         },
         TABLE_6: {
-            TITLE:                             'TABLE 8: If a table is a complex data table, the rule tests if header cells have ids and if they are unique',
+            ID:                                'TABLE 6',
+            TITLE:                             'Each complex data table %s have ids on all header cells.',
             PURPOSE:                           'Complex data tables require much more specific definition of header cells for each data cell and using IDs on the header cells is required for identifying the header cells.',
-            MESSAGE_PASS:                      'TABLE 8: Table header cell has unique ID',
-            MESSAGE_NO_CONTENT:                'TABLE 8: Table header cell does not contain content, it is unsual for a header cell to not have content.',
-            MESSAGE_NOT_UNIQUE_VIOLATION:      'TABLE 8: Table header cell has duplicate ID: "%1\", header cells in complex tables must have unique ids.',
-            MESSAGE_NOT_UNIQUE_RECOMMENDATION: 'TABLE 8: Table header cell has duplicate ID: "%1\", header cells in complex tables should have unique ids.',
-            MESSAGE_NOT_UNIQUE_MANUAL:         'TABLE 8: Table header cell has duplicate ID: "%1\", header cells in complex tables may need unique ids.',
-            MESSAGE_NO_ID_VIOLATON:            'TABLE 8: Table header cell is missing an ID attribute, header cells in complex tables must have an id.',
-            MESSAGE_NO_ID_RECOMMENDATION:      'TABLE 8: Table header cell is missing an ID attribute, header cells in complex tables should have an id.',
-            MESSAGE_NO_ID_MANUAL:              'TABLE 8: Table header cell is missing an ID attribute, header cells in complex tables may need an id.',
-            MESSAGE_HIDDEN:                    'TABLE 8: Table header cell is hidden hidden from assistive technologies, rule was not evaluated.',
-            MESSAGE_TABLE_PASS:                'TABLE 8: All %1 header cells have unique ids.',
-            MESSAGE_TABLE_MISSING_HEADERS:     'TABLE 8: %1 header cells of %2 header cells in the table have missing or dulicate ID values.',
-            MESSAGE_TABLE_DATA_TABLE:          'TABLE 8: Simple data table, rule only applies to complex data tables.',
-            MESSAGE_TABLE_LAYOUT_TABLE:        'TABLE 8: Layout table, rule only applies to complex data tables.',
-            MESSAGE_TABLE_HIDDEN:              'TABLE 8: The table is hidden from people using assistive technologies.'
+            MESSAGE_PASS:                      'Table header cell has unique ID',
+            MESSAGE_NO_CONTENT:                'Table header cell does not contain content, it is unsual for a header cell to not have content.',
+            MESSAGE_NOT_UNIQUE_VIOLATION:      'Table header cell has duplicate ID: "%1\", header cells in complex tables must have unique ids.',
+            MESSAGE_NOT_UNIQUE_RECOMMENDATION: 'Table header cell has duplicate ID: "%1\", header cells in complex tables should have unique ids.',
+            MESSAGE_NOT_UNIQUE_MANUAL:         'Table header cell has duplicate ID: "%1\", header cells in complex tables may need unique ids.',
+            MESSAGE_NO_ID_VIOLATON:            'Table header cell is missing an ID attribute, header cells in complex tables must have an id.',
+            MESSAGE_NO_ID_RECOMMENDATION:      'Table header cell is missing an ID attribute, header cells in complex tables should have an id.',
+            MESSAGE_NO_ID_MANUAL:              'Table header cell is missing an ID attribute, header cells in complex tables may need an id.',
+            MESSAGE_HIDDEN:                    'Table header cell is hidden hidden from assistive technologies, rule was not evaluated.',
+            MESSAGE_TABLE_PASS:                'All %1 header cells have unique ids.',
+            MESSAGE_TABLE_MISSING_HEADERS:     '%1 header cells of %2 header cells in the table have missing or dulicate ID values.',
+            MESSAGE_TABLE_DATA_TABLE:          'Simple data table, rule only applies to complex data tables.',
+            MESSAGE_TABLE_LAYOUT_TABLE:        'Layout table, rule only applies to complex data tables.',
+            MESSAGE_TABLE_HIDDEN:              'The table is hidden from people using assistive technologies.'
         },
         TABLE_7: {
-            TITLE:                          'TABLE 9: If a table is a complex data table, the rule tests if TD elements have a headers attribute that point to TH elements in the same table',
+            ID:                             'TABLE 7',
+            TITLE:                          'Each td element in a complex data table with content, %s have a headers attribute with a list of valid ids',
             PURPOSE:                        'Complex data tables require much more specific definition of header cells for each data cell and using the HEADERS attribute on each data cell is required for identifying the header cells.',
-            MESSAGE_HAS_HEADERS:            'TABLE 9: Cell has headers attribute with values.',
-            MESSAGE_MISSING_VIOLATION:      'TABLE 9: Headers attribute is missing or empty, data cells in complex data tables must have a headers attribute.',
-            MESSAGE_MISSING_RECOMMENDATION: 'TABLE 9: Headers attribute is missing or empty, data cells in complex data tables should have a headers attribute.',
-            MESSAGE_MISSING_MANUAL:         'TABLE 9: Headers attribute is missing or empty, data cells in complex data tables may need a headers attribute',
-            MESSAGE_DATA_CELL_IS_EMPTY:     'TABLE 9: Table cell is empty, check to see if it needs headers, or if the empty cell could contain data',
-            MESSAGE_HEADER_CELL:            'TABLE 9: Cell is a header cell, so rule was not evaluated',
-            MESSAGE_TABLE_PASS:             'TABLE 9: All %1 data cells with content have headers.',
-            MESSAGE_TABLE_MISSING_HEADERS:  'TABLE 9: %1 data cells with content out of %2 are missing headers.',
-            MESSAGE_TABLE_DATA_TABLE:       'TABLE 9: Simple data table, rule only applies to complex data tables.',
-            MESSAGE_TABLE_LAYOUT_TABLE:     'TABLE 9: Layout table, rule only applies to complex data tables.',
-            MESSAGE_TABLE_HIDDEN:           'TABLE 9: The table is hidden from people using assistive technologies.'
+            MESSAGE_HAS_HEADERS:            'Cell has headers attribute with values.',
+            MESSAGE_MISSING_VIOLATION:      'Headers attribute is missing or empty, data cells in complex data tables must have a headers attribute.',
+            MESSAGE_MISSING_RECOMMENDATION: 'Headers attribute is missing or empty, data cells in complex data tables should have a headers attribute.',
+            MESSAGE_MISSING_MANUAL:         'Headers attribute is missing or empty, data cells in complex data tables may need a headers attribute',
+            MESSAGE_DATA_CELL_IS_EMPTY:     'Table cell is empty, check to see if it needs headers, or if the empty cell could contain data',
+            MESSAGE_HEADER_CELL:            'Cell is a header cell, so rule was not evaluated',
+            MESSAGE_TABLE_PASS:             'All %1 data cells with content have headers.',
+            MESSAGE_TABLE_MISSING_HEADERS:  '%1 data cells with content out of %2 are missing headers.',
+            MESSAGE_TABLE_DATA_TABLE:       'Simple data table, rule only applies to complex data tables.',
+            MESSAGE_TABLE_LAYOUT_TABLE:     'Layout table, rule only applies to complex data tables.',
+            MESSAGE_TABLE_HIDDEN:           'The table is hidden from people using assistive technologies.'
         },
         TABLE_8: {
-            TITLE:                          'TABLE 10: If a table is a complex data table, the rule tests if it has an effective summary.',
+            ID:                             'TABLE 8',
+            TITLE:                          'Each complex data table %s have an effective summary.',
             PURPOSE:                        'It is critical to provide a description of the content or point of the data in a complex data table content so that people using speech do not have to read all the cells.',
-            MESSAGE_PASS:                   'TABLE 10: Complex data table has the effective summary "%1"',
-            MESSAGE_VIOLATION:              'TABLE 10: Complex data tables must have a summary attribute or an aria-describedby attribute to create effective summary.',
-            MESSAGE_RECOMMENDATION:         'TABLE 10: Complex data tables should have a summary attribute or an aria-describedby attribute to create effective summary.',
-            MESSAGE_MANUAL:                 'TABLE 10: Complex data tables may need a summary attribute or an aria-describedby attribute to create effective summary.',
-            MESSAGE_HIDDEN:                 'TABLE 10: The table is hidden from people using assistive technologies, so the rule was not evaluated.',
-            MESSAGE_NOT_COMPLEX_DATA_TABLE: 'TABLE 10: The table is not complex data table, so the rule was not evaluated.',
-            MESSAGE_NOT_DATA_TABLE:         'TABLE 10: The table is a layout table, so rule was not evaluated.'
+            MESSAGE_PASS:                   'Complex data table has the effective summary "%1"',
+            MESSAGE_VIOLATION:              'Complex data tables must have a summary attribute or an aria-describedby attribute to create effective summary.',
+            MESSAGE_RECOMMENDATION:         'Complex data tables should have a summary attribute or an aria-describedby attribute to create effective summary.',
+            MESSAGE_MANUAL:                 'Complex data tables may need a summary attribute or an aria-describedby attribute to create effective summary.',
+            MESSAGE_HIDDEN:                 'The table is hidden from people using assistive technologies, so the rule was not evaluated.',
+            MESSAGE_NOT_COMPLEX_DATA_TABLE: 'The table is not complex data table, so the rule was not evaluated.',
+            MESSAGE_NOT_DATA_TABLE:         'The table is a layout table, so rule was not evaluated.'
         },
         LAYOUT_1: {
-            TITLE:                    'LAYOUT 1: If a table is a layout table, the rule tests for nesting of tables that are more than one column wide.',
+            ID:                       'LAYOUT 1',
+            TITLE:                    'Tables used for layout that are more than one column wide, %s not be nested in other layout tables.',
             PURPOSE:                  'The nesting of layout tables often results in content being read using speech to be read out of the intended reading order of the author.',
-            MESSAGE_PASS_NOT_NESTED:  'LAYOUT 1: Layout table is not nested in another table',
-            MESSAGE_PASS_ONE_COLUMN:  'LAYOUT 1: Layout table is only one column wide',
-            MESSAGE_VIOLATION:        'LAYOUT 1: Layout table is %1 columns wide, and nested %2 level(s), nested data tables must only be one column wide.',
-            MESSAGE_RECOMMENDATION:   'LAYOUT 1: Layout table is %1 columns wide, and nested %2 level(s), nested data tables should only be one column wide.',
-            MESSAGE_MANUAL:           'LAYOUT 1: Layout table is %1 columns wide, and nested %2 level(s), nested data tables may need to only be one column wide.',
-            MESSAGE_NOT_LAYOUT_TABLE: 'LAYOUT 1: The table is a data table, so the rule was not evaluated.',
-            MESSAGE_HIDDEN:           'LAYOUT 1: The table is hidden from people using assistive technologies, so the rule was not evaluated'
+            MESSAGE_PASS_NOT_NESTED:  'Layout table is not nested in another table',
+            MESSAGE_PASS_ONE_COLUMN:  'Layout table is only one column wide',
+            MESSAGE_VIOLATION:        'Layout table is %1 columns wide, and nested %2 level(s), nested data tables must only be one column wide.',
+            MESSAGE_RECOMMENDATION:   'Layout table is %1 columns wide, and nested %2 level(s), nested data tables should only be one column wide.',
+            MESSAGE_MANUAL:           'Layout table is %1 columns wide, and nested %2 level(s), nested data tables may need to only be one column wide.',
+            MESSAGE_NOT_LAYOUT_TABLE: 'The table is a data table, so the rule was not evaluated.',
+            MESSAGE_HIDDEN:           'The table is hidden from people using assistive technologies, so the rule was not evaluated'
         },
         LAYOUT_2: {
-            TITLE:                    'LAYOUT 2: If a table is a layout table that is more than 1 column wide, the content needs to be meaningful when table markup is ignored.',
+            ID:                       'LAYOUT 2',
+            TITLE:                    'If a table is a layout table that is more than 1 column wide, the content needs to be meaningful when table markup is ignored.',
+            PURPOSE:                  '',
             PURPOSE:                  'The use of layout tables can result in content being read using speech to be read out of the intended reading order of the author.',
-            MESSAGE_PASS:             'LAYOUT 2: The layout table is only one column wide.',
-            MESSAGE_VIOLATION:        'LAYOUT 2: The page content must be meaningful when the %1 column by %2 row table markup is disabled.',
-            MESSAGE_RECOMMENDATION:   'LAYOUT 2: The page content should be meaningful when the %1 column by %2 row table markup is disabled.',
-            MESSAGE_NOT_LAYOUT_TABLE: 'LAYOUT 2: The table is a data table, so the rule was not evaluated.',
-            MESSAGE_HIDDEN:           'LAYOUT 2: The table is hidden from people using assistive technologies, so the rule was not evaluated'
+            MESSAGE_PASS:             'The layout table is only one column wide.',
+            MESSAGE_VIOLATION:        'The page content must be meaningful when the %1 column by %2 row table markup is disabled.',
+            MESSAGE_RECOMMENDATION:   'The page content should be meaningful when the %1 column by %2 row table markup is disabled.',
+            MESSAGE_NOT_LAYOUT_TABLE: 'The table is a data table, so the rule was not evaluated.',
+            MESSAGE_HIDDEN:           'The table is hidden from people using assistive technologies, so the rule was not evaluated'
         },
         LAYOUT_3: {
-            TITLE:                    'LAYOUT 3: If the table is a layout table, the rule test the table element and all of its children for role="presentation"',
+            ID:                       'LAYOUT 3',
+            TITLE:                    'If the table is a layout table, the rule test the table element and all of its children for role="presentation"',
             PURPOSE:                  'The use of role=presentation on table markup makes it easier for people using assistive technology to ignore the table markup.',
-            MESSAGE_PASS:             'LAYOUT 3: The %1 element has role="presentation".',
-            MESSAGE_VIOLATION:        'LAYOUT 3: The %1 element must use the attribute role="presentation".',
-            MESSAGE_RECOMMENDATION:   'LAYOUT 3: The %1 element should use the attribute role="presentation".',
-            MESSAGE_NOT_LAYOUT_TABLE: 'LAYOUT 3: The table is a data table, so the rule was not evaluated.',
-            MESSAGE_HIDDEN:           'LAYOUT 3: The table is hidden from people using assistive technologies, so the rule was not evaluated'
+            MESSAGE_PASS:             'The %1 element has role="presentation".',
+            MESSAGE_VIOLATION:        'The %1 element must use the attribute role="presentation".',
+            MESSAGE_RECOMMENDATION:   'The %1 element should use the attribute role="presentation".',
+            MESSAGE_NOT_LAYOUT_TABLE: 'The table is a data table, so the rule was not evaluated.',
+            MESSAGE_HIDDEN:           'The table is hidden from people using assistive technologies, so the rule was not evaluated'
         },
         TITLE_1: {
-            MESSAGE_HAS_TITLE: 'TITLE 1: Document has a TITLE element with content.',
-            MESSAGE_NO_TITLE:  'TITLE 1: Document TITLE element is missing or empty.',
-            TITLE:             'TITLE 1: Document needs a title element with content.'
+            ID:                'TITLE 1',
+            TITLE:             'Document %s have a title element with content.',
+            PURPOSE:           'The title is important to help people understand the type of content or purpose of a web page.',
+            MESSAGE_HAS_TITLE: 'Document has a TITLE element with content.',
+            MESSAGE_NO_TITLE:  'Document TITLE element is missing or empty.'
         },
         TITLE_2: {
-            MESSAGE_H1_IS_NOT_LABEL: 'TITLE 2: H1 element is NOT a label for a MAIN landmark.',
-            MESSAGE_H1_IS_LABEL:     'TITLE 2: H1 element is a label for a MAIN landmark.',
-            MESSAGE_NO_ROLE_MAIN:    'TITLE 2: No MAIN landmarks on the page, rule for H1 elements does not apply.',
-            MESSAGE_HIDDEN:          'TITLE 2: H1 element is hidden from assistive technology, so will not be seen.',
-            TITLE:                   'TITLE 2: If a page contains both MAIN landmarks and H1 elements, each H1 element should be a label for a MAIN landmark.'
+            ID:                      'TITLE 2',
+            TITLE:                   'If a page contains both MAIN landmarks and H1 elements, each H1 element %s be a label for a MAIN landmark.',
+            PURPOSE:                 'H1 can provide a redundent navigational marker for the start of main content, and orient users to the section of the page.',
+            MESSAGE_H1_IS_NOT_LABEL: 'H1 element is NOT a label for a MAIN landmark.',
+            MESSAGE_H1_IS_LABEL:     'H1 element is a label for a MAIN landmark.',
+            MESSAGE_NO_ROLE_MAIN:    'No MAIN landmarks on the page, rule for H1 elements does not apply.',
+            MESSAGE_HIDDEN:          'H1 element is hidden from assistive technology, so will not be seen.'
         },    
         TITLE_3: {
-            MESSAGE_H1_IS_LABEL:  'TITLE 3: The H1 element is a label for a MAIN landmark.',
-            MESSAGE_H1_NOT_LABEL: 'TITLE 3: The H1 element is NOT a label for a MAIN landmark.',
-            MESSAGE_HIDDEN:       'TITLE 3: The H1 element is hidden to assistive technologies.',
-            TITLE:                'TITLE 3: If there are both H1 elements and MAIN landmarks the H1 elements should only be used as labels for MAIN landmarks'
+            ID:                   'TITLE 3',
+            TITLE:                'If there are both H1 elements and MAIN landmarks the H1 elements %s only be used as labels for MAIN landmarks',
+            PURPOSE:              'Using H1s as labels for main landmarks assures that users will receive consistent information about the content of each main section.',
+            MESSAGE_H1_IS_LABEL:  'The H1 element is a label for a MAIN landmark.',
+            MESSAGE_H1_NOT_LABEL: 'The H1 element is NOT a label for a MAIN landmark.',
+            MESSAGE_HIDDEN:       'The H1 element is hidden to assistive technologies.'
         }
 
    }
@@ -18584,16 +21599,12 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
   title        : 'Web Content Accessibility Guidelines 2.0',
   url          : 'http://www.w3c.org/TR/WCAG20',
   
-  /**
-   * Level of important of a requirement
-   */
-  levels: {
-    'LEVEL_A': 'A', // Most important requirements
-    'LEVEL_AA': 'AA', // Important requirements
-    'LEVEL_AAA': 'AAA' // Lower importance requirements
+  levels : {
+    '1' : 'Level A',
+    '2' : 'Level AA',
+    '3' : 'Level AAA'  
   },
-
-
+  
   principles : {
     //
     // Principle 1: Perceivable
@@ -18615,7 +21626,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criterion 1.1.1 Non-text Content: All non-text content that is presented to the user has a text alternative that serves the equivalent purpose, except for the situations listed below. 
             //
             '1.1.1' : {
-              level       : 'LEVEL_A',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '1.1.1 Non-text Content',
               description : 'All non-text content that is presented to the user has a text alternative that serves the equivalent purpose, except for the situations listed below.',
               url         : 'http://www.w3.org/TR/WCAG20/#text-equiv',
@@ -18635,7 +21646,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criterion 1.2.1 Audio-only and Video-only (Prerecorded)
             //
             '1.2.1': {
-              level       : 'LEVEL_A',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '1.2.1 Audio-only and Video-only (Prerecorded)',
               description : 'For prerecorded audio-only and prerecorded video-only media, the following are true, except when the audio or video is a media alternative for text and is clearly labeled as such: (1) Prerecorded Audio-only: An alternative for time-based media is provided that presents equivalent information for prerecorded audio-only content. (2) Prerecorded Video-only: Either an alternative for time-based media or an audio track is provided that presents equivalent information for prerecorded video-only content.',
               url         : 'http://www.w3.org/TR/WCAG20/#media-equiv-av-only-alt',
@@ -18645,7 +21656,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criterion 1.2.2 Captions (Prerecorded)
             //
            '1.2.2': {
-              level       : 'LEVEL_A',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '1.2.2 Captions (Prerecorded)',
               description : 'Captions are provided for all prerecorded audio content in synchronized media, except when the media is a media alternative for text and is clearly labeled as such.',
               url         : 'http://www.w3.org/TR/WCAG20/#media-equiv-captions',
@@ -18655,7 +21666,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 1.2.3 Audio Description or Media Alternative (Prerecorded)
             //
             '1.2.3': {
-              level       : 'LEVEL_A',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '1.2.3 Audio Description or Media Alternative (Prerecorded)',
               description : 'An alternative for time-based media or audio description of the prerecorded video content is provided for synchronized media, except when the media is a media alternative for text and is clearly labeled as such.',
               url         : 'http://www.w3.org/TR/WCAG20/#media-equiv-audio-desc',
@@ -18665,7 +21676,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 1.2.4 Captions (Live)
             //
             '1.2.4': {
-              level       : 'LEVEL_AA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AA,
               title       : '1.2.4 Captions (Live)',
               description : 'Captions are provided for all live audio content in synchronized media. ',
               url         : 'http://www.w3.org/TR/WCAG20/#media-equiv-real-time-captions',
@@ -18675,7 +21686,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 1.2.5 Audio Description (Prerecorded)
             //
             '1.2.5': {
-              level       : 'LEVEL_AA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AA,
               title       : '1.2.5 Audio Description (Prerecorded)',
               description : 'Audio description is provided for all prerecorded video content in synchronized media.',
               url         : 'http://www.w3.org/TR/WCAG20/#media-equiv-audio-desc-only',
@@ -18685,7 +21696,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 1.2.6 Sign Language (Prerecorded)
             //
             '1.2.6': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '1.2.6 Sign Language (Prerecorded)',
               description : 'Sign language interpretation is provided for all prerecorded audio content in synchronized media.',
               url         : 'http://www.w3.org/TR/WCAG20/#media-equiv-sign',
@@ -18695,7 +21706,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 1.2.7 Extended Audio Description (Prerecorded)
             //
             '1.2.7': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '1.2.7 Extended Audio Description (Prerecorded)',
               description : 'Where pauses in foreground audio are insufficient to allow audio descriptions to convey the sense of the video, extended audio description is provided for all prerecorded video content in synchronized media.',
               url         : 'http://www.w3.org/TR/WCAG20/#media-equiv-extended-ad',
@@ -18705,7 +21716,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 1.2.8 Media Alternative (Prerecorded)
             //
             '1.2.8': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '1.2.8 Media Alternative (Prerecorded)',
               description : 'An alternative for time-based media is provided for all prerecorded synchronized media and for all prerecorded video-only media.',
               url         : 'http://www.w3.org/TR/WCAG20/#media-equiv-text-doc',
@@ -18715,7 +21726,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 1.2.9 Audio-only (Live)
             //
             '1.2.9': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '1.2.9 Audio-only (Live)',
               description : 'An alternative for time-based media that presents equivalent information for live audio-only content is provided. ',
               url         : 'http://www.w3.org/TR/WCAG20/#media-equiv-live-audio-only',
@@ -18735,7 +21746,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 1.3.1 Info and Relationships
             //
             '1.3.1': {
-              level       : 'LEVEL_A',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '1.3.1 Info and Relationships',
               description : 'Information, structure, and relationships conveyed through presentation can be programmatically determined or are available in text.',
               url         : 'http://www.w3.org/TR/WCAG20/#content-structure-separation-programmatic',
@@ -18745,7 +21756,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 1.3.2 Meaningful Sequence
             //
             '1.3.2': {
-              level       : 'LEVEL_A',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '1.3.2 Meaningful Sequence',
               description : 'When the sequence in which content is presented affects its meaning, a correct reading sequence can be programmatically determined.',
               url         : 'http://www.w3.org/TR/WCAG20/#content-structure-separation-sequenc',
@@ -18755,7 +21766,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 1.3.3 Sensory Characteristics
             //
             '1.3.3': {
-              level       : 'LEVEL_A',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '1.3.3 Sensory Characteristics',
               description : 'Instructions provided for understanding and operating content do not rely solely on sensory characteristics of components such as shape, size, visual location, orientation, or sound.',
               url         : 'http://www.w3.org/TR/WCAG20/#content-structure-separation-understanding',
@@ -18775,7 +21786,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 1.4.1 Use of Color
             //
             '1.4.1': {
-              level       : 'LEVEL_A',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '1.4.1 Use of Color',
               description : 'Color is not used as the only visual means of conveying information, indicating an action, prompting a response, or distinguishing a visual element.',
               url         : 'http://www.w3.org/TR/WCAG20/#visual-audio-contrast-without-color',
@@ -18785,7 +21796,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 1.4.2 Audio Control
             //
             '1.4.2': {
-              level       : 'LEVEL_A',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '1.4.2 Audio Control',
               description : 'If any audio on a Web page plays automatically for more than 3 seconds, either a mechanism is available to pause or stop the audio, or a mechanism is available to control audio volume independently from the overall system volume level.',
               url         : 'http://www.w3.org/TR/WCAG20/#visual-audio-contrast-dis-audio',
@@ -18795,7 +21806,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 1.4.3 Contrast (Minimum)
             //
             '1.4.3': {
-              level       : 'LEVEL_AA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AA,
               title       : '1.4.3 Contrast (Minimum)',
               description : 'The visual presentation of text and images of text has a contrast ratio of at least 4.5:1, except for the following: \n(1) Large Text: Large-scale text and images of large-scale text have a contrast ratio of at least 3:1;\n(2) Incidental: Text or images of text that are part of an inactive user interface component, that are pure decoration, that are not visible to anyone, or that are part of a picture that contains significant other visual content, have no contrast requirement.\n(3) Logotypes: Text that is part of a logo or brand name has no minimum contrast requirement.',
               url         : 'http://www.w3.org/TR/WCAG20/#visual-audio-contrast-contrast',
@@ -18805,7 +21816,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 1.4.4 Resize text
             //
             '1.4.4': {
-              level       : 'LEVEL_AA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AA,
               title       : '1.4.4 Resize text',
               description : 'Except for captions and images of text, text can be resized without assistive technology up to 200 percent without loss of content or functionality.',
               url         : 'http://www.w3.org/TR/WCAG20/#visual-audio-contrast-scale',
@@ -18815,7 +21826,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 1.4.5 Images of Text
             //
             '1.4.5': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '1.4.5 Images of Text',
               description : 'If the technologies being used can achieve the visual presentation, text is used to convey information rather than images of text except for the following: (1) Customizable: The image of text can be visually customized to the user\'s requirements; (2) Essential: A particular presentation of text is essential to the information being conveyed.',
               url         : 'http://www.w3.org/TR/WCAG20/#visual-audio-contrast-text-presentation',
@@ -18825,7 +21836,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 1.4.6 Contrast (Enhanced)
             //
             '1.4.6': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '1.4.6 Contrast (Enhanced)',
               description : 'The visual presentation of text and images of text has a contrast ratio of at least 7:1, except for the following: (1) Large Text: Large-scale text and images of large-scale text have a contrast ratio of at least 4.5:1; (2) Incidental: Text or images of text that are part of an inactive user interface component, that are pure decoration, that are not visible to anyone, or that are part of a picture that contains significant other visual content, have no contrast requirement. (3) Logotypes: Text that is part of a logo or brand name has no minimum contrast requirement.',
               url         : 'http://www.w3.org/TR/WCAG20/#visual-audio-contrast7',
@@ -18835,7 +21846,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 1.4.7 Low or No Background Audio
             //
             '1.4.7': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '1.4.7 Low or No Background Audio',
               description : 'For prerecorded audio-only content that (1) contains primarily speech in the foreground, (2) is not an audio CAPTCHA or audio logo, and (3) is not vocalization intended to be primarily musical expression such as singing or rapping, at least one of the following is true: (4a) No Background: The audio does not contain background sounds. (4b) Turn Off: The background sounds can be turned off. (4c) 20 dB: The background sounds are at least 20 decibels lower than the foreground speech content, with the exception of occasional sounds that last for only one or two seconds.',
               url         : 'http://www.w3.org/TR/WCAG20/#isual-audio-contrast-noaudio',
@@ -18845,7 +21856,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 1.4.8 Visual Presentation
             //
             '1.4.8': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '1.4.8 Visual Presentation',
               description : 'For the visual presentation of blocks of text, a mechanism is available to achieve the following: (1) Foreground and background colors can be selected by the user; (2) Width is no more than 80 characters or glyphs (40 if CJK); (3) Text is not justified (aligned to both the left and the right margins); (4) Line spacing (leading) is at least space-and-a-half within paragraphs, and paragraph spacing is at least 1.5 times larger than the line spacing; (5) Text can be resized without assistive technology up to 200 percent in a way that does not require the user to scroll horizontally to read a line of text on a full-screen window.',
               url         : 'http://www.w3.org/TR/WCAG20/#visual-audio-contrast-visual-presentation',
@@ -18855,7 +21866,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 1.4.9 Images of Text (No Exception)
             //
             '1.4.9': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '1.4.9 Images of Text (No Exception)',
               description : 'Images of text are only used for pure decoration or where a particular presentation of text is essential to the information being conveyed.',
               url         : 'http://www.w3.org/TR/WCAG20/#visual-audio-contrast-text-images',
@@ -18885,7 +21896,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criterion 2.1.1 Keyboard
             //
             '2.1.1': {
-              level       : 'LEVEL_A',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '2.1.1 Keyboard',
               description : 'All functionality of the content is operable through a keyboard interface without requiring specific timings for individual keystrokes, except where the underlying function requires input that depends on the path of the user\'s movement and not just the endpoints.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-keyboard-operation-keyboard-operable',
@@ -18895,7 +21906,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criterion 2.1.2 No Keyboard Trap
             //
             '2.1.2': {
-              level       : 'LEVEL_A',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '2.1.2 No Keyboard Trap',
               description : 'If keyboard focus can be moved to a component of the page using a keyboard interface, then focus can be moved away from that component using only a keyboard interface, and, if it requires more than unmodified arrow or tab keys or other standard exit methods, the user is advised of the method for moving focus away.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-keyboard-operation-trapping',
@@ -18905,7 +21916,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criterion 2.1.3 Keyboard (No Exception)
             //
             '2.1.3': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '2.1.3 Keyboard (No Exception)',
               description : 'All functionality of the content is operable through a keyboard interface without requiring specific timings for individual keystrokes.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-keyboard-operation-all-funcs',
@@ -18925,7 +21936,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criterion 2.2.1 Timing Adjustable
             //
             '2.2.1': {
-              level       : 'LEVEL_A',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '2.2.1 Timing Adjustable',
               description : 'For each time limit that is set by the content, at least one of the following is true: (1) Turn off: The user is allowed to turn off the time limit before encountering it; or (2) Adjust: The user is allowed to adjust the time limit before encountering it over a wide range that is at least ten times the length of the default setting; or (3) Extend: The user is warned before time expires and given at least 20 seconds to extend the time limit with a simple action (for example, "press the space bar"), and the user is allowed to extend the time limit at least ten times; or (4) Real-time Exception: The time limit is a required part of a real-time event (for example, an auction), and no alternative to the time limit is possible; or (5) Essential Exception: The time limit is essential and extending it would invalidate the activity; or (6) 20 Hour Exception: The time limit is longer than 20 hours.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-time-limits-required-behaviors',
@@ -18935,7 +21946,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 2.2.2 Pause, Stop, Hide
             //
             '2.2.2': {
-              level       : 'LEVEL_A',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '2.2.2 Pause, Stop, Hide',
               description : 'For moving, blinking, scrolling, or auto-updating information, all of the following are true: Moving, blinking, scrolling: For any moving, blinking or scrolling information that (1) starts automatically, (2) lasts more than five seconds, and (3) is presented in parallel with other content, there is a mechanism for the user to pause, stop, or hide it unless the movement, blinking, or scrolling is part of an activity where it is essential; and Auto-updating: For any auto-updating information that (1) starts automatically and (2) is presented in parallel with other content, there is a mechanism for the user to pause, stop, or hide it or to control the frequency of the update unless the auto-updating is part of an activity where it is essential.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-time-limits-pause',
@@ -18945,7 +21956,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 2.2.3 No Timing
             //
             '2.2.3': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '2.2.3 No Timing',
               description : 'Timing is not an essential part of the event or activity presented by the content, except for non-interactive synchronized media and real-time events.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-time-limits-no-exceptions',
@@ -18955,7 +21966,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 2.2.4 Interruptions
             //
             '2.2.4': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '2.2.4 Interruptions',
               description : 'Interruptions can be postponed or suppressed by the user, except interruptions involving an emergency.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-time-limits-postponed',
@@ -18965,7 +21976,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 2.2.5 Re-authenticating
             //
             '2.2.5': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '2.2.5 Re-authenticating',
               description : 'When an authenticated session expires, the user can continue the activity without loss of data after re-authenticating.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-time-limits-server-timeout',
@@ -18985,7 +21996,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 2.3.1 Three Flashes or Below Threshold
             //
             '2.3.1': {
-              level       : 'LEVEL_A',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '2.3.1 Three Flashes or Below Threshold',
               description : 'Web pages do not contain anything that flashes more than three times in any one second period, or the flash is below the general flash and red flash thresholds.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-seizure-does-not-violate',
@@ -18995,7 +22006,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 2.3.2 Three Flashes
             //
             '2.3.2': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '2.3.2 Three Flashes',
               description : 'Web pages do not contain anything that flashes more than three times in any one second period.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-seizure-three-times',
@@ -19015,7 +22026,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 2.4.1 Bypass Blocks
             //
             '2.4.1': {
-              level       : 'LEVEL_A',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '2.4.1 Bypass Blocks',
               description : 'A mechanism is available to bypass blocks of content that are repeated on multiple Web pages.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-navigation-mechanisms-skip',
@@ -19025,7 +22036,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 2.4.2 Page Titled
             //
             '2.4.2': {
-              level       : 'LEVEL_A',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '2.4.2 Page Titled',
               description : 'Web pages have titles that describe topic or purpose.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-navigation-mechanisms-title',
@@ -19035,7 +22046,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 2.4.3 Focus Order
             //
             '2.4.3': {
-              level       : 'LEVEL_A',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '2.4.3 Focus Order',
               description : 'If a Web page can be navigated sequentially and the navigation sequences affect meaning or operation, focusable components receive focus in an order that preserves meaning and operability.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-navigation-mechanisms-focus-order',
@@ -19045,7 +22056,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 2.4.4 Link Purpose (In Context)
             //
             '2.4.4': {
-              level       : 'LEVEL_A',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '2.4.4 Link Purpose (In Context)',
               description : 'The purpose of each link can be determined from the link text alone or from the link text together with its programmatically determined link context, except where the purpose of the link would be ambiguous to users in general.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-navigation-mechanisms-refs',
@@ -19055,7 +22066,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 2.4.5 Multiple Ways
             //
             '2.4.5': {
-              level       : 'LEVEL_AA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AA,
               title       : '2.4.5 Multiple Ways',
               description : 'More than one way is available to locate a Web page within a set of Web pages except where the Web Page is the result of, or a step in, a process.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-navigation-mechanisms-mult-loc',
@@ -19065,7 +22076,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 2.4.6 Headings and Labels
             //
             '2.4.6': {
-              level       : 'LEVEL_AA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AA,
               title       : '2.4.6 Headings and Labels',
               description : 'Headings and labels describe topic or purpose.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-navigation-mechanisms-descriptive',
@@ -19075,7 +22086,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 2.4.7 Focus Visible
             //
             '2.4.7': {
-              level       : 'LEVEL_AA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AA,
               title       : '2.4.7 Focus Visible',
               description : 'Any keyboard operable user interface has a mode of operation where the keyboard focus indicator is visible. ',
               url         : 'http://www.w3.org/TR/WCAG20/#navigation-mechanisms-focus-visible',
@@ -19085,7 +22096,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 2.4.8 Location
             //
             '2.4.8': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '2.4.8 Location',
               description : 'Information about the user\'s location within a set of Web pages is available.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-navigation-mechanisms-location',
@@ -19095,7 +22106,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 2.4.9 Link Purpose (Link Only)
             //
             '2.4.9': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '2.4.9 Link Purpose (Link Only)',
               description : 'A mechanism is available to allow the purpose of each link to be identified from link text alone, except where the purpose of the link would be ambiguous to users in general.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-navigation-mechanisms-link',
@@ -19105,7 +22116,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 2.4.10 Section Headings
             //
             '2.4.10': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '2.4.10 Section Headings',
               description : 'Section headings are used to organize the content.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-navigation-mechanisms-headings',
@@ -19135,7 +22146,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..1.1 Language of Page
             //
             '3.1.1': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '3.1.1 Language of Page',
               description : 'The default human language  of each Web page  can be programmatically determined. ',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-meaning-doc-lang-id',
@@ -19145,7 +22156,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..1.2 Language of Parts
             //
             '3.1.2': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '3.1.2 Language of Parts',
               description : 'The human language of each passage or phrase in the content can be programmatically determined except for proper names, technical terms, words of indeterminate language, and words or phrases that have become part of the vernacular of the immediately surrounding text.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-meaning-other-lang-id',
@@ -19155,7 +22166,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..1.3 Unusual Words
             //
             '3.1.3': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '3.1.3 Unusual Words',
               description : 'A mechanism is available for identifying specific definitions of words or phrases used in an unusual or restricted way, including idioms and jargon.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-meaning-idioms',
@@ -19165,7 +22176,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..1.4 Abbreviations
             //
             '3.1.4': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '3.1.4 Abbreviations',
               description : 'A mechanism for identifying the expanded form or meaning of abbreviations is available. ',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-meaning-located',
@@ -19175,7 +22186,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..1.5 Reading Level
             //
             '3.1.5': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '3.1.5 Reading Level',
               description : 'When text requires reading ability more advanced than the lower secondary education level after removal of proper names and titles, supplemental content, or a version that does not require reading ability more advanced than the lower secondary education level, is available. ',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-meaning-supplements',
@@ -19185,7 +22196,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..1.6 Pronunciation
             //
             '3.1.6': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '3.1.6 Pronunciation',
               description : 'A mechanism is available for identifying specific pronunciation of words where meaning of the words, in context, is ambiguous without knowing the pronunciation.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-meaning-pronunciation',
@@ -19205,7 +22216,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..2.1 On Focus
             //
             '3.2.1': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '3.2.1 On Focus',
               description : 'When any component receives focus, it does not initiate a change of context.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-consistent-behavior-receive-focus',
@@ -19215,7 +22226,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..2.2 On Input
             //
             '3.2.2': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '3.2.2 On Input',
               description : 'Changing the setting of any user interface component  does not automatically cause a change of context  unless the user has been advised of the behavior before using the component.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-consistent-behavior-unpredictable-change',
@@ -19225,7 +22236,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..2.3 Consistent Navigation
             //
             '3.2.3': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '3.2.3 Consistent Navigation',
               description : 'Navigational mechanisms that are repeated on multiple Web pages within a set of Web pages  occur in the same relative order each time they are repeated, unless a change is initiated by the user.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-consistent-behavior-consistent-locations',
@@ -19235,7 +22246,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..2.4 Consistent Identification
             //
             '3.2.4': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '3.2.4 Consistent Identification',
               description : 'Components that have the same functionality within a set of Web pages are identified consistently.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-consistent-behavior-consistent-functionality',
@@ -19245,7 +22256,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..2.5 Change on Request
             //
             '3.2.5': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '3.2.5 Change on Request',
               description : 'Changes of context are initiated only by user request or a mechanism is available to turn off such changes.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-consistent-behavior-no-extreme-changes-context',
@@ -19265,7 +22276,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..3.1 Error Identification
             //
             '3.3.1': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '3.3.1 Error Identification',
               description : 'If an input error is automatically detected, the item that is in error is identified and the error is described to the user in text.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-minimize-error-identified',
@@ -19275,7 +22286,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..3.2 Labels or Instructions
             //
             '3.3.2': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '3.3.2 Labels or Instructions',
               description : 'Labels or instructions are provided when content requires user input.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-minimize-error-cues',
@@ -19285,7 +22296,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..3.3 Error Suggestion
             //
             '3.3.3': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '3.3.3 Error Suggestion',
               description : 'If an input error is automatically detected and suggestions for correction are known, then the suggestions are provided to the user, unless it would jeopardize the security or purpose of the content.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-minimize-error-suggestions',
@@ -19295,7 +22306,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..3.4 Error Prevention (Legal, Financial, Data)
             //
             '3.3.4': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '3.3.4 Error Prevention (Legal, Financial, Data)',
               description : 'For Web pages that cause legal commitments or financial transactions for the user to occur, that modify or delete user-controllable data in data storage systems, or that submit user test responses, at least one of the following is true:',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-minimize-error-reversible',
@@ -19305,7 +22316,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..3.5 Help
             //
             '3.3.5': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '3.3.5 Help',
               description : 'Context-sensitive help is available.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-minimize-error-context-help',
@@ -19315,7 +22326,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..3.6 Error Prevention (All)
             //
             '3.3.6': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '3.3.6 Error Prevention (All)',
               description : 'For Web pages that require the user to submit information, at least one of the following is true',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-minimize-error-reversible-all',
@@ -19345,7 +22356,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 4.2.1 Parsing Content
             //
             '4.1.1': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '4.1.1 Parsing Content',
               description : 'In content implemented using markup languages, elements have complete start and end tags, elements are nested according to their specifications, elements do not contain duplicate attributes, and any IDs are unique, except where the specifications allow these features.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-ensure-compat-parses',
@@ -19355,7 +22366,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 4.2.2 Name, Role, Value
             //
             '4.1.2': {
-              level       : 'LEVEL_AAA',
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
               title       : '4.1.2 Name, Role, Value',
               description : 'For all user interface components (including but not limited to: form elements, links and components generated by scripts), the name and role can be programmatically determined; states, properties, and values that can be set by the user can be programmatically set; and notification of changes to these items is available to user agents, including assistive technologies.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-ensure-compat-rsv',
@@ -19399,8 +22410,8 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
       var color_contrast_len = dom_cache.color_contrast_cache.color_contrast_items.length;
       var cci;
    
-      var dom_elements_len;
-      var de;
+      var dom_text_nodes_len;
+      var dtn;
 
       var severity;
       var message_id;
@@ -19445,15 +22456,15 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 
         // update all the DOM Element nodes associated with the Color Contrast Item
 
-        dom_elements_len = cci.dom_elements.length;
+        dom_text_nodes_len = cci.dom_text_nodes.length;
 
-        for (j=0; j<dom_elements_len; j++) {
-          de = cci.dom_elements[j];
-          if (de.computed_style.is_visible_onscreen === OpenAjax.a11y.VISIBILITY.VISIBLE) {
-            rule_result.addResult(severity, de, message_id, args);
+        for (j=0; j<dom_text_nodes_len; j++) {
+          dtn = cci.dom_text_nodes[j];
+          if (dtn.computed_style.is_visible_onscreen === OpenAjax.a11y.VISIBILITY.VISIBLE) {
+            rule_result.addResult(severity, dtn, message_id, args);
           } 
           else {
-            rule_result.addResult(SEVERITY.HIDDEN, de, 'MESSAGE_HIDDEN', []);
+            rule_result.addResult(SEVERITY.HIDDEN, dtn, 'MESSAGE_HIDDEN', []);
           }
         } // end loop
    
@@ -19488,8 +22499,8 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
       var color_contrast_len = dom_cache.color_contrast_cache.color_contrast_items.length;
       var cci;
    
-      var dom_elements_len;
-      var de;
+      var dom_text_nodes_len;
+      var dtn;
 
       var severity;
       var message_id;
@@ -19535,15 +22546,15 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 
         // update all the DOM Element nodes associated with the Color Contrast Item
 
-        dom_elements_len = cci.dom_elements.length;
+        dom_text_nodes_len = cci.dom_text_nodes.length;
 
-        for (j=0; j<dom_elements_len; j++) {
-          de = cci.dom_elements[j];
-          if (de.computed_style.is_visible_onscreen === OpenAjax.a11y.VISIBILITY.VISIBLE) {
-            rule_result.addResult(severity, de, message_id, args);
+        for (j=0; j<dom_text_nodes_len; j++) {
+          dtn = cci.dom_text_nodes[j];
+          if (dtn.computed_style.is_visible_onscreen === OpenAjax.a11y.VISIBILITY.VISIBLE) {
+            rule_result.addResult(severity, dtn, message_id, args);
           } 
           else {
-            rule_result.addResult(SEVERITY.HIDDEN, de, 'MESSAGE_HIDDEN', []);
+            rule_result.addResult(SEVERITY.HIDDEN, dtn, 'MESSAGE_HIDDEN', []);
           }
         } // end loop
    
@@ -19574,7 +22585,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 {  id                : 'CONTROL_1', 
    last_updated      : '2011-09-16', 
    cache_dependency  : 'controls_cache',
-   cache_properties : ['dom_element:tag_name','type','id','label',''],
+   cache_properties : ['tag_name', 'label_source','label'],
    language          : "",
    enabled           : true,  
    validate          : function (dom_cache, rule_result) {
@@ -20047,7 +23058,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 { id                : 'CONTROL_10', 
   last_updated      : '2011-09-16', 
   cache_dependency  : 'controls_cache',
-  cache_properties : [],
+  cache_properties : ['tag_name', 'type', 'label'],
   language          : "",
   validate          : function (dom_cache, rule_result) {
 
@@ -20156,7 +23167,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   id                : 'HEADING_1', 
   last_updated      : '2011-09-16', 
   cache_dependency  : 'title_main_cache',
-  cache_properties  : ['tag_name'],
+  cache_properties  : ['tag_name', 'name', 'name_length'],
   language          : "",
   validate          : function (dom_cache, rule_result) {
   
@@ -20219,7 +23230,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   id              : 'HEADING_2', 
   last_updated     : '2011-09-16', 
   cache_dependency : 'headings_landmarks_cache',
-  cache_properties : ['tag_name', 'name'],
+  cache_properties : ['tag_name', 'name', 'name_length', 'name_for_comparison'],
   language        : "",
   validate        : function (dom_cache, rule_result) {
   
@@ -20317,7 +23328,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   id                : 'HEADING_3', 
   last_updated      : '2011-09-16', 
   cache_dependency  : 'headings_landmarks_cache',
-  cache_properties  : ['tag_name', 'name'],
+  cache_properties  : ['tag_name', 'name', 'name_length'],
   language          : "",
   validate          : function (dom_cache, rule_result) {
 
@@ -20336,7 +23347,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         for(i=0; i<heading_elements_len; i++) {
           he = heading_elements[i];
           if (he.dom_element.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
-            rule_result.addResult(SEVERITY.FAIL, he, 'MESSAGE_CHECK', []);            
+            rule_result.addResult(SEVERITY.MANUAL_CHECK, he, 'MESSAGE_CHECK', []);            
           }
           else {
             rule_result.addResult(SEVERITY.HIDDEN, he, 'MESSAGE_HIDDEN', []);                      
@@ -20554,11 +23565,275 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
           
           if (de.computed_style.is_visible_to_at !== VISIBILITY.INVISIBLE  && he.name) {
             if (he.name_length > MAX_HEADING_LENGTH ) {
-              rule_result.addResult(SEVERITY.FAIL, he, 'MESSAGE_TO_LONG', [he.name_length, MAX_HEADING_LENGTH]);
+              rule_result.addResult(SEVERITY.MANUAL_CHECK, he, 'MESSAGE_TO_LONG', [he.name_length, MAX_HEADING_LENGTH]);
             }  
           }            
         } // end loop
       }      
+  } // end validate function
+ },
+/**
+ * @object LANDMARK_1
+ *
+ * @desc Every page needs at least one main landmark
+ */	     	     	     
+ {
+  id                : 'LANDMARK_1', 
+  last_updated      : '2012-03-01', 
+  cache_dependency  : 'title_main_cache',
+  cache_properties  : ['num_main_landmarks', 'num_visibile_main_landmarks'],
+  language          : "",
+  validate          : function (dom_cache, rule_result) {
+
+      var SEVERITY   = OpenAjax.a11y.SEVERITY;
+      var VISIBILITY = OpenAjax.a11y.VISIBILITY;
+
+      var title_main_cache  = dom_cache.title_main_cache;
+      var main_elements     = title_main_cache.main_elements;
+      var main_elements_len = main_elements.length;
+      var body_element      = title_main_cache.body_element;
+
+      var i;
+      var me;
+      var cs;
+      
+      body_element.num_main_landmarks = 0;
+      body_element.num_visible_main_landmarks = 0;
+      
+      // check to make sure the main elements are visible
+      
+      if (title_main_cache.has_role_main_elements) {
+        for (i = 0; i < main_elements_len; i++) {
+        
+          me = main_elements[i];
+          cs = me.computed_style;
+          if (me.main_type == OpenAjax.a11y.MAIN.ROLE_MAIN) {
+            body_element.num_main_landmarks += 1;
+            if (cs.is_visible_to_at == VISIBILITY.VISIBLE) body_element.num_visible_main_landmarks += 1;
+          }
+        }  
+        
+        if (has_visible_main) {
+          rule_result.addResult(SEVERITY.PASS, body_element, 'MESSAGE_PASS', [body_element.num_visible_main_landmarks]);        
+        }
+        else {
+          rule_result.addResult(SEVERITY.FAIL, body_element, 'MESSAGE_HIDDEN', [body_element.num_main_landmarks]);
+        }              
+      }
+      else {
+        rule_result.addResult(SEVERITY.FAIL, body_element, 'MESSAGE_FAIL', []);
+      }
+
+  } // end validate function
+ },
+/**
+ * @object LANDMARK_2
+ *
+ * @desc Every page needs at least one main landmark
+ */	     	     	     
+ {
+  id                : 'LANDMARK_2', 
+  last_updated      : '2012-03-01', 
+  cache_dependency  : 'headings_landmarks_cache',
+  cache_properties  : ['tag_name', 'text_normalized', 'parent_landmark_role'],
+  language          : "",
+  validate          : function (dom_cache, rule_result) {
+
+      var SEVERITY   = OpenAjax.a11y.SEVERITY;
+      var VISIBILITY = OpenAjax.a11y.VISIBILITY;
+
+      var elements_with_content     = dom_cache.headings_landmarks_cache.elements_with_content;
+      var elements_with_content_len = elements_with_content.length;
+
+      var i;
+      var de;
+      var cs;
+      var lm;
+      var elem;
+      
+      // check to make sure the main elements are visible
+      
+      for (i = 0; i < elements_with_content_len; i++) {
+        
+        de = elements_with_content[i];
+        cs = de.computed_style;
+          
+        if (de.type == NODE_TYPE.ELEMENT) elem = de.tag_name;
+        else elem = de.parent_element.tag_name;
+          
+        if (de.parent_landmark) {
+          lm = de.parent_landmark.dom_element.role; 
+          rule_result.addResult(SEVERITY.PASS, de, 'MESSAGE_PASS', [elem, lm]);                
+        }
+        else {
+          if (cs.is_visible_to_at == VISIBILITY.VISIBLE) {
+            rule_result.addResult(SEVERITY.FAIL, de, 'MESSAGE_FAIL', [elem]);                          
+          }
+          else {
+            rule_result.addResult(SEVERITY.HIDDEN, de, 'MESSAGE_HIDDEN', [elem]);                                      
+          }
+        }
+      }    
+      
+  } // end validate function
+ },
+/**
+ * @object LANDMARK_3
+ *
+ * @desc Every page needs at least one main landmark
+ */	     	     	     
+ {
+  id                : 'LANDMARK_3', 
+  last_updated      : '2012-03-01', 
+  cache_dependency  : 'headings_landmarks_cache',
+  cache_properties  : ['role', 'label', 'label_source'],
+  language          : "",
+  validate          : function (dom_cache, rule_result) {
+
+      function checkLandmarkLabels(landmark_role) {
+
+        var i;
+        var j;
+        var le;
+        
+        var landmark_role_list     = [];
+        var landmark_role_list_len = 0;
+        
+        var label_list       = [];        
+        var label_list_len   = 0;
+        var label_list_len_2 = 0; 
+
+        var duplicate_labels     = [];
+        var duplicate_labels_len = 0;
+ 
+        function addToDuplicateLabelList(label) {
+          var add_flag = true;
+          var i;
+          
+          for (i = 0; i < duplicate_labels_len; i++) {
+            if (duplicate_labels[i] == label) {
+              add_flag = false;
+              break;
+            }
+          }
+          
+          if (add_flag) { 
+            duplicate_labels.push(label);
+            duplicate_labels_len += 1;
+          }  
+        }  // end of
+
+        function checkUniqueness(landmark_element) {
+          var dup_flag = false;
+          var i;
+
+          if (landmark_element.label.length) {
+             for (i = 0; i < duplicate_labels.length; i++) {
+               if (landmark_element.label == duplicate_labels[i]) {
+                 dup_flag = true;
+                 break;
+               }
+             }
+             if (dup_flag) {
+               rule_result.addResult(SEVERITY.FAIL, landmark_element, 'MESSAGE_FAIL_DUPLICATE', [landmark_element.label, landmark_role]);
+             }
+             else {
+               rule_result.addResult(SEVERITY.PASS, landmark_element, 'MESSAGE_PASS_UNIQUE', [landmark_element.label, landmark_role]);                                                            
+             }             
+          }
+          else {
+            rule_result.addResult(SEVERITY.FAIL, landmark_element, 'MESSAGE_FAIL_NO_LABEL', [landmark_role]);                                                  
+          }
+        
+        }
+        
+        for (i = 0; i < landmark_elements_len; i++) {
+          le = landmark_elements[i];
+          if (le.dom_element.role == landmark_role) {
+            landmark_role_list.push(le);
+            if (le.label.length) label_list.push(le.label); 
+          }  
+        }
+
+        // if no elements with role return
+        if (!landmark_role_list.length) return;
+      
+        label_list_len = label_list.length;
+        label_list_len_2 = label_list_len - 1;
+      
+        for (i = 0; i < label_list_len_2; i++) {
+          for(j = i+1; j < label_list_len; j++) {
+            if (label_list[i] == label_list[j]) {
+              addToDuplicateLabelList(label_list[i]);
+            }  
+          }
+        }  
+        
+        landmark_role_list_len = landmark_role_list.length;
+        
+        if (landmark_role_list_len > 1) {
+          for (i = 0; i < landmark_role_list_len; i++) {
+            le = landmark_role_list[i];          
+            checkUniqueness(le);
+          }
+        }
+        else {
+          rule_result.addResult(SEVERITY.PASS, landmark_role_list[0], 'MESSAGE_PASS_ONLY_ONE', [landmark_role]);                                      
+        }
+        
+      }
+
+      var SEVERITY   = OpenAjax.a11y.SEVERITY;
+      var VISIBILITY = OpenAjax.a11y.VISIBILITY;
+      
+      var landmark_elements     = dom_cache.headings_landmarks_cache.landmark_elements;
+      var landmark_elements_len = landmark_elements.length;
+      
+      checkLandmarkLabels('navigation');
+      checkLandmarkLabels('main');
+      checkLandmarkLabels('region');
+      checkLandmarkLabels('banner');
+      checkLandmarkLabels('complementary');
+      checkLandmarkLabels('contentinfo');
+      checkLandmarkLabels('form');
+
+      
+  } // end validate function
+ },
+/**
+ * @object LANDMARK_4
+ *
+ * @desc Every page needs at least one main landmark
+ */	     	     	     
+ {
+  id                : 'LANDMARK_4', 
+  last_updated      : '2012-03-01', 
+  cache_dependency  : 'headings_landmarks_cache',
+  cache_properties  : ['role', 'label', 'label_source'],
+  language          : "",
+  validate          : function (dom_cache, rule_result) {
+
+
+      var SEVERITY   = OpenAjax.a11y.SEVERITY;
+      var VISIBILITY = OpenAjax.a11y.VISIBILITY;
+      
+      var landmark_elements     = dom_cache.headings_landmarks_cache.landmark_elements;
+      var landmark_elements_len = landmark_elements.length;
+
+      var i;
+      var le;
+
+      for (i = 0; i < landmark_elements_len; i++) {
+        le = landmark_elements[i];
+        if (le.label.length) {
+          rule_result.addResult(SEVERITY.MANUAL_CHECK, le, 'MESSAGE_HAS_LABEL', [le.label, le.dom_element.role]);                                              
+        }
+        else {
+          rule_result.addResult(SEVERITY.MANUAL_CHECK, le, 'MESSAGE_NO_LABEL', [le.dom_element.role]);                                                      
+        }
+      
+      }
+      
   } // end validate function
  }
  ]); 
@@ -20657,7 +23932,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
           else {      
             if (de.computed_style.is_visible_to_at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
             
-              switch (OpenAjax.a11y.util.UrlExists(ie.longdesc)) {
+              switch (ie.longdesc_is_broken) {
          
               case URL_RESULT.VALID:
                 rule_result.addResult(OpenAjax.a11y.SEVERITY.PASS, ie, 'MESSAGE_PASS', [ie.longdesc]);     
@@ -20697,7 +23972,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 { id                : 'IMAGE_3', 
   last_updated      : '2011-09-16', 
   cache_dependency  : 'images_cache',
-  cache_properties : ['has_alt_attribute', 'role', 'at'],
+  cache_properties : ['has_alt_attribute', 'alt', 'file_name', 'role', 'at'],
   language          : "",
   validate          : function (dom_cache, rule_result) {
   
@@ -20724,11 +23999,9 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
             ie.alt_length) {
                   
             if (de.computed_style.is_visible_to_at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
-              pos = ie.source.lastIndexOf('/');    
-              file_name = ie.source.substring((pos+1)).toLowerCase();
-        
+          
               // make sure it has a file extension, will assume extension is for an image
-              if (file_name.indexOf('.') >= 0) {
+              if (ie.file_name.indexOf('.') >= 0) {
          
                 if (ie.alt_for_comparison.indexOf(file_name) >= 0 ) {
                   rule_result.addResult(SEVERITY.FAIL, ie, 'MESSAGE_FAIL', [file_name]);                 
@@ -20761,7 +24034,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 { id                : 'IMAGE_4_EN', 
   last_updated      : '2011-09-16', 
   cache_dependency  : 'images_cache',
-  cache_properties : ['has_alt_attribute', 'alt_length', 'role', 'at'],
+  cache_properties  : ['has_alt_attribute', 'alt_length', 'role', 'at'],
   language          : "en-us en-br",
   validate          : function (dom_cache, rule_result) {
       
@@ -20778,7 +24051,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     // Check to see if valid cache reference
     if (image_elements && image_elements_len) {
      
-      for (i=0; i < image_elements_len; i++) {
+      for (i = 0; i < image_elements_len; i++) {
         ie = image_elements[i];
         de = ie.dom_element;
      
@@ -20899,7 +24172,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 { id                : 'IMAGE_6', 
   last_updated      : '2011-09-16', 
   cache_dependency  : 'images_cache',
-  cache_properties  : ['alt', 'height', 'width', 'role', 'at'],
+  cache_properties  : ['has_alt_attribute', 'alt_length', 'role', 'at'],
   language          : "",
   validate          : function (dom_cache, rule_result) {
     
@@ -20914,19 +24187,15 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     // Check to see if valid cache reference
     if (image_elements && image_elements_len) {
      
-      for (i=0; i < image_elements_len; i++) {
+      for (i = 0; i < image_elements_len; i++) {
         ie = image_elements[i];
         de = ie.dom_element;
 
-        if (de.computed_style.is_visible_to_at != OpenAjax.a11y.VISIBILITY.VISIBLE) {
- 
-          if (de.has_alt_attribute && ie.alt_length === 0) {     
-            rule_result.addResult(SEVERITY.FAIL, ie, 'MESSAGE_VERIFY', []);     
+        if (de.computed_style.is_visible_to_at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
+          if (ie.alt_length === 0 || de.role == 'presentation') {     
+            rule_result.addResult(SEVERITY.MANUAL_CHECK, ie, 'MESSAGE_VERIFY', []);
           }
-          else {      
-            rule_result.addResult(SEVERITY.NA, ie, 'MESSAGE_NA', []);     
-          }
-        } 
+        }    
         else {
           rule_result.addResult(SEVERITY.HIDDEN, ie, 'MESSAGE_HIDDEN', []);     
         }
@@ -20941,7 +24210,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     
 
 /**
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21081,7 +24350,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
             rule_result.addResult(SEVERITY.PASS, le, 'MESSAGE_PASS', [link_elements_len]);
           }
           else {
-            rule_result.addResult(SEVERITY.FAIL, le, 'MESSAGE_FAIL', [link_elements_len]);          
+            rule_result.addResult(SEVERITY.MANUAL_CHECK, le, 'MESSAGE_FAIL', [link_elements_len]);          
           }
         } // end loop
         
@@ -21139,7 +24408,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
             rule_result.addResult(SEVERITY.PASS, le, 'MESSAGE_PASS', [link_elements_len]);
           }
           else {
-            rule_result.addResult(SEVERITY.FAIL, le, 'MESSAGE_FAIL', [link_elements_len]);          
+            rule_result.addResult(SEVERITY.MANUAL_CHECK, le, 'MESSAGE_FAIL', [link_elements_len]);          
           }
         } // end loop
         
@@ -21153,7 +24422,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     
 
 /**
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21221,7 +24490,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   }
 ]);
 /**
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21348,7 +24617,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   }  
 ]);
 /**
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21392,8 +24661,6 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
       
      var table_elements   = dom_cache.tables_cache.table_elements;
      var table_elements_len = table_elements.length;
-   
-
      
      // Check to see if valid cache reference
      if (table_elements && table_elements_len) {
@@ -21521,8 +24788,6 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
      var table_elements     = dom_cache.tables_cache.table_elements;
      var table_elements_len = table_elements.length;
 
-
-     
      // Check to see if valid cache reference
      if (table_elements && table_elements_len) {
        
@@ -21537,7 +24802,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
                rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS', [te.effective_caption]);     
              }
              else {
-               rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_VIOLAION', []);
+               rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_FAIL', []);
              }
            }
            else {
@@ -21575,8 +24840,6 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
      var table_elements_len = table_elements.length;
      
      var data_table_count = 0;
-
-
      
      // Check to see if valid cache reference
      if (table_elements && table_elements_len) {
@@ -21601,7 +24864,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
                  rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS', [te.effective_caption]);
                } 
                else {
-                 rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_VIOLATION', []);
+                 rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_FAIL', []);
                }
              }  
            }
@@ -21641,8 +24904,6 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
      var tc;
      var ec;
      var es;
-
-     
 
      // Check to see if valid cache reference
      if (table_elements && table_elements_len) {
@@ -22249,9 +25510,6 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
        
        var de = element.dom_element;
        
-       var cce     = element.child_cache_elements;
-       var cce_len = cce.length;     
-       
        if (de.role && de.role == 'presentation') {
          rule_result.addResult(SEVERITY.PASS, element, 'MESSAGE_PASS', [de.tag_name]);       
        }
@@ -22259,6 +25517,14 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
          rule_result.addResult(SEVERITY.FAIL, element, 'MESSAGE_VIOLATION', [de.tag_name]);
        }
 
+       var cce     = element.child_cache_elements;
+       
+       if (!cce) return;
+       
+       var cce_len = cce.length;     
+       
+       if (!cce_len) return;
+       
        for (j = 0; j < cce_len; j++) {
          // do not recursively go into other tables
          if (cce[j].table_type !== TABLE.TABLE_ELEMENT) checkLayoutTableForRolePresentation(cce[j]);
@@ -22454,7 +25720,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     
 
 /**
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22472,29 +25738,28 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 /* --------------------------------------------------------------------------- */
 /* OpenAjax Alliance (OAA) Ruleset for WCAG 2.0 Transitional (Beta)           */
 /* --------------------------------------------------------------------------- */
-   
 
 OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
 
   title : {
-    'default' : "WCAG 2.0 Transitional",
-    'en-us'   : "WCAG 2.0 Transitional"
+    'default' : "IITAA 2.0",
+    'en-us'   : "IITAA 2.0"
   },   
 
   description : {
-    'default' : "Transitional ruleset based on current WCAG 2.0 sufficient techniques, when relavent techniques are available.  Recommendations are based on web accessibility and usability best practices using the features of the HTML and ARIA specifications.",
-    'en-us'   : "Transitional ruleset based on current WCAG 2.0 sufficient techniques, when relavent techniques are available.  Recommendations are based on web accessibility and usability best practices using the features of the HTML and ARIA specifications."  
+    'default' : "The IITAA 2.0 Beta ruleset is the success criteria of WCAG 2.0 and the accessible design patterns developed by the web best practices working group using the features of the HTML and ARIA specifications.",
+    'en-us'   : "The IITAA 2.0 Beta ruleset is the success criteria of WCAG 2.0 and the accessible design patterns developed by the web best practices working group using the features of the HTML and ARIA specifications."
   },
   
   author : {
-    name : "OpenAjax Accessibility Working Group",
-    url  : "http://www.openajax.org/member/wiki/Accessibility"
+    name : "Illinois Web Best Practices Working Group",
+    url  : "http://collaborate.athenpro.org/group/web/"
   } , 
   
  
-  id            : "WCAG20_TRANS",
-  version       : "1.0",
-  last_updated  : "2012-01-19",
+  id            : "IITAA20",
+  version       : "0.5 beta",
+  last_updated  : "2012-02-29",
 
   // Assignement of rules to WCAG 2.0 requirements
 
@@ -22703,16 +25968,6 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                    enabled  : true
                 },
                 //
-                // Table 2T
-                // Group Table
-                //
-                'TABLE_2T' : {
-                   type     : OpenAjax.a11y.RULE.REQUIRED,
-                   priority : OpenAjax.a11y.PRIORITY.P2,
-                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
-                   enabled  : true
-                },
-                //
                 // Table 2S
                 // Group Table 
                 //
@@ -22747,13 +26002,13 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Table 
                 //
                 'TABLE_4' : {
-                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
                 },
                 //
-                // Table 5: Each data table must include column and/or row headers: The first cell in each column must be a th element, and/or each row must contain at least one th element.
+                // Table 5
                 // Group Table 
                 //
                 'TABLE_5' : {
@@ -22797,7 +26052,37 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Landmark/Header
                 //
                 'LANDMARK_1' : {
-                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Landmark 2
+                // Group Landmark/Header
+                //
+                'LANDMARK_2' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Landmark 3
+                // Group Landmark/Header
+                //
+                'LANDMARK_3' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Landmark 4
+                // Group Landmark/Header
+                //
+                'LANDMARK_4' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true
@@ -23613,7 +26898,1175 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
 
 
 /**
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/* --------------------------------------------------------------------------- */
+/* OpenAjax Alliance (OAA) Ruleset for WCAG 2.0 Transitional (Beta)           */
+/* --------------------------------------------------------------------------- */
+
+OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
+
+  title : {
+    'default' : "WCAG 2.0 ARIA Transitional",
+    'en-us'   : "WCAG 2.0 ARIA Transitional"
+  },   
+
+  description : {
+    'default' : "The ARIA transitional ruleset is based on current WCAG 2.0 sufficient techniques, when relavent techniques are available.  Recommendations are based on web accessibility and usability best practices using the features of the HTML and ARIA specifications.",
+    'en-us'   : "The ARIA transitional ruleset is based on current WCAG 2.0 sufficient techniques, when relavent techniques are available.  Recommendations are based on web accessibility and usability best practices using the features of the HTML and ARIA specifications."  
+  },
+  
+  author : {
+    name : "OpenAjax Accessibility Working Group",
+    url  : "http://www.openajax.org/member/wiki/Accessibility"
+  } , 
+  
+ 
+  id            : "WCAG20_ARIA_TRANS",
+  version       : "0.5 beta",
+  last_updated  : "2012-01-19",
+
+  // Assignement of rules to WCAG 2.0 requirements
+
+  principles : {
+  
+    // Principe 1: Perceivable
+
+    '1' : { 
+      enabled: true,
+      guidelines : {
+      
+        // 1.1 Provide text alternatives for any non-text content so that it can be changed into other forms people need, such as large print, braille, speech, symbols or simpler language.
+        
+        '1.1' : { 
+          enabled: true,
+          success_criteria: {
+            
+            // 1.1.1 Non-text Content 
+            
+            '1.1.1' : {
+              enabled: true,
+              rules : {
+                //
+                // Image 1
+                //
+                'IMAGE_1' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Image 2
+                //
+                'IMAGE_2' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Image 3
+                //
+                'IMAGE_3' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Image 4 engish
+                //
+                'IMAGE_4_EN' : {
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Image 4 french
+                //
+                'IMAGE_4_FR' : {
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Image 5
+                //
+                'IMAGE_5' : {
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Image 6
+                //
+                'IMAGE_6' : {
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                }
+              }
+            }
+          }
+        },  
+        // 1.2 Provide alternatives for time-based media.
+          
+        '1.2' : { 
+          enabled: true ,
+          success_criteria: {
+          
+            // 1.2.1 Audio-only and Video-only (Prerecorded)
+            
+            '1.2.1' : {
+              enabled: true,
+              rules : {
+                //
+                // Media 1
+                //
+                'MEDIA_1' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Image 6
+                //
+                'MEDIA_2' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                }
+              }
+            },
+            
+            // 1.2.2 Captions (Prerecorded)
+            
+            '1.2.2' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 1.2.3 Audio Description or Media Alternative (Prerecorded)
+            
+            '1.2.3' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 1.2.4 Captions (Live)
+            
+            '1.2.4' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 1.2.5 Audio Description (Prerecorded)
+            
+            '1.2.5' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 1.2.6 Sign Language (Prerecorded)
+            
+            '1.2.6' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 1.2.7 Extended Audio Description (Prerecorded)
+            
+            '1.2.7' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 1.2.8 Media Alternative (Prerecorded)
+            
+            '1.2.8' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 1.2.9 Audio-only (Live)
+            
+            '1.2.9' : {
+              enabled: true,
+              rules : {
+              }
+            }
+          }
+        },  
+        // 1.3 Create content that can be presented in different ways (for example simpler layout) without losing information or structure.
+        
+        '1.3' : { 
+          enabled: true ,
+          success_criteria: {
+
+            // 1.3.1 Info and Relationships
+            
+            '1.3.1' : {
+              enabled: true,
+              rules : {
+                //
+                // TABLE 1: Each data table must include column and/or row headers
+                // Group Table
+                //
+                'TABLE_1' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Table 2T
+                // Group Table
+                //
+                'TABLE_2T' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P2,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Table 3
+                // Group Table 
+                //
+                'TABLE_3' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Table 4
+                // Group Table 
+                //
+                'TABLE_4' : {
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Table 5: Each data table must include column and/or row headers: The first cell in each column must be a th element, and/or each row must contain at least one th element.
+                // Group Table 
+                //
+                'TABLE_5' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Table 6 
+                // Group Table 
+                //
+                'TABLE_6' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Table 7
+                // Group Table 
+                //
+                'TABLE_7' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Table 8
+                // Group Table 
+                //
+                'TABLE_8' : {
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Landmark 1
+                // Group Landmark/Header
+                //
+                'LANDMARK_1' : {
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Landmark 2
+                // Group Landmark/Header
+                //
+                'LANDMARK_2' : {
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Landmark 2
+                // Group Landmark/Header
+                //
+                'LANDMARK_3' : {
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Landmark 4
+                // Group Landmark/Header
+                //
+                'LANDMARK_4' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // List 1
+                // Group List
+                //
+                'LIST_1' : {
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                }
+              }
+            },
+            
+            // 1.3.2 Meaningful Sequence
+            
+            '1.3.2' : {
+              enabled: true,
+              rules : {
+                //
+                // LAYOUT_1
+                // Group Style: Table Rule
+                //
+                'LAYOUT_1' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // LAYOUT_2
+                // Group Style: Table Rule
+                //
+                'LAYOUT_2' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // LAYOUT_3
+                // Group Style: Table Rule
+                //
+                'LAYOUT_3' : {
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                }
+              }
+            },
+            
+            // 1.3.3 Sensory Characteristics
+            
+            '1.3.3' : {
+              enabled: true,
+              rules : {
+              }
+            }
+          }
+        },
+        // 1.4 Make it easier for users to see and hear content including separating foreground from background.
+        
+        '1.4' : {
+          enabled: true ,
+          success_criteria: {
+          
+            // 1.4.1 Use of Color
+
+            '1.4.1' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 1.4.2 Audio Control
+
+            '1.4.2' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 1.4.3 Contrast (Minimum)
+
+            '1.4.3' : {
+              enabled: true,
+              rules : {
+                //
+                // Color 1:
+                // Group Style: Link Rule
+                //
+                'COLOR_1' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                }
+              }
+            },
+            
+            // 1.4.4 Resize text
+
+            '1.4.4' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 1.4.5 Images of Text
+
+            '1.4.5' : {
+              enabled: true,
+              rules : {
+
+                //
+                // Heading 6
+                // Group Style: Link Rule
+                //
+                'HEADING_6' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                }
+              }
+            },
+            
+            // 1.4.6 Contrast (Enhanced)
+
+            '1.4.6' : {
+              enabled: true,
+              rules : {
+                //
+                // Color 2
+                //
+                'COLOR_2' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                }
+              }
+            },
+            
+            // 1.4.7 Low or No Background Audio
+
+            '1.4.7' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 1.4.8 Visual Presentation
+
+            '1.4.8' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 1.4.9 Images of Text (No Exception)
+
+            '1.4.9' : {
+              enabled: true,
+              rules : {
+              }
+            }            
+          }
+        }  
+      }
+    },
+    
+    // Principe 2: Operable
+    
+    '2' : { 
+      enabled: true,
+      guidelines: { 
+    
+        // 2.1 Make all functionality available from a keyboard.
+        
+        '2.1' : { 
+          enabled: true ,
+          success_criteria: {
+          
+            // 2.1.1 Keyboard
+
+            '2.1.1' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 2.1.2 No Keyboard Trap
+
+            '2.1.2' : {
+              enabled: true,
+              rules : {
+              }
+            },
+                        
+            // 2.1.3 Keyboard (No Exception)
+
+            '2.1.3' : {
+              enabled: true,
+              rules : {
+              }
+            }                        
+          }
+        },
+        // 2.2 Provide users enough time to read and use content.
+        
+        '2.2' : { 
+          enabled: true ,
+          success_criteria: {
+          
+            // 2.2.1 Timing Adjustable
+
+            '2.2.1' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 2.2.2 Pause, Stop, Hide
+
+            '2.2.2' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 2.2.3 No Timing
+
+            '2.2.3' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 2.2.4 Interruptions
+
+            '2.2.4' : {
+              enabled: true,
+              rules : {
+              }
+            },
+
+            // 2.2.5 Re-authenticating    
+
+            '2.2.5' : {
+              enabled: true,
+              rules : {
+              }
+            }                        
+          }
+        },
+        
+        // 2.3 Do not design content in a way that is known to cause seizures.
+        
+        '2.3' : { 
+          enabled: true,
+          success_criteria: {
+          
+            // 2.3.1 Three Flashes or Below Threshold
+
+            '2.3.1' : {
+              enabled: true,
+              rules : {
+              }
+            },
+
+            // 2.3.2 Three Flashes
+
+            '2.3.2' : {
+              enabled: true,
+              rules : {
+              }
+            }
+          }
+        },
+        
+        // 2.4 Provide ways to help users navigate, find content, and determine where they are.
+        
+        '2.4' : { 
+          enabled: true ,
+          success_criteria: {
+            // 2.4.1 Bypass Blocks
+
+            '2.4.1' : {
+              enabled: true,
+              rules : {
+                               //
+                // HEADING 1: Every page should have at least H1 element
+                // Group 11: 
+                //
+                'HEADING_1' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                }
+              }
+            },
+
+            // 2.4.2 Page Titled
+
+            '2.4.2' : {
+              enabled: true,
+              rules : {
+                               //
+                // Title 1:
+                // Group 11: 
+                //
+                'TITLE_1' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                               //
+                // Title 2:
+                // Group 11: 
+                //
+                'TITLE_2' : {
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                               //
+                // Title 3:
+                // Group 
+                //
+                'TITLE_3' : {
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                }
+              }
+            },
+            
+            // 2.4.3 Focus Order
+
+            '2.4.3' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 2.4.4 Link Purpose (In Context)
+
+            '2.4.4' : {
+              enabled: true,
+              rules : {
+                               //
+                // Link 1:
+                // Group 11: Link Rule
+                //
+                'LINK_1' : {
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
+                   priority : OpenAjax.a11y.PRIORITY.P2,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                }
+              }
+            },
+            
+            // 2.4.5 Multiple Ways
+
+            '2.4.5' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 2.4.6 Headings and Labels
+
+            '2.4.6' : {
+              enabled: true,
+              rules : {
+                //
+                // Heading 2
+                // Group: Headings and Landmarks
+                //
+                'HEADING_2' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Heading 3
+                // Group: Headings and Landmarks
+                //
+                'HEADING_3' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Heading 8 
+                // Group: Headings and Landmarks
+                //
+                'HEADING_8_EN' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Control 10
+                // Group: Controls
+                //
+                'CONTROL_10' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Control 11
+                // Group: Controls
+                //
+                'CONTROL_11' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                }
+              }
+            },
+            
+            // 2.4.7 Focus Visible
+
+            '2.4.7' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 2.4.8 Location
+
+            '2.4.8' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 2.4.9 Link Purpose (Link Only)
+
+            '2.4.9' : {
+              enabled: true,
+              rules : {
+                // LINK 2: Links with the same HREF should have the same link text.
+                // Group 11: Link Rule
+                //
+                'LINK_2' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P3,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // LINK 3: Links with the same HREF should have the same link text.
+                // Group 11: Link Rule
+                //
+                'LINK_3' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                }
+              }
+            },
+            
+            // 2.4.10 Section Headings
+
+            '2.4.10' : {
+              enabled: true,
+              rules : {
+                //
+                // Heading 4
+                // Group: Headings and Landmarks
+                //
+                'HEADING_4' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Heading 5
+                // Group: Headings and Landmarks
+                //
+                'HEADING_5' : {
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Heading 6
+                // Group: Headings and Landmarks
+                //
+                'HEADING_7' : {
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                }
+              }
+            }
+          }            
+        }
+      }  
+    },    
+    
+    // Principe 3: Understandable
+    
+    '3' : { 
+      enabled: true,
+      guidelines: { 
+    
+        // 3.1 Make text content readable and understandable.
+        
+        '3.1' : { 
+          enabled: true ,
+          success_criteria: {
+          
+            // 3.1.1 Language of Page
+
+            '3.1.1' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 3.1.2 Language of Parts
+
+            '3.1.2' : {
+              enabled: true,
+              rules : {
+              }
+            },
+                        
+            // 3.1.3 Unusual Words
+
+            '3.1.3' : {
+              enabled: true,
+              rules : {
+              }
+            },
+                        
+            // 3.1.4 Abbreviations
+
+            '3.1.4' : {
+              enabled: true,
+              rules : {
+              }
+            },
+                        
+            // 3.1.5 Reading Level
+
+            '3.1.5' : {
+              enabled: true,
+              rules : {
+              }
+            },
+                        
+            // 3.1.6 Pronunciation        
+
+            '3.1.6' : {
+              enabled: true,
+              rules : {
+              }
+            }                        
+          }
+        },
+        
+        // 3.2 Make Web pages appear and operate in predictable ways.
+        
+        '3.2' : { 
+          enabled: true ,
+          success_criteria: {
+          
+            // 3.2.1 On Focus
+
+            '3.2.1' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 3.2.2 On Input
+
+            '3.2.2' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            // 3.2.3 Consistent Navigation
+
+            '3.2.3' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 3.2.4 Consistent Identification
+
+            '3.2.4' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 3.2.5 Change on Request       
+
+            '3.2.5' : {
+              enabled: true,
+              rules : {
+              }
+            }
+          }
+        },
+        
+        // 3.3 Help users avoid and correct mistakes.
+        
+        '3.3' : { 
+          enabled: true ,
+          success_criteria: {
+          
+            // 3.3.1 Error Identification
+
+            '3.3.1' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 3.3.2 Labels or Instructions
+
+            '3.3.2' : {
+              enabled: true,
+              rules : {
+                // Control 1
+                // Group: Controls
+                //
+                'CONTROL_1' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Control 2
+                // Group: Controls
+                //
+                'CONTROL_2' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Control 3
+                // Group: Controls
+                //
+                'CONTROL_3' : {
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Control 4
+                // Group: Controls
+                //
+                'CONTROL_4' : {
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Control 5
+                // Group: Controls
+                //
+                'CONTROL_5' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Control 6
+                // Group: Controls
+                //
+                'CONTROL_6' : {
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Control 7
+                // Group: Controls
+                //
+                'CONTROL_7' : {
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Control 8
+                // Group: Controls
+                //
+                'CONTROL_8' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Control 9
+                // Group: Controls
+                //
+                'CONTROL_9' : {
+                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                }
+              }
+            },
+            
+            // 3.3.3 Error Suggestion
+
+            '3.3.3' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 3.3.4 Error Prevention (Legal, Financial, Data)
+
+            '3.3.4' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 3.3.5 Help: Context-sensitive help is available.
+
+            '3.3.5' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 3.3.6 Error Prevention (All)     
+
+            '3.3.6' : {
+              enabled: true,
+              rules : {
+              }
+            }           
+          }  
+        }
+      }  
+    }, 
+    
+    // Principe 4: Robust
+    
+    '4' : { 
+      enabled: true,
+      guidelines: { 
+    
+        // 4.1 Compatible: Maximize compatibility with current and future user agents, including assistive technologies.
+        
+        '4.1' : { 
+          enabled: true ,
+          success_criteria: {
+
+            // 4.1.1 Parsing
+
+            '4.1.1' : {
+              enabled: true,
+              rules : {
+              }
+            },
+            
+            // 4.1.2 Name, Role, Value:
+
+            '4.1.2' : {
+              enabled: true,
+              rules : {
+              }
+            }
+          }
+        }
+      }
+    }  
+  }   
+});
+
+
+/**
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23641,8 +28094,8 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
   },   
   
   description : {
-    'default' : "WCAG 2.0 ARIA strict ruleset is based on best practice design patterns to improve accessibility and usability with the features available with HTML and ARIA specifications to meet WCAG 2.0 success criteria.",
-    'en-us'   : "WCAG 2.0 ARIA strict ruleset is based on best practice design patterns to improve accessibility and usability with the features available with HTML and ARIA specifications to meet WCAG 2.0 success criteria."  
+    'default' : "WCAG 2.0 ARIA strict ruleset is based on best practice design patterns to improve accessibility and usability with the features available in HTML and ARIA specifications to meet WCAG 2.0 success criteria.",
+    'en-us'   : "WCAG 2.0 ARIA strict ruleset is based on best practice design patterns to improve accessibility and usability with the features available in HTML and ARIA specifications to meet WCAG 2.0 success criteria."  
   },
   
   author : {
@@ -23650,8 +28103,8 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
     url  : "http://www.openajax.org/member/wiki/Accessibility"
   } , 
   
-  id            : "WCAG20_ARIA",
-  version       : "1.0",
+  id            : "WCAG20_ARIA_STRICT",
+  version       : "0.5 Beta",
   last_updated  : "2012-01-19",
 
   // Assignement of rules to WCAG 2.0 requirements
@@ -23861,16 +28314,6 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                    enabled  : true
                 },
                 //
-                // Table 2T
-                // Group Table
-                //
-                'TABLE_2T' : {
-                   type     : OpenAjax.a11y.RULE.REQUIRED,
-                   priority : OpenAjax.a11y.PRIORITY.P2,
-                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
-                   enabled  : true
-                },
-                //
                 // Table 2S
                 // Group Table 
                 //
@@ -23955,7 +28398,37 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
                 // Group Landmark/Header
                 //
                 'LANDMARK_1' : {
-                   type     : OpenAjax.a11y.RULE.RECOMMENDATION,
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Landmark 2
+                // Group Landmark/Header
+                //
+                'LANDMARK_2' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Landmark 3
+                // Group Landmark/Header
+                //
+                'LANDMARK_3' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
+                   priority : OpenAjax.a11y.PRIORITY.P1,
+                   status   : OpenAjax.a11y.STATUS.ACCEPTED,
+                   enabled  : true
+                },
+                //
+                // Landmark 4
+                // Group Landmark/Header
+                //
+                'LANDMARK_4' : {
+                   type     : OpenAjax.a11y.RULE.REQUIRED,
                    priority : OpenAjax.a11y.PRIORITY.P1,
                    status   : OpenAjax.a11y.STATUS.ACCEPTED,
                    enabled  : true

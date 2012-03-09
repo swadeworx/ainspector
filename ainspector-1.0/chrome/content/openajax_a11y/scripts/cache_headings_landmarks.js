@@ -76,6 +76,8 @@ OpenAjax.a11y.cache.LandmarkInfo = function (landmark_info) {
  * @property {String}  headings_sort_property  - Name of the heading element property the heading elements array is currently sorted
  * @property {Number}  heading_length          - The length of the heading elements list, used in calculating cache id values 
  *
+ * @property {Array}   elements_with_content   - List of content elements and text nodes outside of landmarks 
+ *
  * @property {ResultRuleSummary}  rule_summary_result  - Rule results associated with this cache
  */
 
@@ -94,6 +96,8 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache = function (dom_cache) {
   this.heading_elements = [];  
   this.headings_sort_property  = 'document_order';
   this.heading_length  = 0;
+  
+  this.elements_with_content = [];
    
   this.rule_summary_results  = new OpenAjax.a11y.ResultRuleSummary();
   
@@ -179,11 +183,22 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.addHeadingElement = functio
 
 OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.getItemByCacheId = function (cache_id) {
 
-  var item = this.getLandmarkElementByCacheId(cache_id);
+  var i;
+  var elements_with_content     = this.elements_with_content;
+  var elements_with_content_len = elements_with_content.length;
+  var item = null;
+
+  item = this.getLandmarkElementByCacheId(cache_id);
   if (item) return item;
   
   item = this.getHeadingElementByCacheId(cache_id);
-  
+  if (item) return item;
+
+  for (i = 0; i < elements_with_content_len; i++) {
+    item = this.elements_with_content[i];
+    if (item.cache_id == cache_id) return item;
+  }
+
   return item;
 
 };
@@ -287,56 +302,83 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.updateCacheItems = function
   var le;
   var he;
   var li = new OpenAjax.a11y.cache.LandmarkInfo(landmark_info);
-
-  if ((dom_element.role == 'region')    ||
-      (dom_element.role == 'main')     || 
-      (dom_element.role == 'navigation')  ||
-      (dom_element.role == 'search')    ||
-      (dom_element.role == 'applicaton')  ||
-      (dom_element.role == 'banner')    ||
-      (dom_element.role == 'complementary') ||
-      (dom_element.role == 'contentinfo')  ||
-      (dom_element.role == 'form')) {
-   
-    le = new OpenAjax.a11y.cache.LandmarkElement(dom_element, landmark_info.landmark_element);    
-
-    this.dom_cache.getNameFromARIALabel(le);
-
-    this.addLandmarkElement(le);
-
-    if (landmark_info.landmark_element) {
-      landmark_info.landmark_element.addChildElement(le);
-    } 
-    else {
-      this.addChildElement(le);  
-    }
   
-    li.landmark_element = le;
-
-    return li;
-  }
- 
-  if ((dom_element.tag_name == 'h1') ||
-      (dom_element.tag_name == 'h2') || 
-      (dom_element.tag_name == 'h3') || 
-      (dom_element.tag_name == 'h4') || 
-      (dom_element.tag_name == 'h5') || 
-      (dom_element.tag_name == 'h6')) {
-   
-    he = new OpenAjax.a11y.cache.HeadingElement(dom_element);    
+  dom_element.parent_landmark = landmark_info.landmark_element;
   
-    this.addHeadingElement(he);
+  if (landmark_info.landmark_element) dom_element.parent_landmark_role = landmark_info.landmark_element.role;
+  
+  if (dom_element.type == NODE_TYPE.ELEMENT) {
 
-    if (landmark_info.landmark_element) {
-      landmark_info.landmark_element.addChildElement(he);  
-    } 
-    else {
-      this.addChildElement(he);  
+    if ((dom_element.role == 'region')    ||
+        (dom_element.role == 'main')     || 
+        (dom_element.role == 'navigation')  ||
+        (dom_element.role == 'search')    ||
+        (dom_element.role == 'applicaton')  ||
+        (dom_element.role == 'banner')    ||
+        (dom_element.role == 'complementary') ||
+        (dom_element.role == 'contentinfo')  ||
+        (dom_element.role == 'form')) {
+   
+      le = new OpenAjax.a11y.cache.LandmarkElement(dom_element, landmark_info.landmark_element);    
+
+      this.dom_cache.getNameFromARIALabel(le);
+
+      this.addLandmarkElement(le);
+
+      if (landmark_info.landmark_element) {
+        landmark_info.landmark_element.addChildElement(le);
+      } 
+      else {
+        this.addChildElement(le);  
+      }
+  
+      li.landmark_element = le;
+
+      return li;
     }
+          
+    // elements that can contain rendered content without having child dom text nodes
+    if ((dom_element.tag_name == 'applet')   ||
+        (dom_element.tag_name == 'area')     ||
+        (dom_element.tag_name == 'button')   ||
+        (dom_element.tag_name == 'canvas')   ||
+        (dom_element.tag_name == 'embed')    ||
+        (dom_element.tag_name == 'input')    ||
+        (dom_element.tag_name == 'img')      ||
+        (dom_element.tag_name == 'object')   ||
+        (dom_element.tag_name == 'textarea') ||
+        (dom_element.tag_name == 'select')) {
+      this.elements_with_content.push(dom_element);
+      return li;
+    }  
 
-    return li;
+    if ((dom_element.tag_name == 'h1') ||
+        (dom_element.tag_name == 'h2') || 
+        (dom_element.tag_name == 'h3') || 
+        (dom_element.tag_name == 'h4') || 
+        (dom_element.tag_name == 'h5') || 
+        (dom_element.tag_name == 'h6')) {
+   
+      he = new OpenAjax.a11y.cache.HeadingElement(dom_element);    
+  
+      this.addHeadingElement(he);
+
+      if (landmark_info.landmark_element) {
+        he.parent_landmark_role = landmark_info.landmark_element.dom_element.role;
+        landmark_info.landmark_element.addChildElement(he);
+      } 
+      else {
+        this.addChildElement(he);  
+      }
+
+      return li;
+    }
+    
   }
-
+  else {
+    if (dom_element.parent_element.tag_name != 'title') this.elements_with_content.push(dom_element);
+  }
+  
   return li;
   
 };
@@ -656,11 +698,34 @@ OpenAjax.a11y.cache.LandmarkElement.prototype.getCacheProperties = function (uns
 
   cache_nls.addPropertyIfDefined(properties, this, 'label');
   cache_nls.addPropertyIfDefined(properties, this, 'label_for_comparison');
+  cache_nls.addPropertyIfDefined(properties, this, 'parent_landmark_role');
 
   if (!unsorted) this.dom_element.sortItems(properties);
 
   return properties;
 };
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.LandmarkElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.LandmarkElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
 
 /**
 
@@ -770,6 +835,8 @@ OpenAjax.a11y.cache.HeadingElement = function (dom_element) {
   this.image_count           = ano.image_count;
   this.text_only_from_image  = (ano.name_from_text_nodes.length === 0) && (ano.name_from_image_alt.length > 0);
   
+  this.parent_landmark_role = "";
+
   return this;
     
 };
@@ -853,10 +920,35 @@ OpenAjax.a11y.cache.HeadingElement.prototype.getCacheProperties = function (unso
  cache_nls.addPropertyIfDefined(properties, this, 'name_from_image_alt');
  cache_nls.addPropertyIfDefined(properties, this, 'image_count');
  cache_nls.addPropertyIfDefined(properties, this, 'text_only_from_image');
+ cache_nls.addPropertyIfDefined(properties, this, 'parent_landmark_role');
  
   if (!unsorted) this.dom_element.sortItems(properties);
 
   return properties;
+};
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.HeadingElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.HeadingElement.prototype.getCachePropertyValue = function (property) {
+
+//  OpenAjax.a11y.console("Heading property: " + property + " value= " + this[property]);
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+  
 };
 
 /**

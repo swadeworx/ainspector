@@ -72,7 +72,7 @@ OpenAjax.a11y.locale = "en-us";
  * @desc Object containing data and methods for generating human readable text for cache item properties and values
  */
 
-OpenAjax.a11y.cache_nls      = OpenAjax.a11y.cache_nls      || new OpenAjax.a11y.CacheNLS();
+OpenAjax.a11y.cache_nls = OpenAjax.a11y.cache_nls || new OpenAjax.a11y.CacheNLS();
 
 /**
  * @object all_rules
@@ -84,7 +84,7 @@ OpenAjax.a11y.cache_nls      = OpenAjax.a11y.cache_nls      || new OpenAjax.a11y
  * @desc Object containing data and methods related to rules
  */
 
-OpenAjax.a11y.all_rules      = OpenAjax.a11y.all_rules      || new OpenAjax.a11y.Rules();
+OpenAjax.a11y.all_rules = OpenAjax.a11y.all_rules || new OpenAjax.a11y.Rules();
 
 /**
  * @object all_wcag20_nls

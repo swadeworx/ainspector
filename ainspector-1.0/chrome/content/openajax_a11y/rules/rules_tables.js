@@ -1,5 +1,5 @@
 /**
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,8 +43,6 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
       
      var table_elements   = dom_cache.tables_cache.table_elements;
      var table_elements_len = table_elements.length;
-   
-
      
      // Check to see if valid cache reference
      if (table_elements && table_elements_len) {
@@ -172,8 +170,6 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
      var table_elements     = dom_cache.tables_cache.table_elements;
      var table_elements_len = table_elements.length;
 
-
-     
      // Check to see if valid cache reference
      if (table_elements && table_elements_len) {
        
@@ -188,7 +184,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
                rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS', [te.effective_caption]);     
              }
              else {
-               rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_VIOLAION', []);
+               rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_FAIL', []);
              }
            }
            else {
@@ -226,8 +222,6 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
      var table_elements_len = table_elements.length;
      
      var data_table_count = 0;
-
-
      
      // Check to see if valid cache reference
      if (table_elements && table_elements_len) {
@@ -252,7 +246,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
                  rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS', [te.effective_caption]);
                } 
                else {
-                 rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_VIOLATION', []);
+                 rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_FAIL', []);
                }
              }  
            }
@@ -292,8 +286,6 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
      var tc;
      var ec;
      var es;
-
-     
 
      // Check to see if valid cache reference
      if (table_elements && table_elements_len) {
@@ -900,9 +892,6 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
        
        var de = element.dom_element;
        
-       var cce     = element.child_cache_elements;
-       var cce_len = cce.length;     
-       
        if (de.role && de.role == 'presentation') {
          rule_result.addResult(SEVERITY.PASS, element, 'MESSAGE_PASS', [de.tag_name]);       
        }
@@ -910,6 +899,14 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
          rule_result.addResult(SEVERITY.FAIL, element, 'MESSAGE_VIOLATION', [de.tag_name]);
        }
 
+       var cce     = element.child_cache_elements;
+       
+       if (!cce) return;
+       
+       var cce_len = cce.length;     
+       
+       if (!cce_len) return;
+       
        for (j = 0; j < cce_len; j++) {
          // do not recursively go into other tables
          if (cce[j].table_type !== TABLE.TABLE_ELEMENT) checkLayoutTableForRolePresentation(cce[j]);

@@ -89,7 +89,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
           else {      
             if (de.computed_style.is_visible_to_at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
             
-              switch (OpenAjax.a11y.util.UrlExists(ie.longdesc)) {
+              switch (ie.longdesc_is_broken) {
          
               case URL_RESULT.VALID:
                 rule_result.addResult(OpenAjax.a11y.SEVERITY.PASS, ie, 'MESSAGE_PASS', [ie.longdesc]);     
@@ -129,7 +129,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 { id                : 'IMAGE_3', 
   last_updated      : '2011-09-16', 
   cache_dependency  : 'images_cache',
-  cache_properties : ['has_alt_attribute', 'role', 'at'],
+  cache_properties : ['has_alt_attribute', 'alt', 'file_name', 'role', 'at'],
   language          : "",
   validate          : function (dom_cache, rule_result) {
   
@@ -156,11 +156,9 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
             ie.alt_length) {
                   
             if (de.computed_style.is_visible_to_at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
-              pos = ie.source.lastIndexOf('/');    
-              file_name = ie.source.substring((pos+1)).toLowerCase();
-        
+          
               // make sure it has a file extension, will assume extension is for an image
-              if (file_name.indexOf('.') >= 0) {
+              if (ie.file_name.indexOf('.') >= 0) {
          
                 if (ie.alt_for_comparison.indexOf(file_name) >= 0 ) {
                   rule_result.addResult(SEVERITY.FAIL, ie, 'MESSAGE_FAIL', [file_name]);                 
@@ -193,7 +191,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 { id                : 'IMAGE_4_EN', 
   last_updated      : '2011-09-16', 
   cache_dependency  : 'images_cache',
-  cache_properties : ['has_alt_attribute', 'alt_length', 'role', 'at'],
+  cache_properties  : ['has_alt_attribute', 'alt_length', 'role', 'at'],
   language          : "en-us en-br",
   validate          : function (dom_cache, rule_result) {
       
@@ -210,7 +208,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     // Check to see if valid cache reference
     if (image_elements && image_elements_len) {
      
-      for (i=0; i < image_elements_len; i++) {
+      for (i = 0; i < image_elements_len; i++) {
         ie = image_elements[i];
         de = ie.dom_element;
      
@@ -331,7 +329,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 { id                : 'IMAGE_6', 
   last_updated      : '2011-09-16', 
   cache_dependency  : 'images_cache',
-  cache_properties  : ['alt', 'height', 'width', 'role', 'at'],
+  cache_properties  : ['has_alt_attribute', 'alt_length', 'role', 'at'],
   language          : "",
   validate          : function (dom_cache, rule_result) {
     
@@ -346,19 +344,15 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     // Check to see if valid cache reference
     if (image_elements && image_elements_len) {
      
-      for (i=0; i < image_elements_len; i++) {
+      for (i = 0; i < image_elements_len; i++) {
         ie = image_elements[i];
         de = ie.dom_element;
 
-        if (de.computed_style.is_visible_to_at != OpenAjax.a11y.VISIBILITY.VISIBLE) {
- 
-          if (de.has_alt_attribute && ie.alt_length === 0) {     
-            rule_result.addResult(SEVERITY.FAIL, ie, 'MESSAGE_VERIFY', []);     
+        if (de.computed_style.is_visible_to_at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
+          if (ie.alt_length === 0 || de.role == 'presentation') {     
+            rule_result.addResult(SEVERITY.MANUAL_CHECK, ie, 'MESSAGE_VERIFY', []);
           }
-          else {      
-            rule_result.addResult(SEVERITY.NA, ie, 'MESSAGE_NA', []);     
-          }
-        } 
+        }    
         else {
           rule_result.addResult(SEVERITY.HIDDEN, ie, 'MESSAGE_HIDDEN', []);     
         }

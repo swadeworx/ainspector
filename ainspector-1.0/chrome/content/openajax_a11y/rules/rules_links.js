@@ -1,5 +1,5 @@
 /**
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -139,7 +139,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
             rule_result.addResult(SEVERITY.PASS, le, 'MESSAGE_PASS', [link_elements_len]);
           }
           else {
-            rule_result.addResult(SEVERITY.FAIL, le, 'MESSAGE_FAIL', [link_elements_len]);          
+            rule_result.addResult(SEVERITY.MANUAL_CHECK, le, 'MESSAGE_FAIL', [link_elements_len]);          
           }
         } // end loop
         
@@ -197,7 +197,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
             rule_result.addResult(SEVERITY.PASS, le, 'MESSAGE_PASS', [link_elements_len]);
           }
           else {
-            rule_result.addResult(SEVERITY.FAIL, le, 'MESSAGE_FAIL', [link_elements_len]);          
+            rule_result.addResult(SEVERITY.MANUAL_CHECK, le, 'MESSAGE_FAIL', [link_elements_len]);          
           }
         } // end loop
         

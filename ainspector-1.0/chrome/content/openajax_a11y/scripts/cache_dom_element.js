@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
  * @desc Creates a DOMElementCache object for represeting a DOM in a web browser
  *         
  * @property {Array}  dom_elements        - A simple array of all the DOMElement objects in the cache
+ * @property {Array}  dom_text            - A simple array of all the DOMText objects in the cache
  * @property {Array}  child_dom_elements  - The roor of a tree of DOMElement objects representing the node relationships on the DOM
  * @property {String} sort_property       - String  The DOMElement property the dom_elements array is sorted by
  * @property {Number} length              - The running length of the dom_elements array used for calculating the cache_id property of a DOMElement
@@ -34,9 +35,13 @@
 OpenAjax.a11y.cache.DOMElementCache = function () {
 
  this.dom_elements = [];
+ this.dom_text = [];
+ 
  this.child_dom_elements = [];
+ 
  this.sort_property = 'document_order';
  this.length = 0;
+ this.text_length = 0;
 
 };
 
@@ -82,6 +87,32 @@ OpenAjax.a11y.cache.DOMElementCache.prototype.addDOMElement = function (dom_elem
  }
 
  return this.dom_elements.length;
+
+};
+
+/**
+ * @method addDOMText
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMElementCache
+ *
+ * @desc Adds a DOM text object to the array of all DOM text and calculates the cache ID
+ *
+ * @param {DOMText Object}  dom_text  - DOM text object to add 
+ *
+ * @return  {Number}  Returns the current number of elements in the array of DOM text objects
+ */
+
+OpenAjax.a11y.cache.DOMElementCache.prototype.addDOMText = function (dom_text) {
+
+ // item must exist and have the position property
+ if (dom_text) {
+  this.text_length  += 1;
+  dom_text.document_order = this.text_length;
+  dom_text.cache_id       = "domt_" + this.text_length;
+  this.dom_text.push(dom_text);
+ }
+
+ return this.dom_text.length;
 
 };
 
@@ -315,17 +346,417 @@ OpenAjax.a11y.cache.DOMElementCache.prototype.checkForUniqueIDs = function () {
  *
  * @desc DOMText object represents DOM nodes of type text
  * 
+ *
+ * @param  {Object}      node           - The DOM text node 
+ * @param  {DOMElement}  parent_element - DOMElement object that is the current parent in the tree
+ *
+ * @property  {DOMElement}  parent_landmark      - LandmarkElement object that contains this element
+ * @property  {String}      parent_landmark_role - role of parent landmark element 
+ *
+ * @property  {LandmarkElement}  parent_landmark - LandmarkElement object that contains the text content
+ * @property  {String}      parent_landmark_role - role of parent landmark element 
+ *
  * @property {Number}  type - Type of DOM node element or text
  * @property {String}  text - Text content of DOM text node
  *
- * @param  {Object}  node           - The DOM text node 
- * @param  {DOMElement}  parent_element - DOMElement object that is the current parent in the tree
+ * @property {String}  cache_id        - String that uniquely identifies the cache element in the DOMCache
+ * @property {Number}  document_order  - The ordinal position of this DOM text node in the DOM
+ *
+ * @property {Object}  computed_style  - Object that contains information about run time styling of the node
+ * @property {Object}  events          - Object that contains information about event handlers attached to the node and its descendents
+ *
+ * @property {Array}  rules_violations       - Array of NodeResult objects with severity of 'Violation'
+ * @property {Array}  rules_recommendations  - Array of NodeResult objects with severity of 'Recommendation'
+ * @property {Array}  rules_manual_checks    - Array of NodeResult objects with severity of 'Manual Check'
+ * @property {Array}  rules_informational    - Array of NodeResult objects with severity of 'Informational'
+ * @property {Array}  rules_passed           - Array of NodeResult objects with severity of 'Passed'
+ * @property {Array}  rules_hidden           - Array of NodeResult objects with severity of 'Hidden'
+ * @property {Array}  rules_na               - Array of NodeResult objects with severity of 'Not Applicable' 
  */
  
 OpenAjax.a11y.cache.DOMText = function (node, parent_element) {
+
  this.type = NODE_TYPE.TEXT;
  this.text = node.data;
- parent_element.addToCharacterCount(this.text.length);
+ this.parent_element = parent_element;
+ 
+ this.parent_landmark      = null;
+ this.parent_landmark_role = "";
+ 
+ this.text_normalized = this.text.normalizeSpace();
+ var text_length      = this.text_normalized.length;
+ this.text_length     = text_length;
+ 
+ parent_element.addToCharacterCount(text_length);
+ 
+ this.computed_style = parent_element.computed_style;
+ 
+  // Create areas to store rule results associates with this node
+ this.rules_violations                = [];
+ this.rules_recommendations           = [];
+ this.rules_manual_checks             = [];
+ this.rules_informational             = [];
+ this.rules_passed                    = [];
+ this.rules_hidden                    = [];
+ this.rules_warnings                  = [];
+ this.rules_na                        = [];
+};
+
+/**
+ * @method addText
+ *
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMText
+ *
+ * @desc   Check DOMElement for presence of attribute with specified value
+ *
+ * @param  {String} text  - text content to add
+ *
+ * @return {Number}  Length of the normailized text content of the DOM text node
+ */
+
+OpenAjax.a11y.cache.DOMText.prototype.addText = function (text) {
+
+  this.text += text;
+  
+  this.text_normalized = this.text.normalizeSpace();
+  
+  var text_length = this.text_normalized.length;
+
+  parent_element.addToCharacterCount(text_length - this.text_length);
+
+  this.text_length = text_length;
+  
+};
+
+/**
+ * @method getResultRules
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMText
+ *
+ * @desc Returns an array of node results in severity order 
+ *
+ * @return {Array} Returns a array of node results
+ */
+
+OpenAjax.a11y.cache.DOMText.prototype.getResultRules = function () {
+ 
+  function addResultNodes(items) {
+  
+    var len = items.length;
+    
+    for (var i = 0; i < len; i++ ) {
+      result_nodes.push(items[i]);
+    }
+    
+  }
+
+  var result_nodes = [];
+  
+  addResultNodes(this.rules_violations);
+  addResultNodes(this.rules_manual_checks);
+  addResultNodes(this.rules_recommendations);
+  addResultNodes(this.rules_warnings);
+  addResultNodes(this.rules_passed);
+  addResultNodes(this.rules_informational);
+  addResultNodes(this.rules_hidden); 
+  
+  return result_nodes;
+  
+};
+
+/**
+ * @method getAccessibility
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMText
+ *
+ * @desc Returns the worst severity level of rule results  
+ *
+ * @return {Object} Results an object wiith two properties: 'severity' : nls value of the severity, 'style' : a severity styling constant
+ */
+
+OpenAjax.a11y.cache.DOMText.prototype.getAccessibility = function () {
+   
+  var cache_nls      = OpenAjax.a11y.cache_nls;
+  var SEVERITY       = OpenAjax.a11y.SEVERITY;
+  var SEVERITY_STYLE = OpenAjax.a11y.SEVERITY_STYLE;
+  var severity;
+  var a = {};
+
+  severity = cache_nls.getSeverityNLS(SEVERITY.NONE); 
+  a.label    = severity.label;
+  a.style    = SEVERITY_STYLE[SEVERITY.NONE];
+
+  if (this.rules_hidden.length) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.HIDDEN);
+    a.style    = SEVERITY_STYLE[SEVERITY.HIDDEN];
+  }
+  
+  if (this.rules_passed.length) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.PASS);
+    a.style    = SEVERITY_STYLE[SEVERITY.PASS];
+  }
+
+  if (this.rules_warnings.length) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.WARNING);
+    a.style    = SEVERITY_STYLE[SEVERITY.WARNING];
+  }
+  
+  if (this.rules_manual_checks.length) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.MANUAL_CHECK);
+    a.style    = SEVERITY_STYLE[SEVERITY.MANUAL_CHECK];
+  }
+
+  if (this.rules_recommendations.length) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.RECOMMENDATION);
+    a.style    = SEVERITY_STYLE[SEVERITY.RECOMMENDATION];
+  }
+
+  if (this.rules_violations.length) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.VIOLATION);
+    a.style       = SEVERITY_STYLE[SEVERITY.VIOLATION];
+  }
+
+  a.label       = severity.label;
+  a.abbrev      = severity.abbrev;
+  a.description = severity.description;
+  a.tooltip     = severity.tooltip;
+  
+  return a;
+  
+};
+
+/**
+ * @method getAttributes
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMText
+ *
+ * @desc Returns an empty array, text nodes do not have attributes
+ *
+ * @return {Array} Returns a empty array
+ */
+
+OpenAjax.a11y.cache.DOMText.prototype.getAttributes = function (unsorted) {
+
+  return [];
+
+};
+
+/**
+ * @method getEvents
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMText
+ *
+ * @desc Returns an empty array, text nodes do not have events
+ *
+ * @return {Array} Returns a empty array
+ */
+
+OpenAjax.a11y.cache.DOMText.prototype.getEvents = function (unsorted) {
+
+  return [];
+
+};
+
+
+/**
+ * @method getCacheProperties
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMText
+ *
+ * @desc Returns an array of styling information for the element, sorted in alphabetical order 
+ *
+ * @return {Array} Returns a array of NLS objects for styling
+ */
+
+OpenAjax.a11y.cache.DOMText.prototype.getCacheProperties = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+ 
+  var properties  = [];
+
+  cache_nls.addPropertyIfDefined(properties, this, 'text_normalized');
+  cache_nls.addPropertyIfDefined(properties, this, 'text_length');
+  
+  return properties;
+
+};
+
+/**
+ * @method getColorContrastSummary
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMText
+ *
+ * @desc Returns the worst severity level for color contrast rules  
+ *
+ * @return {Object} Results an object wiith two properties: 'severity' : nls value of the severity, 'style' : a severity styling constant
+ */
+
+OpenAjax.a11y.cache.DOMText.prototype.getColorContrastSummary = function () {
+   
+  function hasRule(node_results, rules) {
+  
+    var i;
+    var j;
+    
+    var node_results_len = node_results.length;
+    var rules_len        = rules.length;
+    
+    for (i = 0; i < node_results_len; i++ ) {
+      for (j = 0; j < rules_len; j++) {
+        if (node_results[i].rule_result.rule.rule_id == rules[j]) return true;
+      }
+    }
+    return false;
+  }
+
+  var i;
+  
+  var cache_nls      = OpenAjax.a11y.cache_nls;
+  var SEVERITY       = OpenAjax.a11y.SEVERITY;
+  var SEVERITY_STYLE = OpenAjax.a11y.SEVERITY_STYLE;
+  var severity;
+  var last_severity_value;
+  var a = {};
+  var last_a = {};
+
+  severity = cache_nls.getSeverityNLS(SEVERITY.NONE); 
+  a.label    = severity.label;
+  a.style    = SEVERITY_STYLE[SEVERITY.NONE];
+  
+  var color_rules = ['COLOR_1', 'COLOR_2'];
+
+  if (hasRule(this.rules_hidden, color_rules)) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.HIDDEN);
+    a.style    = SEVERITY_STYLE[SEVERITY.HIDDEN];
+  }
+
+  if (hasRule(this.rules_passed, color_rules)) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.PASS);
+    a.style  = SEVERITY_STYLE[SEVERITY.PASS];
+  }
+
+  if (hasRule(this.rules_recommendations, color_rules)) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.RECOMMENDATION);
+    a.style  = SEVERITY_STYLE[SEVERITY.RECOMMENDATION];
+    last_severity_value = SEVERITY.RECOMMENDATION;
+  }
+
+  if (hasRule(this.rules_manual_checks, color_rules)) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.MANUAL_CHECK);
+    a.style  = SEVERITY_STYLE[SEVERITY.MANUAL_CHECK];
+  }
+
+  if (hasRule(this.rules_violations, color_rules)) {
+      severity = cache_nls.getSeverityNLS(SEVERITY.VIOLATION);
+      a.style  = SEVERITY_STYLE[SEVERITY.VIOLATION];
+  }
+
+  a.label       = severity.label;
+  a.abbrev      = severity.abbrev;
+  a.description = severity.description;
+  a.tooltip     = severity.tooltip;
+
+  return a;
+  
+};
+
+/**
+ * @method getStyle
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMText
+ *
+ * @desc Returns an array of styling information for the element, sorted in alphabetical order 
+ *
+ * @return {Array} Returns a array of NLS objects for styling
+ */
+
+OpenAjax.a11y.cache.DOMText.prototype.getStyle = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+ 
+  var properties  = [];
+
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'display');
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'visibility');
+  
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'color');
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'opacity');
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'background_color');
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'background_image');
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'background_repeat');
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'background_position');
+
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'font_family');
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'font_size');
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'font_weight');
+
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'position');
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'left');
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'top');
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'width');
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'height');
+  
+  return properties;
+
+};
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMText
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number | Object} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.DOMText.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    if (typeof this.computed_style[property] == 'undefined') {
+      if (typeof this.parent_element[property] == 'undefined') {
+        if (this.parent_landmark) {
+          if (typeof this.parent_landmark[property] == 'undefined') {
+            if (typeof this.parent_landmark.dom_element[property] == 'undefined') {
+              return null;
+            }
+            else {
+              return this.parent_landmark.dom_element[property];
+            }
+          }
+          else {  
+            return this.parent_landmark[property];
+          }  
+        }  
+      }  
+      else {  
+        return this.parent_element[property];
+      }  
+    }
+    else {
+      return this.computed_style[property];
+    }  
+  }
+    
+  return this[property];
+};
+
+
+/**
+ * @method getText
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMText
+ *
+ * @desc Returns text content of a DOMText element
+ *
+ * @return {String} Returns the text content dom text node
+ */
+ 
+OpenAjax.a11y.cache.DOMText.prototype.getText = function() {
+  return this.text_normalized;
 };
 
 
@@ -344,7 +775,10 @@ OpenAjax.a11y.cache.DOMText = function (node, parent_element) {
  * @property  {String}    xpath               - String that identifies the position of the element in the document
  *
  * @property {Array}      child_dom_elements  - The child DOMElement and DOMText objects of this DOMElement in the tree
- * @property {DOMElement} parent              - The parent DOMElement of this DOMElement in the tree
+ * @property {DOMElement} parent_element      - The parent DOMElement of this DOMElement in the tree
+ *
+ * @property {LandmarkElement}  parent_landmark - LandmarkElement object that contains this element
+ * @property {String}     parent_landmark_role  - role of parent landmark
  *
  * @property {Number}     type                - Type of DOM node is element  
  * @property {Number}     document_order      - The ordinal position of this DOM element node in the DOM
@@ -413,9 +847,12 @@ OpenAjax.a11y.cache.DOMElement = function (node, parent_dom_element) {
  this.character_count = 0;
 
  // Save relationships with other elements
- this.parent = parent_dom_element;
+ this.parent_element = parent_dom_element;
  this.child_dom_elements = [];
  this.aria_properties = [];
+ 
+ this.parent_landmark = null;
+ this.parent_landmark_role = "";
 
  // Cache important attributes for accessibility
  i = 0;
@@ -505,7 +942,6 @@ OpenAjax.a11y.cache.DOMElement = function (node, parent_dom_element) {
 
 /**
  * @method hasAttrWithValue
- *
  *
  * @memberOf OpenAjax.a11y.cache.DOMElement
  *
@@ -924,16 +1360,50 @@ OpenAjax.a11y.cache.DOMElement.prototype.getCacheProperties = function () {
   cache_nls.addPropertyIfDefined(properties, this, 'character_count');
   
   cache_nls.addPropertyIfDefined(properties, this, 'calculated_aria_description');
-  
 
-  if (this.tag_name === 'img'   || 
-      this.tag_name === 'area'  || 
-      this.tag_name === 'input' || 
-      this.tag_name === 'applet')  cache_nls.addPropertyIfDefined(properties, this, 'has_alt_attribute');
+  cache_nls.addPropertyIfDefined(properties, this, 'document_order');
+
+  cache_nls.addPropertyIfDefined(properties, this, 'parent_landmark_role');
+  cache_nls.addPropertyIfDefined(properties, this, 'parent_landmark');
 
   return properties;
 
 };
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number | Object} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.DOMElement.prototype.getCachePropertyValue = function (property) {
+
+//  OpenAjax.a11y.console("dom element property: " + property + " value= " + this[property]);
+
+  if (typeof this[property] == 'undefined') {
+     if(typeof this.computed_style[property] == 'undefined') {
+       if(typeof this.events[property] == 'undefined') {
+         return null;
+       }
+       else {
+         return this.events[property]; 
+       }   
+     }
+     else {
+       return this.computed_style[property]; 
+     }
+  }
+  
+  return this[property];
+  
+};
+
 
 /**
  * @method sortItems
@@ -1126,7 +1596,7 @@ OpenAjax.a11y.cache.DOMElement.prototype.EnumerateFirefoxEvents = function (node
 };
 
 /**
- * @method addChildElement
+ * @method addChild
  *
  * @memberOf OpenAjax.a11y.cache.DOMElement
  *

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -127,229 +127,6 @@ OpenAjax.a11y.Rulesets.prototype.getAllRulesets = function() {
 };
 
 
-/* ---------------------------------------------------------------- */
-/*                          WCAG20Result                            */
-/* ---------------------------------------------------------------- */
-
-/** 
- * @constructor WCAG20Result
- *
- * @memberOf OpenAjax.a11y
- *
- * @desc Constructor for an object that contains a the results of 
- *          the evaluation for a WCAG 2.0 Principle
- *
- * @param  {RulesetPrinciple}  ruleset_principle  - Ruleset Principle object
- *
- * @property  {WCAG20RulesetPrinciple}   ruleset_principle        - Reference to the associated ruleset principle
- * @property  {ResultSummaryRule}        rule_summary_results     - Reference to the rule summary information for the guideline 
- * @property  {Array}                    result_guidelines        - Array of ruleset rule objects associated with the success criterion
- */
- 
-OpenAjax.a11y.WCAG20Result = function (ruleset) {
-
-  this.ruleset = ruleset;
-  this.rule_summary_results   = new OpenAjax.a11y.ResultRuleSummary();
-  this.rule_a_summary_results = new OpenAjax.a11y.ResultRuleSummary();
-  this.rule_aa_summary_results = new OpenAjax.a11y.ResultRuleSummary();
-  this.rule_aaa_summary_results = new OpenAjax.a11y.ResultRuleSummary();
-  
-  this.principle_results = [];
-
-};
-
-/** 
- * @method addPrincipleResult
- *
- * @memberOf OpenAjax.a11y.WCAG20Result
- *
- * @desc Add principle result object
- *
- * @param  {WCAG20ResultPrinciple}  principle_result  - Principle result object to add
- */
- 
-OpenAjax.a11y.WCAG20Result.prototype.addPrincipleResult = function (principle_result) {
-
-  this.principle_results.push(principle_result);
-
-};
-
-/**
- * @method toString
- *
- * @memberOf OpenAjax.a11y.cache.WCAG20Result
- *
- * @desc Creates a text string representation of the WCAG20 result object 
- *
- * @return {String} Returns a text string representation of the WCAG20 result object
- */
-
-OpenAjax.a11y.WCAG20Result.prototype.toString = function () {
-
- var str = "";
- 
- return str;
-};
-
-/* ---------------------------------------------------------------- */
-/*                       WCAG20RulesetPrinciple                     */
-/* ---------------------------------------------------------------- */
-
-/**
- * @constructor WCAG20RulesetPrinciple
- *
- * @memberOf OpenAjax.a11y
- *
- * @param    {Boolean} enabled    - Initial value for the enabled property
- *
- * @property {Boolean} enabled            - If true the rules associated with this principle should be evaluated
- * @property {Array}   ruleset_guidelines - Array of WCAG20RulesetGuideline objects
- */
- 
-OpenAjax.a11y.WCAG20RulesetPrinciple = function (id, enabled) {
- 
-   this.id = id;
- 
-   this.enabled = enabled;
-   
-   this.ruleset_guidelines = [];
-
-};
-
-/**
- * @method addRulesetGuideline
- *
- * @memberOf OpenAjax.a11y.WCAG20RulesetPrinciple
- *
- * @param    {WCAG20RulesetGuideline}  guideline - WCAG 2.0 ruleset guideline object to add
- */
- 
-OpenAjax.a11y.WCAG20RulesetPrinciple.prototype.addRulesetGuideline = function (guideline) {
- 
-  this.ruleset_guidelines.push(guideline);
- 
-};
-
-/* ---------------------------------------------------------------- */
-/*                       WCAG20RulesetGuideline                     */
-/* ---------------------------------------------------------------- */
-
-/**
- * @constructor WCAG20RulesetGuideline
- *
- * @memberOf OpenAjax.a11y
- *
- * @param    {Boolean} enabled    - Initial value for the enabled property
- *
- * @property {Boolean} enabled                   - If true the rules associated with this guideline should be evaluated
- * @property {Array}   ruleset_success_criteria  - Array of WCAG20RulesetSuccessCriteria objects
- */
- 
-OpenAjax.a11y.WCAG20RulesetGuideline = function (id, enabled) {
- 
-   this.id = id;
-   
-   this.enabled = enabled;
-   
-   this.ruleset_success_criteria = [];
-
-};
-
-/**
- * @method addRulesetSuccessCriterion
- *
- * @memberOf OpenAjax.a11y.WCAG20RulesetGuideline
- *
- * @param    {WCAG20RulesetSuccessCriteron}  success_criterion - WCAG 2.0 ruleset success criterion object to add
- */
- 
-OpenAjax.a11y.WCAG20RulesetGuideline.prototype.addRulesetSuccessCriterion = function (success_criterion) {
- 
-  this.ruleset_success_criteria.push(success_criterion);
- 
-};
-
-/* ---------------------------------------------------------------- */
-/*                       WCAG20RulesetSuccessCriterion              */
-/* ---------------------------------------------------------------- */
-
-/**
- * @constructor WCAG20RulesetSuccessCriterion
- *
- * @memberOf OpenAjax.a11y
- *
- * @param  {String}   id       - id of the success criterion
- * @param  {Boolean}  enabled  - Initial value for the enabled property
- *
- * @property {String}   id       - id of the success criterion
- * @property {Boolean}  enabled  - If true the rules associated with this success criterion should be evaluated
- * @property {Array}    rules    - Array of rule objects
- */
- 
-OpenAjax.a11y.WCAG20RulesetSuccessCriterion = function (id, enabled) {
- 
-   this.id  = id;
-   this.enabled = enabled;
-   this.ruleset_rules = [];
-
-};
-
-/**
- * @method addRulesetRule
- *
- * @memberOf OpenAjax.a11y.WCAG20RulesetSuccessCriterion
- *
- * @param  {WCAG20RulesetRule}  ruleset_rule  
- */
- 
-OpenAjax.a11y.WCAG20RulesetSuccessCriterion.prototype.addRulesetRule = function (ruleset_rule) {
- 
-  if (ruleset_rule) {
-    this.ruleset_rules.push(ruleset_rule);
-  }
- 
-};
-
-/* ---------------------------------------------------------------- */
-/*                       WCAG20RulesetRule                          */
-/* ---------------------------------------------------------------- */
-
-/**
- * @constructor WCAG20RulesetRule
- *
- * @memberOf OpenAjax.a11y
- *
- * @param  {String}   id        - id of the rule
- * @param  {Number}   severity  - Severity of the rule (NOTE: typically VIOLATION or RECOMMENDATION)
- * @param  {Number}   priority  - Relative priority of this rule compared to other rules for this success criterion
- * @param  {status}   status    - Status of this rule (i.e. accepted, experimential, deprecated)
- * @param  {Boolean}  enabled   - Initial value for the enabled property
- *
- * @param     {String}   rule_id   - id of the rule
- * @property  {Rule}     rule      - Rule object
- * @property  {Number}   severity  - Severity of the rule (NOTE: typically VIOLATION or RECOMMENDATION)
- * @property  {Number}   priority  - Relative priority of this rule compared to other rules for this success criterion
- * @property  {status}   status    - Status of this rule (i.e. accepted, experimential, deprecated)
- * @property  {Boolean}  enabled   - Initial value for the enabled property
- */
- 
-OpenAjax.a11y.WCAG20RulesetRule = function (id, type, priority, status, enabled) {
-
-   var r = OpenAjax.a11y.all_rules.getRuleByRuleId(id);
-   
-   this.rule     = null;
-   this.rule_id  = id;
-   this.type     = type;
-   this.prioirty = priority;
-   this.status   = status;
-   this.enabled  = enabled;
-
-   if (r) 
-     this.rule  = r;
-   else  
-     OpenAjax.a11y.console("  ** Rule with rule id='" + id + "' does not exist!");
-
-};
 
 /* ---------------------------------------------------------------- */
 /*                       WCAG20Ruleset                              */
@@ -360,20 +137,31 @@ OpenAjax.a11y.WCAG20RulesetRule = function (id, type, priority, status, enabled)
  *
  * @memberOf OpenAjax.a11y
  *
- * @property {Object} ruleset_data       The title of the document being evaluated
+ * @param  {Object} ruleset_data  -  JSON object representing rule mapping
  *
- * @property {String} title  - The title of the document being evaluated
- * @property {String} url    - The url of the document being evaluated
+ * NOTE: The following properties are defined when the ruleset is loaded
  *
- * @property {Number} number_of_rules  - The number of rules used int he ruleset
+ * @property {String} type                 - String representing the type of ruleset (i.e. WCAG20)          
+ * @property {String} id                   - id of the ruleset           
+ * @property {String} ruleset_title        - NLS localized title of the ruleset           
+ * @property {String} ruleset_description  - Description of the ruleset         
+ * @property {String} ruleset_author_name  - Name of the author(s) or organization         
+ * @property {String} ruleset_author_url   - URL to the author(s) or organization       
+ * @property {String} ruleset_updated      - Last time the ruleset was updated     
+ * @property {Number} number_of_rules      - number of rules in the rule set
  *
- * @property {Object} doc              -  Reference to browser document object model (DOM) that holds the document to be analyzed
- * @property {Object} requirements_nls Reference to requirements NLS object
- * @property {Object} rule_nls         Reference to rule NLS object
- * @property {Object} ruleset          Reference to ruleset object    
- * @property {Object} log              Reference to Log object
- * @property {Object} dom_cache        Reference to DOMCache object
- * @property {Object} ruleset_result   Reference to RulesetResult object
+ * @property {WCAG20RulesetPrinciple} ruleset_principles  - Array of WCAG 2.0 ruleset principle objects          
+ *
+ * NOTE: The following properties are defined after each evaluation
+ *
+ * @property {String} title  - The title of the last document evaluated
+ * @property {String} url    - The url of the last document evaluated
+ *
+ * @property {Object} doc         - Reference to browser document object model (DOM) that holds the document to be analyzed
+ * @property {Object} wcag20_nls  - Reference to WCAG 2.0 NLS object for current language
+ * @property {Object} log         - Reference to Log object
+ * @property {Object} dom_cache   - Reference to DOMCache object
+ * @property {Object} result      - Reference to WCAG20Result object
  *
  * @example
  *
@@ -400,12 +188,13 @@ OpenAjax.a11y.WCAG20Ruleset = function (ruleset_data) {
   var  r_id,  rr_data,  rr_new;  // variables for creating RulesetRule objects
  
   this.type = "WCAG20";
-  this.title = {};
+  this.ruleset_title = {};
 
   // Check for ruleset id
 
   if (ruleset_data['id']) {
     this.id  = ruleset_data['id'];
+    OpenAjax.a11y.console("Loading ruleset with the id: " + this.id);
   } 
   else {
     OpenAjax.a11y.console("  ** Ruleset missing id");
@@ -482,11 +271,11 @@ OpenAjax.a11y.WCAG20Ruleset = function (ruleset_data) {
   // Check for ruleset last updated property 
 
   if (ruleset_data['last_updated']) {
-    this.updated  = ruleset_data['last_updated'];
+    this.ruleset_updated  = ruleset_data['last_updated'];
   } 
   else {
     OpenAjax.a11y.console("  ** Ruleset missing last updated date, set to null");
-    this.updated  = "0000-00-00";
+    this.ruleset_updated  = "0000-00-00";
   }
 
 
@@ -509,9 +298,9 @@ OpenAjax.a11y.WCAG20Ruleset = function (ruleset_data) {
       if (rp_data.guidelines) {
       
         if (typeof rp_data.enabled === 'boolean')
-          rp_new = new OpenAjax.a11y.WCAG20RulesetPrinciple(r_id, rp_data.enabled);
+          rp_new = new OpenAjax.a11y.WCAG20RulesetPrinciple(p_id, rp_data.enabled);
         else  
-          rp_new = new OpenAjax.a11y.WCAG20RulesetPrinciple(r_id, true);
+          rp_new = new OpenAjax.a11y.WCAG20RulesetPrinciple(p_id, true);
 
         for (g_id in rp_data.guidelines) {
 
@@ -600,7 +389,6 @@ OpenAjax.a11y.WCAG20Ruleset = function (ruleset_data) {
   // local references to current NLS information, based on current locale setting
   
   this.wcag20_nls  = OpenAjax.a11y.all_wcag20_nls.getNLS();      
-//  this.rule_nls    = OpenAjax.a11y.all_rules.getRuleNLS();      
   
   // References related to evaluating a document
   // Initial values are null, properties are set with the "newResource' method
@@ -608,12 +396,69 @@ OpenAjax.a11y.WCAG20Ruleset = function (ruleset_data) {
   this.title = "";
   this.url   = "";
   
-  this.doc               = null;
-  this.log               = null;
-  this.dom_cache         = null;        
-  this.evaluation_result = null; 
-
+  this.doc       = null;
+  this.log       = null;
+  this.dom_cache = null;        
+  this.result    = null; 
+  
   return this;
+
+};
+
+/**
+ * @method setEvaluationLevel
+ *
+ * @memberOf OpenAjax.a11y.WCAG20Ruleset
+ *
+ * @desc Enable and disable rules based on the WCAG level 
+ *
+ * @param  {Number}    level   - Level to success criteria to test
+ */
+ 
+OpenAjax.a11y.WCAG20Ruleset.prototype.setEvaluationLevel = function (level) {
+
+  var i, j, k;
+  
+  var rp;
+  var rg;
+  var rsc;
+  
+  for (i = 0; i < this.ruleset_principles.length; i++) {
+  
+    rp = this.ruleset_principles[i];
+    
+    for (j = 0; j < rp.ruleset_guidelines.length; j++ ) {
+      
+      rg = rp.ruleset_guidelines[j];
+      
+      for (k = 0; k < rg.ruleset_success_criteria.length; k++) {
+        rsc = rg.ruleset_success_criteria[k];
+        
+        if (rsc.level <= level) {
+          rsc.enabled = true;
+        }
+        else {
+          rsc.enabled = false;        
+        }
+      }
+    }
+  }
+};
+
+/**
+ * @method setBrokenLinkTesting
+ *
+ * @memberOf OpenAjax.a11y.WCAG20Ruleset
+ *
+ * @desc Enable and disable the cache from testing for broken urls 
+ *
+ * @param  {Boolean}  broken_links   - If true enables cache to test for broken links
+ */
+ 
+OpenAjax.a11y.WCAG20Ruleset.prototype.setBrokenLinkTesting = function (broken_links) {
+  
+  OpenAjax.a11y.URL_TESTING_ENABLED = broken_links;
+  
 };
 
 /**
@@ -673,7 +518,7 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.evaluate = function (url, title, doc, prog
     
       rp = rps[i];
     
-      principle_result = new OpenAjax.a11y.WCAG20ResultPrinciple(rp);
+      principle_result = new OpenAjax.a11y.WCAG20ResultPrinciple(rps[i]);
       this.result.addPrincipleResult(principle_result);
     
       if (rp && rp.enabled) {
@@ -685,7 +530,7 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.evaluate = function (url, title, doc, prog
 
           rg = rgs[j];
       
-          guideline_result = new OpenAjax.a11y.WCAG20ResultGuideline(rg);
+          guideline_result = new OpenAjax.a11y.WCAG20ResultGuideline(rgs[j]);
           principle_result.addGuidelineResult(guideline_result);
     
           if (rg && rg.enabled) {
@@ -742,7 +587,7 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.evaluate = function (url, title, doc, prog
                        rule.validate( this.dom_cache, rule_result );
                      }  
 
-                     var rule_title  = rule.getTitle();
+                     var rule_title  = rule.getTitle(ruleset_rule.type);
                      
 //                     OpenAjax.a11y.console("Validating rule: " + rule.rule_id + "  " + rule_title);
 
@@ -823,207 +668,173 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.evaluate = function (url, title, doc, prog
     
  };
  
+
+
+
 /* ---------------------------------------------------------------- */
-/*              WCAG20ResultSuccessCriterion                              */
+/*                       WCAG20RulesetPrinciple                     */
 /* ---------------------------------------------------------------- */
 
-/** 
- * @constructor WCAG20ResultSuccessCriterion
+/**
+ * @constructor WCAG20RulesetPrinciple
  *
  * @memberOf OpenAjax.a11y
  *
- * @desc Constructor for an object that contains a the results of 
- *          the evaluation for a WCAG 2.0 Success Criteria
+ * @param    {Boolean} enabled    - Initial value for the enabled property
  *
- * @param  {RulesetSuccessCriterion}  ruleset_success_criterion  - Ruleset Success Criterion object
- *
- * @property  {Object}   success_criteria     - Reference to the associated ruleset success criteria
- * @property  {Array}    rule_summary_results - Array of ruleset rule objects associated with the success criterion
+ * @property {Boolean} enabled            - If true the rules associated with this principle should be evaluated
+ * @property {Array}   ruleset_guidelines - Array of WCAG20RulesetGuideline objects
  */
  
-OpenAjax.a11y.WCAG20ResultSuccessCriterion = function (success_criterion) {
-
-  this.success_criterion = success_criterion;
-  this.rule_summary_results      = new OpenAjax.a11y.ResultRuleSummary();
-
-};
-
-/** 
- * @method addRuleResult
- *
- * @memberOf OpenAjax.a11y.WCAG20ResultSuccessCriterion
- *
- * @desc Add rule result object
- *
- * @param  {ResultRule}  rule_result  - Rule result object to add
- */
+OpenAjax.a11y.WCAG20RulesetPrinciple = function (id, enabled) {
  
-OpenAjax.a11y.WCAG20ResultSuccessCriterion.prototype.addRuleResult = function (success_criterion_result) {
-
-  this.success_criterion_results.push(success_criterion_result);
-
-};
-
-/** 
- * @method getRequirement
- *
- * @memberOf OpenAjax.a11y.WCAG20ResultSuccessCriterion
- *
- * @desc Returns a NLS localized title for the rquirement
- *
- * @return {Array} Returns string with a localized version of the requirement
- */
- 
-OpenAjax.a11y.WCAG20ResultSuccessCriterion.prototype.getRequirement = function () {
-
-  var sc_nls = OpenAjax.a11y.all_wcag20_nls.getNLSItemById(this.success_criterion.id); 
-  
-  if (sc_nls) 
-    return "WCAG " + sc_nls.title;
-  else
-    return "Title not found";  
+   this.id = id;
+   
+   this.enabled = enabled;
+   
+   this.ruleset_guidelines = [];
 
 };
 
 /**
- * @method toString
+ * @method addRulesetGuideline
  *
- * @memberOf OpenAjax.a11y.cache.WCAG20ResultSuccessCriterion
+ * @memberOf OpenAjax.a11y.WCAG20RulesetPrinciple
  *
- * @desc Creates a text string representation of the success criterion result object 
- *
- * @return {String} Returns a text string representation of the rule result object
+ * @param    {WCAG20RulesetGuideline}  guideline - WCAG 2.0 ruleset guideline object to add
  */
-
-OpenAjax.a11y.WCAG20ResultSuccessCriterion.prototype.toString = function () {
-
- var str = "";
  
- return str;
+OpenAjax.a11y.WCAG20RulesetPrinciple.prototype.addRulesetGuideline = function (guideline) {
+ 
+  this.ruleset_guidelines.push(guideline);
+ 
 };
 
 /* ---------------------------------------------------------------- */
-/*                        WCAG20ResultGuideline                           */
+/*                       WCAG20RulesetGuideline                     */
 /* ---------------------------------------------------------------- */
 
-/** 
- * @constructor WCAG20ResultGuideline
+/**
+ * @constructor WCAG20RulesetGuideline
  *
  * @memberOf OpenAjax.a11y
  *
- * @desc Constructor for an object that contains a the results of 
- *          the evaluation for a WCAG 2.0 Guideline
+ * @param    {Boolean} enabled    - Initial value for the enabled property
  *
- * @param  {WCAG20RulesetGuideline}  ruleset_guideline  - Ruleset guideline object
- *
- * @property  {WCAG20RulesetGuideline}   ruleset_guideline        - Reference to the associated ruleset guideline
- * @property  {ResultSummaryRule}        rule_summary_results     - Reference to the rule summary information for the guideline 
- * @property  {Array}                    result_sucess_creiteria  - Array of ruleset rule objects associated with the success criterion
+ * @property {Boolean} enabled                   - If true the rules associated with this guideline should be evaluated
+ * @property {Array}   ruleset_success_criteria  - Array of WCAG20RulesetSuccessCriteria objects
  */
  
-OpenAjax.a11y.WCAG20ResultGuideline = function (ruleset_guideline) {
-
-  this.ruleset_guideline = ruleset_guideline;
-  this.rule_summary_results = new OpenAjax.a11y.ResultRuleSummary();
-  this.success_criteria_results = [];
-
-};
-
-/** 
- * @method addSuccessCriterionResult
- *
- * @memberOf OpenAjax.a11y.WCAG20ResultGuideline
- *
- * @desc Add success criterion result object
- *
- * @param  {WCAG20ResultSuccessCriterion}  success_criterion_result  - Success criterion result object to add
- */
+OpenAjax.a11y.WCAG20RulesetGuideline = function (id, enabled) {
  
-OpenAjax.a11y.WCAG20ResultGuideline.prototype.addSuccessCriterionResult = function (success_criterion_result) {
-
-  this.success_criteria_results.push(success_criterion_result);
+   this.id = id;
+   
+   this.enabled = enabled;
+   
+   this.ruleset_success_criteria = [];
 
 };
 
 /**
- * @method toString
+ * @method addRulesetSuccessCriterion
  *
- * @memberOf OpenAjax.a11y.cache.WCAG20ResultGuideline
+ * @memberOf OpenAjax.a11y.WCAG20RulesetGuideline
  *
- * @desc Creates a text string representation of the guideline result object 
- *
- * @return {String} Returns a text string representation of the guideline result object
+ * @param    {WCAG20RulesetSuccessCriteron}  success_criterion - WCAG 2.0 ruleset success criterion object to add
  */
-
-OpenAjax.a11y.WCAG20ResultGuideline.prototype.toString = function () {
-
- var str = "";
  
- return str;
+OpenAjax.a11y.WCAG20RulesetGuideline.prototype.addRulesetSuccessCriterion = function (success_criterion) {
+ 
+  this.ruleset_success_criteria.push(success_criterion);
+ 
 };
 
 /* ---------------------------------------------------------------- */
-/*                        WCAG20ResultPrinciple                           */
+/*                       WCAG20RulesetSuccessCriterion              */
 /* ---------------------------------------------------------------- */
 
-/** 
- * @constructor WCAG20ResultPrinciple
+/**
+ * @constructor WCAG20RulesetSuccessCriterion
  *
  * @memberOf OpenAjax.a11y
  *
- * @desc Constructor for an object that contains a the results of 
- *          the evaluation for a WCAG 2.0 Principle
+ * @param  {String}   id       - id of the success criterion
+ * @param  {Boolean}  enabled  - Initial value for the enabled property
  *
- * @param  {RulesetPrinciple}  ruleset_principle  - Ruleset Principle object
- *
- * @property  {WCAG20RulesetPrinciple}   ruleset_principle        - Reference to the associated ruleset principle
- * @property  {ResultSummaryRule}        rule_summary_results     - Reference to the rule summary information for the guideline 
- * @property  {Array}                    result_guidelines        - Array of ruleset rule objects associated with the success criterion
+ * @property {String}   id       - id of the success criterion
+ * @property {Boolean}  enabled  - If true the rules associated with this success criterion should be evaluated
+ * @property {Array}    rules    - Array of rule objects
  */
  
-OpenAjax.a11y.WCAG20ResultPrinciple = function (ruleset_principle) {
-
-  this.ruleset_principle = ruleset_principle;
-  this.rule_summary_results = new OpenAjax.a11y.ResultRuleSummary();
-  this.guideline_results = [];
-
-};
-
-/** 
- * @method addGuidelineResult
- *
- * @memberOf OpenAjax.a11y.WCAG20ResultPrinciple
- *
- * @desc Add guideline result object
- *
- * @param  {WCAG20ResultGuideline}  guideline_result  - Guideline result object to add
- */
+OpenAjax.a11y.WCAG20RulesetSuccessCriterion = function (id, enabled) {
  
-OpenAjax.a11y.WCAG20ResultPrinciple.prototype.addGuidelineResult = function (guideline_result) {
-
-  this.guideline_results.push(guideline_result);
+   var wcag20_nls = OpenAjax.a11y.all_wcag20_nls;
+ 
+   this.id  = id;
+   
+   this.level = wcag20_nls.getNLSItemById(id).level;
+   
+   this.enabled = enabled;
+   this.ruleset_rules = [];
 
 };
 
 /**
- * @method toString
+ * @method addRulesetRule
  *
- * @memberOf OpenAjax.a11y.cache.WCAG20ResultPrinciple
+ * @memberOf OpenAjax.a11y.WCAG20RulesetSuccessCriterion
  *
- * @desc Creates a text string representation of the principle result object 
- *
- * @return {String} Returns a text string representation of the principle result object
+ * @param  {WCAG20RulesetRule}  ruleset_rule  
  */
-
-OpenAjax.a11y.WCAG20ResultPrinciple.prototype.toString = function () {
-
- var str = "";
  
- return str;
+OpenAjax.a11y.WCAG20RulesetSuccessCriterion.prototype.addRulesetRule = function (ruleset_rule) {
+ 
+  if (ruleset_rule) {
+    this.ruleset_rules.push(ruleset_rule);
+  }
+ 
 };
 
+/* ---------------------------------------------------------------- */
+/*                       WCAG20RulesetRule                          */
+/* ---------------------------------------------------------------- */
 
+/**
+ * @constructor WCAG20RulesetRule
+ *
+ * @memberOf OpenAjax.a11y
+ *
+ * @param  {String}   id        - id of the rule
+ * @param  {Number}   severity  - Severity of the rule (NOTE: typically VIOLATION or RECOMMENDATION)
+ * @param  {Number}   priority  - Relative priority of this rule compared to other rules for this success criterion
+ * @param  {status}   status    - Status of this rule (i.e. accepted, experimential, deprecated)
+ * @param  {Boolean}  enabled   - Initial value for the enabled property
+ *
+ * @param     {String}   rule_id   - id of the rule
+ * @property  {Rule}     rule      - Rule object
+ * @property  {Number}   severity  - Severity of the rule (NOTE: typically VIOLATION or RECOMMENDATION)
+ * @property  {Number}   priority  - Relative priority of this rule compared to other rules for this success criterion
+ * @property  {status}   status    - Status of this rule (i.e. accepted, experimential, deprecated)
+ * @property  {Boolean}  enabled   - Initial value for the enabled property
+ */
+ 
+OpenAjax.a11y.WCAG20RulesetRule = function (id, type, priority, status, enabled) {
 
+   var r = OpenAjax.a11y.all_rules.getRuleByRuleId(id);
+   
+   this.rule     = null;
+   this.rule_id  = id;
+   this.type     = type;
+   this.prioirty = priority;
+   this.status   = status;
+   this.enabled  = enabled;
+
+   if (r) 
+     this.rule  = r;
+   else  
+     OpenAjax.a11y.console("  ** Rule with rule id='" + id + "' does not exist!");
+
+};
 
 
 

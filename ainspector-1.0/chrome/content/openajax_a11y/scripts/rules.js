@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -59,15 +59,51 @@ OpenAjax.a11y.Rule = function (nls, rule_id, last_updated, cache_dependency, cac
  * @memberOf OpenAjax.a11y.Rule
  *
  * @desc Returns an localized title for the rule
+ *
+ * @param {Number}  ruleset_rule_type  - Type of rule (i.e. required, recommended, conditional)
  */
-OpenAjax.a11y.Rule.prototype.getTitle = function () {
+OpenAjax.a11y.Rule.prototype.getTitle = function (rule_type) {
 
+  var RULE = OpenAjax.a11y.RULE;
+  
   var nls_rules = this.nls[OpenAjax.a11y.locale];
 
   var str = nls_rules.rules[this.rule_id]['TITLE'];
   
-  if (str) return str;
+  var message;
   
+  var vstr;
+
+  if (str) {
+  
+    vstr = "%s";
+  
+    if (str.indexOf(vstr) >= 0) {
+    
+      switch (rule_type) {
+      case RULE.REQUIRED:
+        message = nls_rules.message_severities.MUST;
+        break;
+
+      case RULE.RECOMMENDATION:
+        message = nls_rules.message_severities.SHOULD;
+        break;
+
+      case RULE.CONDITIONAL:
+        message = nls_rules.message_severities.MAY;
+        break;
+
+      default:
+        message = "";
+        break; 
+      }
+      
+     str = str.replace(vstr, message);  
+    }  
+    
+    return str;
+  }
+      
   return "Title not found for rule: " + this.rule_id;
   
 };
@@ -102,35 +138,69 @@ OpenAjax.a11y.Rule.prototype.getPurpose = function () {
  */
 OpenAjax.a11y.Rule.prototype.getMessage = function (node_result) {
 
-    var nls_rules = this.nls[OpenAjax.a11y.locale];
-
-    var i;
-    var message;
-    var str = nls_rules.rules[this.rule_id][node_result.message_id];
+  var nls_rules = this.nls[OpenAjax.a11y.locale];
+  
+  var SEVERITY = OpenAjax.a11y.SEVERITY;
+  
+  var i;
+  var message;
+  var str = nls_rules.rules[this.rule_id][node_result.message_id];
+  
+  if (!str) return nls_rules.missing_message + node_result.message_id;
     
 //    OpenAjax.a11y.console("Rule: " + this.rule_id + " Message: " + str);
-    
-    var vstr; // i.e. %1, %2 ....
-    var len = node_result.message_arguments.length;
+
+  var vstr; // i.e. %1, %2 ....
+  var len = node_result.message_arguments.length;
+
+  // check to see if message has severity dependence
   
-    for (i=0; i<len; i++) { 
-      vstr = "%" + (i+1); 
-      message = node_result.message_arguments[i];
-      if (typeof message === 'string') {
-        message = message.normalizeSpace();
+  vstr = "%s";
+  
+  if (str.indexOf(vstr) >= 0) {
+    
+    switch (node_result.severity) {
+    case SEVERITY.VIOLATION:
+      message = nls_rules.message_severities.MUST;
+      break;
+
+    case SEVERITY.RECOMMENDATION:
+      message = nls_rules.message_severities.SHOULD;
+      break;
+
+    case SEVERITY.MANUAL_CHECK:
+      message = nls_rules.message_severities.MAY;
+      break;
+
+    default:
+      message = "";
+      break; 
+    }
+
+    str = str.replace(vstr, message);  
+  }
+  
+  // Replace 
+  
+  for (i = 0; i < len; i++) { 
+    vstr = "%" + (i+1); 
+    message = node_result.message_arguments[i];
+    
+    if (typeof message === 'string') {
+      message = message.normalizeSpace();
+    }
+    else {
+      if (typeof message === 'number') {
+        message = message.toString();
       }
       else {
-        if (typeof message === 'number') {
-          message = message.toString();
-        }
-        else {
-          message = "";
-        }  
+        message = "";
       }  
-      str = str.replace(vstr, message);
-    } // end loop
+    }  
+    str = str.replace(vstr, message);
+  } // end loop
 
-    return str;
+  return str;
   
 };
 

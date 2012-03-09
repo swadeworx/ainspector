@@ -379,6 +379,133 @@ OpenAjax.a11y.cache.LanguageItem.prototype.addDOMElement = function (dom_element
     }
 };
 
+
+/**
+ * @method getResultRules
+ *
+ * @memberOf OpenAjax.a11y.cache.LanguageItem
+ *
+ * @desc Returns an array of node results in severity order 
+ *
+ * @return {Array} Returns a array of node results
+ */
+
+OpenAjax.a11y.cache.LanguageItem.prototype.getResultRules = function () {
+  return this.dom_text_nodes[0].getResultRules();
+};
+
+/**
+ * @method getStyle
+ *
+ * @memberOf OpenAjax.a11y.cache.LanguageItem
+ *
+ * @desc Returns an array of style items 
+ *
+ * @return {Array} Returns a array of style display objects
+ */
+
+OpenAjax.a11y.cache.LanguageItem.prototype.getStyle = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  var properties = [];
+  
+  cache_nls.addPropertyIfDefined(properties, this, 'is_large_font');
+  cache_nls.addPropertyIfDefined(properties, this, 'color_contrast_ratio');
+ 
+  cache_nls.addPropertyIfDefined(properties, this, 'color');
+  cache_nls.addPropertyIfDefined(properties, this, 'background_color');
+  cache_nls.addPropertyIfDefined(properties, this, 'background_image');
+  cache_nls.addPropertyIfDefined(properties, this, 'background_repeat');
+  cache_nls.addPropertyIfDefined(properties, this, 'background_position');
+
+  cache_nls.addPropertyIfDefined(properties, this, 'font_family');
+  cache_nls.addPropertyIfDefined(properties, this, 'font_size');
+  cache_nls.addPropertyIfDefined(properties, this, 'font_weight');  
+  
+  return properties;
+  
+};
+
+/**
+ * @method getAttributes
+ *
+ * @memberOf OpenAjax.a11y.cache.LanguageItem
+ *
+ * @desc Returns an array of attributes for the element, sorted in alphabetical order 
+ *
+ * @param {Boolean}  unsorted  - If defined and true the results will NOT be sorted alphabetically
+ *
+ * @return {Array} Returns a array of attribute display object
+ */
+
+OpenAjax.a11y.cache.LanguageItem.prototype.getAttributes = function (unsorted) {
+
+  return [];
+  
+};
+
+/**
+ * @method getCacheProperties
+ *
+ * @memberOf OpenAjax.a11y.cache.LanguageItem
+ *
+ * @desc Returns an array of cache properties sorted by property name 
+ *
+ * @param {Boolean}  unsorted  - If defined and true the results will NOT be sorted alphabetically
+ *
+ * @return {Array} Returns a array of cache property display object
+ */
+
+OpenAjax.a11y.cache.LanguageItem.prototype.getCacheProperties = function (unsorted) {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  var properties = [];
+  
+  cache_nls.addPropertyIfDefined(properties, this, 'language');
+  
+  return properties;
+  
+};
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.LanguageItem
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.LanguageItem.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return null;
+  }
+  
+  return this[property];
+};
+
+/**
+ * @method getEvents
+ *
+ * @memberOf OpenAjax.a11y.cache.LanguageItem
+ *
+ * @desc Returns an array of events for the element, sorted in alphabetical order 
+ *
+ * @return {Array} Returns a array of event item display objects
+ */
+
+OpenAjax.a11y.cache.LanguageItem.prototype.getEvents = function () {
+   
+  return [];
+  
+};
+
 /**
  * @method toString
  *
