@@ -5,7 +5,7 @@
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>ainspector@cita.illinois.edu</em:id>
-    <em:version>0.99</em:version>
+    <em:version>0.91-alpha</em:version>
     <em:type>2</em:type>
    
     <!-- Target Application this extension can install into, 
@@ -19,7 +19,7 @@
     </em:targetApplication>
    
     <!-- Front End MetaData -->
-    <em:name>AInspector-firebug</em:name>
+    <em:name>a11y-fiebug-</em:name>
     <em:description>Firebug extension</em:description>
     <em:creator>PRASANNA BALE</em:creator>
     <em:homepageURL>http://illinois.edu/</em:homepageURL>
