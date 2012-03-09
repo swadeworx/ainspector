@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -296,6 +296,7 @@ OpenAjax.a11y.cache.ImagesCache.prototype.sortImageElements = function(property,
  * @property  {Number}      document_order  - Ordinal position of the image or area element in the document in relationship to other image or area elements
  *
  * @property  {String}   source    - The url in the src property of an image element or href property of an area element 
+ * @property  {String}   file_name - The filename of the image
  * @property  {String}   longdesc  - The url in the longdesc property of an image element  
  *
  * @property  {String}   alt                   - Calculated accessible name of the link 
@@ -317,51 +318,49 @@ OpenAjax.a11y.cache.ImageElement = function (dom_element, base_url) {
   this.dom_element    = dom_element;
   this.cache_id       = "";
   this.document_order = 0;
+  
+  this.source    = "";
+  this.href      = "";
+  this.file_name = "";
 
   if (dom_element.tag_name == 'img') {
-    this.source = node.src;
+  
+    if (node.src) this.source = node.src;
+    
+    var pos = this.source.lastIndexOf('/');    
+    
+    if (this.source.length && pos >= 0 ) this.file_name = this.source.substring((pos+1)).toLowerCase();
+  
   }
   
   if (dom_element.tag_name == 'area') {
     this.href  = node.href;
   }
 
+  this.alt = null;
+  this.alt_length = 0;
+  this.alt_for_comparison = null;
+
+  if (dom_element.has_alt_attribute) {
+    this.alt        = dom_element.alt;
+    this.alt_length = dom_element.alt.length;
+    this.alt_for_comparison = this.alt.normalizeSpace().toLowerCase();
+  }
+
   this.longdesc = node.getAttribute('longdesc');
-
-  if (node.alt) {
-    if (dom_element.has_alt_attribute || node.alt.length) {
-      this.alt    = node.alt;
-      this.alt_length = this.alt.length;
-      this.alt_for_comparison = this.alt.normalizeSpace().toLowerCase();
-    }
-    else {
-      this.alt_for_comparison = null;
-    }
-  }
-  else {
-    alt_value = node.getAttribute('alt');
-    
-    if (alt_value) {
-      this.alt = alt.value;
-      this.alt_length = this.alt.length;
-      this.alt_for_comparison = this.alt.normalizeSpace().toLowerCase();
-    }
-    else {
-      this.alt_for_comparison = null;    
-    }
-  }
-
-
+  
   if (this.longdesc) {
     if (this.longdesc.indexOf('http:') == -1 ) {
       this.longdesc = base_url + this.longdesc;
     }
     this.has_longdesc = true;
+    this.longdesc_is_broken = OpenAjax.a11y.util.urlExists(this.longdesc);
   }
   else {
     this.has_longdesc = false;
     this.longdesc  = null;
   }
+
 
   this.height   = node.offsetHeight;
   this.width    = node.offsetWidth;
@@ -447,10 +446,34 @@ OpenAjax.a11y.cache.ImageElement.prototype.getCacheProperties = function (unsort
   cache_nls.addPropertyIfDefined(properties, this, 'alt_for_comparison');
   cache_nls.addPropertyIfDefined(properties, this, 'height');
   cache_nls.addPropertyIfDefined(properties, this, 'width');
+  cache_nls.addPropertyIfDefined(properties, this, 'document_order');
   
   return properties;
   
 };
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.ImageElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.ImageElement.prototype.getCachePropertyValue = function (property) {
+
+//  OpenAjax.a11y.console("Image property: " + property + " value= " + this[property]);
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};  
 
 /**
 
@@ -489,11 +512,16 @@ OpenAjax.a11y.cache.ImageElement.prototype.getAltTextNLS = function () {
   
   var alt_style = {};
   
-  if (this.alt_length) {
-    return this.alt;
+  if (this.dom_element.has_alt_attribute) {
+    if (this.alt_length) {
+      return this.alt;
+    }
+    else {
+      return cache_nls.getEmptyAltTextMessageNLS();
+    }
   }
   else {
-    return cache_nls.getEmptyAltTextMessageNLS();
+    return cache_nls.getMissingAltMessageNLS();
   }
   
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1306,6 +1306,28 @@ OpenAjax.a11y.cache.TableElement.prototype.getCacheProperties = function () {
 };
 
 /**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.TableElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.TableElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
+
+/**
  * @method toString
  *
  * @memberOf OpenAjax.a11y.cache.TableElement
@@ -1465,6 +1487,28 @@ OpenAjax.a11y.cache.CaptionElement.prototype.getCacheProperties = function () {
 };
 
 /**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.CaptionElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.CaptionElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
+
+/**
  * @method toString
  *
  * @memberOf OpenAjax.a11y.cache.CaptionElement
@@ -1605,6 +1649,28 @@ OpenAjax.a11y.cache.THeadElement.prototype.getCacheProperties = function () {
   
   return properties;
 };
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.THeadElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.THeadElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
 
 /**
  * @method getEvents
@@ -1757,6 +1823,28 @@ OpenAjax.a11y.cache.TBodyElement.prototype.getCacheProperties = function () {
 };
 
 /**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.TBodyElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.TBodyElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
+
+/**
  * @method getEvents
  *
  * @memberOf OpenAjax.a11y.cache.TBodyElement
@@ -1905,6 +1993,27 @@ OpenAjax.a11y.cache.TableRowElement.prototype.getCacheProperties = function () {
 
   return this.dom_element.getCacheProperties();
   
+};
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.TableRowElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.TableRowElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
 };
 
 /**
@@ -2155,6 +2264,28 @@ OpenAjax.a11y.cache.TableCellElement.prototype.getCacheProperties = function () 
   
   return properties;
 };
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.TableCellElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.TableCellElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
 
 /**
  * @method getEvents

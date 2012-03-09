@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -595,19 +595,52 @@ OpenAjax.a11y.cache.LinkElement = function (dom_element) {
   var ano;
   var href = dom_element.node.href;
 
+  function getTypeOfLink(href, name) {
+  
+    href = href.toLowerCase();
+    
+    if (typeof href != 'string') return OpenAjax.a11y.LINK_TYPE.OTHER;
+
+    if (href.length === 0) { 
+      if (name) 
+        return OpenAjax.a11y.LINK_TYPE.TARGET;
+      else  
+        return OpenAjax.a11y.LINK_TYPE.EMPTY;
+    }    
+    
+    if (href.indexOf('http://') >= 0) return OpenAjax.a11y.LINK_TYPE.HTTP;
+    else
+      if (href.indexOf('https://') >= 0) return OpenAjax.a11y.LINK_TYPE.HTTPS;
+      else
+        if (href.indexOf('ftp://') >= 0) return OpenAjax.a11y.LINK_TYPE.FTP;
+        else
+          if (href.indexOf('ftps://') >= 0) return OpenAjax.a11y.LINK_TYPE.FTPS;
+          else 
+            if (href.indexOf('file://') >= 0) return OpenAjax.a11y.LINK_TYPE.FILE;
+            else 
+              if (href.indexOf('javascript:') >= 0) return OpenAjax.a11y.LINK_TYPE.JAVASCRIPT;
+              else 
+                if (href.indexOf('mailto:') >= 0) return OpenAjax.a11y.LINK_TYPE.MAILTO;
+                else 
+                  if (href[0] === '#') return OpenAjax.a11y.LINK_TYPE.INTERNAL;
+ 
+    return OpenAjax.a11y.LINK_TYPE.HTTP;
+  }
+
+
   function testIfHrefIsURL(url) {
   
     if (typeof href != 'string') return false;
   
-    if (href.indexOf('http://') >= 0) return true;
+    if (url.indexOf('http://') >= 0) return true;
     else
-      if (href.indexOf('https://') >= 0) return true;
+      if (url.indexOf('https://') >= 0) return true;
       else
-        if (href.indexOf('ftp://') >= 0) return true;
+        if (url.indexOf('ftp://') >= 0) return true;
         else
-          if (href.indexOf('ftps://') >= 0) return true;
+          if (url.indexOf('ftps://') >= 0) return true;
           else 
-            if (href.indexOf('file://') >= 0) return true;
+            if (url.indexOf('file://') >= 0) return true;
  
     return false;
   }
@@ -620,9 +653,20 @@ OpenAjax.a11y.cache.LinkElement = function (dom_element) {
  
   this.href  = href;
   this.is_url = testIfHrefIsURL(href);
- 
+  if (this.is_url) { 
+    this.is_broken = OpenAjax.a11y.util.urlExists(href);
+  }
+  else {
+    this.is_broken = OpenAjax.a11y.URL_RESULT.NOT_A_URL;
+  }
+
   this.tab_index = dom_element.node.tabIndex;
-  this.name   = dom_element.node.getAttribute("name");
+  
+  this.name_attribute = dom_element.node.getAttribute("name");
+  this.is_target = this.name_attribute && (this.name_attribute.length > 0);
+
+  this.link_type = getTypeOfLink(href, this.name_attribute);
+
   this.target  = dom_element.node.getAttribute("target");
 
   ano = dom_element.getTextObject();
@@ -698,7 +742,7 @@ OpenAjax.a11y.cache.LinkElement.prototype.getAttributes = function (unsorted) {
   cache_nls.addPropertyIfDefined(attributes, this, 'href');
 
   cache_nls.addPropertyIfDefined(attributes, this, 'tab_index');
-  cache_nls.addPropertyIfDefined(attributes, this, 'name_attr');
+  cache_nls.addPropertyIfDefined(attributes, this, 'name_attribute');
   cache_nls.addPropertyIfDefined(attributes, this, 'target');
   
   if (!unsorted) this.dom_element.sortItems(attributes);
@@ -731,11 +775,35 @@ OpenAjax.a11y.cache.LinkElement.prototype.getCacheProperties = function (unsorte
   cache_nls.addPropertyIfDefined(properties, this, 'image_count');
   cache_nls.addPropertyIfDefined(properties, this, 'text_only_from_image');
 
+  cache_nls.addPropertyIfDefined(properties, this, 'is_broken');
   cache_nls.addPropertyIfDefined(properties, this, 'is_url');
+  cache_nls.addPropertyIfDefined(properties, this, 'is_target');
+  cache_nls.addPropertyIfDefined(properties, this, 'link_type');
 
   if (!unsorted) this.dom_element.sortItems(properties);
 
   return properties;
+};
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.LinkElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.LinkElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
 };
 
 /**
@@ -751,6 +819,24 @@ OpenAjax.a11y.cache.LinkElement.prototype.getCacheProperties = function (unsorte
 OpenAjax.a11y.cache.LinkElement.prototype.getEvents = function () {
    
   return this.dom_element.getEvents();
+  
+};
+
+/**
+ * @method getLinkType
+ *
+ * @memberOf OpenAjax.a11y.cache.LinkElement
+ *
+ * @desc Returns an array of style items 
+ *
+ * @return {String} Returns a NLS string representing the type of link
+ */
+
+OpenAjax.a11y.cache.LinkElement.prototype.getLinkType = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  return cache_nls.getValueNLS('link_type', this.link_type);
   
 };
 
@@ -834,6 +920,9 @@ OpenAjax.a11y.cache.DuplicateNameItem.prototype.getResultRules = function () {
   return this.dom_element.getResultRules();
 };
 
+
+
+
 /**
  * @method getStyle
  *
@@ -899,6 +988,28 @@ OpenAjax.a11y.cache.DuplicateNameItem.prototype.getCacheProperties = function (u
 
   return properties;
 };
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.DuplicateNameItem
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.DuplicateNameItem.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return null;
+  }
+  
+  return this[property];
+};
+
 
 /**
 
@@ -1046,7 +1157,28 @@ OpenAjax.a11y.cache.DuplicateHREFItem.prototype.getCacheProperties = function (u
 };
 
 /**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.DuplicateHREFItem
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
 
+OpenAjax.a11y.cache.DuplicateHREFItem.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return null;
+  }
+  
+  return this[property];
+};
+
+
+/**
  * @method getEvents
  *
  * @memberOf OpenAjax.a11y.cache.DuplicateHREFItem

@@ -23,5 +23,6 @@ scripts/cache_util.js           \
 scripts/progress_log.js         \
 scripts/rules.js                \
 scripts/rule_results.js         \
+scripts/wcag20_results.js       \
 scripts/wcag20_ruleset.js       \
 scripts/wcag20_nls.js 

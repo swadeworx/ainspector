@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -316,7 +316,7 @@ OpenAjax.a11y.cache.MediaElement = function (dom_element) {
   this.document_order = 0;
  
   this.dom_element = dom_element;
-
+  
   this.is_video              = OpenAjax.a11y.MEDIA.MAYBE;
   this.is_audio              = OpenAjax.a11y.MEDIA.MAYBE;
   this.has_caption           = OpenAjax.a11y.MEDIA.MAYBE; 
@@ -388,15 +388,11 @@ OpenAjax.a11y.cache.MediaElement.prototype.getAttributes = function (unsorted) {
 
   var cache_nls = OpenAjax.a11y.cache_nls;
   
-  var properties = this.dom_element.getAttributes(unsorted);
+  var attributes = this.dom_element.getAttributes(unsorted);
   
-  cache_nls.addPropertyIfDefined(properties, this, 'is_video');
-  cache_nls.addPropertyIfDefined(properties, this, 'is_audio');
-  cache_nls.addPropertyIfDefined(properties, this, 'has_caption');
-  cache_nls.addPropertyIfDefined(properties, this, 'has_text_alternative');
-  cache_nls.addPropertyIfDefined(properties, this, 'has_audio_description');
+//  cache_nls.addPropertyIfDefined(attributes, this, 'alt');
 
-  return properties;
+  return attributes;
   
 };
 
@@ -418,14 +414,41 @@ OpenAjax.a11y.cache.MediaElement.prototype.getCacheProperties = function (unsort
   
   var properties = [];
   
+  cache_nls.addPropertyIfDefined(properties, this, 'is_video');
+  cache_nls.addPropertyIfDefined(properties, this, 'is_audio');
+  cache_nls.addPropertyIfDefined(properties, this, 'has_caption');
+  cache_nls.addPropertyIfDefined(properties, this, 'has_text_alternative');
+  cache_nls.addPropertyIfDefined(properties, this, 'has_audio_description');
   cache_nls.addPropertyIfDefined(properties, this, 'alt_for_comparison');
+  cache_nls.addPropertyIfDefined(properties, this, 'document_order');
   
   return properties;
   
 };
 
 /**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.MediaElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
 
+OpenAjax.a11y.cache.MediaElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
+
+/**
  * @method getEvents
  *
  * @memberOf OpenAjax.a11y.cache.MediaElement

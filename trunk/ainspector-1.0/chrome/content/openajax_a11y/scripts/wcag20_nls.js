@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,13 +57,11 @@ OpenAjax.a11y.WCAG20.prototype.addNLS = function(locale, nls) {
   if (!nls.abbrev) OpenAjax.a11y.console("Missing abbreviation property for WCAG 2.0 with locale: " + locale);
   if (!nls.title)  OpenAjax.a11y.console("Missing title property for WCAG 2.0 with locale: "        + locale);
   if (!nls.url)    OpenAjax.a11y.console("Missing abbreviation property for WCAG 2.0 with locale: " + locale);
+  if (!nls.levels) OpenAjax.a11y.console("Missing levels property for WCAG 2.0 with locale: "        + locale);
   
-  var wcag20 = new OpenAjax.a11y.WCAG20NLS(locale, nls.abbrev, nls.title, nls.url);
-
-//  OpenAjax.a11y.console("WCAG 2.0 " + nls.title + " for " + locale); 
-
-  if (!nls.levels) OpenAjax.a11y.console("Missing levels object for WCAG 2.0 with locale: " + locale);
-
+  var wcag20 = new OpenAjax.a11y.WCAG20NLS(locale, nls.abbrev, nls.title, nls.url, nls.levels);
+  
+ //  OpenAjax.a11y.console("WCAG 2.0 " + nls.title + " for " + locale); 
   
   if (!nls.principles || typeof nls.principles !== 'object') {
     OpenAjax.a11y.console("Missing principles object or not at an object for WCAG 2.0 with locale: " + locale);
@@ -126,6 +124,23 @@ OpenAjax.a11y.WCAG20.prototype.getNLS = function() {
 };
 
 
+/**
+ * @method getWCAG20Level
+ *
+ * @memberOf OpenAjax.a11y.WCAG20
+ *
+ * @desc Returns an NLS localized version of WCAG 2.0 level 
+ *
+ * @param {Number}  level  -  Numerical constant defined in OAA cache representing the level
+ */
+
+OpenAjax.a11y.WCAG20.prototype.getWCAG20Level = function(level) {
+
+  var wcag20_nls = this.nls[OpenAjax.a11y.locale];
+
+  return wcag20_nls.levels[level.toString()];
+  
+};
 
 /**
  * @method getNLSItemById
@@ -134,6 +149,7 @@ OpenAjax.a11y.WCAG20.prototype.getNLS = function() {
  *
  * @desc Returns an object with a localized version of WCAG 2.0 requirements 
  *
+ * @param {String}  id  -  id for the wcag item to get NLS information
  */
 
 OpenAjax.a11y.WCAG20.prototype.getNLSItemById = function(id) {
@@ -186,23 +202,24 @@ OpenAjax.a11y.WCAG20.prototype.getNLSItemById = function(id) {
  * @param  {String}  abbrev - Localized abbreviation of WCAG 2.0 guidelines
  * @param  {String}  title  - Localized title of WCAG 2.0 guidelines 
  * @param  {String}  url    - URL to the translation of WCAG 2.0
+ * @param  {Object}  levels - WCAG 2.0 levels for success criteria
  *
  * @property  {String}  locale - Language code 
  * @property  {String}  abbrev - Localized abbreviation of WCAG 2.0 guidelines
  * @property  {String}  title  - Localized title of WCAG 2.0 guidelines 
  * @property  {String}  url    - URL to the translation of WCAG 2.0
+ * @property  {Object}  levels - WCAG 2.0 levels for success criteria
  *
  * @property  {Array}   principles - Array of WCAG 2.0 principle objects associated with the principle
  */
 
-OpenAjax.a11y.WCAG20NLS = function(locale, abbrev, title, url) {
+OpenAjax.a11y.WCAG20NLS = function(locale, abbrev, title, url, levels) {
 
   this.locale = locale;    
   this.abbrev = abbrev;    
   this.title  = title;    
-  this.url    = url;   
-  
-  this.levels = [];
+  this.url    = url;  
+  this.levels = levels;
   
   this.principles = [];
   

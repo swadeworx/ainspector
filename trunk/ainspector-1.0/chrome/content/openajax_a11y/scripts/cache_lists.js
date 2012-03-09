@@ -522,6 +522,27 @@ OpenAjax.a11y.cache.ListElement.prototype.getCacheProperties = function (unsorte
 };
 
 /**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.ListElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.ListElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
+/**
  * @method getEvents
  *
  * @memberOf OpenAjax.a11y.cache.ListElement
@@ -767,6 +788,27 @@ OpenAjax.a11y.cache.ContainerElement.prototype.getCacheProperties = function (un
   if (!unsorted) this.dom_element.sortItems(properties);
 
   return properties;
+};
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.ContainerElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.ContainerElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
 };
 
 /**

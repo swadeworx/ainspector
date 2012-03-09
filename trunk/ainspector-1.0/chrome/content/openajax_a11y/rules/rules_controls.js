@@ -16,7 +16,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 {  id                : 'CONTROL_1', 
    last_updated      : '2011-09-16', 
    cache_dependency  : 'controls_cache',
-   cache_properties : ['dom_element:tag_name','type','id','label',''],
+   cache_properties : ['tag_name', 'label_source','label'],
    language          : "",
    enabled           : true,  
    validate          : function (dom_cache, rule_result) {
@@ -489,7 +489,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 { id                : 'CONTROL_10', 
   last_updated      : '2011-09-16', 
   cache_dependency  : 'controls_cache',
-  cache_properties : [],
+  cache_properties : ['tag_name', 'type', 'label'],
   language          : "",
   validate          : function (dom_cache, rule_result) {
 

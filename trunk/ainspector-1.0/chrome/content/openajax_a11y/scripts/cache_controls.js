@@ -1146,9 +1146,30 @@ OpenAjax.a11y.cache.FormElement.prototype.getCacheProperties = function () {
   
   var properties = this.dom_element.getCacheProperties();
   
-  
   return properties;
 };
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.FormElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.FormElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
 
 /**
  * @method getEvents
@@ -1322,6 +1343,28 @@ OpenAjax.a11y.cache.FieldsetElement.prototype.getCacheProperties = function (uns
 
   return properties;
 };
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.FieldsetElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.FieldsetElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
 
 /**
  * @method getEvents
@@ -1498,6 +1541,29 @@ OpenAjax.a11y.cache.LegendElement.prototype.getCacheProperties = function (unsor
 };
 
 /**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.LegendElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.LegendElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
+
+
+/**
  * @method getEvents
  *
  * @memberOf OpenAjax.a11y.cache.LegendElement
@@ -1672,6 +1738,27 @@ OpenAjax.a11y.cache.LabelElement.prototype.getCacheProperties = function (unsort
 };
 
 /**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.LabelElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.LabelElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
+/**
  * @method getEvents
  *
  * @memberOf OpenAjax.a11y.cache.LabelElement
@@ -1721,6 +1808,7 @@ OpenAjax.a11y.cache.LabelElement.prototype.toString = function () {
  * @property  {Array}       child_cache_elements  - Array of child cache control elements as part of cache control tree 
  * @property  {String}      type                  - Type of input element  
  * @property  {Number}      control_type          - Constant indicating the type of cache control object  
+ * @property  {String}      name                  - Text content of the name attribute  
  *
  * @property  {String}      label                 - Calculated label for the input element 
  * @property  {Number}      label_length          - Length of the label property 
@@ -1748,6 +1836,7 @@ OpenAjax.a11y.cache.InputElement = function (dom_element, control_info) {
   this.value   = node.value; 
   this.checked = node.checked;
 
+  this.name          = node.getAttribute('name');
   this.required      = node.getAttribute('required');
   this.aria_required = node.getAttribute('aria-required');
   this.aria_invalid  = node.getAttribute('aria-invalid');
@@ -1779,7 +1868,7 @@ OpenAjax.a11y.cache.InputElement = function (dom_element, control_info) {
     break;
     
   case 'radio':
-    this.control_type  = OpenAjax.a11y.CONTROL_TYPE.CHECKBOX; 
+    this.control_type  = OpenAjax.a11y.CONTROL_TYPE.RADIO; 
     break;
     
   case 'text':
@@ -1909,6 +1998,7 @@ OpenAjax.a11y.cache.InputElement.prototype.getAttributes = function (unsorted) {
   var cache_nls = OpenAjax.a11y.cache_nls;
   var attributes = this.dom_element.getAttributes();
   
+  cache_nls.addPropertyIfDefined(attributes, this, 'name');
   cache_nls.addPropertyIfDefined(attributes, this, 'maxlength');
   cache_nls.addPropertyIfDefined(attributes, this, 'readonly');
   cache_nls.addPropertyIfDefined(attributes, this, 'value');
@@ -1940,11 +2030,35 @@ OpenAjax.a11y.cache.InputElement.prototype.getCacheProperties = function (unsort
   var properties = this.dom_element.getCacheProperties(unsorted);
 
   cache_nls.addPropertyIfDefined(properties, this, 'label');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_source');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_for_comparison');
 
   if (!unsorted) this.dom_element.sortItems(properties);
 
   return properties;
 };
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.InputElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.InputElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
 
 /**
  * @method getEvents
@@ -1990,6 +2104,27 @@ OpenAjax.a11y.cache.InputElement.prototype.getLabelNLS = function () {
   
 };
 
+/**
+ * @method getLabelSourceNLS
+ *
+ * @memberOf OpenAjax.a11y.cache.InputElement
+ *
+ * @desc Returns an object with an NLS localized information on the source of the label
+ *
+ * @return {String | Object} Returns a String if the label has content, 
+ *                            but if label is empty it returns an object 
+ *                            with a 'label and 'style' property
+ */
+
+OpenAjax.a11y.cache.InputElement.prototype.getLabelSourceNLS = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  return cache_nls.getValueNLS('label_source', this.label_source);
+  
+};
+
+
 
 /**
  * @method toString
@@ -2024,6 +2159,8 @@ OpenAjax.a11y.cache.InputElement.prototype.toString = function () {
  * @property  {DOMElement}  dom_element  - Reference to the dom element representing the button element
  * @property  {String}      cache_id     - String that uniquely identifies the cache element object in the cache
  *
+ * @property  {String}      name            - Value of the name attribute
+ *
  * @property  {Array}       child_cache_elements  - Array of child cache control elements as part of cache control tree 
  * @property  {Number}      control_type          - Constant indicating the type of cache control object  
  *
@@ -2048,6 +2185,8 @@ OpenAjax.a11y.cache.ButtonElement = function (dom_element, control_info) {
  
   this.control_type = OpenAjax.a11y.CONTROL_TYPE.BUTTON; 
  
+  this.name          = node.getAttribute('name');
+  
   this.label  = "";
   this.label_length = 0;
   this.label_for_comparison = "";
@@ -2148,12 +2287,36 @@ OpenAjax.a11y.cache.ButtonElement.prototype.getCacheProperties = function (unsor
 
   var properties = this.dom_element.getCacheProperties(unsorted);
 
-//  cache_nls.addPropertyIfDefined(properties, this, 'tag_name');
+  cache_nls.addPropertyIfDefined(properties, this, 'label');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_source');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_for_comparison');
 
   if (!unsorted) this.dom_element.sortItems(properties);
 
   return properties;
 };
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.ButtonElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.ButtonElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
 
 /**
  * @method getEvents
@@ -2200,6 +2363,28 @@ OpenAjax.a11y.cache.ButtonElement.prototype.getLabelNLS = function () {
 };
 
 /**
+ * @method getLabelSourceNLS
+ *
+ * @memberOf OpenAjax.a11y.cache.ButtonElement
+ *
+ * @desc Returns an object with an NLS localized information on the source of the label
+ *
+ * @return {String | Object} Returns a String if the label has content, 
+ *                            but if label is empty it returns an object 
+ *                            with a 'label and 'style' property
+ */
+
+OpenAjax.a11y.cache.ButtonElement.prototype.getLabelSourceNLS = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  var label_style = {};
+  
+  return cache_nls.getValueNLS('label_source', this.label_source);
+  
+};
+
+/**
  * @method toString
  *
  * @memberOf OpenAjax.a11y.cache.ButtonElement
@@ -2231,6 +2416,8 @@ OpenAjax.a11y.cache.ButtonElement.prototype.toString = function () {
  * @property  {String}      cache_id        - String that uniquely identifies the cache element object in the cache
  * @property  {Number}      document_order  - Ordinal position of the control element in the document in relationship to other control elements
  *
+ * @property  {String}      name            - Value of the name attribute
+ *
  * @property  {Array}       child_cache_elements  - Array of child cache control elements as part of cache control tree 
  * @property  {Number}      control_type          - Constant indicating the type of cache control object  
  *
@@ -2260,6 +2447,8 @@ OpenAjax.a11y.cache.TextareaElement = function (dom_element, control_info) {
  
   this.label_element  = control_info.label_element;
   this.fieldset_element = control_info.fieldset_element;
+  
+  this.name          = node.getAttribute('name');
   
   this.label  = "";
   this.label_for_comparison = "";
@@ -2344,11 +2533,34 @@ OpenAjax.a11y.cache.TextareaElement.prototype.getCacheProperties = function (uns
 
   var properties = this.dom_element.getCacheProperties(unsorted);
 
-//  cache_nls.addPropertyIfDefined(properties, this, 'tag_name');
+  cache_nls.addPropertyIfDefined(properties, this, 'label');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_source');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_for_comparison');
 
   if (!unsorted) this.dom_element.sortItems(properties);
 
   return properties;
+};
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.TextareaElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.TextareaElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
 };
 
 /**
@@ -2384,8 +2596,6 @@ OpenAjax.a11y.cache.TextareaElement.prototype.getLabelNLS = function () {
 
   var cache_nls = OpenAjax.a11y.cache_nls;
   
-  var label_style = {};
-  
   if (this.label_length) {
     return this.label;
   }
@@ -2395,6 +2605,26 @@ OpenAjax.a11y.cache.TextareaElement.prototype.getLabelNLS = function () {
   
 };
 
+
+/**
+ * @method getLabelSourceNLS
+ *
+ * @memberOf OpenAjax.a11y.cache.TextareaElement
+ *
+ * @desc Returns an object with an NLS localized information on the source of the label
+ *
+ * @return {String | Object} Returns a String if the label has content, 
+ *                            but if label is empty it returns an object 
+ *                            with a 'label and 'style' property
+ */
+
+OpenAjax.a11y.cache.TextareaElement.prototype.getLabelSourceNLS = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  return cache_nls.getValueNLS('label_source', this.label_source);
+  
+};
 
 /**
  * @method toString
@@ -2428,6 +2658,8 @@ OpenAjax.a11y.cache.TextareaElement.prototype.toString = function () {
  * @property  {String}      cache_id        - String that uniquely identifies the cache element object in the cache
  * @property  {Number}      document_order  - Ordinal position of the control element in the document in relationship to other control elements
  *
+ * @property  {String}      name            - Value of the name attribute
+ *
  * @property  {Array}       child_cache_elements  - Array of child cache control elements as part of cache control tree 
  * @property  {Array}       option_elements       - Array of child cache option elements  
  * @property  {Number}      control_type          - Constant indicating the type of cache control object  
@@ -2456,6 +2688,8 @@ OpenAjax.a11y.cache.SelectElement = function (dom_element, control_info) {
 
   var node = dom_element.node;
 
+  this.name          = node.getAttribute('name');
+  
   this.label = "";
   this.label_length = 0;
   this.label_for_comparison = "";
@@ -2578,12 +2812,36 @@ OpenAjax.a11y.cache.SelectElement.prototype.getCacheProperties = function (unsor
 
   var properties = this.dom_element.getCacheProperties(unsorted);
 
-//  cache_nls.addPropertyIfDefined(properties, this, 'tag_name');
+  cache_nls.addPropertyIfDefined(properties, this, 'label');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_source');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_for_comparison');
 
   if (!unsorted) this.dom_element.sortItems(properties);
 
   return properties;
 };
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.SelectElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.SelectElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
 
 /**
  * @method getEvents
@@ -2628,6 +2886,30 @@ OpenAjax.a11y.cache.SelectElement.prototype.getLabelNLS = function () {
   }
   
 };
+
+
+/**
+ * @method getLabelSourceNLS
+ *
+ * @memberOf OpenAjax.a11y.cache.SelectElement
+ *
+ * @desc Returns an object with an NLS localized information on the source of the label
+ *
+ * @return {String | Object} Returns a String if the label has content, 
+ *                            but if label is empty it returns an object 
+ *                            with a 'label and 'style' property
+ */
+
+OpenAjax.a11y.cache.SelectElement.prototype.getLabelSourceNLS = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  var label_style = {};
+  
+  return cache_nls.getValueNLS('label_source', this.label_source);
+  
+};
+
 
 /**
  * @method toString
@@ -2777,12 +3059,36 @@ OpenAjax.a11y.cache.OptgroupElement.prototype.getCacheProperties = function (uns
 
   var properties = this.dom_element.getCacheProperties(unsorted);
 
-//  cache_nls.addPropertyIfDefined(properties, this, 'tag_name');
+  cache_nls.addPropertyIfDefined(properties, this, 'label');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_source');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_for_comparison');
 
   if (!unsorted) this.dom_element.sortItems(properties);
 
   return properties;
 };
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.OptgroupElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.OptgroupElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
 
 /**
  * @method getEvents
@@ -2922,11 +3228,34 @@ OpenAjax.a11y.cache.OptionElement.prototype.getCacheProperties = function (unsor
 
   var properties = this.dom_element.getCacheProperties(unsorted);
 
-//  cache_nls.addPropertyIfDefined(properties, this, 'tag_name');
+  cache_nls.addPropertyIfDefined(properties, this, 'label');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_source');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_for_comparison');
 
   if (!unsorted) this.dom_element.sortItems(properties);
 
   return properties;
+};
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.OptionElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.OptionElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
 };
 
 /**

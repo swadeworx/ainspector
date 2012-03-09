@@ -1,5 +1,5 @@
 /**
- * Copyright 2011 and 2012 OpenAjax Alliance
+ * Copyright 2011-2012 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,12 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
      true_value  : 'Yes',
      false_value : 'No'
     }, 
-    
+
+    /*
+     * The types of ways a rule can be included in a ruleset
+     */
+    rule_types: ['Undefined', 'Required', 'Recommendation', 'Conditional'],
+
     /*
      * Relative implementation priorities of complying to rule requirements
      */
@@ -52,13 +57,19 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
     missing_label : {
       label : "no label",
       style : "missing_label"
-    },
+    },  
     
     empty_alt_text : {
       label : "empty alt",
       style : "empty_alt"
     },
+
+    missing_alt : {
+      label : "missing alt attribute",
+      style : "empty_alt"
+    },
     
+
     /**
      * Severity of not passing a rule for a particular requirement set, like WCAG 2.0
      */
@@ -126,27 +137,27 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
      * DOMElement object properties
      */
 
-      'document_order'        : {
+      'document_order' : {
         label       : 'Order',
-        description :  'The ordinal position of the item in the list',
+        description : 'The ordinal position of the item in the list',
         style       : 'doc_order'
       },
-      'tag_name'              : {
+      'tag_name' : {
         label       : 'Tag Name',
         description : 'Tag (or element) name of the item',
         style       : 'element'
       },
-      'id'                    : { 
+      'id' : { 
         label       : 'id',
         description :  'Value of the id attribute'
       },
-      'id_unique'             : { 
+      'id_unique'   : { 
         label       : 'ID unique',
         description :  'Information about the id attribute value',
         values      : ['Undefined value', 'Not defined', 'Unique', 'Not unique'], 
         style       : ['','','','warning']
       },  
-      'character_count'       : { 
+      'character_count' : { 
         label       : 'Text Count',
         description :  'Number of characters in the text content of this tag'
       },
@@ -169,6 +180,10 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
       'has_alt_attribute' : { 
         label       : 'Alt Defined',
         description : 'True if the alt attribute was defined in markup'
+      },
+      'alt_length' : { 
+        label       : 'Alt text length',
+        description : 'The length of the text in the alt text attribute'
       },
       'title'       : { 
         label       : 'title',
@@ -206,6 +221,15 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
         label       : 'for',
         description : 'Value of the for attribute of a label element'
       },
+      'parent_landmark_role'  : { 
+        label       : 'Parent landmark role',
+        description : 'Role of the landmark that contains this content'
+      },
+      'parent_landmark'  : { 
+        label       : 'Containing landmark element',
+        description : 'Landmark element that contains this content'
+      },
+
 
     /*
      * Calculated values based on CSS properties
@@ -292,6 +316,52 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
         description : 'Value of the src attribute'
       },
 
+
+    /*
+     * Control Cache object attributes
+     */
+      'label_source' : {
+        label       : 'Label Type',
+        description : 'The technique for defining the label',
+        values      : ['unkown', 'none', 'label by reference', 'label encapsulation', 'title attribute', 'value attribute', 'alt attribute', 'button type', 'child text content', 'aria labelledby', 'aria label']
+      },     
+      'num_main_landmarks' : {
+        label       : 'Main landmarks',
+        description : 'Number of main landmarks'
+      },     
+      'num_visible_main_landmarks' : {
+        label       : 'Visibile main landmarks',
+        description : 'Number of visible main landmarks'
+      },     
+    /*
+     * Link Cache object attributes
+     */
+      'is_url' : {
+        label       : 'is a url',
+        description : 'Boolean value indicating if a href contains a URL'
+      },
+      'is_target' : {
+        label       : 'is a target',
+        description : 'Boolean value indicating if the link can be a target'
+      },
+      'link_type' : {
+        label       : 'Type of link',
+        description : 'Type of link',
+        values      : ['empty', 'other', 'internal link', 'link', 'secure link', 'ftp', 'secure ftps', 'file', 'javascript', 'mail to', 'target only']
+      },
+      'is_broken' : {
+        label       : 'Link broken',
+        description : 'Tests to see if the link is broken, valid or has an error',
+        values      : ['unkown',  'broken', 'vaild', 'not tested', 'error']
+      },
+      'name_attribute' : {
+        label       : 'name',
+        description : 'Value of the name attribute'
+      },
+      'target' : {
+        label       : 'target',
+        description : 'Value of the target attribute'
+      },
 
     /*
      * Media Cache object properties
@@ -395,13 +465,17 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
         label       : 'Text',
         description :  'Text content of a table cell'
       },              
+      'text_normalized'    : {
+        label       : 'Text',
+        description : 'Text content of a element'
+      },              
       'effective_caption'        : {
         label       : 'Effective Caption',
-        description :  'Effective caption is the text content of a caption element or ARIA labeling'
+        description : 'Effective caption is the text content of a caption element or ARIA labeling'
       },
       'effective_summary'        : {
         label       : 'Effective Summary',
-        description :  'Effective summary is the text content of a summary attribute or an aria-describedby attribute'
+        description : 'Effective summary is the text content of a summary attribute or an aria-describedby attribute'
       },
       'is_data_table'            : {
         label       : 'Data Table',
