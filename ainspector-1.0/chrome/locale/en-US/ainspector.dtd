@@ -1,5 +1,6 @@
 <!ENTITY  ainspector.toolbarbutton.report.label         "Report">
-<!ENTITY  ainspector.toolbarbutton.images.label         "Images/Media">
+<!ENTITY  ainspector.toolbarbutton.images.label         "Images">
+<!ENTITY  ainspector.toolbarbutton.media.label          "Media">
 <!ENTITY  ainspector.toolbarbutton.controls.label       "Controls">
 <!ENTITY  ainspector.toolbarbutton.colorContrast.label  "Color Contrast">
 <!ENTITY  ainspector.toolbarbutton.headings.label       "Headings/Landmarks">
