@@ -90,10 +90,8 @@ FBL.ns(function() { with (FBL) {
        var previous_row;
        var prev_cell;
        var next_cell;
-       FBTrace.sysout("event in rules tab: ", event);
        
        var table_rows = event.target.offsetParent.rows;
-       FBTrace.sysout("table_rows:", table_rows);
        var no_of_rows = table_rows.length;
        var flag = false;
        for (var row=0; row < no_of_rows; row++) {
@@ -130,12 +128,10 @@ FBL.ns(function() { with (FBL) {
       
 	   } else if (event.keyCode == KeyEvent.DOM_VK_DOWN) {
     	 //current_row = getAncestorByClass(event.target, "gridRow");
-    	 FBTrace.sysout("current_row..." , current_row);
     	 //next_row = current_row.nextSibling;
     	 
 
     	 //next_row = findNext(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow, true);
-		 FBTrace.sysout("next_row..." , next_row);
 		 result = next_row.repObject.dom_element;
          rule_result_array = this.showOnRuleResultsTabSelect(result);
        
@@ -233,12 +229,17 @@ FBL.ns(function() { with (FBL) {
      sView: function(state, first_element){
 	   if (state) {
          try {
-    	   result = first_element.dom_element;
+    	   if (first_element.hasOwnProperty("dom_element")) result = first_element.dom_element;
+    	   else result = first_element;
            rule_result_array = this.showOnRuleResultsTabSelect(result);
-           if (rule_result_array.length > 0) this.rebuild(rule_result_array);
+
+           //if (rule_result_array.length > 0) this.rebuild(rule_result_array);
+           this.rebuild(rule_result_array);
          } catch (er) {
         	 
          }
+       } else {
+    	 if (first_element == "none") this.rebuild("");   
        }
      },
      
@@ -316,7 +317,6 @@ FBL.ns(function() { with (FBL) {
    	   }
    	   if (flag) {
            var header_elements = ["Result", "Rule ID", "Message"];
-           FBTrace.sysout("this.panelNode: ", this.panelNode.offsetParent.children[1]);
            //clearNode(this.panelNode.offsetParent.children[1]);
  	      AINSPECTOR_FB.emptyTemplate.tag.replace({header_elements: header_elements}, this.panelNode);
    	   } else {
@@ -406,9 +406,9 @@ FBL.ns(function() { with (FBL) {
       TABLE({class: "ai-sidepanel-table", cellpadding: 0, cellspacing: 0, role: "treegrid"},
         THEAD(
           TR({class: "gridHeaderRow gridRow", id: "rulesTableHeader", role: "row", tabindex: "0"},
-            TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, "Result"),
-            TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, "Rule ID"),
-            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, "Message")
+            TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, DIV({class: "gridHeaderCellBox"}, "Result")),
+            TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, DIV({class: "gridHeaderCellBox"}, "Rule ID")),
+            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, DIV({class: "gridHeaderCellBox"}, "Message"))
           )
         ),  
         TBODY(
@@ -416,7 +416,7 @@ FBL.ns(function() { with (FBL) {
             TR({class: "tableRow gridRow", role: "row"},
               TD({class: "resultsCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, 
             	DIV({class: "gridContent"}, TAG("$obj|getAccessibility", {'object': '$obj'}))),
-              TD({class: "cacheIDCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, 
+              TD({class: "ruleIdCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, 
                 DIV({class: "gridContent"},"$obj.id")),
               TD({class: "messagesCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, 
             	DIV({class: "gridContent"},"$obj.description"))

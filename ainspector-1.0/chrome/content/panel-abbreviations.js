@@ -57,7 +57,9 @@ with (FBL) {
     toolbar.id = "toolbarDiv";
     
 	abbreviation_elements = cache_object.dom_cache.abbreviations_cache.abbreviation_items;
-    language_elements = cache_object.dom_cache.languages_cache;
+    language_elements = cache_object.dom_cache.languages_cache.language_items;
+    var is_empty_object = AINSPECTOR_FB.ainspectorUtil.hasProperty(abbreviation_elements);
+
 	AINSPECTOR_FB.abbrLanguage.abbrToolbarPlate.toolbar.replace({toolbar_buttons : toolbar_buttons}, toolbar, AINSPECTOR_FB.abbrLanguage.abbrToolbarPlate);
 	
 	  
@@ -69,10 +71,15 @@ with (FBL) {
 	  panel.panelNode.appendChild(element);
 	  
 	  panel = panel;
-	 // panel.table = AINSPECTOR_FB.abbrLanguage.languageTemplate.tableTag.append( {language_elements: language_elements}, panel.panelNode, AINSPECTOR_FB.abbrLanguage.languageTemplate);
-	  panel.table = AINSPECTOR_FB.abbrLanguage.abbreviationTemplate.tag.append( {object: abbreviation_elements}, panel.panelNode, AINSPECTOR_FB.abbrLanguage.abbreviationTemplate);
-	  this.select(abbreviation_elements[0]);
-	  Firebug.currentContext.getPanel('Rules').sView(true, abbreviation_elements[0]);
+	  if (is_empty_object == true) {
+        panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.append( {header_elements: ["Element", "Abbreviation", "Title", "Accessibility Summary"]}, panel.panelNode, AINSPECTOR_FB.emptyTemplate);
+    	Firebug.currentContext.getPanel('Rules').sView(false, "none");
+
+	  } else {
+	    panel.table = AINSPECTOR_FB.abbrLanguage.abbreviationTemplate.tag.append( {object: abbreviation_elements}, panel.panelNode, AINSPECTOR_FB.abbrLanguage.abbreviationTemplate);
+	    this.select(abbreviation_elements[0]);
+	    Firebug.currentContext.getPanel('Rules').sView(true, abbreviation_elements[0]);
+	  }
     },
     
     /**
@@ -203,18 +210,35 @@ with (FBL) {
 
       clearNode(panel.table);  // clear the content of the panel 
       clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
-        
+      var is_empty_object;
+ 
       if (toolbar_button_id == "Language") {
+   	    is_empty_object = AINSPECTOR_FB.ainspectorUtil.hasProperty(language_elements);
+   	    if (is_empty_object) {
+   	        panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.append( {header_elements: ["Element", "Language", "Text", "Accessibility Summary"]}, panel.panelNode, AINSPECTOR_FB.emptyTemplate);
+   	  	    Firebug.currentContext.getPanel('Rules').sView(false, "none");
 
-        panel.table = AINSPECTOR_FB.abbrLanguage.languageTemplate.tableTag.append( {language_elements: language_elements}, panel.panelNode, AINSPECTOR_FB.abbrLanguage.languageTemplate);
-        AINSPECTOR_FB.abbrLanguage.select(language_elements[0]);
+   	    } else {
+   	        panel.table = AINSPECTOR_FB.abbrLanguage.languageTemplate.tableTag.append( {language_elements: language_elements}, panel.panelNode, AINSPECTOR_FB.abbrLanguage.languageTemplate);
+   	        AINSPECTOR_FB.abbrLanguage.select(language_elements[0]);
 
-    	Firebug.currentContext.getPanel('Rules').sView(true, language_elements[0]);
+   	    	Firebug.currentContext.getPanel('Rules').sView(true, language_elements[0]);   	    	
+   	    }
+
       } else {
-        panel.table = AINSPECTOR_FB.abbrLanguage.abbreviationTemplate.tag.append( {object: abbreviation_elements}, panel.panelNode, AINSPECTOR_FB.abbrLanguage.abbreviationTemplate);
-        AINSPECTOR_FB.abbrLanguage.select(abbreviation_elements[0]);
+   	    is_empty_object = AINSPECTOR_FB.ainspectorUtil.hasProperty(abbreviation_elements);
+   	    if (is_empty_object) {
+   	        panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.append( {header_elements: ["Element", "Abbreviation", "Title", "Accessibility Summary"]}, panel.panelNode, AINSPECTOR_FB.emptyTemplate);
+   	  	    Firebug.currentContext.getPanel('Rules').sView(false, "none");
 
-        Firebug.currentContext.getPanel('Rules').sView(true, abbreviation_elements[0]);
+   	    } else {
+   	    	panel.table = AINSPECTOR_FB.abbrLanguage.abbreviationTemplate.tag.append( {object: abbreviation_elements}, panel.panelNode, AINSPECTOR_FB.abbrLanguage.abbreviationTemplate);
+   	        AINSPECTOR_FB.abbrLanguage.select(abbreviation_elements[0]);
+
+   	        Firebug.currentContext.getPanel('Rules').sView(true, abbreviation_elements[0]);
+   	    	
+   	    }
+
       } 	
     },
     

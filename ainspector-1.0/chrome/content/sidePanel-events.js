@@ -87,7 +87,9 @@ FBL.ns(function() { with (FBL) {
        var dom_element = selection.dom_element; 
        if (dom_element)
          this.rebuild(this.showOnRulesTabSelect(dom_element));
-       else this.rebuild(this.showOnRulesTabSelect(selection.value.dom_element));
+       else if (selection.hasOwnProperty("value") && selection.value.dom_element)
+    	 this.rebuild(this.showOnRulesTabSelect(selection.value.dom_element));
+       else this.rebuild(this.showOnRulesTabSelect(selection));
      },
      
      /**
@@ -134,7 +136,7 @@ FBL.ns(function() { with (FBL) {
        var rule_result_array = new Array();
 
        for(var i=0; i<events.length; i++){
-    	 rule_result_array.push({"label": events[i].label, "value": events[i].value, "description": events[i].description});
+    	 rule_result_array.push({"event": events[i].label, "element": events[i].on_element, "ancestor": events[i].on_ancestor});
        }
        return rule_result_array;
        
@@ -150,13 +152,20 @@ FBL.ns(function() { with (FBL) {
      rebuild: function(resultArray){
        this.panelNode.id = "ainspector-side-panel";
        var flag = true;
-   	   for(var i in resultArray){ if(resultArray.hasOwnProperty(i)){flag = false;}}
-   	   FBTrace.sysout("flag: " + flag);
-   	   if (flag) {
-    	   emptyTemplate.tag.replace({object: resultArray}, this.panelNode);
+       var toolbar_selected = AINSPECTOR_FB.toolbarUtil.getSelectedToolbarButton(Firebug.currentContext);
+       
+	   if (toolbar_selected == "colorContrast") {
+	     toolbar_selected = toolbar_selected.charAt(0).toUpperCase() + toolbar_selected.slice(1);
+         var message = "Events Panel is disabled for the '" + toolbar_selected + "' toolbar button";
+         AINSPECTOR_FB.disablePanelTemplate.mesgTag.replace({message: message}, this.panelNode);
        } else {
-    	   
+         for(var i in resultArray){ if(resultArray.hasOwnProperty(i)){flag = false;}}
+   	     if (flag) {
+           var header_elements = ["Events", "On Element", "On Ancestor"];
+     	   AINSPECTOR_FB.emptyTemplate.tag.replace({header_elements: header_elements}, this.panelNode);
+         } else {
     	   eventsTemplate.tag.replace({object: resultArray}, this.panelNode);    	    
+         }
        }
      }
    });
@@ -167,45 +176,23 @@ FBL.ns(function() { with (FBL) {
       TABLE({class: "ai-sidepanel-table", cellpadding: 0, cellspacing: 0, role: "treegrid"},
         THEAD(
           TR({class: "gridHeaderRow gridRow", id: "rulesTableHeader", "role": "row", tabindex: "0"},
-            TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, "Events"),
-            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, "Value"),
-            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, "Descritpion")
+            TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, DIV({class: "gridHeaderCellBox"}, "Events")),
+            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, DIV({class: "gridHeaderCellBox"}, "On Element")),
+            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, DIV({class: "gridHeaderCellBox"}, "On Ancestor"))
           )
         ),  
         TBODY(
           FOR("obj", "$object",
             TR({class: "tableRow a11yFocus", role: "row"},
-              TD({class: "resultsCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridLabel"},"$obj.label")),
-              TD({class: "messagesCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridLabel"},"$obj.value|getValue")),
-              TD({class: "messagesCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridLabel"},"$obj.description|getValue"))
+              TD({class: "resultsCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridLabel"},"$obj.event")),
+              TD({class: "messagesCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridLabel"},"$obj.element")),
+              TD({class: "messagesCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridLabel"},"$obj.ancestor"))
             ) //end TR
           ) 
         ) //end TBODY  
-      ),
-      
-      getValue : function(value){
-          if (value != undefined) return value;
-          else return "";
-      }
+      )
   });
-  var emptyTemplate = domplate(BaseRep, {
-	    
-	    tag:
-	      TABLE({class: "ai-sidepanel-table", cellpadding: 0, cellspacing: 0, role: "treegrid"},
-	        THEAD(
-	          TR({class: "gridHeaderRow gridRow", id: "rulesTableHeader", "role": "row", tabindex: "0"},
-	            TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, "Events"),
-	            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, "Value"),
-	            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, "Descritpion")
-	          )
-	        ),  
-	        TBODY(
-	            TR({class: "tableRow a11yFocus", role: "row"},
-	              TD(DIV({class: "gridLabel"},"none"))
-	            ) //end TR
-	        ) //end TBODY  
-	      )
-	  });
+  
   var BaseRep = domplate(Firebug.Rep, {
 	    
 	    /**

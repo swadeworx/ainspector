@@ -23,31 +23,33 @@ with (FBL) {
   AINSPECTOR_FB.colorContrast = {  
 	      
     /**
-	 * @function colorContrastPanelView
+	 * @function viewPanel
 	 * 
-	 * @desc
+	 * @desc respond to "ColorContrast" button in the AInspector toolbar
 	 * 
-	 * @param head_land_toolbar_buttons
-	 * @param toolbar
-	 * @param panel
-	 * @param cache_object
+	 * @param {Object} context - 
+	 * @param {String} panel_name - name of the panel to identify in which panel are we
+	 * @param {Object} cache_object - container for all the element properties
+	 * @property {Object} toolbar - place holder for html content to append to the colorcontrast panel
+	 * @property {Object} cache_object - container for all the element properties
 	 * @returns
 	 */
 	 viewPanel : function(context, panel_name, cache_object) {		
-		  FBTrace.sysout("............colorContrast.............", context.browser.chrome.getSelectedSidePanel());
+	   
+	  //var panelType = Firebug.getPanelType(Firebug.currentContext.getPanel('Style').name);
+	  
+	  //Firebug.registerPanel(panelType);
 
-		  if (!panel_name) panel_name = "AInspector";
-		  if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
-		  
-		  //FBTrace.sysout("cache_object: ", cache_object);
+	  if (!panel_name) panel_name = "AInspector";
+	  if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
+	  
+	  panel = context.getPanel(panel_name, true);
 
-		  panel = context.getPanel(panel_name, true);
-
-	      /* Clear the panel before writing anything onto the report*/
-	      if (panel) {
-	        clearNode(panel.panelNode);
-	        clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
-	      }
+	  /* Clear the panel before writing anything onto the report*/
+      if (panel) {
+	    clearNode(panel.panelNode);
+	    clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+	  }
 
       AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document); 
 
@@ -91,30 +93,26 @@ with (FBL) {
      */
     toHTMLPanel: function(event) {
 
-      var table = getChildByClass(event.target.offsetParent, "ai-table-list-items");
-	  var row =  getChildByClass(event.target.offsetParent, "tableRow");
-      var child;
-      var tbody = table.children[1];
-      var node = null;
+	  var table = getChildByClass(event.target.offsetParent, "domTable");
+	  var node = null;
+		//row = getChildByClass(event.target.offsetParent, "treeRow");
+		var rows = table.rows;
+		for (var i = 0; i < rows.length; i++) {
+			var flag = false;
+			var row = rows[i];//tbody.children[i];
+			node = row;
+			for (var k=0; k<row.classList.length;k++) {
 
-      for (var i = 0; i < tbody.children.length; i++) {
-        var flag = false;
-        var row = tbody.children[i];
-        node = row;
-        for (var j = 0; j < row.children.length; j++) {
-      	var cell = row.children[j];
-        for (var k=0; k<cell.classList.length;k++) {
-          if (cell.classList[k] ==  "gridCellSelected") {
-            flag = true;
-            break;
-          }//end if
-        }//end for
-        if (flag == true) break;
-      }
-        if (flag == true) break;
-      }
-      
-      node = node.repObject.dom_element.node;
+				if (row.classList[k] ==  "gridRowSelected") {
+					flag = true;
+					break;
+				}//end if
+			}//end for
+
+			if (flag == true) break;
+		}
+	 if (node)	node = node.repObject.dom_element.node;
+
       var panel = Firebug.chrome.selectPanel("html");
       panel.select(node);
     },    
@@ -126,7 +124,7 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
     	
 	  TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, onclick: "$onClick", tabindex: 0, onkeypress: "$onKeyPressedTable"},
 	    THEAD(
-	      TR({class: "gridHeaderRow a11yFocus", id: "tableTableHeader", "role": "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow"},
+	      TR({class: "gridHeaderRow", id: "tableTableHeader", "role": "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow"},
 	        TH({class: "gridHeaderCell gridCell", id: "colConEleCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Elements")),
 	        TH({class: "gridHeaderCell gridCell", id: "colConColorCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Color")),
 	        TH({class: "gridHeaderCell gridCell", id: "colConBgCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "BG Color")),
@@ -181,7 +179,7 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
       strTagWarn : DIV({class: "warnMsgTxt"}, "$member.acc_summary"),
       
 	  loop:
-	    FOR("member", "$members", TAG("$childrow", {member: "$member"})),
+	    FOR("member", "$members", TAG("$row", {member: "$member"})),
 
 	    getValue : function(value){
     		if (value != undefined) return value;
@@ -227,23 +225,38 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
 
 	  createMember: function(name, value, level)  {
 	    var cc_summary = value.getColorContrastSummary();
-		if (level == 0) return {
-		  no_of_elements: value.dom_text_nodes.length,
-		  color: value.color,
-		  background_color: value.background_color,
-		  color_contrast_ratio: value.color_contrast_ratio,
-		  background_image: value.background_image,
-	      hasChildren: (value.dom_text_nodes.length > 0) ? true : false,
+	    var color = value.color;
+	    var background_color = value.background_color;
+	    var background_image = value.background_image;
+	    var color_contrast_ratio = value.color_contrast_ratio;
+	    var is_large_font = value.is_large_font;
+
+	    if (level != 0) {
+	      color	= value.computed_style.color_hex;
+	      background_color = value.computed_style.background_color_hex;
+	      background_image = value.computed_style.background_image;
+	      color_contrast_ratio = value.computed_style.color_contrast_ratio;
+	      is_large_font = value.computed_style.is_large_font;
+	    } 
+		
+	    return {
+		  no_of_elements: this.getNoOfElements(value), 
+		  color: color,
+		  background_color: background_color,
+		  background_image: (background_image == "none") ? "No" : "Yes",
+		  color_contrast_ratio: color_contrast_ratio,
+	      is_large_font: (is_large_font == false) ? "No" : "Yes",
+	      hasChildren: this.hasChildren(value),
 	      children: value.dom_text_nodes,
 	      value: (value != null) ? value : "",
 	      level: level,
 	      indent: level * 16,
 	      tag: this.strTag,
-	      is_large_font: value.is_large_font,
 	      acc_summary: cc_summary.label,
 	      sevTag: this.getAccessibility(value)
 	    };
-	    else return {
+	    /*else return {
+	      no_of_elements: "",
 	      color: value.color,
 		  background_color: value.background_color,
 		  color_contrast_ratio: value.color_contrast_ratio,
@@ -254,9 +267,18 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
       	  is_large_font: value.is_large_font,
 	      acc_summary: cc_summary.label,
 	      sevTag: this.getAccessibility(value)
-	    };
+	    };*/
 	  },
-	  
+	  hasChildren : function(object){
+		var length = this.getNoOfElements(object);
+		if (length > 0) return true;
+		else return false;
+		
+	  },
+	  getNoOfElements : function (object) {
+		 if (object.hasOwnProperty("dom_text_nodes")) return object.dom_text_nodes.length;
+		 else return "";
+	  },
 	  getAccessibility : function(object){
 		var severity =  object.getColorContrastSummary().label;
 		var styleSeverityTag;

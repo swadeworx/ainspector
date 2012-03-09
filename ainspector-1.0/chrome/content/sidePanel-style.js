@@ -87,7 +87,9 @@ FBL.ns(function() { with (FBL) {
        var dom_element = selection.dom_element; 
        if (dom_element)
          this.rebuild(this.showOnRulesTabSelect(dom_element));
-       else this.rebuild(this.showOnRulesTabSelect(selection.value.dom_element));
+       else if (selection.hasOwnProperty("value") && selection.value.dom_element)
+    	 this.rebuild(this.showOnRulesTabSelect(selection.value.dom_element));
+       else this.rebuild(this.showOnRulesTabSelect(selection));
      },
      
      /**
@@ -149,23 +151,32 @@ FBL.ns(function() { with (FBL) {
       */
      rebuild: function(resultArray){
        this.panelNode.id = "ainspector-side-panel";
+       var toolbar_selected = AINSPECTOR_FB.toolbarUtil.getSelectedToolbarButton(Firebug.currentContext);
+       if (toolbar_selected == "colorContrast") {
+         var flag = true;
+   	    
+         for (var i in resultArray){ 
+   		   
+           if(resultArray.hasOwnProperty(i)){
+   		     flag = false;
+   		     break;
+   		   }
+   	     }
+   	   
+         if (flag) {
+           var header_elements = ["CSS Property", "Value"];
+           //clearNode(this.panelNode.offsetParent.children[1]);
+	       AINSPECTOR_FB.emptyTemplate.tag.replace({header_elements: header_elements}, this.panelNode);
+	     } else {
+	       styleTemplate.tag.replace({object: resultArray}, this.panelNode);
+         }
        
-       var flag = true;
-   	   for (var i in resultArray){ 
-   		 if(resultArray.hasOwnProperty(i)){
-   		   flag = false;
-   		   break;
-   		 }
-   	   }
-   	   if (flag) {
-         var header_elements = ["CSS Property", "Value"];
-         FBTrace.sysout("this.panelNode: ", this.panelNode.offsetParent.children[1]);
-        //clearNode(this.panelNode.offsetParent.children[1]);
-	      AINSPECTOR_FB.emptyTemplate.tag.replace({header_elements: header_elements}, this.panelNode);
-	   } else {
-	     styleTemplate.tag.replace({object: resultArray}, this.panelNode);
+       } else {
+    	 toolbar_selected = toolbar_selected.charAt(0).toUpperCase() + toolbar_selected.slice(1);
+         var message = "Style Panel is disabled for the '" + toolbar_selected + "' toolbar button";
+         AINSPECTOR_FB.disablePanelTemplate.mesgTag.replace({message: message}, this.panelNode);	 
        }
-     }
+    }
    });
   
   var styleTemplate = domplate(BaseRep, {
@@ -174,8 +185,8 @@ FBL.ns(function() { with (FBL) {
 	      TABLE({class: "ai-sidepanel-table", cellpadding: 0, cellspacing: 0, role: "treegrid"},
 	        THEAD(
 	          TR({class: "gridHeaderRow gridRow", id: "rulesTableHeader", "role": "row", tabindex: "0"},
-	            TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, "Cache Property"),
-	            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, "Value")
+	            TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, DIV({class: "gridHeaderCellBox"}, "Cache Property")),
+	            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, DIV({class: "gridHeaderCellBox"}, "Value"))
 	          )
 	        ),  
 	        TBODY(

@@ -19,9 +19,10 @@ var AINSPECTOR_FB = AINSPECTOR_FB || {};
 with (FBL) {
   
   panel : null;
-  duplicate_name_items: null;
-  duplicate_href_items: null;
+  same_name_items: null;
+  same_href_items: null;
   link_elements: null;
+  area_elements: null;
   selected_toolbar_button: null;
 
   /**
@@ -53,11 +54,10 @@ with (FBL) {
         clearNode(panel.panelNode);
         clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
       }
-		var toolbar_buttons = [{name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.all"), selected: true, first:true},
-		                                   {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.duplicateHref")}, 
-		                                   {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.duplicateName")},
-		                                   {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.area")}];
-      
+	  var toolbar_buttons = [{name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.all"), selected: true, first:true},
+		                     {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.sameHref")}, 
+		                     {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.sameName")},
+		                     {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.area")}];
 
       AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
 
@@ -77,13 +77,20 @@ with (FBL) {
 	  panel.panelNode.appendChild(element);
 		  
 	  link_elements = links_cache.link_elements;
-	  duplicate_name_items = links_cache.duplicate_name_items;
-	  duplicate_href_items = links_cache.duplicate_href_items;
+	  same_name_items = links_cache.duplicate_name_items;
+	  same_href_items = links_cache.duplicate_href_items;
+	  area_elements = links_cache.area_elements;
+	  
+      var is_empty_object = AINSPECTOR_FB.ainspectorUtil.hasProperty(link_elements);
 
-	  panel.table = AINSPECTOR_FB.links.allLinksTemplate.tableTag.append({link_elements: link_elements}, panel.panelNode, null);
-	  this.select(links_cache.link_elements[0]);
-	  Firebug.currentContext.getPanel('Rules').sView(true, links_cache.link_elements[0]);
-
+	  if (is_empty_object == true) {
+        panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.append( {header_elements: ["Element", "Name", "Link Type", "Accessibility Summary"]}, panel.panelNode, AINSPECTOR_FB.emptyTemplate);
+	  	Firebug.currentContext.getPanel('Rules').sView(false, "none");
+	  } else {
+	    panel.table = AINSPECTOR_FB.links.allLinksTemplate.tableTag.append({link_elements: link_elements}, panel.panelNode, null);
+	    this.select(links_cache.link_elements[0]);
+	    Firebug.currentContext.getPanel('Rules').sView(true, links_cache.link_elements[0]);
+	  }
 	},
 	    
 	/**
@@ -214,26 +221,60 @@ with (FBL) {
    * @param toolbar_button_id id of the toolbar to be selected
    */
   showOnSelectButton : function(toolbar_button_id){
-    clearNode(panel.table);
+	this.viewContainer.append({}, panel.table, this);
+	clearNode(panel.table);
     clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
     selected_toolbar_button = toolbar_button_id;
-
+    var is_empty_object;
     if (toolbar_button_id == "All") {
         
-      panel.table = AINSPECTOR_FB.links.allLinksTemplate.tableTag.append( {links: link_elements}, panel.panelNode, null);
-      AINSPECTOR_FB.images.select(link_elements[0]);
-      Firebug.currentContext.getPanel('Rules').sView(true, link_elements[0]);
-     
-    } else if (toolbar_button_id == "Duplicate HREF"){
+      is_empty_object = AINSPECTOR_FB.ainspectorUtil.hasProperty(link_elements);
+
+  	  if (is_empty_object == true) {
+          panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.append( {header_elements: ["Element", "Name", "Link Type", "Accessibility Summary"]}, panel.panelNode, AINSPECTOR_FB.emptyTemplate);
+  	  	Firebug.currentContext.getPanel('Rules').sView(false, "none");
+  	  } else {
+
+        panel.table = AINSPECTOR_FB.links.allLinksTemplate.tableTag.append( {links: link_elements}, panel.panelNode, null);
+        AINSPECTOR_FB.images.select(link_elements[0]);
+        Firebug.currentContext.getPanel('Rules').sView(true, link_elements[0]);
+  	  }
+    } else if (toolbar_button_id == "Same HREF"){
    	  var properties = ["Number", "HREF", "Name"];
-      panel.table = AINSPECTOR_FB.links.duplicateNameOrHrefTemplate.tag.append( {object: duplicate_href_items, properties: properties}, panel.panelNode, AINSPECTOR_FB.links.duplicateNameOrHrefTemplate);
-      AINSPECTOR_FB.images.select(duplicate_href_items[0]);
-      Firebug.currentContext.getPanel('Rules').sView(true, duplicate_href_items[0]);
-    } else if (toolbar_button_id == "Duplicate NAME") {
+   	  is_empty_object = AINSPECTOR_FB.ainspectorUtil.hasProperty(same_href_items);
+
+	  if (is_empty_object == true) {
+        panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.append( {header_elements: properties}, panel.panelNode, AINSPECTOR_FB.emptyTemplate);
+	  	Firebug.currentContext.getPanel('Rules').sView(false, "none");
+	  } else {
+        panel.table = AINSPECTOR_FB.links.duplicateNameOrHrefTemplate.tag.append( {object: same_href_items, properties: properties}, panel.panelNode, AINSPECTOR_FB.links.duplicateNameOrHrefTemplate);
+        AINSPECTOR_FB.images.select(same_href_items[0]);
+        Firebug.currentContext.getPanel('Rules').sView(true, same_href_items[0]);
+	  }
+    } else if (toolbar_button_id == "Same Name") {
       var properties = ["Number", "Name", "HREF"];
-      panel.table = AINSPECTOR_FB.links.duplicateNameOrHrefTemplate.tag.append( {object: duplicate_name_items, properties:properties}, panel.panelNode, AINSPECTOR_FB.links.duplicateNameOrHrefTemplate);
-      AINSPECTOR_FB.images.select(duplicate_name_items[0]);
-  	  Firebug.currentContext.getPanel('Rules').sView(true, duplicate_name_items[0]);
+      is_empty_object = AINSPECTOR_FB.ainspectorUtil.hasProperty(same_name_items);
+
+  	  if (is_empty_object == true) {
+          panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.append( {header_elements: properties}, panel.panelNode, AINSPECTOR_FB.emptyTemplate);
+  	  	Firebug.currentContext.getPanel('Rules').sView(false, "none");
+  	  } else {
+        panel.table = AINSPECTOR_FB.links.duplicateNameOrHrefTemplate.tag.append( {object: same_name_items, properties:properties}, panel.panelNode, AINSPECTOR_FB.links.duplicateNameOrHrefTemplate);
+        AINSPECTOR_FB.images.select(same_name_items[0]);
+  	    Firebug.currentContext.getPanel('Rules').sView(true, same_name_items[0]);
+  	  }
+    } else if (toolbar_button_id == "AREA") {
+	  is_empty_object = AINSPECTOR_FB.ainspectorUtil.hasProperty(area_elements);
+	  var properties = ["Element", "Name", "Href", "Accessibility Summary"];
+	  if (is_empty_object == true) {
+        panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.append( {header_elements: properties}, panel.panelNode, AINSPECTOR_FB.emptyTemplate);
+	  	Firebug.currentContext.getPanel('Rules').sView(false, "none");
+	  } else {
+        panel.table = AINSPECTOR_FB.links.areaTemplate.tag.append( {area_elements: area_elements}, panel.panelNode, null);
+        AINSPECTOR_FB.images.select(area_elements[0]);
+	    Firebug.currentContext.getPanel('Rules').sView(true, area_elements[0]);
+	  }	
+    	
     } else {
     	
     }
@@ -249,7 +290,8 @@ with (FBL) {
    selectTab : function(elem) {
 
 	 if (!elem) return;
-     var category = getClassValue(elem, "toolbarButtonView");
+     //var category = getClassValue(elem, "toolbarButtonView");
+	 var category = elem.id;
      if (category) {
        var tabList = getAncestorByClass(elem, "focusTabList");
 	        
@@ -301,7 +343,7 @@ with (FBL) {
           TR({class: "gridHeaderRow gridRow", id: "linksTableHeader", role: "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader"},
             TH({class: "gridHeaderCell gridCell", id: "linkOrderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"},"Element")),
             TH({class: "gridHeaderCell gridCell", id: "linkNameCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"},"Name")),
-            TH({class: "gridHeaderCell gridCell", id: "linkHrefCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"},"HREF")),
+            TH({class: "gridHeaderCell gridCell", id: "linkHrefCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"},"Link Type")),
             TH({class: "gridHeaderCell gridCell", id: "linkHrefCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"},"Accessibility Summary"))
 
           ) //end TR
@@ -309,16 +351,102 @@ with (FBL) {
         TBODY(
           FOR("object", "$link_elements",
             TR({class: "tableRow gridRow", role: "row", id: "$object.cache_id", _repObject:"$object", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow", onclick: "$highlightRow", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
-              TD({class: "linksOrderCol gridCell gridCol", role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+              TD({class: "gridCell gridCol", role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({class: "gridContent", _repObject:"$object"}, "$object.dom_element.tag_name")
               ),
-              TD({class: "linksTextCol gridCell gridCol", role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
-            	DIV({class: "gridContent", _repObject:"$object"}, "$object.name")
+              TD({class: "gridCell gridCol", role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+            	DIV({class: "gridContent", _repObject:"$object", title:"$object.name" }, "$object.name|AINSPECTOR_FB.ainspectorUtil.truncateText")
               ),
-              TD({class: "linksHREFCol gridCell gridCol", role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
-            	DIV({id: "$object.document_order", class: "gridContent", _repObject:"$object", title: "$object.href"}, "$object.href|getFileName" )
+              TD({class: "gridCell gridCol", role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+            	DIV({id: "$object.document_order", class: "gridContent", _repObject:"$object"}, "$object|getLinkType" )
               ),
-              TD({class: "linksHREFCol gridCell gridCol", role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+              TD({class: "gridCell gridCol", role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+               	DIV({id: "$object.document_order", class: "gridContent", _repObject:"$object"}, TAG("$object|getAccessibility", {'object': '$object'}))
+              )
+            )//end TR   
+          ) //end FOR
+        )// end TBODY
+      ), // end inner TABLE
+  
+      strTagPass : DIV({class: "passMsgTxt"}, "$object|getSummary"),
+      strTagViolation : DIV({class: "violationMsgTxt"}, "$object|getSummary"),
+      strTagManual : DIV({class: "manualMsgTxt"}, "$object|getSummary"),
+      strTagHidden : DIV({class: "hiddenMsgTxt"}, "$object|getSummary"),
+      strTagRecommendation : DIV({class: "recommendationMsgTxt"}, "$object|getSummary"),
+      strTagInfo : DIV({class: "infoMsgTxt"}, "$object|getSummary"),
+      strTagWarn : DIV({class: "warnMsgTxt"}, "$object|getSummary"),
+      
+      /**
+       * @function highlightRow
+       * 
+       * @desc helper function to call highlight
+       * 
+       * @param {Event} event - even triggered when a row is selected in a panel
+       * @property {Object} selection - present selected row info to be passed to the side panel 
+       */
+      highlightRow : function(event){
+	
+	    panel.selection = Firebug.getRepObject(event.target);
+	    AINSPECTOR_FB.flatListTemplateUtil.highlightRow(event);
+  	  },
+  	  /**
+  	   * @function getLinkType
+  	   */
+  	  getLinkType: function (object) {
+  	    return object.getLinkType();	  
+  	  },
+  	  getAccessibility : function(object){
+      	var severity =  object.dom_element.getAccessibility().label;
+  		var styleSeverityTag;
+  		if (severity == "Pass")  styleSeverityTag = this.strTagPass;
+  		if (severity == "Violation") styleSeverityTag = this.strTagViolation;
+  		if (severity == "Manual Check") styleSeverityTag = this.strTagManual;
+  		if (severity == "Hidden") styleSeverityTag = this.strTagHidden;
+  		if (severity == "Recommendation") styleSeverityTag = this.strTagRecommendation;
+  		if (severity == "Information") styleSeverityTag = this.strTagInfo;
+  		if (severity == "Warning") styleSeverityTag = this.strTagWarn;
+
+  		return styleSeverityTag;
+        },
+        
+     getSummary : function(object){
+       return object.dom_element.getAccessibility().label;
+     }
+  	});
+  
+  /**
+   * areaTemplate
+   * 
+   * @Domplate
+   * 
+   * @desc template to create a table for Links tab and pop up the values in it
+   */
+  AINSPECTOR_FB.links.areaTemplate = domplate({
+
+    tag:
+      TABLE({class: "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "", role: "treegrid", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressTable"},
+        THEAD(
+          TR({class: "gridHeaderRow gridRow", id: "linksTableHeader", role: "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader"},
+            TH({class: "gridHeaderCell gridCell", id: "linkOrderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"},"Element")),
+            TH({class: "gridHeaderCell gridCell", id: "linkNameCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"},"Name")),
+            TH({class: "gridHeaderCell gridCell", id: "linkHrefCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"},"Href")),
+            TH({class: "gridHeaderCell gridCell", id: "linkHrefCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"},"Accessibility Summary"))
+
+          ) //end TR
+        ), //end THEAD
+        TBODY(
+          FOR("object", "$area_elements",
+            TR({class: "tableRow gridRow", role: "row", id: "$object.cache_id", _repObject:"$object", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow", onclick: "$highlightRow", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
+              TD({class: "gridCell gridCol", role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+                DIV({class: "gridContent", _repObject:"$object"}, "$object.dom_element.tag_name")
+              ),
+              TD({class: "gridCell gridCol", role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+            	DIV({class: "gridContent", _repObject:"$object", title:"$object.name" }, "$object.name|AINSPECTOR_FB.ainspectorUtil.truncateText")
+              ),
+              TD({class: "gridCell gridCol", role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+            	DIV({id: "$object.document_order", class: "gridContent", _repObject:"$object"}, "$object|getFileName")
+              ),
+              TD({class: "gridCell gridCol", role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                	DIV({id: "$object.document_order", class: "gridContent", _repObject:"$object"}, TAG("$object|getAccessibility", {'object': '$object'}))
               )
             )//end TR   
@@ -348,7 +476,7 @@ with (FBL) {
 	    AINSPECTOR_FB.flatListTemplateUtil.highlightRow(event);
   	  },
   	  
-  	getAccessibility : function(object){
+  	  getAccessibility : function(object){
       	var severity =  object.dom_element.getAccessibility().label;
   		var styleSeverityTag;
   		if (severity == "Pass")  styleSeverityTag = this.strTagPass;
@@ -436,15 +564,15 @@ with (FBL) {
 	  
 	  getParentColumn : function(member) {
       
-    	if (selected_toolbar_button == "Duplicate HREF") return decodeURI(member.duplicate_href);
+    	if (selected_toolbar_button == "Same HREF") return AINSPECTOR_FB.ainspectorUtil.truncateText(decodeURI(member.duplicate_href));
         else return member.duplicate_name;
       
 	  },
 	
 	  getChildColumn : function(member) {
       
-		if (selected_toolbar_button == "Duplicate HREF") return member.duplicate_name;
-        else return decodeURI(member.duplicate_href);
+		if (selected_toolbar_button == "Same HREF") return member.duplicate_name;
+        else return AINSPECTOR_FB.ainspectorUtil.truncateText(decodeURI(member.duplicate_href));
       
 	  },
 
