@@ -60,7 +60,7 @@ with (FBL) {
       
       table_elements = tables_cache.table_elements;
       child_elements = tables_cache.child_cache_elements;
-
+      var is_empty_object = AINSPECTOR_FB.ainspectorUtil.hasProperty(child_elements);
       AINSPECTOR_FB.tables.tablesToolbarPlate.toolbar.replace({toolbar_buttons : toolbar_buttons}, toolbar, AINSPECTOR_FB.tables.tablesToolbarPlate);
 
       var element = panel.document.createElement("div");
@@ -68,10 +68,15 @@ with (FBL) {
 	  panel.panelNode.id = "ainspector-panel"; 
 	  panel.panelNode.appendChild(toolbar);
       panel.panelNode.appendChild(element);
-
-      panel.table = AINSPECTOR_FB.tables.tablesTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.tables.tablesTreeTemplate);
-	  this.select(child_elements[0]);
-	  Firebug.currentContext.getPanel('Rules').sView(true, child_elements[0]);
+      
+      if (is_empty_object == true) {
+        panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.append( {header_elements: ["Tag", "Information", "Accessibility Summary"]}, panel.panelNode, AINSPECTOR_FB.emptyTemplate);
+      	Firebug.currentContext.getPanel('Rules').sView(false, "none");
+      } else{
+        panel.table = AINSPECTOR_FB.tables.tablesTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.tables.tablesTreeTemplate);
+	    this.select(child_elements[0]);
+	    Firebug.currentContext.getPanel('Rules').sView(true, child_elements[0]);
+      }
     },
     
     /**
@@ -200,21 +205,37 @@ onClickToolbarButton : function(event) {
 	var toolbar_button = event.currentTarget.id;
 	this.showOnSelectButton(toolbar_button);
 },
-    showOnSelectButton : function(toolbar_button_id) {
 
-    	clearNode(panel.table);
-        clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
-        if (toolbar_button_id == "Tree View") {
-    	  panel.table = AINSPECTOR_FB.tables.tablesTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.tables.tablesTreeTemplate);
-    	  AINSPECTOR_FB.tables.select(child_elements[0]);
-    	  Firebug.currentContext.getPanel('Rules').sView(true, child_elements[0]);
-        
-        } else if (toolbar_button_id == "List View") {
-          panel.table = AINSPECTOR_FB.tables.tablesTreeTemplate.tag.append( {object: table_elements}, panel.panelNode, AINSPECTOR_FB.tables.tablesTreeTemplate);
-      	  AINSPECTOR_FB.tables.select(table_elements[0]);
-      	  Firebug.currentContext.getPanel('Rules').sView(true, table_elements[0]);
-        }
-     },
+/**
+ * 
+ */
+showOnSelectButton : function(toolbar_button_id) {
+
+	clearNode(panel.table);
+    clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+    var is_empty_object;
+    if (toolbar_button_id == "Tree View") {
+      is_empty_object = AINSPECTOR_FB.ainspectorUtil.hasProperty(child_elements);
+	  if (is_empty_object) {
+        panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.append( {header_elements: ["Tag", "Information", "Accessibility Summary"]}, panel.panelNode, AINSPECTOR_FB.emptyTemplate);
+      	Firebug.currentContext.getPanel('Rules').sView(false, "none");
+      } else{	
+	    panel.table = AINSPECTOR_FB.tables.tablesTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.tables.tablesTreeTemplate);
+	    AINSPECTOR_FB.tables.select(child_elements[0]);
+	    Firebug.currentContext.getPanel('Rules').sView(true, child_elements[0]);
+      }
+    } else if (toolbar_button_id == "List View") {
+      is_empty_object = AINSPECTOR_FB.ainspectorUtil.hasProperty(table_elements);	
+	  if (is_empty_object) {
+        panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.append( {header_elements: ["Tag", "Information", "Accessibility Summary"]}, panel.panelNode, AINSPECTOR_FB.emptyTemplate);
+      	Firebug.currentContext.getPanel('Rules').sView(false, "none");
+      } else{
+        panel.table = AINSPECTOR_FB.tables.tablesTreeTemplate.tag.append( {object: table_elements}, panel.panelNode, AINSPECTOR_FB.tables.tablesTreeTemplate);
+  	    AINSPECTOR_FB.tables.select(table_elements[0]);
+  	    Firebug.currentContext.getPanel('Rules').sView(true, table_elements[0]);
+      }
+    }
+ },
     /**
      * selectTab
      * 

@@ -57,7 +57,8 @@ with (FBL) {
     toolbar.id = "toolbarDiv";
 
     media_elements = cache_object.dom_cache.media_cache.media_elements;
-	 
+    var is_empty_object = AINSPECTOR_FB.ainspectorUtil.hasProperty(media_elements);
+    
 	AINSPECTOR_FB.media.mediaToolbarPlate.toolbar.replace({}, toolbar, AINSPECTOR_FB.media.equivToolbarPlate);
 	  
 	var element = panel.document.createElement("div");
@@ -66,11 +67,14 @@ with (FBL) {
 	panel.panelNode.id = "ainspector-panel"; 
 	panel.panelNode.appendChild(toolbar);
 	panel.panelNode.appendChild(element);
-	 
-	// panel = panelView;
-	panel.table = AINSPECTOR_FB.media.mediaTemplate.tableTag.append( {media_elements: media_elements}, panel.panelNode, AINSPECTOR_FB.media.mediaTemplate);
-	this.select(media_elements[0]);
-	Firebug.currentContext.getPanel('Rules').sView(true, media_elements[0]);
+	if (is_empty_object == true) {
+      panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.append( {header_elements: ["Audio", "Video", "Captions", "Audio Desc", "Transcription", "A11y"]}, panel.panelNode, AINSPECTOR_FB.emptyTemplate);
+      //this.select("none");
+  	  Firebug.currentContext.getPanel('Rules').sView(false, "none");
+    } else{
+	  panel.table = AINSPECTOR_FB.media.mediaTemplate.tableTag.append( {media_elements: media_elements}, panel.panelNode, AINSPECTOR_FB.media.mediaTemplate);
+	  this.select(media_elements[0]);
+	  Firebug.currentContext.getPanel('Rules').sView(true, media_elements[0]);}
   },
     
     /**
@@ -190,4 +194,6 @@ with (FBL) {
         )// end TBODY
       ) // end inner TABLE
    });
+  
+  
   }

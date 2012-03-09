@@ -243,7 +243,7 @@ FBL.ns(function() { with (FBL) {
 
       if (colId) {
         var prefName = "ainspector." + colId + ".width";
-        AINSPECTOR.util.Preference.setPref(prefName, newWidth);
+        AINSPECTOR_FB.Preference.setPref(prefName, newWidth);
       }
 
       if (FBTrace.DBG_COOKIES) {
@@ -267,12 +267,21 @@ FBL.ns(function() { with (FBL) {
 	  }
 	  return flag;
     },
-    
+    /**
+     * @function truncateText
+     * 
+     * @desc
+     * 
+     * @param {String} text_content - String to truncate
+     * @return
+     */
     truncateText : function(text_content){
     	
       var max_text_length = 40;
       var truncated_text = text_content.substring(0, max_text_length);
-      truncated_text = truncated_text + "...";
+      
+      if (text_content.length > 40) truncated_text = truncated_text + "...";
+      
       return truncated_text;
     },
     
@@ -396,8 +405,8 @@ FBL.ns(function() { with (FBL) {
       // Store current state into the preferences.
       var headerID = headerRow.getAttribute("id");
 
-      Preference.setPref(headerID + "sortCol", colID); 
-      Preference.setPref(headerID + "sortDir", header.getAttribute("aria-sort")); 
+      AINSPECTOR_FB.Preference.setPref(headerID + "sortCol", colID); 
+      AINSPECTOR_FB.Preference.setPref(headerID + "sortDir", header.getAttribute("aria-sort")); 
       var values = [];
       for (var row = tbody.childNodes[0]; row; row = row.nextSibling) {
           var cell = row.childNodes[colIndex];
@@ -811,8 +820,31 @@ FBL.ns(function() { with (FBL) {
         panel.select(node);
       },
 
+      viewContainer : DIV({style : "display:none"}),
     
-    viewContainer : DIV({style : "display:none"})
+    /**
+     * @function getSelectedToolbarButton
+     * 
+     * @desc return toolbar button selected on the main panel
+     * 
+     * @param {Object} context - Firebug context
+     * @property {String} toolbar_button - selected toolbar button
+     * 
+     * @return {String} toolbar_button
+     */
+    getSelectedToolbarButton : function(context){
+    
+      var toolbarbuttons = context.browser.chrome.$("radio-toolbar").children;
+   	  var toolbar_button;
+   	  for (var i=0; i < toolbarbuttons.length; i=i+2){
+   		if (toolbarbuttons[i].checked == true) {
+   		  //if (i != 0) toolbarbuttons[i].checked = false;
+   		  toolbar_button = toolbarbuttons[i].id;
+   		  break;
+   		}
+   	  }
+   	  return toolbar_button;
+    }
   };
   
   AINSPECTOR_FB.flatListTemplateUtil = {
@@ -1136,10 +1168,10 @@ FBL.ns(function() { with (FBL) {
     highlight : function (row) {
       
       AINSPECTOR_FB.ainspectorUtil.setClass(row, "gridRowSelected");
-      this.highlightCacheItemOnBrowser(row.repObject);
       for (var i=0; i< row.children.length; i++) {
       	AINSPECTOR_FB.ainspectorUtil.setClass(row.children[i], "gridCellSelected");
       }
+      this.highlightCacheItemOnBrowser(row.repObject);
     },
     
     /**
@@ -1301,7 +1333,7 @@ FBL.ns(function() { with (FBL) {
 	      node = cache_item.node;
 	    }
 	    else {
-	      node = cache_item.parent_element.node;
+	      if (cache_item.parent_element) node = cache_item.parent_element.node;
 	    }
 	  }
 
@@ -1394,7 +1426,7 @@ FBL.ns(function() { with (FBL) {
 
   };
   
-  var Preference = {
+  AINSPECTOR_FB.Preference = {
 		  /**
 		     * @private
 		     */

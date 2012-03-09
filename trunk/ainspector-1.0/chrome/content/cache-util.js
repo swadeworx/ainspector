@@ -87,7 +87,7 @@ with (FBL) {
 	    var location_href = webProgress.DOMWindow.location.href;
 	      if (location_href == AINSPECTOR_FB.top_location_href) {
 		      FBTrace.sysout('onStateChange () location_href: ' + location_href + "..." + AINSPECTOR_FB.top_location_href);
-
+		      //AINSPECTOR_FB = AINSPECTOR_FB || {};
 	    	  AINSPECTOR_FB.cacheUtil.updateCache();
 //	    	  AINSPECTOR_FB.equivalents.equivalentsView(Firebug.currentContext, "AInspector", AINSPECTOR_FB.result_ruleset);
 	      }
@@ -99,7 +99,6 @@ with (FBL) {
 		      FBTrace.sysout('onLocationChange () location_href: ' + webProgress.DOMWindow.top.location.href);
 	
 	      AINSPECTOR_FB.top_location_href = webProgress.DOMWindow.top.location.href;
-	      //OAA_CI.showTransition();
 	    }
 	  },
 

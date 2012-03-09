@@ -22,18 +22,18 @@ with (FBL) {
   heading_elements: null;
   child_elements: null;
   title_main_elements: null;
-  content_outside_landmarks: null;
+  elements_with_content: null;
+  head_land_toolbar_buttons: null;
 
-  AINSPECTOR_FB.headLandmarks= {  
+  AINSPECTOR_FB.headLandmarks = {  
 
 	/**
 	 * @function viewPanel
 	 * 
 	 * @desc
 	 * 
-	 * @param head_land_toolbar_buttons
-	 * @param toolbar
-	 * @param panel
+	 * @param context
+	 * @param panel_name
 	 * @param cache_object
 	 */
 	viewPanel : function(context, panel_name, cache_object) {
@@ -48,7 +48,7 @@ with (FBL) {
         clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
       }
       
-      var head_land_toolbar_buttons = [{name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.headings.tree"), selected: true, first:true},
+      head_land_toolbar_buttons = [{name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.headings.tree"), selected: true, first:true},
                                    {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.titleMain")}, 
                                    {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.noLandmark")}];
       
@@ -59,8 +59,7 @@ with (FBL) {
 		
 	var head_land_cache = cache_object.dom_cache.headings_landmarks_cache;
 	child_elements = head_land_cache.child_cache_elements;
-	content_outside_landmarks = head_land_cache.content_outside_of_landmarks;
-	FBTrace.sysout("content_outside_landmarks: ", content_outside_landmarks);
+	elements_with_content = head_land_cache.elements_with_content;
 	heading_elements = head_land_cache.heading_elements;
 	title_main_elements = cache_object.dom_cache.title_main_cache.main_elements;
 
@@ -90,7 +89,6 @@ with (FBL) {
 select : function(object) {
 
 	panel.selection = object;
-
 	AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[1].children[0]);
 
 }
@@ -203,8 +201,8 @@ AINSPECTOR_FB.headLandmarks.headingsToolbarPlate = domplate({
  * @param event mouse event
  */
 onClickToolbarButton : function(event) {
-	var toolbar_button = event.currentTarget.id;
-	//this.showOnSelectButton(toolbar_button);
+  var toolbar_button = event.currentTarget.id;
+  //this.showOnSelectButton(toolbar_button);
 },
 
 /**
@@ -215,14 +213,10 @@ onClickToolbarButton : function(event) {
  * @param toolbar_button_id
  */
 showOnSelectButton : function(toolbar_button_id) {
-    FBTrace.sysout("before panel.table", panel);
-    FBTrace.sysout("toolbar_button_id: " + toolbar_button_id);
-    
-	if (panel.table)clearNode(panel.table);  // clear the content of the panel 
+    this.viewContainer.append({}, panel.table, this);
+	clearNode(panel.table);  // clear the content of the panel 
 	clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
-	FBTrace.sysout("after panel.table", panel);
-	if (toolbar_button_id == "Tree View" || toolbar_button_id == "Tree") {
-		if (panel.table)clearNode(panel.table);  // clear the content of the panel
+	if (toolbar_button_id == "Tree View") {
 		panel.table = AINSPECTOR_FB.headLandmarks.headingsTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.headLandmarks.headingsTreeTemplate);
 		AINSPECTOR_FB.headLandmarks.select(child_elements[0]);
 
@@ -232,26 +226,13 @@ showOnSelectButton : function(toolbar_button_id) {
 		panel.table = AINSPECTOR_FB.headLandmarks.headingsTreeTemplate.tag.append( {object: title_main_elements}, panel.panelNode, AINSPECTOR_FB.headLandmarks.headingsTreeTemplate);
 		AINSPECTOR_FB.headLandmarks.select(title_main_elements[0]);
 		Firebug.currentContext.getPanel('Rules').sView(true, title_main_elements[0]);
-	} else {
-		panel.table = AINSPECTOR_FB.headLandmarks.noLandmarksTemplate.tableTag.append( {content_outside_landmarks: content_outside_landmarks}, panel.panelNode, AINSPECTOR_FB.headLandmarks.noLandmarksTemplate);
-		AINSPECTOR_FB.headLandmarks.select(content_outside_landmarks[0]);
-
-		Firebug.currentContext.getPanel('Rules').sView(true, content_outside_landmarks[0]);
+	} else if (toolbar_button_id == "Not in Landmark"){
+		panel.table = AINSPECTOR_FB.headLandmarks.noLandmarksTemplate.tableTag.append( {elements_with_content: elements_with_content}, panel.panelNode, null);
+		AINSPECTOR_FB.headLandmarks.select(elements_with_content[0]);
+		Firebug.currentContext.getPanel('Rules').sView(true, elements_with_content[0]);
+    } else {
+    
     }
-	/* else if (toolbar_button_id == "Headings") {
-		var properties = ["Order", "Level", "Name"];
-
-
-		panel.table = AINSPECTOR_FB.headLandmarks.headingsTemplate.tableTag.append({heading_elements: heading_elements, header_properties: properties}, panel.panelNode, AINSPECTOR_FB.headLandmarks.headingsTemplate);
-		AINSPECTOR_FB.headLandmarks.select(heading_elements[0]);
-
-		Firebug.currentContext.getPanel('Rules').sView(true, heading_elements[0]);
-	} else {
-		panel.table = AINSPECTOR_FB.headLandmarks.landmarksTemplate.tableTag.append( {content_outside_landmarks: content_outside_landmarks}, panel.panelNode, AINSPECTOR_FB.headLandmarks.landmarksTemplate);
-		AINSPECTOR_FB.headLandmarks.select(content_outside_landmarks[0]);
-
-		Firebug.currentContext.getPanel('Rules').sView(true, content_outside_landmarks[0]);
-	}*/
 },
 
 /**
@@ -264,8 +245,9 @@ showOnSelectButton : function(toolbar_button_id) {
 selectTab : function(elem) {
 
 	if (!elem) return;
-
-	var category = getClassValue(elem, "toolbarButtonView");
+	//var category = getClassValue(elem, "toolbarButtonView");
+	var category = elem.id;
+    //FBTrace.sysout("category: "+ category);
 
 	if (category) {
 		var tabList = getAncestorByClass(elem, "focusTabList");
@@ -703,13 +685,13 @@ AINSPECTOR_FB.headLandmarks.noLandmarksTemplate = domplate({
         ) //end TR
       ), //end THEAD
       TBODY(
-        FOR("object", "$content_outside_landmarks",
+        FOR("object", "$elements_with_content",
           TR({class: "tableRow  gridRow", role: "row", id: "$object.cache_id", _repObject:"$object", onclick: "$onClickRow", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
             TD({class: "gridCell gridCol ", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
-              DIV({class: "gridContent", _repObject:"$object"}, "$object.parent_element.tag_name")
+              DIV({class: "gridContent", _repObject:"$object"}, "$object|getTagName")
             ),
             TD({class: "gridCell gridCol ", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
-              DIV({class: "gridContent", _repObject:"$object"}, "$object.text|AINSPECTOR_FB.ainspectorUtil.truncateText")
+              DIV({class: "gridContent", _repObject:"$object"}, "$object|getText")
             ),
             TD({class: "gridCell gridCol ", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
               DIV({class: "gridContent", _repObject:"$object", title: "$object.source"}, TAG("$object|getAccessibility", {'object': '$object'}))
@@ -718,6 +700,16 @@ AINSPECTOR_FB.headLandmarks.noLandmarksTemplate = domplate({
         ) //end FOR
       )// end TBODY
     ), // end inner TABLE
+    
+    getTagName : function(object){
+	  if (object.hasOwnProperty("tag_name") && object.tag_name) return object.tag_name;
+	  else return object.parent_element.tag_name;
+	},
+	
+	getText: function(object){
+	  if (object.hasOwnProperty("text") && object.text) return 	AINSPECTOR_FB.ainspectorUtil.truncateText(object.text);
+	  return "";
+	},
     
     /**
      * @function onClick
@@ -742,7 +734,6 @@ AINSPECTOR_FB.headLandmarks.noLandmarksTemplate = domplate({
     strTagWarn : DIV({class: "warnMsgTxt"}, "$object|getSummary"),
     
     getAccessibility : function(object){
-	  FBTrace.sysout("object.getAccessibility(): ", object.getAccessibility());
 	  var severity =  object.getAccessibility().label;
 	  
 	  var styleSeverityTag;

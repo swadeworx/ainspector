@@ -56,8 +56,6 @@ FBL.ns(function() { with (FBL) {
      *@param doc
      */
      initialize: function(context, doc) {
-	      FBTrace.sysout("selected toolbar button in main panel: " );
-
 	   this.onCLick = bind(this.setSelection, this);
        Firebug.Panel.initialize.apply(this, arguments);
      },
@@ -161,7 +159,28 @@ FBL.ns(function() { with (FBL) {
       */
      rebuild: function(resultArray){
        this.panelNode.id = "ainspector-side-panel";
-	   attributesTemplate.tag.replace({object: resultArray}, this.panelNode);
+	   var flag = true;
+	   var toolbar_selected = AINSPECTOR_FB.toolbarUtil.getSelectedToolbarButton(Firebug.currentContext);
+       
+	   if (toolbar_selected == "colorContrast") {
+	     toolbar_selected = toolbar_selected.charAt(0).toUpperCase() + toolbar_selected.slice(1);
+         var message = "Attributes Panel is disabled for the '" + toolbar_selected + "' toolbar button";
+         AINSPECTOR_FB.disablePanelTemplate.mesgTag.replace({message: message}, this.panelNode);
+       } else {	   
+	     for (var i in resultArray){ 
+   		   if(resultArray.hasOwnProperty(i)){
+   		     flag = false;
+   		     break;
+   		   }
+   	     }
+   	     if (flag) {
+           var header_elements = ["Attribute", "Value"];
+           //clearNode(this.panelNode.offsetParent.children[1]);
+ 	       AINSPECTOR_FB.emptyTemplate.tag.replace({header_elements: header_elements}, this.panelNode);
+   	     } else {
+	       attributesTemplate.tag.replace({object: resultArray}, this.panelNode);
+	     }
+       }
      }
    });
   
@@ -171,8 +190,8 @@ FBL.ns(function() { with (FBL) {
 	      TABLE({class: "ai-sidepanel-table", cellpadding: 0, cellspacing: 0, role: "treegrid"},
 	        THEAD(
 	          TR({class: "gridHeaderRow gridRow", id: "rulesTableHeader", "role": "row", tabindex: "0"},
-	            TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, "Attribute"),
-	            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, "Value")
+	            TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, DIV({class: "gridHeaderCellBox"}, "Attribute")),
+	            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, DIV({class: "gridHeaderCellBox"}, "Value"))
 	          )
 	        ),  
 	        TBODY(
@@ -212,7 +231,6 @@ FBL.ns(function() { with (FBL) {
       for (var i=0; i < toolbarbuttons.length; i=i+2){
   	
    	 if (toolbarbuttons[i].checked == true && toolbarbuttons[i].id == "colorContrast_button") {
-   	   FBTrace.sysout("selected toolbar button in main panel: " + toolbarbuttons[i].id);
    	   parent_panel = "";
    	   break;
   	     }

@@ -149,19 +149,40 @@ FBL.ns(function() { with (FBL) {
       */
      rebuild: function(resultArray){
        this.panelNode.id = "ainspector-side-panel";
-	   attributesTemplate.tag.replace({object: resultArray}, this.panelNode);
+	   var flag = true;
+	   var toolbar_selected = AINSPECTOR_FB.toolbarUtil.getSelectedToolbarButton(Firebug.currentContext);
+       
+	   if (toolbar_selected == "colorContrast") {
+	     toolbar_selected = toolbar_selected.charAt(0).toUpperCase() + toolbar_selected.slice(1);
+         var message = "Properties Panel is disabled for the '" + toolbar_selected + "' toolbar button";
+         AINSPECTOR_FB.disablePanelTemplate.mesgTag.replace({message: message}, this.panelNode);
+       } else {
+   	     for (var i in resultArray){ 
+   		   if(resultArray.hasOwnProperty(i)){
+   		     flag = false;
+   		     break;
+   		   }
+   	     }
+   	     if (flag) {
+           var header_elements = ["A11y Property", "Value", "Description"];
+           //clearNode(this.panelNode.offsetParent.children[1]);
+ 	       AINSPECTOR_FB.emptyTemplate.tag.replace({header_elements: header_elements}, this.panelNode);
+   	     } else {
+	       propertiesTemplate.tag.replace({object: resultArray}, this.panelNode);
+	     }
+       }
      }
    });
   
-  var attributesTemplate = domplate(BaseRep, {
+  var propertiesTemplate = domplate(BaseRep, {
 	    
 	    tag:
 	      TABLE({class: "ai-sidepanel-table", cellpadding: 0, cellspacing: 0, role: "treegrid"},
 	        THEAD(
 	          TR({class: "gridHeaderRow gridRow", id: "rulesTableHeader", "role": "row", tabindex: "0"},
-	            TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, "A11y Property"),
-	            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, "Value"),
-	            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, "Description")
+	            TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, DIV({class: "gridHeaderCellBox"}, "A11y Property")),
+	            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, DIV({class: "gridHeaderCellBox"}, "Value")),
+	            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, DIV({class: "gridHeaderCellBox"}, "Description"))
 	          )
 	        ),  
 	        TBODY(

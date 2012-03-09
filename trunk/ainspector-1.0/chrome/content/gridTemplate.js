@@ -302,13 +302,13 @@ with (FBL) {
 	        THEAD(
 	          TR({class: "gridHeaderRow gridRow", id: "rulesTableHeader", "role": "row", tabindex: "0"},
 	            FOR("header", "$header_elements",
-	              TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, "$header")
+	              TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, DIV({class: "gridHeaderCellBox"}, "$header"))
 	            )
 	          )
 	        ),  
 	        TBODY(
-	            TR({class: "tableRow a11yFocus", role: "row"},
-	              TD(DIV({class: "gridLabel"},"none"))
+	            TR({class: "tableRow gridRow", role: "row"},
+	              TD(DIV({class: "gridCol gridCell gridContent"},"none"))
 	            ) //end TR
 	        ) //end TBODY  
 	      )
@@ -317,17 +317,17 @@ with (FBL) {
   AINSPECTOR_FB.emptyPanelTemplate = domplate({
 	    
 	    tag:
-	      TABLE({class: "ai-table-list-items", cellpadding: 0, cellspacing: 0, role: "treegrid"},
+	      TABLE({class: "ai-table-list-items", cellpadding: 0, cellspacing: 0, role: "treegrid", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressTable"},
 	        THEAD(
 	          TR({class: "gridHeaderRow gridRow", id: "rulesTableHeader", role: "row", tabindex: "0"},
 	            FOR("header", "$header_elements",
-	              TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, "$header")
+	              TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, DIV({class: "gridHeaderCellBox"}, "$header"))
 	            )
 	          )
 	        ),  
 	        TBODY(
-	            TR({class: "tableRow a11yFocus", role: "row"},
-	              TD(DIV({class: "gridLabel"},"none"))
+	            TR({class: "tableRow gridRow", role: "row"},
+	              TD(DIV({class: "gridCell gridCol gridContent"},"none"))
 	            ) //end TR
 	        ) //end TBODY  
 	      )
@@ -348,5 +348,10 @@ with (FBL) {
 	      return tag;
 	    }
 	  });
+  
+  AINSPECTOR_FB.disablePanelTemplate = domplate({
+	 mesgTag:  
+	 DIV({class: "panelDisable"}, "$message") 
+  });
 
 }

@@ -38,12 +38,14 @@ with (FBL) {
    * 
    */
   viewPanel: function(context, panel_name, cache_object) {		
-	  //FBTrace.sysout("............images view.............");
 
+	//var panelType = Firebug.getPanelType(Firebug.currentContext.getPanel('Style').name);
+    //Firebug.unregisterPanel(panelType, true);
+	//context.destroyPanel(panelType, context.persistedState);
 	if (!panel_name) panel_name = "AInspector";
 	if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
 	  
-	//FBTrace.sysout("cache_object: ", cache_object);
+
     panel = context.getPanel(panel_name, true);
 
     /* Clear the panel before writing anything onto the report*/
