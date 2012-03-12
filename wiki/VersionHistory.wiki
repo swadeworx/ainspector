@@ -2,7 +2,7 @@
 
 = Version History =
 
-== Version alpha 0.90 == 
+== Version alpha 0.91 == 
   * Images/Media are separated and made as two toolbar buttons.
   * Click on any row in any of the list and tree views will highlight the node on the website
   * Style side Panel exists only for the Color Contrast toolbar buttons and is disabled for other toolbar buttons
