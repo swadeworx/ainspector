@@ -2,6 +2,23 @@
 
 = Version History =
 
+== Version alpha 0.90 == 
+  * Images/Media are separated and made as two toolbar buttons.
+  * Click on any row in any of the list and tree views will highlight the node on the website
+  * Style side Panel exists only for the Color Contrast toolbar buttons and is disabled for other toolbar buttons
+  * Attributes, Properties and Events side panels are disabled for Color Contrast toolbar button and enabled for other toolbar buttons.
+
+== Version alpha 0.90 == 
+  * New OAA Cache library to evaluate the web pages
+  * User interface has been modified alot.
+  * Name of the tool is changed from AInspector to A11y
+  * A11y Panel has the toolbar buttons: Images/Media, Controls, ColorContrast, Headings/Landmarks, Links, Lists, Tables and All Elements
+  * These toolbars have the Side Panels Rule Results, Atttributes, Properties, Style and Events
+  * All the toolbar buttons show the results in element view and each can be viewed in two ways. 
+    ** Flat list view
+    ** Tree view
+  * Every view has a link to the Firebug's HTMl Panel. 
+  
 == Version beta 0.93 == 
   * AInspector is now compatible with Firefox 4.
   * Implemented a new tab "Landmarks" on the AInspector Panel.
