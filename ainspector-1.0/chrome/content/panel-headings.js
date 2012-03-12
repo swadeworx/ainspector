@@ -37,7 +37,7 @@ with (FBL) {
 	 * @param cache_object
 	 */
 	viewPanel : function(context, panel_name, cache_object) {
-
+	  AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels();
 	  if (!panel_name) panel_name = "AInspector";
 	  if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
 	  panel = context.getPanel(panel_name, true);

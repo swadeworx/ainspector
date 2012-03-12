@@ -20,6 +20,11 @@ with (FBL) {
 
   AINSPECTOR_FB.result_ruleset = null;
   AINSPECTOR_FB.last_node_highlighted = null;
+  AINSPECTOR_FB.style_registered = null;
+  AINSPECTOR_FB.properties_registered = null;
+  AINSPECTOR_FB.attributes_registered = null;
+  AINSPECTOR_FB.events_registered = null;
+
   
   AINSPECTOR_FB.cacheUtil = {
 	

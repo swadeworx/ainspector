@@ -36,10 +36,16 @@ with (FBL) {
 	 */
 	viewPanel : function(context, panel_name, cache_object) {
 
-	
+	 /* var panelType = Firebug.getPanelType("styleSidePanel");
+		 if (panelType) {
+			 AINSPECTOR_FB.registered = panelType;
+			 AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType);
+		 }*/
+	  
 	  if (!panel_name) panel_name = "AInspector";
 	  if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
 	  
+	  AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels();
 	  //FBTrace.sysout("cache_object: ", cache_object);
 
 	  panel = context.getPanel(panel_name, true);

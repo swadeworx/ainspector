@@ -41,7 +41,7 @@ with (FBL) {
   	  if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
   	  panel = context.getPanel(panel_name, true);
   	 
-  	  /* Clear the panel before writing anything onto the report*/
+  	AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels(); /* Clear the panel before writing anything onto the report*/
         if (panel) {
         	clearNode(panel.panelNode);
           clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
