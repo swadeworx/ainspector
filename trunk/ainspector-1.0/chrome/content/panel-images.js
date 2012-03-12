@@ -20,9 +20,7 @@ with (FBL) {
   
   panel : null;
   image_elements: null;
-  media_elements: null;
-  abbreviation_elements: null;
-  
+
   AINSPECTOR_FB.images = {
 		  
   /**
@@ -39,13 +37,18 @@ with (FBL) {
    */
   viewPanel: function(context, panel_name, cache_object) {		
 
-	//var panelType = Firebug.getPanelType(Firebug.currentContext.getPanel('Style').name);
-    //Firebug.unregisterPanel(panelType, true);
-	//context.destroyPanel(panelType, context.persistedState);
+    /*var panelType = Firebug.getPanelType("styleSidePanel");
+	 if (panelType) {
+		 AINSPECTOR_FB.registered = panelType;
+		 AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType);
+	 }*/
+	
+	AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels();
+	
 	if (!panel_name) panel_name = "AInspector";
+	
 	if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
 	  
-
     panel = context.getPanel(panel_name, true);
 
     /* Clear the panel before writing anything onto the report*/
@@ -91,7 +94,7 @@ with (FBL) {
    AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[1].children[0]);
       
   }
- }; //end of images
+}; //end of images
   
   /**
    * @function equivToolbarPlate
@@ -140,84 +143,6 @@ with (FBL) {
       panel.select(node);
     },
 
-    /**
-     * @function showOnSelectButton
-     * 
-     * @desc show the selected toolbar button with a focus on it
-     * 
-     * @param toolbar_button_id id of the toolbar to be selected
-     */
-    showOnSelectButton : function(toolbar_button_id) {
-
-      clearNode(panel.table);  // clear the content of the panel 
-      clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
-        
-      if (toolbar_button_id == "Images") {
-
-        panel.table = AINSPECTOR_FB.images.imagesTemplate.tableTag.append( {image_elements: image_elements}, panel.panelNode, AINSPECTOR_FB.images.imagesTemplate);
-        AINSPECTOR_FB.images.select(image_elements[0]);
-
-    	Firebug.currentContext.getPanel('Rules').sView(true, image_elements[0]);
-      } else if (toolbar_button_id == "Media"){
-    	//var cache_nls = OpenAjax.a11y.cache_nls;
-    	//FBTrace.sysout("cache_nls: ", cache_nls);
-        panel.table = AINSPECTOR_FB.images.mediaTemplate.tableTag.append( {media_elements: media_elements}, panel.panelNode, AINSPECTOR_FB.images.mediaTemplate);
-        AINSPECTOR_FB.images.select(media_elements[0]);
-
-        Firebug.currentContext.getPanel('Rules').sView(true, media_elements[0]);
-      } else {
-        panel.table = AINSPECTOR_FB.images.abbreviationTemplate.tag.append( {object: abbreviation_elements}, panel.panelNode, AINSPECTOR_FB.images.abbreviationTemplate);
-        AINSPECTOR_FB.images.select(abbreviation_elements[0]);
-
-        Firebug.currentContext.getPanel('Rules').sView(true, abbreviation_elements[0]);
-      } 	
-    },
-    
-    /**
-     * @function selectTab
-     * 
-     * @desc set the aria attributes/properties and css properties for a particular tab to be selected 
-     * 
-     * @param elem event target 
-     */
-    selectTab : function(elem) {
-      if (!elem) return;
-      
-      var category = getClassValue(elem, "toolbarButtonView");
-
-      if (category) {
-        var tabList = getAncestorByClass(elem, "focusTabList");
-        
-        if (tabList) {
-          var oldTab = getElementByClass(tabList, "selected");
-          
-          if (oldTab) {
-            oldTab.setAttribute("aria-selected", "false");
-            oldTab.setAttribute("aria-expanded", "false");
-            oldTab.setAttribute("tabindex", "-1");
-            removeClass(oldTab, "selected");
-          }
-        }
-        elem.setAttribute("aria-selected", "true");
-        elem.setAttribute("aria-expanded", "true");
-        elem.setAttribute("tabindex", "0");
-        setClass(elem, "selected");
-        var currentView = panel;
-        this.showOnSelectButton(category);
-      }
-    },
-  
-    /**
-     * @function onToolbarFocus
-     * 
-     * @desc
-     * 
-     * @param event
-     */
-    onToolbarFocus : function(event) {
-      this.selectTab(event.target);
-    },
-    
     viewContainer : DIV({style : "display:none"})
   });
   

@@ -20,6 +20,9 @@ FBL.ns(function() { with (FBL) {
   
   var classNameReCache={};
   
+  /**
+   * gridHeaderColumnResize
+   */
   AINSPECTOR_FB.gridHeaderColumnResize = {
 		  
     resizing: false,
@@ -30,10 +33,11 @@ FBL.ns(function() { with (FBL) {
 
     /**
      * @function onMouseClick
+     * @memberOf AINSPECTOR_FB.gridHeaderColumnResize
      * 
-     * @desc
+     * @desc avoid click event for sorting, if the resize has finished
      * 
-     * @param {} event
+     * @param {Event} event - event triggered on mouse click
      */
     onMouseClick: function(event) {
         
@@ -47,10 +51,11 @@ FBL.ns(function() { with (FBL) {
     
     /**
      * @function onMouseDown
+     * @memberOf AINSPECTOR_FB.gridHeaderColumnResize
      * 
-     * @descs
+     * @desc resize header columns on mouse down
      * 
-     * @param {} event
+     * @param {Event} event - event triggered on mouse down 
      */
     onMouseDown: function(event) {
         
@@ -71,10 +76,11 @@ FBL.ns(function() { with (FBL) {
 
     /**
      * @function onMouseMove
+     * @memberOf AINSPECTOR_FB.gridHeaderColumnResize
      * 
-     * @descs
+     * @desc Update cursor if the mouse is located between two columns.
      * 
-     * @param {} event
+     * @param {Event} event - event triggered on mouse down
      */
     onMouseMove: function(event) {
         
@@ -99,10 +105,11 @@ FBL.ns(function() { with (FBL) {
 
     /**
      * @function onMouseUp
+     * @memberOf AINSPECTOR_FB.gridHeaderColumnResize
      * 
-     * @desc
+     * @desc 
      * 
-     * @param {} event
+     * @param {Event} event
      */
     onMouseUp: function(event) {
         
@@ -658,7 +665,7 @@ FBL.ns(function() { with (FBL) {
    */
   AINSPECTOR_FB.toolbarUtil = {
     
-    /**
+   /**
      * @function getToolbarButtonClass
      * 
      * @param obj
@@ -834,7 +841,8 @@ FBL.ns(function() { with (FBL) {
      */
     getSelectedToolbarButton : function(context){
     
-      var toolbarbuttons = context.browser.chrome.$("radio-toolbar").children;
+      //var toolbarbuttons = context.browser.chrome.$("radio-toolbar").children;
+    	  var toolbarbuttons = context.chrome.$("radio-toolbar").children;
    	  var toolbar_button;
    	  for (var i=0; i < toolbarbuttons.length; i=i+2){
    		if (toolbarbuttons[i].checked == true) {
@@ -1565,4 +1573,70 @@ AINSPECTOR_FB.event = {
 	        node.dispatchEvent(event);
 	    },
 	};
+  AINSPECTOR_FB.tabPanelUtil = {
+	  updateToolbar: function(panelType, toolbar_button)
+	    {
+	        var removeBtn = Firebug.chrome.$(toolbar_button);
+	        //var appendBtn = Firebug.chrome.$("colorContrast");
+
+	        var registered = Firebug.getPanelType(panelType);
+	        //removeBtn.setAttribute("disabled", registered ? "false" : "true");
+	        //appendBtn.setAttribute("disabled", registered ? "true" : "false");
+	    },
+
+	    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+	    // Commands
+
+	    onRemoveSidePanel: function(panelType)
+	    {
+	        Firebug.unregisterPanel(panelType);
+	        //this.updateToolbar(panelType, toolbar_button);
+	    },
+
+	    onAppendSidePanel: function(panelType)
+	    {
+	        Firebug.registerPanel(panelType);
+	        //this.updateToolbarWidAppend(panelType, toolbar_button);
+	    },
+	    
+	    updateToolbarWidAppend: function(panelType, toolbar_button){
+	    	//var removeBtn = Firebug.chrome.$("images");
+	        var appendBtn = Firebug.chrome.$(toolbar_button);
+
+	        var registered = Firebug.getPanelType(panelType);
+	        //removeBtn.setAttribute("disabled", registered ? "false" : "true");
+	        //appendBtn.setAttribute("disabled", registered ? "true" : "false");
+	    	
+	    },
+	
+	    addAndRemoveSidePanels : function() {
+	    var panelType_style = Firebug.getPanelType("styleSidePanel");
+	    var panelType_attributes = Firebug.getPanelType("attributesSidePanel");
+	    var panelType_properties = Firebug.getPanelType("cacheSidePanel");
+	    var panelType_events = Firebug.getPanelType("eventsSidePanel");
+
+		 if (panelType_style) {
+			 AINSPECTOR_FB.style_registered = panelType_style;
+			 AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_style);
+		 }
+		 
+		 if (panelType_attributes) {
+	     } else {
+	       panelType_attributes = AINSPECTOR_FB.attributes_registered;
+		   AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_attributes);
+	     }
+		 
+		 if (panelType_properties) {
+	     } else {
+	    	 panelType_properties = AINSPECTOR_FB.properties_registered;
+		   AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_properties);
+	     }
+		 
+		 if (panelType_events) {
+	     } else {
+	    	 panelType_events = AINSPECTOR_FB.events_registered;
+		   AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_events);
+	     }
+  }
+  };
 });

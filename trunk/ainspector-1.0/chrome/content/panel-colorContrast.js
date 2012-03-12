@@ -36,10 +36,29 @@ with (FBL) {
 	 */
 	 viewPanel : function(context, panel_name, cache_object) {		
 	   
-	  //var panelType = Firebug.getPanelType(Firebug.currentContext.getPanel('Style').name);
-	  
-	  //Firebug.registerPanel(panelType);
+	    var panelType_style = Firebug.getPanelType('styleSidePanel');
+	    var panelType_attributes = Firebug.getPanelType("attributesSidePanel");
+	    var panelType_properties = Firebug.getPanelType("cacheSidePanel");
+	    var panelType_events = Firebug.getPanelType("eventsSidePanel");
 
+	    if (panelType_style) {
+	    	// nothing
+	    } else {
+	      panelType_style = AINSPECTOR_FB.style_registered;
+		  AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_style);
+	    }
+	    if (panelType_attributes) {
+			 AINSPECTOR_FB.attributes_registered = panelType_attributes;
+			 AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_attributes);
+		 }
+	    if (panelType_properties) {
+			 AINSPECTOR_FB.properties_registered = panelType_properties;
+			 AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_properties);
+		 }
+	    if (panelType_events) {
+			 AINSPECTOR_FB.events_registered = panelType_events;
+			 AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_events);
+		 }
 	  if (!panel_name) panel_name = "AInspector";
 	  if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
 	  

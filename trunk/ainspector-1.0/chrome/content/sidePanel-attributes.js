@@ -226,8 +226,9 @@ FBL.ns(function() { with (FBL) {
   
   AINSPECTOR_FB.getParentPanel = function() {
       
-      var toolbarbuttons = firebug_context.browser.chrome.$("radio-toolbar").children;
-      var parent_panel = "main_panel";
+      //var toolbarbuttons = firebug_context.browser.chrome.$("radio-toolbar").children;
+	  var toolbarbuttons = firebug_context.chrome.$("radio-toolbar").children;
+	  var parent_panel = "main_panel";
       for (var i=0; i < toolbarbuttons.length; i=i+2){
   	
    	 if (toolbarbuttons[i].checked == true && toolbarbuttons[i].id == "colorContrast_button") {

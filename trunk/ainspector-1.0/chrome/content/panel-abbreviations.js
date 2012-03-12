@@ -39,7 +39,9 @@ with (FBL) {
 	        
 	if (!panel_name) panel_name = "AInspector";
 	if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
-	  
+	
+	AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels();
+	
     panel = context.getPanel(panel_name, true);
 
     /* Clear the panel before writing anything onto the report*/

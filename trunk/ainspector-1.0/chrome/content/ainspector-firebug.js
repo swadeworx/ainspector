@@ -35,9 +35,12 @@ FBL.ns(function() { with (FBL) {
 	 */
 	showPanel: function(browser, panel) { 
 	   
-  	  var isFirebugExtension = panel && panel.name == panel_name; 
-	  var FirebugExtensionButtons = browser.chrome.$("fbFirebugExtensionButtons");
-	  cache_object = this.updateCache();
+  	  var isFirebugExtension = panel && panel.name == panel_name;
+  	  FBTrace.sysout("browser: ", browser);
+	  //var FirebugExtensionButtons = browser.chrome.$("fbFirebugExtensionButtons");
+
+  	   var FirebugExtensionButtons = Firebug.chrome.$("fbFirebugExtensionButtons");
+  	   cache_object = this.updateCache();
 	  collapse(FirebugExtensionButtons, !isFirebugExtension); 
 	},
 	
@@ -81,7 +84,7 @@ FBL.ns(function() { with (FBL) {
 	  } else {
 		firebug_context = Firebug.currentContext;  
 	  }
-	 var toolbarbuttons = firebug_context.browser.chrome.$("radio-toolbar").children;
+	 var toolbarbuttons = firebug_context.chrome.$("radio-toolbar").children;
 	 var toolbar_button = "images";
 	 for (var i=0; i < toolbarbuttons.length; i=i+2){
 		if (toolbarbuttons[i].checked == true) {
