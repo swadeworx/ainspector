@@ -153,7 +153,7 @@ FBL.ns(function() { with (FBL) {
       /* Clear the panel before writing anything onto the report*/
       if (panel) {
       	clearNode(panel.panelNode);
-        clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+        clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
       }
     },
     
