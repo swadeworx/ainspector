@@ -37,7 +37,7 @@ with (FBL) {
    * 
    */
   viewPanel: function(context, panel_name, cache_object) {		
-	  AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels();
+	  AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels(false);
     if (!panel_name) panel_name = "AInspector";
 	if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
 	  
@@ -48,7 +48,7 @@ with (FBL) {
     /* Clear the panel before writing anything onto the report*/
     if (panel) {
       clearNode(panel.panelNode);
-      clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+      clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
     }
 
     AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
@@ -70,11 +70,11 @@ with (FBL) {
 	if (is_empty_object == true) {
       panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.append( {header_elements: ["Audio", "Video", "Captions", "Audio Desc", "Transcription", "A11y"]}, panel.panelNode, AINSPECTOR_FB.emptyTemplate);
       //this.select("none");
-  	  Firebug.currentContext.getPanel('Rules').sView(false, "none");
+  	  Firebug.currentContext.getPanel('rulesSidePanel').sView(false, "none");
     } else{
 	  panel.table = AINSPECTOR_FB.media.mediaTemplate.tableTag.append( {media_elements: media_elements}, panel.panelNode, AINSPECTOR_FB.media.mediaTemplate);
 	  this.select(media_elements[0]);
-	  Firebug.currentContext.getPanel('Rules').sView(true, media_elements[0]);}
+	  Firebug.currentContext.getPanel('rulesSidePanel').sView(true, media_elements[0]);}
   },
     
     /**

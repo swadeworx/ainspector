@@ -57,31 +57,31 @@ with (FBL) {
       
       if (toolbar_button == "Links") {
       	clearNode(panel.panelNode);
-          clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+          clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
           navigationPanel.getNavButtons(links_panel, toolbar_button);
           FBTrace.sysout("linksPanelk.........." , links_panel);
       	linksPanel.displayLinksPanel(links_panel, cache.dom_cache.links_cache);
         } 
         else if (toolbar_button == "Headings") {
           clearNode(panel.panelNode);
-          clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+          clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
 
           navigationPanel.getNavButtons(panel, toolbar_button);
         }
         else if (toolbar_button == "Landmarks") {
           clearNode(panel.panelNode);
-          clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+          clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
           navigationPanel.getNavButtons(panel, toolbar_button);
         }
         else if (toolbar_button == "Widgets") {
           clearNode(panel.panelNode);
-          clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+          clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
           navigationPanel.getNavButtons(panel, toolbar_button);
         
         }
         else if (toolbar_button == "Forms") {
           clearNode(panel.panelNode);
-          clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+          clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
           navigationPanel.getNavButtons(panel, toolbar_button);
         }
 
@@ -238,7 +238,7 @@ with (FBL) {
         cache = cacheResult;
         FBTrace.sysout("panelView...", panelView.panelNode);
         linksPanel.displayLinksPanel(panelView, cacheResult.dom_cache.links_cache);
-        Firebug.currentContext.getPanel('Rules').sView(true);
+        Firebug.currentContext.getPanel('rulesSidePanel').sView(true);
       },
         
       /**

@@ -41,10 +41,10 @@ with (FBL) {
   	  if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
   	  panel = context.getPanel(panel_name, true);
   	 
-  	AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels(); /* Clear the panel before writing anything onto the report*/
+  	AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels(false); /* Clear the panel before writing anything onto the report*/
         if (panel) {
         	clearNode(panel.panelNode);
-          clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+          clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
         }
 
         var toolbar_buttons = [{name: "Tree View", selected: true, first:true},
@@ -71,7 +71,7 @@ with (FBL) {
 	  panel = panel;
 	  panel.table = AINSPECTOR_FB.lists.listTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.lists.listTreeTemplate);
       this.select(child_elements[0]);
-	  Firebug.currentContext.getPanel('Rules').sView(true, child_elements[0]);
+	  Firebug.currentContext.getPanel('rulesSidePanel').sView(true, child_elements[0]);
     },
     
     /**
@@ -208,17 +208,17 @@ with (FBL) {
     showOnSelectButton : function(toolbar_button_id) {
 
       clearNode(panel.table);
-      clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+      clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
 
       if (toolbar_button_id == "Tree View") {
    		panel.table = AINSPECTOR_FB.lists.listTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.lists.listTreeTemplate);
     	AINSPECTOR_FB.lists.select(child_elements[0]);
-   		Firebug.currentContext.getPanel('Rules').sView(true, child_elements[0]);
+   		Firebug.currentContext.getPanel('rulesSidePanel').sView(true, child_elements[0]);
         
       } else {
         panel.table = AINSPECTOR_FB.lists.listTreeTemplate.tag.append( {object: list_elements}, panel.panelNode, AINSPECTOR_FB.lists.listTreeTemplate);
     	AINSPECTOR_FB.lists.select(list_elements[0]);
-        Firebug.currentContext.getPanel('Rules').sView(true, list_elements[0]);
+        Firebug.currentContext.getPanel('rulesSidePanel').sView(true, list_elements[0]);
       } 
      },
     /**

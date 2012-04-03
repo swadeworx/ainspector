@@ -40,14 +40,14 @@ with (FBL) {
 	if (!panel_name) panel_name = "AInspector";
 	if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
 	
-	AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels();
+	AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels(false);
 	
     panel = context.getPanel(panel_name, true);
 
     /* Clear the panel before writing anything onto the report*/
     if (panel) {
      	clearNode(panel.panelNode);
-      clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+      clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
     }
     
     var toolbar_buttons = [
@@ -75,12 +75,12 @@ with (FBL) {
 	  panel = panel;
 	  if (is_empty_object == true) {
         panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.append( {header_elements: ["Element", "Abbreviation", "Title", "Accessibility Summary"]}, panel.panelNode, AINSPECTOR_FB.emptyTemplate);
-    	Firebug.currentContext.getPanel('Rules').sView(false, "none");
+    	Firebug.currentContext.getPanel('rulesSidePanel').sView(false, "none");
 
 	  } else {
 	    panel.table = AINSPECTOR_FB.abbrLanguage.abbreviationTemplate.tag.append( {object: abbreviation_elements}, panel.panelNode, AINSPECTOR_FB.abbrLanguage.abbreviationTemplate);
 	    this.select(abbreviation_elements[0]);
-	    Firebug.currentContext.getPanel('Rules').sView(true, abbreviation_elements[0]);
+	    Firebug.currentContext.getPanel('rulesSidePanel').sView(true, abbreviation_elements[0]);
 	  }
     },
     
@@ -211,33 +211,33 @@ with (FBL) {
     showOnSelectButton : function(toolbar_button_id) {
 
       clearNode(panel.table);  // clear the content of the panel 
-      clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+      clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
       var is_empty_object;
  
       if (toolbar_button_id == "Language") {
    	    is_empty_object = AINSPECTOR_FB.ainspectorUtil.hasProperty(language_elements);
    	    if (is_empty_object) {
    	        panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.append( {header_elements: ["Element", "Language", "Text", "Accessibility Summary"]}, panel.panelNode, AINSPECTOR_FB.emptyTemplate);
-   	  	    Firebug.currentContext.getPanel('Rules').sView(false, "none");
+   	  	    Firebug.currentContext.getPanel('rulesSidePanel').sView(false, "none");
 
    	    } else {
    	        panel.table = AINSPECTOR_FB.abbrLanguage.languageTemplate.tableTag.append( {language_elements: language_elements}, panel.panelNode, AINSPECTOR_FB.abbrLanguage.languageTemplate);
    	        AINSPECTOR_FB.abbrLanguage.select(language_elements[0]);
 
-   	    	Firebug.currentContext.getPanel('Rules').sView(true, language_elements[0]);   	    	
+   	    	Firebug.currentContext.getPanel('rulesSidePanel').sView(true, language_elements[0]);   	    	
    	    }
 
       } else {
    	    is_empty_object = AINSPECTOR_FB.ainspectorUtil.hasProperty(abbreviation_elements);
    	    if (is_empty_object) {
    	        panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.append( {header_elements: ["Element", "Abbreviation", "Title", "Accessibility Summary"]}, panel.panelNode, AINSPECTOR_FB.emptyTemplate);
-   	  	    Firebug.currentContext.getPanel('Rules').sView(false, "none");
+   	  	    Firebug.currentContext.getPanel('rulesSidePanel').sView(false, "none");
 
    	    } else {
    	    	panel.table = AINSPECTOR_FB.abbrLanguage.abbreviationTemplate.tag.append( {object: abbreviation_elements}, panel.panelNode, AINSPECTOR_FB.abbrLanguage.abbreviationTemplate);
    	        AINSPECTOR_FB.abbrLanguage.select(abbreviation_elements[0]);
 
-   	        Firebug.currentContext.getPanel('Rules').sView(true, abbreviation_elements[0]);
+   	        Firebug.currentContext.getPanel('rulesSidePanel').sView(true, abbreviation_elements[0]);
    	    	
    	    }
 

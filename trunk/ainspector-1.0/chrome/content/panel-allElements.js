@@ -45,7 +45,7 @@ with (FBL) {
 	  if (!panel_name) panel_name = "AInspector";
 	  if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
 	  
-	  AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels();
+	  AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels(false);
 	  //FBTrace.sysout("cache_object: ", cache_object);
 
 	  panel = context.getPanel(panel_name, true);
@@ -56,7 +56,7 @@ with (FBL) {
 	/* Clear the panel before writing anything onto the report*/
     if (panel) {
       clearNode(panel.panelNode);
-      clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+      clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
     }
 	var toolbar_buttons = [{name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.elements.tree"), selected: true, first:true},
                            {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.elements.list")}];
@@ -77,7 +77,7 @@ with (FBL) {
 
 	panel.table = AINSPECTOR_FB.elements.elementsTreeTemplate.tag.append( {object: tree_of_all_elements}, panel.panelNode, AINSPECTOR_FB.elements.elementsTreeTemplate);
 	this.select(tree_of_all_elements[0]);
-	Firebug.currentContext.getPanel('Rules').showContrastOrAllElements(true, tree_of_all_elements[0]);
+	Firebug.currentContext.getPanel('rulesSidePanel').showContrastOrAllElements(true, tree_of_all_elements[0]);
 },
 
 /**
@@ -210,19 +210,19 @@ onClickToolbarButton : function(event) {
 showOnSelectButton : function(toolbar_button_id) {
 
 	clearNode(panel.table);  // clear the content of the panel 
-	clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+	clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
 
 	if (toolbar_button_id == "Tree View") {
 		panel.table = AINSPECTOR_FB.elements.elementsTreeTemplate.tag.append( {object: tree_of_all_elements}, panel.panelNode, AINSPECTOR_FB.elements.elementsTreeTemplate);
 		AINSPECTOR_FB.elements.select(tree_of_all_elements[0]);
 
-		Firebug.currentContext.getPanel('Rules').showContrastOrAllElements(true, tree_of_all_elements[0]);
+		Firebug.currentContext.getPanel('rulesSidePanel').showContrastOrAllElements(true, tree_of_all_elements[0]);
 
 	} else {
 		panel.table = AINSPECTOR_FB.elements.elementsTemplate.tableTag.append( {list_of_all_elements: list_of_all_elements}, panel.panelNode, AINSPECTOR_FB.elements.elementsTemplate);
 		AINSPECTOR_FB.elements.select(list_of_all_elements[0]);
 
-		Firebug.currentContext.getPanel('Rules').showContrastOrAllElements(true, list_of_all_elements[0]);
+		Firebug.currentContext.getPanel('rulesSidePanel').showContrastOrAllElements(true, list_of_all_elements[0]);
 	}
 
 },

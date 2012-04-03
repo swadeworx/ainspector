@@ -71,7 +71,7 @@ FBL.ns(function() { with (FBL) {
 	   this.onKeyPress = bind(this.onKeyPress, this);
 
        this.mainPanel.panelNode.addEventListener("click", this.setSelection, false);
-       this.mainPanel.panelNode.addEventListener("keypress", this.onKeyPress, true);
+       this.mainPanel.panelNode.addEventListener("keypress", this.onKeyPress, false);
        Firebug.Panel.initializeNode.apply(this, arguments);
     // Log simple message
      },
