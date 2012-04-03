@@ -72,10 +72,10 @@ with (FBL) {
 	panel.panelNode.id = "ainspector-pref-panel"; 
 	ruleset_data = {
 	  ruleset_description: AINSPECTOR_FB.ruleset_description,
-	  ruleset_author: AINSPECTOR_FB.ruleset_author,
-	  sc_level0: AINSPECTOR_FB.success_criteria_level0,
-	  sc_level1: AINSPECTOR_FB.success_criteria_level1,
-	  sc_level2: AINSPECTOR_FB.success_criteria_level2
+	  ruleset_author: AINSPECTOR_FB.ruleset_author
+	 // sc_level0: AINSPECTOR_FB.success_criteria_level0,
+	  //sc_level1: AINSPECTOR_FB.success_criteria_level1,
+	  //sc_level2: AINSPECTOR_FB.success_criteria_level2
 	};
     try {
       panel.table = AINSPECTOR_FB.preferences.prefTemplate.rulesetSelectTag.replace( {ruleset_data: ruleset_data}, panel.panelNode, AINSPECTOR_FB.preferences.prefTemplate);
@@ -114,16 +114,16 @@ with (FBL) {
 		 DIV('Author'),
 		 TEXTAREA({class: 'textara'}, "$ruleset_data.ruleset_author"),
 		 H3('Select 2.0 Success Criteria Level'),
-		 DIV({onclick:'$onRulesetChange'},
-		   INPUT({ type: 'radio', id: '0', checked: '$ruleset_data.sc_level0'}, "Level A, AA and AAA (highest level of accessibility)"),
-		   INPUT({ type: 'radio', id: '1'}, "Level A and AA"),
-		   INPUT({ type: 'radio', id: '2'}, "Level A (lowest level of accessibility)")
+		 DIV({class: 'criteria_level', onclick:'$onRulesetChange'},
+		   INPUT({ class: 'radioElements', type: 'radio', id: '0', checked: 'true'}, "Level A, AA and AAA (highest level of accessibility)"),
+		   INPUT({ class: 'radioElements', type: 'radio', id: '1'}, "Level A and AA"),
+		   INPUT({ class: 'radioElements', type: 'radio', id: '2'}, "Level A (lowest level of accessibility)")
 		 ),
-		 H3('Other Options'),
+		 /*H3('Other Options'),
 		 DIV({},
 	       INPUT({class: 'formElements', type: 'checkbox', onclick: '$onClick'}, "Enable checking for broken links"),
 		   INPUT({class: 'formElements', type: 'checkbox', onclick: '$onClick'}, "Show 'Accessibility' menu in main menu")
-		 ),
+		 ),*/
 		 BUTTON({class: 'button', checked: "true", type: "checkbox", onclick: "$onRulesetChange"},
 		           "Save Changes"
 		 ),
@@ -158,16 +158,17 @@ with (FBL) {
 	      FBTrace.sysout("event in onRulesetChange", event);
 
 	      
-	      var index = event.target.index;
 	      //var ruleset_selected = event.target.options[index];
 	      str_bundle = document.getElementById("ainspector_stringbundle1");
 	      //FBTrace.sysout("ruleset_selected: ", ruleset_selected.id);
 	      //if (ruleset_selected.id == "IITAA20") {
-	      
+	      var ruleset_obj = getAncestorByClass(event.target, 'rulesets');
+	      FBTrace.sysout("ruleset_obj: ", ruleset_obj);
 	      if (event.target.type != 'radio') {
-	    	var ruleset_obj = getAncestorByClass(event.target, 'rulesets');
+		    //
 		    var opt = getChildByClass(ruleset_obj, 'textar');
-	    	
+		      FBTrace.sysout("opt: ", opt);
+		    if (event.target.id) {
 		    if (event.target.id == "IITAA20") {
 	          ruleset_description = str_bundle.getString("ainspector.ruleset.IITAA20.desc");
 	          ruleset_author = str_bundle.getString("ainspector.ruleset.IITAA20.author");
@@ -178,54 +179,40 @@ with (FBL) {
 	          ruleset_description = str_bundle.getString("ainspector.ruleset.WCAG20S.desc");
 		      ruleset_author = str_bundle.getString("ainspector.ruleset.WCAG20S.author");
 	        }
+		    var index = event.target.index;
+	        ruleset_index = AINSPECTOR_FB.ruleset_index = index;
+
+		    }
 	        FBTrace.sysout(ruleset_description);
 	        FBTrace.sysout(ruleset_author);
 	      
 	        AINSPECTOR_FB.ruleset_description = ruleset_description;
 	        AINSPECTOR_FB.ruleset_author = ruleset_author;
-	        ruleset_index = AINSPECTOR_FB.ruleset_index = index;
+	        ruleset_data = {
+	    	   	    ruleset_description: ruleset_description,
+	    	   	    ruleset_author: ruleset_author
+	    	   	   /* sc_level0: sc_level0,
+	    	   	    sc_level1: sc_level1,
+	    	   	    sc_level2: sc_level2*/
+	    	   	  };
+	    	      clearNode(panel.table);
+	    	      panel.table = this.rulesetSelectTag.replace( {ruleset_data: ruleset_data}, panel.panelNode, null);
+	    	      FBTrace.sysout("", panel.table.children[1].children[0]);
+	    	      
+	    	      AINSPECTOR_FB.ainspectorUtil.setClass(panel.table.children[1].children[0].children[ruleset_index-1], "rulesetSelected");
+
+	    	      FBTrace.sysout("ruleset_data: ", ruleset_data);
 	      } else {
-	    	  
-	    	/*switch(event.target.id){
-	    	  case 0: AINSPECTOR_FB.success_criteria_level0 = true;
-	    	          AINSPECTOR_FB.success_criteria_level1 = false;
-	    		      AINSPECTOR_FB.success_criteria_level2 = false;
-	    		      break;
-	    	  case 1: AINSPECTOR_FB.success_criteria_level0 = false;
-	                  AINSPECTOR_FB.success_criteria_level1 = true;
-		              AINSPECTOR_FB.success_criteria_level2 = false;
-		              break;
-	    	  case 2: AINSPECTOR_FB.success_criteria_level0 = false;
-	                  AINSPECTOR_FB.success_criteria_level1 = false;
-		              AINSPECTOR_FB.success_criteria_level2 = true;
-		              break;
-		      default: break;        
-	    				
+	    	  var id = event.target.id;
+	    	  var radio_elements_group = getChildByClass(ruleset_obj, 'criteria_level');
+	    	  var children = radio_elements_group.children;
+	    	  for (var i=0; i < children.length; i++){
+	    	    if (children[i].checked == true) {
+	    		  children[i].checked = false;  
+	    	    }	
+	    	  }
+	    	  children[id].checked = true;
 	    	}
-	    	sc_level0 = AINSPECTOR_FB.success_criteria_level0;
-	    	sc_level1 = AINSPECTOR_FB.success_criteria_level1;
-	    	sc_level2 = AINSPECTOR_FB.success_criteria_level2;*/
-	      } 
-	      ruleset_data = {
-	   	    ruleset_description: ruleset_description,
-	   	    ruleset_author: ruleset_author
-	   	   /* sc_level0: sc_level0,
-	   	    sc_level1: sc_level1,
-	   	    sc_level2: sc_level2*/
-	   	  };
-	      clearNode(panel.table);
-	      panel.table = this.rulesetSelectTag.replace( {ruleset_data: ruleset_data}, panel.panelNode, null);
-	      FBTrace.sysout("index: " + index);
-	      FBTrace.sysout("", panel.table.children[1].children[0]);
-	      
-	      AINSPECTOR_FB.ainspectorUtil.setClass(panel.table.children[1].children[0].children[ruleset_index-1], "rulesetSelected");
-
-	      FBTrace.sysout("ruleset_data: ", ruleset_data);
-	      //opt.innerHtml = ruleset_description;
-		  //opt.replace(opt.innerHtml, ruleset_description);
-
-	  	  //return this.descTag;
-	      //AINSPECTOR_FB.preferences.preferencesTemplate.descTag.append({x: x}, panel.panelNode, this);
         },
         
         /**
@@ -254,6 +241,7 @@ with (FBL) {
         	if (flag) break;
           }
           AINSPECTOR_FB.ainspectorUtil.setClass(panel.table.children[1].children[0].children[index-1], "rulesetSelected");
+          this.onRulesetChange(event);
         },
         
         /**
@@ -268,12 +256,16 @@ with (FBL) {
 
           str_bundle = document.getElementById("ainspector_stringbundle1");
           AINSPECTOR_FB.ruleset_description = str_bundle.getString("ainspector.ruleset.WCAG20T.desc");
-  	      AINSPECTOR_FB.ruleset_author = str_bundle.getString("ainspector.ruleset.WCAG20T.ruleset_author");
+  	      AINSPECTOR_FB.ruleset_author = str_bundle.getString("ainspector.ruleset.WCAG20T.author");
   	      AINSPECTOR_FB.ruleset_index = 2;
-
-  	      if (panel.table)clearNode(panel.table);
-	      panel.table = this.rulesetSelectTag.replace( {ruleset_data: ruleset_data}, panel.panelNode, null);
-
+  	      
+  	    ruleset_data = {
+  		   	    ruleset_description: AINSPECTOR_FB.ruleset_description,
+  		   	    ruleset_author: AINSPECTOR_FB.ruleset_author
+	   	  };
+  	     if (panel.table)clearNode(panel.table);
+	     panel.table = this.rulesetSelectTag.replace( {ruleset_data: ruleset_data}, panel.panelNode, null);
+	     AINSPECTOR_FB.ainspectorUtil.setClass(panel.table.children[1].children[0].children[AINSPECTOR_FB.ruleset_index-1], "rulesetSelected");
         }
     });
   }

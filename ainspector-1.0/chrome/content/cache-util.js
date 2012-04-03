@@ -28,9 +28,9 @@ with (FBL) {
   AINSPECTOR_FB.ruleset_description = "The ARIA transitional ruleset is based on current WCAG 2.0 sufficient techniques, when relavent techniques are available.  Recommendations are based on web accessibility and usability best practices using the features of the HTML and ARIA specifications."; 
   AINSPECTOR_FB.ruleset_author = "OpenAjax Accessibility Working Group";
   AINSPECTOR_FB.ruleset_index = 2; //index of default ruleset is set to 2 in panel-preferences.js 
-  AINSPECTOR_FB.success_criteria_level0 = false;
-  AINSPECTOR_FB.success_criteria_level1 = false;
-  AINSPECTOR_FB.success_criteria_level2 = false;
+  //AINSPECTOR_FB.success_criteria_level0 = false;
+  //AINSPECTOR_FB.success_criteria_level1 = false;
+  //AINSPECTOR_FB.success_criteria_level2 = false;
   AINSPECTOR_FB.other_info1 = false;
   AINSPECTOR_FB.other_info2 = true;
   
