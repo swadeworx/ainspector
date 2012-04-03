@@ -5,6 +5,7 @@
   
   <stringbundleset id="stringbundleset">
     <stringbundle id="ainspector_stringbundle" src="chrome://ainspector/locale/ainspector.properties"/>
+    <stringbundle id="ainspector_stringbundle1" src="chrome://ainspector/locale/all-properties.properties"/>
   </stringbundleset>
   
   <script type="application/x-javascript" src="chrome://ainspector/content/a11y.js"/>
@@ -19,6 +20,8 @@
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-links.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-abbreviations.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-allElements.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/panel-preferences.js"/>
+  
   
   <script type="application/x-javascript" src="chrome://ainspector/content/cache-util.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/util.js"/>
@@ -45,7 +48,7 @@
     <command id="ainspector_tables_view_button" oncommand="AINSPECTOR_FB.tables.viewPanel(Firebug.currentContext)"/>
     <command id="ainspector_abbr_view_button" oncommand="AINSPECTOR_FB.abbrLanguage.viewPanel(Firebug.currentContext)"/>
     <command id="ainspector_elements_view_button" oncommand="AINSPECTOR_FB.elements.viewPanel(Firebug.currentContext)"/>
-
+    <command id="ainspector_preferences_view_button" oncommand="AINSPECTOR_FB.preferences.viewPanel(Firebug.currentContext)"/>
     <command id="ainspector_navigation_view_button" oncommand="Firebug.ainspectorModule.navigationView(Firebug.currentContext)"/>
   </commandset> 
   
@@ -75,6 +78,9 @@
             <toolbarseparator/>
             <toolbarbutton id="elements" label="&ainspector.toolbarbutton.elements.label;" class="toolbar-text-button fbInternational" command="ainspector_elements_view_button" type="radio" group="RadioGroup"/> 
             <toolbarseparator/>
+            <toolbarspacer/>
+            <toolbarspacer/>
+            <toolbarbutton id="preferences" label="&ainspector.toolbarbutton.preferences.label;" class="toolbar-text-button fbInternational" command="ainspector_preferences_view_button" type="radio" group="RadioGroup"/> 
           </toolbar>   
         </toolbox>  
       </hbox> 
