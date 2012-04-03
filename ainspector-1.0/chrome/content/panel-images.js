@@ -43,7 +43,7 @@ with (FBL) {
 		 AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType);
 	 }*/
 	
-	AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels();
+	AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels(false);
 	
 	if (!panel_name) panel_name = "AInspector";
 	
@@ -54,7 +54,7 @@ with (FBL) {
     /* Clear the panel before writing anything onto the report*/
     if (panel) {
       clearNode(panel.panelNode);
-      clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+      clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
     }
 
     AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
@@ -77,7 +77,7 @@ with (FBL) {
 	  
     panel.table = AINSPECTOR_FB.images.imagesTemplate.tableTag.append( {image_elements: image_elements}, panel.panelNode, AINSPECTOR_FB.images.imagesTemplate);
 	this.select(image_elements[0]);
-	Firebug.currentContext.getPanel('Rules').sView(true, images_cache.image_elements[0]);
+	Firebug.currentContext.getPanel('rulesSidePanel').sView(true, images_cache.image_elements[0]);
   },
     
   /**
@@ -164,7 +164,7 @@ with (FBL) {
               TH({class: "gridHeaderCell gridCell", id: "imgOrderHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Height")),
               TH({class: "gridHeaderCell gridCell", id: "imgOrderHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Width")),
               TH({class: "gridHeaderCell gridCell", id: "imgTextHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "AltText")),
-              TH({class: "gridHeaderCell gridCell", id: "imgSrcHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Source")),
+              //TH({class: "gridHeaderCell gridCell", id: "imgSrcHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Source")),
               TH({class: "gridHeaderCell gridCell", id: "imgOrderHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Accessibility Summary"))
           ) //end TR
         ), //end THEAD
@@ -183,9 +183,9 @@ with (FBL) {
               TD({class: "imgTextCol gridCell gridCol ",  id:"imgSrcCol", role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({class: "gridContent", _repObject:"$object"}, TAG("$object.alt|getAlt", {'object': '$object'}))
               ),
-              TD({class: "imgSourceCol gridCell gridCol ", id: "imgTextCol", role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
-                DIV({class: "gridContent", _repObject:"$object", title: "$object.source"}, "$object.source|getFileName")
-              ),
+             // TD({class: "imgSourceCol gridCell gridCol ", id: "imgTextCol", role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+               // DIV({class: "gridContent", _repObject:"$object", title: "$object.source"}, "$object.source|getFileName")
+             // ),
               TD({class: "imgOrderCol gridCell gridCol", id:"imgOrderCol" , role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({class: "gridContent", _repObject:"$object"}, TAG("$object|getAccessibility", {'object': '$object'}))
               )
@@ -204,6 +204,13 @@ with (FBL) {
       strTagInfo : DIV({class: "infoMsgTxt"}, "$object|getSummary"),
       strTagWarn : DIV({class: "warnMsgTxt"}, "$object|getSummary"),
       
+      /**
+       * @function getAlt
+       * 
+       * @desc
+       * 
+       * @param
+       */
       getAlt : function(alt) {
 	    if (alt == undefined) return this.styleTag;
 	    else return this.normalTag;

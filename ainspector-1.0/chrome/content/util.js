@@ -1577,66 +1577,103 @@ AINSPECTOR_FB.event = {
 	  updateToolbar: function(panelType, toolbar_button)
 	    {
 	        var removeBtn = Firebug.chrome.$(toolbar_button);
-	        //var appendBtn = Firebug.chrome.$("colorContrast");
-
 	        var registered = Firebug.getPanelType(panelType);
-	        //removeBtn.setAttribute("disabled", registered ? "false" : "true");
-	        //appendBtn.setAttribute("disabled", registered ? "true" : "false");
+	    },
+	    
+	    /**
+	     * @function onRemoveSidePanel
+	     * @memberOf AINSPECTOR_FB.tabPanelUtil
+	     * 
+	     * @desc removes/unregisters sidePanal from any main panel depending on panelType
+	     * 
+	     *  @param {Object} panelType - type of the Panel  
+	     */
+	    onRemoveSidePanel: function(panelType) {
+   
+	      Firebug.unregisterPanel(panelType);
 	    },
 
-	    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-	    // Commands
+	    /**
+	     * @function onAppendSidePanel
+	     * @memberOf AINSPECTOR_FB.tabPanelUtil
+	     * 
+	     * @desc add/registers sidePanal from any main panel depending on panelType
+	     * 
+	     *  @param {Object} panelType - type of the Panel  
+	     */
+	    onAppendSidePanel: function(panelType) {
 
-	    onRemoveSidePanel: function(panelType)
-	    {
-	        Firebug.unregisterPanel(panelType);
-	        //this.updateToolbar(panelType, toolbar_button);
-	    },
-
-	    onAppendSidePanel: function(panelType)
-	    {
-	        Firebug.registerPanel(panelType);
-	        //this.updateToolbarWidAppend(panelType, toolbar_button);
+	      Firebug.registerPanel(panelType);
 	    },
 	    
 	    updateToolbarWidAppend: function(panelType, toolbar_button){
-	    	//var removeBtn = Firebug.chrome.$("images");
 	        var appendBtn = Firebug.chrome.$(toolbar_button);
-
 	        var registered = Firebug.getPanelType(panelType);
-	        //removeBtn.setAttribute("disabled", registered ? "false" : "true");
-	        //appendBtn.setAttribute("disabled", registered ? "true" : "false");
-	    	
 	    },
 	
-	    addAndRemoveSidePanels : function() {
-	    var panelType_style = Firebug.getPanelType("styleSidePanel");
-	    var panelType_attributes = Firebug.getPanelType("attributesSidePanel");
-	    var panelType_properties = Firebug.getPanelType("cacheSidePanel");
-	    var panelType_events = Firebug.getPanelType("eventsSidePanel");
+	    /**
+	     * @function addAndRemoveSidePanels
+	     */
+	    addAndRemoveSidePanels : function(pref) {
+	      
+	      var panelType_rule = Firebug.getPanelType("rulesSidePanel");
+	      var panelType_attributes = Firebug.getPanelType("attributesSidePanel");
+	      var panelType_properties = Firebug.getPanelType("propertiesSidePanel");
+	      var panelType_events = Firebug.getPanelType("eventsSidePanel");
+	      var panelType_style = Firebug.getPanelType("styleSidePanel");
+	      
+	      if (pref == true){
+	    	  AINSPECTOR_FB.rules_registered = panelType_rule;
+	    	  AINSPECTOR_FB.attributes_registered = panelType_attributes;
+	    	  AINSPECTOR_FB.style_registered = panelType_style;
+	    	  AINSPECTOR_FB.properties_registered = panelType_properties;
+	    	  AINSPECTOR_FB.events_registered = panelType_events;
+			  FBTrace.sysout("before rule");
+	    	  if (panelType_rule) AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_rule);
+	    	  FBTrace.sysout("after rule before attr" );
+	    	  if (panelType_attributes) AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_attributes);
+	    	  FBTrace.sysout("after attr before style");
+	    	  if (panelType_style) AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_style);
+	    	  FBTrace.sysout("after style before prop");
+	    	  if (panelType_properties) AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_properties);
+	    	  FBTrace.sysout("after prop before evewnt");
+	    	  if (panelType_events) AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_events);
+	    	  FBTrace.sysout("afeter event");
+	    	  return;
+	      }
+	      
+	      if (panelType_rule) {
 
-		 if (panelType_style) {
-			 AINSPECTOR_FB.style_registered = panelType_style;
-			 AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_style);
-		 }
+	      } else {
+			panelType_rule = AINSPECTOR_FB.rules_registered;
+		    AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_rule);
+	      }
+	      
+	      if (panelType_style) {
+		    AINSPECTOR_FB.style_registered = panelType_style;
+			AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_style);
+	      }
 		 
-		 if (panelType_attributes) {
-	     } else {
-	       panelType_attributes = AINSPECTOR_FB.attributes_registered;
-		   AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_attributes);
-	     }
+		  if (panelType_attributes) {
+	     
+		  } else {
+	        panelType_attributes = AINSPECTOR_FB.attributes_registered;
+		    AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_attributes);
+	      }
 		 
-		 if (panelType_properties) {
-	     } else {
-	    	 panelType_properties = AINSPECTOR_FB.properties_registered;
-		   AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_properties);
-	     }
+		  if (panelType_properties) {
+	      
+		  } else {
+	        panelType_properties = AINSPECTOR_FB.properties_registered;
+		    AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_properties);
+	      }
 		 
-		 if (panelType_events) {
-	     } else {
-	    	 panelType_events = AINSPECTOR_FB.events_registered;
-		   AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_events);
-	     }
-  }
-  };
+		  if (panelType_events) {
+	     
+		  } else {
+	        panelType_events = AINSPECTOR_FB.events_registered;
+		    AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_events);
+	      }
+	    }
+     };
 });

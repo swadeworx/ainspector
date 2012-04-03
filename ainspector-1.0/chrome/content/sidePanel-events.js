@@ -76,6 +76,17 @@ FBL.ns(function() { with (FBL) {
      },
      
      /**
+      * @function destroyNode
+      * 
+      * @desc 
+      */
+     destroyNode: function() {
+   
+       this.mainPanel.panelNode.removeEventListener("click", this.setSelection, false);
+       Firebug.Panel.destroyNode.apply(this, arguments);
+     },
+     
+     /**
       * @function updateSelection
       * 
       * @desc

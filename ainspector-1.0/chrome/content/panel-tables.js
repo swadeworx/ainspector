@@ -36,7 +36,7 @@ with (FBL) {
 	 * @returns
 	 */
 	 viewPanel : function(context, panel_name, cache_object) {		
-	  AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels();
+	  AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels(false);
 		  if (!panel_name) panel_name = "AInspector";
 		  if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
 		  
@@ -45,7 +45,7 @@ with (FBL) {
 	      /* Clear the panel before writing anything onto the report*/
 	      if (panel) {
 	        clearNode(panel.panelNode);
-	        clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+	        clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
 	      }
 
 	      var toolbar_buttons = [{name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.tables.tree"), selected: true, first:true},
@@ -71,11 +71,11 @@ with (FBL) {
       
       if (is_empty_object == true) {
         panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.append( {header_elements: ["Tag", "Information", "Accessibility Summary"]}, panel.panelNode, AINSPECTOR_FB.emptyTemplate);
-      	Firebug.currentContext.getPanel('Rules').sView(false, "none");
+      	Firebug.currentContext.getPanel('rulesSidePanel').sView(false, "none");
       } else{
         panel.table = AINSPECTOR_FB.tables.tablesTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.tables.tablesTreeTemplate);
 	    this.select(child_elements[0]);
-	    Firebug.currentContext.getPanel('Rules').sView(true, child_elements[0]);
+	    Firebug.currentContext.getPanel('rulesSidePanel').sView(true, child_elements[0]);
       }
     },
     
@@ -212,27 +212,27 @@ onClickToolbarButton : function(event) {
 showOnSelectButton : function(toolbar_button_id) {
 
 	clearNode(panel.table);
-    clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+    clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
     var is_empty_object;
     if (toolbar_button_id == "Tree View") {
       is_empty_object = AINSPECTOR_FB.ainspectorUtil.hasProperty(child_elements);
 	  if (is_empty_object) {
         panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.append( {header_elements: ["Tag", "Information", "Accessibility Summary"]}, panel.panelNode, AINSPECTOR_FB.emptyTemplate);
-      	Firebug.currentContext.getPanel('Rules').sView(false, "none");
+      	Firebug.currentContext.getPanel('rulesSidePanel').sView(false, "none");
       } else{	
 	    panel.table = AINSPECTOR_FB.tables.tablesTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.tables.tablesTreeTemplate);
 	    AINSPECTOR_FB.tables.select(child_elements[0]);
-	    Firebug.currentContext.getPanel('Rules').sView(true, child_elements[0]);
+	    Firebug.currentContext.getPanel('rulesSidePanel').sView(true, child_elements[0]);
       }
     } else if (toolbar_button_id == "List View") {
       is_empty_object = AINSPECTOR_FB.ainspectorUtil.hasProperty(table_elements);	
 	  if (is_empty_object) {
         panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.append( {header_elements: ["Tag", "Information", "Accessibility Summary"]}, panel.panelNode, AINSPECTOR_FB.emptyTemplate);
-      	Firebug.currentContext.getPanel('Rules').sView(false, "none");
+      	Firebug.currentContext.getPanel('rulesSidePanel').sView(false, "none");
       } else{
         panel.table = AINSPECTOR_FB.tables.tablesTreeTemplate.tag.append( {object: table_elements}, panel.panelNode, AINSPECTOR_FB.tables.tablesTreeTemplate);
   	    AINSPECTOR_FB.tables.select(table_elements[0]);
-  	    Firebug.currentContext.getPanel('Rules').sView(true, table_elements[0]);
+  	    Firebug.currentContext.getPanel('rulesSidePanel').sView(true, table_elements[0]);
       }
     }
  },

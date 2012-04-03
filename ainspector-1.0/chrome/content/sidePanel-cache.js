@@ -21,12 +21,12 @@ FBL.ns(function() { with (FBL) {
   var side_panel_title = AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.sidepanel.cache.title");
 
   /**
-   * @panel cacheSidePanel displaying Rule results for the current selected 
+   * @panel propertiesSidePanel displaying Rule results for the current selected 
    * row in the Navigation button,
    */
-  function cacheSidePanel() {}
+  function propertiesSidePanel() {}
   
-  cacheSidePanel.prototype = extend(Firebug.Panel, {
+  propertiesSidePanel.prototype = extend(Firebug.Panel, {
     
     name: side_panel_name,
     parentPanel: main_panel,
@@ -76,6 +76,17 @@ FBL.ns(function() { with (FBL) {
      },
      
      /**
+      * @function destroyNode
+      * 
+      * @desc called by Firebug Framework
+      */
+     destroyNode: function() {
+   
+       this.mainPanel.panelNode.removeEventListener("click", this.setSelection, false);
+       Firebug.Panel.destroyNode.apply(this, arguments);
+     },
+     
+     /**
       * @function updateSelection
       * 
       * @desc
@@ -84,11 +95,13 @@ FBL.ns(function() { with (FBL) {
       */
      updateSelection : function() {
        var selection = this.mainPanel.selection;
-       var dom_element = selection.dom_element; 
-       //if (dom_element)
+       if (selection) {
+         var dom_element = selection.dom_element; 
+         //if (dom_element)
          //this.rebuild(this.showOnRulesTabSelect(dom_element));
-       //else this.rebuild(this.showOnRulesTabSelect(selection.value.dom_element));
-       this.rebuild(this.showOnRulesTabSelect(selection));
+         //else this.rebuild(this.showOnRulesTabSelect(selection.value.dom_element));
+         this.rebuild(this.showOnRulesTabSelect(selection));
+       }
      },
      
      /**
@@ -117,7 +130,7 @@ FBL.ns(function() { with (FBL) {
        //if (element.dom_element)
          //this.rebuild(this.showOnRulesTabSelect(element.dom_element));
        //else this.rebuild(this.showOnRulesTabSelect(element)); //for colorcontrast
-       this.rebuild(this.showOnRulesTabSelect(element));
+       if (element) this.rebuild(this.showOnRulesTabSelect(element));
      },
      
      /**
@@ -215,5 +228,5 @@ FBL.ns(function() { with (FBL) {
 	    }
 	  });
  
-  Firebug.registerPanel(cacheSidePanel);
+  Firebug.registerPanel(propertiesSidePanel);
 }});

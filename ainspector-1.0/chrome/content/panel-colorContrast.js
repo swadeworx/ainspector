@@ -36,30 +36,8 @@ with (FBL) {
 	 */
 	 viewPanel : function(context, panel_name, cache_object) {		
 	   
-	    var panelType_style = Firebug.getPanelType('styleSidePanel');
-	    var panelType_attributes = Firebug.getPanelType("attributesSidePanel");
-	    var panelType_properties = Firebug.getPanelType("cacheSidePanel");
-	    var panelType_events = Firebug.getPanelType("eventsSidePanel");
-
-	    if (panelType_style) {
-	    	// nothing
-	    } else {
-	      panelType_style = AINSPECTOR_FB.style_registered;
-		  AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_style);
-	    }
-	    if (panelType_attributes) {
-			 AINSPECTOR_FB.attributes_registered = panelType_attributes;
-			 AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_attributes);
-		 }
-	    if (panelType_properties) {
-			 AINSPECTOR_FB.properties_registered = panelType_properties;
-			 AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_properties);
-		 }
-	    if (panelType_events) {
-			 AINSPECTOR_FB.events_registered = panelType_events;
-			 AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_events);
-		 }
-	  if (!panel_name) panel_name = "AInspector";
+        this.addOrRemoveSidePanelsForColrContrast();
+	   	  if (!panel_name) panel_name = "AInspector";
 	  if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
 	  
 	  panel = context.getPanel(panel_name, true);
@@ -67,7 +45,7 @@ with (FBL) {
 	  /* Clear the panel before writing anything onto the report*/
       if (panel) {
 	    clearNode(panel.panelNode);
-	    clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+	    clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
 	  }
 
       AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document); 
@@ -89,7 +67,51 @@ with (FBL) {
 	  //panel.panelNode.appendChild(element);
 	  panel.selection = color_contrast_items[0];
       AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[1].children[0]);
-	  Firebug.currentContext.getPanel('Rules').showContrastOrAllElements(true, panel.selection);
+	  Firebug.currentContext.getPanel('rulesSidePanel').showContrastOrAllElements(true, panel.selection);
+    },
+    
+    /**
+     * @function addOrRemoveSidePanelsForColrContrast()
+     * @memberof AINSPECTOR_FB.colorContrst
+     * 
+     * @desc add rules, style side panels by removing events, attributes and properties side panels
+     */
+    addOrRemoveSidePanelsForColrContrast : function(){
+      
+      var panelType_rule = Firebug.getPanelType('rulesSidePanel');
+  	  var panelType_style = Firebug.getPanelType('styleSidePanel');
+ 	  var panelType_attributes = Firebug.getPanelType('attributesSidePanel');
+ 	  var panelType_properties = Firebug.getPanelType('propertiesSidePanel');
+ 	  var panelType_events = Firebug.getPanelType('eventsSidePanel');
+
+ 	  if (panelType_rule) {
+ 	 	     
+ 	  } else {
+ 		panelType_rule = AINSPECTOR_FB.rules_registered;
+ 	    AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_rule);
+      }
+ 	    
+ 	  if (panelType_style) {
+ 	   	// nothing
+ 	  } else {
+ 	    panelType_style = AINSPECTOR_FB.style_registered;
+ 		AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_style);
+ 	  }
+ 	  
+ 	  if (panelType_attributes) {
+ 		AINSPECTOR_FB.attributes_registered = panelType_attributes;
+ 		AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_attributes);
+ 	  }
+ 	  
+ 	  if (panelType_properties) {
+ 		AINSPECTOR_FB.properties_registered = panelType_properties;
+ 		AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_properties);
+ 	  }
+
+ 	  if (panelType_events) {
+ 	    AINSPECTOR_FB.events_registered = panelType_events;
+ 		AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_events);
+ 	  }
     }
  };
 

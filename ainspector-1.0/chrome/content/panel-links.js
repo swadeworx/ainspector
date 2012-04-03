@@ -39,7 +39,7 @@ with (FBL) {
 	 * @param links
 	 */
 	viewPanel : function(context, panel_name, cache_object) {
-	  AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels();  
+	  AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels(false);  
 	  if (!panel_name) panel_name = "AInspector";
 	  if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
 	  
@@ -52,7 +52,7 @@ with (FBL) {
       /* Clear the panel before writing anything onto the report*/
       if (panel) {
         clearNode(panel.panelNode);
-        clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+        clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
       }
 	  var toolbar_buttons = [{name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.all"), selected: true, first:true},
 		                     {name: AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.tab.links.sameHref")}, 
@@ -85,11 +85,11 @@ with (FBL) {
 
 	  if (is_empty_object == true) {
         panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.append( {header_elements: ["Element", "Name", "Link Type", "Accessibility Summary"]}, panel.panelNode, AINSPECTOR_FB.emptyTemplate);
-	  	Firebug.currentContext.getPanel('Rules').sView(false, "none");
+	  	Firebug.currentContext.getPanel('rulesSidePanel').sView(false, "none");
 	  } else {
 	    panel.table = AINSPECTOR_FB.links.allLinksTemplate.tableTag.append({link_elements: link_elements}, panel.panelNode, null);
 	    this.select(links_cache.link_elements[0]);
-	    Firebug.currentContext.getPanel('Rules').sView(true, links_cache.link_elements[0]);
+	    Firebug.currentContext.getPanel('rulesSidePanel').sView(true, links_cache.link_elements[0]);
 	  }
 	},
 	    
@@ -223,7 +223,7 @@ with (FBL) {
   showOnSelectButton : function(toolbar_button_id){
 	this.viewContainer.append({}, panel.table, this);
 	clearNode(panel.table);
-    clearNode(Firebug.currentContext.getPanel('Rules').panelNode);
+    clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
     selected_toolbar_button = toolbar_button_id;
     var is_empty_object;
     if (toolbar_button_id == "All") {
@@ -232,12 +232,12 @@ with (FBL) {
 
   	  if (is_empty_object == true) {
           panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.append( {header_elements: ["Element", "Name", "Link Type", "Accessibility Summary"]}, panel.panelNode, AINSPECTOR_FB.emptyTemplate);
-  	  	Firebug.currentContext.getPanel('Rules').sView(false, "none");
+  	  	Firebug.currentContext.getPanel('rulesSidePanel').sView(false, "none");
   	  } else {
 
         panel.table = AINSPECTOR_FB.links.allLinksTemplate.tableTag.append( {links: link_elements}, panel.panelNode, null);
         AINSPECTOR_FB.images.select(link_elements[0]);
-        Firebug.currentContext.getPanel('Rules').sView(true, link_elements[0]);
+        Firebug.currentContext.getPanel('rulesSidePanel').sView(true, link_elements[0]);
   	  }
     } else if (toolbar_button_id == "Same HREF"){
    	  var properties = ["Number", "HREF", "Name"];
@@ -245,11 +245,11 @@ with (FBL) {
 
 	  if (is_empty_object == true) {
         panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.append( {header_elements: properties}, panel.panelNode, AINSPECTOR_FB.emptyTemplate);
-	  	Firebug.currentContext.getPanel('Rules').sView(false, "none");
+	  	Firebug.currentContext.getPanel('rulesSidePanel').sView(false, "none");
 	  } else {
         panel.table = AINSPECTOR_FB.links.duplicateNameOrHrefTemplate.tag.append( {object: same_href_items, properties: properties}, panel.panelNode, AINSPECTOR_FB.links.duplicateNameOrHrefTemplate);
         AINSPECTOR_FB.images.select(same_href_items[0]);
-        Firebug.currentContext.getPanel('Rules').sView(true, same_href_items[0]);
+        Firebug.currentContext.getPanel('rulesSidePanel').sView(true, same_href_items[0]);
 	  }
     } else if (toolbar_button_id == "Same Name") {
       var properties = ["Number", "Name", "HREF"];
@@ -257,22 +257,22 @@ with (FBL) {
 
   	  if (is_empty_object == true) {
           panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.append( {header_elements: properties}, panel.panelNode, AINSPECTOR_FB.emptyTemplate);
-  	  	Firebug.currentContext.getPanel('Rules').sView(false, "none");
+  	  	Firebug.currentContext.getPanel('rulesSidePanel').sView(false, "none");
   	  } else {
         panel.table = AINSPECTOR_FB.links.duplicateNameOrHrefTemplate.tag.append( {object: same_name_items, properties:properties}, panel.panelNode, AINSPECTOR_FB.links.duplicateNameOrHrefTemplate);
         AINSPECTOR_FB.images.select(same_name_items[0]);
-  	    Firebug.currentContext.getPanel('Rules').sView(true, same_name_items[0]);
+  	    Firebug.currentContext.getPanel('rulesSidePanel').sView(true, same_name_items[0]);
   	  }
     } else if (toolbar_button_id == "AREA") {
 	  is_empty_object = AINSPECTOR_FB.ainspectorUtil.hasProperty(area_elements);
 	  var properties = ["Element", "Name", "Href", "Accessibility Summary"];
 	  if (is_empty_object == true) {
         panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.append( {header_elements: properties}, panel.panelNode, AINSPECTOR_FB.emptyTemplate);
-	  	Firebug.currentContext.getPanel('Rules').sView(false, "none");
+	  	Firebug.currentContext.getPanel('rulesSidePanel').sView(false, "none");
 	  } else {
         panel.table = AINSPECTOR_FB.links.areaTemplate.tag.append( {area_elements: area_elements}, panel.panelNode, null);
         AINSPECTOR_FB.images.select(area_elements[0]);
-	    Firebug.currentContext.getPanel('Rules').sView(true, area_elements[0]);
+	    Firebug.currentContext.getPanel('rulesSidePanel').sView(true, area_elements[0]);
 	  }	
     	
     } else {
