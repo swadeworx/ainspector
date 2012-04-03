@@ -10,3 +10,4 @@
 <!ENTITY  ainspector.toolbarbutton.abbr.label           "Abbrev/Lang">
 <!ENTITY  ainspector.toolbarbutton.elements.label       "All Elements">
 <!ENTITY  ainspector.toolbarbutton.navigation.label     "Navigation">
+<!ENTITY  ainspector.toolbarbutton.preferences.label     "Preferences">
