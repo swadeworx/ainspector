@@ -42,7 +42,43 @@ with (FBL) {
    * @property {Object} cache_object - container for all the element properties
    * 
    */
-  viewPanel: function(context, panel_name, cache_object) {		
+   
+   viewPanel : function(context, panel_name, cache_object) {
+     FBTrace.sysout("bla bla bla bla");
+     window.openDialog("chrome://ainspector/content/preferences.xul", "",
+            "chrome,centerscreen,dialog,modal,resizable=yes", "");
+	 this.init();
+   },
+   
+   init : function() {
+     FBTrace.sysout("Inside initPrefs....");
+   },
+   
+   onItemSelectionChange : function() {
+   
+   },
+   
+   updatePrefsFromControlValues : function() {
+   
+   },
+   
+   resetPreferencesToDefaultValues : function() {
+   
+   },
+  
+  /**
+   * @function viewPanel 
+   * 
+   * @desc respond to "Images" button in the AInspector toolbar
+   * 
+   * @param {String} panel_name - name of the panel to identify in which panel are we
+   * @param {Object} cache_object - container for all the element properties
+   * @property {Array} toolbar_buttons - buttons to show on a toolbar
+   * @property {Object} toolbar - dom element created to hold the content of the panel. will append to the panel 
+   * @property {Object} cache_object - container for all the element properties
+   * 
+   */
+  setPreferences: function(context, panel_name, cache_object) {		
     var flag = true;
     
 
