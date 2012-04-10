@@ -5,32 +5,23 @@
 <?xml-stylesheet href="chrome://firebug/skin/customizeShortcuts.css" ?>
 <!DOCTYPE page SYSTEM "chrome://ainspector/locale/ainspector.dtd">
 
-<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         class="windowDialog"
-        id="firebug-customize-keyboard"
+        id="preferences_window"
+        onload="init();"
         width="400" height="500"
         persist="screenX screenY width height">
 
-    <!-- Dialog UI structure (list of registered shortcuts) -->
-    <grid flex="1" id="shortcutGrid">
-        <columns>
-           <column id="labelColumn"/>
-            <column flex="1"/>
-            <column/>
-        </columns>
-        <rows id="shortcutGridRows"></rows>
-    </grid>
-	
-	<script src="panel-preferences.js"/>
+	<script src="panel-customize-preferences.js"/>
 	<vbox pack="start">
     <vbox>
 	<label value="&preferences.ruleset;" 
-        control="ID_LISTBOX_RULESETS" 
+        control="LISTBOX_RULESETS_ID" 
         class="header"/>
-      <listbox id="ID_LISTBOX_RULESETS" 
+      <listbox id="LISTBOX_RULESETS_ID" 
         seltype="single" 
         rows="4" 
-        onselect="AINSPECTOR_FB.preferences.onItemSelectionChange()">
+        onselect="AINSPECTOR_FB.preferences.onSelectionChange()">
       </listbox>
       <label value="&preferences.descriptionLabel;" control="ID_TEXTBOX_DESCRIPTION"/>
       <textbox id="ID_TEXTBOX_DESCRIPTION" multiline="true" rows="4"/>
@@ -44,8 +35,7 @@
       control="ID_RADIOGROUP_LEVEL" 
       class="header"/>
     <radiogroup id="ID_RADIOGROUP_LEVEL" 
-      oncommand="AINSPECTOR_FB.preferences.onItemSelectionChange()"
-      >
+      oncommand="AINSPECTOR_FB.preferences.onSelectionChange()">
       <radio id="ID_RADIO_LEVEL_AAA" 
         label="&preferences.levelAAA;"/>
       <radio id="ID_RADIO_LEVEL_AA"  
@@ -58,24 +48,30 @@
     <separator/>  
     <vbox>
       <label value="&preferences.otherOptions;" class="header"/>
-      <checkbox id="ID_CHECKBOX_BROKEN_LINKS"   
-        oncommand="AINSPECTOR_FB.preferences.onItemSelectionChange()"
+      <checkbox id="PREFERENCES_CHECKBOX_BROKEN_LINKS"   
+        oncommand="AINSPECTOR_FB.preferences.onSelectionChange()"
         label="&preferences.brokenLinks;" 
         tooltiptext="&preferences.brokenLinksTooltip;"/>
-      <checkbox id="ID_CHECKBOX_SHOW_MENU"
-        oncommand="AINSPECTOR_FB.preferences.onItemSelectionChange()"
-        label="&preferences.showMenu;" 
-        tooltiptext="&preferences.showMenuTooltip;"/>
+     
     </vbox>
     <separator/>  
     <hbox>
-      <button id="ID_BUTTON_PREFERENCES_SAVE"
-        label="&preferences.saveLabel;"
-        oncommand="AINSPECTOR_FB.preferences.updatePrefsFromControlValues()"
-        disabled="true"
-      />
       <button label="&preferences.defaultsLabel;"
         oncommand="AINSPECTOR_FB.preferences.resetPreferencesToDefaultValues()"/>
     </hbox>
+      <separator/>  
+    <hbox>
+      <button id="PREFERENCES_BUTTON_SAVE"
+        label="&preferences.saveLabel;"
+        oncommand="AINSPECTOR_FB.preferences.updatePrefs()"
+        disabled="true"
+      />
+      <button id="PREFERENCES_BUTTON_SAVE"
+        label="&preferences.cancelLabel;"
+        oncommand="AINSPECTOR_FB.preferences.closeWindow()"
+      />
+    </hbox>
     </vbox>
-</dialog>
+    
+    
+</window>

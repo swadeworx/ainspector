@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+<!DOCTYPE prefwindow SYSTEM "chrome://a11y-evaluator/locale/options.dtd">
+<prefwindow id="oaaruletesting-preferences" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" title="&prefwindow.title;">
+  <prefpane id="pane1" label="&pane1.title;">
+    <preferences>
+      <preference id="PREF_ID_STRING_RULESET_ID"    name="extensions.ainspector.rulesetId"   type="string"/> 
+      <preference id="PREF_ID_INTEGER_WCAG20_LEVEL" name="extensions.ainspector.wcag20Level" type="int"/>
+      <preference id="PREF_ID_BOOL_BROKEN_LINKS"    name="extensions.ainspector.brokenLinks" type="bool"/>
+    </preferences>
+    <label accesskey="&rulesetId.accesskey;" 
+      control="PREF_ID_TEXTBOX_RULESET_ID">&rulesetId.label;</label>
+    <textbox id="PREF_ID_TEXTBOX_RULESET_ID" 
+      preference="PREF_ID_STRING_RULESET_ID"/>
+    <spacer height="20"/>
+    <label accesskey="&wcag20Level.accesskey;" 
+      control="PREF_ID_TEXTBOX_WCAG20_LEVEL">&wcag20Level.label;
+    </label>
+    <textbox id="PREF_ID_TEXTBOX_WCAG20_LEVEL" 
+      preference="PREF_ID_INTEGER_WCAG20_LEVEL"/>
+    <spacer height="20"/>
+    <checkbox id="PREFERENCES_CHECKBOX_BROKEN_LINKS" 
+      preference="PREF_ID_BOOL_BROKEN_LINKS" 
+      label="&brokenLink.label;" 
+      accesskey="&brokenLink.accesskey;"/>
+  </prefpane>
+</prefwindow>
