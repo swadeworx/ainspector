@@ -38,7 +38,9 @@ with (FBL) {
 	   
         this.addOrRemoveSidePanelsForColrContrast();
 	   	  if (!panel_name) panel_name = "AInspector";
-	  if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
+//	  if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
+	  	if (!cache_object) cache_object = AINSPECTOR_FB.cacheUtil.updateCache();  
+
 	  
 	  panel = context.getPanel(panel_name, true);
 
@@ -53,7 +55,7 @@ with (FBL) {
       var toolbar = panel.document.createElement("div");
       toolbar.id = "toolbarDiv";
 	  var color_contrast_cache = cache_object.dom_cache.color_contrast_cache; 
-      AINSPECTOR_FB.colorContrast.colorContrastToolbarPlate.toolbar.replace({}, toolbar, AINSPECTOR_FB.colorContrast.colorContrastToolbarPlate);
+      AINSPECTOR_FB.colorContrast.colorContrastToolbarPlate.toolbar.replace({preferences: AINSPECTOR_FB.preferences}, toolbar, AINSPECTOR_FB.colorContrast.colorContrastToolbarPlate);
       var color_contrast_items = color_contrast_cache.color_contrast_items;
       var element = panel.document.createElement("div");
 	  element.style.display = "block";
@@ -122,8 +124,25 @@ with (FBL) {
    */
   AINSPECTOR_FB.colorContrast.colorContrastToolbarPlate = domplate({
     toolbar : DIV( {class : "nav-menu"},
-                BUTTON({class: "button", onclick: "$toHTMLPanel"}, "HTML Panel" )
+                BUTTON({class: "button", onclick: "$toHTMLPanel"}, "HTML Panel" ),
+                SPAN({class: "ruleset_select"}, "Ruleset:  "),
+                SPAN({class: "ruleset_value"}, "$preferences.ruleset_id"),
+                SPAN({class: "ruleset_level"}, " Level:  "),
+                SPAN({class: "ruleset_value"}, "$preferences.wcag20_level|getLevel")
     ), 
+    
+    /**
+     * @function getLevel
+     * 
+     * @desc
+     */
+    getLevel : function (level){
+	
+	   if (level == 1) return "Level A (lowest level of accessibility)";
+	   else if (level == 2) return "Level A & AA";
+	   else return "Level A, AA & AAA (highest level of accessibility)";
+		   
+    },
   
     /**
      * @function toHTMLPanel

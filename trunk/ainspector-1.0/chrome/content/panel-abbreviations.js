@@ -38,8 +38,9 @@ with (FBL) {
   viewPanel : function(context, panel_name, cache_object) {
 	        
 	if (!panel_name) panel_name = "AInspector";
-	if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
-	
+	//if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
+	if (!cache_object) cache_object = AINSPECTOR_FB.cacheUtil.updateCache();  
+
 	AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels(false);
 	
     panel = context.getPanel(panel_name, true);
@@ -62,7 +63,7 @@ with (FBL) {
     language_elements = cache_object.dom_cache.languages_cache.language_items;
     var is_empty_object = AINSPECTOR_FB.ainspectorUtil.hasProperty(abbreviation_elements);
 
-	AINSPECTOR_FB.abbrLanguage.abbrToolbarPlate.toolbar.replace({toolbar_buttons : toolbar_buttons}, toolbar, AINSPECTOR_FB.abbrLanguage.abbrToolbarPlate);
+	AINSPECTOR_FB.abbrLanguage.abbrToolbarPlate.toolbar.replace({toolbar_buttons : toolbar_buttons, preferences: AINSPECTOR_FB.preferences}, toolbar, AINSPECTOR_FB.abbrLanguage.abbrToolbarPlate);
 	
 	  
 	var element = panel.document.createElement("div");
@@ -109,7 +110,11 @@ with (FBL) {
   AINSPECTOR_FB.abbrLanguage.abbrToolbarPlate = domplate({
     toolbar : DIV( {class : "nav-menu"},
                 TAG("$toolbarButtons", {toolbar_buttons : "$toolbar_buttons"}),
-                BUTTON({class: "button", onclick: "$toHTMLPanel"}, "HTML Panel" )
+                BUTTON({class: "button", onclick: "$toHTMLPanel"}, "HTML Panel" ),
+                SPAN({class: "ruleset_select"}, "Ruleset:  "),
+                SPAN({class: "ruleset_value"}, "$preferences.ruleset_id"),
+                SPAN({class: "ruleset_level"}, " Level:  "),
+                SPAN({class: "ruleset_value"}, "$preferences.wcag20_level|getLevel")
               ), 
   
     toolbarButtons : UL ({class : "yui-nav focusTabList toolbarLinks", role : "tablist", onkeypress : "$AINSPECTOR_FB.toolbarUtil.onToolbarKeyPress", "aria-label" :  "toolbarbutton views"},
@@ -121,6 +126,19 @@ with (FBL) {
                        )//end for
     
     ),
+    
+    /**
+     * @function getLevel
+     * 
+     * @desc
+     */
+    getLevel : function (level){
+	
+	   if (level == 1) return "Level A (lowest level of accessibility)";
+	   else if (level == 2) return "Level A & AA";
+	   else return "Level A, AA & AAA (highest level of accessibility)";
+		   
+    },
     
     /**
      * @function toHTMLPanel

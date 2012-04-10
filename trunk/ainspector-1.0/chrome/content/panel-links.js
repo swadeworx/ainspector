@@ -41,8 +41,9 @@ with (FBL) {
 	viewPanel : function(context, panel_name, cache_object) {
 	  AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels(false);  
 	  if (!panel_name) panel_name = "AInspector";
-	  if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
-	  
+	  //if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
+	  if (!cache_object) cache_object = AINSPECTOR_FB.cacheUtil.updateCache();  
+
 	  //FBTrace.sysout("cache_object: ", cache_object);
 
 	  panel = context.getPanel(panel_name, true);
@@ -65,7 +66,7 @@ with (FBL) {
       toolbar.id = "toolbarDiv";
       var links_cache = cache_object.dom_cache.links_cache;
 	  
-	  AINSPECTOR_FB.links.linksToolbar.toolbar.replace({toolbar_buttons : toolbar_buttons}, toolbar, AINSPECTOR_FB.links.linksToolbar);
+	  AINSPECTOR_FB.links.linksToolbar.toolbar.replace({toolbar_buttons : toolbar_buttons, preferences: AINSPECTOR_FB.preferences}, toolbar, AINSPECTOR_FB.links.linksToolbar);
 	      
 	  var element = panel.document.createElement("div");
 	  element.style.display = "block";
@@ -121,7 +122,11 @@ with (FBL) {
 	    
 	toolbar : DIV( {class : "nav-menu"},
                 TAG("$toolbarButtons", {toolbar_buttons : "$toolbar_buttons"}),
-	            BUTTON({class: "button", onclick: "$toHTMLPanel"}, "HTML Panel" )
+	            BUTTON({class: "button", onclick: "$toHTMLPanel"}, "HTML Panel" ),
+	            SPAN({class: "ruleset_select"}, "Ruleset:  "),
+                SPAN({class: "ruleset_value"}, "$preferences.ruleset_id"),
+                SPAN({class: "ruleset_level"}, " Level:  "),
+                SPAN({class: "ruleset_value"}, "$preferences.wcag20_level|getLevel")
 	), 
 	  
 	toolbarButtons : UL ({class : "yui-nav focusTabList toolbarLinks", role : "tablist", onkeypress : "$AINSPECTOR_FB.toolbarUtil.onToolbarKeyPress", "aria-label" :  "toolbarbutton views"},
@@ -132,6 +137,19 @@ with (FBL) {
 	                     )//end LI
 	                   )//end for
 	),
+	
+	/**
+     * @function getLevel
+     * 
+     * @desc
+     */
+    getLevel : function (level){
+	
+	   if (level == 1) return "Level A (lowest level of accessibility)";
+	   else if (level == 2) return "Level A & AA";
+	   else return "Level A, AA & AAA (highest level of accessibility)";
+		   
+    },
 	
 	/**
 	 * @function toHTMLPanel

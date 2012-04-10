@@ -39,7 +39,9 @@ with (FBL) {
   viewPanel: function(context, panel_name, cache_object) {		
 	  AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels(false);
     if (!panel_name) panel_name = "AInspector";
-	if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
+	//if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
+	if (!cache_object) cache_object = AINSPECTOR_FB.cacheUtil.updateCache();  
+
 	  
 	//FBTrace.sysout("cache_object: ", cache_object);
 
@@ -59,7 +61,7 @@ with (FBL) {
     media_elements = cache_object.dom_cache.media_cache.media_elements;
     var is_empty_object = AINSPECTOR_FB.ainspectorUtil.hasProperty(media_elements);
     
-	AINSPECTOR_FB.media.mediaToolbarPlate.toolbar.replace({}, toolbar, AINSPECTOR_FB.media.equivToolbarPlate);
+	AINSPECTOR_FB.media.mediaToolbarPlate.toolbar.replace({preferences: AINSPECTOR_FB.preferences}, toolbar, AINSPECTOR_FB.media.equivToolbarPlate);
 	  
 	var element = panel.document.createElement("div");
 	element.style.display = "block";
@@ -102,8 +104,25 @@ with (FBL) {
    */
   AINSPECTOR_FB.media.mediaToolbarPlate = domplate({
     toolbar : DIV( {class : "nav-menu"},
-              BUTTON({class: "button", onclick: "$toHTMLPanel"}, "HTML Panel" )
+              BUTTON({class: "button", onclick: "$toHTMLPanel"}, "HTML Panel" ),
+              SPAN({class: "ruleset_select"}, "Ruleset:  "),
+              SPAN({class: "ruleset_value"}, "$preferences.ruleset_id"),
+              SPAN({class: "ruleset_level"}, " Level:  "),
+              SPAN({class: "ruleset_value"}, "$preferences.wcag20_level|getLevel")
     ), 
+    
+    /**
+     * @function getLevel
+     * 
+     * @desc
+     */
+    getLevel : function (level){
+	
+	   if (level == 1) return "Level A (lowest level of accessibility)";
+	   else if (level == 2) return "Level A & AA";
+	   else return "Level A, AA & AAA (highest level of accessibility)";
+		   
+    },
     
     /**
      * @function toHTMLPanel
