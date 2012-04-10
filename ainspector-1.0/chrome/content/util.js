@@ -274,6 +274,8 @@ FBL.ns(function() { with (FBL) {
 	  }
 	  return flag;
     },
+    
+    	
     /**
      * @function truncateText
      * 
