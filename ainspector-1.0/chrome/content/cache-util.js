@@ -25,19 +25,13 @@ with (FBL) {
   AINSPECTOR_FB.properties_registered = null;
   AINSPECTOR_FB.attributes_registered = null;
   AINSPECTOR_FB.events_registered = null;
-  AINSPECTOR_FB.ruleset_description = "The ARIA transitional ruleset is based on current WCAG 2.0 sufficient techniques, when relavent techniques are available.  Recommendations are based on web accessibility and usability best practices using the features of the HTML and ARIA specifications."; 
-  AINSPECTOR_FB.ruleset_author = "OpenAjax Accessibility Working Group";
-  AINSPECTOR_FB.ruleset_index = 2; //index of default ruleset is set to 2 in panel-preferences.js 
-  //AINSPECTOR_FB.success_criteria_level0 = false;
-  //AINSPECTOR_FB.success_criteria_level1 = false;
-  //AINSPECTOR_FB.success_criteria_level2 = false;
-  AINSPECTOR_FB.other_info1 = false;
-  AINSPECTOR_FB.other_info2 = true;
+  AINSPECTOR_FB.preferences = null;
   
   AINSPECTOR_FB.cacheUtil = {
 	
     /**
      * @function updateCache
+     * @memberOf AINSPECTOR_FB.cacheUtil
      * 
      * @desc calls evaluate function of the rule set selected. 
      * 
@@ -56,17 +50,14 @@ with (FBL) {
         url = window.opener.parent.location.href;
       } // end try
 
-      /*cache_object = new OpenAjax.a11y.RulesetEvaluation();
-      FBTrace.sysout("cache_object: ", cache_object);
-      cache_object.init('WCAG_2_0', 'en-us', doc.location.href, doc.title, doc, null);
-      cache_object.evaluate(true);
-      cache_object.dom_cache.links_cache.sortLinkElements('document_order', true);
-      FBTrace.sysout("cache...............", cache_object);*/
+      var preferences = Firebug.preferenceModule.getRulesetPrefs();
+      AINSPECTOR_FB.preferences = preferences;
       
-      var ruleset_id = 'WCAG20_ARIA_TRANS';
-      var ruleset = OpenAjax.a11y.all_rulesets.getRuleset(ruleset_id);
+      var ruleset = OpenAjax.a11y.all_rulesets.getRuleset(preferences.ruleset_id);
 
       if (ruleset) {
+    	ruleset.setEvaluationLevel(preferences.wcag20_level);
+    	ruleset.setBrokenLinkTesting(preferences.broken_links);  
     	ruleset_result_cache = ruleset.evaluate(url, doc.title, doc, null, true);
         //FBTrace.sysout("Ruleset results object for: " , ruleset_result_cache);
       }
@@ -75,6 +66,10 @@ with (FBL) {
       }
       AINSPECTOR_FB.result_ruleset = ruleset_result_cache;
       return ruleset_result_cache;
+    },
+    
+    getAllRulesets : function() {
+      return OpenAjax.a11y.all_rulesets.getAllRuleSets();	
     }
   };
 //nsIWebProgressListener constants
@@ -138,7 +133,7 @@ with (FBL) {
       .getInterface(Components.interfaces.nsIDOMWindow);
 
     mainWindow.gBrowser.addProgressListener(AINSPECTOR_FB.tabProgressListener);
-    
+    Firebug.preferenceModule.initializeUI();
     AINSPECTOR_FB.cacheUtil.updateCache();
     AINSPECTOR_FB.setStateToolbarAndMenus(mainWindow, true);
   };
@@ -171,4 +166,5 @@ with (FBL) {
 
   window.addEventListener("load", function () { AINSPECTOR_FB.onLoad(); }, false);
   window.addEventListener("unload", function () { AINSPECTOR_FB.onUnload(); }, false);
+  
 };

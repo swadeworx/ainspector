@@ -40,8 +40,9 @@ FBL.ns(function() { with (FBL) {
 	  //var FirebugExtensionButtons = browser.chrome.$("fbFirebugExtensionButtons");
 
   	   var FirebugExtensionButtons = Firebug.chrome.$("fbFirebugExtensionButtons");
+  	   
   	   cache_object = this.updateCache();
-	  collapse(FirebugExtensionButtons, !isFirebugExtension); 
+	   collapse(FirebugExtensionButtons, !isFirebugExtension); 
 	},
 	
 	/**
@@ -98,6 +99,7 @@ FBL.ns(function() { with (FBL) {
 	 cache_object = AINSPECTOR_FB.cacheUtil.updateCache();
      AINSPECTOR_FB.event.fire('onload', {'window': win });
 	 FBTrace.sysout("window : " , window);
+	 FBTrace.sysout("firebug_context : " , firebug_context);
 	 window.AINSPECTOR_FB[toolbar_button].viewPanel(firebug_context, panel_name, cache_object);
 	},
 	
