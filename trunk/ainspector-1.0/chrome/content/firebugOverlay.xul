@@ -20,10 +20,12 @@
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-links.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-abbreviations.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-allElements.js"/>
-  <script type="application/x-javascript" src="chrome://ainspector/content/panel-preferences.js"/>
+  
   
   
   <script type="application/x-javascript" src="chrome://ainspector/content/cache-util.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/panel-preferences.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/panel-customize-preferences.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/util.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/ainspector-firebug.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/gridTemplate.js"/>
@@ -37,6 +39,7 @@
   
   <script type="application/x-javascript" src="chrome://ainspector/content/openajax_a11y/openajax_a11y_all.js"/>
   
+  
   <commandset id="mainCommandSet"> 
     <command id="ainspector_images_view_button" oncommand="AINSPECTOR_FB.images.viewPanel(Firebug.currentContext)"/>
     <command id="ainspector_media_view_button" oncommand="AINSPECTOR_FB.media.viewPanel(Firebug.currentContext)"/>
@@ -48,7 +51,7 @@
     <command id="ainspector_tables_view_button" oncommand="AINSPECTOR_FB.tables.viewPanel(Firebug.currentContext)"/>
     <command id="ainspector_abbr_view_button" oncommand="AINSPECTOR_FB.abbrLanguage.viewPanel(Firebug.currentContext)"/>
     <command id="ainspector_elements_view_button" oncommand="AINSPECTOR_FB.elements.viewPanel(Firebug.currentContext)"/>
-    <command id="ainspector_preferences_view_button" oncommand="AINSPECTOR_FB.preferences.viewPanel(Firebug.currentContext)"/>
+    <command id="ainspector_preferences_view_button" oncommand="Firebug.preferenceModule.viewPanel()"/>
     <command id="ainspector_navigation_view_button" oncommand="Firebug.ainspectorModule.navigationView(Firebug.currentContext)"/>
   </commandset> 
   
