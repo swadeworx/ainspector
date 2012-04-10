@@ -26,5 +26,6 @@
 <!ENTITY preferences.brokenLinksTooltip  "Checking for links will significantly increase the time to evaluate a document">
 <!ENTITY preferences.showMenu            "Show 'Accessibility' menu in main menu">
 <!ENTITY preferences.showMenuTooltip     "If enabled the 'Accessibility' menu will be visible in the main menu">
-<!ENTITY preferences.saveLabel           "Save Changes">
+<!ENTITY preferences.saveLabel           "OK">
+<!ENTITY preferences.cancelLabel          "Cancel">
 <!ENTITY preferences.defaultsLabel       "Restore Default Preferences">
