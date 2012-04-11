@@ -28,7 +28,7 @@
  *
  * @param {ControlInfo} control_info - Current ControlInfo object
  *
- * @property {Control Object}   control_element  - Parent Control Object (if any)
+ * @property {ControlElement}   control_element  - Parent ControlElement (if any)
  * @property {FieldsetElement}  fieldset_element - Parent FieldsetElement (if any)
  * @property {SelectElement}    select_element   - Parent SelectElement (if any)
  * @property {LabelElement}     label_element    - Parent LabelElement (if any)
@@ -128,7 +128,7 @@ OpenAjax.a11y.cache.ControlsCache = function (dom_cache) {
  * 
  * @desc Adds a cache control element to the root tree representation of control elements
  *
- * @param  {ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
+ * @param  {WidgetElement | ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
  */
 
 OpenAjax.a11y.cache.ControlsCache.prototype.addChildControl = function (control_element) {
@@ -146,7 +146,7 @@ OpenAjax.a11y.cache.ControlsCache.prototype.addChildControl = function (control_
  *
  * @desc Adds a cache control element to the list of controls array and generates a cache_id for each control 
  *
- * @param  {ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
+ * @param  {WidgetElement | ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
  *
  * @return  {Number} Returns the number of control objects in the control_elements array
  */
@@ -299,226 +299,240 @@ OpenAjax.a11y.cache.ControlsCache.prototype.updateCacheItems = function (dom_ele
   
   var ci = new OpenAjax.a11y.cache.ControlInfo(control_info);
 
-  switch (dom_element.tag_name) {
-
-  case 'form':
-    fe = new OpenAjax.a11y.cache.FormElement(dom_element, control_info);
-
-    this.addFormElement(fe); 
-
-    if (control_info.control_element) {
-      control_info.control_element.addChildControl(fe);   
-    }
-    else {
-      this.addChildControl(fe);     
-    }
-  
-    ci.control_element = fe;
-    ci.form_element = fe;
-  
-    break;
-
-  case 'fieldset':
-    fe = new OpenAjax.a11y.cache.FieldsetElement(dom_element, control_info);
-  
-    this.addFieldsetElement(fe); 
-
-    if (control_info.control_element) {
-      control_info.control_element.addChildControl(fe);   
-    }
-    else {
-      this.addChildControl(fe);     
-    }
-  
-    ci.control_element = fe;
-    ci.fieldset_element = fe;
-    break;
-
-  case 'legend':
-    le = new OpenAjax.a11y.cache.LegendElement(dom_element, control_info);
-    le.label = this.getElementTextContent(le, false);
-    le.label_length = le.label.length;
-
-    this.addLabelElement(le); 
-  
-    if (control_info.control_element) {
-      control_info.control_element.addChildControl(le);   
-    }
-    else {
-      this.addChildControl(le);     
-    }
-
-    if (control_info.fieldset_element) {
-      control_info.fieldset_element.legend_element = le;
-    }
-
-    ci.control_element = le;
-    break;
-
-  case 'label':
-    le = new OpenAjax.a11y.cache.LabelElement(dom_element, control_info);
-    le.label = this.getElementTextContent(le, false);
-    le.label_length = le.label.length;
+  // check for widget
+ 
+  if (dom_element.is_widget) {
     
-    this.addLabelElement(le); 
-  
+    we = new OpenAjax.a11y.cache.WidgetElement(dom_element, control_info);
+    
+    this.addControlElement(we);
+    
     if (control_info.control_element) {
-      control_info.control_element.addChildControl(le);   
+      control_info.control_element.addChildControl(we);   
     }
     else {
-      this.addChildControl(le);     
+      this.addChildControl(we);     
     }
-    
-    ci.control_element = le;
-    ci.label_element  = le;
-    break;
-
-  case 'input':
-    ie = new OpenAjax.a11y.cache.InputElement(dom_element, control_info);
-    
-    if (ie.dom_element.node.type.toLowerCase() != "hidden") {
   
-      this.addControlElement(ie); 
+    ci.control_element = we;
+  
+  }
+  else {
+
+    switch (dom_element.tag_name) {
+
+    case 'form':
+      fe = new OpenAjax.a11y.cache.FormElement(dom_element, control_info);
+
+      this.addFormElement(fe); 
 
       if (control_info.control_element) {
-        control_info.control_element.addChildControl(ie);   
+        control_info.control_element.addChildControl(fe);   
       }
       else {
-        this.addChildControl(ie);     
+        this.addChildControl(fe);     
       }
+  
+      ci.control_element = fe;
+      ci.form_element = fe;
+  
+      break;
+
+    case 'fieldset':
+      fe = new OpenAjax.a11y.cache.FieldsetElement(dom_element, control_info);
+    
+      this.addFieldsetElement(fe); 
+  
+      if (control_info.control_element) {
+        control_info.control_element.addChildControl(fe);   
+      }
+      else {
+        this.addChildControl(fe);     
+      }
+  
+      ci.control_element = fe;
+      ci.fieldset_element = fe;
+      break;
+
+    case 'legend':
+      le = new OpenAjax.a11y.cache.LegendElement(dom_element, control_info);
+      le.label = this.getElementTextContent(le, false);
+      le.label_length = le.label.length;
+
+      this.addLabelElement(le); 
+  
+      if (control_info.control_element) {
+        control_info.control_element.addChildControl(le);   
+      }
+      else {
+        this.addChildControl(le);     
+      }
+
+      if (control_info.fieldset_element) {
+        control_info.fieldset_element.legend_element = le;
+      }
+
+      ci.control_element = le;
+      break;
+
+    case 'label':
+      le = new OpenAjax.a11y.cache.LabelElement(dom_element, control_info);
+      le.label = this.getElementTextContent(le, false);
+      le.label_length = le.label.length;
+    
+      this.addLabelElement(le); 
+  
+      if (control_info.control_element) {
+        control_info.control_element.addChildControl(le);   
+      }
+      else {
+        this.addChildControl(le);     
+      }
+    
+      ci.control_element = le;
+      ci.label_element  = le;
+      break;
+
+    case 'input':
+      ie = new OpenAjax.a11y.cache.InputElement(dom_element, control_info);
       
+      if (ie.dom_element.node.type.toLowerCase() != "hidden") {
+    
+        this.addControlElement(ie); 
+  
+        if (control_info.control_element) {
+          control_info.control_element.addChildControl(ie);   
+        }
+        else {
+          this.addChildControl(ie);     
+        }
+      
+        if (control_info.form_element) {
+          control_info.form_element.number_of_controls += 1;   
+        }
+      
+        if (control_info.fieldset_element) {
+          control_info.fieldset_element.number_of_controls += 1;   
+        }
+      } 
+  
+      break;
+
+    case 'button':
+      be = new OpenAjax.a11y.cache.ButtonElement(dom_element, control_info);
+      
+      this.addControlElement(be); 
+
+      if (control_info.control_element) {
+        control_info.control_element.addChildControl(be);   
+      }
+      else {
+        this.addChildControl(be);     
+      }
+
       if (control_info.form_element) {
         control_info.form_element.number_of_controls += 1;   
       }
-      
+
       if (control_info.fieldset_element) {
         control_info.fieldset_element.number_of_controls += 1;   
       }
-    } 
-  
-    break;
-
-  case 'button':
-    be = new OpenAjax.a11y.cache.ButtonElement(dom_element, control_info);
     
-    this.addControlElement(be); 
+      ci.control_element = be;
+      break;
 
-    if (control_info.control_element) {
-      control_info.control_element.addChildControl(be);   
-    }
-    else {
-      this.addChildControl(be);     
-    }
-
-    if (control_info.form_element) {
-      control_info.form_element.number_of_controls += 1;   
-    }
-
-    if (control_info.fieldset_element) {
-      control_info.fieldset_element.number_of_controls += 1;   
-    }
-    
-    ci.control_element = be;
-    break;
-
-  case 'textarea':
-    te = new OpenAjax.a11y.cache.TextareaElement(dom_element, control_info);
+    case 'textarea':
+      te = new OpenAjax.a11y.cache.TextareaElement(dom_element, control_info);
   
-    this.addControlElement(te); 
+      this.addControlElement(te); 
 
-    if (control_info.control_element) {
-      control_info.control_element.addChildControl(te);   
-    }
-    else {
-      this.addChildControl(te);     
-    }
+      if (control_info.control_element) {
+        control_info.control_element.addChildControl(te);   
+      }
+      else {
+        this.addChildControl(te);     
+      }
     
-    if (control_info.form_element) {
-      control_info.form_element.number_of_controls += 1;   
-    }
+      if (control_info.form_element) {
+        control_info.form_element.number_of_controls += 1;   
+      }
 
-    if (control_info.fieldset_element) {
-      control_info.fieldset_element.number_of_controls += 1;   
-    }
+      if (control_info.fieldset_element) {
+        control_info.fieldset_element.number_of_controls += 1;   
+      }
     
-    break;
+      break;
 
-  case 'select':
-    se = new OpenAjax.a11y.cache.SelectElement(dom_element, control_info);
+    case 'select':
+      se = new OpenAjax.a11y.cache.SelectElement(dom_element, control_info);
   
-    this.addControlElement(se); 
+      this.addControlElement(se); 
   
-    if (control_info.control_element) {
-      control_info.control_element.addChildControl(se);   
-    }
-    else {
-      this.addChildControl(se);     
-    }
+      if (control_info.control_element) {
+        control_info.control_element.addChildControl(se);   
+      }
+      else {
+        this.addChildControl(se);     
+      }
     
-    if (control_info.form_element) {
-      control_info.form_element.number_of_controls += 1;   
-    }
+      if (control_info.form_element) {
+        control_info.form_element.number_of_controls += 1;   
+      }
   
-    if (control_info.fieldset_element) {
-      control_info.fieldset_element.number_of_controls += 1;   
-    }
+      if (control_info.fieldset_element) {
+        control_info.fieldset_element.number_of_controls += 1;   
+      }
     
-    ci.select_element = se;
-    ci.control_element = se;
-    break;
+      ci.select_element = se;
+      ci.control_element = se;
+      break;
 
-  case 'optgroup':
-    oe = new OpenAjax.a11y.cache.OptgroupElement(dom_element, control_info);
+    case 'optgroup':
+      oe = new OpenAjax.a11y.cache.OptgroupElement(dom_element, control_info);
   
-    if (dom_element.node.label && dom_element.node.label.length) {
-      oe.label = dom_element.node.label;  
+      if (dom_element.node.label && dom_element.node.label.length) {
+        oe.label = dom_element.node.label;  
+        oe.label_length = oe.label.length;
+      } 
+ 
+      if (control_info.control_element) {
+       control_info.control_element.addChildControl(oe);   
+      }
+      else {
+        this.addChildControl(oe);     
+      }
+ 
+      ci.control_element = oe;
+      break;
+
+    case 'option':
+      oe = new OpenAjax.a11y.cache.OptionElement(dom_element, control_info);
+  
+      oe.label = this.getElementTextContent(oe, false);
       oe.label_length = oe.label.length;
-    } 
- 
-    if (control_info.control_element) {
-     control_info.control_element.addChildControl(oe);   
-    }
-    else {
-      this.addChildControl(oe);     
-    }
- 
-    ci.control_element = oe;
-    break;
-
-  case 'option':
-    oe = new OpenAjax.a11y.cache.OptionElement(dom_element, control_info);
-  
-    oe.label = this.getElementTextContent(oe, false);
-    oe.label_length = oe.label.length;
 
   
-    if (control_info.control_element) {
-      control_info.control_element.addChildControl(oe);   
-    }
-    else {
-      this.addChildControl(oe);     
-    }
+      if (control_info.control_element) {
+        control_info.control_element.addChildControl(oe);   
+      }
+      else {
+        this.addChildControl(oe);     
+      }
 
-    if (control_info.select_element) {
-      control_info.select_element.addOption(oe);   
-    }
+      if (control_info.select_element) {
+        control_info.select_element.addOption(oe);   
+      }
 
-    break;
+      break;
 
-  default:
+    default:
   
-    break;
+      break;
 
-  } // end switch
+    } // end switch
+    
+  }   
 
-/*
-  // check for widgets
-  if (dom_element.role) {
-  
-    widget_element = new OpenAjax.a11y.cache.WidgetElement(dom_element, control_info);
-  
-  }
-*/ 
   return ci;
 };
 
@@ -828,7 +842,8 @@ OpenAjax.a11y.cache.ControlsCache.prototype.calculateLabelsUsingARIA = function 
     ce = control_elements[i];
  
     if ( (ce.dom_element.aria_labelledby && ce.dom_element.aria_labelledby.length) || 
-         (ce.dom_element.aria_label && ce.dom_element.aria_label.length)) {
+         (ce.dom_element.aria_label && ce.dom_element.aria_label.length) ||
+         (ce.dom_element.widget_info)) {
          
       this.dom_cache.getNameFromARIALabel(ce);
       
@@ -930,7 +945,7 @@ OpenAjax.a11y.cache.ControlsCache.prototype.calculateLabelsByEncapsulation = fun
       if (ce.dom_element.tag_name == 'button') {
         ce.label = this.getElementTextContent(ce, false);
         ce.label_length = ce.label.length;
-        ce.label_source = OpenAjax.a11y.SOURCE.CHILD_TEXT_NODES;
+        ce.label_source = OpenAjax.a11y.SOURCE.TEXT_CONTENT;
         ce.label_for_comparison = ce.label.normalizeSpace().toLowerCase();        
       }
       break;
@@ -1063,7 +1078,7 @@ OpenAjax.a11y.cache.FormElement = function (dom_element, control_info) {
  * 
  * @desc Adds a cache control element to the tree representation of control elements
  *
- * @param  {ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
+ * @param  {WidgetElement | ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
  */
 
 OpenAjax.a11y.cache.FormElement.prototype.addChildControl = function (child_control) {
@@ -1254,7 +1269,7 @@ OpenAjax.a11y.cache.FieldsetElement = function (dom_element, control_info) {
  * 
  * @desc Adds a cache control element to the tree representation of control elements
  *
- * @param  {ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
+ * @param  {WidgetElement | ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
  */
 
 OpenAjax.a11y.cache.FieldsetElement.prototype.addChildControl = function (child_control) {
@@ -1450,7 +1465,7 @@ OpenAjax.a11y.cache.LegendElement = function (dom_element, control_info) {
  * 
  * @desc Adds a cache control element to the tree representation of control elements
  *
- * @param  {ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
+ * @param  {WidgetElement | ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
  */
 
 OpenAjax.a11y.cache.LegendElement.prototype.addChildControl = function (child_control) {
@@ -1646,7 +1661,7 @@ OpenAjax.a11y.cache.LabelElement = function (dom_element, control_info) {
  * 
  * @desc Adds a cache control element to the tree representation of control elements
  *
- * @param  {ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
+ * @param  {WidgetElement | ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
  */
 
 OpenAjax.a11y.cache.LabelElement.prototype.addChildControl = function (child_control) {
@@ -2032,6 +2047,7 @@ OpenAjax.a11y.cache.InputElement.prototype.getCacheProperties = function (unsort
   cache_nls.addPropertyIfDefined(properties, this, 'label');
   cache_nls.addPropertyIfDefined(properties, this, 'label_source');
   cache_nls.addPropertyIfDefined(properties, this, 'label_for_comparison');
+  cache_nls.addPropertyIfDefined(properties, this, 'is_widget');
 
   if (!unsorted) this.dom_element.sortItems(properties);
 
@@ -2206,7 +2222,7 @@ OpenAjax.a11y.cache.ButtonElement = function (dom_element, control_info) {
  * 
  * @desc Adds a cache control element to the tree representation of control elements
  *
- * @param  {ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
+ * @param  {WidgetElement | ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
  */
 
 OpenAjax.a11y.cache.ButtonElement.prototype.addChildControl = function (child_control) {
@@ -2709,7 +2725,7 @@ OpenAjax.a11y.cache.SelectElement = function (dom_element, control_info) {
  * 
  * @desc Adds a cache control element to the tree representation of control elements
  *
- * @param  {ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
+ * @param  {WidgetElement | ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
  */
 
 OpenAjax.a11y.cache.SelectElement.prototype.addChildControl = function (child_control) {
@@ -2976,7 +2992,7 @@ OpenAjax.a11y.cache.OptgroupElement = function (dom_element, control_info) {
  * 
  * @desc Adds a cache control element to the tree representation of control elements
  *
- * @param  {ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
+ * @param  {WidgetElement | ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
  */
 
 OpenAjax.a11y.cache.OptgroupElement.prototype.addChildControl = function (child_control) {
@@ -3287,4 +3303,278 @@ OpenAjax.a11y.cache.OptionElement.prototype.getEvents = function () {
  
 OpenAjax.a11y.cache.OptionElement.prototype.toString = function () {
  return "OPTION with value=" + this.value; 
+};
+
+/* ---------------------------------------------------------------- */
+/*                       WidgetElement                               */ 
+/* ---------------------------------------------------------------- */
+
+/**
+ * @constructor WidgetElement
+ *
+ * @memberOf OpenAjax.a11y.cache
+ *
+ * @desc Creates a InputElement object used to hold information about input elements
+ *
+ * @param  {DOMelement}   dom_element   - The dom element object representing the input element 
+ * @param  {ControlInfo}  control_info  - Information about the parent controls
+ *
+ * @property  {DOMElement}  dom_element     - Reference to the dom element representing the input element
+ * @property  {String}      cache_id        - String that uniquely identifies the cache element object in the cache
+ * @property  {Number}      document_order  - Ordinal position of the control element in the document in relationship to other control elements
+ *
+ * @property  {Array}       child_cache_elements  - Array of child cache control elements as part of cache control tree 
+ * @property  {String}      type                  - Type of input element  
+ * @property  {Number}      control_type          - Constant indicating the type of cache control object  
+ * @property  {String}      name                  - Text content of the name attribute  
+ *
+ * @property  {String}  label                 - Calculated label for the input element 
+ * @property  {Number}  label_length          - Length of the label property 
+ * @property  {Number}  label_source          - Constant representing how a label was calculated 
+ * @property  {String}  label_for_comparison  - Label for comparison (lowercase, space normalization and trimmed)
+ *
+ * @property  {LabelElement}     label_element    - Reference to any label element that this input is nested in
+ * @property  {FieldsetElement}  fieldset_element - Reference to any fieldset elements this input is nested in
+ *
+ * @property  {String}  readonly  - The value of the readonly attribute 
+ * @property  {String}  disabled  - The value of the disabled attribute
+ * @property  {String}  value     - The value of the readonly attribute 
+ * @property  {String}  checked   - The value of the disabled attribute
+ */
+
+OpenAjax.a11y.cache.WidgetElement = function (dom_element, control_info) {
+
+  var node = dom_element.node;
+ 
+  this.dom_element = dom_element;
+  this.cache_id    = "";
+  this.document_order = 0;
+  
+  this.child_cache_elements = [];
+  this.type    = node.type; 
+  this.value   = node.value; 
+  this.checked = node.checked;
+
+  this.name          = node.getAttribute('name');
+  this.required      = node.getAttribute('required');
+  this.aria_required = node.getAttribute('aria-required');
+  this.aria_invalid  = node.getAttribute('aria-invalid');
+
+  this.control_type  = OpenAjax.a11y.CONTROL_TYPE.WIDGET; 
+  this.label = "";
+  this.label_length = 0;
+  this.label_source = OpenAjax.a11y.SOURCE.NONE;
+  this.label_for_comparison = "";
+  
+  this.label_element    = control_info.label_element;
+  this.fieldset_element = control_info.fieldset_element;
+
+};
+
+/**
+ * @method addChildControl
+ *
+ * @memberOf OpenAjax.a11y.cache.WidgetElement
+ * 
+ * @desc Adds a cache control element to the tree representation of control elements
+ *
+ * @param  {WidegtElement | ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
+ */
+
+OpenAjax.a11y.cache.WidgetElement.prototype.addChildControl = function (child_control) {
+
+  if (child_control) {
+   this.child_cache_elements.push(child_control); 
+  }  
+}; 
+
+/**
+ * @method getResultRules
+ *
+ * @memberOf OpenAjax.a11y.cache.WidgetElement
+ *
+ * @desc Returns an array of node results in severity order 
+ *
+ * @return {Array} Returns a array of node results
+ */
+
+OpenAjax.a11y.cache.WidgetElement.prototype.getResultRules = function () {
+  return this.dom_element.getResultRules();
+};
+
+/**
+ * @method getStyle
+ *
+ * @memberOf OpenAjax.a11y.cache.WidgetElement
+ *
+ * @desc Returns an array of style items 
+ *
+ * @return {Array} Returns a array of style display objects
+ */
+
+OpenAjax.a11y.cache.WidgetElement.prototype.getStyle = function () {
+
+  return this.dom_element.getStyle();
+  
+};
+
+/**
+ * @method getAttributes
+ *
+ * @memberOf OpenAjax.a11y.cache.WidgetElement
+ *
+ * @desc Returns an array of attributes for the element, sorted in alphabetical order 
+ *
+ * @param {Boolean}  unsorted  - If defined and true the results will NOT be sorted alphabetically
+ *
+ * @return {Array} Returns a array of attribute display object
+ */
+
+OpenAjax.a11y.cache.WidgetElement.prototype.getAttributes = function (unsorted) {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  var attributes = this.dom_element.getAttributes();
+  
+  cache_nls.addPropertyIfDefined(attributes, this, 'name');
+  cache_nls.addPropertyIfDefined(attributes, this, 'maxlength');
+  cache_nls.addPropertyIfDefined(attributes, this, 'readonly');
+  cache_nls.addPropertyIfDefined(attributes, this, 'value');
+  cache_nls.addPropertyIfDefined(attributes, this, 'required');
+  cache_nls.addPropertyIfDefined(attributes, this, 'aria_required');
+  cache_nls.addPropertyIfDefined(attributes, this, 'aria_invalid');
+  
+  if (!unsorted) this.dom_element.sortItems(attributes);
+  
+  return attributes;
+};
+
+/**
+ * @method getCacheProperties
+ *
+ * @memberOf OpenAjax.a11y.cache.WidgetElement
+ *
+ * @desc Returns an array of cache properties sorted by property name 
+ *
+ * @param {Boolean}  unsorted  - If defined and true the results will NOT be sorted alphabetically
+ *
+ * @return {Array} Returns a array of cache property display object
+ */
+
+OpenAjax.a11y.cache.WidgetElement.prototype.getCacheProperties = function (unsorted) {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+
+  var properties = this.dom_element.getCacheProperties(unsorted);
+
+  cache_nls.addPropertyIfDefined(properties, this, 'label');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_source');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_for_comparison');
+
+  if (!unsorted) this.dom_element.sortItems(properties);
+
+  return properties;
+};
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.WidgetElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.WidgetElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
+
+/**
+ * @method getEvents
+ *
+ * @memberOf OpenAjax.a11y.cache.WidgetElement
+ *
+ * @desc Returns an array of events for the element, sorted in alphabetical order 
+ *
+ * @return {Array} Returns a array of event item display objects
+ */
+
+OpenAjax.a11y.cache.WidgetElement.prototype.getEvents = function () {
+   
+  return this.dom_element.getEvents();
+  
+};
+
+/**
+ * @method getLabelNLS
+ *
+ * @memberOf OpenAjax.a11y.cache.WidgetElement
+ *
+ * @desc Returns an object with an NLS localized string and style properties
+ *       If label is empty a missing label message will the returned 
+ *
+ * @return {String | Object} Returns a String if the label has content, 
+ *                            but if label is empty it returns an object 
+ *                            with a 'label and 'style' property
+ */
+
+OpenAjax.a11y.cache.WidgetElement.prototype.getLabelNLS = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  var label_style = {};
+  
+  if (this.label_length) {
+    return this.label;
+  }
+  else {
+    return cache_nls.getMissingLabelMessageNLS();
+  }
+  
+};
+
+/**
+ * @method getLabelSourceNLS
+ *
+ * @memberOf OpenAjax.a11y.cache.WidgetElement
+ *
+ * @desc Returns an object with an NLS localized information on the source of the label
+ *
+ * @return {String | Object} Returns a String if the label has content, 
+ *                            but if label is empty it returns an object 
+ *                            with a 'label and 'style' property
+ */
+
+OpenAjax.a11y.cache.WidgetElement.prototype.getLabelSourceNLS = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  return cache_nls.getValueNLS('label_source', this.label_source);
+  
+};
+
+
+
+/**
+ * @method toString
+ *
+ * @memberOf OpenAjax.a11y.cache.WidgetElement
+ *
+ * @desc Returns a text string representation of the input element 
+ *
+ * @return {String} Returns string represention the InputElement object
+ */
+ 
+OpenAjax.a11y.cache.WidgetElement.prototype.toString = function () {
+  
+  return this.dom_element.tag_name + ": " + this.dom_element.role;
+  
 };

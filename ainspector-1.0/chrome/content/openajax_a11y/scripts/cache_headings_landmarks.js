@@ -309,15 +309,7 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.updateCacheItems = function
   
   if (dom_element.type == NODE_TYPE.ELEMENT) {
 
-    if ((dom_element.role == 'region')    ||
-        (dom_element.role == 'main')     || 
-        (dom_element.role == 'navigation')  ||
-        (dom_element.role == 'search')    ||
-        (dom_element.role == 'applicaton')  ||
-        (dom_element.role == 'banner')    ||
-        (dom_element.role == 'complementary') ||
-        (dom_element.role == 'contentinfo')  ||
-        (dom_element.role == 'form')) {
+    if (dom_element.is_landmark) {
    
       le = new OpenAjax.a11y.cache.LandmarkElement(dom_element, landmark_info.landmark_element);    
 

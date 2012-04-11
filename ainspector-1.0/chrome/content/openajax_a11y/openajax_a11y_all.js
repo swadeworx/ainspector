@@ -306,13 +306,13 @@ OpenAjax.a11y.STATUS = OpenAjax.a11y.STATUS || {
  * OpenAjax.a11y.REFERENCES.OTHER         
  */ 
 OpenAjax.a11y.REFERENCES = OpenAjax.a11y.REFERENCES || {
-  UNKNOWN                  : 0,
-  REQUIREMENT              : 1,
-  TECHNIQUE                : 2,
-  MANUAL_CHECK        : 3,
-  BEST_PRACTICE            : 4,
-  AUTHORING                : 5,
-  OTHER                    : 6
+  UNKNOWN       : 0,
+  REQUIREMENT   : 1,
+  TECHNIQUE     : 2,
+  MANUAL_CHECK  : 3,
+  BEST_PRACTICE : 4,
+  AUTHORING     : 5,
+  OTHER         : 6
 };
 
 /**
@@ -414,7 +414,7 @@ OpenAjax.a11y.URL_RESULT = OpenAjax.a11y.URL_RESULT || {
  * OpenAjax.a11y.SOURCE.VALUE_ATTRIBUTE
  * OpenAjax.a11y.SOURCE.ALT_ATTRIBUTE
  * OpenAjax.a11y.SOURCE.BUTTON_TYPE
- * OpenAjax.a11y.SOURCE.CHILD_TEXT_NODES
+ * OpenAjax.a11y.SOURCE.TEXT_CONTENT
  * OpenAjax.a11y.SOURCE.ARIA_LABELLEDBY
  * OpenAjax.a11y.SOURCE.ARIA_LABEL        
  */
@@ -426,7 +426,7 @@ OpenAjax.a11y.SOURCE = OpenAjax.a11y.SOURCE || {
   VALUE_ATTRIBUTE      : 5,
   ALT_ATTRIBUTE        : 6,
   BUTTON_TYPE          : 7,
-  CHILD_TEXT_NODES     : 8,
+  TEXT_CONTENT         : 8,
   ARIA_LABELLEDBY      : 9,
   ARIA_LABEL           : 10
 };
@@ -469,7 +469,8 @@ OpenAjax.a11y.CONTROL_TYPE = OpenAjax.a11y.CONTROL_TYPE || {
   SELECT   : 12,
   SUBMIT   : 13,
   TEXT     : 14,
-  TEXTAREA : 15
+  TEXTAREA : 15,
+  WIDGET   : 16
 };
 
 /**
@@ -544,6 +545,835 @@ OpenAjax.a11y.LINK_TYPE = OpenAjax.a11y.LINK_TYPE || {
   TARGET     : 10
 };
 
+/*
+ * Copyright 2011-2012 OpenAjax Alliance
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+
+/* ---------------------------------------------------------------- */
+/*              ARIA Defintions and Validation Methods              */
+/* ---------------------------------------------------------------- */
+
+
+if (typeof OpenAjax.a11y.aria == "undefined") {
+	OpenAjax.a11y.aria = {
+			
+		/*
+		 * array of WAI-ARIA global states and properties
+		 * @see http://www.w3.org/TR/wai-aria/#global_states
+		 */
+		globalProperties : [
+            "aria-atomic", 
+            "aria-busy", 
+            "aria-controls", 
+            "aria-describedby",
+            "aria-disabled", 
+            "aria-dropeffect", 
+            "aria-flowto", 
+            "aria-grabbed",
+            "aria-haspopup", 
+            "aria-hidden", 
+            "aria-invalid", 
+            "aria-label",
+            "aria-labelledby", 
+            "aria-live", 
+            "aria-owns", 
+            "aria-relevant"
+        ],
+	
+        /*
+         * XSD data types for all WAI-ARIA properties
+         * along with valid values when the data type is NMTOKEN
+         */
+        propertyDataTypes : {
+         	"aria-activedescendant" : {
+         		type : "http://www.w3.org/2001/XMLSchema#idref"
+         	},
+         	"aria-atomic" : {
+         		type : "http://www.w3.org/2001/XMLSchema#boolean"
+         	},
+         	"aria-autocomplete" : {
+         		type : "http://www.w3.org/2001/XMLSchema#nmtoken",
+         		values : ["inline", "list", "both", "none"]
+         	},
+         	"aria-busy" : {
+         		type : "http://www.w3.org/2001/XMLSchema#boolean"
+         	},
+         	"aria-checked" : {
+         		type : "http://www.w3.org/2001/XMLSchema#nmtoken",
+         		values : ["true", "false", "mixed", "undefined"]
+         	},
+         	"aria-controls" : {
+         		type : "http://www.w3.org/2001/XMLSchema#idrefs"
+         	},
+         	"aria-describedby" : {
+         		type : "http://www.w3.org/2001/XMLSchema#idrefs"
+         	},
+         	"aria-disabled" : {
+         		type : "http://www.w3.org/2001/XMLSchema#boolean"
+         	},
+         	"aria-dropeffect" : {
+         		type : "http://www.w3.org/2001/XMLSchema#nmtokens",
+         		values : ["copy", "move", "reference", "execute", "popup", "none"]
+         	},
+         	"aria-expanded" : {
+         		type : "http://www.w3.org/2001/XMLSchema#nmtoken",
+         		values : ["true", "false", "undefined"]
+         	},
+         	"aria-flowto" : {
+         		type : "http://www.w3.org/2001/XMLSchema#idrefs"
+         	},
+         	"aria-grabbed" : {
+         		type : "http://www.w3.org/2001/XMLSchema#nmtoken",
+         		values : ["true", "false", "undefined"]
+         	},
+         	"aria-haspopup" : {
+         		type : "http://www.w3.org/2001/XMLSchema#boolean"
+         	},
+         	"aria-hidden" : {
+         		type : "http://www.w3.org/2001/XMLSchema#boolean"
+         	},
+         	"aria-invalid" : {
+         		type : "http://www.w3.org/2001/XMLSchema#nmtoken",
+         		values : ["true", "false", "spelling", "grammar"]
+         	},
+         	"aria-label" : {
+         		type : "http://www.w3.org/2001/XMLSchema#string"
+         	},
+         	"aria-labelledby" : {
+         		type : "http://www.w3.org/2001/XMLSchema#idrefs"
+         	},
+         	"aria-level" : {
+         		type : "http://www.w3.org/2001/XMLSchema#int"
+         	},
+         	"aria-live" : {
+         		type : "http://www.w3.org/2001/XMLSchema#nmtoken",
+         		values : ["off", "polite", "assertive"]
+         	},
+         	"aria-multiline" : {
+         		type : "http://www.w3.org/2001/XMLSchema#boolean"
+         	},
+         	"aria-multiselectable" : {
+         		type : "http://www.w3.org/2001/XMLSchema#boolean"
+         	},
+         	"aria-owns" : {
+         		type : "http://www.w3.org/2001/XMLSchema#idrefs"
+         	},
+         	"aria-posinset" : {
+         		type : "http://www.w3.org/2001/XMLSchema#int"
+         	},
+         	"aria-pressed" : {
+         		type : "http://www.w3.org/2001/XMLSchema#nmtoken",
+         		values : ["true", "false", "mixed", "undefined"]
+         	},
+         	"aria-readonly" : {
+         		type : "http://www.w3.org/2001/XMLSchema#boolean"
+         	},
+         	"aria-relevant" : {
+         		type : "http://www.w3.org/2001/XMLSchema#nmtokens",
+         		values : ["additions", "removals", "text", "all"]
+         	},
+         	"aria-required" : {
+         		type : "http://www.w3.org/2001/XMLSchema#boolean"
+         	},
+         	"aria-selected" : {
+         		type : "http://www.w3.org/2001/XMLSchema#nmtoken",
+         		values : ["true", "false", "undefined"]
+         	},
+         	"aria-setsize" : {
+         		type : "http://www.w3.org/2001/XMLSchema#int"
+         	},
+         	"aria-sort" : {
+         		type : "http://www.w3.org/2001/XMLSchema#nmtoken",
+         		values : ["ascending", "descending", "other", "none"]
+         	},
+         	"aria-valuemax" : {
+         		type : "http://www.w3.org/2001/XMLSchema#decimal"
+         	},
+         	"aria-valuemin" : {
+         		type : "http://www.w3.org/2001/XMLSchema#decimal"
+         	},
+         	"aria-valuenow" : {
+         		type : "http://www.w3.org/2001/XMLSchema#decimal"
+         	},
+         	"aria-valuetext" : {
+         		type : "http://www.w3.org/2001/XMLSchema#string"
+         	}
+        },
+        
+        /*
+         * list of abstract roles - used to support the WAI-ARIA role taxonomy and 
+         * not to be used by content authors
+         * @see http://www.w3.org/TR/wai-aria/roles#isAbstract
+         */
+        abstractRoles : [
+            "command", 
+            "composite", 
+            "input", 
+            "landmark", 
+            "range",
+            "roletype", 
+            "section", 
+            "sectionhead", 
+            "select",
+            "structure", 
+            "widget", 
+            "window"
+        ],
+                         
+          /*
+           * design patterns for concrete WAI-ARIA roles
+           * legitimate keys for each role include:
+           * 
+           * - container: appropriate container(s) for that role
+           * - props: states and properties that may be associated with this role (in addition to the global states and properties listed above)
+           * - reqProps: required states or properties for this role
+           * - reqChildren: required children for this role
+           * - htmlEquiv: HTML equivalent for this role
+           * - roleType: one of widget, landmark, or null 
+           */
+        designPatterns : {
+         		
+         	"alert" : {
+         		container : null,
+         		props : ["aria-expanded"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		nameFromContent: false,
+         		roleType : "live"     		
+         	},
+         	                
+         	"alertdialog" : {
+         		container : null,
+         		props : ["aria-expanded"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "widget"
+         	},
+         	
+         	"application" : {
+         		container : null,
+         		props : ["aria-expanded"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "landmark"
+         	},
+         	
+         	"article" : {
+         		container : null,
+         		props : ["aria-expanded"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : null,
+          		nameFromContent: false,
+         		roleType : "section"
+        	},
+         	
+         	"banner" : {
+         		container : null,
+         		props : ["aria-expanded"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "landmark"
+         	},
+         	
+         	"button" : {
+         		container : null,
+         		props : ["aria-expanded", "aria-pressed"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : "input[@type='button']",
+         		nameFromContent: true,
+         		roleType : "widget"
+         	},
+         	
+         	"checkbox" : {
+         		container : null,
+         		props : null,
+         		reqProps : ["aria-checked"],
+         		reqChildren : null,
+         		htmlEquiv : "input[@type='checkbox']",
+         		nameFromContent: true,
+         		roleType : "widget"
+         	},
+         	
+             "columnheader" : {
+         		container : ["row"],
+         		props : ["aria-expanded", "aria-sort", "aria-readonly", "aria-selected", "aria-required"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : "th",
+         		nameFromContent: true,
+         		roleType : "widget"
+         	},
+         	
+         	"combobox" : {
+         		container : null,
+         		props : ["aria-autocomplete", "aria-required", "aria-activedescendant"],
+         		reqProps : ["aria-expanded"],
+         		reqChildren : ["listbox", "textbox"],
+         		htmlEquiv : "select",
+         		nameFromContent: false,
+         		roleType : "widget"
+         	},
+         	
+         	"complementry" : {
+         		container : null,
+         		props : ["aria-expanded"],
+         		reqProps : ["aria-labelledby"],
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "landmark"
+         	},
+         	
+         	"contentinfo" : {
+         		container : null,
+         		props : ["aria-expanded"],
+         		reqProps : ["aria-labelledby"],
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "landmark"
+         	},
+         	
+         	"definition" : {
+         		container : null,
+         		props : ["aria-expanded"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "region"
+         	},
+         	
+         	"dialog" : {
+         		container : null,
+         		props : ["aria-expanded"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "widget"
+         	},
+         	
+         	"directory" : {
+         		container : null,
+         		props : ["aria-expanded"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: true,
+         		roleType : "list"
+         	},
+         	
+         	"document" : {
+         		container : null,
+         		props : ["aria-expanded"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : null,
+          		nameFromContent: false,
+         		roleType : "structure"
+        	},
+         	
+         	"form" : {
+         		container : null,
+         		props : ["aria-expanded"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : "form",
+         		nameFromContent: false,
+         		roleType : "landmark"
+         	},	
+         	
+         	"grid" : {
+         		container : null,
+         		props : ["aria-level", "aria-multiselectable", "aria-readonly", "aria-activedescendant", "aria-expanded"],
+         		reqProps : null,
+         		reqChildren : ["row", "rowgroup"],
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "widget"
+         	},
+         	
+         	"gridcell" : {
+         		container : ["row"],
+         		props : ["aria-readonly", "aria-selected", "aria-expanded", "aria-required"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: true,
+         		roleType : "widget"         		
+         	},
+         	
+         	"group" : {
+         		container : null,
+         		props : ["aria-activedescendant", "aria-expanded"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : "fieldset",
+         		nameFromContent: false,
+         		roleType : "section"         		
+         	},
+         	
+         	"heading" : {
+         		container : null,
+         		props : ["aria-level", "aria-expanded"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : "h1 | h2 | h3 | h4 | h5 |h6",
+         		nameFromContent: false,
+         		roleType : "sectionhead"         		
+         	},
+         	
+         	"img" : {
+         		container : null,
+         		props : ["aria-expanded"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : "img",
+         		nameFromContent: false,
+         		roleType : "section"         		
+         	},
+         	
+         	"link" : {
+         		container : null,
+         		props : null,
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : "a",
+         		nameFromContent: true,
+         		roleType : "widget"
+         	},
+         	
+         	"list" : {
+         		container : null,
+         		props : ["aria-expanded"],
+         		reqProps : null,
+         		reqChildren : ["group", "listitem"],
+         		htmlEquiv : "ul | ol",
+         		nameFromContent: false,
+         		roleType : "section"
+         	},
+         	
+         	"listbox" : {
+         		container : null,
+         		props : ["aria-expanded", "aria-activedescendant", "aria-multiselectable", "aria-required"],
+         		reqProps : null,
+         		reqChildren : ["option"],
+         		htmlEquiv : "select",
+         		nameFromContent: false,
+         		roleType : "widget"
+         	},
+         	
+         	"listitem" : {
+         		container : ["list"],
+         		props : ["aria-expanded", "aria-level", "aria-posinset", "aria-setsize"],
+         		reqProps : null,
+         		reqChildren : null,
+         		nameFromContent: true,
+         		htmlEquiv : "section"
+         	},
+         	
+         	"log" : {
+         		container : null,
+         		props : ["aria-expanded"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "live"
+         	},
+         	
+         	"main" : {
+         		container : null,
+         		props : ["aria-expanded"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "landmark"
+         	},
+         	
+         	"marquee" : {
+         		container : null,
+         		props : ["aria-expanded"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "section"
+         	},
+         	
+         	"math" : {
+         		container : null,
+         		props : ["aria-expanded"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "widget"
+         	},
+         	
+         	"menu" : {
+         		container : null,
+         		props : ["aria-expanded", "aria-activedescendant"],
+         		reqProps : null,
+         		reqChildren : ["menuitem", "menuitemcheckbox", "menuitemradio"],
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "widget"
+         	},
+         	
+         	"menubar" : {
+         		container : null,
+         		props : ["aria-activedescendant", "aria-expanded"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "widget"
+         	},
+         	
+         	"menuitem" : {
+         		container : ["menu", "menubar"],
+         		props : null,
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: true,
+         		roleType : "widget"
+         	},
+         	
+         	"menuitemcheckbox" : {
+         		container : ["menu", "menubar"],
+         		props : null,
+         		reqProps : ["aria-checked"],
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: true,
+         		roleType : "widget"
+         	},
+         	
+         	"menuitemradio" : {
+         		container : ["menu", "menubar"],
+         		props : ["aria-selected", "aria-posinset", "aria-setsize"],
+         		reqProps : ["aria-checked"],
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: true,
+         		roleType : "widget"
+         	},
+         	
+         	"navigation" : {
+         		container : null,
+         		props : ["aria-expanded"],
+         		reqProps : ["aria-labelledby"],
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "landmark"
+         	},
+         	
+         	"note" : {
+         		container : null,
+         		props : ["aria-expanded"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "section"
+         	},
+         	
+         	"option" : {
+         		container : ["listbox"],
+         		props : ["aria-expanded", "aria-checked", "aria-selected", "aria-posinset", "aria-setsize"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: true,
+         		roleType : "widget"
+         	},
+         	
+         	"presentation" : {
+         		container : null,
+         		props : null,
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "section"
+         	},
+         	
+         	"progressbar" : {
+         		container : null,
+         		props : ["aria-valuetext", "aria-valuenow", "aria-valuemax", "aria-valuemin"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "widget"
+         	},
+         	
+         	"radio" : {
+         		container : null,
+         		props : ["aria-selected", "aria-posinset", "aria-setsize"],
+         		reqProps : ["aria-checked"],
+         		reqChildren : null,
+         		htmlEquiv : "input[@type='radio']",
+         		nameFromContent: true,
+         		roleType : "widget"
+         	},
+         	
+         	"radiogroup" : {
+         		container : null,
+         		props : ["aria-activedescendant", "aria-expanded", "aria-required"],
+         		reqProps : ["aria-labelledby"],
+         		reqChildren : ["radio"],
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "widget"
+         	},
+         	
+         	"region" : {
+         		container : null,
+         		props : ["aria-expanded"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : "frame",
+         		nameFromContent: false,
+         		roleType : "landmark"
+         	},
+         	
+         	"row" : {
+         		container : ["grid", "treegrid", "rowgroup"],
+         		props : ["aria-level", "aria-selected", "aria-activedescendant", "aria-expanded"],
+         		reqProps : null,
+         		reqChildren : ["gridcell", "rowheader", "columnheader"],
+         		htmlEquiv : null,
+         		nameFromContent: true,
+         		roleType : "widget"
+         	},
+         	
+         	"rowgroup" : {
+         		container : ["grid"],
+         		props : ["aria-expanded", "aria-activedescendant"],
+         		reqProps : null,
+         		reqChildren : ["row"],
+         		htmlEquiv : null,
+         		nameFromContent: true,
+         		roleType : "widget"
+         	},
+         	
+         	"rowheader" : {
+         		container : ["row"],
+         		props : ["aria-expanded", "aria-sort", "aria-required", "aria-readonly", "aria-selected"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : "th",
+         		nameFromContent: true,
+         		roleType : "widget"
+         	},
+         	
+         	"scrollbar" : {
+         		container : null,
+         		props : ["aria-valuetext"],
+         		reqProps : ["aria-controls", "aria-orientation", "aria-valuenow", "aria-valuemax", "aria-valuemin"],
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "widget"
+         	},
+         	
+         	"search" : {
+         		container : null,
+         		props : ["aria-expanded"],
+         		reqProps : ["aria-labelledby"],
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "landmark"
+         	},
+         	
+         	"separator" : {
+         		container : null,
+         		props : ["aria-expanded", "aria-orientation"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "structure"
+         	},
+         	
+         	"slider" : {
+         		container : null,
+         		props : ["aria-orientation", "aria-valuetext"],
+         		reqProps : ["aria-valuemax", "aria-valuenow", "aria-valuemin"],
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "widget"
+         	},
+         	
+         	"spinbutton" : {
+         		container : null,
+         		props : ["aria-required", "aria-valuetext"],
+         		reqProps : ["aria-valuemax", "aria-valuenow", "aria-valuemin"],
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "widget"
+         	},
+         	
+         	"status" : {
+         		container : null,
+         		props : ["aria-expanded"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "live"
+         	},
+         	
+         	"tab" : {
+         		container : ["tablist"],
+         		props : ["aria-selected", "aria-expanded"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "widget"
+         	},
+         	
+         	"tablist" : {
+         		container : null,
+         		props : ["aria-activedescendant", "aria-expanded", "aria-level"],
+         		reqProps : null,
+         		reqChildren : ["tab"],
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "widget"
+         	},
+         	
+         	"tabpanel" : {
+         		container : null,
+         		props : ["aria-expanded"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "widget"
+         	},
+         	
+         	"textbox" : {
+         		container : null,
+         		props : ["aria-activedescendant", "aria-autocomplete", "aria-multiline", "aria-readonly", "aria-required"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : "input[@type='text'] | textarea",
+         		nameFromContent: false,
+         		roleType : "widget"
+         	},
+         	
+         	"timer" : {
+         		container : null,
+         		props : ["aria-expanded"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "live"
+         	},
+         	
+         	"toolbar" : {
+         		container : null,
+         		props : ["aria-activedescendant", "aria-expanded"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "widget"
+         	},
+         	
+         	"tooltip" : {
+         		container : null,
+         		props : ["aria-expanded"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "widget"
+         	},
+         	
+         	"tree" : {
+         		container : null,
+         		props : ["aria-multiselectable", "aria-activedescendant", "aria-expanded", "aria-required"],
+         		reqProps : null,
+         		reqChildren : ["group", "treeitem"],
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "widget"
+         	},
+         	
+         	"treegrid" : {
+         		container : null,
+         		props : ["aria-activedescendant", "aria-expanded", "aria-level", "aria-multiselectable", "aria-readonly", "aria-required"],
+         		reqProps : null,
+         		reqChildren : ["row"],
+         		htmlEquiv : null,
+         		nameFromContent: false,
+         		roleType : "widget"
+         	},
+         	
+         	"treeitem" : {
+         		container : ["group", "tree"],
+         		props : ["aria-checked", "aria-selected", "aria-expanded", "aria-level", "aria-posinset", "aria-setsize"],
+         		reqProps : null,
+         		reqChildren : null,
+         		htmlEquiv : null,
+         		nameFromContent: true,
+         		roleType : "widget"
+            }
+         	
+        }, // end designPatterns
+        
+        getRoleObject : function(role) {
+        
+          var dp = this.designPatterns;
+
+          for (var r in dp) {
+          
+            if (role == r)  return dp[r];
+          
+          }
+        
+          return null;
+        }
+        
+    };	    
+    
+}
 /**
  * Copyright 2011 OpenAjax Alliance
  *
@@ -1941,7 +2771,7 @@ OpenAjax.a11y.cache.ColorContrastItem.prototype.toString = function () {
  *
  * @param {ControlInfo} control_info - Current ControlInfo object
  *
- * @property {Control Object}   control_element  - Parent Control Object (if any)
+ * @property {ControlElement}   control_element  - Parent ControlElement (if any)
  * @property {FieldsetElement}  fieldset_element - Parent FieldsetElement (if any)
  * @property {SelectElement}    select_element   - Parent SelectElement (if any)
  * @property {LabelElement}     label_element    - Parent LabelElement (if any)
@@ -2041,7 +2871,7 @@ OpenAjax.a11y.cache.ControlsCache = function (dom_cache) {
  * 
  * @desc Adds a cache control element to the root tree representation of control elements
  *
- * @param  {ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
+ * @param  {WidgetElement | ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
  */
 
 OpenAjax.a11y.cache.ControlsCache.prototype.addChildControl = function (control_element) {
@@ -2059,7 +2889,7 @@ OpenAjax.a11y.cache.ControlsCache.prototype.addChildControl = function (control_
  *
  * @desc Adds a cache control element to the list of controls array and generates a cache_id for each control 
  *
- * @param  {ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
+ * @param  {WidgetElement | ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
  *
  * @return  {Number} Returns the number of control objects in the control_elements array
  */
@@ -2212,226 +3042,240 @@ OpenAjax.a11y.cache.ControlsCache.prototype.updateCacheItems = function (dom_ele
   
   var ci = new OpenAjax.a11y.cache.ControlInfo(control_info);
 
-  switch (dom_element.tag_name) {
-
-  case 'form':
-    fe = new OpenAjax.a11y.cache.FormElement(dom_element, control_info);
-
-    this.addFormElement(fe); 
-
-    if (control_info.control_element) {
-      control_info.control_element.addChildControl(fe);   
-    }
-    else {
-      this.addChildControl(fe);     
-    }
-  
-    ci.control_element = fe;
-    ci.form_element = fe;
-  
-    break;
-
-  case 'fieldset':
-    fe = new OpenAjax.a11y.cache.FieldsetElement(dom_element, control_info);
-  
-    this.addFieldsetElement(fe); 
-
-    if (control_info.control_element) {
-      control_info.control_element.addChildControl(fe);   
-    }
-    else {
-      this.addChildControl(fe);     
-    }
-  
-    ci.control_element = fe;
-    ci.fieldset_element = fe;
-    break;
-
-  case 'legend':
-    le = new OpenAjax.a11y.cache.LegendElement(dom_element, control_info);
-    le.label = this.getElementTextContent(le, false);
-    le.label_length = le.label.length;
-
-    this.addLabelElement(le); 
-  
-    if (control_info.control_element) {
-      control_info.control_element.addChildControl(le);   
-    }
-    else {
-      this.addChildControl(le);     
-    }
-
-    if (control_info.fieldset_element) {
-      control_info.fieldset_element.legend_element = le;
-    }
-
-    ci.control_element = le;
-    break;
-
-  case 'label':
-    le = new OpenAjax.a11y.cache.LabelElement(dom_element, control_info);
-    le.label = this.getElementTextContent(le, false);
-    le.label_length = le.label.length;
+  // check for widget
+ 
+  if (dom_element.is_widget) {
     
-    this.addLabelElement(le); 
-  
+    we = new OpenAjax.a11y.cache.WidgetElement(dom_element, control_info);
+    
+    this.addControlElement(we);
+    
     if (control_info.control_element) {
-      control_info.control_element.addChildControl(le);   
+      control_info.control_element.addChildControl(we);   
     }
     else {
-      this.addChildControl(le);     
+      this.addChildControl(we);     
     }
-    
-    ci.control_element = le;
-    ci.label_element  = le;
-    break;
-
-  case 'input':
-    ie = new OpenAjax.a11y.cache.InputElement(dom_element, control_info);
-    
-    if (ie.dom_element.node.type.toLowerCase() != "hidden") {
   
-      this.addControlElement(ie); 
+    ci.control_element = we;
+  
+  }
+  else {
+
+    switch (dom_element.tag_name) {
+
+    case 'form':
+      fe = new OpenAjax.a11y.cache.FormElement(dom_element, control_info);
+
+      this.addFormElement(fe); 
 
       if (control_info.control_element) {
-        control_info.control_element.addChildControl(ie);   
+        control_info.control_element.addChildControl(fe);   
       }
       else {
-        this.addChildControl(ie);     
+        this.addChildControl(fe);     
       }
+  
+      ci.control_element = fe;
+      ci.form_element = fe;
+  
+      break;
+
+    case 'fieldset':
+      fe = new OpenAjax.a11y.cache.FieldsetElement(dom_element, control_info);
+    
+      this.addFieldsetElement(fe); 
+  
+      if (control_info.control_element) {
+        control_info.control_element.addChildControl(fe);   
+      }
+      else {
+        this.addChildControl(fe);     
+      }
+  
+      ci.control_element = fe;
+      ci.fieldset_element = fe;
+      break;
+
+    case 'legend':
+      le = new OpenAjax.a11y.cache.LegendElement(dom_element, control_info);
+      le.label = this.getElementTextContent(le, false);
+      le.label_length = le.label.length;
+
+      this.addLabelElement(le); 
+  
+      if (control_info.control_element) {
+        control_info.control_element.addChildControl(le);   
+      }
+      else {
+        this.addChildControl(le);     
+      }
+
+      if (control_info.fieldset_element) {
+        control_info.fieldset_element.legend_element = le;
+      }
+
+      ci.control_element = le;
+      break;
+
+    case 'label':
+      le = new OpenAjax.a11y.cache.LabelElement(dom_element, control_info);
+      le.label = this.getElementTextContent(le, false);
+      le.label_length = le.label.length;
+    
+      this.addLabelElement(le); 
+  
+      if (control_info.control_element) {
+        control_info.control_element.addChildControl(le);   
+      }
+      else {
+        this.addChildControl(le);     
+      }
+    
+      ci.control_element = le;
+      ci.label_element  = le;
+      break;
+
+    case 'input':
+      ie = new OpenAjax.a11y.cache.InputElement(dom_element, control_info);
       
+      if (ie.dom_element.node.type.toLowerCase() != "hidden") {
+    
+        this.addControlElement(ie); 
+  
+        if (control_info.control_element) {
+          control_info.control_element.addChildControl(ie);   
+        }
+        else {
+          this.addChildControl(ie);     
+        }
+      
+        if (control_info.form_element) {
+          control_info.form_element.number_of_controls += 1;   
+        }
+      
+        if (control_info.fieldset_element) {
+          control_info.fieldset_element.number_of_controls += 1;   
+        }
+      } 
+  
+      break;
+
+    case 'button':
+      be = new OpenAjax.a11y.cache.ButtonElement(dom_element, control_info);
+      
+      this.addControlElement(be); 
+
+      if (control_info.control_element) {
+        control_info.control_element.addChildControl(be);   
+      }
+      else {
+        this.addChildControl(be);     
+      }
+
       if (control_info.form_element) {
         control_info.form_element.number_of_controls += 1;   
       }
-      
+
       if (control_info.fieldset_element) {
         control_info.fieldset_element.number_of_controls += 1;   
       }
-    } 
-  
-    break;
-
-  case 'button':
-    be = new OpenAjax.a11y.cache.ButtonElement(dom_element, control_info);
     
-    this.addControlElement(be); 
+      ci.control_element = be;
+      break;
 
-    if (control_info.control_element) {
-      control_info.control_element.addChildControl(be);   
-    }
-    else {
-      this.addChildControl(be);     
-    }
-
-    if (control_info.form_element) {
-      control_info.form_element.number_of_controls += 1;   
-    }
-
-    if (control_info.fieldset_element) {
-      control_info.fieldset_element.number_of_controls += 1;   
-    }
-    
-    ci.control_element = be;
-    break;
-
-  case 'textarea':
-    te = new OpenAjax.a11y.cache.TextareaElement(dom_element, control_info);
+    case 'textarea':
+      te = new OpenAjax.a11y.cache.TextareaElement(dom_element, control_info);
   
-    this.addControlElement(te); 
+      this.addControlElement(te); 
 
-    if (control_info.control_element) {
-      control_info.control_element.addChildControl(te);   
-    }
-    else {
-      this.addChildControl(te);     
-    }
+      if (control_info.control_element) {
+        control_info.control_element.addChildControl(te);   
+      }
+      else {
+        this.addChildControl(te);     
+      }
     
-    if (control_info.form_element) {
-      control_info.form_element.number_of_controls += 1;   
-    }
+      if (control_info.form_element) {
+        control_info.form_element.number_of_controls += 1;   
+      }
 
-    if (control_info.fieldset_element) {
-      control_info.fieldset_element.number_of_controls += 1;   
-    }
+      if (control_info.fieldset_element) {
+        control_info.fieldset_element.number_of_controls += 1;   
+      }
     
-    break;
+      break;
 
-  case 'select':
-    se = new OpenAjax.a11y.cache.SelectElement(dom_element, control_info);
+    case 'select':
+      se = new OpenAjax.a11y.cache.SelectElement(dom_element, control_info);
   
-    this.addControlElement(se); 
+      this.addControlElement(se); 
   
-    if (control_info.control_element) {
-      control_info.control_element.addChildControl(se);   
-    }
-    else {
-      this.addChildControl(se);     
-    }
+      if (control_info.control_element) {
+        control_info.control_element.addChildControl(se);   
+      }
+      else {
+        this.addChildControl(se);     
+      }
     
-    if (control_info.form_element) {
-      control_info.form_element.number_of_controls += 1;   
-    }
+      if (control_info.form_element) {
+        control_info.form_element.number_of_controls += 1;   
+      }
   
-    if (control_info.fieldset_element) {
-      control_info.fieldset_element.number_of_controls += 1;   
-    }
+      if (control_info.fieldset_element) {
+        control_info.fieldset_element.number_of_controls += 1;   
+      }
     
-    ci.select_element = se;
-    ci.control_element = se;
-    break;
+      ci.select_element = se;
+      ci.control_element = se;
+      break;
 
-  case 'optgroup':
-    oe = new OpenAjax.a11y.cache.OptgroupElement(dom_element, control_info);
+    case 'optgroup':
+      oe = new OpenAjax.a11y.cache.OptgroupElement(dom_element, control_info);
   
-    if (dom_element.node.label && dom_element.node.label.length) {
-      oe.label = dom_element.node.label;  
+      if (dom_element.node.label && dom_element.node.label.length) {
+        oe.label = dom_element.node.label;  
+        oe.label_length = oe.label.length;
+      } 
+ 
+      if (control_info.control_element) {
+       control_info.control_element.addChildControl(oe);   
+      }
+      else {
+        this.addChildControl(oe);     
+      }
+ 
+      ci.control_element = oe;
+      break;
+
+    case 'option':
+      oe = new OpenAjax.a11y.cache.OptionElement(dom_element, control_info);
+  
+      oe.label = this.getElementTextContent(oe, false);
       oe.label_length = oe.label.length;
-    } 
- 
-    if (control_info.control_element) {
-     control_info.control_element.addChildControl(oe);   
-    }
-    else {
-      this.addChildControl(oe);     
-    }
- 
-    ci.control_element = oe;
-    break;
-
-  case 'option':
-    oe = new OpenAjax.a11y.cache.OptionElement(dom_element, control_info);
-  
-    oe.label = this.getElementTextContent(oe, false);
-    oe.label_length = oe.label.length;
 
   
-    if (control_info.control_element) {
-      control_info.control_element.addChildControl(oe);   
-    }
-    else {
-      this.addChildControl(oe);     
-    }
+      if (control_info.control_element) {
+        control_info.control_element.addChildControl(oe);   
+      }
+      else {
+        this.addChildControl(oe);     
+      }
 
-    if (control_info.select_element) {
-      control_info.select_element.addOption(oe);   
-    }
+      if (control_info.select_element) {
+        control_info.select_element.addOption(oe);   
+      }
 
-    break;
+      break;
 
-  default:
+    default:
   
-    break;
+      break;
 
-  } // end switch
+    } // end switch
+    
+  }   
 
-/*
-  // check for widgets
-  if (dom_element.role) {
-  
-    widget_element = new OpenAjax.a11y.cache.WidgetElement(dom_element, control_info);
-  
-  }
-*/ 
   return ci;
 };
 
@@ -2741,7 +3585,8 @@ OpenAjax.a11y.cache.ControlsCache.prototype.calculateLabelsUsingARIA = function 
     ce = control_elements[i];
  
     if ( (ce.dom_element.aria_labelledby && ce.dom_element.aria_labelledby.length) || 
-         (ce.dom_element.aria_label && ce.dom_element.aria_label.length)) {
+         (ce.dom_element.aria_label && ce.dom_element.aria_label.length) ||
+         (ce.dom_element.widget_info)) {
          
       this.dom_cache.getNameFromARIALabel(ce);
       
@@ -2843,7 +3688,7 @@ OpenAjax.a11y.cache.ControlsCache.prototype.calculateLabelsByEncapsulation = fun
       if (ce.dom_element.tag_name == 'button') {
         ce.label = this.getElementTextContent(ce, false);
         ce.label_length = ce.label.length;
-        ce.label_source = OpenAjax.a11y.SOURCE.CHILD_TEXT_NODES;
+        ce.label_source = OpenAjax.a11y.SOURCE.TEXT_CONTENT;
         ce.label_for_comparison = ce.label.normalizeSpace().toLowerCase();        
       }
       break;
@@ -2976,7 +3821,7 @@ OpenAjax.a11y.cache.FormElement = function (dom_element, control_info) {
  * 
  * @desc Adds a cache control element to the tree representation of control elements
  *
- * @param  {ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
+ * @param  {WidgetElement | ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
  */
 
 OpenAjax.a11y.cache.FormElement.prototype.addChildControl = function (child_control) {
@@ -3167,7 +4012,7 @@ OpenAjax.a11y.cache.FieldsetElement = function (dom_element, control_info) {
  * 
  * @desc Adds a cache control element to the tree representation of control elements
  *
- * @param  {ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
+ * @param  {WidgetElement | ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
  */
 
 OpenAjax.a11y.cache.FieldsetElement.prototype.addChildControl = function (child_control) {
@@ -3363,7 +4208,7 @@ OpenAjax.a11y.cache.LegendElement = function (dom_element, control_info) {
  * 
  * @desc Adds a cache control element to the tree representation of control elements
  *
- * @param  {ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
+ * @param  {WidgetElement | ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
  */
 
 OpenAjax.a11y.cache.LegendElement.prototype.addChildControl = function (child_control) {
@@ -3559,7 +4404,7 @@ OpenAjax.a11y.cache.LabelElement = function (dom_element, control_info) {
  * 
  * @desc Adds a cache control element to the tree representation of control elements
  *
- * @param  {ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
+ * @param  {WidgetElement | ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
  */
 
 OpenAjax.a11y.cache.LabelElement.prototype.addChildControl = function (child_control) {
@@ -3945,6 +4790,7 @@ OpenAjax.a11y.cache.InputElement.prototype.getCacheProperties = function (unsort
   cache_nls.addPropertyIfDefined(properties, this, 'label');
   cache_nls.addPropertyIfDefined(properties, this, 'label_source');
   cache_nls.addPropertyIfDefined(properties, this, 'label_for_comparison');
+  cache_nls.addPropertyIfDefined(properties, this, 'is_widget');
 
   if (!unsorted) this.dom_element.sortItems(properties);
 
@@ -4119,7 +4965,7 @@ OpenAjax.a11y.cache.ButtonElement = function (dom_element, control_info) {
  * 
  * @desc Adds a cache control element to the tree representation of control elements
  *
- * @param  {ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
+ * @param  {WidgetElement | ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
  */
 
 OpenAjax.a11y.cache.ButtonElement.prototype.addChildControl = function (child_control) {
@@ -4622,7 +5468,7 @@ OpenAjax.a11y.cache.SelectElement = function (dom_element, control_info) {
  * 
  * @desc Adds a cache control element to the tree representation of control elements
  *
- * @param  {ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
+ * @param  {WidgetElement | ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
  */
 
 OpenAjax.a11y.cache.SelectElement.prototype.addChildControl = function (child_control) {
@@ -4889,7 +5735,7 @@ OpenAjax.a11y.cache.OptgroupElement = function (dom_element, control_info) {
  * 
  * @desc Adds a cache control element to the tree representation of control elements
  *
- * @param  {ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
+ * @param  {WidgetElement | ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
  */
 
 OpenAjax.a11y.cache.OptgroupElement.prototype.addChildControl = function (child_control) {
@@ -5200,6 +6046,280 @@ OpenAjax.a11y.cache.OptionElement.prototype.getEvents = function () {
  
 OpenAjax.a11y.cache.OptionElement.prototype.toString = function () {
  return "OPTION with value=" + this.value; 
+};
+
+/* ---------------------------------------------------------------- */
+/*                       WidgetElement                               */ 
+/* ---------------------------------------------------------------- */
+
+/**
+ * @constructor WidgetElement
+ *
+ * @memberOf OpenAjax.a11y.cache
+ *
+ * @desc Creates a InputElement object used to hold information about input elements
+ *
+ * @param  {DOMelement}   dom_element   - The dom element object representing the input element 
+ * @param  {ControlInfo}  control_info  - Information about the parent controls
+ *
+ * @property  {DOMElement}  dom_element     - Reference to the dom element representing the input element
+ * @property  {String}      cache_id        - String that uniquely identifies the cache element object in the cache
+ * @property  {Number}      document_order  - Ordinal position of the control element in the document in relationship to other control elements
+ *
+ * @property  {Array}       child_cache_elements  - Array of child cache control elements as part of cache control tree 
+ * @property  {String}      type                  - Type of input element  
+ * @property  {Number}      control_type          - Constant indicating the type of cache control object  
+ * @property  {String}      name                  - Text content of the name attribute  
+ *
+ * @property  {String}  label                 - Calculated label for the input element 
+ * @property  {Number}  label_length          - Length of the label property 
+ * @property  {Number}  label_source          - Constant representing how a label was calculated 
+ * @property  {String}  label_for_comparison  - Label for comparison (lowercase, space normalization and trimmed)
+ *
+ * @property  {LabelElement}     label_element    - Reference to any label element that this input is nested in
+ * @property  {FieldsetElement}  fieldset_element - Reference to any fieldset elements this input is nested in
+ *
+ * @property  {String}  readonly  - The value of the readonly attribute 
+ * @property  {String}  disabled  - The value of the disabled attribute
+ * @property  {String}  value     - The value of the readonly attribute 
+ * @property  {String}  checked   - The value of the disabled attribute
+ */
+
+OpenAjax.a11y.cache.WidgetElement = function (dom_element, control_info) {
+
+  var node = dom_element.node;
+ 
+  this.dom_element = dom_element;
+  this.cache_id    = "";
+  this.document_order = 0;
+  
+  this.child_cache_elements = [];
+  this.type    = node.type; 
+  this.value   = node.value; 
+  this.checked = node.checked;
+
+  this.name          = node.getAttribute('name');
+  this.required      = node.getAttribute('required');
+  this.aria_required = node.getAttribute('aria-required');
+  this.aria_invalid  = node.getAttribute('aria-invalid');
+
+  this.control_type  = OpenAjax.a11y.CONTROL_TYPE.WIDGET; 
+  this.label = "";
+  this.label_length = 0;
+  this.label_source = OpenAjax.a11y.SOURCE.NONE;
+  this.label_for_comparison = "";
+  
+  this.label_element    = control_info.label_element;
+  this.fieldset_element = control_info.fieldset_element;
+
+};
+
+/**
+ * @method addChildControl
+ *
+ * @memberOf OpenAjax.a11y.cache.WidgetElement
+ * 
+ * @desc Adds a cache control element to the tree representation of control elements
+ *
+ * @param  {WidegtElement | ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
+ */
+
+OpenAjax.a11y.cache.WidgetElement.prototype.addChildControl = function (child_control) {
+
+  if (child_control) {
+   this.child_cache_elements.push(child_control); 
+  }  
+}; 
+
+/**
+ * @method getResultRules
+ *
+ * @memberOf OpenAjax.a11y.cache.WidgetElement
+ *
+ * @desc Returns an array of node results in severity order 
+ *
+ * @return {Array} Returns a array of node results
+ */
+
+OpenAjax.a11y.cache.WidgetElement.prototype.getResultRules = function () {
+  return this.dom_element.getResultRules();
+};
+
+/**
+ * @method getStyle
+ *
+ * @memberOf OpenAjax.a11y.cache.WidgetElement
+ *
+ * @desc Returns an array of style items 
+ *
+ * @return {Array} Returns a array of style display objects
+ */
+
+OpenAjax.a11y.cache.WidgetElement.prototype.getStyle = function () {
+
+  return this.dom_element.getStyle();
+  
+};
+
+/**
+ * @method getAttributes
+ *
+ * @memberOf OpenAjax.a11y.cache.WidgetElement
+ *
+ * @desc Returns an array of attributes for the element, sorted in alphabetical order 
+ *
+ * @param {Boolean}  unsorted  - If defined and true the results will NOT be sorted alphabetically
+ *
+ * @return {Array} Returns a array of attribute display object
+ */
+
+OpenAjax.a11y.cache.WidgetElement.prototype.getAttributes = function (unsorted) {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  var attributes = this.dom_element.getAttributes();
+  
+  cache_nls.addPropertyIfDefined(attributes, this, 'name');
+  cache_nls.addPropertyIfDefined(attributes, this, 'maxlength');
+  cache_nls.addPropertyIfDefined(attributes, this, 'readonly');
+  cache_nls.addPropertyIfDefined(attributes, this, 'value');
+  cache_nls.addPropertyIfDefined(attributes, this, 'required');
+  cache_nls.addPropertyIfDefined(attributes, this, 'aria_required');
+  cache_nls.addPropertyIfDefined(attributes, this, 'aria_invalid');
+  
+  if (!unsorted) this.dom_element.sortItems(attributes);
+  
+  return attributes;
+};
+
+/**
+ * @method getCacheProperties
+ *
+ * @memberOf OpenAjax.a11y.cache.WidgetElement
+ *
+ * @desc Returns an array of cache properties sorted by property name 
+ *
+ * @param {Boolean}  unsorted  - If defined and true the results will NOT be sorted alphabetically
+ *
+ * @return {Array} Returns a array of cache property display object
+ */
+
+OpenAjax.a11y.cache.WidgetElement.prototype.getCacheProperties = function (unsorted) {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+
+  var properties = this.dom_element.getCacheProperties(unsorted);
+
+  cache_nls.addPropertyIfDefined(properties, this, 'label');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_source');
+  cache_nls.addPropertyIfDefined(properties, this, 'label_for_comparison');
+
+  if (!unsorted) this.dom_element.sortItems(properties);
+
+  return properties;
+};
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.WidgetElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.WidgetElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
+
+/**
+ * @method getEvents
+ *
+ * @memberOf OpenAjax.a11y.cache.WidgetElement
+ *
+ * @desc Returns an array of events for the element, sorted in alphabetical order 
+ *
+ * @return {Array} Returns a array of event item display objects
+ */
+
+OpenAjax.a11y.cache.WidgetElement.prototype.getEvents = function () {
+   
+  return this.dom_element.getEvents();
+  
+};
+
+/**
+ * @method getLabelNLS
+ *
+ * @memberOf OpenAjax.a11y.cache.WidgetElement
+ *
+ * @desc Returns an object with an NLS localized string and style properties
+ *       If label is empty a missing label message will the returned 
+ *
+ * @return {String | Object} Returns a String if the label has content, 
+ *                            but if label is empty it returns an object 
+ *                            with a 'label and 'style' property
+ */
+
+OpenAjax.a11y.cache.WidgetElement.prototype.getLabelNLS = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  var label_style = {};
+  
+  if (this.label_length) {
+    return this.label;
+  }
+  else {
+    return cache_nls.getMissingLabelMessageNLS();
+  }
+  
+};
+
+/**
+ * @method getLabelSourceNLS
+ *
+ * @memberOf OpenAjax.a11y.cache.WidgetElement
+ *
+ * @desc Returns an object with an NLS localized information on the source of the label
+ *
+ * @return {String | Object} Returns a String if the label has content, 
+ *                            but if label is empty it returns an object 
+ *                            with a 'label and 'style' property
+ */
+
+OpenAjax.a11y.cache.WidgetElement.prototype.getLabelSourceNLS = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  return cache_nls.getValueNLS('label_source', this.label_source);
+  
+};
+
+
+
+/**
+ * @method toString
+ *
+ * @memberOf OpenAjax.a11y.cache.WidgetElement
+ *
+ * @desc Returns a text string representation of the input element 
+ *
+ * @return {String} Returns string represention the InputElement object
+ */
+ 
+OpenAjax.a11y.cache.WidgetElement.prototype.toString = function () {
+  
+  return this.dom_element.tag_name + ": " + this.dom_element.role;
+  
 };
 /*
  * Copyright 2011-2012 OpenAjax Alliance
@@ -5988,6 +7108,7 @@ OpenAjax.a11y.cache.DOMText.prototype.getText = function() {
  * 
  * @property {Object}     node                - Reference to the 'live' DOM element represented by this object
  * @property {String}     tag_name            - Tag name of the HTML element in lowercase characters (i.e. p, div, h1, span ...)
+ * @property {Array}      aria_properties     - Array of ARIA properties and states defined for the node
  *
  * @property {String}     id                  - id attribute value of the DOM node (can be empty)
  * @property {Number}     id_unique           - Indicates if id is defined, unique or has a duplicate in the document
@@ -6005,6 +7126,12 @@ OpenAjax.a11y.cache.DOMText.prototype.getText = function() {
  * @property {String}     aria_hidden         - The value of the aria-hidden      attribute of the DOM node
  * @property {String}     aria_label          - The value of the aria-label       attribute of the DOM node
  * @property {String}     aria_labelledby     - The value of the aria-labelledby  attribute of the DOM node
+ *
+ * @property {Boolean}    is_widget           - True if element is a ARIA widget, otherwise false
+ * @property {Boolean}    is_landmark         - True if element is a ARIA landmark, otherwise false
+ * @property {Boolean}    is_live             - True if element is a ARIA live region, otherwise false
+ *
+ * @property {Object}     widget_info         - Object containing information about a widget
  *
  * @property {Object}     events              - Object that contains information about events associated with the node
  * @property {Object}     computed_style      - Object that contains information about run time styling of the node
@@ -6024,99 +7151,146 @@ OpenAjax.a11y.cache.DOMText.prototype.getText = function() {
 
 OpenAjax.a11y.cache.DOMElement = function (node, parent_dom_element) {
 
- var i;
- var attr;
- var attributes;
- var attributes_len;
+  var i;
+  var attr;
+  var attributes;
+  var attributes_len;
+  var av_object;
 
- // check to make sure it is a valid node
- if (node === null) return null;
+  // check to make sure it is a valid node
+  if (node === null) return null;
 
- this.has_element_children = false;
+  this.has_element_children = false;
  
- this.type           = NODE_TYPE.ELEMENT;
- this.document_order = 0;
- this.node           = node;
- this.tag_name       = node.tagName.toLowerCase();
- this.id             = node.id;
+  this.type           = NODE_TYPE.ELEMENT;
+  this.document_order = 0;
+  this.node           = node;
+  this.tag_name       = node.tagName.toLowerCase();
+  this.id             = node.id;
  
- if (this.id !== '') {
-   this.id_unique  = OpenAjax.a11y.ID.NOT_DEFINED;
- }
- else {
-   this.id_unique  = OpenAjax.a11y.ID.UNIQUE;  
- }
+  if (this.id !== '') {
+    this.id_unique  = OpenAjax.a11y.ID.NOT_DEFINED;
+  }
+  else {
+    this.id_unique  = OpenAjax.a11y.ID.UNIQUE;  
+  }
  
- this.character_count = 0;
+  this.character_count = 0;
 
- // Save relationships with other elements
- this.parent_element = parent_dom_element;
- this.child_dom_elements = [];
- this.aria_properties = [];
+  // Save relationships with other elements
+  this.parent_element = parent_dom_element;
+  this.child_dom_elements = [];
+  this.aria_properties = [];
  
- this.parent_landmark = null;
- this.parent_landmark_role = "";
+  this.parent_landmark = null;
+  this.parent_landmark_role = "";
 
- // Cache important attributes for accessibility
- i = 0;
- attr = null;
- attributes = node.attributes;
- attributes_len = attributes.length;
+  // Cache important attributes for accessibility
+  i = 0;
+  attr = null;
+  attributes = node.attributes;
+  attributes_len = attributes.length;
 
- this.className = "";
- this.has_alt_attribute    = false;
- this.has_aria_describedby = false;
+  this.className = "";
+  this.has_alt_attribute    = false;
+  this.has_aria_describedby = false;
 
- for (i=0; i< attributes.length; i++ ) {
+  this.is_widget = false;
+  this.widget_info = null;
+  this.is_landmark = false;
+  this.is_live = false;
 
-   attr = attributes[i];
+  for (i = 0; i < attributes.length; i++) {
 
-   switch (attr.name) {
+    attr = attributes[i];
 
-   case 'class':
-    this.class_name = attr.value.toLowerCase();
-    break;
+    switch (attr.name) {
 
-   case 'role':
-    this.role = attr.value.toLowerCase();
-    break;
+    case 'class':
+      this.class_name = attr.value.toLowerCase();
+      break;
 
-   case 'alt':
-    this.alt = attr.value;
-    this.has_alt_attribute = true;
-    break;
+    case 'role':
+      var role = attr.value.toLowerCase();
+    
+      this.role = role;
+    
+      var role_object = OpenAjax.a11y.aria.getRoleObject(role);
+      
+      switch (role_object.roleType) {
+    
+      case 'widget':
+        this.is_widget = true;
+        this.widget_info = role_object;
+        break;
+      
+      case 'landmark':
+        this.is_landmark = true;
+        break;
+      
+      case 'live':
+        this.is_live = true;
+        break;
+      
+      default:
+        break;
+    
+      } // end switch
 
-   case 'title':
-    this.title = attr.value;
-    break;
+      break;
 
-   case 'aria-describedby':
-    this.has_aria_describedby = true;
-    this.aria_describedby = attr.value;
-    break;
+    case 'alt':
+      this.alt = attr.value;
+      this.has_alt_attribute = true;
+      break;
 
-   case 'aria-hidden':
-    this.aria_hidden    = attr.value.toLowerCase();
-    break;
+    case 'title':
+      this.title = attr.value;
+      break;
 
-   case 'aria-label':
-    this.aria_label    = attr.value;
-    break;
+    case 'aria-describedby':
+      this.has_aria_describedby = true;
+      this.aria_describedby = attr.value;
+      break;
 
-   case 'aria-labelledby':
-    this.aria_labelledby  = attr.value;
-    break;
+    case 'aria-hidden':
+      this.aria_hidden = attr.value.toLowerCase();
+      break;
 
-   default:
+    case 'aria-label':
+      this.aria_label = attr.value;
+      break;
 
-    if (attr.name.indexOf('aria-') === 0 ) {
-     this.aria_properties.push(attr);
-    }
-    break;
+    case 'aria-labelledby':
+      this.aria_labelledby  = attr.value;
+      break;
 
-   } // end switch
+    case 'aria-live':
+      this.is_live  = true;
+      av_object = new Object();
+     
+      av_object.attribute = attr.name;
+      av_object.value = attr.value;
 
- } // end loop
+      this.aria_properties.push(av_object);
+    
+      break;
+
+    default:
+
+      if (attr.name.indexOf('aria-') === 0 ) {
+     
+        av_object = new Object();
+     
+        av_object.attribute = attr.name;
+        av_object.value = attr.value;
+     
+        this.aria_properties.push(av_object);
+      }
+      break;
+
+    } // end switch
+  } // end loop
 
  this.supports_events = OpenAjax.a11y.SUPPORTS_EVENT_ANALYSIS;
 
@@ -6377,9 +7551,14 @@ OpenAjax.a11y.cache.DOMElement.prototype.getColorContrastSummary = function () {
 OpenAjax.a11y.cache.DOMElement.prototype.getAttributes = function (unsorted) {
 
   var cache_nls = OpenAjax.a11y.cache_nls;
+  var av_object;
  
   var attributes  = [];
-  
+
+  if (this.tag_name === 'img'  || 
+      this.tag_name === 'area' || 
+      this.tag_name === 'applet') cache_nls.addPropertyIfDefined(attributes, this, 'alt');
+
   if (this.id.length) cache_nls.addPropertyIfDefined(attributes, this, 'id');  
   cache_nls.addPropertyIfDefined(attributes, this, 'class_name');
   cache_nls.addPropertyIfDefined(attributes, this, 'role');
@@ -6389,10 +7568,12 @@ OpenAjax.a11y.cache.DOMElement.prototype.getAttributes = function (unsorted) {
   cache_nls.addPropertyIfDefined(attributes, this, 'aria_hidden');
   cache_nls.addPropertyIfDefined(attributes, this, 'aria_label');
   cache_nls.addPropertyIfDefined(attributes, this, 'aria_labelledby');
-  
-  if (this.tag_name === 'img'  || 
-      this.tag_name === 'area' || 
-      this.tag_name === 'applet') cache_nls.addPropertyIfDefined(attributes, this, 'alt');
+
+  for (i = 0; i < this.aria_properties.length; i++) {
+    av_object = this.aria_properties[i];
+    OpenAjax.a11y.console( "  attr: " + av_object.attribute + " " + "  value: " + av_object.value);
+    attributes.push(cache_nls.getLabelAndValueNLS(av_object.attribute, av_object.value));
+  }
   
   if (!unsorted) this.sortItems(attributes);
   
@@ -6568,6 +7749,10 @@ OpenAjax.a11y.cache.DOMElement.prototype.getCacheProperties = function () {
 
   cache_nls.addPropertyIfDefined(properties, this, 'parent_landmark_role');
   cache_nls.addPropertyIfDefined(properties, this, 'parent_landmark');
+
+  cache_nls.addPropertyIfDefined(properties, this, 'is_widget');
+  cache_nls.addPropertyIfDefined(properties, this, 'is_landmark');
+  cache_nls.addPropertyIfDefined(properties, this, 'is_live');
 
   return properties;
 
@@ -7595,23 +8780,24 @@ OpenAjax.a11y.cache.DOMCache.prototype.getNameFromARIALabel = function (element)
   var label = "";
   var label_source = SOURCE.NONE;
   var de = element.dom_element;
+  var wi = de.widget_info;
   
   if (de.aria_labelledby) {
     label = this.element_with_id_cache.getTextFromIds(de.aria_labelledby);
     label_source = SOURCE.ARIA_LABELLEDBY;
   }
-  else {
-    if (de.aria_label) {
-      label = de.aria_label;
-      label_source = SOURCE.ARIA_LABEL;
-    }
-    else {
-      if (de.title) {
-        label = de.title;
-        label_source = SOURCE.TITLE_ATTRIBUTE;
-      }
-    }
- }
+  else if (de.aria_label) {
+    label = de.aria_label;
+    label_source = SOURCE.ARIA_LABEL;
+  }
+  else if (wi && wi.nameFromContent) {
+    label = de.getText();
+    label_source = SOURCE.TEXT_CONTENT;
+  } else if (de.title) {
+    label = de.title;
+    label_source = SOURCE.TITLE_ATTRIBUTE;
+  }
+
 
  element.label = label;
  element.label_length = label.length;
@@ -8023,15 +9209,7 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.updateCacheItems = function
   
   if (dom_element.type == NODE_TYPE.ELEMENT) {
 
-    if ((dom_element.role == 'region')    ||
-        (dom_element.role == 'main')     || 
-        (dom_element.role == 'navigation')  ||
-        (dom_element.role == 'search')    ||
-        (dom_element.role == 'applicaton')  ||
-        (dom_element.role == 'banner')    ||
-        (dom_element.role == 'complementary') ||
-        (dom_element.role == 'contentinfo')  ||
-        (dom_element.role == 'form')) {
+    if (dom_element.is_landmark) {
    
       le = new OpenAjax.a11y.cache.LandmarkElement(dom_element, landmark_info.landmark_element);    
 
@@ -16257,6 +17435,25 @@ OpenAjax.a11y.Rule = function (nls, rule_id, last_updated, cache_dependency, cac
 };
 
 /**
+ * @method getID
+ *
+ * @memberOf OpenAjax.a11y.Rule
+ *
+ * @desc Returns an localized id for the rule
+ *
+ * @return {String} NLS string of the rule id
+ */
+OpenAjax.a11y.Rule.prototype.getID = function () {
+
+  var RULE = OpenAjax.a11y.RULE;
+  
+  var nls_rules = this.nls[OpenAjax.a11y.locale];
+
+  return nls_rules.rules[this.rule_id]['ID'];
+  
+};
+
+/**
  * @method getTitle
  *
  * @memberOf OpenAjax.a11y.Rule
@@ -16264,6 +17461,8 @@ OpenAjax.a11y.Rule = function (nls, rule_id, last_updated, cache_dependency, cac
  * @desc Returns an localized title for the rule
  *
  * @param {Number}  ruleset_rule_type  - Type of rule (i.e. required, recommended, conditional)
+ *
+ * @return {String} NLS string of the rule title
  */
 OpenAjax.a11y.Rule.prototype.getTitle = function (rule_type) {
 
@@ -17300,13 +18499,14 @@ OpenAjax.a11y.ResultRule.prototype.toString = function () {
  * @property  {Number}  total_number_of_required_rules          - Total number of required rules
  * @property  {Number}  required_rules_all_pass                 - Number of rules where all the nodes pass
  * @property  {Number}  required_rules_with_fail                - Number of rules with at least one node failing
- * @property  {Number}  required_rules_with_manual_checks  - Number of rules with at least one node requiring a manual check
+ * @property  {Number}  required_rules_with_manual_checks       - Number of rules with at least one node requiring a manual check
+ * @property  {Number}  required_rules_with_na                  - Number of rules with at least one node with eitehr a hidden node or not applicable node
  *  
  * @property  {Array}  required_rule_results                    - Rule result objects for required rules
  *
  * @property  {Number}  required_rules_nodes_that_pass          - Number of nodes that pass required rules
  * @property  {Number}  required_rules_nodes_that_fail          - Number of nodes that fail required rules
- * @property  {Number}  required_rules_nodes_manual_checks - Number of nodes that required manual checks of rules
+ * @property  {Number}  required_rules_nodes_manual_checks      - Number of nodes that required manual checks of rules
  * @property  {Number}  required_rules_nodes_informational      
  * @property  {Number}  required_rules_nodes_hidden             
  * @property  {Number}  required_rules_nodes_na                 
@@ -17316,9 +18516,10 @@ OpenAjax.a11y.ResultRule.prototype.toString = function () {
  * @property  {Number}  recommended_rules_all_pass                
  * @property  {Number}  recommended_rules_with_fail               
  * @property  {Number}  recommended_rules_with_manual_checks 
-  
+ * @property  {Number}  recommended_rules_with_na                - Number of rules with at least one node with eitehr a hidden node or not applicable node
+ *
  * @property  {Array}  recommended_rule_results   
-
+  *
  * @property  {Number}  recommended_rules_nodes_that_pass          
  * @property  {Number}  recommended_rules_nodes_that_fail          
  * @property  {Number}  recommended_rules_nodes_manual_checks 
@@ -17331,9 +18532,10 @@ OpenAjax.a11y.ResultRuleSummary = function () {
 
   this.total_number_of_required_rules = 0;
   
-  this.required_rules_all_pass                = 0;
-  this.required_rules_with_fail               = 0;
+  this.required_rules_all_pass           = 0;
+  this.required_rules_with_fail          = 0;
   this.required_rules_with_manual_checks = 0;
+  this.required_rules_with_na            = 0;
   
   this.required_rule_results     = [];
 
@@ -17346,10 +18548,10 @@ OpenAjax.a11y.ResultRuleSummary = function () {
 
   this.total_number_of_recommended_rules = 0;
   
-  this.recommended_rules_all_pass                = 0;
-  this.recommended_rules_with_fail               = 0;
+  this.recommended_rules_all_pass           = 0;
+  this.recommended_rules_with_fail          = 0;
   this.recommended_rules_with_manual_checks = 0;
-  this.recommended_rules_with_warnings           = 0;
+  this.recommended_rules_with_na            = 0;
   
   this.recommended_rule_results     = [];
 
@@ -17394,6 +18596,9 @@ OpenAjax.a11y.ResultRuleSummary.prototype.addRuleResult = function (rule_result)
     if (rule_result.nodes_manual_checks.length) 
       this.required_rules_with_manual_checks++;
 
+    if (rule_result.nodes_hidden.length || rule_result.nodes_na.length) 
+      this.required_rules_with_na++;
+
     this.required_rules_nodes_that_pass          += rule_result.nodes_passed.length;
     this.required_rules_nodes_that_fail          += rule_result.nodes_failed.length;
     this.required_rules_nodes_manual_checks      += rule_result.nodes_manual_checks.length;
@@ -17418,6 +18623,9 @@ OpenAjax.a11y.ResultRuleSummary.prototype.addRuleResult = function (rule_result)
 
     if (rule_result.nodes_manual_checks.length) 
       this.recommended_rules_with_manual_checks++;
+
+    if (rule_result.nodes_hidden.length || rule_result.nodes_na.length) 
+      this.recommended_rules_with_na++;
 
     this.recommended_rules_nodes_that_pass          += rule_result.nodes_passed.length;
     this.recommended_rules_nodes_that_fail          += rule_result.nodes_failed.length;
@@ -18274,9 +19482,9 @@ OpenAjax.a11y.WCAG20Result = function (ruleset, url, title) {
   this.title = title;
   this.url   = url;
   
-  this.rule_summary_results   = new OpenAjax.a11y.ResultRuleSummary();
-  this.rule_a_summary_results = new OpenAjax.a11y.ResultRuleSummary();
-  this.rule_aa_summary_results = new OpenAjax.a11y.ResultRuleSummary();
+  this.rule_summary_results     = new OpenAjax.a11y.ResultRuleSummary();
+  this.rule_a_summary_results   = new OpenAjax.a11y.ResultRuleSummary();
+  this.rule_aa_summary_results  = new OpenAjax.a11y.ResultRuleSummary();
   this.rule_aaa_summary_results = new OpenAjax.a11y.ResultRuleSummary();
   
   this.principle_results = [];
@@ -18311,7 +19519,7 @@ OpenAjax.a11y.WCAG20Result.prototype.addPrincipleResult = function (principle_re
 
 OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
 
-  function toHtmlRuleSummaryTableStart(id_table, title) {
+  function toHtmlRuleSummaryTableStart(id_table, title, level) {
   
     var html = "";
 
@@ -18320,17 +19528,20 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
     html += "      <thead>\n";
     html += "        <tr>\n";
     html += "          <th rowspan='2'></th>\n";
-    html += "          <th id='" + id_table + "_req_rules' colspan='3' >Required Rules</th>\n";
-    html += "          <th id='" + id_table + "_rec_rules' colspan='3' >Recommended Rules</th>\n";
+    if (level) html += "          <th rowspan='2'>Level</th>\n";
+    html += "          <th id='" + id_table + "_req_rules' colspan='4' >Required Rules</th>\n";
+    html += "          <th id='" + id_table + "_rec_rules' colspan='4' >Recommended Rules</th>\n";
     html += "          <th id='" + id_table + "_totals' class='totals' rowspan='2'>Total</th>\n";
     html += "        </tr>\n";
     html += "        <tr>\n";
-    html += "          <th class='required_pass'   id='" + id_table + "_all_pass'>All Pass <sup><a href='#" + id_table + "_sup1'>1</a></sup> </th>\n";
-    html += "          <th class='required_fail'   id='" + id_table + "_has_fail'>Violations<sup><a href='#" + id_table + "_sup2'>2</a></sup> </th>\n";
-    html += "          <th class='required_manual' id='" + id_table + "_has_mc' >Manual Checks<sup><a href='#" + id_table + "_sup3'>3</a></sup> </th>\n";
-    html += "          <th class='recommended_pass'>All Pass<sup><a href='#" + id_table + "_sup1'>1</a></sup></th>\n";
-    html += "          <th class='recommended_fail'>Violations<sup><a href='#" + id_table + "_sup2'>2</a></sup></th>\n";
-    html += "          <th class='recommended_manual'>Manual Checks<sup><a href='#" + id_table + "_sup3'>3</a></sup></th>\n";
+    html += "          <th class='required_pass'   id='" + id_table + "_all_pass'>All Pass   <sup><a href='#" + id_table + "_sup1'>1</a></sup> </th>\n";
+    html += "          <th class='required_fail'   id='" + id_table + "_has_fail'>Violations <sup><a href='#" + id_table + "_sup2'>2</a></sup> </th>\n";
+    html += "          <th class='required_manual' id='" + id_table + "_has_mc' >Manual      <sup><a href='#" + id_table + "_sup3'>3</a></sup> </th>\n";
+    html += "          <th class='required_na'     id='" + id_table + "_has_na' >NA          <sup><a href='#" + id_table + "_sup4'>4</a></sup></th>\n";
+    html += "          <th class='recommended_pass'>All Pass     <sup><a href='#" + id_table + "_sup1'>1</a></sup></th>\n";
+    html += "          <th class='recommended_fail'>Violations   <sup><a href='#" + id_table + "_sup2'>2</a></sup></th>\n";
+    html += "          <th class='recommended_manual'>Manual     <sup><a href='#" + id_table + "_sup3'>3</a></sup></th>\n";
+    html += "          <th class='recommended_na'>Not Applicable <sup><a href='#" + id_table + "_sup4'>4</a></sup></th>\n";
     html += "        </tr>\n"; 
     html += "      </thead>\n";
     html += "      <tbody>\n";
@@ -18339,12 +19550,17 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
     
   }
 
-  function toHtmlRuleSummaryTableRowSection(id_section, section_title) {
+  function toHtmlRuleSummaryTableRowSection(id_section, section_title, section_class, level) {
  
     var html = "";
     
-    html += "        <tr class='section'>\n";
+    if (section_class) html += "        <tr class='section " + section_class + "'>\n";
+    else html += "        <tr class='section'>\n";
+    
     html += "          <th class='section' id='" + id_section + "'>" + section_title  + "</th>\n";
+    if (level) html += "          <td>" + level  + "</td>\n";
+    html += "          <td></td>\n";
+    html += "          <td></td>\n";
     html += "          <td></td>\n";
     html += "          <td></td>\n";
     html += "          <td></td>\n";
@@ -18359,16 +19575,18 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
   }
 
 
-  function toHtmlRuleSummaryTableRow(row_count, id_table, id_section, id_row, item_title, rule_summary) {
+  function toHtmlRuleSummaryTableRow(row_count, id_table, id_section, id_row, item_title, rule_summary, level) {
  
     var cell_class = "";
  
     var total = rule_summary.required_rules_all_pass;
     total += rule_summary.required_rules_with_fail;
     total += rule_summary.required_rules_with_manual_checks;
+    total += rule_summary.required_rules_with_na;
     total += rule_summary.recommended_rules_all_pass;
     total += rule_summary.recommended_rules_with_fail;
     total += rule_summary.recommended_rules_with_manual_checks;
+    total += rule_summary.recommended_rules_with_na;
  
     var html = "";
     
@@ -18376,60 +19594,104 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
     else html += "        <tr class='even'>\n";
     
     html += "          <th id='" + id_row + "' headers='" + id_section + "'>" + item_title  + "</th>\n";
+    if (level) html += "          <td>" + level  + "</td>\n";
     
-    cell_class = "";
-    if (rule_summary.required_rules_all_pass > 0) cell_class = "required_pass";    
+    cell_class = "required_pass";
+    if (rule_summary.required_rules_all_pass === 0) cell_class = "zero";    
     html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_req_rules " + id_table + "_all_pass'>" + rule_summary.required_rules_all_pass           + "</td>\n";
     
-    cell_class = "";
-    if (rule_summary.required_rules_with_fail > 0) cell_class = "required_fail";
+    cell_class = "required_fail";
+    if (rule_summary.required_rules_with_fail === 0) cell_class = "zero";
     html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_req_rules " + id_table + "_has_fail'>" + rule_summary.required_rules_with_fail          + "</td>\n";
     
-    cell_class = "";
-    if (rule_summary.required_rules_with_manual_checks > 0) cell_class = "required_manual";
+    cell_class = "required_manual";
+    if (rule_summary.required_rules_with_manual_checks === 0) cell_class = "zero";
     html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_req_rules " + id_table + "_has_mc'>"   + rule_summary.required_rules_with_manual_checks + "</td>\n";
     
-    cell_class = "";
-    if (rule_summary.recommended_rules_all_pass > 0) cell_class = "recommended_pass";    
+    cell_class = "required_na";
+    if (rule_summary.required_rules_with_na === 0) cell_class = "zero";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_req_rules " + id_table + "_has_na'>"   + rule_summary.required_rules_with_na + "</td>\n";
+    
+    cell_class = "recommended_pass";
+    if (rule_summary.recommended_rules_all_pass === 0) cell_class = "zero";    
     html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_rec_rules " + id_table + "_all_pass'>" + rule_summary.recommended_rules_all_pass           + "</td>\n";
     
-    cell_class = "";
-    if (rule_summary.recommended_rules_with_fail > 0) cell_class = "recommended_fail";    
+    cell_class = "recommended_fail";
+    if (rule_summary.recommended_rules_with_fail === 0) cell_class = "zero";    
     html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_rec_rules " + id_table + "_has_fail'>" + rule_summary.recommended_rules_with_fail          + "</td>\n";
     
-    cell_class = "";
-    if (rule_summary.recommended_rules_with_manual_checks > 0) cell_class = "recommended_manual";    
+    cell_class = "recommended_manual";
+    if (rule_summary.recommended_rules_with_manual_checks === 0) cell_class = "zero";    
     html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_rec_rules " + id_table + "_has_mc'>"   + rule_summary.recommended_rules_with_manual_checks + "</td>\n";
+
+    cell_class = "recommended_na";
+    if (rule_summary.recommended_rules_with_na === 0) cell_class = "zero";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_rec_rules " + id_table + "_has_na'>"   + rule_summary.recommended_rules_with_na + "</td>\n";
     
-    html += "          <td class='totals' headers='" + id_row + " " + id_table + "_totals'>"   + total + "</td>\n";
+    cell_class = "";
+    if (total === 0) cell_class = "zero";    
+    html += "          <td class='totals " + cell_class + "' headers='" + id_row + " " + id_table + "_totals'>"   + total + "</td>\n";
     html += "        </tr>\n";
    
     return html;
  
   }
 
-  function toHtmlRuleSummaryTableRowTotal(id_table, id_row, item_title, rule_summary) {
+  function toHtmlRuleSummaryTableRowTotal(id_table, id_row, item_title, rule_summary, level) {
 
     var total = rule_summary.required_rules_all_pass;
     total += rule_summary.required_rules_with_fail;
     total += rule_summary.required_rules_with_manual_checks;
+    total += rule_summary.required_rules_with_na;
     total += rule_summary.recommended_rules_all_pass;
     total += rule_summary.recommended_rules_with_fail;
     total += rule_summary.recommended_rules_with_manual_checks;
+    total += rule_summary.recommended_rules_with_na;
 
     var html = "";
     
     html += "        <tr class='totals'>\n";
     
-    html += "          <th id='" + id_row  + "_total'>Total</th>\n";
-    html += "          <td headers='" + id_row + "_total " + id_table + "_req_rules " + id_table + "_all_pass'>" + rule_summary.required_rules_all_pass           + "</td>\n";
-    html += "          <td headers='" + id_row + "_total " + id_table + "_req_rules " + id_table + "_has_fail'>" + rule_summary.required_rules_with_fail          + "</td>\n";
-    html += "          <td headers='" + id_row + "_total " + id_table + "_req_rules " + id_table + "_has_mc'>"   + rule_summary.required_rules_with_manual_checks + "</td>\n";
+    if (level) html += "          <th id='" + id_row  + "_total' colspan='2'>Total</th>\n"; 
+    else html += "          <th id='" + id_row  + "_total'>Total</th>\n";
 
-    html += "          <td headers='" + id_row + "_total " + id_table + "_rec_rules " + id_table + "_all_pass'>" + rule_summary.recommended_rules_all_pass           + "</td>\n";
-    html += "          <td headers='" + id_row + "_total " + id_table + "_rec_rules " + id_table + "_has_fail'>" + rule_summary.recommended_rules_with_fail          + "</td>\n";
-    html += "          <td headers='" + id_row + "_total " + id_table + "_rec_rules " + id_table + "_has_mc'>"   + rule_summary.recommended_rules_with_manual_checks + "</td>\n";
-    html += "          <td headers='" + id_row + "_total'>"   + total + "</td>\n";
+    cell_class = "required_pass";
+    if (rule_summary.required_rules_all_pass === 0) cell_class = "zero";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + "_total " + id_table + "_req_rules " + id_table + "_all_pass'>" + rule_summary.required_rules_all_pass           + "</td>\n";
+    
+    cell_class = "required_fail";
+    if (rule_summary.required_rules_all_fail === 0) cell_class = "zero";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + "_total " + id_table + "_req_rules " + id_table + "_has_fail'>" + rule_summary.required_rules_with_fail          + "</td>\n";
+    
+    cell_class = "required_manual";
+    if (rule_summary.required_rules_all_manual_na === 0) cell_class = "zero";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + "_total " + id_table + "_req_rules " + id_table + "_has_mc'>"   + rule_summary.required_rules_with_manual_checks + "</td>\n";
+    
+    cell_class = "required_na";
+    if (rule_summary.required_rules_all_manual_checks === 0) cell_class = "zero";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + "_total " + id_table + "_req_rules " + id_table + "_has_na'>"   + rule_summary.required_rules_with_na            + "</td>\n";
+
+    
+    cell_class = "recommended_pass";
+    if (rule_summary.recommended_rules_all_pass === 0) cell_class = "zero";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + "_total " + id_table + "_rec_rules " + id_table + "_all_pass'>" + rule_summary.recommended_rules_all_pass           + "</td>\n";
+    
+    cell_class = "recommended_fail";
+    if (rule_summary.recommended_rules_all_fail === 0) cell_class = "zero";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + "_total " + id_table + "_rec_rules " + id_table + "_has_fail'>" + rule_summary.recommended_rules_with_fail          + "</td>\n";
+    
+    cell_class = "recommended_manual";
+    if (rule_summary.recommended_rules_all_manual_checks === 0) cell_class = "zero";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + "_total " + id_table + "_rec_rules " + id_table + "_has_mc'>"   + rule_summary.recommended_rules_with_manual_checks + "</td>\n";
+    
+    cell_class = "recommended_na";
+    if (rule_summary.recommended_rules_all_na === 0) cell_class = "zero";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + "_total " + id_table + "_rec_rules " + id_table + "_has_na'>"   + rule_summary.recommended_rules_with_na            + "</td>\n";
+    
+    
+    cell_class = "";
+    if (total === 0) cell_class = "zero";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + "_total'>"   + total + "</td>\n";
     html += "        </tr>\n";
    
     return html;
@@ -18449,15 +19711,16 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
 
     var html = "";
 
-    html += "    <p><sup><a id='" + id_table + "_sup1'>1</a></sup>Number of rules where all elements a rule applied to passed</p>";
-    html += "    <p><sup><a id='" + id_table + "_sup2'>2</a></sup>Number of rules where one or more elements a rule applies resulted in a violation</p>";
-    html += "    <p><sup><a id='" + id_table + "_sup3'>3</a></sup>Number of rules where one or more elements a rule applies resulted in a manual evaluation</p>";
+    html += "    <li><sup><a id='" + id_table + "_sup1'>1</a></sup>Number of rules where all elements a rule applied to passed</li>";
+    html += "    <li><sup><a id='" + id_table + "_sup2'>2</a></sup>Number of rules where one or more elements a rule applies resulted in a violation</li>";
+    html += "    <li><sup><a id='" + id_table + "_sup3'>3</a></sup>Number of rules where one or more elements a rule applies resulted in a manual check</li>";
+    html += "    <li><sup><a id='" + id_table + "_sup4'>4</a></sup>Number of rules where one or more elements a rule applies resulted in a hidden or not applicable result</li>";
     return html;
   }
 
  
  
-  function toHtmlWCAG20Summary(title, principle_results, wcag20_nls) {
+  function toHtmlWCAG20Summary(title, principle_results, a_results, aa_results, aaa_results, all_results, wcag20_nls) {
 
     var i, j;
     
@@ -18512,9 +19775,23 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
     
     }
     
+    html += "\n"; 
+
+    var id_section ="levels";
+
+    html += toHtmlRuleSummaryTableRowSection(id_section, "WCAG 2.0 Success Levels", "double");
+
+    html += toHtmlRuleSummaryTableRow(0, id_table, id_section, "a", "Level A Success Criteria", a_results);
+    html += toHtmlRuleSummaryTableRow(1, id_table, id_section, "aa", "Level AA Success Criteria", aa_results);
+    html += toHtmlRuleSummaryTableRow(2, id_table, id_section, "aaa", "Level AAA Success Criteria", aaa_results);
+
+    html += toHtmlRuleSummaryTableRowTotal(id_table, id_section, "", all_results);
+
     html += toHtmlRuleSummaryTableEnd();
     
+    html += "      <ul class='references'>";
     html += toHtmlRuleSummaryTableRefs();
+    html += "      </ul>";
 
     html += "\n"; 
 
@@ -18524,13 +19801,165 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
   
   }
 
+  function toHtmlElementSummaryTableStart(id_table, title) {
+  
+    var html = "";
+
+    html += "    <h2 id='h2_" + id_table + "'>" + title + "</h2>\n"; 
+    html += "    <table class='element_summary' aria-labelledby='h2_" + id_table + "'>\n"; 
+    html += "      <thead>\n";
+    html += "        <tr>\n";
+    html += "          <th class='rule' rowspan='2' colspan='2'></th>\n";
+    html += "          <th class='type' rowspan='2' id='" + id_table + "_type'  >Type</th>\n";
+    html += "          <th class='' colspan='6'>Number of Elements</th>\n";
+    html += "          <th class='resources' rowspan='2' id='" + id_table + "_resources' >Resources</th>\n";    
+    html += "        </tr>\n";
+    html += "        <tr>\n";
+    html += "          <th class='pass'      id='" + id_table + "_pass'  >Pass          <sup><a href='#" + id_table + "_sup5'>5</a></sup></th>\n";
+    html += "          <th class='fail'      id='" + id_table + "_fail'  >Violations    <sup><a href='#" + id_table + "_sup6'>6</a></sup></th>\n";
+    html += "          <th class='manual'    id='" + id_table + "_manual'>Manual Check  <sup><a href='#" + id_table + "_sup7'>7</a></sup></th>\n";
+    html += "          <th class='hidden'    id='" + id_table + "_hidden'>Hidden        <sup><a href='#" + id_table + "_sup8'>8</a></sup></th>\n";
+    html += "          <th class='na'        id='" + id_table + "_has_na'>Not Applicable<sup><a href='#" + id_table + "_sup9'>9</a></sup></th>\n";
+    html += "          <th class='total'     id='" + id_table + "_total' >Total</th>\n";
+    html += "        </tr>\n"; 
+    html += "      </thead>\n";
+    html += "      <tbody>\n";
+    
+    return html;
+    
+  }
+
+  function toHtmlElementSummaryTableRowSection(id_section, section_title, section_class) {
+ 
+    var html = "";
+    
+    if (section_class) html += "        <tr class='section " + section_class + "'>\n";
+    else html += "        <tr class='section'>\n";
+    
+    html += "          <th class='section' id='" + id_section + "' colspan='10'>" + section_title  + "</th>\n";
+    html += "        </tr>\n";
+   
+    return html;
+ 
+  }
+
+  function toHtmlElementSummaryTableRow(row_count, id_table, id_section, rule_result) {
+ 
+    var cell_class = "";
+ 
+    var total = rule_result.nodes_passed.length;
+    total += rule_result.nodes_failed.length;
+    total += rule_result.nodes_manual_checks.length;
+    total += rule_result.nodes_hidden.length;
+    total += rule_result.nodes_na.length;
+    
+    var id_row  = rule_result.rule.rule_id;
+    var title   = rule_result.rule.getTitle();
+ 
+    var html = "";
+      
+    if (row_count % 2) html += "        <tr class='odd'>\n";
+    else html += "        <tr class='even'>\n";
+    
+    html += "          <th class='rule_id' id='" + id_row + "' headers='" + id_section + "'>" + rule_result.rule.getID() + "</th>\n";
+    html += "          <td class='title' headers='" + id_row + "'>" + rule_result.rule.getTitle()  + "</td>\n";
+
+    cell_class = "recommended";
+    if (rule_result.rule_type == OpenAjax.a11y.RULE.REQUIRED)    cell_class = "required";
+    if (rule_result.rule_type == OpenAjax.a11y.RULE.CONDITIONAL) cell_class = "conditional";
+    html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_type'>" + rule_result.getRuleType()  + "</td>\n";
+    
+    cell_class = "required_pass";
+    if (rule_result.nodes_passed.length === 0) cell_class = "zero";
+    html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_pass'>" + rule_result.nodes_passed.length           + "</td>\n";
+    
+    cell_class = "required_fail";
+    if (rule_result.nodes_failed.length === 0) cell_class = "zero";
+    html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_failed'>" + rule_result.nodes_failed.length           + "</td>\n";
+    
+    cell_class = "required_manual";
+    if (rule_result.nodes_manual_checks.length === 0) cell_class = "zero";
+    html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_manual'>" + rule_result.nodes_manual_checks.length     + "</td>\n";
+    
+    cell_class = "required_na";
+    if (rule_result.nodes_hidden.length === 0) cell_class = "zero";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_hidden'>" + rule_result.nodes_hidden.length     + "</td>\n";
+
+    cell_class = "required_na";
+    if (rule_result.nodes_na.length === 0) cell_class = "zero";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_na'>" + rule_result.nodes_na.length     + "</td>\n";
+    
+    cell_class = "";
+    if (total === 0) cell_class = "zero";    
+    html += "          <td class='totals " + cell_class + "' headers='" + id_row + " " + id_table + "_totals'>"   + total + "</td>\n";
+    
+    // Resources 
+    
+    html +=  "<td><em>none</em></td>";
+    
+    html += "        </tr>\n";
+   
+    return html;
+ 
+  }
+
+  function toHtmlElementSummaryTableRowNoRules(id_section) {
+ 
+    var cell_class = "";
+ 
+    var html = "";
+       
+    html += "        <tr class='even'>\n";
+    
+    html += "          <th headers='" + id_section + "' colspan='2'><em>no rules for this success criteria</em></th>\n";
+    
+    html += "          <td>&nbsp;</td>\n";
+    html += "          <td>&nbsp;</td>\n";
+    html += "          <td>&nbsp;</td>\n";
+    html += "          <td>&nbsp;</td>\n";
+    html += "          <td>&nbsp;</td>\n";
+    html += "          <td>&nbsp;</td>\n";
+    html += "          <td>&nbsp;</td>\n";
+    html += "          <td>&nbsp;</td>\n";
+    
+    html += "        </tr>\n";
+   
+    return html;
+ 
+  }
+
+
+  function toHtmlElementSummaryTableEnd() {
+
+    var html = "";
+
+    html += "      </tbody>\n";
+    html += "    </table>\n"; 
+    return html;
+  }
+
+  function toHtmlElementSummaryTableRefs(id_table) {
+
+    var html = "";
+
+    html += "    <li><sup><a id='" + id_table + "_sup5'>5</a></sup>Number of elements a rule applied that passed</li>";
+    html += "    <li><sup><a id='" + id_table + "_sup6'>6</a></sup>Number of elements a rule applied that resulted in a violation</li>";
+    html += "    <li><sup><a id='" + id_table + "_sup7'>7</a></sup>Number of elements a rule applied that resulted in a manual check</li>";
+    html += "    <li><sup><a id='" + id_table + "_sup8'>8</a></sup>Number of elements a rule applied to but was hidden and therefore was not evaluated</li>";
+    html += "    <li><sup><a id='" + id_table + "_sup9'>9</a></sup>Number of elements a rule did not apply</li>";
+    return html;
+  }
+
+ 
+
   function toHtmlWCAG20Guidelines(title_document, guideline_results, wcag20_nls) {
 
-    var i, j;
+    var i, j, k;
     
     var html = "";
     
     var id_table;
+    var id_element_table;
 
     var gr;
     var id_guideline;
@@ -18540,6 +19969,10 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
     var scr;    
     var id_scr;
     var title_success_criteria = "";
+    var level_success_criteria;
+
+    var rr;
+    var id_rr;
 
     for (i = 0; i < guideline_results.length; i++) {
 
@@ -18556,31 +19989,69 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
 
       id_table = "gl_table_" + id_gr;
 
-      html += toHtmlRuleSummaryTableStart(id_table, t);
+      html += toHtmlRuleSummaryTableStart(id_table, t, true);
 
-      html += toHtmlRuleSummaryTableRowSection(id_guideline, title_guideline);
+      html += toHtmlRuleSummaryTableRowSection(id_guideline, title_guideline, true);
 
       for (j = 0; j < gr.success_criteria_results.length; j++) {
  
         scr = gr.success_criteria_results[j];
 
+        level_success_criteria = wcag20_nls.getWCAG20Level(wcag20_nls.getNLSItemById(scr.ruleset_success_criterion.id).level);
         title_success_criterion = wcag20_nls.getNLSItemById(scr.ruleset_success_criterion.id).title;
-        id_success_criterion    = scr.ruleset_success_criterion.id;
+        id_success_criterion    = "scr_" + scr.ruleset_success_criterion.id;
         id_scr  = id_table + id_success_criterion;
       
         if (gr.rule_summary_results) {
-          html += toHtmlRuleSummaryTableRow(j, id_table, id_guideline, id_success_criterion, title_success_criterion, scr.rule_summary_results);
+          html += toHtmlRuleSummaryTableRow(j, id_table, id_guideline, id_success_criterion, title_success_criterion, scr.rule_summary_results, level_success_criteria);
         }  
       }  
 
-      html += toHtmlRuleSummaryTableRowTotal(id_table, id_guideline, title_guideline, gr.rule_summary_results);
+      html += toHtmlRuleSummaryTableRowTotal(id_table, id_guideline, title_guideline, gr.rule_summary_results, true);
         
       html += toHtmlRuleSummaryTableEnd();
     
-      html += toHtmlRuleSummaryTableRefs(id_gr);
-
       html += "\n"; 
 
+      id_element_table = "gl_etable_" + id_gr;
+
+      html += toHtmlElementSummaryTableStart(id_element_table, title_guideline);
+
+      for (j = 0; j < gr.success_criteria_results.length; j++) {
+ 
+        scr = gr.success_criteria_results[j];
+
+        level_success_criteria = wcag20_nls.getWCAG20Level(wcag20_nls.getNLSItemById(scr.ruleset_success_criterion.id).level);
+        title_success_criterion = wcag20_nls.getNLSItemById(scr.ruleset_success_criterion.id).title + " (" + level_success_criteria + ")";
+        id_success_criterion    = "scr" + scr.ruleset_success_criterion.id;
+        id_scr  = id_element_table + id_success_criterion;
+
+        html += toHtmlElementSummaryTableRowSection(id_scr, title_success_criterion);
+        
+        if (scr.rule_results.length) {
+        
+          for (k = 0; k < scr.rule_results.length; k++ ) {
+            rr = scr.rule_results[k];
+          
+            html += toHtmlElementSummaryTableRow(k, id_element_table, id_scr, rr);
+        
+          }
+          
+        }
+        else {
+          html += toHtmlElementSummaryTableRowNoRules(id_scr);        
+        }
+
+      }  
+
+      html += toHtmlElementSummaryTableEnd();
+
+      html += "      <ul class='references'>";
+      html += toHtmlRuleSummaryTableRefs(id_gr);
+
+      html += toHtmlElementSummaryTableRefs(id_element_table);
+      
+      html += "      </ul>\n"; 
       html += "    </div>\n"; 
       
     }   
@@ -18685,7 +20156,7 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
     html += "        font-size: 100%;\n"; 
     html += "        font-weight: bold;\n"; 
     html += "        color: #111111;\n"; 
-    html += "        background-color: #eeeeee;\n"; 
+    html += "        background-color: #DDDDDD;\n"; 
     html += "        border: thin solid transparent;\n"; 
     html += "        padding: 0.25em;\n"; 
     html += "        margin-bottom: 1px;\n"; 
@@ -18696,8 +20167,8 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
     html += "      div[role='navigation'] a:focus,\n"; 
     html += "      div[role='navigation'] a:hover {\n"; 
     html += "        color: black;\n"; 
-    html += "        background-color: #dddddd;\n"; 
-    html += "        border: thin solid #dddddd;\n"; 
+    html += "        background-color: #CCCCCC;\n"; 
+    html += "        border: thin solid #BBBBBB;\n"; 
     html += "      }\n"; 
     html += "      \n"; 
     html += "      div[role='main'] {\n"; 
@@ -18720,21 +20191,47 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
     html += "        border-collapse: collapse;\n";      
     html += "      }\n"; 
     html += "      \n"; 
+    html += "      div[role='main'] table th.rule {\n"; 
+    html += "        max-width: 25%;"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] table th.type,\n"; 
+    html += "      div[role='main'] table th.pass,\n"; 
+    html += "      div[role='main'] table th.fail,\n"; 
+    html += "      div[role='main'] table th.manual,\n"; 
+    html += "      div[role='main'] table th.hidden,\n"; 
+    html += "      div[role='main'] table th.na,\n"; 
+    html += "      div[role='main'] table th.resources,\n"; 
     html += "      div[role='main'] table th.required_pass,\n"; 
     html += "      div[role='main'] table th.required_fail,\n"; 
     html += "      div[role='main'] table th.required_manual,\n"; 
+    html += "      div[role='main'] table th.required_na,\n"; 
     html += "      div[role='main'] table th.recommended_pass,\n"; 
     html += "      div[role='main'] table th.recommended_fail,\n"; 
     html += "      div[role='main'] table th.recommended_manual,\n"; 
+    html += "      div[role='main'] table th.recommended_na,\n"; 
     html += "      div[role='main'] table th.totals {\n"; 
-    html += "        width: 8em;\n"; 
+    html += "        width: 9%;\n"; 
+    html += "        max-width: 4em;\n"; 
+    html += "        vertical-align: bottom;\n"; 
     html += "      }\n"; 
     html += "      \n"; 
-    html += "      div[role='main'] table tbody th.section {\n"; 
+    html += "      div[role='main'] table th.rule_id {\n"; 
+    html += "        min-width: 5.5em;\n"; 
+    html += "        max-width: 8em;\n"; 
+    html += "        vertical-align: bottom;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] table tr.section th {\n"; 
     html += "        padding-top: 1em;\n"; 
     html += "        text-align: left;\n"; 
     html += "        font-weight: bold;\n"; 
     html += "        font-size: 110%;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] table tr.double th,\n"; 
+    html += "      div[role='main'] table tr.double td {\n"; 
+    html += "        padding-top: 3em;\n"; 
     html += "      }\n"; 
     html += "      \n"; 
     html += "      div[role='main'] table thead th,\n"; 
@@ -18742,8 +20239,8 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
     html += "        text-align: center;\n"; 
     html += "      }\n"; 
     html += "      \n"; 
-    html += "      div[role='main'] table th[colspan='3'] {\n"; 
-    html += "        font-size: 120%;\n"; 
+    html += "      div[role='main'] table thead th[colspan] {\n"; 
+    html += "        font-size: 125%;\n"; 
     html += "      }\n"; 
     html += "      \n"; 
     html += "      div[role='main'] table tbody th {\n"; 
@@ -18754,13 +20251,17 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
     html += "      \n"; 
     html += "      div[role='main'] table tr.even th,\n"; 
     html += "      div[role='main'] table tr.even td {\n"; 
-    html += "        background-color: #EEEEEE;\n"; 
+    html += "        background-color: #DDDDDD;\n"; 
     html += "      }\n"; 
     html += "      \n"; 
     html += "      div[role='main'] table tr.totals th,\n"; 
     html += "      div[role='main'] table tr.totals td {\n"; 
     html += "        border-top: solid black thin;\n"; 
     html += "        font-weight: bold;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] table td.title {\n"; 
+    html += "        text-align: left;\n"; 
     html += "      }\n"; 
     html += "      \n"; 
     html += "      div[role='main'] table tr.totals th {\n"; 
@@ -18777,6 +20278,8 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
     html += "        color: #007800;\n"; 
     html += "      }\n"; 
     html += "      \n"; 
+    html += "      div[role='main'] table tr.even td.required,\n"; 
+    html += "      div[role='main'] table tr.odd  td.required,\n"; 
     html += "      div[role='main'] table tr.even td.required_fail,\n"; 
     html += "      div[role='main'] table tr.odd  td.required_fail {\n"; 
     html += "        color: #900000;\n"; 
@@ -18792,6 +20295,8 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
     html += "        color: #007800;\n"; 
     html += "      }\n"; 
     html += "      \n"; 
+    html += "      div[role='main'] table tr.even td.recommended,\n"; 
+    html += "      div[role='main'] table tr.odd  td.recommended,\n"; 
     html += "      div[role='main'] table tr.even td.recommended_fail,\n"; 
     html += "      div[role='main'] table tr.odd  td.recommended_fail {\n"; 
     html += "        color: #806000;\n"; 
@@ -18800,6 +20305,20 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
     html += "      div[role='main'] table tr.even td.recommended_manual,\n"; 
     html += "      div[role='main'] table tr.odd  td.recommended_manual {\n"; 
     html += "        color: #806000;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] table td.zero {\n"; 
+    html += "        color: gray;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] ul.references {\n"; 
+    html += "        list-style: none;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] sup a {\n"; 
+    html += "        color: gray;\n"; 
+    html += "        text-decoration: none;\n"; 
+    html += "        font-size: 80%;\n"; 
     html += "      }\n"; 
     html += "      \n"; 
     html += "    </style>\n"; 
@@ -18873,7 +20392,7 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
 
   html += toHtmlStart(this.title, this.url);
   
-  html += toHtmlWCAG20Summary(this.title, this.principle_results, wcag20_nls);
+  html += toHtmlWCAG20Summary(this.title, this.principle_results, this.rule_a_summary_results, this.rule_aa_summary_results, this.rule_aaa_summary_results, this.rule_summary_results, wcag20_nls);
   
   for (i = 0; i < this.principle_results.length; i++ ) {
 
@@ -19065,7 +20584,7 @@ OpenAjax.a11y.WCAG20ResultSuccessCriterion = function (ruleset_success_criterion
 OpenAjax.a11y.WCAG20ResultSuccessCriterion.prototype.addRuleResult = function (rule_result) {
 
   this.rule_results.push(rule_result);
-
+  this.rule_summary_results.addRuleResult(rule_result);
 };
 
 /** 
@@ -19705,22 +21224,22 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.evaluate = function (url, title, doc, prog
                        this.dom_cache[rule.cache_dependency].rule_summary_results.addRuleResult(rule_result);
                      }
 
-                     success_criterion_result.rule_summary_results.addRuleResult(rule_result);
+                     success_criterion_result.addRuleResult(rule_result);
                      guideline_result.rule_summary_results.addRuleResult(rule_result);
                      principle_result.rule_summary_results.addRuleResult(rule_result);
                      this.result.rule_summary_results.addRuleResult(rule_result);
                      
                      switch (rsc.level) {
                      
-                     case 'LEVEL_A':
+                     case OpenAjax.a11y.WCAG20_LEVEL.A:
                        this.result.rule_a_summary_results.addRuleResult(rule_result);
                        break;
                      
-                     case 'LEVEL_AA':
+                     case OpenAjax.a11y.WCAG20_LEVEL.AA:
                        this.result.rule_aa_summary_results.addRuleResult(rule_result);
                        break;
                      
-                     case 'LEVEL_AAA':
+                     case OpenAjax.a11y.WCAG20_LEVEL.AAA:
                        this.result.rule_aaa_summary_results.addRuleResult(rule_result);
                        break;
                        
@@ -20738,6 +22257,18 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
         label       : 'Containing landmark element',
         description : 'Landmark element that contains this content'
       },
+      'is_widget'  : { 
+        label       : 'ARIA widget role',
+        description : 'If element is part of an aria widget'
+      },
+      'is_landmark'  : { 
+        label       : 'ARIA landmark role',
+        description : 'If element is part of an aria widget'
+      },
+      'is_live'  : { 
+        label       : 'ARIA live region',
+        description : 'If element is part of an aria widget'
+      },
 
 
     /*
@@ -21598,11 +23129,13 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
   abbreviation : 'WCAG 2.0',
   title        : 'Web Content Accessibility Guidelines 2.0',
   url          : 'http://www.w3c.org/TR/WCAG20',
-  
+
+  level : "Level ",
+
   levels : {
-    '1' : 'Level A',
-    '2' : 'Level AA',
-    '3' : 'Level AAA'  
+    '1' : 'A',
+    '2' : 'AA',
+    '3' : 'AAA'  
   },
   
   principles : {
@@ -22143,27 +23676,27 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
           url         : 'http://www.w3.org/TR/WCAG20/#meaning',
           success_criteria : {
             //
-            // Success Criteria 3..1.1 Language of Page
+            // Success Criteria 3.1.1 Language of Page
             //
             '3.1.1': {
-              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '3.1.1 Language of Page',
               description : 'The default human language  of each Web page  can be programmatically determined. ',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-meaning-doc-lang-id',
               references  : []
             },
             //
-            // Success Criteria 3..1.2 Language of Parts
+            // Success Criteria 3.1.2 Language of Parts
             //
             '3.1.2': {
-              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AA,
               title       : '3.1.2 Language of Parts',
               description : 'The human language of each passage or phrase in the content can be programmatically determined except for proper names, technical terms, words of indeterminate language, and words or phrases that have become part of the vernacular of the immediately surrounding text.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-meaning-other-lang-id',
               references  : []
             },
             //
-            // Success Criteria 3..1.3 Unusual Words
+            // Success Criteria 3.1.3 Unusual Words
             //
             '3.1.3': {
               level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
@@ -22173,7 +23706,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
               references  : []
             },
             //
-            // Success Criteria 3..1.4 Abbreviations
+            // Success Criteria 3.1.4 Abbreviations
             //
             '3.1.4': {
               level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
@@ -22183,7 +23716,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
               references  : []
             },
             //
-            // Success Criteria 3..1.5 Reading Level
+            // Success Criteria 3.1.5 Reading Level
             //
             '3.1.5': {
               level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
@@ -22193,7 +23726,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
               references  : []
             },
             //
-            // Success Criteria 3..1.6 Pronunciation
+            // Success Criteria 3.1.6 Pronunciation
             //
             '3.1.6': {
               level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
@@ -22213,20 +23746,20 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
           url         : 'http://www.w3.org/TR/WCAG20/#consistent-behavior',
           success_criteria : {
             //
-            // Success Criteria 3..2.1 On Focus
+            // Success Criteria 3.2.1 On Focus
             //
             '3.2.1': {
-              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '3.2.1 On Focus',
               description : 'When any component receives focus, it does not initiate a change of context.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-consistent-behavior-receive-focus',
               references  : []
             },
             //
-            // Success Criteria 3..2.2 On Input
+            // Success Criteria 3.2.2 On Input
             //
             '3.2.2': {
-              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '3.2.2 On Input',
               description : 'Changing the setting of any user interface component  does not automatically cause a change of context  unless the user has been advised of the behavior before using the component.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-consistent-behavior-unpredictable-change',
@@ -22236,7 +23769,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..2.3 Consistent Navigation
             //
             '3.2.3': {
-              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AA,
               title       : '3.2.3 Consistent Navigation',
               description : 'Navigational mechanisms that are repeated on multiple Web pages within a set of Web pages  occur in the same relative order each time they are repeated, unless a change is initiated by the user.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-consistent-behavior-consistent-locations',
@@ -22246,7 +23779,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..2.4 Consistent Identification
             //
             '3.2.4': {
-              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AA,
               title       : '3.2.4 Consistent Identification',
               description : 'Components that have the same functionality within a set of Web pages are identified consistently.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-consistent-behavior-consistent-functionality',
@@ -22276,7 +23809,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..3.1 Error Identification
             //
             '3.3.1': {
-              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '3.3.1 Error Identification',
               description : 'If an input error is automatically detected, the item that is in error is identified and the error is described to the user in text.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-minimize-error-identified',
@@ -22286,7 +23819,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..3.2 Labels or Instructions
             //
             '3.3.2': {
-              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '3.3.2 Labels or Instructions',
               description : 'Labels or instructions are provided when content requires user input.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-minimize-error-cues',
@@ -22296,7 +23829,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..3.3 Error Suggestion
             //
             '3.3.3': {
-              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AA,
               title       : '3.3.3 Error Suggestion',
               description : 'If an input error is automatically detected and suggestions for correction are known, then the suggestions are provided to the user, unless it would jeopardize the security or purpose of the content.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-minimize-error-suggestions',
@@ -22306,7 +23839,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..3.4 Error Prevention (Legal, Financial, Data)
             //
             '3.3.4': {
-              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AA,
               title       : '3.3.4 Error Prevention (Legal, Financial, Data)',
               description : 'For Web pages that cause legal commitments or financial transactions for the user to occur, that modify or delete user-controllable data in data storage systems, or that submit user test responses, at least one of the following is true:',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-minimize-error-reversible',
@@ -22356,7 +23889,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 4.2.1 Parsing Content
             //
             '4.1.1': {
-              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '4.1.1 Parsing Content',
               description : 'In content implemented using markup languages, elements have complete start and end tags, elements are nested according to their specifications, elements do not contain duplicate attributes, and any IDs are unique, except where the specifications allow these features.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-ensure-compat-parses',
@@ -22366,7 +23899,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 4.2.2 Name, Role, Value
             //
             '4.1.2': {
-              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '4.1.2 Name, Role, Value',
               description : 'For all user interface components (including but not limited to: form elements, links and components generated by scripts), the name and role can be programmatically determined; states, properties, and values that can be set by the user can be programmatically set; and notification of changes to these items is available to user agents, including assistive technologies.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-ensure-compat-rsv',

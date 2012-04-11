@@ -506,23 +506,24 @@ OpenAjax.a11y.cache.DOMCache.prototype.getNameFromARIALabel = function (element)
   var label = "";
   var label_source = SOURCE.NONE;
   var de = element.dom_element;
+  var wi = de.widget_info;
   
   if (de.aria_labelledby) {
     label = this.element_with_id_cache.getTextFromIds(de.aria_labelledby);
     label_source = SOURCE.ARIA_LABELLEDBY;
   }
-  else {
-    if (de.aria_label) {
-      label = de.aria_label;
-      label_source = SOURCE.ARIA_LABEL;
-    }
-    else {
-      if (de.title) {
-        label = de.title;
-        label_source = SOURCE.TITLE_ATTRIBUTE;
-      }
-    }
- }
+  else if (de.aria_label) {
+    label = de.aria_label;
+    label_source = SOURCE.ARIA_LABEL;
+  }
+  else if (wi && wi.nameFromContent) {
+    label = de.getText();
+    label_source = SOURCE.TEXT_CONTENT;
+  } else if (de.title) {
+    label = de.title;
+    label_source = SOURCE.TITLE_ATTRIBUTE;
+  }
+
 
  element.label = label;
  element.label_length = label.length;

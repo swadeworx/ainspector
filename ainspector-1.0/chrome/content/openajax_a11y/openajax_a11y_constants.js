@@ -306,13 +306,13 @@ OpenAjax.a11y.STATUS = OpenAjax.a11y.STATUS || {
  * OpenAjax.a11y.REFERENCES.OTHER         
  */ 
 OpenAjax.a11y.REFERENCES = OpenAjax.a11y.REFERENCES || {
-  UNKNOWN                  : 0,
-  REQUIREMENT              : 1,
-  TECHNIQUE                : 2,
-  MANUAL_CHECK        : 3,
-  BEST_PRACTICE            : 4,
-  AUTHORING                : 5,
-  OTHER                    : 6
+  UNKNOWN       : 0,
+  REQUIREMENT   : 1,
+  TECHNIQUE     : 2,
+  MANUAL_CHECK  : 3,
+  BEST_PRACTICE : 4,
+  AUTHORING     : 5,
+  OTHER         : 6
 };
 
 /**
@@ -414,7 +414,7 @@ OpenAjax.a11y.URL_RESULT = OpenAjax.a11y.URL_RESULT || {
  * OpenAjax.a11y.SOURCE.VALUE_ATTRIBUTE
  * OpenAjax.a11y.SOURCE.ALT_ATTRIBUTE
  * OpenAjax.a11y.SOURCE.BUTTON_TYPE
- * OpenAjax.a11y.SOURCE.CHILD_TEXT_NODES
+ * OpenAjax.a11y.SOURCE.TEXT_CONTENT
  * OpenAjax.a11y.SOURCE.ARIA_LABELLEDBY
  * OpenAjax.a11y.SOURCE.ARIA_LABEL        
  */
@@ -426,7 +426,7 @@ OpenAjax.a11y.SOURCE = OpenAjax.a11y.SOURCE || {
   VALUE_ATTRIBUTE      : 5,
   ALT_ATTRIBUTE        : 6,
   BUTTON_TYPE          : 7,
-  CHILD_TEXT_NODES     : 8,
+  TEXT_CONTENT         : 8,
   ARIA_LABELLEDBY      : 9,
   ARIA_LABEL           : 10
 };
@@ -469,7 +469,8 @@ OpenAjax.a11y.CONTROL_TYPE = OpenAjax.a11y.CONTROL_TYPE || {
   SELECT   : 12,
   SUBMIT   : 13,
   TEXT     : 14,
-  TEXTAREA : 15
+  TEXTAREA : 15,
+  WIDGET   : 16
 };
 
 /**

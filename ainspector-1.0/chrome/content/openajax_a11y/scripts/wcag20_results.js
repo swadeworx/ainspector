@@ -39,9 +39,9 @@ OpenAjax.a11y.WCAG20Result = function (ruleset, url, title) {
   this.title = title;
   this.url   = url;
   
-  this.rule_summary_results   = new OpenAjax.a11y.ResultRuleSummary();
-  this.rule_a_summary_results = new OpenAjax.a11y.ResultRuleSummary();
-  this.rule_aa_summary_results = new OpenAjax.a11y.ResultRuleSummary();
+  this.rule_summary_results     = new OpenAjax.a11y.ResultRuleSummary();
+  this.rule_a_summary_results   = new OpenAjax.a11y.ResultRuleSummary();
+  this.rule_aa_summary_results  = new OpenAjax.a11y.ResultRuleSummary();
   this.rule_aaa_summary_results = new OpenAjax.a11y.ResultRuleSummary();
   
   this.principle_results = [];
@@ -76,7 +76,7 @@ OpenAjax.a11y.WCAG20Result.prototype.addPrincipleResult = function (principle_re
 
 OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
 
-  function toHtmlRuleSummaryTableStart(id_table, title) {
+  function toHtmlRuleSummaryTableStart(id_table, title, level) {
   
     var html = "";
 
@@ -85,17 +85,20 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
     html += "      <thead>\n";
     html += "        <tr>\n";
     html += "          <th rowspan='2'></th>\n";
-    html += "          <th id='" + id_table + "_req_rules' colspan='3' >Required Rules</th>\n";
-    html += "          <th id='" + id_table + "_rec_rules' colspan='3' >Recommended Rules</th>\n";
+    if (level) html += "          <th rowspan='2'>Level</th>\n";
+    html += "          <th id='" + id_table + "_req_rules' colspan='4' >Required Rules</th>\n";
+    html += "          <th id='" + id_table + "_rec_rules' colspan='4' >Recommended Rules</th>\n";
     html += "          <th id='" + id_table + "_totals' class='totals' rowspan='2'>Total</th>\n";
     html += "        </tr>\n";
     html += "        <tr>\n";
-    html += "          <th class='required_pass'   id='" + id_table + "_all_pass'>All Pass <sup><a href='#" + id_table + "_sup1'>1</a></sup> </th>\n";
-    html += "          <th class='required_fail'   id='" + id_table + "_has_fail'>Violations<sup><a href='#" + id_table + "_sup2'>2</a></sup> </th>\n";
-    html += "          <th class='required_manual' id='" + id_table + "_has_mc' >Manual Checks<sup><a href='#" + id_table + "_sup3'>3</a></sup> </th>\n";
-    html += "          <th class='recommended_pass'>All Pass<sup><a href='#" + id_table + "_sup1'>1</a></sup></th>\n";
-    html += "          <th class='recommended_fail'>Violations<sup><a href='#" + id_table + "_sup2'>2</a></sup></th>\n";
-    html += "          <th class='recommended_manual'>Manual Checks<sup><a href='#" + id_table + "_sup3'>3</a></sup></th>\n";
+    html += "          <th class='required_pass'   id='" + id_table + "_all_pass'>All Pass   <sup><a href='#" + id_table + "_sup1'>1</a></sup> </th>\n";
+    html += "          <th class='required_fail'   id='" + id_table + "_has_fail'>Violations <sup><a href='#" + id_table + "_sup2'>2</a></sup> </th>\n";
+    html += "          <th class='required_manual' id='" + id_table + "_has_mc' >Manual      <sup><a href='#" + id_table + "_sup3'>3</a></sup> </th>\n";
+    html += "          <th class='required_na'     id='" + id_table + "_has_na' >NA          <sup><a href='#" + id_table + "_sup4'>4</a></sup></th>\n";
+    html += "          <th class='recommended_pass'>All Pass     <sup><a href='#" + id_table + "_sup1'>1</a></sup></th>\n";
+    html += "          <th class='recommended_fail'>Violations   <sup><a href='#" + id_table + "_sup2'>2</a></sup></th>\n";
+    html += "          <th class='recommended_manual'>Manual     <sup><a href='#" + id_table + "_sup3'>3</a></sup></th>\n";
+    html += "          <th class='recommended_na'>Not Applicable <sup><a href='#" + id_table + "_sup4'>4</a></sup></th>\n";
     html += "        </tr>\n"; 
     html += "      </thead>\n";
     html += "      <tbody>\n";
@@ -104,12 +107,17 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
     
   }
 
-  function toHtmlRuleSummaryTableRowSection(id_section, section_title) {
+  function toHtmlRuleSummaryTableRowSection(id_section, section_title, section_class, level) {
  
     var html = "";
     
-    html += "        <tr class='section'>\n";
+    if (section_class) html += "        <tr class='section " + section_class + "'>\n";
+    else html += "        <tr class='section'>\n";
+    
     html += "          <th class='section' id='" + id_section + "'>" + section_title  + "</th>\n";
+    if (level) html += "          <td>" + level  + "</td>\n";
+    html += "          <td></td>\n";
+    html += "          <td></td>\n";
     html += "          <td></td>\n";
     html += "          <td></td>\n";
     html += "          <td></td>\n";
@@ -124,16 +132,18 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
   }
 
 
-  function toHtmlRuleSummaryTableRow(row_count, id_table, id_section, id_row, item_title, rule_summary) {
+  function toHtmlRuleSummaryTableRow(row_count, id_table, id_section, id_row, item_title, rule_summary, level) {
  
     var cell_class = "";
  
     var total = rule_summary.required_rules_all_pass;
     total += rule_summary.required_rules_with_fail;
     total += rule_summary.required_rules_with_manual_checks;
+    total += rule_summary.required_rules_with_na;
     total += rule_summary.recommended_rules_all_pass;
     total += rule_summary.recommended_rules_with_fail;
     total += rule_summary.recommended_rules_with_manual_checks;
+    total += rule_summary.recommended_rules_with_na;
  
     var html = "";
     
@@ -141,60 +151,104 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
     else html += "        <tr class='even'>\n";
     
     html += "          <th id='" + id_row + "' headers='" + id_section + "'>" + item_title  + "</th>\n";
+    if (level) html += "          <td>" + level  + "</td>\n";
     
-    cell_class = "";
-    if (rule_summary.required_rules_all_pass > 0) cell_class = "required_pass";    
+    cell_class = "required_pass";
+    if (rule_summary.required_rules_all_pass === 0) cell_class = "zero";    
     html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_req_rules " + id_table + "_all_pass'>" + rule_summary.required_rules_all_pass           + "</td>\n";
     
-    cell_class = "";
-    if (rule_summary.required_rules_with_fail > 0) cell_class = "required_fail";
+    cell_class = "required_fail";
+    if (rule_summary.required_rules_with_fail === 0) cell_class = "zero";
     html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_req_rules " + id_table + "_has_fail'>" + rule_summary.required_rules_with_fail          + "</td>\n";
     
-    cell_class = "";
-    if (rule_summary.required_rules_with_manual_checks > 0) cell_class = "required_manual";
+    cell_class = "required_manual";
+    if (rule_summary.required_rules_with_manual_checks === 0) cell_class = "zero";
     html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_req_rules " + id_table + "_has_mc'>"   + rule_summary.required_rules_with_manual_checks + "</td>\n";
     
-    cell_class = "";
-    if (rule_summary.recommended_rules_all_pass > 0) cell_class = "recommended_pass";    
+    cell_class = "required_na";
+    if (rule_summary.required_rules_with_na === 0) cell_class = "zero";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_req_rules " + id_table + "_has_na'>"   + rule_summary.required_rules_with_na + "</td>\n";
+    
+    cell_class = "recommended_pass";
+    if (rule_summary.recommended_rules_all_pass === 0) cell_class = "zero";    
     html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_rec_rules " + id_table + "_all_pass'>" + rule_summary.recommended_rules_all_pass           + "</td>\n";
     
-    cell_class = "";
-    if (rule_summary.recommended_rules_with_fail > 0) cell_class = "recommended_fail";    
+    cell_class = "recommended_fail";
+    if (rule_summary.recommended_rules_with_fail === 0) cell_class = "zero";    
     html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_rec_rules " + id_table + "_has_fail'>" + rule_summary.recommended_rules_with_fail          + "</td>\n";
     
-    cell_class = "";
-    if (rule_summary.recommended_rules_with_manual_checks > 0) cell_class = "recommended_manual";    
+    cell_class = "recommended_manual";
+    if (rule_summary.recommended_rules_with_manual_checks === 0) cell_class = "zero";    
     html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_rec_rules " + id_table + "_has_mc'>"   + rule_summary.recommended_rules_with_manual_checks + "</td>\n";
+
+    cell_class = "recommended_na";
+    if (rule_summary.recommended_rules_with_na === 0) cell_class = "zero";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_rec_rules " + id_table + "_has_na'>"   + rule_summary.recommended_rules_with_na + "</td>\n";
     
-    html += "          <td class='totals' headers='" + id_row + " " + id_table + "_totals'>"   + total + "</td>\n";
+    cell_class = "";
+    if (total === 0) cell_class = "zero";    
+    html += "          <td class='totals " + cell_class + "' headers='" + id_row + " " + id_table + "_totals'>"   + total + "</td>\n";
     html += "        </tr>\n";
    
     return html;
  
   }
 
-  function toHtmlRuleSummaryTableRowTotal(id_table, id_row, item_title, rule_summary) {
+  function toHtmlRuleSummaryTableRowTotal(id_table, id_row, item_title, rule_summary, level) {
 
     var total = rule_summary.required_rules_all_pass;
     total += rule_summary.required_rules_with_fail;
     total += rule_summary.required_rules_with_manual_checks;
+    total += rule_summary.required_rules_with_na;
     total += rule_summary.recommended_rules_all_pass;
     total += rule_summary.recommended_rules_with_fail;
     total += rule_summary.recommended_rules_with_manual_checks;
+    total += rule_summary.recommended_rules_with_na;
 
     var html = "";
     
     html += "        <tr class='totals'>\n";
     
-    html += "          <th id='" + id_row  + "_total'>Total</th>\n";
-    html += "          <td headers='" + id_row + "_total " + id_table + "_req_rules " + id_table + "_all_pass'>" + rule_summary.required_rules_all_pass           + "</td>\n";
-    html += "          <td headers='" + id_row + "_total " + id_table + "_req_rules " + id_table + "_has_fail'>" + rule_summary.required_rules_with_fail          + "</td>\n";
-    html += "          <td headers='" + id_row + "_total " + id_table + "_req_rules " + id_table + "_has_mc'>"   + rule_summary.required_rules_with_manual_checks + "</td>\n";
+    if (level) html += "          <th id='" + id_row  + "_total' colspan='2'>Total</th>\n"; 
+    else html += "          <th id='" + id_row  + "_total'>Total</th>\n";
 
-    html += "          <td headers='" + id_row + "_total " + id_table + "_rec_rules " + id_table + "_all_pass'>" + rule_summary.recommended_rules_all_pass           + "</td>\n";
-    html += "          <td headers='" + id_row + "_total " + id_table + "_rec_rules " + id_table + "_has_fail'>" + rule_summary.recommended_rules_with_fail          + "</td>\n";
-    html += "          <td headers='" + id_row + "_total " + id_table + "_rec_rules " + id_table + "_has_mc'>"   + rule_summary.recommended_rules_with_manual_checks + "</td>\n";
-    html += "          <td headers='" + id_row + "_total'>"   + total + "</td>\n";
+    cell_class = "required_pass";
+    if (rule_summary.required_rules_all_pass === 0) cell_class = "zero";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + "_total " + id_table + "_req_rules " + id_table + "_all_pass'>" + rule_summary.required_rules_all_pass           + "</td>\n";
+    
+    cell_class = "required_fail";
+    if (rule_summary.required_rules_all_fail === 0) cell_class = "zero";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + "_total " + id_table + "_req_rules " + id_table + "_has_fail'>" + rule_summary.required_rules_with_fail          + "</td>\n";
+    
+    cell_class = "required_manual";
+    if (rule_summary.required_rules_all_manual_na === 0) cell_class = "zero";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + "_total " + id_table + "_req_rules " + id_table + "_has_mc'>"   + rule_summary.required_rules_with_manual_checks + "</td>\n";
+    
+    cell_class = "required_na";
+    if (rule_summary.required_rules_all_manual_checks === 0) cell_class = "zero";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + "_total " + id_table + "_req_rules " + id_table + "_has_na'>"   + rule_summary.required_rules_with_na            + "</td>\n";
+
+    
+    cell_class = "recommended_pass";
+    if (rule_summary.recommended_rules_all_pass === 0) cell_class = "zero";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + "_total " + id_table + "_rec_rules " + id_table + "_all_pass'>" + rule_summary.recommended_rules_all_pass           + "</td>\n";
+    
+    cell_class = "recommended_fail";
+    if (rule_summary.recommended_rules_all_fail === 0) cell_class = "zero";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + "_total " + id_table + "_rec_rules " + id_table + "_has_fail'>" + rule_summary.recommended_rules_with_fail          + "</td>\n";
+    
+    cell_class = "recommended_manual";
+    if (rule_summary.recommended_rules_all_manual_checks === 0) cell_class = "zero";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + "_total " + id_table + "_rec_rules " + id_table + "_has_mc'>"   + rule_summary.recommended_rules_with_manual_checks + "</td>\n";
+    
+    cell_class = "recommended_na";
+    if (rule_summary.recommended_rules_all_na === 0) cell_class = "zero";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + "_total " + id_table + "_rec_rules " + id_table + "_has_na'>"   + rule_summary.recommended_rules_with_na            + "</td>\n";
+    
+    
+    cell_class = "";
+    if (total === 0) cell_class = "zero";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + "_total'>"   + total + "</td>\n";
     html += "        </tr>\n";
    
     return html;
@@ -214,15 +268,16 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
 
     var html = "";
 
-    html += "    <p><sup><a id='" + id_table + "_sup1'>1</a></sup>Number of rules where all elements a rule applied to passed</p>";
-    html += "    <p><sup><a id='" + id_table + "_sup2'>2</a></sup>Number of rules where one or more elements a rule applies resulted in a violation</p>";
-    html += "    <p><sup><a id='" + id_table + "_sup3'>3</a></sup>Number of rules where one or more elements a rule applies resulted in a manual evaluation</p>";
+    html += "    <li><sup><a id='" + id_table + "_sup1'>1</a></sup>Number of rules where all elements a rule applied to passed</li>";
+    html += "    <li><sup><a id='" + id_table + "_sup2'>2</a></sup>Number of rules where one or more elements a rule applies resulted in a violation</li>";
+    html += "    <li><sup><a id='" + id_table + "_sup3'>3</a></sup>Number of rules where one or more elements a rule applies resulted in a manual check</li>";
+    html += "    <li><sup><a id='" + id_table + "_sup4'>4</a></sup>Number of rules where one or more elements a rule applies resulted in a hidden or not applicable result</li>";
     return html;
   }
 
  
  
-  function toHtmlWCAG20Summary(title, principle_results, wcag20_nls) {
+  function toHtmlWCAG20Summary(title, principle_results, a_results, aa_results, aaa_results, all_results, wcag20_nls) {
 
     var i, j;
     
@@ -277,9 +332,23 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
     
     }
     
+    html += "\n"; 
+
+    var id_section ="levels";
+
+    html += toHtmlRuleSummaryTableRowSection(id_section, "WCAG 2.0 Success Levels", "double");
+
+    html += toHtmlRuleSummaryTableRow(0, id_table, id_section, "a", "Level A Success Criteria", a_results);
+    html += toHtmlRuleSummaryTableRow(1, id_table, id_section, "aa", "Level AA Success Criteria", aa_results);
+    html += toHtmlRuleSummaryTableRow(2, id_table, id_section, "aaa", "Level AAA Success Criteria", aaa_results);
+
+    html += toHtmlRuleSummaryTableRowTotal(id_table, id_section, "", all_results);
+
     html += toHtmlRuleSummaryTableEnd();
     
+    html += "      <ul class='references'>";
     html += toHtmlRuleSummaryTableRefs();
+    html += "      </ul>";
 
     html += "\n"; 
 
@@ -289,13 +358,165 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
   
   }
 
+  function toHtmlElementSummaryTableStart(id_table, title) {
+  
+    var html = "";
+
+    html += "    <h2 id='h2_" + id_table + "'>" + title + "</h2>\n"; 
+    html += "    <table class='element_summary' aria-labelledby='h2_" + id_table + "'>\n"; 
+    html += "      <thead>\n";
+    html += "        <tr>\n";
+    html += "          <th class='rule' rowspan='2' colspan='2'></th>\n";
+    html += "          <th class='type' rowspan='2' id='" + id_table + "_type'  >Type</th>\n";
+    html += "          <th class='' colspan='6'>Number of Elements</th>\n";
+    html += "          <th class='resources' rowspan='2' id='" + id_table + "_resources' >Resources</th>\n";    
+    html += "        </tr>\n";
+    html += "        <tr>\n";
+    html += "          <th class='pass'      id='" + id_table + "_pass'  >Pass          <sup><a href='#" + id_table + "_sup5'>5</a></sup></th>\n";
+    html += "          <th class='fail'      id='" + id_table + "_fail'  >Violations    <sup><a href='#" + id_table + "_sup6'>6</a></sup></th>\n";
+    html += "          <th class='manual'    id='" + id_table + "_manual'>Manual Check  <sup><a href='#" + id_table + "_sup7'>7</a></sup></th>\n";
+    html += "          <th class='hidden'    id='" + id_table + "_hidden'>Hidden        <sup><a href='#" + id_table + "_sup8'>8</a></sup></th>\n";
+    html += "          <th class='na'        id='" + id_table + "_has_na'>Not Applicable<sup><a href='#" + id_table + "_sup9'>9</a></sup></th>\n";
+    html += "          <th class='total'     id='" + id_table + "_total' >Total</th>\n";
+    html += "        </tr>\n"; 
+    html += "      </thead>\n";
+    html += "      <tbody>\n";
+    
+    return html;
+    
+  }
+
+  function toHtmlElementSummaryTableRowSection(id_section, section_title, section_class) {
+ 
+    var html = "";
+    
+    if (section_class) html += "        <tr class='section " + section_class + "'>\n";
+    else html += "        <tr class='section'>\n";
+    
+    html += "          <th class='section' id='" + id_section + "' colspan='10'>" + section_title  + "</th>\n";
+    html += "        </tr>\n";
+   
+    return html;
+ 
+  }
+
+  function toHtmlElementSummaryTableRow(row_count, id_table, id_section, rule_result) {
+ 
+    var cell_class = "";
+ 
+    var total = rule_result.nodes_passed.length;
+    total += rule_result.nodes_failed.length;
+    total += rule_result.nodes_manual_checks.length;
+    total += rule_result.nodes_hidden.length;
+    total += rule_result.nodes_na.length;
+    
+    var id_row  = rule_result.rule.rule_id;
+    var title   = rule_result.rule.getTitle();
+ 
+    var html = "";
+      
+    if (row_count % 2) html += "        <tr class='odd'>\n";
+    else html += "        <tr class='even'>\n";
+    
+    html += "          <th class='rule_id' id='" + id_row + "' headers='" + id_section + "'>" + rule_result.rule.getID() + "</th>\n";
+    html += "          <td class='title' headers='" + id_row + "'>" + rule_result.rule.getTitle()  + "</td>\n";
+
+    cell_class = "recommended";
+    if (rule_result.rule_type == OpenAjax.a11y.RULE.REQUIRED)    cell_class = "required";
+    if (rule_result.rule_type == OpenAjax.a11y.RULE.CONDITIONAL) cell_class = "conditional";
+    html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_type'>" + rule_result.getRuleType()  + "</td>\n";
+    
+    cell_class = "required_pass";
+    if (rule_result.nodes_passed.length === 0) cell_class = "zero";
+    html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_pass'>" + rule_result.nodes_passed.length           + "</td>\n";
+    
+    cell_class = "required_fail";
+    if (rule_result.nodes_failed.length === 0) cell_class = "zero";
+    html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_failed'>" + rule_result.nodes_failed.length           + "</td>\n";
+    
+    cell_class = "required_manual";
+    if (rule_result.nodes_manual_checks.length === 0) cell_class = "zero";
+    html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_manual'>" + rule_result.nodes_manual_checks.length     + "</td>\n";
+    
+    cell_class = "required_na";
+    if (rule_result.nodes_hidden.length === 0) cell_class = "zero";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_hidden'>" + rule_result.nodes_hidden.length     + "</td>\n";
+
+    cell_class = "required_na";
+    if (rule_result.nodes_na.length === 0) cell_class = "zero";    
+    html += "          <td class='" + cell_class + "' headers='" + id_row + " " + id_table + "_na'>" + rule_result.nodes_na.length     + "</td>\n";
+    
+    cell_class = "";
+    if (total === 0) cell_class = "zero";    
+    html += "          <td class='totals " + cell_class + "' headers='" + id_row + " " + id_table + "_totals'>"   + total + "</td>\n";
+    
+    // Resources 
+    
+    html +=  "<td><em>none</em></td>";
+    
+    html += "        </tr>\n";
+   
+    return html;
+ 
+  }
+
+  function toHtmlElementSummaryTableRowNoRules(id_section) {
+ 
+    var cell_class = "";
+ 
+    var html = "";
+       
+    html += "        <tr class='even'>\n";
+    
+    html += "          <th headers='" + id_section + "' colspan='2'><em>no rules for this success criteria</em></th>\n";
+    
+    html += "          <td>&nbsp;</td>\n";
+    html += "          <td>&nbsp;</td>\n";
+    html += "          <td>&nbsp;</td>\n";
+    html += "          <td>&nbsp;</td>\n";
+    html += "          <td>&nbsp;</td>\n";
+    html += "          <td>&nbsp;</td>\n";
+    html += "          <td>&nbsp;</td>\n";
+    html += "          <td>&nbsp;</td>\n";
+    
+    html += "        </tr>\n";
+   
+    return html;
+ 
+  }
+
+
+  function toHtmlElementSummaryTableEnd() {
+
+    var html = "";
+
+    html += "      </tbody>\n";
+    html += "    </table>\n"; 
+    return html;
+  }
+
+  function toHtmlElementSummaryTableRefs(id_table) {
+
+    var html = "";
+
+    html += "    <li><sup><a id='" + id_table + "_sup5'>5</a></sup>Number of elements a rule applied that passed</li>";
+    html += "    <li><sup><a id='" + id_table + "_sup6'>6</a></sup>Number of elements a rule applied that resulted in a violation</li>";
+    html += "    <li><sup><a id='" + id_table + "_sup7'>7</a></sup>Number of elements a rule applied that resulted in a manual check</li>";
+    html += "    <li><sup><a id='" + id_table + "_sup8'>8</a></sup>Number of elements a rule applied to but was hidden and therefore was not evaluated</li>";
+    html += "    <li><sup><a id='" + id_table + "_sup9'>9</a></sup>Number of elements a rule did not apply</li>";
+    return html;
+  }
+
+ 
+
   function toHtmlWCAG20Guidelines(title_document, guideline_results, wcag20_nls) {
 
-    var i, j;
+    var i, j, k;
     
     var html = "";
     
     var id_table;
+    var id_element_table;
 
     var gr;
     var id_guideline;
@@ -305,6 +526,10 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
     var scr;    
     var id_scr;
     var title_success_criteria = "";
+    var level_success_criteria;
+
+    var rr;
+    var id_rr;
 
     for (i = 0; i < guideline_results.length; i++) {
 
@@ -321,31 +546,69 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
 
       id_table = "gl_table_" + id_gr;
 
-      html += toHtmlRuleSummaryTableStart(id_table, t);
+      html += toHtmlRuleSummaryTableStart(id_table, t, true);
 
-      html += toHtmlRuleSummaryTableRowSection(id_guideline, title_guideline);
+      html += toHtmlRuleSummaryTableRowSection(id_guideline, title_guideline, true);
 
       for (j = 0; j < gr.success_criteria_results.length; j++) {
  
         scr = gr.success_criteria_results[j];
 
+        level_success_criteria = wcag20_nls.getWCAG20Level(wcag20_nls.getNLSItemById(scr.ruleset_success_criterion.id).level);
         title_success_criterion = wcag20_nls.getNLSItemById(scr.ruleset_success_criterion.id).title;
-        id_success_criterion    = scr.ruleset_success_criterion.id;
+        id_success_criterion    = "scr_" + scr.ruleset_success_criterion.id;
         id_scr  = id_table + id_success_criterion;
       
         if (gr.rule_summary_results) {
-          html += toHtmlRuleSummaryTableRow(j, id_table, id_guideline, id_success_criterion, title_success_criterion, scr.rule_summary_results);
+          html += toHtmlRuleSummaryTableRow(j, id_table, id_guideline, id_success_criterion, title_success_criterion, scr.rule_summary_results, level_success_criteria);
         }  
       }  
 
-      html += toHtmlRuleSummaryTableRowTotal(id_table, id_guideline, title_guideline, gr.rule_summary_results);
+      html += toHtmlRuleSummaryTableRowTotal(id_table, id_guideline, title_guideline, gr.rule_summary_results, true);
         
       html += toHtmlRuleSummaryTableEnd();
     
-      html += toHtmlRuleSummaryTableRefs(id_gr);
-
       html += "\n"; 
 
+      id_element_table = "gl_etable_" + id_gr;
+
+      html += toHtmlElementSummaryTableStart(id_element_table, title_guideline);
+
+      for (j = 0; j < gr.success_criteria_results.length; j++) {
+ 
+        scr = gr.success_criteria_results[j];
+
+        level_success_criteria = wcag20_nls.getWCAG20Level(wcag20_nls.getNLSItemById(scr.ruleset_success_criterion.id).level);
+        title_success_criterion = wcag20_nls.getNLSItemById(scr.ruleset_success_criterion.id).title + " (" + level_success_criteria + ")";
+        id_success_criterion    = "scr" + scr.ruleset_success_criterion.id;
+        id_scr  = id_element_table + id_success_criterion;
+
+        html += toHtmlElementSummaryTableRowSection(id_scr, title_success_criterion);
+        
+        if (scr.rule_results.length) {
+        
+          for (k = 0; k < scr.rule_results.length; k++ ) {
+            rr = scr.rule_results[k];
+          
+            html += toHtmlElementSummaryTableRow(k, id_element_table, id_scr, rr);
+        
+          }
+          
+        }
+        else {
+          html += toHtmlElementSummaryTableRowNoRules(id_scr);        
+        }
+
+      }  
+
+      html += toHtmlElementSummaryTableEnd();
+
+      html += "      <ul class='references'>";
+      html += toHtmlRuleSummaryTableRefs(id_gr);
+
+      html += toHtmlElementSummaryTableRefs(id_element_table);
+      
+      html += "      </ul>\n"; 
       html += "    </div>\n"; 
       
     }   
@@ -450,7 +713,7 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
     html += "        font-size: 100%;\n"; 
     html += "        font-weight: bold;\n"; 
     html += "        color: #111111;\n"; 
-    html += "        background-color: #eeeeee;\n"; 
+    html += "        background-color: #DDDDDD;\n"; 
     html += "        border: thin solid transparent;\n"; 
     html += "        padding: 0.25em;\n"; 
     html += "        margin-bottom: 1px;\n"; 
@@ -461,8 +724,8 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
     html += "      div[role='navigation'] a:focus,\n"; 
     html += "      div[role='navigation'] a:hover {\n"; 
     html += "        color: black;\n"; 
-    html += "        background-color: #dddddd;\n"; 
-    html += "        border: thin solid #dddddd;\n"; 
+    html += "        background-color: #CCCCCC;\n"; 
+    html += "        border: thin solid #BBBBBB;\n"; 
     html += "      }\n"; 
     html += "      \n"; 
     html += "      div[role='main'] {\n"; 
@@ -485,21 +748,47 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
     html += "        border-collapse: collapse;\n";      
     html += "      }\n"; 
     html += "      \n"; 
+    html += "      div[role='main'] table th.rule {\n"; 
+    html += "        max-width: 25%;"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] table th.type,\n"; 
+    html += "      div[role='main'] table th.pass,\n"; 
+    html += "      div[role='main'] table th.fail,\n"; 
+    html += "      div[role='main'] table th.manual,\n"; 
+    html += "      div[role='main'] table th.hidden,\n"; 
+    html += "      div[role='main'] table th.na,\n"; 
+    html += "      div[role='main'] table th.resources,\n"; 
     html += "      div[role='main'] table th.required_pass,\n"; 
     html += "      div[role='main'] table th.required_fail,\n"; 
     html += "      div[role='main'] table th.required_manual,\n"; 
+    html += "      div[role='main'] table th.required_na,\n"; 
     html += "      div[role='main'] table th.recommended_pass,\n"; 
     html += "      div[role='main'] table th.recommended_fail,\n"; 
     html += "      div[role='main'] table th.recommended_manual,\n"; 
+    html += "      div[role='main'] table th.recommended_na,\n"; 
     html += "      div[role='main'] table th.totals {\n"; 
-    html += "        width: 8em;\n"; 
+    html += "        width: 9%;\n"; 
+    html += "        max-width: 4em;\n"; 
+    html += "        vertical-align: bottom;\n"; 
     html += "      }\n"; 
     html += "      \n"; 
-    html += "      div[role='main'] table tbody th.section {\n"; 
+    html += "      div[role='main'] table th.rule_id {\n"; 
+    html += "        min-width: 5.5em;\n"; 
+    html += "        max-width: 8em;\n"; 
+    html += "        vertical-align: bottom;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] table tr.section th {\n"; 
     html += "        padding-top: 1em;\n"; 
     html += "        text-align: left;\n"; 
     html += "        font-weight: bold;\n"; 
     html += "        font-size: 110%;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] table tr.double th,\n"; 
+    html += "      div[role='main'] table tr.double td {\n"; 
+    html += "        padding-top: 3em;\n"; 
     html += "      }\n"; 
     html += "      \n"; 
     html += "      div[role='main'] table thead th,\n"; 
@@ -507,8 +796,8 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
     html += "        text-align: center;\n"; 
     html += "      }\n"; 
     html += "      \n"; 
-    html += "      div[role='main'] table th[colspan='3'] {\n"; 
-    html += "        font-size: 120%;\n"; 
+    html += "      div[role='main'] table thead th[colspan] {\n"; 
+    html += "        font-size: 125%;\n"; 
     html += "      }\n"; 
     html += "      \n"; 
     html += "      div[role='main'] table tbody th {\n"; 
@@ -519,13 +808,17 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
     html += "      \n"; 
     html += "      div[role='main'] table tr.even th,\n"; 
     html += "      div[role='main'] table tr.even td {\n"; 
-    html += "        background-color: #EEEEEE;\n"; 
+    html += "        background-color: #DDDDDD;\n"; 
     html += "      }\n"; 
     html += "      \n"; 
     html += "      div[role='main'] table tr.totals th,\n"; 
     html += "      div[role='main'] table tr.totals td {\n"; 
     html += "        border-top: solid black thin;\n"; 
     html += "        font-weight: bold;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] table td.title {\n"; 
+    html += "        text-align: left;\n"; 
     html += "      }\n"; 
     html += "      \n"; 
     html += "      div[role='main'] table tr.totals th {\n"; 
@@ -542,6 +835,8 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
     html += "        color: #007800;\n"; 
     html += "      }\n"; 
     html += "      \n"; 
+    html += "      div[role='main'] table tr.even td.required,\n"; 
+    html += "      div[role='main'] table tr.odd  td.required,\n"; 
     html += "      div[role='main'] table tr.even td.required_fail,\n"; 
     html += "      div[role='main'] table tr.odd  td.required_fail {\n"; 
     html += "        color: #900000;\n"; 
@@ -557,6 +852,8 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
     html += "        color: #007800;\n"; 
     html += "      }\n"; 
     html += "      \n"; 
+    html += "      div[role='main'] table tr.even td.recommended,\n"; 
+    html += "      div[role='main'] table tr.odd  td.recommended,\n"; 
     html += "      div[role='main'] table tr.even td.recommended_fail,\n"; 
     html += "      div[role='main'] table tr.odd  td.recommended_fail {\n"; 
     html += "        color: #806000;\n"; 
@@ -565,6 +862,20 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
     html += "      div[role='main'] table tr.even td.recommended_manual,\n"; 
     html += "      div[role='main'] table tr.odd  td.recommended_manual {\n"; 
     html += "        color: #806000;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] table td.zero {\n"; 
+    html += "        color: gray;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] ul.references {\n"; 
+    html += "        list-style: none;\n"; 
+    html += "      }\n"; 
+    html += "      \n"; 
+    html += "      div[role='main'] sup a {\n"; 
+    html += "        color: gray;\n"; 
+    html += "        text-decoration: none;\n"; 
+    html += "        font-size: 80%;\n"; 
     html += "      }\n"; 
     html += "      \n"; 
     html += "    </style>\n"; 
@@ -638,7 +949,7 @@ OpenAjax.a11y.WCAG20Result.prototype.toHTML = function () {
 
   html += toHtmlStart(this.title, this.url);
   
-  html += toHtmlWCAG20Summary(this.title, this.principle_results, wcag20_nls);
+  html += toHtmlWCAG20Summary(this.title, this.principle_results, this.rule_a_summary_results, this.rule_aa_summary_results, this.rule_aaa_summary_results, this.rule_summary_results, wcag20_nls);
   
   for (i = 0; i < this.principle_results.length; i++ ) {
 
@@ -830,7 +1141,7 @@ OpenAjax.a11y.WCAG20ResultSuccessCriterion = function (ruleset_success_criterion
 OpenAjax.a11y.WCAG20ResultSuccessCriterion.prototype.addRuleResult = function (rule_result) {
 
   this.rule_results.push(rule_result);
-
+  this.rule_summary_results.addRuleResult(rule_result);
 };
 
 /** 

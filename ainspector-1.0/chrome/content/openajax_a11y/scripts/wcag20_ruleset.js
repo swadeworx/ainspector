@@ -597,22 +597,22 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.evaluate = function (url, title, doc, prog
                        this.dom_cache[rule.cache_dependency].rule_summary_results.addRuleResult(rule_result);
                      }
 
-                     success_criterion_result.rule_summary_results.addRuleResult(rule_result);
+                     success_criterion_result.addRuleResult(rule_result);
                      guideline_result.rule_summary_results.addRuleResult(rule_result);
                      principle_result.rule_summary_results.addRuleResult(rule_result);
                      this.result.rule_summary_results.addRuleResult(rule_result);
                      
                      switch (rsc.level) {
                      
-                     case 'LEVEL_A':
+                     case OpenAjax.a11y.WCAG20_LEVEL.A:
                        this.result.rule_a_summary_results.addRuleResult(rule_result);
                        break;
                      
-                     case 'LEVEL_AA':
+                     case OpenAjax.a11y.WCAG20_LEVEL.AA:
                        this.result.rule_aa_summary_results.addRuleResult(rule_result);
                        break;
                      
-                     case 'LEVEL_AAA':
+                     case OpenAjax.a11y.WCAG20_LEVEL.AAA:
                        this.result.rule_aaa_summary_results.addRuleResult(rule_result);
                        break;
                        

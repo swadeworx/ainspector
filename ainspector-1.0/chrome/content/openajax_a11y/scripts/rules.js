@@ -54,6 +54,25 @@ OpenAjax.a11y.Rule = function (nls, rule_id, last_updated, cache_dependency, cac
 };
 
 /**
+ * @method getID
+ *
+ * @memberOf OpenAjax.a11y.Rule
+ *
+ * @desc Returns an localized id for the rule
+ *
+ * @return {String} NLS string of the rule id
+ */
+OpenAjax.a11y.Rule.prototype.getID = function () {
+
+  var RULE = OpenAjax.a11y.RULE;
+  
+  var nls_rules = this.nls[OpenAjax.a11y.locale];
+
+  return nls_rules.rules[this.rule_id]['ID'];
+  
+};
+
+/**
  * @method getTitle
  *
  * @memberOf OpenAjax.a11y.Rule
@@ -61,6 +80,8 @@ OpenAjax.a11y.Rule = function (nls, rule_id, last_updated, cache_dependency, cac
  * @desc Returns an localized title for the rule
  *
  * @param {Number}  ruleset_rule_type  - Type of rule (i.e. required, recommended, conditional)
+ *
+ * @return {String} NLS string of the rule title
  */
 OpenAjax.a11y.Rule.prototype.getTitle = function (rule_type) {
 
