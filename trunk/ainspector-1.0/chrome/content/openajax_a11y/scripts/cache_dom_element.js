@@ -785,6 +785,7 @@ OpenAjax.a11y.cache.DOMText.prototype.getText = function() {
  * 
  * @property {Object}     node                - Reference to the 'live' DOM element represented by this object
  * @property {String}     tag_name            - Tag name of the HTML element in lowercase characters (i.e. p, div, h1, span ...)
+ * @property {Array}      aria_properties     - Array of ARIA properties and states defined for the node
  *
  * @property {String}     id                  - id attribute value of the DOM node (can be empty)
  * @property {Number}     id_unique           - Indicates if id is defined, unique or has a duplicate in the document
@@ -802,6 +803,12 @@ OpenAjax.a11y.cache.DOMText.prototype.getText = function() {
  * @property {String}     aria_hidden         - The value of the aria-hidden      attribute of the DOM node
  * @property {String}     aria_label          - The value of the aria-label       attribute of the DOM node
  * @property {String}     aria_labelledby     - The value of the aria-labelledby  attribute of the DOM node
+ *
+ * @property {Boolean}    is_widget           - True if element is a ARIA widget, otherwise false
+ * @property {Boolean}    is_landmark         - True if element is a ARIA landmark, otherwise false
+ * @property {Boolean}    is_live             - True if element is a ARIA live region, otherwise false
+ *
+ * @property {Object}     widget_info         - Object containing information about a widget
  *
  * @property {Object}     events              - Object that contains information about events associated with the node
  * @property {Object}     computed_style      - Object that contains information about run time styling of the node
@@ -821,99 +828,146 @@ OpenAjax.a11y.cache.DOMText.prototype.getText = function() {
 
 OpenAjax.a11y.cache.DOMElement = function (node, parent_dom_element) {
 
- var i;
- var attr;
- var attributes;
- var attributes_len;
+  var i;
+  var attr;
+  var attributes;
+  var attributes_len;
+  var av_object;
 
- // check to make sure it is a valid node
- if (node === null) return null;
+  // check to make sure it is a valid node
+  if (node === null) return null;
 
- this.has_element_children = false;
+  this.has_element_children = false;
  
- this.type           = NODE_TYPE.ELEMENT;
- this.document_order = 0;
- this.node           = node;
- this.tag_name       = node.tagName.toLowerCase();
- this.id             = node.id;
+  this.type           = NODE_TYPE.ELEMENT;
+  this.document_order = 0;
+  this.node           = node;
+  this.tag_name       = node.tagName.toLowerCase();
+  this.id             = node.id;
  
- if (this.id !== '') {
-   this.id_unique  = OpenAjax.a11y.ID.NOT_DEFINED;
- }
- else {
-   this.id_unique  = OpenAjax.a11y.ID.UNIQUE;  
- }
+  if (this.id !== '') {
+    this.id_unique  = OpenAjax.a11y.ID.NOT_DEFINED;
+  }
+  else {
+    this.id_unique  = OpenAjax.a11y.ID.UNIQUE;  
+  }
  
- this.character_count = 0;
+  this.character_count = 0;
 
- // Save relationships with other elements
- this.parent_element = parent_dom_element;
- this.child_dom_elements = [];
- this.aria_properties = [];
+  // Save relationships with other elements
+  this.parent_element = parent_dom_element;
+  this.child_dom_elements = [];
+  this.aria_properties = [];
  
- this.parent_landmark = null;
- this.parent_landmark_role = "";
+  this.parent_landmark = null;
+  this.parent_landmark_role = "";
 
- // Cache important attributes for accessibility
- i = 0;
- attr = null;
- attributes = node.attributes;
- attributes_len = attributes.length;
+  // Cache important attributes for accessibility
+  i = 0;
+  attr = null;
+  attributes = node.attributes;
+  attributes_len = attributes.length;
 
- this.className = "";
- this.has_alt_attribute    = false;
- this.has_aria_describedby = false;
+  this.className = "";
+  this.has_alt_attribute    = false;
+  this.has_aria_describedby = false;
 
- for (i=0; i< attributes.length; i++ ) {
+  this.is_widget = false;
+  this.widget_info = null;
+  this.is_landmark = false;
+  this.is_live = false;
 
-   attr = attributes[i];
+  for (i = 0; i < attributes.length; i++) {
 
-   switch (attr.name) {
+    attr = attributes[i];
 
-   case 'class':
-    this.class_name = attr.value.toLowerCase();
-    break;
+    switch (attr.name) {
 
-   case 'role':
-    this.role = attr.value.toLowerCase();
-    break;
+    case 'class':
+      this.class_name = attr.value.toLowerCase();
+      break;
 
-   case 'alt':
-    this.alt = attr.value;
-    this.has_alt_attribute = true;
-    break;
+    case 'role':
+      var role = attr.value.toLowerCase();
+    
+      this.role = role;
+    
+      var role_object = OpenAjax.a11y.aria.getRoleObject(role);
+      
+      switch (role_object.roleType) {
+    
+      case 'widget':
+        this.is_widget = true;
+        this.widget_info = role_object;
+        break;
+      
+      case 'landmark':
+        this.is_landmark = true;
+        break;
+      
+      case 'live':
+        this.is_live = true;
+        break;
+      
+      default:
+        break;
+    
+      } // end switch
 
-   case 'title':
-    this.title = attr.value;
-    break;
+      break;
 
-   case 'aria-describedby':
-    this.has_aria_describedby = true;
-    this.aria_describedby = attr.value;
-    break;
+    case 'alt':
+      this.alt = attr.value;
+      this.has_alt_attribute = true;
+      break;
 
-   case 'aria-hidden':
-    this.aria_hidden    = attr.value.toLowerCase();
-    break;
+    case 'title':
+      this.title = attr.value;
+      break;
 
-   case 'aria-label':
-    this.aria_label    = attr.value;
-    break;
+    case 'aria-describedby':
+      this.has_aria_describedby = true;
+      this.aria_describedby = attr.value;
+      break;
 
-   case 'aria-labelledby':
-    this.aria_labelledby  = attr.value;
-    break;
+    case 'aria-hidden':
+      this.aria_hidden = attr.value.toLowerCase();
+      break;
 
-   default:
+    case 'aria-label':
+      this.aria_label = attr.value;
+      break;
 
-    if (attr.name.indexOf('aria-') === 0 ) {
-     this.aria_properties.push(attr);
-    }
-    break;
+    case 'aria-labelledby':
+      this.aria_labelledby  = attr.value;
+      break;
 
-   } // end switch
+    case 'aria-live':
+      this.is_live  = true;
+      av_object = new Object();
+     
+      av_object.attribute = attr.name;
+      av_object.value = attr.value;
 
- } // end loop
+      this.aria_properties.push(av_object);
+    
+      break;
+
+    default:
+
+      if (attr.name.indexOf('aria-') === 0 ) {
+     
+        av_object = new Object();
+     
+        av_object.attribute = attr.name;
+        av_object.value = attr.value;
+     
+        this.aria_properties.push(av_object);
+      }
+      break;
+
+    } // end switch
+  } // end loop
 
  this.supports_events = OpenAjax.a11y.SUPPORTS_EVENT_ANALYSIS;
 
@@ -1174,9 +1228,14 @@ OpenAjax.a11y.cache.DOMElement.prototype.getColorContrastSummary = function () {
 OpenAjax.a11y.cache.DOMElement.prototype.getAttributes = function (unsorted) {
 
   var cache_nls = OpenAjax.a11y.cache_nls;
+  var av_object;
  
   var attributes  = [];
-  
+
+  if (this.tag_name === 'img'  || 
+      this.tag_name === 'area' || 
+      this.tag_name === 'applet') cache_nls.addPropertyIfDefined(attributes, this, 'alt');
+
   if (this.id.length) cache_nls.addPropertyIfDefined(attributes, this, 'id');  
   cache_nls.addPropertyIfDefined(attributes, this, 'class_name');
   cache_nls.addPropertyIfDefined(attributes, this, 'role');
@@ -1186,10 +1245,12 @@ OpenAjax.a11y.cache.DOMElement.prototype.getAttributes = function (unsorted) {
   cache_nls.addPropertyIfDefined(attributes, this, 'aria_hidden');
   cache_nls.addPropertyIfDefined(attributes, this, 'aria_label');
   cache_nls.addPropertyIfDefined(attributes, this, 'aria_labelledby');
-  
-  if (this.tag_name === 'img'  || 
-      this.tag_name === 'area' || 
-      this.tag_name === 'applet') cache_nls.addPropertyIfDefined(attributes, this, 'alt');
+
+  for (i = 0; i < this.aria_properties.length; i++) {
+    av_object = this.aria_properties[i];
+    OpenAjax.a11y.console( "  attr: " + av_object.attribute + " " + "  value: " + av_object.value);
+    attributes.push(cache_nls.getLabelAndValueNLS(av_object.attribute, av_object.value));
+  }
   
   if (!unsorted) this.sortItems(attributes);
   
@@ -1365,6 +1426,10 @@ OpenAjax.a11y.cache.DOMElement.prototype.getCacheProperties = function () {
 
   cache_nls.addPropertyIfDefined(properties, this, 'parent_landmark_role');
   cache_nls.addPropertyIfDefined(properties, this, 'parent_landmark');
+
+  cache_nls.addPropertyIfDefined(properties, this, 'is_widget');
+  cache_nls.addPropertyIfDefined(properties, this, 'is_landmark');
+  cache_nls.addPropertyIfDefined(properties, this, 'is_live');
 
   return properties;
 

@@ -2,6 +2,7 @@
 
 cat \
 openajax_a11y_constants.js \
+wai_aria/aria.js \
 scripts/cache_util.js \
 scripts/cache_abbreviations.js \
 scripts/cache_color_contrast.js \

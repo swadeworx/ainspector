@@ -699,9 +699,9 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
 			
       	for (roleDesign in OpenAjax.a11y.aria.designPatterns) {
       		var container = OpenAjax.a11y.aria.designPatterns[roleDesign].container;
-      		if (container != null) {
-      			for (var j=0; j < container.length; j++) {
-      				if (OpenAjax.a11y.xbrowser.indexOf(containerArray, container[j]) == -1) {
+      		if (container !== null) {
+      			for (var j = 0; j < container.length; j++) {
+      				if (OpenAjax.a11y.xbrowser.indexOf(containerArray, container[j]) === -1) {
       				  containerArray.push(container[j]);
       				}
       			}

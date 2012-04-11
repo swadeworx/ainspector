@@ -22,11 +22,13 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
   abbreviation : 'WCAG 2.0',
   title        : 'Web Content Accessibility Guidelines 2.0',
   url          : 'http://www.w3c.org/TR/WCAG20',
-  
+
+  level : "Level ",
+
   levels : {
-    '1' : 'Level A',
-    '2' : 'Level AA',
-    '3' : 'Level AAA'  
+    '1' : 'A',
+    '2' : 'AA',
+    '3' : 'AAA'  
   },
   
   principles : {
@@ -567,27 +569,27 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
           url         : 'http://www.w3.org/TR/WCAG20/#meaning',
           success_criteria : {
             //
-            // Success Criteria 3..1.1 Language of Page
+            // Success Criteria 3.1.1 Language of Page
             //
             '3.1.1': {
-              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '3.1.1 Language of Page',
               description : 'The default human language  of each Web page  can be programmatically determined. ',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-meaning-doc-lang-id',
               references  : []
             },
             //
-            // Success Criteria 3..1.2 Language of Parts
+            // Success Criteria 3.1.2 Language of Parts
             //
             '3.1.2': {
-              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AA,
               title       : '3.1.2 Language of Parts',
               description : 'The human language of each passage or phrase in the content can be programmatically determined except for proper names, technical terms, words of indeterminate language, and words or phrases that have become part of the vernacular of the immediately surrounding text.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-meaning-other-lang-id',
               references  : []
             },
             //
-            // Success Criteria 3..1.3 Unusual Words
+            // Success Criteria 3.1.3 Unusual Words
             //
             '3.1.3': {
               level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
@@ -597,7 +599,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
               references  : []
             },
             //
-            // Success Criteria 3..1.4 Abbreviations
+            // Success Criteria 3.1.4 Abbreviations
             //
             '3.1.4': {
               level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
@@ -607,7 +609,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
               references  : []
             },
             //
-            // Success Criteria 3..1.5 Reading Level
+            // Success Criteria 3.1.5 Reading Level
             //
             '3.1.5': {
               level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
@@ -617,7 +619,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
               references  : []
             },
             //
-            // Success Criteria 3..1.6 Pronunciation
+            // Success Criteria 3.1.6 Pronunciation
             //
             '3.1.6': {
               level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
@@ -637,20 +639,20 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
           url         : 'http://www.w3.org/TR/WCAG20/#consistent-behavior',
           success_criteria : {
             //
-            // Success Criteria 3..2.1 On Focus
+            // Success Criteria 3.2.1 On Focus
             //
             '3.2.1': {
-              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '3.2.1 On Focus',
               description : 'When any component receives focus, it does not initiate a change of context.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-consistent-behavior-receive-focus',
               references  : []
             },
             //
-            // Success Criteria 3..2.2 On Input
+            // Success Criteria 3.2.2 On Input
             //
             '3.2.2': {
-              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '3.2.2 On Input',
               description : 'Changing the setting of any user interface component  does not automatically cause a change of context  unless the user has been advised of the behavior before using the component.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-consistent-behavior-unpredictable-change',
@@ -660,7 +662,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..2.3 Consistent Navigation
             //
             '3.2.3': {
-              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AA,
               title       : '3.2.3 Consistent Navigation',
               description : 'Navigational mechanisms that are repeated on multiple Web pages within a set of Web pages  occur in the same relative order each time they are repeated, unless a change is initiated by the user.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-consistent-behavior-consistent-locations',
@@ -670,7 +672,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..2.4 Consistent Identification
             //
             '3.2.4': {
-              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AA,
               title       : '3.2.4 Consistent Identification',
               description : 'Components that have the same functionality within a set of Web pages are identified consistently.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-consistent-behavior-consistent-functionality',
@@ -700,7 +702,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..3.1 Error Identification
             //
             '3.3.1': {
-              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '3.3.1 Error Identification',
               description : 'If an input error is automatically detected, the item that is in error is identified and the error is described to the user in text.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-minimize-error-identified',
@@ -710,7 +712,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..3.2 Labels or Instructions
             //
             '3.3.2': {
-              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '3.3.2 Labels or Instructions',
               description : 'Labels or instructions are provided when content requires user input.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-minimize-error-cues',
@@ -720,7 +722,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..3.3 Error Suggestion
             //
             '3.3.3': {
-              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AA,
               title       : '3.3.3 Error Suggestion',
               description : 'If an input error is automatically detected and suggestions for correction are known, then the suggestions are provided to the user, unless it would jeopardize the security or purpose of the content.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-minimize-error-suggestions',
@@ -730,7 +732,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 3..3.4 Error Prevention (Legal, Financial, Data)
             //
             '3.3.4': {
-              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AA,
               title       : '3.3.4 Error Prevention (Legal, Financial, Data)',
               description : 'For Web pages that cause legal commitments or financial transactions for the user to occur, that modify or delete user-controllable data in data storage systems, or that submit user test responses, at least one of the following is true:',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-minimize-error-reversible',
@@ -780,7 +782,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 4.2.1 Parsing Content
             //
             '4.1.1': {
-              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '4.1.1 Parsing Content',
               description : 'In content implemented using markup languages, elements have complete start and end tags, elements are nested according to their specifications, elements do not contain duplicate attributes, and any IDs are unique, except where the specifications allow these features.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-ensure-compat-parses',
@@ -790,7 +792,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 4.2.2 Name, Role, Value
             //
             '4.1.2': {
-              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
+              level       : OpenAjax.a11y.WCAG20_LEVEL.A,
               title       : '4.1.2 Name, Role, Value',
               description : 'For all user interface components (including but not limited to: form elements, links and components generated by scripts), the name and role can be programmatically determined; states, properties, and values that can be set by the user can be programmatically set; and notification of changes to these items is available to user agents, including assistive technologies.',
               url         : 'http://www.w3.org/TR/WCAG20/#qr-ensure-compat-rsv',

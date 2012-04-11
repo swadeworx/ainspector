@@ -229,6 +229,18 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
         label       : 'Containing landmark element',
         description : 'Landmark element that contains this content'
       },
+      'is_widget'  : { 
+        label       : 'ARIA widget role',
+        description : 'If element is part of an aria widget'
+      },
+      'is_landmark'  : { 
+        label       : 'ARIA landmark role',
+        description : 'If element is part of an aria widget'
+      },
+      'is_live'  : { 
+        label       : 'ARIA live region',
+        description : 'If element is part of an aria widget'
+      },
 
 
     /*

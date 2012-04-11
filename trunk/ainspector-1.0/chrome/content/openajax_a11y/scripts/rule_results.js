@@ -714,13 +714,14 @@ OpenAjax.a11y.ResultRule.prototype.toString = function () {
  * @property  {Number}  total_number_of_required_rules          - Total number of required rules
  * @property  {Number}  required_rules_all_pass                 - Number of rules where all the nodes pass
  * @property  {Number}  required_rules_with_fail                - Number of rules with at least one node failing
- * @property  {Number}  required_rules_with_manual_checks  - Number of rules with at least one node requiring a manual check
+ * @property  {Number}  required_rules_with_manual_checks       - Number of rules with at least one node requiring a manual check
+ * @property  {Number}  required_rules_with_na                  - Number of rules with at least one node with eitehr a hidden node or not applicable node
  *  
  * @property  {Array}  required_rule_results                    - Rule result objects for required rules
  *
  * @property  {Number}  required_rules_nodes_that_pass          - Number of nodes that pass required rules
  * @property  {Number}  required_rules_nodes_that_fail          - Number of nodes that fail required rules
- * @property  {Number}  required_rules_nodes_manual_checks - Number of nodes that required manual checks of rules
+ * @property  {Number}  required_rules_nodes_manual_checks      - Number of nodes that required manual checks of rules
  * @property  {Number}  required_rules_nodes_informational      
  * @property  {Number}  required_rules_nodes_hidden             
  * @property  {Number}  required_rules_nodes_na                 
@@ -730,9 +731,10 @@ OpenAjax.a11y.ResultRule.prototype.toString = function () {
  * @property  {Number}  recommended_rules_all_pass                
  * @property  {Number}  recommended_rules_with_fail               
  * @property  {Number}  recommended_rules_with_manual_checks 
-  
+ * @property  {Number}  recommended_rules_with_na                - Number of rules with at least one node with eitehr a hidden node or not applicable node
+ *
  * @property  {Array}  recommended_rule_results   
-
+  *
  * @property  {Number}  recommended_rules_nodes_that_pass          
  * @property  {Number}  recommended_rules_nodes_that_fail          
  * @property  {Number}  recommended_rules_nodes_manual_checks 
@@ -745,9 +747,10 @@ OpenAjax.a11y.ResultRuleSummary = function () {
 
   this.total_number_of_required_rules = 0;
   
-  this.required_rules_all_pass                = 0;
-  this.required_rules_with_fail               = 0;
+  this.required_rules_all_pass           = 0;
+  this.required_rules_with_fail          = 0;
   this.required_rules_with_manual_checks = 0;
+  this.required_rules_with_na            = 0;
   
   this.required_rule_results     = [];
 
@@ -760,10 +763,10 @@ OpenAjax.a11y.ResultRuleSummary = function () {
 
   this.total_number_of_recommended_rules = 0;
   
-  this.recommended_rules_all_pass                = 0;
-  this.recommended_rules_with_fail               = 0;
+  this.recommended_rules_all_pass           = 0;
+  this.recommended_rules_with_fail          = 0;
   this.recommended_rules_with_manual_checks = 0;
-  this.recommended_rules_with_warnings           = 0;
+  this.recommended_rules_with_na            = 0;
   
   this.recommended_rule_results     = [];
 
@@ -808,6 +811,9 @@ OpenAjax.a11y.ResultRuleSummary.prototype.addRuleResult = function (rule_result)
     if (rule_result.nodes_manual_checks.length) 
       this.required_rules_with_manual_checks++;
 
+    if (rule_result.nodes_hidden.length || rule_result.nodes_na.length) 
+      this.required_rules_with_na++;
+
     this.required_rules_nodes_that_pass          += rule_result.nodes_passed.length;
     this.required_rules_nodes_that_fail          += rule_result.nodes_failed.length;
     this.required_rules_nodes_manual_checks      += rule_result.nodes_manual_checks.length;
@@ -832,6 +838,9 @@ OpenAjax.a11y.ResultRuleSummary.prototype.addRuleResult = function (rule_result)
 
     if (rule_result.nodes_manual_checks.length) 
       this.recommended_rules_with_manual_checks++;
+
+    if (rule_result.nodes_hidden.length || rule_result.nodes_na.length) 
+      this.recommended_rules_with_na++;
 
     this.recommended_rules_nodes_that_pass          += rule_result.nodes_passed.length;
     this.recommended_rules_nodes_that_fail          += rule_result.nodes_failed.length;
