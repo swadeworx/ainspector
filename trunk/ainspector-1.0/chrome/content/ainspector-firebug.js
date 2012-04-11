@@ -36,13 +36,11 @@ FBL.ns(function() { with (FBL) {
 	showPanel: function(browser, panel) { 
 	   
   	  var isFirebugExtension = panel && panel.name == panel_name;
-  	  FBTrace.sysout("browser: ", browser);
-	  //var FirebugExtensionButtons = browser.chrome.$("fbFirebugExtensionButtons");
-
-  	   var FirebugExtensionButtons = Firebug.chrome.$("fbFirebugExtensionButtons");
-  	   
-  	   cache_object = this.updateCache();
-	   collapse(FirebugExtensionButtons, !isFirebugExtension); 
+      var FirebugExtensionButtons = Firebug.chrome.$("fbFirebugExtensionButtons");
+  	  FBTrace.sysout("FirebugExtensionButtons: ", Firebug.chrome.$("radio-toolbar").children);
+      this.getToolbarButtonSelected(Firebug.chrome.$("radio-toolbar").children, Firebug.currentContext);
+  	 // cache_object = this.updateCache();
+	  collapse(FirebugExtensionButtons, !isFirebugExtension); 
 	},
 	
 	/**
@@ -76,7 +74,6 @@ FBL.ns(function() { with (FBL) {
 	 * @param {Event} event
 	 */
 	ainspectorOnLoad : function(event){
-	  FBTrace.sysout("............ainspectorOnLoad ..........", event);
       var win = event.currentTarget;
 	  var firebug_context;
 	  
@@ -85,22 +82,10 @@ FBL.ns(function() { with (FBL) {
 	  } else {
 		firebug_context = Firebug.currentContext;  
 	  }
-	 var toolbarbuttons = firebug_context.chrome.$("radio-toolbar").children;
-	 var toolbar_button = "images";
-	 for (var i=0; i < toolbarbuttons.length; i=i+2){
-		if (toolbarbuttons[i].checked == true) {
-		  //if (i != 0) toolbarbuttons[i].checked = false;
-		  toolbar_button = toolbarbuttons[i].id;
-		  break;
-		}
-	 }
+	  var toolbar_buttons = firebug_context.chrome.$("radio-toolbar").children;
+	  this.getToolbarButtonSelected(toolbar_buttons, firebug_context); 
 	 
-	 //firebug_context.browser.chrome.$("radio-toolbar").children[0].checked = true;
-	 cache_object = AINSPECTOR_FB.cacheUtil.updateCache();
      AINSPECTOR_FB.event.fire('onload', {'window': win });
-	 FBTrace.sysout("window : " , window);
-	 FBTrace.sysout("firebug_context : " , firebug_context);
-	 window.AINSPECTOR_FB[toolbar_button].viewPanel(firebug_context, panel_name, cache_object);
 	},
 	
 	/**
@@ -111,54 +96,59 @@ FBL.ns(function() { with (FBL) {
 	 * @param {Event} event
 	 */
 	ainspectorOnUnLoad : function(event) {
-		/*var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-	      .getInterface(Components.interfaces.nsIWebNavigation)
-	      .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
-	      .rootTreeItem
-	      .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-	      .getInterface(Components.interfaces.nsIDOMWindow);
-
-	    mainWindow.gBrowser.removeProgressListener(AINSPECTOR_FB.tabProgressListener);*/
 		
-		var win = event.currentTarget;
-        // fire onUnload event.
-        var fbcontext;
+	  var win = event.currentTarget;
+      // fire onUnload event.
+      var fbcontext;
         
-        if (win !== Firebug.currentContext.window) {
-            fbcontext = TabWatcher.getContextByWindow(win);
-        } else {
-            fbcontext = Firebug.currentContext;
-        }
-        AINSPECTOR_FB.event.fire('onUnload', {'window': win});
-        if (fbcontext !== Firebug.currentContext) {
-            return;
-        }
+      if (win !== Firebug.currentContext.window) {
+        fbcontext = TabWatcher.getContextByWindow(win);
+      } else {
+        fbcontext = Firebug.currentContext;
+      }
+      AINSPECTOR_FB.event.fire('onUnload', {'window': win});
+      if (fbcontext !== Firebug.currentContext) {
+        return;
+      }
         
 	},
 	
+	/**
+	 * @function ainspectorOnDOMContentLoaded
+	 *
+	 * @desc
+	 * 
+	 *  @param {Event} event 
+	 */
 	ainspectorOnDOMContentLoaded : function (event){
 		var win = event.currentTarget;
         AINSPECTOR_FB.event.fire('onDOMContentLoaded', {'window': win});
 	},
     
-    /**
-     * @function reportView
-     * 
-     * @desc respond to "Report" button in the AInspector toolbar
-     * 
-     * @param {Object} context
-     */
-    reportView: function(context) { 
-  
-      var panel = context.getPanel(panel_name, true);
-      
-      /* Clear the panel before writing anything onto the report*/
-      if (panel) {
-      	clearNode(panel.panelNode);
-        clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
-      }
-    },
-    
+	/**
+	 * @function getToolbarButtonSelected
+	 * 
+	 * @desc
+	 * 
+	 * @param {Array} toolbarbuttons - 
+	 * @param {firebug_context} firebug_context - 
+	 */
+	getToolbarButtonSelected : function(toolbarbuttons, firebug_context) {
+	
+	 var toolbar_button = "images";
+	 for (var i=0; i < toolbarbuttons.length; i=i+2){
+		if (toolbarbuttons[i].checked == true) {
+		  toolbar_button = toolbarbuttons[i].id;
+		  break;
+		}
+	 }
+		 
+	 //firebug_context.browser.chrome.$("radio-toolbar").children[0].checked = true;
+	 cache_object = AINSPECTOR_FB.cacheUtil.updateCache();
+	 window.AINSPECTOR_FB[toolbar_button].viewPanel(firebug_context, panel_name, cache_object);
+
+	},
+	
     /**
      * @function updateCache
      * 
@@ -179,13 +169,6 @@ FBL.ns(function() { with (FBL) {
         url = window.opener.parent.content.location.href;;
       } // end try
 
-      /*cache_object = new OpenAjax.a11y.RulesetEvaluation();
-      FBTrace.sysout("cache_object: ", cache_object);
-      cache_object.init('WCAG_2_0', 'en-us', doc.location.href, doc.title, doc, null);
-      cache_object.evaluate(true);
-      cache_object.dom_cache.links_cache.sortLinkElements('document_order', true);
-      FBTrace.sysout("cache...............", cache_object);*/
-      
       var ruleset_id = 'WCAG20_ARIA_TRANS';
       var ruleset = OpenAjax.a11y.all_rulesets.getRuleset(ruleset_id);
 
