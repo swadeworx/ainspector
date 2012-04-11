@@ -265,9 +265,7 @@ showOnSelectButton : function(toolbar_button_id) {
 selectTab : function(elem) {
 
 	if (!elem) return;
-	//var category = getClassValue(elem, "toolbarButtonView");
 	var category = elem.id;
-    //FBTrace.sysout("category: "+ category);
 
 	if (category) {
 		var tabList = getAncestorByClass(elem, "focusTabList");

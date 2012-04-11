@@ -59,7 +59,6 @@ with (FBL) {
     	ruleset.setEvaluationLevel(preferences.wcag20_level);
     	ruleset.setBrokenLinkTesting(preferences.broken_links);  
     	ruleset_result_cache = ruleset.evaluate(url, doc.title, doc, null, true);
-        //FBTrace.sysout("Ruleset results object for: " , ruleset_result_cache);
       }
       else {
     	FBTrace.sysout("  ** Ruleset with the id '" + ruleset_id + "' not found!!");
@@ -104,7 +103,7 @@ with (FBL) {
 
 	  onLocationChange: function (webProgress, request, location, flags) {
 	    if (request) { // ignore call if request arg is null
-		      FBTrace.sysout('onLocationChange () location_href: ' + webProgress.DOMWindow.top.location.href);
+		  FBTrace.sysout('onLocationChange () : location_href: ' + webProgress.DOMWindow.top.location.href);
 	
 	      AINSPECTOR_FB.top_location_href = webProgress.DOMWindow.top.location.href;
 	    }
