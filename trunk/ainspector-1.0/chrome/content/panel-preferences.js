@@ -56,8 +56,7 @@ Firebug.preferenceModule = extend(Firebug.Module, {
 	  try {
 		var branch1 = Services.prefs.getBranch("extensions.ainspector.");
 		var ruleset_info = branch1.getChildList("", {});
-		FBTrace.sysout("ruleset information: ", ruleset_info);
-		//var branch2 = Services.prefs.getBranch("extensions.ainspector.");
+
 		var branch2 = Components.classes["@mozilla.org/preferences-service;1"]
         .getService(Components.interfaces.nsIPrefService).getBranch("extensions.ainspector.");
 
@@ -78,7 +77,7 @@ Firebug.preferenceModule = extend(Firebug.Module, {
 	 * 
 	 * @memberOf 
 	 * 
-	 * @desc sets defualt preferences when no preferences are set on the window
+	 * @desc sets defualt preferences when no preferences are set on the xul window
 	 */
 	setDefaultPreferences : function(){
 	
@@ -123,7 +122,6 @@ Firebug.preferenceModule = extend(Firebug.Module, {
 	    level_AA: level_AA,
 	    level_AAA: level_AAA
 	  }
-	  FBTrace.sysout("viewPanel of preferences");
 	  window.openDialog("chrome://ainspector/content/preferences.xul", "",
            "chrome,centerscreen,dialog,modal,resizable=yes", args);
     },

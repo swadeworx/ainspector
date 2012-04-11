@@ -19,16 +19,6 @@ FBL.ns(function() { with (FBL) {
   var main_panel = AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.name");
   var side_panel_name = AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.sidepanel.attributes.name");
   var side_panel_title = AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.sidepanel.attributes.title");
-  //var toolbarbuttons = Firebug.currentContext.browser.chrome.$("radio-toolbar").children;
-   /*FBTrace.sysout("selected toolbar button in main panel: " );
-
-   for (var i=0; i < toolbarbuttons.length; i=i+2){ 	    
-  	if (toolbarbuttons[i].checked == true && toolbarbuttons[i].id == "colorContrast_button") {
- 	      FBTrace.sysout("selected toolbar button in main panel: " + toolbarbuttons[i].id);
- 	     my_panel = "";
-	      break;
-	    }
-   }*/
    
   /**
    * @panel attributesSidePanel displaying Rule results for the current selected 

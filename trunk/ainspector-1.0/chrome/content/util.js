@@ -1019,9 +1019,9 @@ FBL.ns(function() { with (FBL) {
 		  if (cell) cell.focus();
 		  break;
 		case 40: //down
-			  FBTrace.sysout("event in keypress to highlight: ", event);
+			  //FBTrace.sysout("event in keypress to highlight: ", event);
 		  var row = findNext(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow);
-		  FBTrace.sysout("row: ", row);
+		  //FBTrace.sysout("row: ", row);
 		  if (row) {
 		    row.focus();
 		    AINSPECTOR_FB.flatListTemplateUtil.highlightTreeRow(event, row);
@@ -1630,17 +1630,11 @@ AINSPECTOR_FB.event = {
 	    	  AINSPECTOR_FB.style_registered = panelType_style;
 	    	  AINSPECTOR_FB.properties_registered = panelType_properties;
 	    	  AINSPECTOR_FB.events_registered = panelType_events;
-			  FBTrace.sysout("before rule");
 	    	  if (panelType_rule) AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_rule);
-	    	  FBTrace.sysout("after rule before attr" );
 	    	  if (panelType_attributes) AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_attributes);
-	    	  FBTrace.sysout("after attr before style");
 	    	  if (panelType_style) AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_style);
-	    	  FBTrace.sysout("after style before prop");
 	    	  if (panelType_properties) AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_properties);
-	    	  FBTrace.sysout("after prop before evewnt");
 	    	  if (panelType_events) AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_events);
-	    	  FBTrace.sysout("afeter event");
 	    	  return;
 	      }
 	      
