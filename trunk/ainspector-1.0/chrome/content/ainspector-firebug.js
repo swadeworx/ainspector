@@ -85,7 +85,7 @@ FBL.ns(function() { with (FBL) {
 	  var toolbar_buttons = firebug_context.chrome.$("radio-toolbar").children;
 	  this.getToolbarButtonSelected(toolbar_buttons, firebug_context); 
 	 
-     AINSPECTOR_FB.event.fire('onload', {'window': win });
+      AINSPECTOR_FB.event.fire('onload', {'window': win });
 	},
 	
 	/**
