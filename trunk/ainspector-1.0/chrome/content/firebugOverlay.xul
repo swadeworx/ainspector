@@ -59,8 +59,7 @@
     <hbox id="fbToolbarInner" insertbefore="fbDetachButton" flex="1" align="center"> 
       <hbox id="fbFirebugExtensionButtons" insertafter="fbNetButtons"> 
         <toolbarseparator/>
-	      <toolbox> 
-          <toolbar id="radio-toolbar">
+          
             <toolbarbutton id="images" label="&ainspector.toolbarbutton.images.label;" class="toolbar-text-button fbInternational" checked="true" command="ainspector_images_view_button" type="radio" group="RadioGroup"/>
             <toolbarseparator/>
             <toolbarbutton id="media" label="&ainspector.toolbarbutton.media.label;" class="toolbar-text-button fbInternational" command="ainspector_media_view_button" type="radio" group="RadioGroup"/>
@@ -84,8 +83,7 @@
             <toolbarspacer/>
             <toolbarspacer/>
             <toolbarbutton id="preferences" label="&ainspector.toolbarbutton.preferences.label;" class="toolbar-text-button fbInternational" command="ainspector_preferences_view_button" type="radio" group="RadioGroup"/> 
-          </toolbar>   
-        </toolbox>  
+          
       </hbox> 
     </hbox>   
   </toolbar> 
