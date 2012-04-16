@@ -7217,6 +7217,8 @@ OpenAjax.a11y.cache.DOMElement = function (node, parent_dom_element) {
     
       var role_object = OpenAjax.a11y.aria.getRoleObject(role);
       
+      if (!role_object) break;
+      
       switch (role_object.roleType) {
     
       case 'widget':
