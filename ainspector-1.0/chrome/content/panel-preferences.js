@@ -56,16 +56,17 @@ Firebug.preferenceModule = extend(Firebug.Module, {
 	  try {
 		var branch1 = Services.prefs.getBranch("extensions.ainspector.");
 		var ruleset_info = branch1.getChildList("", {});
-
+		FBTrace.sysout("ruleset_info: ", ruleset_info);
 		var branch2 = Components.classes["@mozilla.org/preferences-service;1"]
         .getService(Components.interfaces.nsIPrefService).getBranch("extensions.ainspector.");
-
+		FBTrace.sysout("branch2: ", branch2);
 		preferences.ruleset_id = branch2.getCharPref(ruleset_info[0]);
 
 	    preferences.wcag20_level = branch2.getIntPref(ruleset_info[1]);                              
 	    
-	    preferences.broken_links = branch2.getBoolPref(ruleset_info[3]);    
+	    preferences.broken_links = branch2.getBoolPref(ruleset_info[2]);    
 	  } catch(e) {
+		FBTrace.sysout("get defualt ruleset");  
 	    preferences = this.setDefaultPreferences();
 	  }
 
@@ -100,9 +101,9 @@ Firebug.preferenceModule = extend(Firebug.Module, {
 	setPreferences : function(preferences){
 		
 	  FBTrace.sysout("Set Preferences:");
-	  FBTrace.sysout("   Ruleset ID: " + preferences.ruleset_id);
-	  FBTrace.sysout("   WCAG Level: " + preferences.wcag20_level);
-	  FBTrace.sysout("  Broken Link: " + preferences.broken_links);
+//	  FBTrace.sysout("   Ruleset ID: " + preferences.ruleset_id);
+	//  FBTrace.sysout("   WCAG Level: " + preferences.wcag20_level);
+	  //FBTrace.sysout("  Broken Link: " + preferences.broken_links);
 	  var branch2 = Components.classes["@mozilla.org/preferences-service;1"]
       .getService(Components.interfaces.nsIPrefService);
 	  

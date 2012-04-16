@@ -37,8 +37,8 @@ FBL.ns(function() { with (FBL) {
 	   
   	  var isFirebugExtension = panel && panel.name == panel_name;
       var FirebugExtensionButtons = Firebug.chrome.$("fbFirebugExtensionButtons");
-  	  FBTrace.sysout("FirebugExtensionButtons: ", Firebug.chrome.$("radio-toolbar").children);
-      this.getToolbarButtonSelected(Firebug.chrome.$("radio-toolbar").children, Firebug.currentContext);
+  	  FBTrace.sysout("FirebugExtensionButtons: ", Firebug.chrome.$("fbFirebugExtensionButtons"));
+      this.getToolbarButtonSelected(Firebug.chrome.$("fbFirebugExtensionButtons").children, Firebug.currentContext);
   	 // cache_object = this.updateCache();
 	  collapse(FirebugExtensionButtons, !isFirebugExtension); 
 	},
@@ -82,7 +82,7 @@ FBL.ns(function() { with (FBL) {
 	  } else {
 		firebug_context = Firebug.currentContext;  
 	  }
-	  var toolbar_buttons = firebug_context.chrome.$("radio-toolbar").children;
+	  var toolbar_buttons = firebug_context.chrome.$("fbFirebugExtensionButtons").children;
 	  this.getToolbarButtonSelected(toolbar_buttons, firebug_context); 
 	 
       AINSPECTOR_FB.event.fire('onload', {'window': win });
@@ -136,7 +136,7 @@ FBL.ns(function() { with (FBL) {
 	getToolbarButtonSelected : function(toolbarbuttons, firebug_context) {
 	
 	 var toolbar_button = "images";
-	 for (var i=0; i < toolbarbuttons.length; i=i+2){
+	 for (var i=1; i < toolbarbuttons.length; i=i+2){
 		if (toolbarbuttons[i].checked == true) {
 		  toolbar_button = toolbarbuttons[i].id;
 		  break;

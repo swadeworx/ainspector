@@ -105,9 +105,9 @@ with (FBL) {
                 TAG("$toolbarButtons", {toolbar_buttons : "$toolbar_buttons"}),
                 BUTTON({class: "button", onclick: "$toHTMLPanel"}, "HTML Panel"),
                 SPAN({class: "ruleset_select"}, "Ruleset:  "),
-                SPAN({class: "ruleset_value"}, "$preferences.ruleset_id"),
+                SPAN({class: "ruleset_value"}, "$preferences.ruleset_id|AINSPECTOR_FB.toolbarUtil.getRulesetTitle"),
                 SPAN({class: "ruleset_level"}, " Level:  "),
-                SPAN({class: "ruleset_value"}, "$preferences.wcag20_level|getLevel")
+                SPAN({class: "ruleset_value"}, "$preferences.wcag20_level|AINSPECTOR_FB.toolbarUtil.getLevel")
               ), 
   
     toolbarButtons : UL ({class : "yui-nav focusTabList toolbarLinks", role : "tablist", onkeypress : "$AINSPECTOR_FB.toolbarUtil.onToolbarKeyPress", "aria-label" :  "element views"},
@@ -118,20 +118,7 @@ with (FBL) {
                        )//end for
     
     ),
-    
-    /**
-     * @function getLevel
-     * 
-     * @desc
-     */
-    getLevel : function (level){
-	
-	   if (level == 1) return "Level A (lowest level of accessibility)";
-	   else if (level == 2) return "Level A & AA";
-	   else return "Level A, AA & AAA (highest level of accessibility)";
-		   
-    },
-    
+
     /**
      * toHTMLPanel
      * 

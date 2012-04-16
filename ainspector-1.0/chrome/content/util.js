@@ -828,6 +828,43 @@ FBL.ns(function() { with (FBL) {
         var panel = Firebug.chrome.selectPanel("html");
         panel.select(node);
       },
+      
+      /**
+       * @function getRulesetLEvel
+       * 
+       * @memberOf AINSPECTOR_FB.toolbarUtil
+       * 
+       * @desc returns a level in which the ruleset is evaluated
+       * 
+       * @param {Number} level
+       * 
+       * @return A, AA && AAA
+       */
+      getLevel : function (level){
+    		
+   	   if (level == 1) return "A";
+   	   else if (level == 2) return "A & AA";
+   	   else return "A, AA & AAA";
+   		   
+       },
+       
+      /**
+       * @functon getRulesetTitle
+       * 
+       * @desc gets the ruleset tilte
+       * 
+       * @param {String} ruleset_id - ID of the ruleset
+       * 
+       * @return ruleset Title
+       */
+      getRulesetTitle : function (ruleset_id) {
+      
+        if (ruleset_id == 'WCAG20_ARIA_TRANS') 
+        	return 'WCAG 2.0 ARIA Transitional';
+        else if (ruleset_id == 'WCAG20_ARIA_STRICT')
+        	return 'WCAG 2.0 ARIA Strict';
+        else return 'IITAA 2.0';
+      },
 
       viewContainer : DIV({style : "display:none"}),
     
@@ -844,9 +881,9 @@ FBL.ns(function() { with (FBL) {
     getSelectedToolbarButton : function(context){
     
       //var toolbarbuttons = context.browser.chrome.$("radio-toolbar").children;
-    	  var toolbarbuttons = context.chrome.$("radio-toolbar").children;
+    	  var toolbarbuttons = context.chrome.$("fbFirebugExtensionButtons").children;
    	  var toolbar_button;
-   	  for (var i=0; i < toolbarbuttons.length; i=i+2){
+   	  for (var i=1; i < toolbarbuttons.length; i=i+2){
    		if (toolbarbuttons[i].checked == true) {
    		  //if (i != 0) toolbarbuttons[i].checked = false;
    		  toolbar_button = toolbarbuttons[i].id;
