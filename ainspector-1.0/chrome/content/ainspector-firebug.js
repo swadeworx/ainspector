@@ -83,7 +83,7 @@ FBL.ns(function() { with (FBL) {
 		firebug_context = Firebug.currentContext;  
 	  }
 	  var toolbar_buttons = firebug_context.chrome.$("fbFirebugExtensionButtons").children;
-	  this.getToolbarButtonSelected(toolbar_buttons, firebug_context); 
+	  Firebug.ainspectorModule.getToolbarButtonSelected(toolbar_buttons, firebug_context); 
 	 
       AINSPECTOR_FB.event.fire('onload', {'window': win });
 	},
