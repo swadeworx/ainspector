@@ -60,11 +60,14 @@ Firebug.preferenceModule = extend(Firebug.Module, {
 		var branch2 = Components.classes["@mozilla.org/preferences-service;1"]
         .getService(Components.interfaces.nsIPrefService).getBranch("extensions.ainspector.");
 		FBTrace.sysout("branch2: ", branch2);
-		preferences.ruleset_id = branch2.getCharPref(ruleset_info[0]);
+		
+		preferences.ruleset_id = branch2.getCharPref("rulesetId");
+        preferences.wcag20_level = branch2.getIntPref("wcag20Level");                              
+	    preferences.broken_links = branch2.getBoolPref("brokenLinks");
 
-	    preferences.wcag20_level = branch2.getIntPref(ruleset_info[1]);                              
+	    //preferences.wcag20_level = branch2.getIntPref(ruleset_info[1]);                              
 	    
-	    preferences.broken_links = branch2.getBoolPref(ruleset_info[2]);    
+	    //preferences.broken_links = branch2.getBoolPref(ruleset_info[2]);    
 	  } catch(e) {
 		FBTrace.sysout("get defualt ruleset");  
 	    preferences = this.setDefaultPreferences();
