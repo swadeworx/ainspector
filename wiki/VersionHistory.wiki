@@ -2,11 +2,22 @@
 
 = Version History =
 
+== Version alpha 0.92 ==
+
+=== Features ===
+  * Added a XUL window for "Preferences" in the A11Y toolbar to select a ruleset (i.e., WCAG2.0 Trans, WCAG 2.0 Strict and IITAA)
+  * Highlights the element on the web page which ever selected on the A11Y Panel
+  * "Style" side Panel exists only for the Color Contrast toolbar button and "Attributes", "Properties" and "Events" side panels doesnot exists for "ColorContrast" toolbar button
+  * Every Panel(i.e., Images, Media, Headings/Landmarks etc..) except "Preferences" in the A11Y toolbar displays the information about ruleset selected and the WCAG level (A, AA & AAA)
+
+=== Issues ===
+  * Fixed styling issue for the toolbar buttons on MAC 
+
 == Version alpha 0.91 == 
   * Images/Media are separated and made as two toolbar buttons.
   * Click on any row in any of the list and tree views will highlight the node on the website
-  * Style side Panel exists only for the Color Contrast toolbar buttons and is disabled for other toolbar buttons
-  * Attributes, Properties and Events side panels are disabled for Color Contrast toolbar button and enabled for other toolbar buttons.
+  * "Style" side Panel exists only for the "ColorContrast" toolbar buttons and is disabled for other toolbar buttons
+  * "Attributes", "Properties" and "Events" side panels are disabled for Color Contrast toolbar button and enabled for other toolbar buttons.
 
 == Version alpha 0.90 == 
   * New OAA Cache library to evaluate the web pages
