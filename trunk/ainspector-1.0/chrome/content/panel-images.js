@@ -46,7 +46,7 @@ with (FBL) {
 	if (!cache_object) cache_object = AINSPECTOR_FB.cacheUtil.updateCache();  
     panel = context.getPanel(panel_name, true);
 
-    FBTrace.sysout("preferences in images: ", AINSPECTOR_FB.preferences);
+//    FBTrace.sysout("preferences in images: ", AINSPECTOR_FB.preferences);
     
     /* Clear the panel before writing anything onto the report*/
     if (panel) {
