@@ -47,7 +47,7 @@ Firebug.preferenceModule = extend(Firebug.Module, {
 	/**
 	 * @function getRulesetPrefs
 	 * 
-	 * @memberOf Firebug
+	 * @memberOf Firebug.preferenceModule
 	 */
 	getRulesetPrefs: function(){
 	  
@@ -56,10 +56,10 @@ Firebug.preferenceModule = extend(Firebug.Module, {
 	  try {
 		var branch1 = Services.prefs.getBranch("extensions.ainspector.");
 		var ruleset_info = branch1.getChildList("", {});
-		FBTrace.sysout("ruleset_info: ", ruleset_info);
+		//FBTrace.sysout("ruleset_info: ", ruleset_info);
 		var branch2 = Components.classes["@mozilla.org/preferences-service;1"]
         .getService(Components.interfaces.nsIPrefService).getBranch("extensions.ainspector.");
-		FBTrace.sysout("branch2: ", branch2);
+		//FBTrace.sysout("branch2: ", branch2);
 		
 		preferences.ruleset_id = branch2.getCharPref("rulesetId");
         preferences.wcag20_level = branch2.getIntPref("wcag20Level");                              
@@ -79,7 +79,7 @@ Firebug.preferenceModule = extend(Firebug.Module, {
 	/**
 	 * @function setDefaultPreferences
 	 * 
-	 * @memberOf 
+	 * @memberOf Firebug.preferenceModule 
 	 * 
 	 * @desc sets defualt preferences when no preferences are set on the xul window
 	 */
@@ -100,15 +100,20 @@ Firebug.preferenceModule = extend(Firebug.Module, {
 	
 	/**
 	 * @function setPreferences
+	 * 
+	 * @memberOf Firebug.preferenceModule
+	 * 
+	 * @desc sets the rulesetId, WCAG Level (A, AA && AAA) and broken links information to the mozilla's global preferences 
+	 * 
+	 * @param {Object} preferences - collection of ruleset information
 	 */
 	setPreferences : function(preferences){
 		
-	  FBTrace.sysout("Set Preferences:");
+//	  FBTrace.sysout("Set Preferences:");
 //	  FBTrace.sysout("   Ruleset ID: " + preferences.ruleset_id);
-	//  FBTrace.sysout("   WCAG Level: " + preferences.wcag20_level);
-	  //FBTrace.sysout("  Broken Link: " + preferences.broken_links);
-	  var branch2 = Components.classes["@mozilla.org/preferences-service;1"]
-      .getService(Components.interfaces.nsIPrefService);
+//	  FBTrace.sysout("   WCAG Level: " + preferences.wcag20_level);
+//	  FBTrace.sysout("  Broken Link: " + preferences.broken_links);
+	  var branch2 = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
 	  
 	  branch2.setCharPref('extensions.ainspector.rulesetId',   preferences.ruleset_id );                              
 	  branch2.setIntPref('extensions.ainspector.wcag20Level',  preferences.wcag20_level);                              
@@ -116,6 +121,13 @@ Firebug.preferenceModule = extend(Firebug.Module, {
 
 	},
 	
+	/**
+	 * @function viewPanel
+	 * 
+	 * @memberOf Firebug.preferenceModule
+	 * 
+	 * @desc respond to "Preference" button on A11Y toolbar
+	 */
 	viewPanel : function() {
 	  var args = {
 	    FBL: FBL,
