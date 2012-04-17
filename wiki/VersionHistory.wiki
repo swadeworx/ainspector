@@ -13,6 +13,10 @@
 === Issues ===
   * Fixed styling issue for the toolbar buttons on MAC 
 
+=== Note ===
+  * This build works only with the Firebug 1.10.a5 and later builds of Firebug. 
+  * Here is a link to the Firebug-1.10.a5 http://blog.getfirebug.com/2012/03/09/firebug-1-10a5/
+
 == Version alpha 0.91 == 
   * Images/Media are separated and made as two toolbar buttons.
   * Click on any row in any of the list and tree views will highlight the node on the website
