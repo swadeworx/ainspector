@@ -14,7 +14,19 @@
  * limitations under the License.
  */
 
-var AINSPECTOR_FB = AINSPECTOR_FB || {};
+//var AINSPECTOR_FB = AINSPECTOR_FB || {};
+FBTrace.sysout("AINSPECTOR_FB in UTILS: ", AINSPECTOR_FB);	
+
+if (!AINSPECTOR_FB.highlightModule) {
+  var Cu = Components.utils; 
+
+  try {
+	AINSPECTOR_FB.highlightModule = Cu["import"]("resource://ainspector/highlight.js");
+    FBTrace.sysout("in try block", AINSPECTOR_FB.highlightModule);
+  } catch (error) {
+    FBTrace.sysout("in catch block: ", error);	
+  }
+}
 
 FBL.ns(function() { with (FBL) {
   
@@ -680,7 +692,7 @@ FBL.ns(function() { with (FBL) {
       if (obj.selected) className += " selected";
       
       if (obj.first) className += " first";
-    
+      FBTrace.sysout("className: ", className);
       return className;
     },
     
@@ -739,6 +751,7 @@ FBL.ns(function() { with (FBL) {
      */
     getTabIndex : function(obj) {
       
+      if (obj == 'temp') return 0;
       return obj.selected ? "0" : "-1";
     },
     
@@ -763,8 +776,11 @@ FBL.ns(function() { with (FBL) {
           var tabList = getAncestorByClass(event.target, "focusTabList");
           //get all the tabs from the toolbar
           tabs = tabList.getElementsByClassName("focusTab");
+          FBTrace.sysout("tabs...............................", tabs);
+          FBTrace.sysout("event.target...............................", event.target);
+
           var currentIndex = Array.indexOf(tabs, event.target);
-          
+          FBTrace.sysout("currentIndex..............................."+ currentIndex);
           if (currentIndex != -1) {
             var newIndex = forward ? ++currentIndex : --currentIndex;
             //get the focus back to the first tab on the tool bar from the last tab of the toolbar
@@ -789,6 +805,7 @@ FBL.ns(function() { with (FBL) {
        * @returns
        */
       getSelectedState : function (obj) {
+    	  if (obj == 'temp') return 'true';  
         return obj.selected ? "true" : "false";
       },
       
@@ -896,108 +913,250 @@ FBL.ns(function() { with (FBL) {
   
   AINSPECTOR_FB.flatListTemplateUtil = {
 
-	/**
-	 * @FUNCTION onKeyPressTable
+    /**
+     * @functin getTableRowClass
+     */
+	getTableRowClass : function(object) {
+	
+	  if (object == null) { 
+		  return "tableRowView-tabHeader";
+	  
+	  } else {
+		  var className = "tableRowView-" + object.cache_id;
+	      
+	      if (object.selected) className += " selected";
+	      
+	      if (object.first) className += " first";
+	      FBTrace.sysout("className: ", className);
+	      return className;  
+	  }
+	  
+		
+	},
+	
+    /**
+	 * @function onKeyPressTable
 	 * 
-	 * @desc
+	 * @desc focus on a row with the keyboard events
 	 * 
 	 * @param event event triggered when any keyboard's right, left, up and down arrows are pressed
 	 */
-	onKeyPressTable : function(event){
+	onKeyPressTable: function(event){
 	  
+	  FBTrace.sysout("Inside OnKeyPressTable...................: ", event);
 	  event.stopPropagation();
+	  var table = getAncestorByClass(event.target, "ai-table-list-items");
 	  
-	  switch(event.keyCode) {
-	  
-	    case 38: //up
-		  //var row = findPrevious(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow);
-	    	var row = findPrevious(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow);
-		  if (row) row.focus();
-		  break;
-		case 39: //right
-		  var cell = AINSPECTOR_FB.ainspectorUtil.getChildByClass(event.target, "gridCell");
-		  AINSPECTOR_FB.flatListTemplateUtil.hightlightCell(event);
-		  if (cell) cell.focus();
-		  break;
-		case 40: //down
-		  var index = AINSPECTOR_FB.ainspectorUtil.findElementIndex(event.target);
-		  var row = getAncestorByClass(event.target, "gridRow");
-		  if (event.target.id == "imgTableHeader") {
-			row = row.parentNode.nextSibling.firstChild;
-		  } else {
-			row = row.nextSibling;
+	  FBTrace.sysout("Inside OnKeyPressTable table...................: ", table);
+
+      switch(event.keyCode) {
+        
+        case KeyEvent.DOM_VK_LEFT: //  
+	    case KeyEvent.DOM_VK_UP: //up
+		  var row = findPrevious(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow);
+		  if (row) {
+		    row.focus();
+		    AINSPECTOR_FB.flatListTemplateUtil.highlightRow(event, row);
 		  }
-	   	  if (row) row.focus();
 		  break;
-		case 13:
-		  var table = getAncestorByClass(event.target, "ai-table-list-items");
-	      var column = getChildByClass(event.target, "gridCell");
-	      AINSPECTOR_FB.ainspectorUtil.sortColumn(table, column);
+		case KeyEvent.DOM_VK_RIGHT: //right
+		  //var cell = AINSPECTOR_FB.ainspectorUtil.getChildByClass(event.target, "gridCell");
+		  //if (cell) cell.focus();
+		  //break;
+		case KeyEvent.DOM_VK_DOWN: //down
+
+		  if (table.tabIndex == '0') {
+			table.setAttribute('tabindex', '-1');
+			table.rows[0].setAttribute('tabindex', '0');
+			table.rows[0].focus();
+			break;
+		  }	
+		  var all_rows = table.getElementsByClassName("gridRow");
+		  
+		  FBTrace.sysout("all_rows: ", all_rows);
+          var current_index = Array.indexOf(all_rows, event.target);
+          var index = Array.indexOf(all_rows, event.target);
+          FBTrace.sysout("current_index: "+ current_index);
+          var key = event.keyCode;
+          var forward = key == KeyEvent.DOM_VK_RIGHT || key == KeyEvent.DOM_VK_DOWN;
+          
+          if (current_index != -1) {
+        	  var new_index = forward ? ++current_index : --current_index;
+              //get the focus back to the first tab on the tool bar from the last tab of the toolbar
+        	  new_index = new_index < 0 ? all_rows.length -1 : (new_index >= all_rows.length ? 0 : new_index);
+              
+              if (all_rows[new_index]) { 
+            	  var next_row = all_rows[new_index];
+                  FBTrace.sysout("next_row: ", next_row);
+
+            	  //unhighlighting from rows in panel
+            	  var current_row = all_rows[index];
+                  FBTrace.sysout("current_row: ", current_row);
+
+            	  if (current_index != 0) {
+            	    AINSPECTOR_FB.ainspectorUtil.removeClass(current_row, "gridRowSelected");
+      	            for (var c=0; c< current_row.cells.length; c++) AINSPECTOR_FB.ainspectorUtil.removeClass(current_row.cells[c], "gridCellSelected");
+            	  }
+
+            	  //highlight rows from panel
+      	          all_rows[new_index].focus();
+            	  AINSPECTOR_FB.ainspectorUtil.setClass(next_row, "gridRowSelected");
+      	          for (var i=0; i< next_row.cells.length; i++) AINSPECTOR_FB.ainspectorUtil.setClass(next_row.cells[i], "gridCellSelected");
+//      	          this.highlightCacheItemOnBrowser(next_row.repObject);
+      	        highlightModule.highlightNodes(next_row.repObject, window.content.document);
+
+              }
+              
+          }
+          event.stopPropagation();
+          event.preventDefault();
+          
+          break;
+          
+        case KeyEvent.DOM_VK_TAB:
+        	FBTrace.sysout("*********tab click***********", event);
+        	//var panel = Firebug.chrome.getSelectedPanel();
+            var sidePanel = Firebug.chrome.getSelectedSidePanel();
+            FBTrace.sysout("sidePanel: ", sidePanel);
+//            if (sidePanel) {
+//            	sidePanel.panelNode.setAttribute("tabindex", "0");
+//                sidePanel.panelNode.focus();
+//                setClass(sidePanel.panelNode, "focusRow");
+//            }
+        	break;
+        }
+    },
+    
+    onKeyPressTree : function (event) {
+    
+      FBTrace.sysout("Inside onKeyPressTree...................: ", event);
+  	  event.stopPropagation();
+  	  var table = getAncestorByClass(event.target, "domTree");
+  	  
+  	  FBTrace.sysout("Inside onKeyPressTree...................: ", table);
+
+        switch(event.keyCode) {
+          
+          case KeyEvent.DOM_VK_LEFT: //  
+  	      case KeyEvent.DOM_VK_UP: //up
+  		    var row = findPrevious(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow);
+  		  
+  		    if (row) {
+  		      row.focus();
+  		      AINSPECTOR_FB.flatListTemplateUtil.highlightRow(event, row);
+  		    }
+  		    break;
+  		  case KeyEvent.DOM_VK_RIGHT: //right
+  		    
+  		  case KeyEvent.DOM_VK_DOWN: //down
+
+  		  if (table.tabIndex == '0') {
+  			table.setAttribute('tabindex', '-1');
+  			table.rows[0].setAttribute('tabindex', '0');
+  			table.rows[0].focus();
+  			break;
+  		  }	
+  		  var all_rows = table.getElementsByClassName("gridRow");
+  		  
+  		  FBTrace.sysout("all_rows: ", all_rows);
+            var current_index = Array.indexOf(all_rows, event.target);
+            var index = Array.indexOf(all_rows, event.target);
+            FBTrace.sysout("current_index: "+ current_index);
+            var key = event.keyCode;
+            var forward = key == KeyEvent.DOM_VK_RIGHT || key == KeyEvent.DOM_VK_DOWN;
+            
+            if (current_index != -1) {
+          	  var new_index = forward ? ++current_index : --current_index;
+                //get the focus back to the first tab on the tool bar from the last tab of the toolbar
+          	  new_index = new_index < 0 ? all_rows.length -1 : (new_index >= all_rows.length ? 0 : new_index);
+                
+                if (all_rows[new_index]) { 
+              	  var next_row = all_rows[new_index];
+                    FBTrace.sysout("next_row: ", next_row);
+
+              	  //unhighlighting from rows in panel
+              	  var current_row = all_rows[index];
+                    FBTrace.sysout("current_row: ", current_row);
+
+              	  if (current_index != 0) {
+              	    AINSPECTOR_FB.ainspectorUtil.removeClass(current_row, "gridRowSelected");
+        	            for (var c=0; c< current_row.cells.length; c++) AINSPECTOR_FB.ainspectorUtil.removeClass(current_row.cells[c], "gridCellSelected");
+              	  }
+
+              	  //highlight rows from panel
+        	          all_rows[new_index].focus();
+              	  AINSPECTOR_FB.ainspectorUtil.setClass(next_row, "gridRowSelected");
+        	          for (var i=0; i< next_row.cells.length; i++) AINSPECTOR_FB.ainspectorUtil.setClass(next_row.cells[i], "gridCellSelected");
+//        	          this.highlightCacheItemOnBrowser(next_row.repObject);
+        	          highlightModule.highlightNodes(next_row.repObject, window.content.document);
+
+                }
+                
+            }
+            event.stopPropagation();
+            event.preventDefault();
+            
+            break;
+        }
+      	
+    },
+    
+    /**
+     * @function onFocus
+     * 
+     * @desc
+     * 
+     * @param {Event} event
+     */
+    onFocus : function(event) {
+
+      FBTrace.sysout("event in Focus: ", event.target);	
+      
+      var event_target = event.target;
+      if (!event_target) return;
+      
+      var category = getClassValue(event_target, "tableRowView");
+      FBTrace.sysout("category: ", category);
+      //if (category) {
+        var table_rows = getAncestorByClass(event_target, "gridRow");
+        if (table_rows) {
+          var old_row = getElementByClass(table_rows, "selected");
+
+          if (old_row) {
+        	  old_row.setAttribute("aria-selected", "false");
+        	  old_row.setAttribute("tabindex", "-1");
+              removeClass(old_row, "selected");
+          }
+        }
+
+        event_target.setAttribute("aria-selected", "true");
+        event_target.setAttribute("tabindex", "0");
+        setClass(event_target, "selected");
+
+      //}
+    },
+    
+    /**
+     * @function htmlButtonPress
+     * 
+     * @desc
+     * 
+     * @param {Event} event
+     */
+    htmlButtonPress : function(event) {
+    
+      switch(event.keyCode) {
+		  
+	    case 13: //Enter
+//	      var table = getAncestorByClass(event.target, "ai-table-list-items");
+//	      var column = getAncestorByClass(event.target, "gridHeaderCell");
+//	      AINSPECTOR_FB.ainspectorUtil.sortColumn(table, column);
+	      AINSPECTOR_FB.images.equivToolbarPlate.toHTMLPanel(event);
 		  break;
-		  //cell.focus();
 	  }
     },
     
     /**
-     * hightlight
-     *  
-     * @desc
-     * 
-     * @param event event triggered when mouse click happens
-     * 
-     * @returns
-     */
-    hightlight: function (event) {
-	    
-	  var table = getAncestorByClass(event.target, "ai-table-list-items");
-      var row =  getAncestorByClass(event.target, "gridRow");
-      var tbody = null;
-      var id = row.id;
-      if (row.id == "imgTableHeader") 
-    	tbody = table.children[0];
-      else 
-    	tbody = table.children[1];
-
-     
-      var i;
-      var j;
-      var k;
-      var cell_selected = false;
-      var child;
-      var row;
-      var cell;
-      
-      for (i = 0; i < tbody.children.length; i++) {
-          var flag = false;
-          var row = tbody.children[i];
-          
-          for (j = 0; j < row.children.length; j++) {
-        	  cell = row.children[j];
-        	  //cell_selected = getChildByClass(cell, "gridCellSelected");
-        	 
-        	  for (var k=0; k<cell.classList.length;k++) {
-       	  
-        		if (cell.classList[k] ==  "gridCellSelected") {
-        		  cell_selected = true;
-                AINSPECTOR_FB.ainspectorUtil.removeClass(cell, "gridCellSelected");
-       		  flag = true;
-                break;
-             }
-        	 }  
-        	 if (flag == true) break;
-         }
-         if (flag == true) break;
-       }
-
-       var column = getAncestorByClass(event.target, "gridCell");
-       AINSPECTOR_FB.ainspectorUtil.setClass(column, "gridCellSelected");
-
-        //AINSPECTOR_FB.ainspectorUtil.setClass(row_cell, "gridCellSelected");
-        //var row_cells = cell.childNodes;
-      
-    },
-    
-	/**
 	 * @function onKeyPressRow
 	 * 
 	 * @desc focus on a row with the keyboard events
@@ -1032,7 +1191,7 @@ FBL.ns(function() { with (FBL) {
     },
     
     /**
-	 * @function onKeyPressRow
+	 * @function onKeyPressTreeRow
 	 * 
 	 * @desc focus on a row with the keyboard events
 	 * 
@@ -1218,7 +1377,10 @@ FBL.ns(function() { with (FBL) {
       for (var i=0; i< row.children.length; i++) {
       	AINSPECTOR_FB.ainspectorUtil.setClass(row.children[i], "gridCellSelected");
       }
-      this.highlightCacheItemOnBrowser(row.repObject);
+//      this.highlightCacheItemOnBrowser(row.repObject);
+      FBTrace.sysout("row.rep: ", row.repObject);
+      highlightModule.highlightNodes([row.repObject], window.content.document);
+
     },
     
     /**
@@ -1244,6 +1406,25 @@ FBL.ns(function() { with (FBL) {
       if (!current_row) { //to highlight header cells
     	current_row =  getAncestorByClass(event.target, "gridHeaderRow");
   	    tbody = table.children[0];
+  	    
+  	    if (event.keyCode == 38 || event.keyCode == 37) {
+  	      	
+    	  //current_row = table.children[1].children[]; 
+
+        } else if (event.keyCode == 40 || event.keyCode == 39){
+    	  table.children[0].children[0].blur();
+    	  current_row = table.children[1].children[0]; 
+    	  table.children[1].children[0].focus();
+    	  AINSPECTOR_FB.ainspectorUtil.setClass(current_row, "gridRowSelected");
+          FBTrace.sysout("current_row: ", current_row);
+          
+//          this.highlightCacheItemOnBrowser(current_row.repObject);
+          highlightModule.highlightNodes(current_row.repObject, window.content.document);
+          for (var c=0; c< current_row.children.length; c++) {
+      	  AINSPECTOR_FB.ainspectorUtil.setClass(current_row.children[c], "gridCellSelected");
+          }
+          return;
+        }
       }
     
       for (var i = 0; i < tbody.children.length; i++) {
@@ -1271,8 +1452,10 @@ FBL.ns(function() { with (FBL) {
         	  current_row = tbody.children[i-1]; 
 
           } else if (event.keyCode == 40 || event.keyCode == 39){
+        	  
         	  current_row = tbody.children[i+1]; 
-
+        	  FBTrace.sysout("current_row: " , tbody.children[i]);
+        	  FBTrace.sysout("next_row: " , tbody.children[i+1]);
           }
     	  break;
     	}
@@ -1280,9 +1463,13 @@ FBL.ns(function() { with (FBL) {
       }
       
         AINSPECTOR_FB.ainspectorUtil.setClass(current_row, "gridRowSelected");
+        
+        //this.highlightCacheItemOnBrowser(current_row.repObject);
+        FBTrace.sysout("document content: ", window.content.document);
         FBTrace.sysout("current_row: ", current_row);
         
-        this.highlightCacheItemOnBrowser(current_row.repObject);
+        highlightModule.highlightNodes([current_row.repObject], window.content.document);
+
         for (var c=0; c< current_row.children.length; c++) {
     	  AINSPECTOR_FB.ainspectorUtil.setClass(current_row.children[c], "gridCellSelected");
         }
@@ -1346,7 +1533,8 @@ FBL.ns(function() { with (FBL) {
         
       }
       AINSPECTOR_FB.ainspectorUtil.setClass(current_row, "gridRowSelected");
-      this.highlightCacheItemOnBrowser(current_row.repObject);
+//      this.highlightCacheItemOnBrowser(current_row.repObject);
+      highlightModule.highlightNodes(current_row.repObject, window.content.document);
       for (var c=0; c< current_row.children.length; c++) {
     	AINSPECTOR_FB.ainspectorUtil.setClass(current_row.children[c], "gridCellSelected");
       }
@@ -1386,6 +1574,7 @@ FBL.ns(function() { with (FBL) {
 
 	  if (node) {
 	    node.style.outline = "medium solid red";
+	    node.style.background="url(chrome://ainspector/skin/twistyClosed.png)";
 	    // If true, element is aligned with top of scroll area.
 	    // If false, it is aligned with bottom.
 	    node.scrollIntoView(false);
@@ -1596,6 +1785,18 @@ AINSPECTOR_FB.event = {
 	        }
 	        return true;
 	    },
+	    
+	    /**
+	     * @function dispatchMouseEvent
+	     * 
+	     * @desc
+	     * 
+	     * @param {Object} node
+	     * @param {Object} eventType
+	     * @param {Object} clientX
+	     * @param {Object} clientY
+	     * @param {Object} button
+	     */
 	    dispatchMouseEvent : function (node, eventType, clientX, clientY, button) {
 	        if (!clientX)
 	            clientX = 0;
@@ -1612,7 +1813,8 @@ AINSPECTOR_FB.event = {
 	        node.dispatchEvent(event);
 	    },
 	};
-  AINSPECTOR_FB.tabPanelUtil = {
+  
+AINSPECTOR_FB.tabPanelUtil = {
 	  updateToolbar: function(panelType, toolbar_button)
 	    {
 	        var removeBtn = Firebug.chrome.$(toolbar_button);
