@@ -58,6 +58,7 @@ with (FBL) {
 
     var toolbar = panel.document.createElement("div");
     toolbar.id = "toolbarDiv";
+    
     var images_cache = cache_object.dom_cache.images_cache;
     images_cache.sortImageElements('document_order', true);
 
@@ -71,6 +72,7 @@ with (FBL) {
 	panel.panelNode.id = "ainspector-panel"; 
 	panel.panelNode.appendChild(toolbar);
 	panel.panelNode.appendChild(element);
+	FBTrace.sysout("image elements: ", image_elements);
 	  
     panel.table = AINSPECTOR_FB.images.imagesTemplate.tableTag.append( {image_elements: image_elements}, panel.panelNode, AINSPECTOR_FB.images.imagesTemplate);
 	this.select(image_elements[0]);
@@ -100,7 +102,7 @@ with (FBL) {
    */
   AINSPECTOR_FB.images.equivToolbarPlate = domplate({
     toolbar : DIV( {class : "nav-menu"},
-                BUTTON({class: "button", onclick: "$toHTMLPanel"}, "HTML Panel"),
+                BUTTON({class: "button", onclick: "$toHTMLPanel", id: "html_panel_button", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.htmlButtonPress"}, "HTML Panel"),
                 SPAN({class: "ruleset_select"}, "Ruleset:  "),
                 SPAN({class: "ruleset_value"}, "$preferences.ruleset_id|AINSPECTOR_FB.toolbarUtil.getRulesetTitle"),
                 SPAN({class: "ruleset_level"}, " Level:  "),
@@ -116,7 +118,7 @@ with (FBL) {
      * @param event event triggered on a row/cell of a images/media/abbreviation toolbar buttons
      */
     toHTMLPanel: function(event) {
-
+      
       var table = getChildByClass(event.target.offsetParent, "ai-table-list-items");
 	  var row =  getChildByClass(event.target.offsetParent, "tableRow");
       var child;
@@ -159,36 +161,36 @@ with (FBL) {
     
 	  tableTag:
       
-	  TABLE({class: "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "", role: "treegrid", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressTable"},
+	  TABLE({class: "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "", role: "grid", "aria-selected" : "true",
+		  tabindex: "0", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressTable"},
         THEAD(
-          TR({class: "gridHeaderRow gridRow", id: "imgTableHeader", role: "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader"},
-              TH({class: "gridHeaderCell gridCell", id: "imgElementHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Element")),
-              TH({class: "gridHeaderCell gridCell", id: "imgOrderHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Height")),
-              TH({class: "gridHeaderCell gridCell", id: "imgOrderHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Width")),
-              TH({class: "gridHeaderCell gridCell", id: "imgTextHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "AltText")),
-              //TH({class: "gridHeaderCell gridCell", id: "imgSrcHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Source")),
-              TH({class: "gridHeaderCell gridCell", id: "imgOrderHeaderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Accessibility Summary"))
+        	TR({class: "firstRow gridHeaderRow gridRow", id: "imgTableHeader", role: "row", "aria-selected" : "false", tabindex: "-1", 
+             onfocus: "$AINSPECTOR_FB.flatListTemplateUtil.onFocus", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader"},
+              TH({class: "gridHeaderCell gridCell", id: "imgElementHeaderCol", role: "columnheader"}, DIV({class: "gridHeaderCellBox"}, "Element")),
+              TH({class: "gridHeaderCell gridCell", id: "imgOrderHeaderCol", role: "columnheader"}, DIV({class: "gridHeaderCellBox"}, "Height")),
+              TH({class: "gridHeaderCell gridCell", id: "imgOrderHeaderCol", role: "columnheader"}, DIV({class: "gridHeaderCellBox"}, "Width")),
+              TH({class: "gridHeaderCell gridCell", id: "imgTextHeaderCol", role: "columnheader"}, DIV({class: "gridHeaderCellBox"}, "AltText")),
+              TH({class: "gridHeaderCell gridCell", id: "imgOrderHeaderCol", role: "columnheader"}, DIV({class: "gridHeaderCellBox"}, "Accessibility Summary"))
           ) //end TR
         ), //end THEAD
         TBODY(
           FOR("object", "$image_elements",
-            TR({class: "tableRow  gridRow", role: "row", id: "$object.cache_id", _repObject:"$object", onclick: "$highlightRow", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
-              TD({class: "imgEleCol gridCell gridCol ",  id:"imgSrcCol", role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+            TR({class: "tableRow  gridRow", role: "row", "aria-selected" : "$object|$AINSPECTOR_FB.toolbarUtil.getSelectedState", tabindex: "$object|$AINSPECTOR_FB.toolbarUtil.getTabIndex", 
+			id: "$object.cache_id", _repObject:"$object", 
+	     onclick: "$highlightRow", onfocus: "$AINSPECTOR_FB.flatListTemplateUtil.onFocus", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
+              TD({class: "imgEleCol gridCell gridCol ",  id:"imgSrcCol", role: "gridcell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({class: "gridContent", _repObject:"$object"}, "$object.dom_element.tag_name")
               ),
-              TD({class: "imgOrderCol gridCell gridCol", id:"imgOrderCol" , role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+              TD({class: "imgOrderCol gridCell gridCol", id:"imgOrderCol" , role: "gridcell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({class: "gridContent", _repObject:"$object"}, "$object.height")
               ),
-              TD({class: "imgOrderCol gridCell gridCol", id:"imgOrderCol" , role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+              TD({class: "imgOrderCol gridCell gridCol", id:"imgOrderCol" , role: "gridcell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({class: "gridContent", _repObject:"$object"}, "$object.width")
               ),
-              TD({class: "imgTextCol gridCell gridCol ",  id:"imgSrcCol", role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+              TD({class: "imgTextCol gridCell gridCol ",  id:"imgSrcCol", role: "gridcell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({class: "gridContent", _repObject:"$object"}, TAG("$object.alt|getAlt", {'object': '$object'}))
               ),
-             // TD({class: "imgSourceCol gridCell gridCol ", id: "imgTextCol", role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
-               // DIV({class: "gridContent", _repObject:"$object", title: "$object.source"}, "$object.source|getFileName")
-             // ),
-              TD({class: "imgOrderCol gridCell gridCol", id:"imgOrderCol" , role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+              TD({class: "imgOrderCol gridCell gridCol", id:"imgOrderCol" , role: "gridcell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({class: "gridContent", _repObject:"$object"}, TAG("$object|getAccessibility", {'object': '$object'}))
               )
             )//end TR   
@@ -197,7 +199,7 @@ with (FBL) {
       ), // end inner TABLE
 
       styleTag : DIV({class: "styleLabel"},"empty alt"),
-      normalTag : DIV({class: "gridContent"},"$object.alt"),
+      normalTag : DIV({class: "gridContent", title: "$object.alt"},"$object.alt|AINSPECTOR_FB.ainspectorUtil.truncateText"),
       strTagPass : DIV({class: "passMsgTxt"}, "$object|getSummary"),
       strTagViolation : DIV({class: "violationMsgTxt"}, "$object|getSummary"),
       strTagManual : DIV({class: "manualMsgTxt"}, "$object|getSummary"),

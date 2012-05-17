@@ -343,9 +343,11 @@ with (FBL) {
   AINSPECTOR_FB.links.allLinksTemplate = domplate({
 
     tableTag:
-      TABLE({class: "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "", role: "treegrid", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressTable"},
+      TABLE({class: "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "", role: "grid", "aria-selected" : "true",
+		  tabindex: "0", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressTable"},
         THEAD(
-          TR({class: "gridHeaderRow gridRow", id: "linksTableHeader", role: "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader"},
+          TR({class: "firstRow gridHeaderRow gridRow", id: "linksTableHeader", role: "row", "aria-selected" : "false", tabindex: "-1",
+        	  onfocus: "$AINSPECTOR_FB.flatListTemplateUtil.onFocus", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader"},
             TH({class: "gridHeaderCell gridCell", id: "linkOrderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"},"Element")),
             TH({class: "gridHeaderCell gridCell", id: "linkNameCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"},"Name")),
             TH({class: "gridHeaderCell gridCell", id: "linkHrefCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"},"Link Type")),
@@ -355,7 +357,9 @@ with (FBL) {
         ), //end THEAD
         TBODY(
           FOR("object", "$link_elements",
-            TR({class: "tableRow gridRow", role: "row", id: "$object.cache_id", _repObject:"$object", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow", onclick: "$highlightRow", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
+            TR({class: "tableRow gridRow", role: "row", "aria-selected" : "$object|$AINSPECTOR_FB.toolbarUtil.getSelectedState", tabindex: "$object|$AINSPECTOR_FB.toolbarUtil.getTabIndex", 
+             id: "$object.cache_id", _repObject:"$object", onfocus: "$AINSPECTOR_FB.flatListTemplateUtil.onFocus",
+             onclick: "$highlightRow", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
               TD({class: "gridCell gridCol", role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({class: "gridContent", _repObject:"$object"}, "$object.dom_element.tag_name")
               ),
@@ -429,9 +433,11 @@ with (FBL) {
   AINSPECTOR_FB.links.areaTemplate = domplate({
 
     tag:
-      TABLE({class: "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "", role: "treegrid", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressTable"},
+      TABLE({class: "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "", role: "grid", "aria-selected" : "true",
+		  tabindex: "0", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressTable"},
         THEAD(
-          TR({class: "gridHeaderRow gridRow", id: "linksTableHeader", role: "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader"},
+          TR({class: "firstRow gridHeaderRow gridRow", id: "linksTableHeader", role: "row","aria-selected" : "false", tabindex: "-1", 
+           onfocus: "$AINSPECTOR_FB.flatListTemplateUtil.onFocus", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader"},
             TH({class: "gridHeaderCell gridCell", id: "linkOrderCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"},"Element")),
             TH({class: "gridHeaderCell gridCell", id: "linkNameCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"},"Name")),
             TH({class: "gridHeaderCell gridCell", id: "linkHrefCol", role: "columnheader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"},"Href")),
@@ -441,17 +447,19 @@ with (FBL) {
         ), //end THEAD
         TBODY(
           FOR("object", "$area_elements",
-            TR({class: "tableRow gridRow", role: "row", id: "$object.cache_id", _repObject:"$object", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow", onclick: "$highlightRow", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
-              TD({class: "gridCell gridCol", role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+            TR({class: "tableRow gridRow", role: "row", id: "$object.cache_id", _repObject:"$object", 
+             "aria-selected" : "$object|$AINSPECTOR_FB.toolbarUtil.getSelectedState", tabindex: "$object|$AINSPECTOR_FB.toolbarUtil.getTabIndex", 
+             onfocus: "$AINSPECTOR_FB.flatListTemplateUtil.onFocus", onclick: "$highlightRow", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
+              TD({class: "gridCell gridCol", role: "gridcell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({class: "gridContent", _repObject:"$object"}, "$object.dom_element.tag_name")
               ),
-              TD({class: "gridCell gridCol", role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+              TD({class: "gridCell gridCol", role: "gridcell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
             	DIV({class: "gridContent", _repObject:"$object", title:"$object.name" }, "$object.name|AINSPECTOR_FB.ainspectorUtil.truncateText")
               ),
-              TD({class: "gridCell gridCol", role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+              TD({class: "gridCell gridCol", role: "gridcell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
             	DIV({id: "$object.document_order", class: "gridContent", _repObject:"$object"}, "$object|getFileName")
               ),
-              TD({class: "gridCell gridCol", role: "gridcell", tabindex: "-1", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+              TD({class: "gridCell gridCol", role: "gridcell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                	DIV({id: "$object.document_order", class: "gridContent", _repObject:"$object"}, TAG("$object|getAccessibility", {'object': '$object'}))
               )
             )//end TR   
@@ -528,9 +536,11 @@ with (FBL) {
     AINSPECTOR_FB.links.duplicateNameOrHrefTemplate = domplate({
     	  
       tag:
-    	TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, onclick: "$onClick", tabindex: 0, onkeypress: "$onKeyPressedTable"},
+    	TABLE({class: "domTree domTable", cellpadding: 0, cellspacing: 0, 
+    	  onclick: "$onClick", tabindex: "0", "aria-selected": "true", onkeypress: "$onKeyPressTable"},
 	      THEAD(
-	    	TR({class: "gridHeaderRow ", id: "imgTableHeader", role: "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader"},
+	    	TR({class: "gridHeaderRow ", id: "imgTableHeader", role: "row", tabindex: "-1", "aria-selected" : "false",
+	    	 onfocus: "$AINSPECTOR_FB.flatListTemplateUtil.onFocus", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader"},
 	    	  FOR("headerName", "$properties",
 	    		TH({class: "gridHeaderCell", id: "abbrEleCol"}, DIV({class: "gridHeaderCellBox"}, "$headerName"))
 	    	  ) //end FOR  
@@ -543,7 +553,8 @@ with (FBL) {
 	    
 	  row:
 	    TR({class: "treeRow gridRow", $hasChildren: "$member.hasDuplicates", _newObject: "$member", _repObject: "$member.value",
-         level: "$member.level", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressTreeRow", onclick: "$onClickTreeRow"},
+	     "aria-selected" : "$member|$AINSPECTOR_FB.toolbarUtil.getSelectedState", tabindex: "$member|$AINSPECTOR_FB.toolbarUtil.getTabIndex",
+         level: "$member.level", onfocus: "$AINSPECTOR_FB.flatListTemplateUtil.onFocus", onclick: "$onClickTreeRow"},
           TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px"}, 
             TAG("$member.tag", {'member' :"$member", 'object': "$member"})
           ),
@@ -553,8 +564,9 @@ with (FBL) {
 	    ),
 	
       childrow:
-	    TR({class: "treeRow gridRow", _repObject: "$member.value", 
-	     level: "$member.level", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressTreeRow", onclick: "$onClickTreeRow"},
+	    TR({class: "treeRow gridRow", _repObject: "$member.value",
+	     "aria-selected" : "$member|$AINSPECTOR_FB.toolbarUtil.getSelectedState", tabindex: "$member|$AINSPECTOR_FB.toolbarUtil.getTabIndex",
+	     level: "$member.level", onfocus: "$AINSPECTOR_FB.flatListTemplateUtil.onFocus", onclick: "$onClickTreeRow"},
 	      TD(
          ),
 	     TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member".value},
@@ -650,24 +662,6 @@ with (FBL) {
 	  },
 
 	  /**
-	   * @function onKeyPressedTable
-	   * 
-	   * @desc 
-	   */
-	  onKeyPressedTable: function(event) {
-			
-	    switch(event.keyCode) {
-	        
-		  case 39: //right
-		    event.stopPropagation();
-	        event.preventDefault();
-	        var label = findNextDown(event.target, this.isTreeRow);
-	        label.focus();
-	        break;
-		}
-	  },
- 
-	  /**
 	   * @function isTreeRow
 	   * 
 	   * @desc check the node has a class treeRow
@@ -700,46 +694,67 @@ with (FBL) {
 	   * 
 	   * @return focus on a row
 	   */
-	  onKeyPressedRow: function(event) {
-	
-	    event.stopPropagation();
-	    
-	    switch(event.keyCode) {
-	      case 37: //left
-	        event.preventDefault();
-	        var row = getAncestorByClass(event.target, "treeRow");
-	            
-	        if (hasClass(row, "opened")) { // if open
-	       	  this.closeRow(row); // close
-	        } else {
-	    	  var table = getAncestorByClass(event.target, "domTable");
-	          table.focus(); // focus parent;
-	        }
-	        break;
-	          
-	      case 38: //up
-	        event.preventDefault();
-	        var row = findPrevious(event.target, this.isTreeRow, false);
-	        row.focus();
-	        break;
-	            
-	      case 39: //right
-	        event.preventDefault();
-	        var row = getAncestorByClass(event.target, "treeRow");
+	  onKeyPressTable: function(event) {
+		  event.stopPropagation();
+          FBTrace.sysout("event.target: ", event.target);
 
-	        if (hasClass(row, "hasChildren")) this.openRow(row);
-	        break;
+			switch(event.keyCode) {
+	          case KeyEvent.DOM_VK_LEFT: //left
+	            event.preventDefault();
+	            var row = getAncestorByClass(event.target, "treeRow");
 	            
-          case 40: //down
-    	    event.preventDefault();
-	        var row = findNext(event.target, this.isTreeRow, false);
-	        row.focus();
-	        break;
-	           
-          case 13: //Enter
-    	    event.preventDefault();
-	        break;
-	    }
+	            if (hasClass(row, "opened")) { // if open
+	              this.closeRow(row); // close
+	            } else {
+	              var table = getAncestorByClass(event.target, "domTable");
+	              table.focus(); // focus parent;
+	            }
+	            break;
+	          
+	          case KeyEvent.DOM_VK_UP: //up
+	            event.preventDefault();
+	            var table = getAncestorByClass(event.target, "domTable");
+
+	            FBTrace.sysout("table in tree up direction..................: ", table);
+
+	            var row = findPrevious(event.target, this.isTreeRow, false);
+	            FBTrace.sysout("row: ", row);
+	            if (row) {
+	            	AINSPECTOR_FB.flatListTemplateUtil.highlightTreeRow(event, row);
+	            } else {	
+	              if (event.target.rowIndex == '1') row = table.rows[0];
+	            }
+	            row.focus();
+	            break;
+	            
+	          case KeyEvent.DOM_VK_RIGHT: //right
+	            event.preventDefault();
+	            var row = getAncestorByClass(event.target, "treeRow");
+
+	            if (hasClass(row, "hasChildren")) this.openRow(row);
+	            break;
+	            
+	          case KeyEvent.DOM_VK_DOWN: //down
+	            event.preventDefault();
+	            var table = getAncestorByClass(event.target, "domTable");
+
+	            FBTrace.sysout("table in tree: ", table);
+	            var row = findNext(event.target, this.isTreeRow, false);
+	            FBTrace.sysout("row: ", row);
+
+	            if (row) row.focus();
+
+	            //If the event is fired on header row, rowIndex check is made to make sure header row is not highlight.
+	            if (!event.target.rowIndex == '0') AINSPECTOR_FB.flatListTemplateUtil.highlightTreeRow(event, row);
+	            break;
+	            
+	          case KeyEvent.DOM_VK_ENTER: //Enter
+	            event.preventDefault();
+	            var links = event.target.getElementsByClassName('objectLink');
+	          
+	            if (links[0]) AINSPECTOR.util.event.dispatchMouseEvent(links[0], 'click');
+	      		break;
+			}
 	  },
     
 	  
