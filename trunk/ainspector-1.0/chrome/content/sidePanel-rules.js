@@ -92,6 +92,7 @@ FBL.ns(function() { with (FBL) {
        var next_cell;
        
        var table_rows = event.target.offsetParent.rows;
+       if (!table_rows) return;
        var no_of_rows = table_rows.length;
        var flag = false;
        for (var row=0; row < no_of_rows; row++) {
