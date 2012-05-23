@@ -15,16 +15,15 @@
  */
 
 //var AINSPECTOR_FB = AINSPECTOR_FB || {};
-FBTrace.sysout("AINSPECTOR_FB in UTILS: ", AINSPECTOR_FB);	
 
 if (!AINSPECTOR_FB.highlightModule) {
   var Cu = Components.utils; 
 
   try {
 	AINSPECTOR_FB.highlightModule = Cu["import"]("resource://ainspector/highlight.js");
-    FBTrace.sysout("in try block", AINSPECTOR_FB.highlightModule);
+//    FBTrace.sysout("in try block", AINSPECTOR_FB.highlightModule);
   } catch (error) {
-    FBTrace.sysout("in catch block: ", error);	
+    FBTrace.sysout("error while creating highlightModule Object ", error);	
   }
 }
 
@@ -692,7 +691,6 @@ FBL.ns(function() { with (FBL) {
       if (obj.selected) className += " selected";
       
       if (obj.first) className += " first";
-      FBTrace.sysout("className: ", className);
       return className;
     },
     
@@ -776,11 +774,9 @@ FBL.ns(function() { with (FBL) {
           var tabList = getAncestorByClass(event.target, "focusTabList");
           //get all the tabs from the toolbar
           tabs = tabList.getElementsByClassName("focusTab");
-          FBTrace.sysout("tabs...............................", tabs);
-          FBTrace.sysout("event.target...............................", event.target);
 
           var currentIndex = Array.indexOf(tabs, event.target);
-          FBTrace.sysout("currentIndex..............................."+ currentIndex);
+
           if (currentIndex != -1) {
             var newIndex = forward ? ++currentIndex : --currentIndex;
             //get the focus back to the first tab on the tool bar from the last tab of the toolbar
@@ -927,7 +923,7 @@ FBL.ns(function() { with (FBL) {
 	      if (object.selected) className += " selected";
 	      
 	      if (object.first) className += " first";
-	      FBTrace.sysout("className: ", className);
+
 	      return className;  
 	  }
 	  
@@ -943,12 +939,9 @@ FBL.ns(function() { with (FBL) {
 	 */
 	onKeyPressTable: function(event){
 	  
-	  FBTrace.sysout("Inside OnKeyPressTable...................: ", event);
 	  event.stopPropagation();
 	  var table = getAncestorByClass(event.target, "ai-table-list-items");
 	  
-	  FBTrace.sysout("Inside OnKeyPressTable table...................: ", table);
-
       switch(event.keyCode) {
         
         case KeyEvent.DOM_VK_LEFT: //  
@@ -973,10 +966,8 @@ FBL.ns(function() { with (FBL) {
 		  }	
 		  var all_rows = table.getElementsByClassName("gridRow");
 		  
-		  FBTrace.sysout("all_rows: ", all_rows);
           var current_index = Array.indexOf(all_rows, event.target);
           var index = Array.indexOf(all_rows, event.target);
-          FBTrace.sysout("current_index: "+ current_index);
           var key = event.keyCode;
           var forward = key == KeyEvent.DOM_VK_RIGHT || key == KeyEvent.DOM_VK_DOWN;
           
@@ -987,11 +978,9 @@ FBL.ns(function() { with (FBL) {
               
               if (all_rows[new_index]) { 
             	  var next_row = all_rows[new_index];
-                  FBTrace.sysout("next_row: ", next_row);
 
             	  //unhighlighting from rows in panel
             	  var current_row = all_rows[index];
-                  FBTrace.sysout("current_row: ", current_row);
 
             	  if (current_index != 0) {
             	    AINSPECTOR_FB.ainspectorUtil.removeClass(current_row, "gridRowSelected");
@@ -1003,7 +992,7 @@ FBL.ns(function() { with (FBL) {
             	  AINSPECTOR_FB.ainspectorUtil.setClass(next_row, "gridRowSelected");
       	          for (var i=0; i< next_row.cells.length; i++) AINSPECTOR_FB.ainspectorUtil.setClass(next_row.cells[i], "gridCellSelected");
 //      	          this.highlightCacheItemOnBrowser(next_row.repObject);
-      	        highlightModule.highlightNodes(next_row.repObject, window.content.document);
+      	        highLight.highlightModule.highlightNodes(next_row.repObject, window.content.document);
 
               }
               
@@ -1014,10 +1003,8 @@ FBL.ns(function() { with (FBL) {
           break;
           
         case KeyEvent.DOM_VK_TAB:
-        	FBTrace.sysout("*********tab click***********", event);
         	//var panel = Firebug.chrome.getSelectedPanel();
             var sidePanel = Firebug.chrome.getSelectedSidePanel();
-            FBTrace.sysout("sidePanel: ", sidePanel);
 //            if (sidePanel) {
 //            	sidePanel.panelNode.setAttribute("tabindex", "0");
 //                sidePanel.panelNode.focus();
@@ -1029,13 +1016,10 @@ FBL.ns(function() { with (FBL) {
     
     onKeyPressTree : function (event) {
     
-      FBTrace.sysout("Inside onKeyPressTree...................: ", event);
   	  event.stopPropagation();
   	  var table = getAncestorByClass(event.target, "domTree");
   	  
-  	  FBTrace.sysout("Inside onKeyPressTree...................: ", table);
-
-        switch(event.keyCode) {
+      switch(event.keyCode) {
           
           case KeyEvent.DOM_VK_LEFT: //  
   	      case KeyEvent.DOM_VK_UP: //up
@@ -1058,10 +1042,8 @@ FBL.ns(function() { with (FBL) {
   		  }	
   		  var all_rows = table.getElementsByClassName("gridRow");
   		  
-  		  FBTrace.sysout("all_rows: ", all_rows);
             var current_index = Array.indexOf(all_rows, event.target);
             var index = Array.indexOf(all_rows, event.target);
-            FBTrace.sysout("current_index: "+ current_index);
             var key = event.keyCode;
             var forward = key == KeyEvent.DOM_VK_RIGHT || key == KeyEvent.DOM_VK_DOWN;
             
@@ -1072,11 +1054,9 @@ FBL.ns(function() { with (FBL) {
                 
                 if (all_rows[new_index]) { 
               	  var next_row = all_rows[new_index];
-                    FBTrace.sysout("next_row: ", next_row);
 
               	  //unhighlighting from rows in panel
               	  var current_row = all_rows[index];
-                    FBTrace.sysout("current_row: ", current_row);
 
               	  if (current_index != 0) {
               	    AINSPECTOR_FB.ainspectorUtil.removeClass(current_row, "gridRowSelected");
@@ -1088,7 +1068,7 @@ FBL.ns(function() { with (FBL) {
               	  AINSPECTOR_FB.ainspectorUtil.setClass(next_row, "gridRowSelected");
         	          for (var i=0; i< next_row.cells.length; i++) AINSPECTOR_FB.ainspectorUtil.setClass(next_row.cells[i], "gridCellSelected");
 //        	          this.highlightCacheItemOnBrowser(next_row.repObject);
-        	          highlightModule.highlightNodes(next_row.repObject, window.content.document);
+        	          highLight.highlightModule.highlightNodes(next_row.repObject, window.content.document);
 
                 }
                 
@@ -1110,13 +1090,10 @@ FBL.ns(function() { with (FBL) {
      */
     onFocus : function(event) {
 
-      FBTrace.sysout("event in Focus: ", event.target);	
-      
       var event_target = event.target;
       if (!event_target) return;
       
       var category = getClassValue(event_target, "tableRowView");
-      FBTrace.sysout("category: ", category);
       //if (category) {
         var table_rows = getAncestorByClass(event_target, "gridRow");
         if (table_rows) {
@@ -1378,8 +1355,7 @@ FBL.ns(function() { with (FBL) {
       	AINSPECTOR_FB.ainspectorUtil.setClass(row.children[i], "gridCellSelected");
       }
 //      this.highlightCacheItemOnBrowser(row.repObject);
-      FBTrace.sysout("row.rep: ", row.repObject);
-      highlightModule.highlightNodes([row.repObject], window.content.document);
+      highLight.highlightModule.highlightNodes([row.repObject], window.content.document);
 
     },
     
@@ -1416,10 +1392,9 @@ FBL.ns(function() { with (FBL) {
     	  current_row = table.children[1].children[0]; 
     	  table.children[1].children[0].focus();
     	  AINSPECTOR_FB.ainspectorUtil.setClass(current_row, "gridRowSelected");
-          FBTrace.sysout("current_row: ", current_row);
           
 //          this.highlightCacheItemOnBrowser(current_row.repObject);
-          highlightModule.highlightNodes(current_row.repObject, window.content.document);
+    	  highLight.highlightModule.highlightNodes(current_row.repObject, window.content.document);
           for (var c=0; c< current_row.children.length; c++) {
       	  AINSPECTOR_FB.ainspectorUtil.setClass(current_row.children[c], "gridCellSelected");
           }
@@ -1454,8 +1429,6 @@ FBL.ns(function() { with (FBL) {
           } else if (event.keyCode == 40 || event.keyCode == 39){
         	  
         	  current_row = tbody.children[i+1]; 
-        	  FBTrace.sysout("current_row: " , tbody.children[i]);
-        	  FBTrace.sysout("next_row: " , tbody.children[i+1]);
           }
     	  break;
     	}
@@ -1465,10 +1438,8 @@ FBL.ns(function() { with (FBL) {
         AINSPECTOR_FB.ainspectorUtil.setClass(current_row, "gridRowSelected");
         
         //this.highlightCacheItemOnBrowser(current_row.repObject);
-        FBTrace.sysout("document content: ", window.content.document);
-        FBTrace.sysout("current_row: ", current_row);
         
-        highlightModule.highlightNodes([current_row.repObject], window.content.document);
+        highLight.highlightModule.highlightNodes([current_row.repObject], window.content.document);
 
         for (var c=0; c< current_row.children.length; c++) {
     	  AINSPECTOR_FB.ainspectorUtil.setClass(current_row.children[c], "gridCellSelected");
@@ -1534,7 +1505,7 @@ FBL.ns(function() { with (FBL) {
       }
       AINSPECTOR_FB.ainspectorUtil.setClass(current_row, "gridRowSelected");
 //      this.highlightCacheItemOnBrowser(current_row.repObject);
-      highlightModule.highlightNodes(current_row.repObject, window.content.document);
+      highLight.highlightModule.highlightNodes(current_row.repObject, window.content.document);
       for (var c=0; c< current_row.children.length; c++) {
     	AINSPECTOR_FB.ainspectorUtil.setClass(current_row.children[c], "gridCellSelected");
       }

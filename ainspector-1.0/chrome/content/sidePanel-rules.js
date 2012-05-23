@@ -71,9 +71,9 @@ FBL.ns(function() { with (FBL) {
 	   this.onKeyPress = bind(this.onKeyPress, this);
 
        this.mainPanel.panelNode.addEventListener("click", this.setSelection, false);
-       this.mainPanel.panelNode.addEventListener("keypress", this.onKeyPress, false);
+       this.mainPanel.panelNode.addEventListener("keypress", this.onKeyPress, true);
        Firebug.Panel.initializeNode.apply(this, arguments);
-    // Log simple message
+   
      },
     
      /**
@@ -84,13 +84,16 @@ FBL.ns(function() { with (FBL) {
       * @param event
       */
      onKeyPress: function(event) {
-   
+    
+//   event.stopPropagation();
+	 
        var current_row;
        var next_row;
        var previous_row;
        var prev_cell;
        var next_cell;
        
+       FBTrace.sysout("inside onkeypress of sidepanel - rules", event);
        var table_rows = event.target.offsetParent.rows;
        if (!table_rows) return;
        var no_of_rows = table_rows.length;
@@ -119,6 +122,8 @@ FBL.ns(function() { with (FBL) {
     	   break;
     	 }
        }
+       FBTrace.sysout("event.keyCode: " + event.keyCode);
+       FBTrace.sysout("KeyEvent.DOM_VK_UP: " + KeyEvent.DOM_VK_UP);
        if (event.keyCode == KeyEvent.DOM_VK_UP) {
 		 //current_row = getAncestorByClass(event.target, "tableRow");
     	 //FBTrace.sysout("up..." , current_row);
@@ -133,6 +138,7 @@ FBL.ns(function() { with (FBL) {
     	 
 
     	 //next_row = findNext(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow, true);
+		 FBTrace.sysout("next_row: ", next_row);  
 		 result = next_row.repObject.dom_element;
          rule_result_array = this.showOnRuleResultsTabSelect(result);
        
