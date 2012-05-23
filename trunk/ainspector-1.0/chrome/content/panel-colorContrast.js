@@ -169,9 +169,11 @@ with (FBL) {
 AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
     tag:
     	
-	  TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, onclick: "$onClick", tabindex: 0, onkeypress: "$onKeyPressedTable"},
+	  TABLE({class: "domTree domTable", cellpadding: 0, cellspacing: 0, onclick: "$onClick", "aria-selected" : "true",
+		  tabindex: "0", onkeypress: "$onKeyPressedRow"},
 	    THEAD(
-	      TR({class: "gridHeaderRow", id: "tableTableHeader", "role": "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow"},
+	      TR({class: "gridHeaderRow", id: "tableTableHeader", "role": "row", tabindex: "-1", "aria-selected" : "false", 
+	       onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader", onfocus: "$AINSPECTOR_FB.flatListTemplateUtil.onFocus"},
 	        TH({class: "gridHeaderCell gridCell", id: "colConEleCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Elements")),
 	        TH({class: "gridHeaderCell gridCell", id: "colConColorCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Color")),
 	        TH({class: "gridHeaderCell gridCell", id: "colConBgCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "BG Color")),
@@ -187,8 +189,9 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
 	  ),
     
 	  row:
-	    TR({class: "treeRow gridRow", $hasChildren: "$member.hasChildren", _newObject: "$member", _repObject: "$member.value", 
-	    	level: "$member.level", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressTreeRow", onclick: "$highlightTreeRow"},
+	    TR({class: "treeRow gridRow", $hasChildren: "$member.hasChildren", _newObject: "$member", _repObject: "$member.value", level: "$member.level", 
+	      "aria-selected" : "$member|$AINSPECTOR_FB.toolbarUtil.getSelectedState", tabindex: "$member|$AINSPECTOR_FB.toolbarUtil.getTabIndex",
+	      onfocus: "$AINSPECTOR_FB.flatListTemplateUtil.onFocus", onclick: "$highlightTreeRow"},
 		  TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
 		    TAG("$member.tag", {'member' :"$member", 'object': "$member"}) 
 		  ),
@@ -356,50 +359,75 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
 		return hasClass(node, "treeRow");
 	  },
 
-	  onKeyPressedRow: function(event) {
-		event.stopPropagation();
-		
-		switch(event.keyCode) {
-          case 37: //left
-            event.preventDefault();
-            var row = getAncestorByClass(event.target, "treeRow");
-            
-            if (hasClass(row, "opened")) { // if open
-              this.closeRow(row); // close
-            } else {
-              var table = getAncestorByClass(event.target, "domTable");
-              table.focus(); // focus parent;
-            }
-            break;
-          
-          case 38: //up
-            event.preventDefault();
-            var row = findPrevious(event.target, this.isTreeRow, false);
-            row.focus();
-            break;
-            
-          case 39: //right
-            event.preventDefault();
-            var row = getAncestorByClass(event.target, "treeRow");
+	  /**
+		  * @function onKeyPressedRow
+		  * 
+		  * @desc
+		  * 
+		  * @param {Object} event
+		  */
+		  onKeyPressedRow: function(event) {
+			event.stopPropagation();
+         FBTrace.sysout("event.target: ", event.target);
 
-            if (hasClass(row, "hasChildren")) this.openRow(row);
-            break;
-            
-          case 40: //down
-            event.preventDefault();
-            var row = findNext(event.target, this.isTreeRow, false);
-            row.focus();
-            break;
-            
-          case 13: //Enter
-            event.preventDefault();
-            var links = event.target.getElementsByClassName('objectLink');
-          
-            if (links[0]) AINSPECTOR.util.event.dispatchMouseEvent(links[0], 'click');
-      		break;
-		}
-	  },
+			switch(event.keyCode) {
+	          case KeyEvent.DOM_VK_LEFT: //left
+	            event.preventDefault();
+	            var row = getAncestorByClass(event.target, "treeRow");
+	            
+	            if (hasClass(row, "opened")) { // if open
+	              this.closeRow(row); // close
+	            } else {
+	              var table = getAncestorByClass(event.target, "domTable");
+	              table.focus(); // focus parent;
+	            }
+	            break;
+	          
+	          case KeyEvent.DOM_VK_UP: //up
+	            event.preventDefault();
+	            var table = getAncestorByClass(event.target, "domTable");
 
+	            FBTrace.sysout("table in tree up direction..................: ", table);
+
+	            var row = findPrevious(event.target, this.isTreeRow, false);
+	            FBTrace.sysout("row: ", row);
+	            if (row) {
+	            	AINSPECTOR_FB.flatListTemplateUtil.highlightTreeRow(event, row);
+	            } else {	
+	              if (event.target.rowIndex == '1') row = table.rows[0];
+	            }
+	            row.focus();
+	            break;
+	            
+	          case KeyEvent.DOM_VK_RIGHT: //right
+	            event.preventDefault();
+	            var row = getAncestorByClass(event.target, "treeRow");
+
+	            if (hasClass(row, "hasChildren")) this.openRow(row);
+	            break;
+	            
+	          case KeyEvent.DOM_VK_DOWN: //down
+	            event.preventDefault();
+	            var table = getAncestorByClass(event.target, "domTable");
+
+	            FBTrace.sysout("table in tree: ", table);
+	            var row = findNext(event.target, this.isTreeRow, false);
+	            FBTrace.sysout("row: ", row);
+
+	            if (row) row.focus();
+
+	            //If the event is fired on header row, rowIndex check is made to make sure header row is not highlight.
+	            if (!event.target.rowIndex == '0') AINSPECTOR_FB.flatListTemplateUtil.highlightTreeRow(event, row);
+	            break;
+	            
+	          case KeyEvent.DOM_VK_ENTER: //Enter
+	            event.preventDefault();
+	            var links = event.target.getElementsByClassName('objectLink');
+	          
+	            if (links[0]) AINSPECTOR.util.event.dispatchMouseEvent(links[0], 'click');
+	      		break;
+			}
+		  },
       onFocus: function(event) {
         //var links = event.target.getElementsByClassName('objectLink');
         
