@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-var EXPORTED_SYMBOLS = ["highlightModule"];
+var EXPORTED_SYMBOLS = ["highLight"]; //Export items from module and inject them into the import scope
 
 var console = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
 
-var highlightModule = {
+var highLight = highLight || {};
+
+highLight.highlightModule = {
   
   last_highlighted_nodes: [],
   
   /**
    * @function highlightObject
    *
-   * @memeberOf OAA.highlightModule
+   * @memeberOf highLight.highlightModule
    *
    * @desc highlights set of nodes selected on a webpage
    *
@@ -78,7 +80,7 @@ var highlightModule = {
 		console.logStringMessage("style.display;" + style.display);
 
 		if (style.visibility == "hidden" || style.display == "none") {
-		  this.isVisibletoAT(document, tag_name);
+		  this.isVisibletoAT(document, tag_name, style, node);
 		} else {
 		  node.style.outline = "medium solid red";
 
@@ -123,15 +125,15 @@ var highlightModule = {
    * 
    * @param {Object} node
    */
-  isVisibletoAT : function (document, element) {
+  isVisibletoAT : function (document, element, style, node) {
 	  
-	var new_div_element = document.createElement('div');
-	var style_div = 'width:220px; padding:10px; border:3px solid blue; margin:0px; color:red; font-size:20px; position:fixed; ';
+	  var new_div_element = document.createElement('div');
+	  var style_div = 'width:400px; padding:10px; border:3px solid blue; margin:0px; color:red; font-size:20px; position:fixed; ';
 
-	new_div_element.id = 'vId';
-	new_div_element.setAttribute("style", style_div);
-	new_div_element.innerHTML = element + ' is OffScreen ';
+	  new_div_element.id = 'vId';
+	  new_div_element.setAttribute("style", style_div);
+	  new_div_element.innerHTML = 'Element is off-screen or hidden from assistive technologies';
      
-	document.body.insertBefore(new_div_element,document.body.childNodes[0]);	  
+	  document.body.insertBefore(new_div_element,document.body.childNodes[0]);
   }
 };
