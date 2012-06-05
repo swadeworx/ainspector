@@ -326,16 +326,16 @@ with (FBL) {
           FOR("object", "$language_elements",
             TR({class: "tableRow  gridRow", role: "row", "aria-selected" : "$object|$AINSPECTOR_FB.toolbarUtil.getSelectedState", tabindex: "$object|$AINSPECTOR_FB.toolbarUtil.getTabIndex", id: "$object.cache_id", _repObject:"$object", 
 	     onclick: "$highlightRow", onfocus: "$AINSPECTOR_FB.flatListTemplateUtil.onFocus", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
-              TD({class: "imgEleCol gridCell gridCol ",  id:"imgSrcCol", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+              TD({class: "imgEleCol gridCell gridCol ",  id:"imgSrcCol", role: "gridcell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({class: "gridContent", _repObject:"$object"}, "$object.count")
               ),
-              TD({class: "imgSourceCol gridCell gridCol ", id: "imgTextCol", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+              TD({class: "imgSourceCol gridCell gridCol ", id: "imgTextCol", role: "gridcell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({class: "gridContent", _repObject:"$object", title: "$object.source"}, "$object.lang")
               ),
-              TD({class: "imgOrderCol gridCell gridCol", id:"imgOrderCol" , role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+              TD({class: "imgOrderCol gridCell gridCol", id:"imgOrderCol", role: "gridcell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
                 DIV({class: "gridContent", _repObject:"$object"}, " ")
               ),
-              TD({class: "imgOrderCol gridCell gridCol", id:"imgOrderCol" , role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+              TD({class: "imgOrderCol gridCell gridCol", id:"imgOrderCol", role: "gridcell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
             	TAG("$object|getAccessibility", {'object': '$object'}))
             )//end TR   
           ) //end FOR

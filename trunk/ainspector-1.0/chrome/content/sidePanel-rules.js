@@ -35,22 +35,22 @@ FBL.ns(function() { with (FBL) {
     editable: true,
 
     /**
-     *@constructor
+     * @constructor initialize
      *
-     * initialize
-     * 
-     *@param context
-     * 
-     *@param doc
+     * @desc  
+     *
+     * @param {Object} context 
+     * @param {Object} doc - document Object
      */
      initialize: function(context, doc) {
 	   this.onKeyPress = bind(this.onKeyPress, this);
 	   this.onCLick = bind(this.setSelection, this);
-       Firebug.Panel.initialize.apply(this, arguments);
+       
+	   Firebug.Panel.initialize.apply(this, arguments);
      },
 
      /**
-      * initializeNode
+      * @constructor initializeNode
       * 
       * @desc
       * 
@@ -77,7 +77,7 @@ FBL.ns(function() { with (FBL) {
      },
     
      /**
-      * onKeyPress
+      * @function onKeyPress
       * 
       * @desc
       * 
@@ -85,8 +85,6 @@ FBL.ns(function() { with (FBL) {
       */
      onKeyPress: function(event) {
     
-//   event.stopPropagation();
-	 
        var current_row;
        var next_row;
        var previous_row;
@@ -122,32 +120,23 @@ FBL.ns(function() { with (FBL) {
     	   break;
     	 }
        }
-       FBTrace.sysout("event.keyCode: " + event.keyCode);
-       FBTrace.sysout("KeyEvent.DOM_VK_UP: " + KeyEvent.DOM_VK_UP);
        if (event.keyCode == KeyEvent.DOM_VK_UP) {
-		 //current_row = getAncestorByClass(event.target, "tableRow");
-    	 //FBTrace.sysout("up..." , current_row);
-    	 //previous_row = findPrevious(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow); //current_row.previousSibling;
     	 result = previous_row.repObject.dom_element;
          rule_result_array = this.showOnRuleResultsTabSelect(result);
          if (rule_result_array.length > 0) this.rebuild(rule_result_array);
       
 	   } else if (event.keyCode == KeyEvent.DOM_VK_DOWN) {
-    	 //current_row = getAncestorByClass(event.target, "gridRow");
-    	 //next_row = current_row.nextSibling;
-    	 
-
-    	 //next_row = findNext(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow, true);
-		 FBTrace.sysout("next_row: ", next_row);  
 		 result = next_row.repObject.dom_element;
          rule_result_array = this.showOnRuleResultsTabSelect(result);
        
          if (rule_result_array.length > 0) this.rebuild(rule_result_array);
-       
+
 	   } else if (event.keyCode == KeyEvent.DOM_VK_LEFT) {
          this.setSelection(event);
+	   
 	   } else if (event.keyCode == KeyEvent.DOM_VK_RIGHT) {
 		 this.setSelection(event);
+	   
 	   } else if (event.keyCode == KeyEvent.DOM_VK_BACK_SPACE){
          this.deleteNode("node", "up");
        
@@ -159,64 +148,35 @@ FBL.ns(function() { with (FBL) {
        }     
      },
      
-     findIndex: function(ele){
-       var k = -1;
-       var e = ele;
-       while (e) {
-    	 if ("previousElementSibling" in e) {
-    	   e = e.previousSibling;
-    	   k = k+1;
-    	 } else {
-    	   k = -1;
-    	   break;
-    	 } 
-       }
-       return k;
-     },
-     
-     /**
-      * @function deleteNode
-      * 
-      * @desc
-      * 
-      * @param node
-      * @param direction
-      */
-     deleteNode: function(node, direction) {
-     
-     },
-
      /**
       * @function destroyNode
       * 
-      * @desc 
+      * @desc removes the listeners from the main panel
+      * called by Firebug Framework 
       */
      destroyNode: function() {
    
        this.mainPanel.panelNode.removeEventListener("click", this.setSelection, false);
        this.mainPanel.panelNode.removeEventListener("keypress", this.onKeyPress, false);
+       
        Firebug.Panel.destroyNode.apply(this, arguments);
      },
 
      /**
-      * show
+      * @function show
       * 
-      * @desc
-      * 
-      * @param state
+      * @desc 
+      * called by Firebug Framework
       */
      show: function() {
 	   
        Firebug.Panel.show.apply(this, arguments);
-       //this.updateSelection();
      },
      
      /**
       * @function updateSelection
       * 
       * @desc
-      * 
-      * @param element - 
       */
      updateSelection : function() {
        var selection = this.mainPanel.selection;
@@ -230,8 +190,8 @@ FBL.ns(function() { with (FBL) {
      /**
       * @function sView
       * 
-      * @param state
-      * @param first_element
+      * @param {Boolean} state
+      * @param {Object} first_element
       */
      sView: function(state, first_element){
 	   if (state) {
@@ -250,6 +210,14 @@ FBL.ns(function() { with (FBL) {
        }
      },
      
+     /**
+      * @function showContrastOrAllElements
+      * 
+      * @desc
+      * 
+      * @param {Boolean} state
+      * @param {Object} element
+      */
      showContrastOrAllElements: function(state, element){
 	   if (state) {
          try {
@@ -316,30 +284,22 @@ FBL.ns(function() { with (FBL) {
      rebuild: function(resultArray){
        this.panelNode.id = "ainspector-side-panel";
        var flag = true;
-   	   for (var i in resultArray){ 
+   	   
+       for (var i in resultArray){ 
    		 if(resultArray.hasOwnProperty(i)){
    		   flag = false;
    		   break;
    		 }
    	   }
-   	   if (flag) {
-           var header_elements = ["Result", "Rule ID", "Message"];
-           //clearNode(this.panelNode.offsetParent.children[1]);
- 	      AINSPECTOR_FB.emptyTemplate.tag.replace({header_elements: header_elements}, this.panelNode);
+   	   
+       if (flag) {
+         var header_elements = ["Result", "Rule ID", "Message"];
+         //clearNode(this.panelNode.offsetParent.children[1]);
+ 	     AINSPECTOR_FB.emptyTemplate.tag.replace({header_elements: header_elements}, this.panelNode);
    	   } else {
  	   
-   		   rulesTemplate.tag.replace({object: resultArray}, this.panelNode);
+   	     rulesTemplate.tag.replace({object: resultArray}, this.panelNode);
        }
-     },
-   
-     /**
-      * hide
-      * 
-      * @desc
-      */
-     hide: function() {
-     
-	   Firebug.Panel.hide.apply(this, arguments);
      },
 
      /**

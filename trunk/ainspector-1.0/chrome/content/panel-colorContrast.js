@@ -205,8 +205,9 @@ AINSPECTOR_FB.colorContrast.colorContrastTreeTemplate = domplate({
  	    ),
 	    
 	  childrow : 
-	    TR({class: "treeRow gridRow", _newObject: "$member", _repObject: "$member.value", 
-    	  level: "$member.level", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressTreeRow", onclick: "$highlightTreeRow"},
+	    TR({class: "treeRow gridRow", _newObject: "$member", _repObject: "$member.value", level: "$member.level",
+	      "aria-selected" : "$member|$AINSPECTOR_FB.toolbarUtil.getSelectedState", tabindex: "$member|$AINSPECTOR_FB.toolbarUtil.getTabIndex",
+	      onfocus: "$AINSPECTOR_FB.flatListTemplateUtil.onFocus", onclick: "$highlightTreeRow"},
 	      TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
 			  "$member.tag_name"
 	      ),

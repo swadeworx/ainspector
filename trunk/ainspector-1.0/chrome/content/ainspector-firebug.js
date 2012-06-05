@@ -37,43 +37,41 @@ FBL.ns(function() { with (FBL) {
 	   
   	  var isFirebugExtension = panel && panel.name == panel_name;
       var FirebugExtensionButtons = Firebug.chrome.$("fbFirebugExtensionButtons");
-  	  FBTrace.sysout("FirebugExtensionButtons: ", Firebug.chrome.$("fbFirebugExtensionButtons"));
+
       this.getToolbarButtonSelected(Firebug.chrome.$("fbFirebugExtensionButtons").children, Firebug.currentContext);
-  	 // cache_object = this.updateCache();
 	  collapse(FirebugExtensionButtons, !isFirebugExtension); 
 	},
 	
 	/**
+	 * @function watchWindow
 	 * 
+	 * @desc Called by Firebug when attaching to a window (top-level or frame).
 	 */
-	watchWindow : function(context, win){
-//	  FBTrace.sysout("watchWindow: ", win);
-	  //if (win == win.top) {
-		context.window.addEventListener("load", this.ainspectorOnLoad, false);
-		context.window.addEventListener("beforeunload", this.ainspectorOnUnload, false);
-		context.window.addEventListener("DOMContentLoaded", this.ainspectorOnDOMContentLoaded, false);
-	  //}	
+	watchWindow : function(){
+	  context.window.addEventListener("load", this.ainspectorOnLoad, false);
+	  context.window.addEventListener("beforeunload", this.ainspectorOnUnload, false);
 	},
 	
 	/**
+	 * @function unWatchWindow
 	 * 
+	 * @desc Called by Firebug when detaching to a window (top-level or frame).
 	 */
-	unWatchWindow : function(context, win){
-	  //if (win == win.top) {
-		context.window.removeEventListener("load", this.ainspectorOnLoad, false);
-		context.window.removeEventListener("beforeunload", this.ainspectorOnUnload, false);
-		context.window.removeEventListener("DOMContentLoaded", this.ainspectorOnDOMContentLoaded, false);
-	  //}	
+	unWatchWindow : function(){
+	  context.window.removeEventListener("load", this.ainspectorOnLoad, false);
+	  context.window.removeEventListener("beforeunload", this.ainspectorOnUnload, false);
 	},
 	
 	/**
 	 * @function ainspectorOnLoad
 	 * 
-	 * @desc
+	 * @desc gets the firebug context, maintains the state to select 
+	 * the toolbarbutton that has been selected earlier when the new web page is loaded 
 	 * 
 	 * @param {Event} event
 	 */
-	ainspectorOnLoad : function(event){
+	ainspectorOnLoad : function(event) {
+		
       var win = event.currentTarget;
 	  var firebug_context;
 	  
@@ -82,10 +80,10 @@ FBL.ns(function() { with (FBL) {
 	  } else {
 		firebug_context = Firebug.currentContext;  
 	  }
+	  cache_object = AINSPECTOR_FB.onLoad();
+	  
 	  var toolbar_buttons = firebug_context.chrome.$("fbFirebugExtensionButtons").children;
-	  Firebug.ainspectorModule.getToolbarButtonSelected(toolbar_buttons, firebug_context); 
-	 
-      AINSPECTOR_FB.event.fire('onload', {'window': win });
+	  Firebug.ainspectorModule.getToolbarButtonSelected(toolbar_buttons, firebug_context);
 	},
 	
 	/**
@@ -106,82 +104,37 @@ FBL.ns(function() { with (FBL) {
       } else {
         fbcontext = Firebug.currentContext;
       }
-      AINSPECTOR_FB.event.fire('onUnload', {'window': win});
+
+      AINSPECTOR_FB.onUnLoad();
+      
       if (fbcontext !== Firebug.currentContext) {
         return;
       }
         
 	},
-	
-	/**
-	 * @function ainspectorOnDOMContentLoaded
-	 *
-	 * @desc
-	 * 
-	 *  @param {Event} event 
-	 */
-	ainspectorOnDOMContentLoaded : function (event){
-		var win = event.currentTarget;
-        AINSPECTOR_FB.event.fire('onDOMContentLoaded', {'window': win});
-	},
     
 	/**
 	 * @function getToolbarButtonSelected
 	 * 
-	 * @desc
+	 * @desc retrieves the button selected when the new page is loaded
 	 * 
-	 * @param {Array} toolbarbuttons - 
+	 * @param {Array} toolbarbuttons - array of toolbarbuttons on the AInspector panel
 	 * @param {firebug_context} firebug_context - 
 	 */
 	getToolbarButtonSelected : function(toolbarbuttons, firebug_context) {
 	
-	 var toolbar_button = "images";
-	 for (var i=1; i < toolbarbuttons.length; i=i+2){
-		if (toolbarbuttons[i].checked == true) {
+	  var toolbar_button = "images";
+	 
+	  for (var i=1; i < toolbarbuttons.length; i=i+2){
+	    if (toolbarbuttons[i].checked == true) {
 		  toolbar_button = toolbarbuttons[i].id;
 		  break;
-		}
-	 }
+	    }
+	  }
 		 
-	 //firebug_context.browser.chrome.$("radio-toolbar").children[0].checked = true;
-	 cache_object = AINSPECTOR_FB.cacheUtil.updateCache();
-	 window.AINSPECTOR_FB[toolbar_button].viewPanel(firebug_context, panel_name, cache_object);
-
-	},
+	  window.AINSPECTOR_FB[toolbar_button].viewPanel(firebug_context, panel_name, cache_object);
+	}
 	
-    /**
-     * @function updateCache
-     * 
-     * @desc calls evaluate function of the rule set selected. 
-     * 
-     * @return ruleset_result_cache 
-     */
-    updateCache: function() {
-
-      var ruleset_result_cache;
-      var doc;
-      var url;
-      try { 
-        doc = window.content.document;
-        url = window.content.location.href;
-      } catch(e) {
-        doc  = window.opener.parent.content.document;
-        url = window.opener.parent.content.location.href;;
-      } // end try
-
-      var ruleset_id = 'WCAG20_ARIA_TRANS';
-      var ruleset = OpenAjax.a11y.all_rulesets.getRuleset(ruleset_id);
-
-      if (ruleset) {
-    	ruleset_result_cache = ruleset.evaluate(url, doc.title, doc, null, true);
-        FBTrace.sysout("Ruleset results object for: " , ruleset_result_cache);
-      }
-      else {
-    	FBTrace.sysout("  ** Ruleset with the id '" + ruleset_id + "' not found!!");
-      }
-      
-      return ruleset_result_cache;
-    }
   }); 
 
   function AInspectorPanel() {} 

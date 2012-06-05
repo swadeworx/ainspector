@@ -25,8 +25,10 @@
   
   <script type="application/x-javascript" src="chrome://ainspector/content/cache-util.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-preferences.js"/>
-  <script type="application/x-javascript" src="chrome://ainspector/content/panel-customize-preferences.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/modules/preferences/preferences.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/modules/preferences/panel-customize-preferences.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/util.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/panel-util.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/modules/highlight.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/ainspector-firebug.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/gridTemplate.js"/>

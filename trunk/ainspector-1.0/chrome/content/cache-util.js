@@ -26,11 +26,16 @@ with (FBL) {
   AINSPECTOR_FB.attributes_registered = null;
   AINSPECTOR_FB.events_registered = null;
   AINSPECTOR_FB.preferences = null;
+  Components.utils.import("resource://ainspector/preferences/preferences.js");
   
+  /**
+   * @namespace AINSPECTOR_FB.cacheUtil
+   */
   AINSPECTOR_FB.cacheUtil = {
 	
     /**
      * @function updateCache
+     * 
      * @memberOf AINSPECTOR_FB.cacheUtil
      * 
      * @desc calls evaluate function of the rule set selected. 
@@ -49,8 +54,8 @@ with (FBL) {
         doc  = window.opener.parent.content.document;
         url = window.opener.parent.location.href;
       } // end try
-
-      var preferences = Firebug.preferenceModule.getRulesetPrefs();
+      FBTrace.sysout("preferences: ", OAA_WEB_ACCESSIBILITY_UTIL);
+      var preferences = OAA_WEB_ACCESSIBILITY_UTIL.util.preferenceModule.getRulesetPrefs();
       AINSPECTOR_FB.preferences = preferences;
       
       var ruleset = OpenAjax.a11y.all_rulesets.getRuleset(preferences.ruleset_id);
@@ -71,11 +76,15 @@ with (FBL) {
       return OpenAjax.a11y.all_rulesets.getAllRuleSets();	
     }
   };
-//nsIWebProgressListener constants
+
+//  nsIWebProgressListener constants
   AINSPECTOR_FB.STATE_STOP        = Components.interfaces.nsIWebProgressListener.STATE_STOP;
   AINSPECTOR_FB.STATE_IS_WINDOW   = Components.interfaces.nsIWebProgressListener.STATE_IS_WINDOW;
   AINSPECTOR_FB.top_location_href = null;
   
+  /**
+   * @namespace AINSPECTOR_FB.tabProgressListener
+   */
   AINSPECTOR_FB.tabProgressListener = {
 		  
     QueryInterface: function (iid) {
@@ -88,20 +97,37 @@ with (FBL) {
 	    throw Components.results.NS_NOINTERFACE;
 	  },
 
-	  onStateChange: function (webProgress, request, flags, status) {
-	    if (flags & AINSPECTOR_FB.STATE_STOP && flags & AINSPECTOR_FB.STATE_IS_WINDOW) {
-	
+	/**
+	 * @function onStateChange
+	 * 
+	 * @desc monitor user actions on web pages, when user click a link
+	 * 
+	 * @param {Object} webProgress
+	 * @param {Object} request
+	 * @param {Boolean} flags
+	 * @param {Boolean} status
+	 */
+	onStateChange: function (webProgress, request, flags, status) {
+	  
+	  if (flags & AINSPECTOR_FB.STATE_STOP && flags & AINSPECTOR_FB.STATE_IS_WINDOW) {
 	    var location_href = webProgress.DOMWindow.location.href;
-	      if (location_href == AINSPECTOR_FB.top_location_href) {
-		      FBTrace.sysout('onStateChange () location_href: ' + location_href + "..." + AINSPECTOR_FB.top_location_href);
-		      //AINSPECTOR_FB = AINSPECTOR_FB || {};
-	    	  AINSPECTOR_FB.cacheUtil.updateCache();
-//	    	  AINSPECTOR_FB.equivalents.equivalentsView(Firebug.currentContext, "AInspector", AINSPECTOR_FB.result_ruleset);
-	      }
+	
+	    if (location_href == AINSPECTOR_FB.top_location_href) {
+		  FBTrace.sysout('onStateChange () location_href: ' + location_href + "..." + AINSPECTOR_FB.top_location_href);
+	      return AINSPECTOR_FB.cacheUtil.updateCache();
 	    }
-	  },
+	  }
+    },
 
-	  onLocationChange: function (webProgress, request, location, flags) {
+    /**
+     * @function onLocationChange
+     * 
+     * @param {Object} webProgress
+     * @param {Object} request
+     * @param {Object} location
+     * @param {Boolean} flags
+     */
+	onLocationChange: function (webProgress, request, location, flags) {
 	    if (request) { // ignore call if request arg is null
 		  FBTrace.sysout('onLocationChange () : location_href: ' + webProgress.DOMWindow.top.location.href);
 	
@@ -114,16 +140,18 @@ with (FBL) {
 	  onStatusChange: function (a, b, c, d) {}
 
 	};
+
   /**
    * @function onLoad
+   *
+   * @memberof AINSPECTOR_FB.onLoad
    *
    * @desc Handle loading of sidebar by calling the onLoad function
    *       for the particular sidebar that is loading and setting
    *       the state for toolbar and menus.
    */
 
-  AINSPECTOR_FB.onLoad = function(cache) {
-    FBTrace.sysout("==============Inside MY OnLoad===============");
+  AINSPECTOR_FB.onLoad = function() {
     var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
       .getInterface(Components.interfaces.nsIWebNavigation)
       .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
@@ -134,11 +162,10 @@ with (FBL) {
     mainWindow.gBrowser.addProgressListener(AINSPECTOR_FB.tabProgressListener);
     Firebug.preferenceModule.initializeUI();
     AINSPECTOR_FB.cacheUtil.updateCache();
-    AINSPECTOR_FB.setStateToolbarAndMenus(mainWindow, true);
   };
   
   /**
-   * onUnload
+   * @function onUnload
    *
    * @desc onunLoad event handler that resets object properties
    *
@@ -156,14 +183,8 @@ with (FBL) {
 
     mainWindow.gBrowser.removeProgressListener(AINSPECTOR_FB.tabProgressListener);
   };
-  
-  AINSPECTOR_FB.setStateToolbarAndMenus = function(window, flag){
-	var toolbarbutton = window.document.getElementById("images_media_button");
-	if (toolbarbutton) toolbarbutton.checked = flag;
-  };
-  
 
-  window.addEventListener("load", function () { AINSPECTOR_FB.onLoad(); }, false);
-  window.addEventListener("unload", function () { AINSPECTOR_FB.onUnload(); }, false);
+//  window.addEventListener("load", function () { AINSPECTOR_FB.onLoad(); }, false);
+//  window.addEventListener("unload", function () { AINSPECTOR_FB.onUnload(); }, false);
   
 };
