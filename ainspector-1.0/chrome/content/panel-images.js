@@ -16,7 +16,6 @@
 
 var AINSPECTOR_FB = AINSPECTOR_FB || {};	
 
-
 with (FBL) {
   
   panel : null;
@@ -29,6 +28,7 @@ with (FBL) {
    * 
    * @desc respond to "Images" button in the AInspector toolbar
    * 
+   * @param {Object} context - Firebug current context i.e., DOM
    * @param {String} panel_name - name of the panel to identify in which panel are we
    * @param {Object} cache_object - container for all the element properties
    * @property {Array} toolbar_buttons - buttons to show on a toolbar
@@ -38,32 +38,31 @@ with (FBL) {
    */
   viewPanel: function(context, panel_name, cache_object) {		
 
+	//adds or removes the side panels from the extension depending on the panel we are in 
 	AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels(false);
 	
 	if (!panel_name) panel_name = "AInspector";
 	
-	//if (!cache_object) cache_object = AINSPECTOR_FB.result_ruleset;
 	if (!cache_object) cache_object = AINSPECTOR_FB.cacheUtil.updateCache();  
-    panel = context.getPanel(panel_name, true);
 
-//    FBTrace.sysout("preferences in images: ", AINSPECTOR_FB.preferences);
-    
+	panel = context.getPanel(panel_name, true);
+
     /* Clear the panel before writing anything onto the report*/
     if (panel) {
       clearNode(panel.panelNode);
       clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
     }
 
-    AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
-
-    var toolbar = panel.document.createElement("div");
-    toolbar.id = "toolbarDiv";
-    
     var images_cache = cache_object.dom_cache.images_cache;
     images_cache.sortImageElements('document_order', true);
 
     image_elements = images_cache.image_elements;
-	  
+
+    AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
+    
+    var toolbar = panel.document.createElement("div");
+    toolbar.id = "toolbarDiv";
+    
     AINSPECTOR_FB.images.equivToolbarPlate.toolbar.replace({preferences: AINSPECTOR_FB.preferences}, toolbar, AINSPECTOR_FB.images.equivToolbarPlate);
 	  
 	var element = panel.document.createElement("div");
@@ -88,70 +87,31 @@ with (FBL) {
    * @property {Object} selection - set an object to the panel to be used by the side panels when selected first time
    */
   select : function(object) {
-   panel.selection = object;
+     panel.selection = object;
     
-   AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[1].children[0]);
+     AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[1].children[0]);
       
   }
 }; //end of images
   
   /**
-   * @function equivToolbarPlate
+   * @function AINSPECTOR_FB.images.equivToolbarPlate
    * 
-   * @desc template creates a Tool bar in ainpector panel 
+   * @desc template creates a Tool bar in ainspector panel 
    */
   AINSPECTOR_FB.images.equivToolbarPlate = domplate({
     toolbar : DIV( {class : "nav-menu"},
-                BUTTON({class: "button", onclick: "$toHTMLPanel", id: "html_panel_button", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.htmlButtonPress"}, "HTML Panel"),
+                BUTTON({class: "button", onclick: "$AINSPECTOR_FB.toolbarUtil.viewHTMLPanel", id: "html_panel_button", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.htmlButtonPress"}, "HTML Panel"),
                 SPAN({class: "ruleset_select"}, "Ruleset:  "),
                 SPAN({class: "ruleset_value"}, "$preferences.ruleset_id|AINSPECTOR_FB.toolbarUtil.getRulesetTitle"),
                 SPAN({class: "ruleset_level"}, " Level:  "),
                 SPAN({class: "ruleset_value"}, "$preferences.wcag20_level|AINSPECTOR_FB.toolbarUtil.getLevel")
                 
-    ), 
-    
-    /**
-     * @function toHTMLPanel
-     * 
-     * @desc redirect to the HTML Panel of Firebug
-     * 
-     * @param event event triggered on a row/cell of a images/media/abbreviation toolbar buttons
-     */
-    toHTMLPanel: function(event) {
-      
-      var table = getChildByClass(event.target.offsetParent, "ai-table-list-items");
-	  var row =  getChildByClass(event.target.offsetParent, "tableRow");
-      var child;
-      var tbody = table.children[1];
-      var node = null;
-
-      for (var i = 0; i < tbody.children.length; i++) {
-        var flag = false;
-        var row = tbody.children[i];
-        node = row;
-        for (var j = 0; j < row.children.length; j++) {
-      	var cell = row.children[j];
-        for (var k=0; k<cell.classList.length;k++) {
-          if (cell.classList[k] ==  "gridCellSelected") {
-            flag = true;
-            break;
-          }//end if
-        }//end for
-        if (flag == true) break;
-      }
-        if (flag == true) break;
-      }
-      
-      node = node.repObject.dom_element.node;
-      var panel = Firebug.chrome.selectPanel("html");
-      panel.select(node);
-    },
-
-    viewContainer : DIV({style : "display:none"})
+    ) 
   });
   
   /**
-   * @Domplate imagesTemplate
+   * @Domplate AINSPECTOR_FB.images.imagesTemplate
    * 
    * @Desc template object, create HTML mark up showed upon clicking the images toolbar button
    * 
@@ -159,18 +119,18 @@ with (FBL) {
    */
   AINSPECTOR_FB.images.imagesTemplate = domplate({
     
-	  tableTag:
+	tableTag:
       
 	  TABLE({class: "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "", role: "grid", "aria-selected" : "true",
 		  tabindex: "0", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressTable"},
         THEAD(
-        	TR({class: "firstRow gridHeaderRow gridRow", id: "imgTableHeader", role: "row", "aria-selected" : "false", tabindex: "-1", 
-             onfocus: "$AINSPECTOR_FB.flatListTemplateUtil.onFocus", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader"},
-              TH({class: "gridHeaderCell gridCell", id: "imgElementHeaderCol", role: "columnheader"}, DIV({class: "gridHeaderCellBox"}, "Element")),
-              TH({class: "gridHeaderCell gridCell", id: "imgOrderHeaderCol", role: "columnheader"}, DIV({class: "gridHeaderCellBox"}, "Height")),
-              TH({class: "gridHeaderCell gridCell", id: "imgOrderHeaderCol", role: "columnheader"}, DIV({class: "gridHeaderCellBox"}, "Width")),
-              TH({class: "gridHeaderCell gridCell", id: "imgTextHeaderCol", role: "columnheader"}, DIV({class: "gridHeaderCellBox"}, "AltText")),
-              TH({class: "gridHeaderCell gridCell", id: "imgOrderHeaderCol", role: "columnheader"}, DIV({class: "gridHeaderCellBox"}, "Accessibility Summary"))
+          TR({class: "firstRow gridHeaderRow gridRow", id: "imgTableHeader", role: "row", "aria-selected" : "false", tabindex: "-1", 
+            onfocus: "$AINSPECTOR_FB.flatListTemplateUtil.onFocus", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader"},
+            TH({class: "gridHeaderCell gridCell", id: "imgElementHeaderCol", role: "columnheader"}, DIV({class: "gridHeaderCellBox"}, "Element")),
+            TH({class: "gridHeaderCell gridCell", id: "imgOrderHeaderCol", role: "columnheader"}, DIV({class: "gridHeaderCellBox"}, "Height")),
+            TH({class: "gridHeaderCell gridCell", id: "imgOrderHeaderCol", role: "columnheader"}, DIV({class: "gridHeaderCellBox"}, "Width")),
+            TH({class: "gridHeaderCell gridCell", id: "imgTextHeaderCol", role: "columnheader"}, DIV({class: "gridHeaderCellBox"}, "AltText")),
+            TH({class: "gridHeaderCell gridCell", id: "imgOrderHeaderCol", role: "columnheader"}, DIV({class: "gridHeaderCellBox"}, "Accessibility Summary"))
           ) //end TR
         ), //end THEAD
         TBODY(
@@ -211,9 +171,9 @@ with (FBL) {
       /**
        * @function getAlt
        * 
-       * @desc
+       * @desc style alt attribute value if it is empty 
        * 
-       * @param
+       * @param {String} alt - alternate text on the image
        */
       getAlt : function(alt) {
 	    if (alt == undefined) return this.styleTag;
@@ -223,6 +183,9 @@ with (FBL) {
       /**
        * @function getAccessibility
        * 
+       * @desc style the result text depending on the severity
+       * 
+       * @param {Object} object - node result Object
        */
       getAccessibility : function (object){
 	    var severity =  object.dom_element.getAccessibility().label;
@@ -238,27 +201,15 @@ with (FBL) {
 		return styleSeverityTag;
       },
       
+      /**
+       * @function getSummary
+       * 
+       * @desc returns the accessibility label
+       * 
+       * @param {Object} object - node result Object 
+       */
       getSummary : function(object){
       	return object.dom_element.getAccessibility().label;
-      },
-      
-      /**
-       * @function getFileName
-       * 
-       * @desc retrive file name from the URL 
-       * 
-       * @param {String} url 
-       */
-      getFileName : function (url){
-         
-	    if (url){
-          var file_name = url.toString().match(/.*\/(.*)$/);
-
-          if (file_name && file_name.length > 1){
-            return decodeURI(file_name[1]);
-          }
-        }
-        return "";
       },
       
       /**

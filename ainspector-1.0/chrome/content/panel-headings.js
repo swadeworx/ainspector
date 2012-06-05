@@ -697,13 +697,13 @@ AINSPECTOR_FB.headLandmarks.noLandmarksTemplate = domplate({
         FOR("object", "$elements_with_content",
           TR({class: "tableRow  gridRow", role: "row", "aria-selected" : "$object|$AINSPECTOR_FB.toolbarUtil.getSelectedState", tabindex: "$object|$AINSPECTOR_FB.toolbarUtil.getTabIndex", id: "$object.cache_id", _repObject:"$object", 
         	  onfocus: "$AINSPECTOR_FB.flatListTemplateUtil.onFocus", onclick: "$onClickRow", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
-            TD({class: "gridCell gridCol ", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+            TD({class: "gridCell gridCol ", role: "gridcell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
               DIV({class: "gridContent", _repObject:"$object"}, "$object|getTagName")
             ),
-            TD({class: "gridCell gridCol ", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+            TD({class: "gridCell gridCol ", role: "gridcell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
               DIV({class: "gridContent", _repObject:"$object"}, "$object|getText")
             ),
-            TD({class: "gridCell gridCol ", role: "gridcell", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressCell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+            TD({class: "gridCell gridCol ", role: "gridcell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
               DIV({class: "gridContent", _repObject:"$object", title: "$object.source"}, TAG("$object|getAccessibility", {'object': '$object'}))
             )
           )//end TR   

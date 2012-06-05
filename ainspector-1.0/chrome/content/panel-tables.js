@@ -293,9 +293,10 @@ showOnSelectButton : function(toolbar_button_id) {
 
   AINSPECTOR_FB.tables.tablesTreeTemplate = domplate({
     tag:
-	  TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, onclick: "$onClick", tabindex: 0, onkeypress: "$onKeyPressedTable"},
+	  TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, onclick: "$onClick", tabindex: 0, "aria-selected" : "true", onkeypress: "$onKeyPressedTable"},
 	    THEAD(
-	      TR({class: "gridHeaderRow a11yFocus", id: "tableTableHeader", role: "row", tabindex: "0", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressRow"},
+	      TR({class: "gridHeaderRow a11yFocus", id: "tableTableHeader", role: "row", tabindex: "-1", "aria-selected" : "false", 
+	       onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader", onfocus: "$AINSPECTOR_FB.flatListTemplateUtil.onFocus"},
 	        TH({class: "gridHeaderCell gridCell", id: "tableTagCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Tag")),
 	        TH({class: "gridHeaderCell gridCell", id: "tableInfoCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Information")),
 	        TH({class: "gridHeaderCell gridCell", id: "tableInfoCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, DIV({class: "gridHeaderCellBox"}, "Accessibility Summary"))
@@ -307,8 +308,9 @@ showOnSelectButton : function(toolbar_button_id) {
 	  ),
     
 	  row:
-	    TR({class: "treeRow gridRow", $hasChildren: "$member.hasChildren", _newObject: "$member", _repObject: "$member.value", 
-	    	level: "$member.level", tabindex: "-1", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressTreeRow", onclick: "$onClickTreeRow"},
+	    TR({class: "treeRow gridRow", $hasChildren: "$member.hasChildren", _newObject: "$member", _repObject: "$member.value", level: "$member.level",
+	      "aria-selected" : "$member|$AINSPECTOR_FB.toolbarUtil.getSelectedState", tabindex: "$member|$AINSPECTOR_FB.toolbarUtil.getTabIndex",
+	      onfocus: "$AINSPECTOR_FB.flatListTemplateUtil.onFocus", onclick: "$onClickTreeRow"},
 		  TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
 		    TAG("$member.tag", {'member' :"$member", 'object': "$member.value"})
 		  ),
