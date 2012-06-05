@@ -16,12 +16,8 @@
 
 FBL.ns(function() { with (FBL) {
 	
-const Cc = Components.classes;
-const Ci = Components.interfaces;
-var prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);
-Components.utils.import("resource://gre/modules/Services.jsm");
 var AINSPECTOR_FB = AINSPECTOR_FB || {};
-var openWindow;
+
 /**
  * @desc preferenceModule Object implements ruleset preferences
  */
@@ -32,96 +28,6 @@ Firebug.preferenceModule = extend(Firebug.Module, {
 	level_AAA: 0,
 	
 	/**
-	 * @function initializeUI
-	 * 
-	 * @memberOf Firebug
-	 */
-	initializeUI: function(){
-	  this.getRulesetPrefs();
-	  all_rulesets = OpenAjax.a11y.all_rulesets.getAllRulesets();
-	  level_AAA = OpenAjax.a11y.WCAG20_LEVEL.AAA;
-	  level_AA = OpenAjax.a11y.WCAG20_LEVEL.AA;
-	  level_A = OpenAjax.a11y.WCAG20_LEVEL.A;
-	},
-	
-	/**
-	 * @function getRulesetPrefs
-	 * 
-	 * @memberOf Firebug.preferenceModule
-	 */
-	getRulesetPrefs: function(){
-	  
-	  var preferences = {};
-
-	  try {
-		var branch1 = Services.prefs.getBranch("extensions.ainspector.");
-		var ruleset_info = branch1.getChildList("", {});
-		//FBTrace.sysout("ruleset_info: ", ruleset_info);
-		var branch2 = Components.classes["@mozilla.org/preferences-service;1"]
-        .getService(Components.interfaces.nsIPrefService).getBranch("extensions.ainspector.");
-		//FBTrace.sysout("branch2: ", branch2);
-		
-		preferences.ruleset_id = branch2.getCharPref("rulesetId");
-        preferences.wcag20_level = branch2.getIntPref("wcag20Level");                              
-	    preferences.broken_links = branch2.getBoolPref("brokenLinks");
-
-	    //preferences.wcag20_level = branch2.getIntPref(ruleset_info[1]);                              
-	    
-	    //preferences.broken_links = branch2.getBoolPref(ruleset_info[2]);    
-	  } catch(e) {
-		FBTrace.sysout("get defualt ruleset");  
-	    preferences = this.setDefaultPreferences();
-	  }
-
-	  return preferences;
-	},
-	
-	/**
-	 * @function setDefaultPreferences
-	 * 
-	 * @memberOf Firebug.preferenceModule 
-	 * 
-	 * @desc sets defualt preferences when no preferences are set on the xul window
-	 */
-	setDefaultPreferences : function(){
-	
-	  var preferences = {};
-	  
-	  preferences.ruleset_id   = 'WCAG20_ARIA_TRANS';                              
-	  
-	  preferences.wcag20_level = 3;                              
-	    
-	  preferences.broken_links = false;    
-
-	  this.setPreferences(preferences);
-	  
-	  return preferences;
-	},
-	
-	/**
-	 * @function setPreferences
-	 * 
-	 * @memberOf Firebug.preferenceModule
-	 * 
-	 * @desc sets the rulesetId, WCAG Level (A, AA && AAA) and broken links information to the mozilla's global preferences 
-	 * 
-	 * @param {Object} preferences - collection of ruleset information
-	 */
-	setPreferences : function(preferences){
-		
-//	  FBTrace.sysout("Set Preferences:");
-//	  FBTrace.sysout("   Ruleset ID: " + preferences.ruleset_id);
-//	  FBTrace.sysout("   WCAG Level: " + preferences.wcag20_level);
-//	  FBTrace.sysout("  Broken Link: " + preferences.broken_links);
-	  var branch2 = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefService);
-	  
-	  branch2.setCharPref('extensions.ainspector.rulesetId',   preferences.ruleset_id );                              
-	  branch2.setIntPref('extensions.ainspector.wcag20Level',  preferences.wcag20_level);                              
-	  branch2.setBoolPref('extensions.ainspector.brokenLinks', preferences.broken_links);    
-
-	},
-	
-	/**
 	 * @function viewPanel
 	 * 
 	 * @memberOf Firebug.preferenceModule
@@ -129,21 +35,24 @@ Firebug.preferenceModule = extend(Firebug.Module, {
 	 * @desc respond to "Preference" button on A11Y toolbar
 	 */
 	viewPanel : function() {
-	  var args = {
-	    FBL: FBL,
-	    FBTrace: FBTrace,
-	    Firebug: Firebug,
-	    all_rulesets: all_rulesets,
-	    level_A: level_A,
-	    level_AA: level_AA,
-	    level_AAA: level_AAA
-	  }
-	  window.openDialog("chrome://ainspector/content/preferences.xul", "",
-           "chrome,centerscreen,dialog,modal,resizable=yes", args);
-    },
-    
-    closeWindow : function(){
-      openWindow.close();	
+	  
+	  Components.utils.import("resource://ainspector/preferences/preferences.js");
+	  
+	  this.all_rulesets = OpenAjax.a11y.all_rulesets.getAllRulesets();
+	  this.level_A = OpenAjax.a11y.WCAG20_LEVEL.A;
+	  this.level_AA = OpenAjax.a11y.WCAG20_LEVEL.AA;
+	  this.level_AAA = OpenAjax.a11y.WCAG20_LEVEL.AAA;
+	  
+	  var ruleset_info = {
+	    all_rulesets : this.all_rulesets,
+	    level_A : this.level_A,
+	    level_AA : this.level_AA,
+	    level_AAA : this.level_AAA
+	  };
+	  
+	  OAA_WEB_ACCESSIBILITY_UTIL.util.preferenceModule.initPref(ruleset_info, window);
+
+//	  OAA_WEB_ACCESSIBILITY_UTIL.util.preferenceModule.viewPanel();
     }
 });
 Firebug.registerModule(Firebug.preferenceModule);
