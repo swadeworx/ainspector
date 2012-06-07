@@ -59,16 +59,16 @@ FBL.ns(function() { with (FBL) {
      */
     initialize: function() {
 	  
-	  var header_column_resizer = AINSPECTOR_FB.gridHeaderColumnResize;
+      var header_column_resizer = AINSPECTOR_FB.gridHeaderColumnResize;
 	  
-	  this.onMouseClick = bind(header_column_resizer.onMouseClick, header_column_resizer); 
-	  this.onMouseDown = bind(header_column_resizer.onMouseDown, header_column_resizer);
-	  this.onMouseMove = bind(header_column_resizer.onMouseMove, header_column_resizer);
-	  this.onMouseUp = bind(header_column_resizer.onMouseUp, header_column_resizer);
-	  this.onMouseOut = bind(header_column_resizer.onMouseOut, header_column_resizer);
+      this.onMouseClick = bind(header_column_resizer.onMouseClick, header_column_resizer); 
+      this.onMouseDown = bind(header_column_resizer.onMouseDown, header_column_resizer);
+      this.onMouseMove = bind(header_column_resizer.onMouseMove, header_column_resizer);
+      this.onMouseUp = bind(header_column_resizer.onMouseUp, header_column_resizer);
+      this.onMouseOut = bind(header_column_resizer.onMouseOut, header_column_resizer);
 	  
-	  //this - context , arguments - document
-	  Firebug.Panel.initialize.apply(this, arguments);
+      //this - context , arguments - document
+      Firebug.Panel.initialize.apply(this, arguments);
     },
     
     /**
@@ -100,7 +100,7 @@ FBL.ns(function() { with (FBL) {
      */
     destroyNode : function() {
     
-	  this.panelNode.removeEventListener("click", this.onMouseClick, true);
+      this.panelNode.removeEventListener("click", this.onMouseClick, true);
       this.panelNode.removeEventListener("mousedown", this.onMouseDown, true);
       this.panelNode.removeEventListener("mousemove", this.onMouseMove, true);
       this.panelNode.removeEventListener("mouseup", this.onMouseUp, true);
@@ -138,14 +138,14 @@ FBL.ns(function() { with (FBL) {
 	 * @param {Object} panel - the new selected panel object    
 	 */
 	showPanel: function(browser, panel) { 
-	   
-  	  var is_my_extension = panel && panel.name == panel_name;
-      var my_extension_toolbar_buttons = Firebug.chrome.$("fbFirebugExtensionButtons");
+  	
+	  var is_my_extension = panel && panel.name == panel_name;
+	  var my_extension_toolbar_buttons = Firebug.chrome.$("fbFirebugExtensionButtons");
 
-      this.getToolbarButtonSelected(Firebug.chrome.$("fbFirebugExtensionButtons").children, Firebug.currentContext);
+  	this.getToolbarButtonSelected(Firebug.chrome.$("fbFirebugExtensionButtons").children, Firebug.currentContext);
 	  
-      /* call FBL namespace function to hide the toolbar buttons if the selected panel is not my extensions panel*/
-      collapse(my_extension_toolbar_buttons, !is_my_extension); 
+    /* call FBL namespace function to hide the toolbar buttons if the selected panel is not my extensions panel*/
+    collapse(my_extension_toolbar_buttons, !is_my_extension); 
 	},
 	
 	/**
@@ -181,7 +181,7 @@ FBL.ns(function() { with (FBL) {
 	 */
 	ainspectorOnLoad : function(event) {
 		
-      var win = event.currentTarget;
+    var win = event.currentTarget;
 	  var firebug_context;
 	  
 	  if (win != Firebug.currentContext.window) {
@@ -208,18 +208,18 @@ FBL.ns(function() { with (FBL) {
 		
 	  var win = event.currentTarget;
       
-      var fbcontext;
+    var fbcontext;
         
-      if (win !== Firebug.currentContext.window) {
-        fbcontext = TabWatcher.getContextByWindow(win);
-      } else {
-        fbcontext = Firebug.currentContext;
-      }
+    if (win !== Firebug.currentContext.window) {
+      fbcontext = TabWatcher.getContextByWindow(win);
+    } else {
+      fbcontext = Firebug.currentContext;
+    }
       
-      if (fbcontext !== Firebug.currentContext) {
-        return;
-      }
-      AINSPECTOR_FB.onUnLoad();
+    if (fbcontext !== Firebug.currentContext) {
+      return;
+    }
+    AINSPECTOR_FB.onUnLoad();
 	},
     
 	/**
