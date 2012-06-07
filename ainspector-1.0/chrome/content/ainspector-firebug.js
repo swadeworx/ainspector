@@ -58,15 +58,15 @@ FBL.ns(function() { with (FBL) {
      * 
      */
     initialize: function() {
-	  
+    
       var header_column_resizer = AINSPECTOR_FB.gridHeaderColumnResize;
-	  
+    
       this.onMouseClick = bind(header_column_resizer.onMouseClick, header_column_resizer); 
       this.onMouseDown = bind(header_column_resizer.onMouseDown, header_column_resizer);
       this.onMouseMove = bind(header_column_resizer.onMouseMove, header_column_resizer);
       this.onMouseUp = bind(header_column_resizer.onMouseUp, header_column_resizer);
       this.onMouseOut = bind(header_column_resizer.onMouseOut, header_column_resizer);
-	  
+    
       //this - context , arguments - document
       Firebug.Panel.initialize.apply(this, arguments);
     },
@@ -80,7 +80,7 @@ FBL.ns(function() { with (FBL) {
      */
     initializeNode : function(){
       
-      this.panelNode.id = "ainspector-panel";	
+      this.panelNode.id = "ainspector-panel";  
       
       this.panelNode.addEventListener("click", this.onMouseClick, true);
       this.panelNode.addEventListener("mousedown", this.onMouseDown, true);
@@ -117,134 +117,134 @@ FBL.ns(function() { with (FBL) {
    * Always only one instance of a module object is created for a browser window
    */
   Firebug.ainspectorModule = extend(Firebug.Module, { 
-	
-	/**
-	 * @function initialize
-	 * 
-	 * @desc Called by Firebug when Firefox window is opened.
-	 * Must call super class (i.e., Firebug.Module) initialize() to add listeners automatically
-	 */
-	initialize : function() {
-	  Firebug.Module.initialize.apply(this, arguments);	
-	}, 
-	
-	/**   
-	 * @function showPanel
-	 *  
-	 * @desc Show/Hide our panel based on new selection from the Firebug main toolbar.
-	 * Only called by the Firebug framework.
-	 *
-	 * @param {Object} browser - the browser window object
-	 * @param {Object} panel - the new selected panel object    
-	 */
-	showPanel: function(browser, panel) { 
-  	
-	  var is_my_extension = panel && panel.name == panel_name;
-	  var my_extension_toolbar_buttons = Firebug.chrome.$("fbFirebugExtensionButtons");
-
-  	this.getToolbarButtonSelected(Firebug.chrome.$("fbFirebugExtensionButtons").children, Firebug.currentContext);
-	  
-    /* call FBL namespace function to hide the toolbar buttons if the selected panel is not my extensions panel*/
-    collapse(my_extension_toolbar_buttons, !is_my_extension); 
-	},
-	
-	/**
-	 * @function watchWindow
-	 * 
-	 * @desc Called by Firebug when attaching to a window (top-level or frame).
-	 * 
-	 * @param {Object} context - object used to store the data associated with the web page
-	 *                           Every page with enabled Firebug has it's own instance of context object
-	 */
-	watchWindow : function(context){
-	  context.window.addEventListener("load", this.ainspectorOnLoad, false);
-	  context.window.addEventListener("beforeunload", this.ainspectorOnUnload, false);
-	},
-	
-	/**
-	 * @function unWatchWindow
-	 * 
-	 * @desc Called by Firebug when detaching to a window (top-level or frame).
-	 */
-	unWatchWindow : function(context){
-	  context.window.removeEventListener("load", this.ainspectorOnLoad, false);
-	  context.window.removeEventListener("beforeunload", this.ainspectorOnUnload, false);
-	},
-	
-	/**
-	 * @function ainspectorOnLoad
-	 * 
-	 * @desc gets the firebug context, maintains the state to select 
-	 * the toolbarbutton that has been selected earlier when the new web page is loaded 
-	 * 
-	 * @param {Event} event
-	 */
-	ainspectorOnLoad : function(event) {
-		
-    var win = event.currentTarget;
-	  var firebug_context;
-	  
-	  if (win != Firebug.currentContext.window) {
-		firebug_context = TabWatcher.getContextByWindow(win);
-	  } else {
-		firebug_context = Firebug.currentContext;  
-	  }
-	  
-	  cache_object = AINSPECTOR_FB.onLoad();
-	  
-	  var toolbar_buttons = firebug_context.chrome.$("fbFirebugExtensionButtons").children;
-	  
-	  Firebug.ainspectorModule.getToolbarButtonSelected(toolbar_buttons, firebug_context);
-	},
-	
-	/**
-	 * @function ainspectorOnUnLoad
-	 * 
-	 * @desc
-	 * 
-	 * @param {Event} event
-	 */
-	ainspectorOnUnLoad : function(event) {
-		
-	  var win = event.currentTarget;
-      
-    var fbcontext;
-        
-    if (win !== Firebug.currentContext.window) {
-      fbcontext = TabWatcher.getContextByWindow(win);
-    } else {
-      fbcontext = Firebug.currentContext;
-    }
-      
-    if (fbcontext !== Firebug.currentContext) {
-      return;
-    }
-    AINSPECTOR_FB.onUnLoad();
-	},
+  
+    /**
+     * @function initialize
+     * 
+     * @desc Called by Firebug when Firefox window is opened.
+     * Must call super class (i.e., Firebug.Module) initialize() to add listeners automatically
+     */
+    initialize : function() {
+      Firebug.Module.initialize.apply(this, arguments);  
+    }, 
     
-	/**
-	 * @function getToolbarButtonSelected
-	 * 
-	 * @desc retrieves the button selected when the new page is loaded
-	 * 
-	 * @param {Array} toolbarbuttons - array of toolbarbuttons on the AInspector panel
-	 * @param {firebug_context} firebug_context - 
-	 */
-	getToolbarButtonSelected : function(toolbarbuttons, firebug_context) {
-	
-	  var toolbar_button = "images";
-	 
-	  for (var i=1; i < toolbarbuttons.length; i=i+2){
-	    if (toolbarbuttons[i].checked == true) {
-		  toolbar_button = toolbarbuttons[i].id;
-		  break;
-	    }
-	  }
-	  window.AINSPECTOR_FB[toolbar_button].viewPanel(firebug_context, panel_name, cache_object);
-	}
-	
-  }); 
-
-  Firebug.registerModule(Firebug.ainspectorModule); 
+    /**   
+     * @function showPanel
+     *  
+     * @desc Show/Hide our panel based on new selection from the Firebug main toolbar.
+     * Only called by the Firebug framework.
+     *
+     * @param {Object} browser - the browser window object
+     * @param {Object} panel - the new selected panel object    
+     */
+    showPanel: function(browser, panel) { 
+      
+      var is_my_extension = panel && panel.name == panel_name;
+      var my_extension_toolbar_buttons = Firebug.chrome.$("fbFirebugExtensionButtons");
+  
+      this.getToolbarButtonSelected(Firebug.chrome.$("fbFirebugExtensionButtons").children, Firebug.currentContext);
+      
+      /* call FBL namespace function to hide the toolbar buttons if the selected panel is not my extensions panel*/
+      collapse(my_extension_toolbar_buttons, !is_my_extension); 
+    },
+    
+    /**
+     * @function watchWindow
+     * 
+     * @desc Called by Firebug when attaching to a window (top-level or frame).
+     * 
+     * @param {Object} context - object used to store the data associated with the web page
+     *                           Every page with enabled Firebug has it's own instance of context object
+     */
+    watchWindow : function(context){
+      context.window.addEventListener("load", this.ainspectorOnLoad, false);
+      context.window.addEventListener("beforeunload", this.ainspectorOnUnload, false);
+    },
+    
+    /**
+     * @function unWatchWindow
+     * 
+     * @desc Called by Firebug when detaching to a window (top-level or frame).
+     */
+    unWatchWindow : function(context){
+      context.window.removeEventListener("load", this.ainspectorOnLoad, false);
+      context.window.removeEventListener("beforeunload", this.ainspectorOnUnload, false);
+    },
+    
+    /**
+     * @function ainspectorOnLoad
+     * 
+     * @desc gets the firebug context, maintains the state to select 
+     * the toolbarbutton that has been selected earlier when the new web page is loaded 
+     * 
+     * @param {Event} event
+     */
+    ainspectorOnLoad : function(event) {
+      
+      var win = event.currentTarget;
+      var firebug_context;
+      
+      if (win != Firebug.currentContext.window) {
+      firebug_context = TabWatcher.getContextByWindow(win);
+      } else {
+      firebug_context = Firebug.currentContext;  
+      }
+      
+      cache_object = AINSPECTOR_FB.onLoad();
+      
+      var toolbar_buttons = firebug_context.chrome.$("fbFirebugExtensionButtons").children;
+      
+      Firebug.ainspectorModule.getToolbarButtonSelected(toolbar_buttons, firebug_context);
+    },
+    
+    /**
+     * @function ainspectorOnUnLoad
+     * 
+     * @desc
+     * 
+     * @param {Event} event
+     */
+    ainspectorOnUnLoad : function(event) {
+      
+      var win = event.currentTarget;
+        
+      var fbcontext;
+          
+      if (win !== Firebug.currentContext.window) {
+        fbcontext = TabWatcher.getContextByWindow(win);
+      } else {
+        fbcontext = Firebug.currentContext;
+      }
+        
+      if (fbcontext !== Firebug.currentContext) {
+        return;
+      }
+      AINSPECTOR_FB.onUnLoad();
+    },
+      
+    /**
+     * @function getToolbarButtonSelected
+     * 
+     * @desc retrieves the button selected when the new page is loaded
+     * 
+     * @param {Array} toolbarbuttons - array of toolbarbuttons on the AInspector panel
+     * @param {firebug_context} firebug_context - 
+     */
+    getToolbarButtonSelected : function(toolbarbuttons, firebug_context) {
+    
+      var toolbar_button = "images";
+     
+      for (var i=1; i < toolbarbuttons.length; i=i+2){
+        if (toolbarbuttons[i].checked == true) {
+        toolbar_button = toolbarbuttons[i].id;
+        break;
+        }
+      }
+      window.AINSPECTOR_FB[toolbar_button].viewPanel(firebug_context, panel_name, cache_object);
+    }
+    
+    }); 
+  
+    Firebug.registerModule(Firebug.ainspectorModule); 
 
 }});
