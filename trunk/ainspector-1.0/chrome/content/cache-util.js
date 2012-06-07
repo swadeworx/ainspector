@@ -26,6 +26,7 @@ with (FBL) {
   AINSPECTOR_FB.attributes_registered = null;
   AINSPECTOR_FB.events_registered = null;
   AINSPECTOR_FB.preferences = null;
+  
   Components.utils.import("resource://ainspector/preferences/preferences.js");
   
   /**
@@ -38,7 +39,7 @@ with (FBL) {
      * 
      * @memberOf AINSPECTOR_FB.cacheUtil
      * 
-     * @desc calls evaluate function of the rule set selected. 
+     * @desc evaluate results by calling OAA Cache library evaluate function() with the rule set selected. 
      * 
      * @return ruleset_result_cache 
      */
@@ -54,10 +55,14 @@ with (FBL) {
         doc  = window.opener.parent.content.document;
         url = window.opener.parent.location.href;
       } // end try
+
       FBTrace.sysout("preferences: ", OAA_WEB_ACCESSIBILITY_UTIL);
+      
+//      OAA_WEB_ACCESSIBILITY_UTIL.util.preferenceModule.initPref(ruleset_info, window);
       var preferences = OAA_WEB_ACCESSIBILITY_UTIL.util.preferenceModule.getRulesetPrefs();
       AINSPECTOR_FB.preferences = preferences;
-      
+	  FBTrace.sysout("preferences came from module ", preferences);
+
       var ruleset = OpenAjax.a11y.all_rulesets.getRuleset(preferences.ruleset_id);
 
       if (ruleset) {
@@ -143,12 +148,11 @@ with (FBL) {
 
   /**
    * @function onLoad
-   *
    * @memberof AINSPECTOR_FB.onLoad
    *
-   * @desc Handle loading of sidebar by calling the onLoad function
-   *       for the particular sidebar that is loading and setting
-   *       the state for toolbar and menus.
+   * @desc handle 
+   *  1. loading the panel
+   *  2. initializing the preferences module
    */
 
   AINSPECTOR_FB.onLoad = function() {
@@ -160,8 +164,10 @@ with (FBL) {
       .getInterface(Components.interfaces.nsIDOMWindow);
 
     mainWindow.gBrowser.addProgressListener(AINSPECTOR_FB.tabProgressListener);
-    Firebug.preferenceModule.initializeUI();
     AINSPECTOR_FB.cacheUtil.updateCache();
+    
+    Firebug.preferenceModule.initializeUI();
+    
   };
   
   /**
