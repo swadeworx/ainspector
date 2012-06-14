@@ -14,21 +14,24 @@
  * limitations under the License.
  */
 /**
+ * @file ainspector-firebug.js
+ * 
  * initialize the top level namespace AINSPECTOR_FB
- * create the A11y Panel by 
- *   1. define Firebug.AInspectorPanel by extending internal Firebug.Panel object methods
- *   2. Initialize mouse event listeners for column resizing to the A11y Panel 
- * register the A11y Panel  
- * derive Firebug.AInspectorModule by
- *   1. internal Firebug.Module Object methods
- *   2. data object of A11y extension
- * register the A11y Module 
+ * define the AInspectorPanel by 
+ *   1. extending internal Firebug.Panel object methods
+ *   2. initializing mouse event listeners for column resizing to the A11y Panel 
+ * register the AInspectorPanel
+ *   
+ * define Firebug.ainspectorModule by inheriting or overriding 
+ *   internal Firebug.Module methods and defining new methods
+ * register the ainspectorModule 
  */
 
 /**
  * @namespace AINSPECTOR_FB
  */
 var AINSPECTOR_FB = AINSPECTOR_FB || {};
+AINSPECTOR_FB.DEFAULT_TOOLBAR_BUTTON_ID = "images";
 
 FBL.ns(function() { with (FBL) { 
   
@@ -39,7 +42,7 @@ FBL.ns(function() { with (FBL) {
   function AInspectorPanel() {} 
   
   /**
-   * An instance of the panel object is created by the framework for each browser tab where Firebug is activated.
+   * An instance of the panel object is created by the Firebug framework for each browser tab where Firebug is activated.
    */
   AInspectorPanel.prototype = extend(Firebug.Panel, { 
   
@@ -48,7 +51,7 @@ FBL.ns(function() { with (FBL) {
     dependents: ["Rules", "Attributes", "Cache", "Style", "Events"],
   
     /**
-     * @function initialize
+     * @method initialize
      * 
      * @desc bind mouse events to the panel to inspect the events that are bound to DOM elements i.e., if anything goes wrong 
      * automatically called by Firebug Framework when A11y Panel is activated
@@ -72,7 +75,7 @@ FBL.ns(function() { with (FBL) {
     },
     
     /**
-     * @function initializeNode
+     * @method initializeNode
      * 
      * @desc Add mouse event listeners to the panel to resize the column headers of a grid on the panel 
      * Only called by the Firebug at the end of initialize() method
@@ -93,7 +96,7 @@ FBL.ns(function() { with (FBL) {
     },
     
     /**
-     * @function destroyNode
+     * @method destroyNode
      * 
      * @desc remove the mouse eventListeners from the panel  
      * Only called by the Firebug Framework
@@ -118,21 +121,11 @@ FBL.ns(function() { with (FBL) {
    */
   Firebug.ainspectorModule = extend(Firebug.Module, { 
   
-    /**
-     * @function initialize
-     * 
-     * @desc Called by Firebug when Firefox window is opened.
-     * Must call super class (i.e., Firebug.Module) initialize() to add listeners automatically
-     */
-    initialize : function() {
-      Firebug.Module.initialize.apply(this, arguments);  
-    }, 
-    
     /**   
-     * @function showPanel
+     * @method showPanel
      *  
      * @desc Show/Hide our panel based on new selection from the Firebug main toolbar.
-     * Only called by the Firebug framework.
+     *   Overrides method called by the Firebug framework.
      *
      * @param {Object} browser - the browser window object
      * @param {Object} panel - the new selected panel object    
@@ -141,15 +134,17 @@ FBL.ns(function() { with (FBL) {
       
       var is_my_extension = panel && panel.name == panel_name;
       var my_extension_toolbar_buttons = Firebug.chrome.$("fbFirebugExtensionButtons");
-  
-      this.getToolbarButtonSelected(Firebug.chrome.$("fbFirebugExtensionButtons").children, Firebug.currentContext);
-      
+
+      /* whether or not we display ainspector we still need to save the selected view */
+      var toolbar_button_id = this.getToolbarButtonSelected(Firebug.chrome.$("fbFirebugExtensionButtons").children);
+      window.AINSPECTOR_FB[toolbar_button_id].viewPanel(Firebug.currentContext, panel_name);
+
       /* call FBL namespace function to hide the toolbar buttons if the selected panel is not my extensions panel*/
-      collapse(my_extension_toolbar_buttons, !is_my_extension); 
+      collapse(my_extension_toolbar_buttons, !is_my_extension);
     },
     
     /**
-     * @function watchWindow
+     * @method watchWindow
      * 
      * @desc Called by Firebug when attaching to a window (top-level or frame).
      * 
@@ -162,7 +157,7 @@ FBL.ns(function() { with (FBL) {
     },
     
     /**
-     * @function unWatchWindow
+     * @method unWatchWindow
      * 
      * @desc Called by Firebug when detaching to a window (top-level or frame).
      */
@@ -172,7 +167,7 @@ FBL.ns(function() { with (FBL) {
     },
     
     /**
-     * @function ainspectorOnLoad
+     * @method ainspectorOnLoad
      * 
      * @desc gets the firebug context, maintains the state to select 
      * the toolbarbutton that has been selected earlier when the new web page is loaded 
@@ -185,20 +180,21 @@ FBL.ns(function() { with (FBL) {
       var firebug_context;
       
       if (win != Firebug.currentContext.window) {
-      firebug_context = TabWatcher.getContextByWindow(win);
+        firebug_context = TabWatcher.getContextByWindow(win);
       } else {
-      firebug_context = Firebug.currentContext;  
+        firebug_context = Firebug.currentContext;  
       }
       
       cache_object = AINSPECTOR_FB.onLoad();
       
       var toolbar_buttons = firebug_context.chrome.$("fbFirebugExtensionButtons").children;
       
-      Firebug.ainspectorModule.getToolbarButtonSelected(toolbar_buttons, firebug_context);
+      var toolbar_button_id = Firebug.ainspectorModule.getToolbarButtonSelected(toolbar_buttons, firebug_context);
+      window.AINSPECTOR_FB[toolbar_button_id].viewPanel(Firebug.currentContext, panel_name, cache_object);
     },
     
     /**
-     * @function ainspectorOnUnLoad
+     * @method ainspectorOnUnLoad
      * 
      * @desc
      * 
@@ -223,24 +219,19 @@ FBL.ns(function() { with (FBL) {
     },
       
     /**
-     * @function getToolbarButtonSelected
+     * @method getToolbarButtonSelected
      * 
-     * @desc retrieves the button selected when the new page is loaded
+     * @desc retrieves the selected button id when the new page is loaded
      * 
      * @param {Array} toolbarbuttons - array of toolbarbuttons on the AInspector panel
-     * @param {firebug_context} firebug_context - 
      */
-    getToolbarButtonSelected : function(toolbarbuttons, firebug_context) {
+    getToolbarButtonSelected : function(toolbarbuttons) {
     
-      var toolbar_button = "images";
-     
       for (var i=1; i < toolbarbuttons.length; i=i+2){
-        if (toolbarbuttons[i].checked == true) {
-        toolbar_button = toolbarbuttons[i].id;
-        break;
-        }
+
+        if (toolbarbuttons[i].checked == true) return toolbarbuttons[i].id;
       }
-      window.AINSPECTOR_FB[toolbar_button].viewPanel(firebug_context, panel_name, cache_object);
+      return AINSPECTOR_FB.DEFAULT_TOOLBAR_BUTTON_ID;
     }
     
     }); 
