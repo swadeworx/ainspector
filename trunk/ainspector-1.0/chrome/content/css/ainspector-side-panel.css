@@ -8,6 +8,14 @@
   margin-top: 10px;
 }
 
+.more-button{
+ display: inline;
+ top: 9px;
+ left: 0px;
+ margin-left: 1%;
+ font-size: 8pt;
+}
+
 
 #ainspector-side-panel body, div, span, ul, li, h1, h2, h3, h4, h5, h6, hr, p, input, select, option, form, em, table, tr, td, img {
 /* FIX ME : the original, below, makes the twisty be under the text

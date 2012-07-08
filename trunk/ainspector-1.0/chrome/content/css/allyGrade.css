@@ -33,27 +33,32 @@
     color: gray;
 }
 
+.styleAction {
+  font-style: italic;
+  font-weight:bold;
+}
+
 .violationMsgTxt {
-	 background-color: #b22222; 
-	 color: #FFFFFF;
+   background-color: #b22222; 
+   color: #FFFFFF;
    width:50%;
 }
 .manualMsgTxt {
-	color: #b22222;
+  color: #b22222;
 }
 .hiddenMsgTxt {
-	 color: #333333; 
-	 font-size: small; 
-	 font-weight: bold;
+   color: #333333; 
+   font-size: small; 
+   font-weight: bold;
 }
 .passMsgTxt {
-	color: green;
+  color: green;
 }
 .recommendationMsgTxt {
-	 background-color: #DAA520;
-	 color: #ffffff;
-   font-weight: bold;
-   width:80%;
+  background-color: #DAA520;
+  color: #ffffff;
+  font-weight: bold;
+  width:80%;
 }
 .warnMsgTxt {
   background-color: #333333;
