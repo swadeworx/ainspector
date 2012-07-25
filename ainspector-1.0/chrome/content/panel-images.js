@@ -37,45 +37,70 @@ with (FBL) {
    * 
    */
   viewPanel: function(context, panel_name, cache_object) {		
+    
+    FBTrace.sysout("Firebug in images view panel: ", window);
+    //adds or removes the side panels from the extension depending on the panel we are in 
+    AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels(false);
+    
+    if (!context) context = Firebug.currentContext;
+    
+    if (!panel_name) panel_name = "AInspector";
 
-	//adds or removes the side panels from the extension depending on the panel we are in 
-	AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels(false);
-	
-	if (!panel_name) panel_name = "AInspector";
-	
-	if (!cache_object) cache_object = AINSPECTOR_FB.cacheUtil.updateCache();  
+    FBTrace.sysout("context: ", context);
 
-	panel = context.getPanel(panel_name, true);
+    panel = context.getPanel(panel_name, true);
+    FBTrace.sysout("panel: ", panel);
+
+    if (!cache_object) cache_object = AINSPECTOR_FB.cacheUtil.updateCache();  
+    
+    FBTrace.sysout("cache_object: ", cache_object);
 
     /* Clear the panel before writing anything onto the report*/
     if (panel) {
+      FBTrace.sysout("inside clearnode 1");
+
       clearNode(panel.panelNode);
-      clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
+      
+//      var sidePanel = Firebug.currentContext.getPanel('rulesSidePanel');
+//      FBTrace.sysout("inside clearnode 2", sidePanel);
+//      clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
+      FBTrace.sysout("inside clearnode 3");
+
     }
 
     var images_cache = cache_object.dom_cache.images_cache;
     images_cache.sortImageElements('document_order', true);
+    FBTrace.sysout("images_cache: ", images_cache);
 
-    image_elements = images_cache.image_elements;
-
+    var images_cache_elements = images_cache.getItemsByNodeResults(OpenAjax.a11y.RESULT_FILTER.ALL);
+    
     AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
     
     var toolbar = panel.document.createElement("div");
     toolbar.id = "toolbarDiv";
+    FBTrace.sysout("images_cache_elements: ", images_cache_elements);
+
+    panel.table = AINSPECTOR_FB.template.grid.header.replace({elements: images_cache_elements}, toolbar, AINSPECTOR_FB.template.grid);
     
-    AINSPECTOR_FB.images.equivToolbarPlate.toolbar.replace({preferences: AINSPECTOR_FB.preferences}, toolbar, AINSPECTOR_FB.images.equivToolbarPlate);
+    var element = panel.document.createElement("div");
+    element.style.display = "block";
 	  
-	var element = panel.document.createElement("div");
-	element.style.display = "block";
-	  
-	panel.panelNode.id = "ainspector-panel"; 
-	panel.panelNode.appendChild(toolbar);
-	panel.panelNode.appendChild(element);
-	FBTrace.sysout("image elements: ", image_elements);
-	  
-    panel.table = AINSPECTOR_FB.images.imagesTemplate.tableTag.append( {image_elements: image_elements}, panel.panelNode, AINSPECTOR_FB.images.imagesTemplate);
-	this.select(image_elements[0]);
-	Firebug.currentContext.getPanel('rulesSidePanel').sView(true, images_cache.image_elements[0]);
+    FBTrace.sysout("images_cache_elements: ", images_cache_elements);
+
+    panel.panelNode.id = "ainspector-panel"; 
+    panel.panelNode.appendChild(toolbar);
+	  panel.panelNode.appendChild(element);
+	
+	  var table = panel.table.lastChild;
+	  var tbody = table.lastChild;
+  
+	  FBTrace.sysout("panel.table: ", panel.table);
+	  FBTrace.sysout("table: ", table);
+    FBTrace.sysout("tbody: ", tbody);
+
+//  panel.table = AINSPECTOR_FB.images.imagesTemplate.tableTag.append( {image_elements: image_elements}, panel.panelNode, AINSPECTOR_FB.images.imagesTemplate);
+//	this.select(image_elements[0]);
+//	Firebug.currentContext.getPanel('rulesSidePanel').sView(true, images_cache.image_elements[0]);
   },
     
   /**
@@ -94,136 +119,5 @@ with (FBL) {
   }
 }; //end of images
   
-  /**
-   * @function AINSPECTOR_FB.images.equivToolbarPlate
-   * 
-   * @desc template creates a Tool bar in ainspector panel 
-   */
-  AINSPECTOR_FB.images.equivToolbarPlate = domplate({
-    toolbar : DIV( {class : "nav-menu"},
-                BUTTON({class: "button", onclick: "$AINSPECTOR_FB.toolbarUtil.viewHTMLPanel", id: "html_panel_button", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.htmlButtonPress"}, "HTML Panel"),
-                SPAN({class: "ruleset_select"}, "Ruleset:  "),
-                SPAN({class: "ruleset_value"}, "$preferences.ruleset_id|AINSPECTOR_FB.toolbarUtil.getRulesetTitle"),
-                SPAN({class: "ruleset_level"}, " Level:  "),
-                SPAN({class: "ruleset_value"}, "$preferences.wcag20_level|AINSPECTOR_FB.toolbarUtil.getLevel")
-                
-    ) 
-  });
   
-  /**
-   * @Domplate AINSPECTOR_FB.images.imagesTemplate
-   * 
-   * @Desc template object, create HTML mark up showed upon clicking the images toolbar button
-   * 
-   * @return flat list of images to be displayed on the panel
-   */
-  AINSPECTOR_FB.images.imagesTemplate = domplate({
-    
-	tableTag:
-      
-	  TABLE({class: "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "", role: "grid", "aria-selected" : "true",
-		  tabindex: "0", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressTable"},
-        THEAD(
-          TR({class: "firstRow gridHeaderRow gridRow", id: "imgTableHeader", role: "row", "aria-selected" : "false", tabindex: "-1", 
-            onfocus: "$AINSPECTOR_FB.flatListTemplateUtil.onFocus", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader"},
-            TH({class: "gridHeaderCell gridCell", id: "imgElementHeaderCol", role: "columnheader"}, DIV({class: "gridHeaderCellBox"}, "Element")),
-            TH({class: "gridHeaderCell gridCell", id: "imgOrderHeaderCol", role: "columnheader"}, DIV({class: "gridHeaderCellBox"}, "Height")),
-            TH({class: "gridHeaderCell gridCell", id: "imgOrderHeaderCol", role: "columnheader"}, DIV({class: "gridHeaderCellBox"}, "Width")),
-            TH({class: "gridHeaderCell gridCell", id: "imgTextHeaderCol", role: "columnheader"}, DIV({class: "gridHeaderCellBox"}, "AltText")),
-            TH({class: "gridHeaderCell gridCell", id: "imgOrderHeaderCol", role: "columnheader"}, DIV({class: "gridHeaderCellBox"}, "Accessibility Summary"))
-          ) //end TR
-        ), //end THEAD
-        TBODY(
-          FOR("object", "$image_elements",
-            TR({class: "tableRow  gridRow", role: "row", "aria-selected" : "$object|$AINSPECTOR_FB.toolbarUtil.getSelectedState", tabindex: "$object|$AINSPECTOR_FB.toolbarUtil.getTabIndex", 
-			id: "$object.cache_id", _repObject:"$object", 
-	     onclick: "$highlightRow", onfocus: "$AINSPECTOR_FB.flatListTemplateUtil.onFocus", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
-              TD({class: "imgEleCol gridCell gridCol ",  id:"imgSrcCol", role: "gridcell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
-                DIV({class: "gridContent", _repObject:"$object"}, "$object.dom_element.tag_name")
-              ),
-              TD({class: "imgOrderCol gridCell gridCol", id:"imgOrderCol" , role: "gridcell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
-                DIV({class: "gridContent", _repObject:"$object"}, "$object.height")
-              ),
-              TD({class: "imgOrderCol gridCell gridCol", id:"imgOrderCol" , role: "gridcell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
-                DIV({class: "gridContent", _repObject:"$object"}, "$object.width")
-              ),
-              TD({class: "imgTextCol gridCell gridCol ",  id:"imgSrcCol", role: "gridcell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
-                DIV({class: "gridContent", _repObject:"$object"}, TAG("$object.alt|getAlt", {'object': '$object'}))
-              ),
-              TD({class: "imgOrderCol gridCell gridCol", id:"imgOrderCol" , role: "gridcell", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
-                DIV({class: "gridContent", _repObject:"$object"}, TAG("$object|getAccessibility", {'object': '$object'}))
-              )
-            )//end TR   
-          ) //end FOR
-        )// end TBODY
-      ), // end inner TABLE
-
-      styleTag : DIV({class: "styleLabel"},"empty alt"),
-      normalTag : DIV({class: "gridContent", title: "$object.alt"},"$object.alt|AINSPECTOR_FB.ainspectorUtil.truncateText"),
-      strTagPass : DIV({class: "passMsgTxt"}, "$object|getSummary"),
-      strTagViolation : DIV({class: "violationMsgTxt"}, "$object|getSummary"),
-      strTagManual : DIV({class: "manualMsgTxt"}, "$object|getSummary"),
-      strTagHidden : DIV({class: "hiddenMsgTxt"}, "$object|getSummary"),
-      strTagRecommendation : DIV({class: "recommendationMsgTxt"}, "$object|getSummary"),
-      strTagInfo : DIV({class: "infoMsgTxt"}, "$object|getSummary"),
-      strTagWarn : DIV({class: "warnMsgTxt"}, "$object|getSummary"),
-      
-      /**
-       * @function getAlt
-       * 
-       * @desc style alt attribute value if it is empty 
-       * 
-       * @param {String} alt - alternate text on the image
-       */
-      getAlt : function(alt) {
-	    if (alt == undefined) return this.styleTag;
-	    else return this.normalTag;
-      },
-      
-      /**
-       * @function getAccessibility
-       * 
-       * @desc style the result text depending on the severity
-       * 
-       * @param {Object} object - node result Object
-       */
-      getAccessibility : function (object){
-	    var severity =  object.dom_element.getAccessibility().label;
-		var styleSeverityTag;
-		if (severity == "Pass")  styleSeverityTag = this.strTagPass;
-		if (severity == "Violation") styleSeverityTag = this.strTagViolation;
-		if (severity == "Manual Check") styleSeverityTag = this.strTagManual;
-		if (severity == "Hidden") styleSeverityTag = this.strTagHidden;
-		if (severity == "Recommendation") styleSeverityTag = this.strTagRecommendation;
-		if (severity == "Information") styleSeverityTag = this.strTagInfo;
-		if (severity == "Warning") styleSeverityTag = this.strTagWarn;
-
-		return styleSeverityTag;
-      },
-      
-      /**
-       * @function getSummary
-       * 
-       * @desc returns the accessibility label
-       * 
-       * @param {Object} object - node result Object 
-       */
-      getSummary : function(object){
-      	return object.dom_element.getAccessibility().label;
-      },
-      
-      /**
-       * @function highlightRow
-       * 
-       * @desc helper function to call highlight
-       * 
-       * @param {Event} event - even triggered when a row is selected in a panel
-       * @property {Object} selection - present selected row info to be passed to the side panel 
-       */
-      highlightRow : function(event){
-    	  
-  	    panel.selection = Firebug.getRepObject(event.target);
-  	    AINSPECTOR_FB.flatListTemplateUtil.highlightRow(event);
-      }
-    });
   }
