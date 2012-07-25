@@ -55,7 +55,7 @@ OpenAjax.a11y.cache.LanguagesCache = function (dom_cache) {
   this.sort_property  = 'lang';
   this.sort_ascending = false;
 
-  this.rule_summary_results  = new OpenAjax.a11y.ResultRuleSummary();
+  this.evaluation_results  = new OpenAjax.a11y.EvaluationResult();
     
 };
 
@@ -81,13 +81,12 @@ OpenAjax.a11y.cache.LanguagesCache = function (dom_cache) {
 
 OpenAjax.a11y.cache.LanguagesCache.prototype.addLanguageItem = function (dom_element) {
     
-    var i;
     var li; //language item
     var found = false;
     var language_items = this.language_items;
     var language_items_len = language_items.length; 
     
-    for (i=0; i<language_items_len; i++) {
+    for (var i = 0; i < language_items_len; i++) {
       if (dom_element.lang == language_items[i].language) {
         found = true;
         language_items[i].addDOMElement(dom_element);
@@ -208,7 +207,7 @@ OpenAjax.a11y.cache.LanguagesCache.prototype.traverseDOMElementsForLanguages = f
     var i;
     if (! dom_element) return;
     
-    if (dom_element.type == NODE_TYPE.ELEMENT) {
+    if (dom_element.type == Node.ELEMENT_NODE) {
         
         this.updateCacheItems(dom_element);
         
@@ -381,7 +380,7 @@ OpenAjax.a11y.cache.LanguageItem.prototype.addDOMElement = function (dom_element
 
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.LanguageItem
  *
@@ -390,8 +389,8 @@ OpenAjax.a11y.cache.LanguageItem.prototype.addDOMElement = function (dom_element
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.LanguageItem.prototype.getResultRules = function () {
-  return this.dom_text_nodes[0].getResultRules();
+OpenAjax.a11y.cache.LanguageItem.prototype.getNodeResults = function () {
+  return this.dom_text_nodes[0].getNodeResults();
 };
 
 /**

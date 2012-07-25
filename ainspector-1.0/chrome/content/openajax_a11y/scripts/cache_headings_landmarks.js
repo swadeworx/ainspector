@@ -99,7 +99,7 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache = function (dom_cache) {
   
   this.elements_with_content = [];
    
-  this.rule_summary_results  = new OpenAjax.a11y.ResultRuleSummary();
+  this.evaluation_results  = new OpenAjax.a11y.EvaluationResult();
   
 };
 
@@ -307,7 +307,7 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.updateCacheItems = function
   
   if (landmark_info.landmark_element) dom_element.parent_landmark_role = landmark_info.landmark_element.role;
   
-  if (dom_element.type == NODE_TYPE.ELEMENT) {
+  if (dom_element.type == Node.ELEMENT_NODE) {
 
     if (dom_element.is_landmark) {
    
@@ -389,7 +389,7 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.traverseDOMElementsForLandm
 
   if (!dom_element) return;
 
-  if (dom_element.type == NODE_TYPE.ELEMENT) {
+  if (dom_element.type == Node.ELEMENT_NODE) {
 
     var li = this.updateCacheItems(dom_element, landmark_info);
     
@@ -617,7 +617,7 @@ OpenAjax.a11y.cache.LandmarkElement.prototype.addChildElement = function (child_
 
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.LandmarkElement
  *
@@ -626,8 +626,8 @@ OpenAjax.a11y.cache.LandmarkElement.prototype.addChildElement = function (child_
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.LandmarkElement.prototype.getResultRules = function () {
-  return this.dom_element.getResultRules();
+OpenAjax.a11y.cache.LandmarkElement.prototype.getNodeResults = function () {
+  return this.dom_element.getNodeResults();
 };
 
 /**
@@ -835,7 +835,7 @@ OpenAjax.a11y.cache.HeadingElement = function (dom_element) {
 
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.HeadingElement
  *
@@ -844,8 +844,8 @@ OpenAjax.a11y.cache.HeadingElement = function (dom_element) {
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.HeadingElement.prototype.getResultRules = function () {
-  return this.dom_element.getResultRules();
+OpenAjax.a11y.cache.HeadingElement.prototype.getNodeResults = function () {
+  return this.dom_element.getNodeResults();
 };
 
 /**

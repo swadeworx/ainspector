@@ -11,83 +11,87 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  // Last update: 2011-03-31
  // ------------------------
  
- {
-   id                : 'COLOR_1', 
-   last_updated      : '2011-07-11', 
-   cache_dependency  : 'color_contrast_cache',
-   cache_properties : ['color_hex', 'background_color_hex', 'background_image', 'is_large_font', 'color_contrast_ratio'],
-   language          : "",
-   validate          : function (dom_cache, rule_result) {
+{ rule_id             : 'COLOR_1', 
+  rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+  last_updated        : '2012-06-12', 
+  wcag_primary_id     : '1.4.3',
+  wcag_related_ids    : ['1.4.1','1.4.6'],
+  target_resources    : ['img', 'area'],
+  cache_dependency    : 'color_contrast_cache',
+  cache_properties    : ['color_hex', 'background_color_hex', 'background_image', 'is_large_font', 'color_contrast_ratio'],
+  language_dependency : "",
+  target_objects      : ['textnodes'],
+  validate            : function (dom_cache, rule_result) {
   
       var MIN_CCR_NORMAL_FONT = 4.5;
       var MIN_CCR_LARGE_FONT  = 3.1;
   
-      var SEVERITY = OpenAjax.a11y.SEVERITY;
-  
-      var i;
-      var j;
-  
-      var color_contrast_len = dom_cache.color_contrast_cache.color_contrast_items.length;
-      var cci;
+      var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
+      var VISIBILITY  = OpenAjax.a11y.VISIBILITY;
+      var SEVERITY    = OpenAjax.a11y.SEVERITY;
    
-      var dom_text_nodes_len;
-      var dtn;
-
-      var severity;
-      var message_id;
-      var args = [];
+      var cc_items     = dom_cache.color_contrast_cache.color_contrast_items;
+      var cc_items_len = cc_items.length;
      
-      for (i=0; i<color_contrast_len; i++) {
-   
-        cci = dom_cache.color_contrast_cache.color_contrast_items[i];
+      for (var i = 0; i < cc_items_len; i++) {
+
+        var test_result = TEST_RESULT.PASS;
+        var message_id = '';
+        var args = [];
+
+        var cc_item = cc_items[i];
 
         // if color contrast raio is undefined, skip this item
-        if (!cci.color_contrast_ratio) continue;
+        if (!cc_item.color_contrast_ratio) continue;
 
-        if ((cci.color_contrast_ratio >= MIN_CCR_NORMAL_FONT) ||
-          ((cci.color_contrast_ratio >= MIN_CCR_LARGE_FONT) && (cci.is_large_font))) {
+        if ((cc_item.color_contrast_ratio >= MIN_CCR_NORMAL_FONT) ||
+          ((cc_item.color_contrast_ratio >= MIN_CCR_LARGE_FONT) && (cc_item.is_large_font))) {
      
           // Passes color contrast requirements
-          if (cci.background_image == "none") {
-            severity  = SEVERITY.PASS;
-            message_id = 'MESSAGE_PASS';
-            args = [cci.color_contrast_ratio];
+          if (cc_item.background_image != "none") {
+            test_result = TEST_RESULT.MANUAL_CHECK;
+            message_id = 'MANUAL_BG_PASS';
+            cc_item.wcag_severity = SEVERITY.MANUAL_CHECK;
           }
           else {
-            severity = SEVERITY.MANUAL_CHECK;
-            message_id = 'MESSAGE_MANUAL_PASS';
-            args = [cci.color_contrast_ratio];
-          }           
+            if (cc_item.wcag_severity !== SEVERITY.PASS_LEVEL_AAA) cc_item.wcag_severity = SEVERITY.PASS_LEVEL_AA;          
+          }
         }
         else {
         
           // Fails color contrast requirements
-          if (cci.background_image == "none") {
-            severity  = SEVERITY.FAIL;
-            message_id = 'MESSAGE_FAIL';
-            args = [cci.color_contrast_ratio];
+          if (cc_item.background_image == "none") {
+            test_result  = TEST_RESULT.FAIL;
+            message_id = 'ACTION';
+            cc_item.wcag_severity = SEVERITY.VIOLATION;
           }
           else {
-            severity  = SEVERITY.MANUAL_CHECK;
-            message_id = 'MESSAGE_MANUAL_FAIL';
-            args = [cci.color_contrast_ratio];
+            test_result  = TEST_RESULT.MANUAL_CHECK;
+            message_id = 'MANUAL_BG_FAIL';
+            cc_item.wcag_severity = SEVERITY.MANUAL_CHECK;
           }     
         }
 
         // update all the DOM Element nodes associated with the Color Contrast Item
 
-        dom_text_nodes_len = cci.dom_text_nodes.length;
+        var dom_text_nodes_len = cc_item.dom_text_nodes.length;
+        
+        var all_hidden_flag = true;
 
-        for (j=0; j<dom_text_nodes_len; j++) {
-          dtn = cci.dom_text_nodes[j];
-          if (dtn.computed_style.is_visible_onscreen === OpenAjax.a11y.VISIBILITY.VISIBLE) {
-            rule_result.addResult(severity, dtn, message_id, args);
+        for (var j = 0; j < dom_text_nodes_len; j++) {
+        
+          var dtn = cc_item.dom_text_nodes[j];
+          
+          if (dtn.computed_style.is_visible_onscreen === VISIBILITY.VISIBLE) {
+            rule_result.addResult(test_result, dtn, message_id, args);
+            all_hidden_flag = false;
           } 
           else {
-            rule_result.addResult(SEVERITY.HIDDEN, dtn, 'MESSAGE_HIDDEN', []);
+            rule_result.addResult(TEST_RESULT.HIDDEN, dtn, 'HIDDEN', []);
           }
         } // end loop
-   
+        
+        if (all_hidden_flag) cc_item.wcag_severity = SEVERITY.HIDDEN;
       } // end loop  
       
     } // end validate function
@@ -100,85 +104,90 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  // Last update: 2011-03-31
  // ------------------------
 	     
- {
-   id                : 'COLOR_2', 
-   last_updated      : '2011-07-11', 
-   cache_dependency  : 'color_contrast_cache',
-   cache_properties  : ['color_hex', 'background_color_hex', 'background_image', 'is_large_font', 'color_contrast_ratio'],
-   language          : "",
-   validate          : function (dom_cache, rule_result) {
+ { rule_id           : 'COLOR_2', 
+  rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+  last_updated        : '2012-06-12', 
+  wcag_primary_id     : '1.4.3',
+  wcag_related_ids    : ['1.4.1','1.4.6'],
+  target_resources    : ['img', 'area'],
+  cache_dependency    : 'color_contrast_cache',
+  cache_properties    : ['color_hex', 'background_color_hex', 'background_image', 'is_large_font', 'color_contrast_ratio'],
+  language_dependency : "",
+  target_objects      : ['textnodes'],
+  validate            : function (dom_cache, rule_result) {
   
       var MIN_CCR_NORMAL_FONT = 7;
       var MIN_CCR_LARGE_FONT = 4.5;
   
-      var SEVERITY = OpenAjax.a11y.SEVERITY;
-  
-      var i;
-      var j;
-  
-      var color_contrast_len = dom_cache.color_contrast_cache.color_contrast_items.length;
-      var cci;
+      var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
+      var VISIBILITY  = OpenAjax.a11y.VISIBILITY;
+      var SEVERITY    = OpenAjax.a11y.SEVERITY;
    
-      var dom_text_nodes_len;
-      var dtn;
-
-      var severity;
-      var message_id;
-      var args = [];
-
+      var cc_items     = dom_cache.color_contrast_cache.color_contrast_items;
+      var cc_items_len = cc_items.length;
      
-      for (i = 0; i < color_contrast_len; i++) {
-   
-        cci = dom_cache.color_contrast_cache.color_contrast_items[i];
-        
+     
+      for (var i = 0; i < cc_items_len; i++) {
+
+        var test_result = TEST_RESULT.PASS;
+        var message_id = '';
+        var args = [];
+
+        var cc_item = cc_items[i];
+
         // if color contrast raio is undefined, skip this item
-        if (!cci.color_contrast_ratio) continue;
-   
-        if ((cci.color_contrast_ratio >= MIN_CCR_NORMAL_FONT) ||
-          ((cci.color_contrast_ratio >= MIN_CCR_LARGE_FONT) && (cci.is_large_font))) {
+        if (!cc_item.color_contrast_ratio) continue;
+
+        if ((cc_item.color_contrast_ratio >= MIN_CCR_NORMAL_FONT) ||
+          ((cc_item.color_contrast_ratio >= MIN_CCR_LARGE_FONT) && (cc_item.is_large_font))) {
      
           // Passes color contrast requirements
-          if (cci.background_image == "none") {
-            severity  = SEVERITY.PASS;
-            message_id = 'MESSAGE_PASS';
-            args = [cci.color_contrast_ratio];
-          }
-          else {
-            severity = SEVERITY.MANUAL_CHECK;
-            message_id = 'MESSAGE_MANUAL_PASS';
-            args = [cci.color_contrast_ratio];
+          if (cc_item.background_image != "none") {
+            test_result = TEST_RESULT.MANUAL_CHECK;
+            message_id = 'MANUAL_BG_PASS';
+            cc_item.wcag_severity = SEVERITY.MANUAL_CHECK;          
           }           
+          else {
+            cc_item.wcag_severity = SEVERITY.PASS_LEVEL_AAA;          
+          }
         }
         else {
         
           // Fails color contrast requirements
-          if (cci.background_image == "none") {
-            severity  = SEVERITY.FAIL;
-            message_id = 'MESSAGE_FAIL';
-            args = [cci.color_contrast_ratio];
+          if (cc_item.background_image == "none") {
+            test_result  = TEST_RESULT.FAIL;
+            message_id = 'ACTION';
+            if (cc_item.wcag_severity !== SEVERITY.PASS_LEVEL_AA) cc_item.wcag_severity = SEVERITY.VIOLATION;          
           }
           else {
-            severity  = SEVERITY.MANUAL_CHECK;
-            message_id = 'MESSAGE_MANUAL_FAIL';
-            args = [cci.color_contrast_ratio];
+            test_result  = TEST_RESULT.MANUAL_CHECK;
+            message_id = 'MANUAL_BG_FAIL';
+            cc_item.wcag_severity = SEVERITY.MANUAL_CHECK;          
           }     
         }
 
         // update all the DOM Element nodes associated with the Color Contrast Item
 
-        dom_text_nodes_len = cci.dom_text_nodes.length;
+        var dom_text_nodes_len = cc_item.dom_text_nodes.length;
 
-        for (j=0; j<dom_text_nodes_len; j++) {
-          dtn = cci.dom_text_nodes[j];
-          if (dtn.computed_style.is_visible_onscreen === OpenAjax.a11y.VISIBILITY.VISIBLE) {
-            rule_result.addResult(severity, dtn, message_id, args);
+        var all_hidden_flag = true;
+
+        for (var j = 0; j < dom_text_nodes_len; j++) {
+        
+          var dtn = cc_item.dom_text_nodes[j];
+          
+          if (dtn.computed_style.is_visible_onscreen === VISIBILITY.VISIBLE) {
+            rule_result.addResult(test_result, dtn, message_id, args);
+            all_hidden_flag = false;
           } 
           else {
-            rule_result.addResult(SEVERITY.HIDDEN, dtn, 'MESSAGE_HIDDEN', []);
+            rule_result.addResult(TEST_RESULT.HIDDEN, dtn, 'HIDDEN', []);
           }
         } // end loop
-   
-      } // end loop    
+
+        if (all_hidden_flag) cc_item.wcag_severity = SEVERITY.HIDDEN;
+
+      } // end loop  
     }
   }
 

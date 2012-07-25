@@ -13,20 +13,20 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * 
  */
 	     
-{  id                : 'CONTROL_1', 
-   last_updated      : '2011-09-16', 
-   cache_dependency  : 'controls_cache',
-   cache_properties : ['tag_name', 'label_source','label'],
-   language          : "",
-   enabled           : true,  
-   validate          : function (dom_cache, rule_result) {
+{  rule_id             : 'CONTROL_1',
+   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+   last_updated        : '2011-09-16', 
+   wcag_primary_id     : '3.3.2',
+   wcag_related_ids    : ['1.3.1', '2.4.6'],
+   target_resources    : ['input[type="checkbox"]', 'input[type="radio"]', 'input[type="text"]', 'input[type="password"]', 'input[type="file"]', 'select', 'textarea'],
+   cache_dependency    : 'controls_cache',
+   cache_properties    : ['computed_label', 'fieldset_element', 'computed_label_source', 'name_attribute'],
+   language_dependency : "",
+   validate            : function (dom_cache, rule_result) {
    
-     var SEVERITY = OpenAjax.a11y.SEVERITY;
+     var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
    
-     var i;
-     var ce;
      var tag_name;
-     var control_type;
      var type;
    
      var control_elements   = dom_cache.controls_cache.control_elements;
@@ -35,21 +35,10 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
      // Check to see if valid cache reference
      if (control_elements && control_elements_len) {
      
-       for (i=0; i < control_elements_len; i++) {
-         ce = control_elements[i];
+       for (var i = 0; i < control_elements_len; i++) {
+         var ce = control_elements[i];
   
-         control_type = control_elements[i].control_type;
-         
-         if (control_type === OpenAjax.a11y.CONTROL_TYPE.CHECKBOX ||
-             control_type === OpenAjax.a11y.CONTROL_TYPE.FILE     ||
-             control_type === OpenAjax.a11y.CONTROL_TYPE.PASSWORD ||
-             control_type === OpenAjax.a11y.CONTROL_TYPE.RADIO    ||
-             control_type === OpenAjax.a11y.CONTROL_TYPE.TEXT) {
-             type = control_elements[i].type;         
-         }
-         else {
-           type = ce.dom_element.tag_name;
-         }
+         var control_type = ce.control_type;
 
          if (control_type === OpenAjax.a11y.CONTROL_TYPE.CHECKBOX ||
              control_type === OpenAjax.a11y.CONTROL_TYPE.FILE     ||
@@ -61,16 +50,15 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
              
            if (ce.dom_element.computed_style.is_visible_to_at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
      
-        
-             if (ce.label && ce.label.length) {
-               rule_result.addResult(SEVERITY.PASS, ce, 'MESSAGE_PASS', [type.toUpperCase()]);     
+             if (ce.computed_label && ce.computed_label.length) {
+               rule_result.addResult(TEST_RESULT.PASS, ce, 'PASS', [ce.type.toUpperCase()]);     
              }
              else {
-               rule_result.addResult(SEVERITY.FAIL, ce, 'MESSAGE_LABEL_MISSING', [type.toUpperCase()]);     
+               rule_result.addResult(TEST_RESULT.FAIL, ce, 'CORRECTIVE_ACTION', [ce.type.toUpperCase()]);     
              }
            }
            else {
-             rule_result.addResult(SEVERITY.HIDDEN, ce, 'MESSAGE_HIDDEN', [type.toUpperCase()]);     
+             rule_result.addResult(TEST_RESULT.HIDDEN, ce, 'HIDDEN', [ce.type.toUpperCase()]);     
            }
          }  
        } // end loop
@@ -84,20 +72,20 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * @desc Every input type image must have an alt or title attribute with content
  */
 	     
-{  id                : 'CONTROL_2', 
+{  rule_id           : 'CONTROL_2', 
+   rule_scope        : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
    last_updated      : '2011-09-16', 
+   wcag_primary_id   : '3.3.2',
+   wcag_related_ids  : ['1.3.1', '2.4.6'],
+   target_resources  : ['input[type="image"]'],
    cache_dependency  : 'controls_cache',
-   cache_properties : [],
-   language          : "",
+   cache_properties  : ['alt', 'title'],
+   language_dependency : "",
    validate          : function (dom_cache, rule_result) {
   
-     var SEVERITY = OpenAjax.a11y.SEVERITY;
+     var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
    
-     var i;
-     var ce;
-     var de;
      var tag_name;
-     var type;
    
      var control_elements   = dom_cache.controls_cache.control_elements;
      var control_elements_len = control_elements.length;
@@ -105,24 +93,30 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
      // Check to see if valid cache reference
      if (control_elements && control_elements_len) {
      
-       for (i=0; i < control_elements_len; i++) {
-         ce = control_elements[i];
+       for (var i = 0; i < control_elements_len; i++) {
+         var ce = control_elements[i];
+         var de = ce.dom_element;
   
-         type = control_elements[i].type;
+         var type = control_elements[i].type;
      
          if (type === 'image') {
       
-           if (ce.dom_element.computed_style.is_visible_to_at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
+           if (de.computed_style.is_visible_to_at == OpenAjax.a11y.VISIBILITY.VISIBLE) {
      
-             if (ce.label && ce.label.length) {
-               rule_result.addResult(SEVERITY.PASS, ce, 'MESSAGE_PASS', [type.toUpperCase()]);     
+             if (ce.computed_label) {
+               if (ce.computed_label.length) {
+                 rule_result.addResult(TEST_RESULT.PASS, ce, 'PASS', [type.toUpperCase()]);
+               }
+               else {
+                 rule_result.addResult(TEST_RESULT.FAIL, ce, 'CORRECTIVE_ACTION_2', [type.toUpperCase()]);                    
+               }
              }
              else {
-               rule_result.addResult(SEVERITY.FAIL, ce, 'MESSAGE_ALT_MISSING', [type.toUpperCase()]);     
+               rule_result.addResult(TEST_RESULT.FAIL, ce, 'CORRECTIVE_ACTION_1', [type.toUpperCase()]);     
              }
            }
            else {
-             rule_result.addResult(SEVERITY.HIDDEN, ce, 'MESSAGE_HIDDEN', [type.toUpperCase()]);     
+             rule_result.addResult(TEST_RESULT.HIDDEN, ce, 'HIDDEN', [type.toUpperCase()]);     
            }
          }
        } // end loop
@@ -135,21 +129,19 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  *
  * @desc Groups of radio buttons should be contained in fieldset/legend
  */
-{ id                : 'CONTROL_3', 
+{ rule_id           : 'CONTROL_3', 
+  rule_scope        : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
   last_updated      : '2011-09-16', 
+  wcag_primary_id   : '3.3.2',
+  wcag_related_ids  : ['1.3.1', '2.4.6'],
+  target_resources  : ['input[type="radio"]'],
   cache_dependency  : 'controls_cache',
-  cache_properties : [],
-  language          : "",
+  cache_properties  : ['fieldset_element'],
+  language_dependency : "",
   validate          : function (dom_cache, rule_result) {
   
-     var SEVERITY   = OpenAjax.a11y.SEVERITY;
-     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
-   
-     var i;
-     var ce;
-     var de;
-     var alb;
-     var type;
+     var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
+     var VISIBILITY  = OpenAjax.a11y.VISIBILITY;
    
      var control_elements   = dom_cache.controls_cache.control_elements;
      var control_elements_len = control_elements.length;
@@ -157,41 +149,42 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
      // Check to see if valid cache reference
      if (control_elements && control_elements_len) {
      
-       for (i=0; i < control_elements_len; i++) {
-         ce = control_elements[i];
-         de = ce.dom_element;
+       for (var i = 0; i < control_elements_len; i++) {
+         var ce = control_elements[i];
+         var de = ce.dom_element;
   
-         type = control_elements[i].type;
+         var type = control_elements[i].control_type;
      
-         if (type === 'radio') {
+         if (type == OpenAjax.a11y.CONTROL_TYPE.RADIO) {
       
            if (de.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
      
              if (ce.fieldset_element) {
-               rule_result.addResult(SEVERITY.PASS, ce, 'MESSAGE_HAS_LEGEND', []);     
+               if (ce.fieldset_element.legend_element && 
+                   ce.fieldset_element.legend_element.computed_label &&
+                   ce.fieldset_element.legend_element.computed_label.length) {
+                 rule_result.addResult(TEST_RESULT.PASS, ce, 'PASS', []);
+               }
+               else {
+                 rule_result.addResult(TEST_RESULT.FAIL, ce, 'CORRECTIVE_ACTION_1', []);               
+               }
              }
              else {  
-               if (de.aria_labelledby) {
-                 alb = de.aria_labelledby.split(' ');
-                 if (alb.length>1) {
-                   rule_result.addResult(SEVERITY.PASS, ce, 'MESSAGE_HAS_ARIA_LABELLEDBY', []);     
-                 }
-                 else {
-                   rule_result.addResult(SEVERITY.FAIL, ce, 'MESSAGE_LEGEND_MISSING', []);
-                 }
-               }  
+               if (de.aria_labelledby && de.aria_labelledby.length) {
+                   rule_result.addResult(TEST_RESULT.MANUAL_CHECK, ce, 'MANUAL_CHECK_1', []);     
+               }
                else {
                  if (de.aria_label && de.aria_label.length) {
-                   rule_result.addResult(SEVERITY.PASS, ce, 'MESSAGE_HAS_ARIA_LABEL', []);     
+                   rule_result.addResult(TEST_RESULT.MANUAL_CHECK, ce, 'MANUAL_CHECK_2', []);     
                  }
                  else {
-                   rule_result.addResult(SEVERITY.FAIL, ce, 'MESSAGE_LEGEND_MISSING', []);
+                   rule_result.addResult(TEST_RESULT.FAIL, ce, 'CORRECTIVE_ACTION_2', []);
                  }    
                }
              }
            }
            else {
-             rule_result.addResult(SEVERITY.HIDDEN, ce, 'MESSAGE_HIDDEN', []);     
+             rule_result.addResult(TEST_RESULT.HIDDEN, ce, 'HIDDEN', []);     
            }
          }
        } // end loop
@@ -204,46 +197,45 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  *
  * @desc Button elements must have text content and input type button must have a value attribute with content
  */
-{ id                : 'CONTROL_4', 
+{ rule_id           : 'CONTROL_4', 
+  rule_scope        : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
   last_updated      : '2011-09-16', 
+  wcag_primary_id   : '3.3.2',
+  wcag_related_ids  : ['1.3.1', '2.4.6'],
+  target_resources  : ['button'],
   cache_dependency  : 'controls_cache',
-  cache_properties : [],
-  language          : "",
+  cache_properties  : ['computed_label'],
+  language_dependency : "",
   validate          : function (dom_cache, rule_result) {
 
-     var SEVERITY   = OpenAjax.a11y.SEVERITY;
+     var TEST_RESULT   = OpenAjax.a11y.TEST_RESULT;
      var VISIBILITY = OpenAjax.a11y.VISIBILITY;
-   
-     var i;
-     var ce;
-     var de;
-     var tag_name;
-     var type;
-   
+      
      var control_elements   = dom_cache.controls_cache.control_elements;
      var control_elements_len = control_elements.length;
        
      // Check to see if valid cache reference
      if (control_elements && control_elements_len) {
      
-       for (i=0; i < control_elements_len; i++) {
-         ce = control_elements[i];
+       for (var i = 0; i < control_elements_len; i++) {
+         var ce = control_elements[i];
+         var de = ce.dom_element;
   
-         type = control_elements[i].type;
+         var type = control_elements[i].control_type;
      
-         if (type === 'button') {
+         if (type == OpenAjax.a11y.CONTROL_TYPE.BUTTON) {
       
-           if (ce.dom_element.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
+           if (de.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
      
-             if (ce.label && ce.label.length) {
-               rule_result.addResult(SEVERITY.PASS, ce, 'MESSAGE_HAS_CONTENT', []);     
+             if (ce.computed_label && ce.computed_label.length) {
+               rule_result.addResult(TEST_RESULT.PASS, ce, 'PASS', []);     
              }
              else {
-               rule_result.addResult(SEVERITY.FAIL, ce, 'MESSAGE_NO_CONTENT', []);     
+               rule_result.addResult(TEST_RESULT.FAIL, ce, 'CORRECTIVE_ACTION', []);     
              }
            }
            else {
-             rule_result.addResult(SEVERITY.HIDDEN, ce, 'MESSAGE_HIDDEN', []);     
+             rule_result.addResult(TEST_RESULT.HIDDEN, ce, 'HIDDEN', []);     
            }
          }
        } // end loop
@@ -256,45 +248,55 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 /**
  * @object CONTROL_5
  *
- * @desc Textarea, select, input and button elements with id attributes, must have unique id values on the page
+ * @desc Tests if Textarea, select, input and button elements with id attributes have unique id values on the page
+ *
+ * @note Do not need to test for invisible elements, since getElementById searches all elements int he DOM
  */
-{ id                : 'CONTROL_5', 
+{ rule_id           : 'CONTROL_5', 
+  rule_scope        : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
   last_updated      : '2011-09-16', 
+  wcag_primary_id   : '4.1.1',
+  wcag_related_ids  : ['3.3.2', '1.3.1', '2.4.6'],
+  target_resources  : ['input[type="checkbox"]', 'input[type="radio"]', 'input[type="text"]', 'input[type="password"]', 'input[type="file"]', 'select', 'textarea'],
   cache_dependency  : 'controls_cache',
-  cache_properties : [],
-  language          : "",
+  cache_properties  : ['id'],
+  language_dependency : "",
   validate          : function (dom_cache, rule_result) {
 
-    var SEVERITY   = OpenAjax.a11y.SEVERITY;
+    var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
+    var VISIBILITY  = OpenAjax.a11y.VISIBILITY;
+    var ID          = OpenAjax.a11y.ID;
    
-    var i;
-    var ce;
-    var de;
-
     var control_elements      = dom_cache.controls_cache.control_elements;
     var control_elements_len  = control_elements.length;
        
     // Check to see if valid cache reference
     if (control_elements && control_elements_len) {
      
-      for (i=0; i < control_elements_len; i++) {
-        ce = control_elements[i];
-        de = ce.dom_element;
-
-        switch (de.id_unique) { 
+      for (var i = 0; i < control_elements_len; i++) {
+        var ce = control_elements[i];
+        var de = ce.dom_element;
         
-        case OpenAjax.a11y.ID.NOT_UNIQUE:
-          rule_result.addResult(SEVERITY.FAIL, ce, 'MESSAGE_DUPLICATE_ID', [de.id]);
-          break;          
+        if (de.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
+        
+          switch (de.id_unique) { 
+        
+          case ID.NOT_UNIQUE:
+            rule_result.addResult(TEST_RESULT.FAIL, ce, 'CORRECTIVE_ACTION', [de.id]);
+            break;          
           
-        case OpenAjax.a11y.ID.UNIQUE:
-          rule_result.addResult(SEVERITY.PASS, ce, 'MESSAGE_UNIQUE_ID', [de.id]);               
-          break;
+          case ID.UNIQUE:
+            rule_result.addResult(TEST_RESULT.PASS, ce, 'PASS', [de.id]);               
+            break;
           
-        default:
-          break;        
+          default:
+            break;       
+            
+          } // end switch
         }
-        
+        else {
+          rule_result.addResult(TEST_RESULT.HIDDEN, ce, 'HIDDEN', [de.tag_name]);             
+        }
       } // end loop
     }     
   } // end validate function
@@ -303,41 +305,33 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 /**
  * @object CONTROL_6
  * 
- * @desc Label with a for attribute reference does not reference a form control
+ * @desc Label element with a for attribute reference does not reference a form control
  */
-{ id                : 'CONTROL_6', 
+{ rule_id           : 'CONTROL_6', 
+  rule_scope        : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
   last_updated      : '2011-09-16', 
+  wcag_primary_id   : '3.3.2',
+  wcag_related_ids  : ['1.3.1', '2.4.6'],
+  target_resources  : ['label'],
   cache_dependency  : 'controls_cache',
-  cache_properties : [],
-  language          : "",
+  cache_properties  : ['for'],
+  language_dependency : "",
   validate          : function (dom_cache, rule_result) {
 
-    var SEVERITY   = OpenAjax.a11y.SEVERITY;
+    var TEST_RESULT   = OpenAjax.a11y.TEST_RESULT;
     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
    
-    var i;
-    var le;
-    var de;
-    var tag_name;
-
     var label_elements      = dom_cache.controls_cache.label_elements;
     var label_elements_len  = label_elements.length;
        
     // Check to see if valid cache reference
     if (label_elements && label_elements_len) {
      
-      for (i=0; i < label_elements_len; i++) {
-        le = label_elements[i];
+      for (var i = 0; i < label_elements_len; i++) {
+        var le = label_elements[i];
         
         if (le.unused_label) {
-          de = dom_cache.element_with_id_cache.getDOMElementById(le.for_id);
-          
-          if (de && de.tag_name) {  
-            rule_result.addResult(SEVERITY.WARNING, le, 'MESSAGE_NO_CONTROL', [de.tag_name]);
-          }
-          else {          
-            rule_result.addResult(SEVERITY.WARNING, le, 'MESSAGE_NO_ELEMENT', []);    
-          }           
+          rule_result.addResult(TEST_RESULT.FAIL, le, 'CORRECTIVE_ACTION', [le.for_id]);
         }        
       } // end loop
     }     
@@ -350,36 +344,50 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * @desc Label or legend element should contain content 
  */
  
-{ id                : 'CONTROL_7', 
+{ rule_id           : 'CONTROL_7', 
+  rule_scope        : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
   last_updated      : '2011-09-16', 
   cache_dependency  : 'controls_cache',
-  cache_properties : [],
-  language          : "",
+  wcag_primary_id   : '3.3.2',
+  wcag_related_ids  : ['1.3.1', '2.4.6'],
+  target_resources  : ['label', 'legend'],
+  cache_properties  : ['computed_label'],
+  language_dependency : "",
   validate          : function (dom_cache, rule_result) {
 
-    var SEVERITY   = OpenAjax.a11y.SEVERITY;
+    var TEST_RESULT   = OpenAjax.a11y.TEST_RESULT;
     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
    
-    var i;
-    var le;
-    var de;
-
     var label_elements      = dom_cache.controls_cache.label_elements;
     var label_elements_len  = label_elements.length;
-       
+    
     // Check to see if valid cache reference
     if (label_elements && label_elements_len) {
      
-      for (i=0; i < label_elements_len; i++) {
-        le = label_elements[i];
+      for (var i = 0; i < label_elements_len; i++) {
+        var le = label_elements[i];
+        var lde = le.dom_element;
         
-        if (le.label && le.label.length === 0) {
-          rule_result.addResult(SEVERITY.FAIL, le, 'MESSAGE_NO_CONTENT', []);
+        var ce = le.control_element;
+  
+        if (ce) {
+
+          var cde = ce.dom_element;
+
+          if (cde.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
+
+            if (le.computed_label && le.computed_label.length === 0) {
+              rule_result.addResult(TEST_RESULT.FAIL, le, 'CORRECTIVE_ACTION', [lde.tag_name]);
+            }
+            else {
+              rule_result.addResult(TEST_RESULT.PASS, le, 'PASS', [lde.tag_name]);        
+            }
+          }
+          else {
+            rule_result.addResult(TEST_RESULT.HIDDEN, le, 'HIDDEN', [ce.control_type, lde.tag_name]);                
+          }
         }
-        else {
-          rule_result.addResult(SEVERITY.PASS, le, 'MESSAGE_HAS_CONTENT', []);        
-        }
-     
+        
       } // end loop
     } 
   } // end validate function
@@ -392,38 +400,46 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * @desc Fieldset should contain exactly one legend element 
  */
  
-{ id                : 'CONTROL_8', 
+{ rule_id           : 'CONTROL_8', 
+  rule_scope        : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
   last_updated      : '2011-09-16', 
+  wcag_primary_id   : '3.3.2',
+  wcag_related_ids  : ['1.3.1', '2.4.6', '4.1.1'],
+  target_resources  : ['fieldset'],
   cache_dependency  : 'controls_cache',
-  cache_properties : [],
-  language          : "",
+  cache_properties  : ['legend_count'],
+  language_dependency : "",
   validate          : function (dom_cache, rule_result) {
 
-    var SEVERITY   = OpenAjax.a11y.SEVERITY;
+    var TEST_RESULT   = OpenAjax.a11y.TEST_RESULT;
     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
    
-    var i;
-    var fe;
-
     var fieldset_elements      = dom_cache.controls_cache.fieldset_elements;
     var fieldset_elements_len  = fieldset_elements.length;
        
     // Check to see if valid cache reference
     if (fieldset_elements && fieldset_elements_len) {
      
-      for (i=0; i < fieldset_elements_len; i++) {
-        fe = fieldset_elements[i];
-        
-        if (fe.legend_count === 0) {
-          rule_result.addResult(SEVERITY.FAIL, fe, 'MESSAGE_NO_LEGEND', []);        
-        }
-        else {
-          if (fe.legend_count > 1) {
-            rule_result.addResult(SEVERITY.FAIL, fe, 'MESSAGE_MORE_THAN_ONE', []);        
+      for (var i = 0; i < fieldset_elements_len; i++) {
+        var fe = fieldset_elements[i];
+        var de = fe.dom_element;
+
+        if (de.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
+
+          if (fe.legend_count === 0) {
+            rule_result.addResult(TEST_RESULT.FAIL, fe, 'CORRECTIVE_ACTION_1', []);        
           }
           else {
-            rule_result.addResult(SEVERITY.PASS, fe, 'MESSAGE_ONLY_ONE', []);                  
+            if (fe.legend_count > 1) {
+              rule_result.addResult(TEST_RESULT.FAIL, fe, 'CORRECTIVE_ACTION_2', [(fe.legend_count-1)]);        
+            }
+            else {
+              rule_result.addResult(TEST_RESULT.PASS, fe, 'PASS', []);                  
+            }
           }
+        }
+        else {
+          rule_result.addResult(TEST_RESULT.HIDDEN, fe, 'HIDDEN', []);                          
         }
       } // end loop
     } 
@@ -434,21 +450,22 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 /** 
  * @object CONTROL_9
  *
- * @desc Fieldset should contain exactly one legend element 
+ * @desc Form controls should not be labelled using the TITLE attribute 
  */
  
-{ id                : 'CONTROL_9', 
+{ rule_id           : 'CONTROL_9', 
+  rule_scope        : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
   last_updated      : '2011-09-16', 
+  wcag_primary_id   : '3.3.2',
+  wcag_related_ids  : ['4.1.1'],
+  target_resources  : ['input', 'select', 'textarea'],
   cache_dependency  : 'controls_cache',
-  cache_properties : [],
-  language          : "",
+  cache_properties : ['title'],
+  language_dependency : "",
   validate          : function (dom_cache, rule_result) {
 
-    var SEVERITY   = OpenAjax.a11y.SEVERITY;
+    var TEST_RESULT   = OpenAjax.a11y.TEST_RESULT;
     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
-
-    var i;
-    var ce;
 
     var control_elements      = dom_cache.controls_cache.control_elements;
     var control_elements_len  = control_elements.length;
@@ -456,20 +473,21 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     // Check to see if valid cache reference
     if (control_elements && control_elements_len) {
      
-      for (i=0; i < control_elements_len; i++) {
-        ce = control_elements[i];
+      for (var i = 0; i < control_elements_len; i++) {
+        var ce = control_elements[i];
+        var de = ce.dom_element;
         
-        if (ce.dom_element.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
+        if (de.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
 
-          if (ce.label_source === OpenAjax.a11y.SOURCE.TITLE_ATTRIBUTE) {
-            rule_result.addResult(SEVERITY.FAIL, ce, 'MESSAGE_USES_TITLE', []);        
+          if (ce.computed_label_source === OpenAjax.a11y.SOURCE.TITLE_ATTRIBUTE) {
+            rule_result.addResult(TEST_RESULT.FAIL, ce, 'CORRECTIVE_ACTION', [de.tag_name]);        
           }
           else {
-            rule_result.addResult(SEVERITY.PASS, ce, 'MESSAGE_DOES_NOT_USE_TITLE', []);                  
+            rule_result.addResult(TEST_RESULT.PASS, ce, 'PASS', []);                  
           }  
         }
         else {
-          rule_result.addResult(SEVERITY.HIDDEN, ce, 'MESSAGE_HIDDEN', []);                          
+          rule_result.addResult(TEST_RESULT.HIDDEN, ce, 'HIDDEN', [de.tag_name]);                          
         }
         
       } // end loop
@@ -486,20 +504,19 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  *       and checkbox on a page
  */
  
-{ id                : 'CONTROL_10', 
+{ rule_id           : 'CONTROL_10', 
+  rule_scope        : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
   last_updated      : '2011-09-16', 
-  cache_dependency  : 'controls_cache',
-  cache_properties : ['tag_name', 'type', 'label'],
-  language          : "",
+  wcag_primary_id   : '2.4.6',
+  wcag_related_ids  : ['1.3.1', '3.3.2'],
+  target_resources    : ['input[type="checkbox"]', 'input[type="radio"]', 'input[type="text"]', 'input[type="password"]', 'input[type="file"]', 'select', 'textarea'],
+  cache_dependency    : 'controls_cache',
+  cache_properties    : ['computed_label', 'fieldset_element', 'computed_label_source', 'name_attribute'],
+  language_dependency : "",
   validate          : function (dom_cache, rule_result) {
 
-    var SEVERITY = OpenAjax.a11y.SEVERITY;
+    var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
-   
-    var i;
-    var ce;
-    var tag_name;
-    var type;
    
     var control_elements   = dom_cache.controls_cache.control_elements;
     var control_elements_len = control_elements.length;
@@ -509,39 +526,46 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     if (control_elements && control_elements_len) {
      
       // collect all the visible controls 
-      for (i=0; i < control_elements_len; i++) {
-        ce = control_elements[i];
+      for (var i = 0; i < control_elements_len; i++) {
+        var ce = control_elements[i];
+        var de = ce.dom_element;
   
-        type = control_elements[i].type;
-     
-        if (ce.dom_element.computed_style.is_visible_to_at === OpenAjax.a11y.VISIBILITY.VISIBLE) { 
-          if (type === 'checkbox' ||
-              type === 'file'   ||
-              type === 'password' ||
-              type === 'radio'  ||
-              type === 'select'  ||
-              type === 'text'   ||
-              type === 'textarea') {
-            
-            // check to make sure label has content            
-            if (ce.label && ce.label.length) {  
-              ces.push(ce);  
-            }  
+        var control_type = ce.control_type;
+
+        if (control_type === OpenAjax.a11y.CONTROL_TYPE.CHECKBOX ||
+            control_type === OpenAjax.a11y.CONTROL_TYPE.FILE     ||
+            control_type === OpenAjax.a11y.CONTROL_TYPE.PASSWORD ||
+            control_type === OpenAjax.a11y.CONTROL_TYPE.RADIO    ||
+            control_type === OpenAjax.a11y.CONTROL_TYPE.SELECT   ||
+            control_type === OpenAjax.a11y.CONTROL_TYPE.TEXT     ||
+            control_type === OpenAjax.a11y.CONTROL_TYPE.TEXTAREA ) {
+
+          if (de.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {  
+            if (ce.computed_label && ce.computed_label.length) {
+              ces.push(ce);
+            }
+            else {
+              rule_result.addResult(TEST_RESULT.FAIL, ce, 'CORRECTIVE_ACTION_1', [ce.type.toUpperCase()]);                        
+            }
+          }
+          else {
+            rule_result.addResult(TEST_RESULT.HIDDEN, ce, 'HIDDEN', [ce.type.toUpperCase()]);                                    
           }
         }
       } // end loop    
       
       // sort labels
-      
-      ces = dom_cache.sortArrayOfObjects(ces,'label_for_comparison', true); 
 
-      for (i=0; i<ces.length; i++) {
+      ces = dom_cache.sortArrayOfObjects(ces,'computed_label_for_comparison', true); 
+
+      for (i = 0; i < ces.length; i++) {
         ce = ces[i];
+
         if (ce.duplicate) {
-          rule_result.addResult(SEVERITY.FAIL, ce, 'MESSAGE_DUPLICATE_LABEL', [ce.label]);                
+          rule_result.addResult(TEST_RESULT.FAIL, ce, 'CORRECTIVE_ACTION_2', []);                
         }
         else {
-          rule_result.addResult(SEVERITY.PASS, ce, 'MESSAGE_LABEL_UNIQUE', [ce.label]);        
+          rule_result.addResult(TEST_RESULT.PASS, ce, 'PASS', []);        
         }
       }
       
@@ -557,14 +581,18 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * 
  */
  
-{ id                : 'CONTROL_11', 
+{ rule_id           : 'CONTROL_11', 
+  rule_scope        : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
   last_updated      : '2011-09-16', 
+  wcag_primary_id   : '2.4.6',
+  wcag_related_ids  : ['1.3.1', '3.3.2'],
+  target_resources  : ['input[type="submit]', 'input[type="reset]'],
   cache_dependency  : 'controls_cache',
-  cache_properties : [],
-  language          : "",
+  cache_properties : ['computed_label', 'value'],
+  language_dependency : "",
   validate          : function (dom_cache, rule_result) {
 
-    var SEVERITY = OpenAjax.a11y.SEVERITY;
+    var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
    
     var i;
     var ce;
@@ -576,6 +604,124 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     var current_controls   = [];
        
   } // end validate function
+
+},
+
+/**
+ * @object CONTROL_12
+ * 
+ * @desc Form control label should describe the purpose of the form control
+ * 
+ */
+ 
+{ rule_id           : 'CONTROL_12', 
+  rule_scope        : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+  last_updated      : '2011-09-16', 
+  wcag_primary_id   : '2.4.6',
+  wcag_related_ids  : ['1.3.1', '3.3.2'],
+  target_resources  : ['button', 'input[type="checkbox"]', 'input[type="radio"]', 'input[type="text"]', 'input[type="password"]', 'input[type="file"]', 'input[type="submit]', 'input[type="reset]', 'select', 'textarea'],
+  cache_dependency  : 'controls_cache',
+  cache_properties : ['computed_label'],
+  language_dependency : "",
+  validate          : function (dom_cache, rule_result) {
+
+    var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
+    var VISIBILITY = OpenAjax.a11y.VISIBILITY;
+   
+    var control_elements   = dom_cache.controls_cache.control_elements;
+    var control_elements_len = control_elements.length;
+    var ces   = [];
+
+    // Check to see if valid cache reference
+    if (control_elements && control_elements_len) {
+     
+      // collect all the visible controls 
+      for (var i = 0; i < control_elements_len; i++) {
+        var ce = control_elements[i];
+        var de = ce.dom_element;
+  
+        var control_type = ce.control_type;
+
+        if (control_type === OpenAjax.a11y.CONTROL_TYPE.BUTTON_ELEMENT ||
+            control_type === OpenAjax.a11y.CONTROL_TYPE.BUTTON_INPUT   ||
+            control_type === OpenAjax.a11y.CONTROL_TYPE.CHECKBOX       ||
+            control_type === OpenAjax.a11y.CONTROL_TYPE.FILE           ||
+            control_type === OpenAjax.a11y.CONTROL_TYPE.PASSWORD       ||
+            control_type === OpenAjax.a11y.CONTROL_TYPE.RADIO          ||
+            control_type === OpenAjax.a11y.CONTROL_TYPE.SELECT         ||
+            control_type === OpenAjax.a11y.CONTROL_TYPE.TEXT           ||
+            control_type === OpenAjax.a11y.CONTROL_TYPE.TEXTAREA ) {
+
+          if (de.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) { 
+          
+            if (ce.computed_label && ce.computed_label.length) {
+              rule_result.addResult(TEST_RESULT.MANUAL_CHECK, ce, 'MANUAL_CHECK', [de.tag_name]);                
+            }
+            else {
+              rule_result.addResult(TEST_RESULT.FAIL, ce, 'CORRECTIVE_ACTION', [de.tag_name]);        
+            } 
+            
+          }
+          else {
+            rule_result.addResult(TEST_RESULT.HIDDEN, ce, 'HIDDEN', [de.tag_name]);                                    
+          }          
+        }
+      } // end loop          
+    }        
+  } // end validate function
+
+},
+
+/**
+ * @object WIDGET_1
+ * 
+ * @desc ARIA Widgets must have labels
+ */
+	     
+{ rule_id             : 'WIDGET_1', 
+  rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+  last_updated        : '2012-04-12', 
+  wcag_primary_id     : '4.1.2',
+  wcag_related_ids    : ['1.3.1', '3.3.2'],
+  target_resources    : ['[role="widget"]'],
+  cache_dependency    : 'controls_cache',
+  cache_properties    : ['accessible_name', 'accessible_description', 'computed_label_source'],
+  language_dependency : "",
+  validate            : function (dom_cache, rule_result) {
+   
+     var VISIBILITY  = OpenAjax.a11y.VISIBILITY;   
+     var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
+      
+     var control_elements     = dom_cache.controls_cache.control_elements;
+     var control_elements_len = control_elements.length;
+       
+     // Check to see if valid cache reference
+     if (control_elements && control_elements_len) {
+     
+       for (var i = 0; i < control_elements_len; i++) {
+         var ce = control_elements[i];
+         var de = ce.dom_element;
+  
+         var control_type = ce.control_type;
+         
+         if (control_type === OpenAjax.a11y.CONTROL_TYPE.WIDGET) {
+         
+           if (de.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
+     
+             if (ce.computed_label && ce.computed_label.length) {
+               rule_result.addResult(TEST_RESULT.PASS, ce, 'PASS', [de.role.toUpperCase()]);     
+             }
+             else {
+               rule_result.addResult(TEST_RESULT.FAIL, ce, 'CORRECTIVE_ACTION', [de.role.toUpperCase()]);     
+             }
+           }
+           else {
+             rule_result.addResult(TEST_RESULT.HIDDEN, ce, 'HIDDEN', [de.role.toUpperCase()]);     
+           }
+         }  
+       } // end loop
+     } 
+   } // end validation function   
 }
 ]); 
 

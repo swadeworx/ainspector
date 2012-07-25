@@ -53,7 +53,7 @@ OpenAjax.a11y.cache.ImagesCache = function (dom_cache) {
   this.sort_property  = 'document_order';
   this.sort_ascending = true;
 
-  this.rule_summary_results  = new OpenAjax.a11y.ResultRuleSummary();
+  this.evaluation_results  = new OpenAjax.a11y.EvaluationResult();
 }; 
 
 /**
@@ -145,6 +145,26 @@ OpenAjax.a11y.cache.ImagesCache.prototype.emptyCache = function () {
 };
 
 /**
+ * @method getItemsByNodeResults
+ *
+ * @memberOf OpenAjax.a11y.cache.ImagesCache
+ *
+ * @desc Returns an array of cache items with node results based on the filter 
+ *
+ * @param  {Number}  filter  - Filter for returning items with node results of a 
+ *                             particular type(s)  
+ *
+ * @return {Array} Returns array of cache items, can be empty
+ */
+
+OpenAjax.a11y.cache.ImagesCache.prototype.getItemsByNodeResults = function (filter, all_flag) {
+
+  return OpenAjax.a11y.util.getItemsByNodeResults(this.image_elements, filter, all_flag);
+
+};
+
+
+/**
  * @method updateCacheItems
  *
  * @memberOf OpenAjax.a11y.cache.ImagesCache
@@ -158,8 +178,7 @@ OpenAjax.a11y.cache.ImagesCache.prototype.emptyCache = function () {
 OpenAjax.a11y.cache.ImagesCache.prototype.updateCacheItems = function (dom_element) {
 
   if ((dom_element.tag_name == 'img') ||
-      (dom_element.tag_name == 'area') ||
-      (dom_element.tag_name == 'canvas')) {
+      (dom_element.tag_name == 'area')) {
 
     var image_element = new OpenAjax.a11y.cache.ImageElement(dom_element, this.dom_cache.base_url);    
     this.dom_cache.images_cache.addImageElement(image_element);
@@ -182,7 +201,7 @@ OpenAjax.a11y.cache.ImagesCache.prototype.traverseDOMElementsForImageElements = 
 
   if (!dom_element) return;
 
-  if (dom_element.type == NODE_TYPE.ELEMENT) {
+  if (dom_element.type == Node.ELEMENT_NODE) {
 
     this.updateCacheItems(dom_element);
   
@@ -295,9 +314,10 @@ OpenAjax.a11y.cache.ImagesCache.prototype.sortImageElements = function(property,
  * @property  {String}      cache_id        - String that uniquely identifies the cache element object in the cache
  * @property  {Number}      document_order  - Ordinal position of the image or area element in the document in relationship to other image or area elements
  *
- * @property  {String}   source    - The url in the src property of an image element or href property of an area element 
- * @property  {String}   file_name - The filename of the image
- * @property  {String}   longdesc  - The url in the longdesc property of an image element  
+ * @property  {String}   source             - The url in the src property of an image element or href property of an area element 
+ * @property  {Boolean}  src_is_a_file_name - The filename is an image file and not a data base or other programatic reference
+ * @property  {String}   file_name          - The filename of the image
+ * @property  {String}   longdesc           - The url in the longdesc property of an image element  
  *
  * @property  {String}   alt                   - Calculated accessible name of the link 
  * @property  {String}   alt_for_comparison   - Accessible name for comparison (i.e. lowercase, trimmed and space normalized)
@@ -329,8 +349,19 @@ OpenAjax.a11y.cache.ImageElement = function (dom_element, base_url) {
     
     var pos = this.source.lastIndexOf('/');    
     
-    if (this.source.length && pos >= 0 ) this.file_name = this.source.substring((pos+1)).toLowerCase();
+    var file_name = "";
+    this.src_is_a_file_name = false;
+    
+    if (this.source.length && pos >= 0 ) {
+      file_name = this.source.substring((pos+1)).toLowerCase();
+      
+      if ((file_name.indexOf('.png') >= 0) ||
+          (file_name.indexOf('.jpg') >= 0) ||
+          (file_name.indexOf('.jpeg') >= 0) ||
+          (file_name.indexOf('.gif') >= 0)) this.src_is_a_file_name = true;
+    }  
   
+    this.file_name = file_name;
   }
   
   if (dom_element.tag_name == 'area') {
@@ -369,7 +400,7 @@ OpenAjax.a11y.cache.ImageElement = function (dom_element, base_url) {
 };
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.ImageElement
  *
@@ -378,8 +409,8 @@ OpenAjax.a11y.cache.ImageElement = function (dom_element, base_url) {
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.ImageElement.prototype.getResultRules = function () {
-  return this.dom_element.getResultRules();
+OpenAjax.a11y.cache.ImageElement.prototype.getNodeResults = function () {
+  return this.dom_element.getNodeResults();
 };
 
 /**
@@ -517,11 +548,11 @@ OpenAjax.a11y.cache.ImageElement.prototype.getAltTextNLS = function () {
       return this.alt;
     }
     else {
-      return cache_nls.getEmptyAltTextMessageNLS();
+      return cache_nls.getNLSEmptyAltTextMessage();
     }
   }
   else {
-    return cache_nls.getMissingAltMessageNLS();
+    return cache_nls.getNLSMissingAltMessage();
   }
   
 };
@@ -537,12 +568,23 @@ OpenAjax.a11y.cache.ImageElement.prototype.getAltTextNLS = function () {
  */
  
  OpenAjax.a11y.cache.ImageElement.prototype.toString = function () {
-   if (this.alt_length) {
-     return this.dom_element.tag_name + " : " + this.alt;
+   var str = this.dom_element.tag_name;
+   
+   if (this.dom_element.computed_style.is_visible_onscreen == OpenAjax.a11y.VISIBILITY.HIDDEN) {
+     str += " (hidden) : ";
+   } 
+   else {
+     str += " (" + this.height + "x" + this.width + ") : ";
+   }  
+   
+   if (this.src_is_a_file_name) {
+     str += this.file_name;
    }
    else {
-     return this.dom_element.tag_name + " : no alt text";   
+     str +=  "source is not a file name";   
    }
- };
+   
+   return str;
+};
 
 

@@ -31,14 +31,7 @@ nls/rules_nls_en-us.js \
 nls/wcag20_nls_en-us.js \
 rules/rules_color_contrast.js \
 rules/rules_controls.js \
-rules/rules_headers_landmarks.js \
 rules/rules_images.js \
-rules/rules_links.js \
-rules/rules_lists.js \
-rules/rules_media.js \
-rules/rules_tables.js \
-rules/rules_title_main.js \
-rulesets/iitaa20_aria_ruleset.js \
 rulesets/wcag20_aria_transitional_ruleset.js \
 rulesets/wcag20_aria_strict_ruleset.js > openajax_a11y_all.js
 

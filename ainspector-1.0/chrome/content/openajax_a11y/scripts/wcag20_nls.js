@@ -64,16 +64,19 @@ OpenAjax.a11y.WCAG20.prototype.addNLS = function(locale, nls) {
  //  OpenAjax.a11y.console("WCAG 2.0 " + nls.title + " for " + locale); 
   
   if (!nls.principles || typeof nls.principles !== 'object') {
+  
     OpenAjax.a11y.console("Missing principles object or not at an object for WCAG 2.0 with locale: " + locale);
     return;
+    
   } else {
+  
     for (p_id in nls.principles) {
     
       p = nls.principles[p_id];
       
 //      OpenAjax.a11y.console("Principle " + p.title); 
       
-      np = new OpenAjax.a11y.WCAG20NLSPrinciple(p_id, p.title, p.description, p.url);
+      np = new OpenAjax.a11y.WCAG20NLSPrinciple(p_id, p);
       
       for (g_id in p.guidelines) {
       
@@ -81,17 +84,17 @@ OpenAjax.a11y.WCAG20.prototype.addNLS = function(locale, nls) {
     
 //        OpenAjax.a11y.console("  Guideline " + g.title); 
       
-        ng = new OpenAjax.a11y.WCAG20NLSGuideline(np, g_id, g.title, g.description, g.url);
+        ng = new OpenAjax.a11y.WCAG20NLSGuideline(np, g_id, g);
 
         for (sc_id in g.success_criteria) {
       
           sc = g.success_criteria[sc_id];
-    
-          sc = new OpenAjax.a11y.WCAG20NLSSuccessCriteria(np, ng, sc_id, sc.level, sc.title, sc.description, sc.url);
+     
+          nsc = new OpenAjax.a11y.WCAG20NLSSuccessCriterion(np, ng, sc_id, sc);
           
-//          OpenAjax.a11y.console("    Success Criteria " + sc.title); 
+//          OpenAjax.a11y.console("    Success Criteria " + nsc.sc_id + " (" + sc_id + "): " + sc.title); 
       
-          ng.success_criteria.push(sc); 
+          ng.success_criteria.push(nsc); 
       
         } // end loop
         
@@ -134,58 +137,14 @@ OpenAjax.a11y.WCAG20.prototype.getNLS = function() {
  * @param {Number}  level  -  Numerical constant defined in OAA cache representing the level
  */
 
-OpenAjax.a11y.WCAG20.prototype.getWCAG20Level = function(level) {
+OpenAjax.a11y.WCAG20.prototype.getNLSLevel = function(level) {
 
   var wcag20_nls = this.nls[OpenAjax.a11y.locale];
 
-  return wcag20_nls.levels[level.toString()];
+  return wcag20_nls.levels[level];
   
 };
 
-/**
- * @method getNLSItemById
- *
- * @memberOf OpenAjax.a11y.WCAG20
- *
- * @desc Returns an object with a localized version of WCAG 2.0 requirements 
- *
- * @param {String}  id  -  id for the wcag item to get NLS information
- */
-
-OpenAjax.a11y.WCAG20.prototype.getNLSItemById = function(id) {
-
-  var i, j, k;
-  var p, g, sc;
-  var wcag20_nls = this.nls[OpenAjax.a11y.locale];
-  
-  if (!wcag20_nls) return null;
-  
-  for (i = 0; i < wcag20_nls.principles.length; i++) {
-  
-     p = wcag20_nls.principles[i];
-
-     if (p.principle_id == id) return p;
-
-     for (j = 0; j < p.guidelines.length; j++) {
-     
-       g = p.guidelines[j];
-       
-       if (g.guideline_id == id) return g;
-     
-       for (k = 0; k < g.success_criteria.length; k++ ) {
-       
-         sc = g.success_criteria[k];
-       
-         if (sc.sc_id == id) return sc;
-       
-       } // end loop
-     
-     } // end loop
-     
-  } // end loop   
-    
-  return null;  
-};
 
 /* ---------------------------------------------------------------- */
 /*                       WCAG20NLS                                     */
@@ -225,6 +184,53 @@ OpenAjax.a11y.WCAG20NLS = function(locale, abbrev, title, url, levels) {
   
 };
 
+/**
+ * @method getNLSItemById
+ *
+ * @memberOf OpenAjax.a11y.WCAG20NLS
+ *
+ * @desc Returns an object with a localized version of WCAG 2.0 requirements 
+ *
+ * @param {String}  id  -  id for the wcag item to get NLS information
+ *
+ * @return {Object}  WCAG 2.0 NL object
+ */
+
+OpenAjax.a11y.WCAG20NLS.prototype.getNLSItemById = function(id) {
+  
+  for (var i = 0; i < this.principles.length; i++) {
+  
+     var p = this.principles[i];
+
+//     OpenAjax.a11y.console("P Compare: " + p.principle_id + " " + id );
+
+     if (p.principle_id == id) return p;     
+
+     for (var j = 0; j < p.guidelines.length; j++) {
+     
+       var g = p.guidelines[j];
+
+//       OpenAjax.a11y.console("  G Compare: " + g.guideline_id + " " + id );
+
+       if (g.guideline_id == id) return g;
+     
+       for (var k = 0; k < g.success_criteria.length; k++ ) {
+       
+         var sc = g.success_criteria[k];
+
+//         OpenAjax.a11y.console("  SC Compare: " + sc.success_criteria_id + " " + id );
+
+         if (sc.sc_id == id) return sc;
+       
+       } // end loop
+     
+     } // end loop
+     
+  } // end loop   
+    
+  return null;  
+};
+
 
 /* ---------------------------------------------------------------- */
 /*                       WCAG20NLSPrinciple                           */
@@ -237,25 +243,23 @@ OpenAjax.a11y.WCAG20NLS = function(locale, abbrev, title, url, levels) {
  *
  * @desc WCAg 2.0 Principle information with properties with localized NLS values 
  *
- * @param  {String}  principle_id  - Principle id
- * @param  {String}  title         - Title of the requirement 
- * @param  {String}  description   - Description of principle 
- * @param  {String}  url           - URL to information on the requirement
+ * @param  {Object}  principle_id  - Principle id
+ * @param  {Object}  info          - Principle information
  *
  * @property  {String}  principle_id  - Principle id 
  * @property  {String}  title         - Title of the principle 
  * @property  {String}  description   - Description of principle 
- * @property  {String}  url           - URL to information on the requirement
+ * @property  {String}  url_spec      - URL to information on the requirement
  *
  * @property  {Array}   guidelines - Array of WCAG 2.0 guideline objects associated with the principle
  */
 
-OpenAjax.a11y.WCAG20NLSPrinciple = function(principle_id, title, description, url) {
+OpenAjax.a11y.WCAG20NLSPrinciple = function(principle_id, info) {
 
   this.principle_id = principle_id;    
-  this.title        = title;    
-  this.description  = description;    
-  this.url          = url;   
+  this.title        = info.title;    
+  this.description  = info.description;    
+  this.url_spec     = info.url_spec;   
   
   this.guidelines = [];
   
@@ -272,43 +276,40 @@ OpenAjax.a11y.WCAG20NLSPrinciple = function(principle_id, title, description, ur
  *
  * @desc WCAg 2.0 Guideline information with properties with localized NLS values 
  *
- * @param  {WCAG20NLSPrinciple}  principle  - Principle object reference 
- *
- * @param  {String}  guideline_id  - Guideline id 
- * @param  {String}  title         - Title of the guideline
- * @param  {String}  description   - Description of the guideline 
- * @param  {String}  url           - URL to information on the guideline
+ * @param  {WCAG20NLSPrinciple}  principle     - Principle object reference 
+ * @param  {String}              guideline_id  - Guideline ID
+ * @param  {Object}              info          - Guideline information object
  *
  * @property  {WCAG20NLSPrinciple}  principle  - Principle object reference 
  *
  * @property  {String}  guideline_id  - Guideline id 
  * @property  {String}  title         - Title of the guideline 
  * @property  {String}  description   - Description of the guideline 
- * @property  {String}  url           - URL to information on the requirement
+ * @property  {String}  url_spec      - URL to information on the guideline requirement
  *
  * @property  {Array}   success_criteria  - Array of WCAG 2.0 success criteria objects associated with the principle
  */
 
-OpenAjax.a11y.WCAG20NLSGuideline = function(principle, guideline_id, title, description, url) {
+OpenAjax.a11y.WCAG20NLSGuideline = function(principle, guideline_id, info) {
 
   this.principle     = principle;    
   
   this.guideline_id  = guideline_id;   
   
-  this.title         = title;    
-  this.discription   = description;    
-  this.url           = url;   
+  this.title         = info.title;    
+  this.discription   = info.description;    
+  this.url_spec      = info.url_spec;   
   
   this.success_criteria = [];
   
 };
 
 /* ---------------------------------------------------------------- */
-/*                       WCAG20NLSSuccessCriteria                    */
+/*                       WCAG20NLSSuccessCriterion                    */
 /* ---------------------------------------------------------------- */
 
 /**
- * @constructor WCAG20NLSSuccessCriteria
+ * @constructor WCAG20NLSSuccessCriterion
  *
  * @memberOf OpenAjax.a11y
  *
@@ -316,34 +317,34 @@ OpenAjax.a11y.WCAG20NLSGuideline = function(principle, guideline_id, title, desc
  *
  * @param  {WCAG20NLSPrinciple}  principle  - Principle object reference 
  * @param  {WCAG20NLSGuideline}  guideline  - Guideline object reference
- *
- * @param  {String}  sc_id        - WCAG 2.0 Sucess cCriteria id   
- * @param  {String}  level        - Level of importance of a requirement
- * @param  {String}  title        - Title of the success criteria 
- * @param  {String}  description  - Description of the success criteria
- * @param  {String}  url          - URL to information on the requirement
- *
+ * @param  {String}              sc_id      - Success criterion ID
+ * @param  {Object}              info       - Success criterion information object
+ * 
  * @property  {WCAG20NLSPrinciple}  principle  - Principle object reference 
  * @property  {WCAG20NLSGuideline}  guideline  - Guideline object reference
  *
- * @property  {String}  sc_id      - Requirement 
- * @property  {String}  title      - Title of the requirement 
- * @property  {String}  level      - Level of importance of a requirement
- * @property  {String}  url        - URL to information on the requirement
- * @property  {Array}   resources  - URL to information on the requirement
+ * @property  {String}  sc_id          - Success criterion ID
+ * @property  {String}  title          - Title of the success criterion 
+ * @property  {String}  level          - Level of importance of a success criterion
+ * @property  {String}  url_spec       - URL to information on the success criteria requirement
+ * @property  {String}  url_meet       - URL to information on how to meet the success criteria requirements
+ * @property  {String}  url_understand - URL to information on how to understand the success criteria requirements
+ * @property  {Array}   resources      - Other information related to the success criterion
  */
 
-OpenAjax.a11y.WCAG20NLSSuccessCriteria = function(principle, guideline, sc_id, level, title, description, url) {
+OpenAjax.a11y.WCAG20NLSSuccessCriterion = function(principle, guideline, sc_id, info) {
 
   this.principle  = principle;    
   this.guideline  = guideline;    
   
-  this.sc_id      = sc_id;    
+  this.sc_id      = sc_id;   
   
-  this.level       = level;   
-  this.title       = title;    
-  this.description = description;    
-  this.url         = url;   
+  this.level          = info.level;   
+  this.title          = info.title;    
+  this.description    = info.description;    
+  this.url_spec       = info.url_spec;   
+  this.url_meet       = info.url_meet;   
+  this.url_understand = info.url_understand;   
   
   this.resources = [];  
   
@@ -359,7 +360,7 @@ OpenAjax.a11y.WCAG20NLSSuccessCriteria = function(principle, guideline, sc_id, l
  * @param {ResourceInfo}  resource  - Resource object to add 
  */
 
-OpenAjax.a11y.WCAG20NLSSuccessCriteria.prototype.addResource = function(resource) {
+OpenAjax.a11y.WCAG20NLSSuccessCriterion.prototype.addResource = function(resource) {
 
   this.resources.push(resource);
   

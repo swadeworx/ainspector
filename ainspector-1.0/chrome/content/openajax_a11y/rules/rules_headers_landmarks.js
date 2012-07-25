@@ -11,21 +11,21 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  *
  */	     	     	     
  {
-  id                : 'HEADING_1', 
-  last_updated      : '2011-09-16', 
+{ rule_id           : 'HEADING_1', 
+  rule_scope        : OpenAjax.a11y.RULE_SCOPE.PAGE,
+  last_updated      : '2012-06-31', 
+  wcag_primary_id   : '1.1.1',
+  wcag_related_ids  : [],
+  target_resources  : ['h1'],
   cache_dependency  : 'title_main_cache',
   cache_properties  : ['tag_name', 'name', 'name_length'],
-  language          : "",
+  language_dependency : "",
   validate          : function (dom_cache, rule_result) {
+ 
+      var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
+      var VISIBILITY  = OpenAjax.a11y.VISIBILITY;
+      var SOURCE      = OpenAjax.a11y.SOURCE;
   
-      var SEVERITY   = OpenAjax.a11y.SEVERITY;
-      var VISIBILITY = OpenAjax.a11y.VISIBILITY;
-      var SOURCE     = OpenAjax.a11y.SOURCE;
-  
-      var i;
-      var me;
-      var te;
-
       var main_elements = dom_cache.title_main_cache.main_elements;
       var main_elements_len = main_elements.length;
       
@@ -33,20 +33,20 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
       
       if (main_elements && main_elements.length) {
       
-        for (i=0; i<main_elements_len; i++ ) {
-          me = main_elements[i];
+        for (var i = 0; i < main_elements_len; i++ ) {
+          var me = main_elements[i];
 
           if (me.dom_element.computed_style.is_visible_to_at === VISIBILITY.INVISIBLE) {
-            rule_result.addResult(SEVERITY.HIDDEN, me, 'MESSAGE_H1_HIDDEN', []);                      
+            rule_result.addResult(TEST_RESULT.HIDDEN, me, 'MESSAGE_H1_HIDDEN', []);                      
           }
           else {
             if (me.dom_element.tag_name == 'h1') {
               if (me.name && me.name_length > 0) {
-                rule_result.addResult(SEVERITY.PASS, me, 'MESSAGE_HAS_H1', []);
+                rule_result.addResult(TEST_RESULT.PASS, me, 'MESSAGE_HAS_H1', []);
                 h1_count++;
               }
               else {
-                rule_result.addResult(SEVERITY.FAIL, me, 'MESSAGE_H1_NO_CONTENT', []);
+                rule_result.addResult(TEST_RESULT.FAIL, me, 'MESSAGE_H1_NO_CONTENT', []);
               }
             }
           }  
@@ -55,13 +55,13 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 
      // Test if no h1s
      if (h1_count === 0) {
-        te = dom_cache.title_main_cache.main_elements[0];
+        var te = dom_cache.title_main_cache.main_elements[0];
         // Use title if defined to mark failure
         if (te) {
-          rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_H1_MISSING', []);
+          rule_result.addResult(TEST_RESULT.FAIL, te, 'MESSAGE_H1_MISSING', []);
         } 
         else {
-          rule_result.addResult(SEVERITY.FAIL, null, 'MESSAGE_H1_MISSING', []);
+          rule_result.addResult(TEST_RESULT.FAIL, null, 'MESSAGE_H1_MISSING', []);
         }
      }
   } // end validate function
@@ -438,14 +438,14 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
       var title_main_cache  = dom_cache.title_main_cache;
       var main_elements     = title_main_cache.main_elements;
       var main_elements_len = main_elements.length;
-      var body_element      = title_main_cache.body_element;
+      var page_element      = title_main_cache.page_element;
 
       var i;
       var me;
       var cs;
       
-      body_element.num_main_landmarks = 0;
-      body_element.num_visible_main_landmarks = 0;
+      page_element.num_main_landmarks = 0;
+      page_element.num_visible_main_landmarks = 0;
       
       // check to make sure the main elements are visible
       
@@ -455,20 +455,20 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
           me = main_elements[i];
           cs = me.computed_style;
           if (me.main_type == OpenAjax.a11y.MAIN.ROLE_MAIN) {
-            body_element.num_main_landmarks += 1;
-            if (cs.is_visible_to_at == VISIBILITY.VISIBLE) body_element.num_visible_main_landmarks += 1;
+            page_element.num_main_landmarks += 1;
+            if (cs.is_visible_to_at == VISIBILITY.VISIBLE) page_element.num_visible_main_landmarks += 1;
           }
         }  
         
         if (has_visible_main) {
-          rule_result.addResult(SEVERITY.PASS, body_element, 'MESSAGE_PASS', [body_element.num_visible_main_landmarks]);        
+          rule_result.addResult(SEVERITY.PASS, page_element, 'MESSAGE_PASS', [page_element.num_visible_main_landmarks]);        
         }
         else {
-          rule_result.addResult(SEVERITY.FAIL, body_element, 'MESSAGE_HIDDEN', [body_element.num_main_landmarks]);
+          rule_result.addResult(SEVERITY.FAIL, page_element, 'MESSAGE_HIDDEN', [page_element.num_main_landmarks]);
         }              
       }
       else {
-        rule_result.addResult(SEVERITY.FAIL, body_element, 'MESSAGE_FAIL', []);
+        rule_result.addResult(SEVERITY.FAIL, page_element, 'MESSAGE_FAIL', []);
       }
 
   } // end validate function
@@ -505,7 +505,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         de = elements_with_content[i];
         cs = de.computed_style;
           
-        if (de.type == NODE_TYPE.ELEMENT) elem = de.tag_name;
+        if (de.type == Node.ELEMENT_NODE) elem = de.tag_name;
         else elem = de.parent_element.tag_name;
           
         if (de.parent_landmark) {

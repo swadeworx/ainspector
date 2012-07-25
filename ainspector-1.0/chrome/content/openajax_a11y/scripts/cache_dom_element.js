@@ -204,6 +204,26 @@ OpenAjax.a11y.cache.DOMElementCache.prototype.getItemByCacheId = function (cache
   return null;
 };
 
+
+/**
+ * @method getItemsByNodeResults
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMElementCache
+ *
+ * @desc Returns an array of cache items with node results based on the filter 
+ *
+ * @param  {Number}  filter  - Filter for returning items with node results of a 
+ *                             particular type(s)  
+ *
+ * @return {Array} Returns array of cache items, can be empty
+ */
+
+OpenAjax.a11y.cache.DOMElementCache.prototype.getItemsByNodeResults = function (filter, all_flag) {
+
+  return OpenAjax.a11y.util.getItemsByNodeResults(this.dom_elements, filter, all_flag);
+
+};
+
 /**
  * @method sortDOMElements
  *
@@ -365,41 +385,38 @@ OpenAjax.a11y.cache.DOMElementCache.prototype.checkForUniqueIDs = function () {
  * @property {Object}  computed_style  - Object that contains information about run time styling of the node
  * @property {Object}  events          - Object that contains information about event handlers attached to the node and its descendents
  *
- * @property {Array}  rules_violations       - Array of NodeResult objects with severity of 'Violation'
- * @property {Array}  rules_recommendations  - Array of NodeResult objects with severity of 'Recommendation'
- * @property {Array}  rules_manual_checks    - Array of NodeResult objects with severity of 'Manual Check'
- * @property {Array}  rules_informational    - Array of NodeResult objects with severity of 'Informational'
- * @property {Array}  rules_passed           - Array of NodeResult objects with severity of 'Passed'
- * @property {Array}  rules_hidden           - Array of NodeResult objects with severity of 'Hidden'
- * @property {Array}  rules_na               - Array of NodeResult objects with severity of 'Not Applicable' 
+ * @property {Boolean}  has_rule_results       - Boolean indicating if the node has any rule results
+ * @property {Array}    rules_violations       - Array of NodeResult objects with severity of 'Violation'
+ * @property {Array}    rules_manual_checks    - Array of NodeResult objects with severity of 'Manual Check'
+ * @property {Array}    rules_warnings         - Array of NodeResult objects with severity of 'Warning'
+ * @property {Array}    rules_passed           - Array of NodeResult objects with severity of 'Passed'
+ * @property {Array}    rules_hidden           - Array of NodeResult objects with severity of 'Hidden'
  */
  
 OpenAjax.a11y.cache.DOMText = function (node, parent_element) {
 
- this.type = NODE_TYPE.TEXT;
- this.text = node.data;
- this.parent_element = parent_element;
+  this.type = Node.TEXT_NODE;
+  this.text = node.data;
+  this.parent_element = parent_element;
  
- this.parent_landmark      = null;
- this.parent_landmark_role = "";
+  this.parent_landmark      = null;
+  this.parent_landmark_role = "";
  
- this.text_normalized = this.text.normalizeSpace();
- var text_length      = this.text_normalized.length;
- this.text_length     = text_length;
+  this.text_normalized = this.text.normalizeSpace();
+  var text_length      = this.text_normalized.length;
+  this.text_length     = text_length;
  
- parent_element.addToCharacterCount(text_length);
+  parent_element.addToCharacterCount(text_length);
  
- this.computed_style = parent_element.computed_style;
+  this.computed_style = parent_element.computed_style;
  
   // Create areas to store rule results associates with this node
- this.rules_violations                = [];
- this.rules_recommendations           = [];
- this.rules_manual_checks             = [];
- this.rules_informational             = [];
- this.rules_passed                    = [];
- this.rules_hidden                    = [];
- this.rules_warnings                  = [];
- this.rules_na                        = [];
+  this.has_rule_results = false;
+  this.rules_violations                = [];
+  this.rules_manual_checks             = [];
+  this.rules_warnings                  = [];
+  this.rules_passed                    = [];
+  this.rules_hidden                    = [];
 };
 
 /**
@@ -430,7 +447,7 @@ OpenAjax.a11y.cache.DOMText.prototype.addText = function (text) {
 };
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.DOMText
  *
@@ -439,7 +456,7 @@ OpenAjax.a11y.cache.DOMText.prototype.addText = function (text) {
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.DOMText.prototype.getResultRules = function () {
+OpenAjax.a11y.cache.DOMText.prototype.getNodeResults = function () {
  
   function addResultNodes(items) {
   
@@ -455,10 +472,8 @@ OpenAjax.a11y.cache.DOMText.prototype.getResultRules = function () {
   
   addResultNodes(this.rules_violations);
   addResultNodes(this.rules_manual_checks);
-  addResultNodes(this.rules_recommendations);
   addResultNodes(this.rules_warnings);
   addResultNodes(this.rules_passed);
-  addResultNodes(this.rules_informational);
   addResultNodes(this.rules_hidden); 
   
   return result_nodes;
@@ -497,21 +512,16 @@ OpenAjax.a11y.cache.DOMText.prototype.getAccessibility = function () {
     a.style    = SEVERITY_STYLE[SEVERITY.PASS];
   }
 
-  if (this.rules_warnings.length) {
-    severity = cache_nls.getSeverityNLS(SEVERITY.WARNING);
-    a.style    = SEVERITY_STYLE[SEVERITY.WARNING];
-  }
-  
   if (this.rules_manual_checks.length) {
     severity = cache_nls.getSeverityNLS(SEVERITY.MANUAL_CHECK);
     a.style    = SEVERITY_STYLE[SEVERITY.MANUAL_CHECK];
   }
 
-  if (this.rules_recommendations.length) {
-    severity = cache_nls.getSeverityNLS(SEVERITY.RECOMMENDATION);
-    a.style    = SEVERITY_STYLE[SEVERITY.RECOMMENDATION];
+  if (this.rules_warnings.length) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.WARNING);
+    a.style    = SEVERITY_STYLE[SEVERITY.WARNING];
   }
-
+  
   if (this.rules_violations.length) {
     severity = cache_nls.getSeverityNLS(SEVERITY.VIOLATION);
     a.style       = SEVERITY_STYLE[SEVERITY.VIOLATION];
@@ -577,6 +587,7 @@ OpenAjax.a11y.cache.DOMText.prototype.getCacheProperties = function () {
 
   cache_nls.addPropertyIfDefined(properties, this, 'text_normalized');
   cache_nls.addPropertyIfDefined(properties, this, 'text_length');
+  cache_nls.addPropertyIfDefined(properties, this, 'has_rule_results');
   
   return properties;
 
@@ -636,10 +647,10 @@ OpenAjax.a11y.cache.DOMText.prototype.getColorContrastSummary = function () {
     a.style  = SEVERITY_STYLE[SEVERITY.PASS];
   }
 
-  if (hasRule(this.rules_recommendations, color_rules)) {
-    severity = cache_nls.getSeverityNLS(SEVERITY.RECOMMENDATION);
-    a.style  = SEVERITY_STYLE[SEVERITY.RECOMMENDATION];
-    last_severity_value = SEVERITY.RECOMMENDATION;
+  if (hasRule(this.rules_warnings, color_rules)) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.WARNING);
+    a.style  = SEVERITY_STYLE[SEVERITY.WARNING];
+    last_severity_value = SEVERITY.WARNING;
   }
 
   if (hasRule(this.rules_manual_checks, color_rules)) {
@@ -746,6 +757,57 @@ OpenAjax.a11y.cache.DOMText.prototype.getCachePropertyValue = function (property
 
 
 /**
+ * @method getColorContrastNodeResult
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMText
+ *
+ * @desc Returns a node result for a color contrast rule
+ *
+ * @return {Object} Returns node result object of a color contrast rule
+ */
+ 
+OpenAjax.a11y.cache.DOMText.prototype.getColorContrastNodeResult = function() {
+
+  function findColorContrastRule(node_results) {
+   
+    var node_results_len = node_results.length;
+    
+    for (var i = 0; i < node_results_len; i++ ) {
+    
+      var node_result = node_results[i];
+      
+      var rule = node_result.getRule();
+      
+      if (!rule) continue;
+      
+      if (rule.rule_id == "COLOR_1") return node_result;      
+      if (rule.rule_id == "COLOR_2") return node_result;
+    
+    }
+  
+    return null;
+  }
+
+  var nr = findColorContrastRule(this.rules_violations);
+  if (nr) return nr;
+
+  nr = findColorContrastRule(this.rules_manual_checks);
+  if (nr) return nr;
+  
+  nr = findColorContrastRule(this.rules_warnings);
+  if (nr) return nr;
+  
+  nr = findColorContrastRule(this.rules_passed);
+  if (nr) return nr;
+  
+  nr = findColorContrastRule(this.rules_hidden);
+  if (nr) return nr;
+  
+  return null;
+
+};
+
+/**
  * @method getText
  *
  * @memberOf OpenAjax.a11y.cache.DOMText
@@ -757,6 +819,25 @@ OpenAjax.a11y.cache.DOMText.prototype.getCachePropertyValue = function (property
  
 OpenAjax.a11y.cache.DOMText.prototype.getText = function() {
   return this.text_normalized;
+};
+
+/**
+ * @method toString
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMText
+ *
+ * @desc Returns text representation of a DOMText element
+ *
+ * @return {String} Returns a string representing the DOM text node
+ */
+ 
+OpenAjax.a11y.cache.DOMText.prototype.toString = function(option) {
+  var str;
+  
+  if (option == 'text') str = "'" +  this.text_normalized + "'";
+  else str = this.parent_element.tag_name + ": '" +  this.text_normalized + "'";
+  
+  return str;
 };
 
 
@@ -803,6 +884,8 @@ OpenAjax.a11y.cache.DOMText.prototype.getText = function() {
  * @property {String}     aria_hidden         - The value of the aria-hidden      attribute of the DOM node
  * @property {String}     aria_label          - The value of the aria-label       attribute of the DOM node
  * @property {String}     aria_labelledby     - The value of the aria-labelledby  attribute of the DOM node
+ * @property {Array}      aria_properties     - Arrary of property name and value objects for any attribute 
+ *                                              beginning with 'aria-'
  *
  * @property {Boolean}    is_widget           - True if element is a ARIA widget, otherwise false
  * @property {Boolean}    is_landmark         - True if element is a ARIA landmark, otherwise false
@@ -813,20 +896,28 @@ OpenAjax.a11y.cache.DOMText.prototype.getText = function() {
  * @property {Object}     events              - Object that contains information about events associated with the node
  * @property {Object}     computed_style      - Object that contains information about run time styling of the node
  *
- * @property {Array}      rules_violations          - Array of NodeResult objects with severity of 'Violation'
- * @property {Array}      rules_recommendations     - Array of NodeResult objects with severity of 'Recommendation'
- * @property {Array}      rules_manual_checks       - Array of NodeResult objects with severity of 'Manual Check'
- * @property {Array}      rules_informational       - Array of NodeResult objects with severity of 'Informational'
- * @property {Array}      rules_passed              - Array of NodeResult objects with severity of 'Passed'
- * @property {Array}      rules_hidden              - Array of NodeResult objects with severity of 'Hidden'
- * @property {Array}      rules_warnings            - Array of NodeResult objects with severity of 'Warning'
- * @property {Array}      rules_na                  - Array of NodeResult objects with severity of 'Not Applicable'
+ * @property {Boolean}    has_rule_results       - Boolean indicating if the node has any rule results
+ * @property {Array}      rules_passed           - Array of NodeResult objects with severity of 'Passed'
+ * @property {Array}      rules_violations       - Array of NodeResult objects with severity of 'Violation'
+ * @property {Array}      rules_manual_checks    - Array of NodeResult objects with severity of 'Manual Check'
+ * @property {Array}      rules_warnings         - Array of NodeResult objects with severity of 'Warning'
+ * @property {Array}      rules_hidden           - Array of NodeResult objects with severity of 'Hidden'
  *
  * @param {DOM node Object}    node            - The DOM text node 
  * @param {DOMElement Object}  parent_element  - DOMElement object that is the parent DOMElement object in the tree
  */
 
 OpenAjax.a11y.cache.DOMElement = function (node, parent_dom_element) {
+
+  function addAriaAttribute (name, value) {
+  
+     var av = {};
+     av.attribute = attr.name;
+     av.value = attr.value;
+     
+     aria_properties.push(av);
+     
+   }
 
   var i;
   var attr;
@@ -839,13 +930,13 @@ OpenAjax.a11y.cache.DOMElement = function (node, parent_dom_element) {
 
   this.has_element_children = false;
  
-  this.type           = NODE_TYPE.ELEMENT;
+  this.type           = Node.ELEMENT_NODE;
   this.document_order = 0;
   this.node           = node;
   this.tag_name       = node.tagName.toLowerCase();
   this.id             = node.id;
  
-  if (this.id !== '') {
+  if (!this.id || this.id.length === 0) {
     this.id_unique  = OpenAjax.a11y.ID.NOT_DEFINED;
   }
   else {
@@ -857,7 +948,7 @@ OpenAjax.a11y.cache.DOMElement = function (node, parent_dom_element) {
   // Save relationships with other elements
   this.parent_element = parent_dom_element;
   this.child_dom_elements = [];
-  this.aria_properties = [];
+  var aria_properties = [];
  
   this.parent_landmark = null;
   this.parent_landmark_role = "";
@@ -894,6 +985,8 @@ OpenAjax.a11y.cache.DOMElement = function (node, parent_dom_element) {
     
       var role_object = OpenAjax.a11y.aria.getRoleObject(role);
       
+      if (!role_object || !role_object.roleType) break;
+      
       switch (role_object.roleType) {
     
       case 'widget':
@@ -928,46 +1021,40 @@ OpenAjax.a11y.cache.DOMElement = function (node, parent_dom_element) {
     case 'aria-describedby':
       this.has_aria_describedby = true;
       this.aria_describedby = attr.value;
+      addAriaAttribute('aria-describedby', attr.value);
       break;
 
     case 'aria-hidden':
       this.aria_hidden = attr.value.toLowerCase();
+      addAriaAttribute('aria-hidden', attr.value);
       break;
 
     case 'aria-label':
       this.aria_label = attr.value;
+      addAriaAttribute('aria-label', attr.value);
       break;
 
     case 'aria-labelledby':
       this.aria_labelledby  = attr.value;
+      addAriaAttribute('aria-labelledby', attr.value);
       break;
 
     case 'aria-live':
       this.is_live  = true;
-      av_object = new Object();
-     
-      av_object.attribute = attr.name;
-      av_object.value = attr.value;
-
-      this.aria_properties.push(av_object);
-    
+      addAriaAttribute('aria-live', attr.value);
       break;
 
     default:
 
       if (attr.name.indexOf('aria-') === 0 ) {
-     
-        av_object = new Object();
-     
-        av_object.attribute = attr.name;
-        av_object.value = attr.value;
-     
-        this.aria_properties.push(av_object);
+        addAriaAttribute(attr.name, attr.value);
       }
       break;
 
     } // end switch
   } // end loop
+  
+ this.aria_properties = aria_properties;
 
  this.supports_events = OpenAjax.a11y.SUPPORTS_EVENT_ANALYSIS;
 
@@ -981,14 +1068,12 @@ OpenAjax.a11y.cache.DOMElement = function (node, parent_dom_element) {
 
 
  // Create areas to store rule results associates with this node
+ this.has_rule_results = false;
  this.rules_violations                = [];
- this.rules_recommendations           = [];
  this.rules_manual_checks             = [];
- this.rules_informational             = [];
+ this.rules_warnings                  = [];
  this.rules_passed                    = [];
  this.rules_hidden                    = [];
- this.rules_warnings                  = [];
- this.rules_na                        = [];
 
  return this;
 
@@ -1019,7 +1104,7 @@ OpenAjax.a11y.cache.DOMElement.prototype.hasAttrWithValue = function (name, valu
 };
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.DOMElement
  *
@@ -1028,7 +1113,7 @@ OpenAjax.a11y.cache.DOMElement.prototype.hasAttrWithValue = function (name, valu
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.DOMElement.prototype.getResultRules = function () {
+OpenAjax.a11y.cache.DOMElement.prototype.getNodeResults = function () {
  
   function addResultNodes(items) {
   
@@ -1044,11 +1129,9 @@ OpenAjax.a11y.cache.DOMElement.prototype.getResultRules = function () {
   
   addResultNodes(this.rules_violations);
   addResultNodes(this.rules_manual_checks);
-  addResultNodes(this.rules_recommendations);
   addResultNodes(this.rules_warnings);
   addResultNodes(this.rules_passed);
-  addResultNodes(this.rules_informational);
-  addResultNodes(this.rules_hidden); 
+  addResultNodes(this.rules_hidden);
   
   return result_nodes;
   
@@ -1068,7 +1151,7 @@ OpenAjax.a11y.cache.DOMElement.prototype.getHasDescribedBy = function () {
 
   var cache_nls = OpenAjax.a11y.cache_nls;
 
-  if (this.has_aria_describedby) return cache_nls.getLabelAndValueNLS('has_aria_describedby', this.has_aria_describedby).value;
+  if (this.has_aria_describedby) return cache_nls.getNLSLabelAndValue('has_aria_describedby', this.has_aria_describedby).value;
 
   return "";
 };
@@ -1105,21 +1188,16 @@ OpenAjax.a11y.cache.DOMElement.prototype.getAccessibility = function () {
     a.style    = SEVERITY_STYLE[SEVERITY.PASS];
   }
 
-  if (this.rules_warnings.length) {
-    severity = cache_nls.getSeverityNLS(SEVERITY.WARNING);
-    a.style    = SEVERITY_STYLE[SEVERITY.WARNING];
-  }
-  
   if (this.rules_manual_checks.length) {
     severity = cache_nls.getSeverityNLS(SEVERITY.MANUAL_CHECK);
     a.style    = SEVERITY_STYLE[SEVERITY.MANUAL_CHECK];
   }
 
-  if (this.rules_recommendations.length) {
-    severity = cache_nls.getSeverityNLS(SEVERITY.RECOMMENDATION);
-    a.style    = SEVERITY_STYLE[SEVERITY.RECOMMENDATION];
+  if (this.rules_warnings.length) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.WARNING);
+    a.style    = SEVERITY_STYLE[SEVERITY.WARNING];
   }
-
+  
   if (this.rules_violations.length) {
     severity = cache_nls.getSeverityNLS(SEVERITY.VIOLATION);
     a.style       = SEVERITY_STYLE[SEVERITY.VIOLATION];
@@ -1129,8 +1207,7 @@ OpenAjax.a11y.cache.DOMElement.prototype.getAccessibility = function () {
   a.abbrev      = severity.abbrev;
   a.description = severity.description;
   a.tooltip     = severity.tooltip;
-
-
+  
   return a;
   
 };
@@ -1189,10 +1266,10 @@ OpenAjax.a11y.cache.DOMElement.prototype.getColorContrastSummary = function () {
     a.style  = SEVERITY_STYLE[SEVERITY.PASS];
   }
 
-  if (hasRule(this.rules_recommendations, color_rules)) {
-    severity = cache_nls.getSeverityNLS(SEVERITY.RECOMMENDATION);
-    a.style  = SEVERITY_STYLE[SEVERITY.RECOMMENDATION];
-    last_severity_value = SEVERITY.RECOMMENDATION;
+  if (hasRule(this.rules_warnings, color_rules)) {
+    severity = cache_nls.getSeverityNLS(SEVERITY.WARNING);
+    a.style  = SEVERITY_STYLE[SEVERITY.WARNING];
+    last_severity_value = SEVERITY.WARNING;
   }
 
   if (hasRule(this.rules_manual_checks, color_rules)) {
@@ -1240,16 +1317,9 @@ OpenAjax.a11y.cache.DOMElement.prototype.getAttributes = function (unsorted) {
   cache_nls.addPropertyIfDefined(attributes, this, 'class_name');
   cache_nls.addPropertyIfDefined(attributes, this, 'role');
   
-  cache_nls.addPropertyIfDefined(attributes, this, 'title');
-  cache_nls.addPropertyIfDefined(attributes, this, 'aria_describedby');
-  cache_nls.addPropertyIfDefined(attributes, this, 'aria_hidden');
-  cache_nls.addPropertyIfDefined(attributes, this, 'aria_label');
-  cache_nls.addPropertyIfDefined(attributes, this, 'aria_labelledby');
-
   for (i = 0; i < this.aria_properties.length; i++) {
-    av_object = this.aria_properties[i];
-    OpenAjax.a11y.console( "  attr: " + av_object.attribute + " " + "  value: " + av_object.value);
-    attributes.push(cache_nls.getLabelAndValueNLS(av_object.attribute, av_object.value));
+    av = this.aria_properties[i];
+    attributes.push(cache_nls.getNLSLabelAndValue(av.attribute, av.value));
   }
   
   if (!unsorted) this.sortItems(attributes);
@@ -1430,6 +1500,8 @@ OpenAjax.a11y.cache.DOMElement.prototype.getCacheProperties = function () {
   cache_nls.addPropertyIfDefined(properties, this, 'is_widget');
   cache_nls.addPropertyIfDefined(properties, this, 'is_landmark');
   cache_nls.addPropertyIfDefined(properties, this, 'is_live');
+  
+  cache_nls.addPropertyIfDefined(properties, this, 'has_rule_results');
 
   return properties;
 
@@ -1715,7 +1787,12 @@ OpenAjax.a11y.cache.DOMElement.prototype.addToCharacterCount = function ( length
  */
 
 OpenAjax.a11y.cache.DOMElement.prototype.addComputedStyle = function (parent_element) {
- this.computed_style = new OpenAjax.a11y.cache.DOMElementComputedStyle(this, parent_element);
+
+ if (this.tag_name == 'iframe' || this.tag_name == 'frame' || this.tag_name == 'body')
+   this.computed_style = new OpenAjax.a11y.cache.DOMElementComputedStyle(this, null);
+ else this.computed_style = new OpenAjax.a11y.cache.DOMElementComputedStyle(this, parent_element);
+   
+ 
  this.computed_style.calculateColorContrastRatio();
 };
 
@@ -1789,11 +1866,11 @@ OpenAjax.a11y.cache.DOMElement.prototype.getText = function() {
 
   function getText(dom_element, strings) {
     // If text node get the text and return
-    if( dom_element.type == NODE_TYPE.TEXT ) {
+    if( dom_element.type == Node.TEXT_NODE ) {
       strings.push( dom_element.text );
     } else {
       // if an element for through all the children elements looking for text
-      if( dom_element.type == NODE_TYPE.ELEMENT ) {
+      if( dom_element.type == Node.ELEMENT_NODE ) {
         // check to see if IMG or AREA element and to use ALT content if defined
         if((dom_element.tag_name == 'img') || (dom_element.tag_name == 'area')) {
      
@@ -1845,13 +1922,13 @@ OpenAjax.a11y.cache.DOMElement.prototype.getTextObject = function() {
 
  function getText(dom_element, strings, texts, alts) {
   // If text node get the text and return
-  if( dom_element.type == NODE_TYPE.TEXT ) {
+  if( dom_element.type == Node.TEXT_NODE ) {
    var text = dom_element.text;
    strings.push( text );
    texts.push( text );
   } else {
    // if an element for through all the children elements looking for text
-   if( dom_element.type == NODE_TYPE.ELEMENT ) {
+   if( dom_element.type == Node.ELEMENT_NODE ) {
     // check to see if IMG or AREA element and to use ALT content if defined
     if((dom_element.tag_name == 'img') || (dom_element.tag_name == 'area')) {
      
@@ -1917,7 +1994,7 @@ OpenAjax.a11y.cache.DOMElement.prototype.getElementCount = function() {
 
   function countElements(dom_element) {
     // If text node get the text and return
-    if( dom_element.type == NODE_TYPE.ELEMENT ) {
+    if( dom_element.type == Node.ELEMENT_NODE ) {
       count++;
       for (var i = 0; i < dom_element.child_dom_elements.length; i++ ) {
         countElements(dom_element.child_dom_elements[i]);

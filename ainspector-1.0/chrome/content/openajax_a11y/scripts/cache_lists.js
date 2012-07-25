@@ -63,7 +63,7 @@ OpenAjax.a11y.cache.ListsCache = function (dom_cache) {
 
   this.landmark_count  = 0;
   
-  this.rule_summary_results  = new OpenAjax.a11y.ResultRuleSummary();
+  this.evaluation_results  = new OpenAjax.a11y.EvaluationResult();
 };
 
 /** 
@@ -215,7 +215,7 @@ OpenAjax.a11y.cache.ListsCache.prototype.traverseDOMElementsForListElements = fu
 
   if (!dom_element) return;
 
-  if (dom_element.type == NODE_TYPE.ELEMENT) {
+  if (dom_element.type == Node.ELEMENT_NODE) {
 
     li = this.updateCacheItems(dom_element, list_info);
   
@@ -445,7 +445,7 @@ OpenAjax.a11y.cache.ListElement.prototype.addChildElement = function (list_eleme
 };
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.ListElement
  *
@@ -454,8 +454,8 @@ OpenAjax.a11y.cache.ListElement.prototype.addChildElement = function (list_eleme
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.ListElement.prototype.getResultRules = function () {
-  return this.dom_element.getResultRules();
+OpenAjax.a11y.cache.ListElement.prototype.getNodeResults = function () {
+  return this.dom_element.getNodeResults();
 };
 
 /**
@@ -715,7 +715,7 @@ OpenAjax.a11y.cache.ContainerElement.prototype.isListOfLinks = function (min_li)
 };
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.ContainerElement
  *
@@ -724,8 +724,8 @@ OpenAjax.a11y.cache.ContainerElement.prototype.isListOfLinks = function (min_li)
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.ContainerElement.prototype.getResultRules = function () {
-  return this.dom_element.getResultRules();
+OpenAjax.a11y.cache.ContainerElement.prototype.getNodeResults = function () {
+  return this.dom_element.getNodeResults();
 };
 
 /**
