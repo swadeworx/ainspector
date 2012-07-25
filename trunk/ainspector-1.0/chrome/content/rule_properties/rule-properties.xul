@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<!-- See license.txt for terms of usage -->
+
+<?xml-stylesheet href="chrome://global/skin/global.css"?>
+<?xml-stylesheet href="chrome://firebug/skin/customizeShortcuts.css" ?>
+
+<?xml-stylesheet href="chrome://rule-properties/skin/rule-properties.css" type="text/css"?>
+
+<!DOCTYPE page SYSTEM "chrome://rule-properties/locale/rule-properties.dtd">
+
+<dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
+  xmlns:html="http://www.w3.org/1999/xhtml"
+  title="&rp_dialog.title;"
+  buttons="accept"
+  buttonlabelaccept="&rp_dialog.buttonLabel;"
+  class="windowDialog" 
+  id="ID_RULE_PROPERTIES" 
+  width="570" 
+  height="700">
+  
+  <stringbundleset>
+    <stringbundle id="ID_STRINGBUNDLE_RULE_PROPERTIES"
+      src="chrome://rule-properties/locale/rule-properties.properties"/>
+  </stringbundleset>
+  
+  <script src="resource://utilities/logging.js"/>
+  <script src="resource://openajax/openajax_a11y_all.js"/>
+  <script src="rule-properties.js"/>
+
+  <html:h1>&rp_dialog.rule;<html:span id="ID_RULE_SUMMARY" title="&rp_dialog.ruleSummary;">no summary</html:span></html:h1>  
+  
+  <tabpanel id="ID_TABPANEL_RULE_PROPERTIES" width="500px">
+    <tabbox>
+      <tabs>
+        <tab id="ID_BASIC" label="&rp_dialog.basic;"/>
+        <tab id="ID_ADDTIONAL" label="&rp_dialog.additional;"/>
+      </tabs>
+      <tabpanels>
+        <tabpanel>
+          <html:div class="rule_properties">
+  
+            <html:h2>&rp_dialog.ruleDefinition;</html:h2>
+            <html:p id="ID_RULE_DEFINITION">no definition</html:p>
+            
+            <html:h2>&rp_dialog.ruleWCAG20Requirements;</html:h2>
+            <html:ul class="requirements" id="ID_RULE_WCAG20_REQUIREMENTS">
+              <html:li class="primary">no primary requirement</html:li>
+              <html:li class="related">no related requirements</html:li>
+            </html:ul>
+      
+            <html:h2>&rp_dialog.rulePurpose;</html:h2>
+            <html:ul id="ID_RULE_PURPOSE">no purpose</html:ul>
+  
+            <html:h2>&rp_dialog.ruleTechniques;</html:h2>
+            <html:ul class="techniques" id="ID_RULE_TECHNIQUES">
+              <html:li>no techniques</html:li>
+            </html:ul>
+  
+            <html:h2>&rp_dialog.ruleInformationalLinks;</html:h2>
+            <html:ul class="informational" id="ID_RULE_INFORMATIONAL_LINKS">
+              <html:li>no informational links</html:li>
+            </html:ul>
+          </html:div>
+        </tabpanel>
+
+        <tabpanel>
+          <html:div class="rule_properties">
+            <html:h2>&rp_dialog.ruleAdditionalDetails;</html:h2>
+            <html:ul class="props">
+               <html:li>&rp_dialog.ruleId;: <html:span id="ID_RULE_ID">no rule id</html:span></html:li>
+               <html:li>&rp_dialog.ruleScope;: <html:span id="ID_RULE_SCOPE">no scope</html:span></html:li>
+            </html:ul>
+    
+           <html:h2>&rp_dialog.ruleTargetDescription;</html:h2>
+           <html:p id="ID_RULE_TARGET_DESCRIPTION">no target description</html:p>
+    
+           <html:h2>&rp_dialog.ruleTargetResources;</html:h2>
+           <html:ul class="targets" id="ID_RULE_TARGET_RESOURCES">
+             <html:li>no target resources</html:li>
+            </html:ul>    
+          </html:div>
+        </tabpanel>
+      </tabpanels>
+    </tabbox>
+  </tabpanel> 
+</dialog>
