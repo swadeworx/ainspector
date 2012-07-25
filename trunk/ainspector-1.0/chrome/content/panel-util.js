@@ -14,20 +14,22 @@
  * limitations under the License.
  */
 
-if (!AINSPECTOR_FB.highlightModule) {
-  var Cu = Components.utils; 
-
-  try {
-	AINSPECTOR_FB.highlightModule = Cu["import"]("resource://ainspector/highlight.js");
-	OAA_WEB_ACCESSIBILITY.util.highlightModule.initHighlight(window.content.document);
-
-  } catch (error) {
-    FBTrace.sysout("error while creating highlightModule Object ", error);	
-  }
-}
-
 FBL.ns(function() { with (FBL) {
 
+  if (!AINSPECTOR_FB.highlightModule) {
+    var Cu = Components.utils; 
+
+    try {
+      FBTrace.sysout("OAA_WEB_ACCESSIBILITY (before): ", OAA_WEB_ACCESSIBILITY);
+      AINSPECTOR_FB.highlightModule = Cu["import"]("resource://ainspector/highlight.js");
+      FBTrace.sysout("OAA_WEB_ACCESSIBILITY (after)", OAA_WEB_ACCESSIBILITY);
+      OAA_WEB_ACCESSIBILITY.util.highlightModule.initHighlight(window.content.document);
+
+    } catch (error) {
+      FBTrace.sysout("error while creating highlightModule Object ", error);  
+    }
+  }
+  
  /**
   * @namespace AINSPECTOR_FB.toolbarUtil
   */
@@ -85,7 +87,7 @@ FBL.ns(function() { with (FBL) {
    */
   onToolbarKeyPress : function(event) {
   
-	var key = event.keyCode;
+  var key = event.keyCode;
     var tabs;
 
     switch(key) {
@@ -133,9 +135,9 @@ FBL.ns(function() { with (FBL) {
    */
   getSelectedState : function (obj) {
   
-	if (obj == 'temp') return 'true';  
+  if (obj == 'temp') return 'true';  
   
-	return obj.selected ? "true" : "false";
+  return obj.selected ? "true" : "false";
   },
       
   /**
@@ -147,8 +149,8 @@ FBL.ns(function() { with (FBL) {
    */
   viewHTMLPanel: function(event) {
 
-	  var table = getChildByClass(event.target.offsetParent, "ai-table-list-items");
-	  var row =  getChildByClass(event.target.offsetParent, "tableRow");
+    var table = getChildByClass(event.target.offsetParent, "ai-table-list-items");
+    var row =  getChildByClass(event.target.offsetParent, "tableRow");
       var child;
       var tbody = table.children[1];
       var node = null;
@@ -158,7 +160,7 @@ FBL.ns(function() { with (FBL) {
         var row = tbody.children[i];
         node = row;
         for (var j = 0; j < row.children.length; j++) {
-      	var cell = row.children[j];
+        var cell = row.children[j];
         for (var k=0; k<cell.classList.length;k++) {
           if (cell.classList[k] ==  "gridCellSelected") {
             flag = true;
@@ -187,11 +189,11 @@ FBL.ns(function() { with (FBL) {
    * @return A, AA && AAA
    */
   getLevel : function (level){
-    		
+        
     if (level == 1) return "A";
     else if (level == 2) return "A & AA";
     else return "A, AA & AAA";
-   		   
+          
   },
        
   /**
@@ -231,13 +233,13 @@ FBL.ns(function() { with (FBL) {
     var toolbar_button;
   
     for (var i=1; i < toolbarbuttons.length; i=i+2){
-   	
+     
       if (toolbarbuttons[i].checked == true) {
-   	    //if (i != 0) toolbarbuttons[i].checked = false;
-   	    toolbar_button = toolbarbuttons[i].id;
-   		break;
-   	  }
-   	}
+         //if (i != 0) toolbarbuttons[i].checked = false;
+         toolbar_button = toolbarbuttons[i].id;
+       break;
+       }
+     }
     return toolbar_button;
   }
 };
@@ -255,43 +257,43 @@ AINSPECTOR_FB.flatListTemplateUtil = {
    * @param event event triggered when any keyboard's right, left, up and down arrows are pressed
    */
   onKeyPressTable: function(event){
-	  
-	event.stopPropagation();
-	var table = getAncestorByClass(event.target, "ai-table-list-items");
-	  
+    
+  event.stopPropagation();
+  var table = getAncestorByClass(event.target, "ai-table-list-items");
+    
     switch(event.keyCode) {
         
       case KeyEvent.DOM_VK_LEFT: //  
-	 
+   
       case KeyEvent.DOM_VK_UP: //up
-		var row = findPrevious(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow);
-		
-		if (row) {
-		  row.focus();
-		  AINSPECTOR_FB.flatListTemplateUtil.highlightRow(event, row);
-		}
-		break;
-		
+    var row = findPrevious(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow);
+    
+    if (row) {
+      row.focus();
+      AINSPECTOR_FB.flatListTemplateUtil.highlightRow(event, row);
+    }
+    break;
+    
       case KeyEvent.DOM_VK_RIGHT: //right
-		  //var cell = AINSPECTOR_FB.ainspectorUtil.getChildByClass(event.target, "gridCell");
-		  //if (cell) cell.focus();
-		  //break;
-	  case KeyEvent.DOM_VK_DOWN: //down
+      //var cell = AINSPECTOR_FB.ainspectorUtil.getChildByClass(event.target, "gridCell");
+      //if (cell) cell.focus();
+      //break;
+    case KeyEvent.DOM_VK_DOWN: //down
 
-		if (table.tabIndex == '0') {
-		  table.setAttribute('tabindex', '-1');
-		  table.rows[0].setAttribute('tabindex', '0');
-		  table.rows[0].focus();
-		  break;
-		}	
-		var all_rows = table.getElementsByClassName("gridRow");
+    if (table.tabIndex == '0') {
+      table.setAttribute('tabindex', '-1');
+      table.rows[0].setAttribute('tabindex', '0');
+      table.rows[0].focus();
+      break;
+    }  
+    var all_rows = table.getElementsByClassName("gridRow");
         var current_index = Array.indexOf(all_rows, event.target);
         var index = Array.indexOf(all_rows, event.target);
         var key = event.keyCode;
         var forward = key == KeyEvent.DOM_VK_RIGHT || key == KeyEvent.DOM_VK_DOWN;
           
         if (current_index != -1) {
-       	  var new_index = forward ? ++current_index : --current_index;
+           var new_index = forward ? ++current_index : --current_index;
           //get the focus back to the first tab on the tool bar from the last tab of the toolbar
           new_index = new_index < 0 ? all_rows.length -1 : (new_index >= all_rows.length ? 0 : new_index);
              
@@ -302,16 +304,16 @@ AINSPECTOR_FB.flatListTemplateUtil = {
 
             if (current_index != 0) {
               AINSPECTOR_FB.ainspectorUtil.removeClass(current_row, "gridRowSelected");
-      	        
+                
               for (var c=0; c< current_row.cells.length; c++) AINSPECTOR_FB.ainspectorUtil.removeClass(current_row.cells[c], "gridCellSelected");
             }
 
 //          highlight rows from panel
             all_rows[new_index].focus();
             AINSPECTOR_FB.ainspectorUtil.setClass(next_row, "gridRowSelected");
-      	        
+                
             for (var i=0; i< next_row.cells.length; i++) AINSPECTOR_FB.ainspectorUtil.setClass(next_row.cells[i], "gridCellSelected");
-      	      OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([next_row.repObject]);
+              OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([next_row.repObject]);
           }
         }
         event.stopPropagation();
@@ -320,13 +322,13 @@ AINSPECTOR_FB.flatListTemplateUtil = {
         break;
           
       case KeyEvent.DOM_VK_TAB:
-       	//var panel = Firebug.chrome.getSelectedPanel();
+         //var panel = Firebug.chrome.getSelectedPanel();
         var sidePanel = Firebug.chrome.getSelectedSidePanel();
-//	    if (sidePanel) {
-//	      sidePanel.panelNode.setAttribute("tabindex", "0");
-//	      sidePanel.panelNode.focus();
-//	      setClass(sidePanel.panelNode, "focusRow");
-//	    }
+//      if (sidePanel) {
+//        sidePanel.panelNode.setAttribute("tabindex", "0");
+//        sidePanel.panelNode.focus();
+//        setClass(sidePanel.panelNode, "focusRow");
+//      }
         break;
     }
   },
@@ -342,32 +344,32 @@ AINSPECTOR_FB.flatListTemplateUtil = {
     
     event.stopPropagation();
     var table = getAncestorByClass(event.target, "domTree");
-  	  
+      
     switch(event.keyCode) {
           
       case KeyEvent.DOM_VK_LEFT: //  
-  	    
+        
       case KeyEvent.DOM_VK_UP: //up
-  	    var row = findPrevious(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow);
-  		  
-  		if (row) {
-  		  row.focus();
-  		  AINSPECTOR_FB.flatListTemplateUtil.highlightRow(event, row);
-  		}
-  		break;
-  		
+        var row = findPrevious(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow);
+        
+      if (row) {
+        row.focus();
+        AINSPECTOR_FB.flatListTemplateUtil.highlightRow(event, row);
+      }
+      break;
+      
       case KeyEvent.DOM_VK_RIGHT: //right
-  		    
+          
       case KeyEvent.DOM_VK_DOWN: //down
 
-  		if (table.tabIndex == '0') {
-  		  table.setAttribute('tabindex', '-1');
-  		  table.rows[0].setAttribute('tabindex', '0');
-  		  table.rows[0].focus();
-  			
-  		  break;
-  		}	
-  		var all_rows = table.getElementsByClassName("gridRow");
+      if (table.tabIndex == '0') {
+        table.setAttribute('tabindex', '-1');
+        table.rows[0].setAttribute('tabindex', '0');
+        table.rows[0].focus();
+        
+        break;
+      }  
+      var all_rows = table.getElementsByClassName("gridRow");
         var current_index = Array.indexOf(all_rows, event.target);
         var index = Array.indexOf(all_rows, event.target);
         var key = event.keyCode;
@@ -387,16 +389,16 @@ AINSPECTOR_FB.flatListTemplateUtil = {
 
             if (current_index != 0) {
               AINSPECTOR_FB.ainspectorUtil.removeClass(current_row, "gridRowSelected");
-        	    
+              
               for (var c=0; c< current_row.cells.length; c++) AINSPECTOR_FB.ainspectorUtil.removeClass(current_row.cells[c], "gridCellSelected");
             }
 
 //          highlight rows from panel
-        	all_rows[new_index].focus();
+          all_rows[new_index].focus();
             AINSPECTOR_FB.ainspectorUtil.setClass(next_row, "gridRowSelected");
-        	  
+            
             for (var i=0; i< next_row.cells.length; i++) AINSPECTOR_FB.ainspectorUtil.setClass(next_row.cells[i], "gridCellSelected");
-        	OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([next_row.repObject]);
+          OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([next_row.repObject]);
 
           }
         }
@@ -448,11 +450,11 @@ AINSPECTOR_FB.flatListTemplateUtil = {
   htmlButtonPress : function(event) {
     
     switch(event.keyCode) {
-		  
-	  case 13: //Enter
-	    AINSPECTOR_FB.images.equivToolbarPlate.toHTMLPanel(event);
-		break;
-	}
+      
+    case 13: //Enter
+      AINSPECTOR_FB.images.equivToolbarPlate.toHTMLPanel(event);
+    break;
+  }
   },
   
 
@@ -465,22 +467,22 @@ AINSPECTOR_FB.flatListTemplateUtil = {
      * @param event event triggered when any keyboard's enter, right, left, up and down arrows are pressed
      */
     onKeyPressHeadingCell: function(event){
-	    
-	  event.stopPropagation();
-	  switch(event.keyCode) {
-		  
-	    case 13: //Enter
-	      var table = getAncestorByClass(event.target, "ai-table-list-items");
-	      var column = getAncestorByClass(event.target, "gridHeaderCell");
-	      AINSPECTOR_FB.ainspectorUtil.sortColumn(table, column);
-		  break;
-		  
-	    case 9: //tab	  
-	      break;
-	    default:
-		  this.onKeyPressCell(event);
-		  break;
-	  }
+      
+    event.stopPropagation();
+    switch(event.keyCode) {
+      
+      case 13: //Enter
+        var table = getAncestorByClass(event.target, "ai-table-list-items");
+        var column = getAncestorByClass(event.target, "gridHeaderCell");
+        AINSPECTOR_FB.ainspectorUtil.sortColumn(table, column);
+      break;
+      
+      case 9: //tab    
+        break;
+      default:
+      this.onKeyPressCell(event);
+      break;
+    }
     },
     
     /**
@@ -499,7 +501,51 @@ AINSPECTOR_FB.flatListTemplateUtil = {
     },
     
     /**
+     * @function unhighlight
+     * 
+     * @desc unhighlights earlier selected row
+     * 
+     * @param {Object} table - table in the panel/sidepanel 
+     */
+    unHighlight : function (table) {
+      
+      FBTrace.sysout("table: ", table);
+      var tbody = table.children[1];
+      var rows = tbody.children;
+      
+      for (var i=0; i< rows.length; i++){
+        var row = rows[i];
+        var cells = row.children;
+        var count = 0;
+        var no_of_cells = row.children.length;
+
+        for (var j=0; j< cells.length; j++) {
+          var cell = cells[j];
+           var class_list = cell.classList;
+           
+           
+           for (var k=0; k<class_list.length; k++) {
+             
+             if (class_list[k] ==  "gridCellSelected") {
+               AINSPECTOR_FB.ainspectorUtil.removeClass(cell, "gridCellSelected");
+               count = count + 1;
+               break;
+             }
+           }
+           if (count >= no_of_cells) break;
+        }
+        
+        if (count >= no_of_cells) {
+          AINSPECTOR_FB.ainspectorUtil.removeClass(row, "gridRowSelected");
+          break;
+        }
+      }
+    },
+    
+    /**
      * @function highlight
+     * 
+     * @memberof AINSPECTOR_FB.flatListTemplateUtil
      * 
      * @desc highlight the first row when a toolbar button is clicked
      * 
@@ -509,7 +555,7 @@ AINSPECTOR_FB.flatListTemplateUtil = {
       
       AINSPECTOR_FB.ainspectorUtil.setClass(row, "gridRowSelected");
       for (var i=0; i< row.children.length; i++) {
-      	AINSPECTOR_FB.ainspectorUtil.setClass(row.children[i], "gridCellSelected");
+        AINSPECTOR_FB.ainspectorUtil.setClass(row.children[i], "gridCellSelected");
       }
       OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject]);
 
@@ -528,7 +574,7 @@ AINSPECTOR_FB.flatListTemplateUtil = {
      * @returns 
      */
     highlightRow: function (event) {
-	
+  
       var table = getAncestorByClass(event.target, "ai-table-list-items");
       var current_row =  getAncestorByClass(event.target, "tableRow");
       var tbody = table.children[1]; //nomber of rows in a table
@@ -536,22 +582,22 @@ AINSPECTOR_FB.flatListTemplateUtil = {
       var cell;
 
       if (!current_row) { //to highlight header cells
-    	current_row =  getAncestorByClass(event.target, "gridHeaderRow");
-  	    tbody = table.children[0];
-  	    
-  	    if (event.keyCode == 38 || event.keyCode == 37) {
-  	      	
-    	  //current_row = table.children[1].children[]; 
+      current_row =  getAncestorByClass(event.target, "gridHeaderRow");
+        tbody = table.children[0];
+        
+        if (event.keyCode == 38 || event.keyCode == 37) {
+            
+        //current_row = table.children[1].children[]; 
 
         } else if (event.keyCode == 40 || event.keyCode == 39){
-    	  table.children[0].children[0].blur();
-    	  current_row = table.children[1].children[0]; 
-    	  table.children[1].children[0].focus();
-    	  AINSPECTOR_FB.ainspectorUtil.setClass(current_row, "gridRowSelected");
+        table.children[0].children[0].blur();
+        current_row = table.children[1].children[0]; 
+        table.children[1].children[0].focus();
+        AINSPECTOR_FB.ainspectorUtil.setClass(current_row, "gridRowSelected");
           
-    	  OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([current_row.repObject]);
+        OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([current_row.repObject]);
           for (var c=0; c< current_row.children.length; c++) {
-      	  AINSPECTOR_FB.ainspectorUtil.setClass(current_row.children[c], "gridCellSelected");
+          AINSPECTOR_FB.ainspectorUtil.setClass(current_row.children[c], "gridCellSelected");
           }
           return;
         }
@@ -563,30 +609,30 @@ AINSPECTOR_FB.flatListTemplateUtil = {
         var no_of_cells = row.children.length;
         
         for (var j = 0; j < no_of_cells; j++) {
-    	  cell = row.children[j];
-    	 
-    	  for (var k=0; k<cell.classList.length;k++) {
-   	  
-    	  	if (cell.classList[k] ==  "gridCellSelected") {
+        cell = row.children[j];
+       
+        for (var k=0; k<cell.classList.length;k++) {
+       
+          if (cell.classList[k] ==  "gridCellSelected") {
               AINSPECTOR_FB.ainspectorUtil.removeClass(cell, "gridCellSelected");
               count = count + 1;
               break;
-    	  	}
+          }
 
-    	  }  
-    	  if (count >= no_of_cells) break;
+        }  
+        if (count >= no_of_cells) break;
         }
         if (count >= no_of_cells) {
-    	  AINSPECTOR_FB.ainspectorUtil.removeClass(row, "gridRowSelected");
-    	  if (event.keyCode == 38 || event.keyCode == 37) {
-        	  current_row = tbody.children[i-1]; 
+        AINSPECTOR_FB.ainspectorUtil.removeClass(row, "gridRowSelected");
+        if (event.keyCode == 38 || event.keyCode == 37) {
+            current_row = tbody.children[i-1]; 
 
           } else if (event.keyCode == 40 || event.keyCode == 39){
-        	  
-        	  current_row = tbody.children[i+1]; 
+            
+            current_row = tbody.children[i+1]; 
           }
-    	  break;
-    	}
+        break;
+      }
         
       }
       this.highlight(current_row);
@@ -605,7 +651,7 @@ AINSPECTOR_FB.flatListTemplateUtil = {
      * @returns 
      */
     highlightTreeRow: function (event) {
-	
+  
       var table = getAncestorByClass(event.target, "domTable");
       var current_row =  getAncestorByClass(event.target, "treeRow");
       var tbody = table.children[1]; //nomber of rows in a table
@@ -613,8 +659,8 @@ AINSPECTOR_FB.flatListTemplateUtil = {
       var cell;
       
       if (!current_row) { //to highlight header cells
-    	current_row =  getAncestorByClass(event.target, "gridHeaderRow");
-  	    tbody = table.children[0];
+      current_row =  getAncestorByClass(event.target, "gridHeaderRow");
+        tbody = table.children[0];
       }
     
       for (var i = 0; i < tbody.children.length; i++) {
@@ -623,30 +669,30 @@ AINSPECTOR_FB.flatListTemplateUtil = {
         var no_of_cells = row.children.length;
         
         for (var j = 0; j < no_of_cells; j++) {
-    	  cell = row.children[j];
-    	 
-    	  for (var k=0; k<cell.classList.length;k++) {
-   	  
-    	  	if (cell.classList[k] ==  "gridCellSelected") {
+        cell = row.children[j];
+       
+        for (var k=0; k<cell.classList.length;k++) {
+       
+          if (cell.classList[k] ==  "gridCellSelected") {
               AINSPECTOR_FB.ainspectorUtil.removeClass(cell, "gridCellSelected");
               count = count + 1;
               break;
-    	  	}
+          }
 
-    	  }  
-    	  if (count >= no_of_cells) break;
+        }  
+        if (count >= no_of_cells) break;
         }
         if (count >= no_of_cells) {
-    	  AINSPECTOR_FB.ainspectorUtil.removeClass(row, "gridRowSelected");
-    	  if (event.keyCode == 38 || event.keyCode == 37) {
-        	  current_row = tbody.children[i-1]; 
+        AINSPECTOR_FB.ainspectorUtil.removeClass(row, "gridRowSelected");
+        if (event.keyCode == 38 || event.keyCode == 37) {
+            current_row = tbody.children[i-1]; 
 
           } else if (event.keyCode == 40 || event.keyCode == 39){
-        	  current_row = tbody.children[i+1]; 
+            current_row = tbody.children[i+1]; 
 
           }
-    	  break;
-    	}
+        break;
+      }
         
       }
       this.highlight(current_row);
@@ -660,12 +706,52 @@ AINSPECTOR_FB.flatListTemplateUtil = {
      * @param event event triggered when mouse click happens
      */
     onClickHeader : function(event){
-  	  
+      
       var table = getAncestorByClass(event.target, "ai-table-list-items");
       var column = getAncestorByClass(event.target, "gridHeaderCell");
       AINSPECTOR_FB.ainspectorUtil.sortColumn(table, column);
-    }
+    },
+    
+    /**
+     * @function getProps
+     * 
+     * @desc returns the properties of a cache_item
+     * 
+     * @param {Object} cache_items - cache Object returned by the OAA Evaluation library
+     * 
+     * @return props
+     */
+    getProps : function(cache_items) {
+      
+      var cache_item_properties = [];
+      
+      var length = cache_items.length;
+      FBTrace.sysout("cache_items: ", cache_items);
+      
+      for (var i = 0; i < length; i++) {
+        
+        var cache_item = cache_items[i];
+        var props = [];
+        var dom_element = null;
+        
+        if (cache_item.dom_element) dom_element = cache_item.dom_element;
+        
+        else dom_element = cache_item;
+        
+        /*props.push(dom_element.rules_hidden.length);
+        props.push(dom_element.rules_passed.length);
+        props.push(dom_element.rules_warnings.length);
+        props.push(dom_element.rules_manual_checks.length);
+        props.push(dom_element.rules_violations.length);
+        
+        cache_item.properties = props;*/
+        cache_item_properties[i] = cache_item;
+      }
+      FBTrace.sysout("cache_item_properties: ", cache_item_properties);
 
+      return cache_item_properties;
+    }
+    
   };
 
 /**
@@ -693,12 +779,12 @@ AINSPECTOR_FB.tabPanelUtil = {
      * 
      *  @param {Object} panelType - type of the Panel  
      */
-	onRemoveSidePanel: function(panelType) {
+  onRemoveSidePanel: function(panelType) {
    
-	  Firebug.unregisterPanel(panelType);
-	},
+    Firebug.unregisterPanel(panelType);
+  },
 
-	/**
+  /**
      * @function onAppendSidePanel
      * @memberOf AINSPECTOR_FB.tabPanelUtil
      * 
@@ -725,32 +811,36 @@ AINSPECTOR_FB.tabPanelUtil = {
       var panelType_properties = Firebug.getPanelType("propertiesSidePanel");
       var panelType_events = Firebug.getPanelType("eventsSidePanel");
       var panelType_style = Firebug.getPanelType("styleSidePanel");
+      var panelType_colorContrast = Firebug.getPanelType('colorContrastSidePanel');
   
       if (pref == true){
-    	AINSPECTOR_FB.rules_registered = panelType_rule;
-	    AINSPECTOR_FB.attributes_registered = panelType_attributes;
-	    AINSPECTOR_FB.style_registered = panelType_style;
-	    AINSPECTOR_FB.properties_registered = panelType_properties;
-	    AINSPECTOR_FB.events_registered = panelType_events;
-	  
-	    if (panelType_rule) AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_rule);
-	  
-	    if (panelType_attributes) AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_attributes);
-	  
-	    if (panelType_style) AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_style);
-	  
-	    if (panelType_properties) AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_properties);
-	  
-	    if (panelType_events) AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_events);
-	  
-	    return;
+        AINSPECTOR_FB.rules_registered = panelType_rule;
+        AINSPECTOR_FB.attributes_registered = panelType_attributes;
+        AINSPECTOR_FB.style_registered = panelType_style;
+        AINSPECTOR_FB.properties_registered = panelType_properties;
+        AINSPECTOR_FB.events_registered = panelType_events;
+        AINSPECTOR_FB.font_properties_registered = panelType_colorContrast;
+      
+        if (panelType_rule) AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_rule);
+      
+        if (panelType_attributes) AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_attributes);
+      
+        if (panelType_style) AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_style);
+      
+        if (panelType_properties) AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_properties);
+      
+        if (panelType_events) AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_events);
+      
+        if (panelType_colorContrast) AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_colorContrast);
+        
+        return;
       }
   
       if (panelType_rule) {
-
+        //nothing
       } else {
-      	panelType_rule = AINSPECTOR_FB.rules_registered;
-      	AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_rule);
+        panelType_rule = AINSPECTOR_FB.rules_registered;
+        AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_rule);
       }
   
       if (panelType_style) {
@@ -761,24 +851,31 @@ AINSPECTOR_FB.tabPanelUtil = {
       if (panelType_attributes) {
  
       } else {
-    	panelType_attributes = AINSPECTOR_FB.attributes_registered;
-    	AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_attributes);
+      panelType_attributes = AINSPECTOR_FB.attributes_registered;
+      AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_attributes);
       }
  
       if (panelType_properties) {
   
       } else {
-    	panelType_properties = AINSPECTOR_FB.properties_registered;
-    	AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_properties);
+      panelType_properties = AINSPECTOR_FB.properties_registered;
+      AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_properties);
       }
  
       if (panelType_events) {
  
       } else {
-    	panelType_events = AINSPECTOR_FB.events_registered;
-    	AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_events);
+        panelType_events = AINSPECTOR_FB.events_registered;
+        AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_events);
+      }
+      
+      if (panelType_colorContrast) {
+        AINSPECTOR_FB.font_properties_registered = panelType_colorContrast;
+        AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_colorContrast);
       }
     }
  };
+
+
 
 }});

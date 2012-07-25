@@ -10,10 +10,12 @@
   
   <script type="application/x-javascript" src="chrome://ainspector/content/a11y.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/ainspector.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/cache-util.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/panel-template.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-images.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-media.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-lists.js"/>
-  <script type="application/x-javascript" src="chrome://ainspector/content/panel-controls.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/panel-newcontrols.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-tables.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-colorContrast.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-headings.js"/>
@@ -21,15 +23,20 @@
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-abbreviations.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-allElements.js"/>
   
+  <script type="application/x-javascript" src="chrome://ainspector/content/openajax_a11y/openajax_a11y_all.js"/>
   
-  
-  <script type="application/x-javascript" src="chrome://ainspector/content/cache-util.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-preferences.js"/>
-  <script type="application/x-javascript" src="chrome://ainspector/modules/preferences/preferences.js"/>
-  <script type="application/x-javascript" src="chrome://ainspector/modules/preferences/panel-customize-preferences.js"/>
+  
+  <script type="application/x-javascript" src="chrome://ainspector/content/preferences-config.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/preferences/preferences.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/preferences/preferences-dialog.js"/>
+  
+  
+  <script type="application/x-javascript" src="chrome://ainspector/content/rule_properties/rule-properties.js"/>
+  
+  <script type="application/x-javascript" src="chrome://ainspector/modules/highlight.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/util.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-util.js"/>
-  <script type="application/x-javascript" src="chrome://ainspector/modules/highlight.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/ainspector-firebug.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/gridTemplate.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/navigation.js"/>
@@ -38,24 +45,13 @@
   <script type="application/x-javascript" src="chrome://ainspector/content/sidePanel-cache.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/sidePanel-style.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/sidePanel-events.js"/>
-    
-  
-  <script type="application/x-javascript" src="chrome://ainspector/content/openajax_a11y/openajax_a11y_all.js"/>
-  
+  <script type="application/x-javascript" src="chrome://ainspector/content/sidePanel-colorContrast.js"/>  
   
   <commandset id="mainCommandSet"> 
     <command id="ainspector_images_view_button" oncommand="AINSPECTOR_FB.images.viewPanel(Firebug.currentContext)"/>
-    <command id="ainspector_media_view_button" oncommand="AINSPECTOR_FB.media.viewPanel(Firebug.currentContext)"/>
     <command id="ainspector_controls_view_button" oncommand="AINSPECTOR_FB.controls.viewPanel(Firebug.currentContext)"/>
     <command id="ainspector_color_contrast_view_button" oncommand="AINSPECTOR_FB.colorContrast.viewPanel(Firebug.currentContext)"/>
     <command id="ainspector_headings_landmarks_view_button" oncommand="AINSPECTOR_FB.headLandmarks.viewPanel(Firebug.currentContext)"/>
-    <command id="ainspector_links_view_button" oncommand="AINSPECTOR_FB.links.viewPanel(Firebug.currentContext)"/>
-    <command id="ainspector_lists_view_button" oncommand="AINSPECTOR_FB.lists.viewPanel(Firebug.currentContext)"/>
-    <command id="ainspector_tables_view_button" oncommand="AINSPECTOR_FB.tables.viewPanel(Firebug.currentContext)"/>
-    <command id="ainspector_abbr_view_button" oncommand="AINSPECTOR_FB.abbrLanguage.viewPanel(Firebug.currentContext)"/>
-    <command id="ainspector_elements_view_button" oncommand="AINSPECTOR_FB.elements.viewPanel(Firebug.currentContext)"/>
-    <command id="ainspector_preferences_view_button" oncommand="Firebug.preferenceModule.viewPanel()"/>
-    <command id="ainspector_navigation_view_button" oncommand="Firebug.ainspectorModule.navigationView(Firebug.currentContext)"/>
   </commandset> 
   
   <toolbar id="fbToolbar" align="center"> 
@@ -65,28 +61,9 @@
           
             <toolbarbutton id="images" label="&ainspector.toolbarbutton.images.label;" class="toolbar-text-button fbInternational" checked="true" command="ainspector_images_view_button" type="radio" group="RadioGroup"/>
             <toolbarseparator/>
-            <toolbarbutton id="media" label="&ainspector.toolbarbutton.media.label;" class="toolbar-text-button fbInternational" command="ainspector_media_view_button" type="radio" group="RadioGroup"/>
-            <toolbarseparator/>
             <toolbarbutton id="controls" label="&ainspector.toolbarbutton.controls.label;" class="toolbar-text-button fbInternational" command="ainspector_controls_view_button" type="radio" group="RadioGroup"/>
             <toolbarseparator/>
             <toolbarbutton id="colorContrast" label="&ainspector.toolbarbutton.colorContrast.label;" class="toolbar-text-button fbInternational" command="ainspector_color_contrast_view_button" type="radio" group="RadioGroup"/> 
-            <toolbarseparator/>
-            <toolbarbutton id="headLandmarks" label="&ainspector.toolbarbutton.headings.label;" class="toolbar-text-button fbInternational" command= "ainspector_headings_landmarks_view_button" type="radio" group="RadioGroup"/>
-            <toolbarseparator/>
-            <toolbarbutton id="links" label="&ainspector.toolbarbutton.links.label;" class="toolbar-text-button fbInternational" command= "ainspector_links_view_button" type="radio" group="RadioGroup"/>
-            <toolbarseparator/>
-            <toolbarbutton id="lists" label="&ainspector.toolbarbutton.lists.label;" class="toolbar-text-button fbInternational" command="ainspector_lists_view_button" type="radio" group="RadioGroup"/> 
-            <toolbarseparator/>
-            <toolbarbutton id="tables" label="&ainspector.toolbarbutton.tables.label;" class="toolbar-text-button fbInternational" command="ainspector_tables_view_button" type="radio" group="RadioGroup"/> 
-            <toolbarseparator/>
-            <toolbarbutton id="abbrLanguage" label="&ainspector.toolbarbutton.abbr.label;" class="toolbar-text-button fbInternational" command="ainspector_abbr_view_button" type="radio" group="RadioGroup"/> 
-            <toolbarseparator/>
-            <toolbarbutton id="elements" label="&ainspector.toolbarbutton.elements.label;" class="toolbar-text-button fbInternational" command="ainspector_elements_view_button" type="radio" group="RadioGroup"/> 
-            <toolbarseparator/>
-            <toolbarspacer/>
-            <toolbarspacer/>
-            <toolbarbutton id="preferences" label="&ainspector.toolbarbutton.preferences.label;" class="toolbar-text-button fbInternational" command="ainspector_preferences_view_button" type="radio" group="RadioGroup"/> 
-          
       </hbox> 
     </hbox>   
   </toolbar> 

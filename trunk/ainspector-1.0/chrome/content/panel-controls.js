@@ -23,7 +23,7 @@ with (FBL) {
   control_elements: null;
   label_elements: null;
   
-  AINSPECTOR_FB.controls = {
+  AINSPECTOR_FB.oldcontrols = {
     
     /**
 	 * @function viewPanel
@@ -64,7 +64,7 @@ with (FBL) {
       label_elements = controls_cache.label_elements;
       var is_empty_object = AINSPECTOR_FB.ainspectorUtil.hasProperty(child_elements);
 
-	  AINSPECTOR_FB.controls.controlToolbarPlate.toolbar.replace({toolbar_buttons : toolbar_buttons, preferences: AINSPECTOR_FB.preferences}, toolbar, AINSPECTOR_FB.controls.controlToolbarPlate);
+	  AINSPECTOR_FB.oldcontrols.controlToolbarPlate.toolbar.replace({toolbar_buttons : toolbar_buttons, preferences: AINSPECTOR_FB.preferences}, toolbar, AINSPECTOR_FB.oldcontrols.controlToolbarPlate);
 	  //toolbar.style.display = "block";
 	  
 	  var element = panel.document.createElement("div");
@@ -79,7 +79,7 @@ with (FBL) {
     	Firebug.currentContext.getPanel('rulesSidePanel').sView(false, "none");
 
 	  } else {
-	    panel.table = AINSPECTOR_FB.controls.controlTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.controls.controlTreeTemplate);
+	    panel.table = AINSPECTOR_FB.oldcontrols.controlTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.oldcontrols.controlTreeTemplate);
 	    this.select(child_elements[0]);
 	    Firebug.currentContext.getPanel('rulesSidePanel').sView(true, child_elements[0]);
 	  }
@@ -102,9 +102,6 @@ with (FBL) {
     }
 }; //end of imageObject  
 
-  //AINSPECTOR_FB.toolbar_button = AINSPECTOR_FB.controls;
-  
-  
   /**
    * controlToolbarPlate
    * 
@@ -112,7 +109,7 @@ with (FBL) {
    * 
    * @desc template creates the content for navigation button
    */
-  AINSPECTOR_FB.controls.controlToolbarPlate = domplate({
+  AINSPECTOR_FB.oldcontrols.controlToolbarPlate = domplate({
     toolbar : DIV( {class : "nav-menu"},
                 TAG("$toolbarButtons", {toolbar_buttons : "$toolbar_buttons"}),
                 BUTTON({class: "button", onclick: "$toHTMLPanel"}, "HTML Panel" ),
@@ -231,8 +228,8 @@ with (FBL) {
           	Firebug.currentContext.getPanel('rulesSidePanel').sView(false, "none");
 
       	  } else {
-            panel.table = AINSPECTOR_FB.controls.controlFlatListTemplate.tableTag.append( {elements: label_elements}, panel.panelNode, null);
-		    AINSPECTOR_FB.controls.select(label_elements[0]);
+            panel.table = AINSPECTOR_FB.oldcontrols.controlFlatListTemplate.tableTag.append( {elements: label_elements}, panel.panelNode, null);
+		    AINSPECTOR_FB.oldcontrols.select(label_elements[0]);
       	    Firebug.currentContext.getPanel('rulesSidePanel').sView(true, label_elements[0]);
       	  }
         } else if (toolbar_button_id == "Controls"){
@@ -243,8 +240,8 @@ with (FBL) {
           	Firebug.currentContext.getPanel('rulesSidePanel').sView(false, "none");
 
       	  } else {	
-            panel.table = AINSPECTOR_FB.controls.controlFlatListTemplate.tableTag.append( {elements: control_elements}, panel.panelNode, null);
-            AINSPECTOR_FB.controls.select(control_elements[0]);
+            panel.table = AINSPECTOR_FB.oldcontrols.controlFlatListTemplate.tableTag.append( {elements: control_elements}, panel.panelNode, null);
+            AINSPECTOR_FB.oldcontrols.select(control_elements[0]);
             Firebug.currentContext.getPanel('rulesSidePanel').sView(true, control_elements[0]);
       	  }
         } else {
@@ -254,8 +251,8 @@ with (FBL) {
           	Firebug.currentContext.getPanel('rulesSidePanel').sView(false, "none");
 
       	  } else {
-              panel.table = AINSPECTOR_FB.controls.controlTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.controls.controlTreeTemplate);
-     		    AINSPECTOR_FB.controls.select(child_elements[0]);
+              panel.table = AINSPECTOR_FB.oldcontrols.controlTreeTemplate.tag.append( {object: child_elements}, panel.panelNode, AINSPECTOR_FB.oldcontrols.controlTreeTemplate);
+     		    AINSPECTOR_FB.oldcontrols.select(child_elements[0]);
      		    Firebug.currentContext.getPanel('rulesSidePanel').sView(true, child_elements[0]);
       	  }
         }
@@ -317,7 +314,7 @@ with (FBL) {
    * 
 
    */
-  AINSPECTOR_FB.controls.controlFlatListTemplate = domplate({
+  AINSPECTOR_FB.oldcontrols.controlFlatListTemplate = domplate({
     
 	  tableTag:
       TABLE({class: "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "", role: "grid", "aria-selected" : "true",
@@ -391,7 +388,7 @@ with (FBL) {
   /**
    * controlTreeTemplate
    */
-  AINSPECTOR_FB.controls.controlTreeTemplate = domplate({
+  AINSPECTOR_FB.oldcontrols.controlTreeTemplate = domplate({
 	    tag:
 		  TABLE({class: "domTree domTable", cellpadding: 0, cellspacing: 0, onclick: "$onClick", "aria-selected" : "true",
 			  tabindex: "0", onkeypress: "$onKeyPressedRow"},

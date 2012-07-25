@@ -22,10 +22,6 @@ var AINSPECTOR_FB = AINSPECTOR_FB || {};
  * @desc preferenceModule Object implements ruleset preferences
  */
 Firebug.preferenceModule = extend(Firebug.Module, {
-	all_rulesets : null,
-	level_A: 0,
-	level_AA: 0,
-	level_AAA: 0,
 	
 	/**
 	 * @function viewPanel
@@ -36,25 +32,12 @@ Firebug.preferenceModule = extend(Firebug.Module, {
 	 */
 	viewPanel : function() {
 	  
-	  Components.utils.import("resource://ainspector/preferences/preferences.js");
-	  
-	  this.all_rulesets = OpenAjax.a11y.all_rulesets.getAllRulesets();
-	  this.level_A = OpenAjax.a11y.WCAG20_LEVEL.A;
-	  this.level_AA = OpenAjax.a11y.WCAG20_LEVEL.AA;
-	  this.level_AAA = OpenAjax.a11y.WCAG20_LEVEL.AAA;
-	  
-	  var ruleset_info = {
-	    all_rulesets : this.all_rulesets,
-	    level_A : this.level_A,
-	    level_AA : this.level_AA,
-	    level_AAA : this.level_AAA
-	  };
-	  
-	  OAA_WEB_ACCESSIBILITY_UTIL.util.preferenceModule.initPref(ruleset_info, window);
+	  window.openDialog("chrome://ainspector/content/preferences/preferences-dialog.xul", "", "chrome,centerscreen,resizable=yes", "");
 
-//	  OAA_WEB_ACCESSIBILITY_UTIL.util.preferenceModule.viewPanel();
-    }
+	}
 });
+
 Firebug.registerModule(Firebug.preferenceModule);
+
 }});
 
