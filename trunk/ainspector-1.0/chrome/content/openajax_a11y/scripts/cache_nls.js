@@ -103,7 +103,7 @@ OpenAjax.a11y.CacheNLS.prototype.getRuleTypeNLS = function(rule_type) {
 };
 
 /**
- * @method getLabelAndValueNLS
+ * @method getNLSLabelAndValue
  *
  * @memberOf OpenAjax.a11y.CacheNLS
  *
@@ -115,7 +115,7 @@ OpenAjax.a11y.CacheNLS.prototype.getRuleTypeNLS = function(rule_type) {
  * @return {Object} Returns object with three properties 'label', 'value' and 'description'
  */
  
-OpenAjax.a11y.CacheNLS.prototype.getLabelAndValueNLS = function (property, value) {
+OpenAjax.a11y.CacheNLS.prototype.getNLSLabelAndValue = function (property, value) {
   
     var info = {};  // return object 
     
@@ -126,7 +126,7 @@ OpenAjax.a11y.CacheNLS.prototype.getLabelAndValueNLS = function (property, value
     var nls_cache = this.nls[OpenAjax.a11y.locale];
     
     if (nls_cache) {
-     
+
       var cp = nls_cache.cache_properties[property];
       
       // if null return default
@@ -134,18 +134,29 @@ OpenAjax.a11y.CacheNLS.prototype.getLabelAndValueNLS = function (property, value
 
       if (cp.label)       info.label       = cp.label;
       if (cp.description) info.description = cp.description;        
-      if (typeof value == 'boolean') {
+      
+      switch(typeof value) {
+      
+      case 'boolean': 
       
         if (value)
           info.value = nls_cache.boolean_values.true_value;
         else
           info.value = nls_cache.boolean_values.false_value;
-          
-      }
-      else {
-        if (cp.values) info.value = cp.values[value];
-      }  
+        break;
         
+      case 'number':
+      
+        if (cp.values) 
+          info.value = cp.values[value].toString();
+        else
+          info.value = String(value);
+          
+        break; 
+
+      default:
+         break;
+      }      
     } 
     
     return info;
@@ -153,7 +164,7 @@ OpenAjax.a11y.CacheNLS.prototype.getLabelAndValueNLS = function (property, value
 };
 
 /**
- * @method getLabelNLS
+ * @method getNLSLabel
  *
  * @memberOf OpenAjax.a11y.CacheNLS
  *
@@ -164,7 +175,7 @@ OpenAjax.a11y.CacheNLS.prototype.getLabelAndValueNLS = function (property, value
  * @return {Object} Returns object with two properties 'label' and 'description'
  */
  
-OpenAjax.a11y.CacheNLS.prototype.getLabelNLS = function (property) {
+OpenAjax.a11y.CacheNLS.prototype.getNLSLabel = function (property) {
   
     var info = {};  // return object 
     
@@ -190,7 +201,7 @@ OpenAjax.a11y.CacheNLS.prototype.getLabelNLS = function (property) {
 };
 
 /**
- * @method getValueNLS
+ * @method getNLSValue
  *
  * @memberOf OpenAjax.a11y.CacheNLS
  *
@@ -202,30 +213,41 @@ OpenAjax.a11y.CacheNLS.prototype.getLabelNLS = function (property) {
  * @return {String} Returns string with the localized value of a property
  */
  
-OpenAjax.a11y.CacheNLS.prototype.getValueNLS = function (property, value) {
+OpenAjax.a11y.CacheNLS.prototype.getNLSValue = function (property, value) {
   
     var str = "";  // return object 
        
     var nls_cache = this.nls[OpenAjax.a11y.locale];
     
     if (nls_cache) {
-     
+
       var cp = nls_cache.cache_properties[property];
       
       // if null return default
       if (!cp) return value;
 
-      if (typeof value == 'boolean') {
+      switch(typeof value) {
+      
+      case 'boolean': 
       
         if (value)
           str = nls_cache.boolean_values.true_value;
         else
           str = nls_cache.boolean_values.false_value;
+        break;
+        
+      case 'number':
+      
+        if (cp.values) 
+          str = cp.values[value].toString();
+        else
+          str = String(value);
           
-      }
-      else {
-        if (cp.values) str = cp.values[value];
-      }  
+        break; 
+
+      default:
+         break;
+      }      
               
     } 
     
@@ -234,7 +256,7 @@ OpenAjax.a11y.CacheNLS.prototype.getValueNLS = function (property, value) {
 };
 
 /**
- * @method getBooleanNLS
+ * @method getNLSBoolean
  *
  * @memberOf OpenAjax.a11y.CacheNLS
  *
@@ -245,7 +267,7 @@ OpenAjax.a11y.CacheNLS.prototype.getValueNLS = function (property, value) {
  * @return {String} Returns string with the localized boolean value 
  */
  
-OpenAjax.a11y.CacheNLS.prototype.getBooleanNLS = function (value) {
+OpenAjax.a11y.CacheNLS.prototype.getNLSBoolean = function (value) {
   
   var str = "";  // return object 
        
@@ -268,7 +290,7 @@ OpenAjax.a11y.CacheNLS.prototype.getBooleanNLS = function (value) {
 
 
 /**
- * @method getMissingLabelMessageNLS
+ * @method getNLSMissingLabelMessage
  *
  * @memberOf OpenAjax.a11y.CacheNLS
  *
@@ -277,7 +299,7 @@ OpenAjax.a11y.CacheNLS.prototype.getBooleanNLS = function (value) {
  * @return {String} Returns an object with a 'label' and 'style' property
  */
  
-OpenAjax.a11y.CacheNLS.prototype.getMissingLabelMessageNLS = function () {
+OpenAjax.a11y.CacheNLS.prototype.getNLSMissingLabelMessage = function () {
   
     var label_style;  // return object    
        
@@ -297,7 +319,7 @@ OpenAjax.a11y.CacheNLS.prototype.getMissingLabelMessageNLS = function () {
 };
 
 /**
- * @method getEmptyAltTextMessageNLS
+ * @method getNLSEmptyAltTextMessage
  *
  * @memberOf OpenAjax.a11y.CacheNLS
  *
@@ -306,7 +328,7 @@ OpenAjax.a11y.CacheNLS.prototype.getMissingLabelMessageNLS = function () {
  * @return {String} Returns an object with a 'label' and 'style' property
  */
  
-OpenAjax.a11y.CacheNLS.prototype.getEmptyAltTextMessageNLS = function () {
+OpenAjax.a11y.CacheNLS.prototype.getNLSEmptyAltTextMessage = function () {
   
     var label_style;  // return object    
        
@@ -326,7 +348,7 @@ OpenAjax.a11y.CacheNLS.prototype.getEmptyAltTextMessageNLS = function () {
 };
 
 /**
- * @method getMissingALtMessageNLS
+ * @method getNLSMissingAltMessage
  *
  * @memberOf OpenAjax.a11y.CacheNLS
  *
@@ -335,7 +357,7 @@ OpenAjax.a11y.CacheNLS.prototype.getEmptyAltTextMessageNLS = function () {
  * @return {String} Returns an object with a 'label' and 'style' property
  */
  
-OpenAjax.a11y.CacheNLS.prototype.getMissingAltMessageNLS = function () {
+OpenAjax.a11y.CacheNLS.prototype.getNLSMissingAltMessage = function () {
   
     var label_style;  // return object    
        
@@ -356,7 +378,7 @@ OpenAjax.a11y.CacheNLS.prototype.getMissingAltMessageNLS = function () {
 
 
 /**
- * @method addItemIfDefined
+ * @method addPropertyIfDefined
  *
  * @memberOf OpenAjax.a11y.CacheNLS
  *
@@ -366,7 +388,7 @@ OpenAjax.a11y.CacheNLS.prototype.getMissingAltMessageNLS = function () {
 OpenAjax.a11y.CacheNLS.prototype.addPropertyIfDefined = function (list, item, property) {
 
   if (typeof item[property] !== 'undefined') {
-    list.push(this.getLabelAndValueNLS(property, item[property]));
+    list.push(this.getNLSLabelAndValue(property, item[property]));
   } // endif
   
 };

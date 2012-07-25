@@ -117,7 +117,7 @@ OpenAjax.a11y.cache.ControlsCache = function (dom_cache) {
   this.sort_property  = 'document_order';
   this.ascending    = true;
  
-  this.rule_summary_results  = new OpenAjax.a11y.ResultRuleSummary();
+  this.evaluation_results  = new OpenAjax.a11y.EvaluationResult();
  
 };
 
@@ -152,6 +152,8 @@ OpenAjax.a11y.cache.ControlsCache.prototype.addChildControl = function (control_
  */
 
 OpenAjax.a11y.cache.ControlsCache.prototype.addControlElement = function (control_element) {
+
+  OpenAjax.a11y.console("  Adding control element: " + control_element.dom_element.tag_name + " ("+ control_element.control_type + ")");
 
   // item must exist and have the position property
   if (control_element) {
@@ -304,6 +306,7 @@ OpenAjax.a11y.cache.ControlsCache.prototype.updateCacheItems = function (dom_ele
   if (dom_element.is_widget) {
     
     we = new OpenAjax.a11y.cache.WidgetElement(dom_element, control_info);
+    this.addLabel(we, "", OpenAjax.a11y.SOURCE.NONE);
     
     this.addControlElement(we);
     
@@ -356,8 +359,8 @@ OpenAjax.a11y.cache.ControlsCache.prototype.updateCacheItems = function (dom_ele
 
     case 'legend':
       le = new OpenAjax.a11y.cache.LegendElement(dom_element, control_info);
-      le.label = this.getElementTextContent(le, false);
-      le.label_length = le.label.length;
+      le.computed_label = this.getElementTextContent(le, false);
+      le.computed_label_length = le.computed_label.length;
 
       this.addLabelElement(le); 
   
@@ -377,8 +380,8 @@ OpenAjax.a11y.cache.ControlsCache.prototype.updateCacheItems = function (dom_ele
 
     case 'label':
       le = new OpenAjax.a11y.cache.LabelElement(dom_element, control_info);
-      le.label = this.getElementTextContent(le, false);
-      le.label_length = le.label.length;
+      le.computed_label = this.getElementTextContent(le, false);
+      le.computed_label_length = le.computed_label.length;
     
       this.addLabelElement(le); 
   
@@ -395,6 +398,7 @@ OpenAjax.a11y.cache.ControlsCache.prototype.updateCacheItems = function (dom_ele
 
     case 'input':
       ie = new OpenAjax.a11y.cache.InputElement(dom_element, control_info);
+      this.addLabel(ie, "", OpenAjax.a11y.SOURCE.NONE);
       
       if (ie.dom_element.node.type.toLowerCase() != "hidden") {
     
@@ -420,6 +424,7 @@ OpenAjax.a11y.cache.ControlsCache.prototype.updateCacheItems = function (dom_ele
 
     case 'button':
       be = new OpenAjax.a11y.cache.ButtonElement(dom_element, control_info);
+      this.addLabel(be, "", OpenAjax.a11y.SOURCE.NONE);
       
       this.addControlElement(be); 
 
@@ -443,7 +448,8 @@ OpenAjax.a11y.cache.ControlsCache.prototype.updateCacheItems = function (dom_ele
 
     case 'textarea':
       te = new OpenAjax.a11y.cache.TextareaElement(dom_element, control_info);
-  
+      this.addLabel(te, "", OpenAjax.a11y.SOURCE.NONE);
+
       this.addControlElement(te); 
 
       if (control_info.control_element) {
@@ -465,6 +471,7 @@ OpenAjax.a11y.cache.ControlsCache.prototype.updateCacheItems = function (dom_ele
 
     case 'select':
       se = new OpenAjax.a11y.cache.SelectElement(dom_element, control_info);
+      this.addLabel(se, "", OpenAjax.a11y.SOURCE.NONE);
   
       this.addControlElement(se); 
   
@@ -508,8 +515,8 @@ OpenAjax.a11y.cache.ControlsCache.prototype.updateCacheItems = function (dom_ele
     case 'option':
       oe = new OpenAjax.a11y.cache.OptionElement(dom_element, control_info);
   
-      oe.label = this.getElementTextContent(oe, false);
-      oe.label_length = oe.label.length;
+      oe.computed_label = this.getElementTextContent(oe, false);
+      oe.computed_label_length = oe.computed_label.length;
 
   
       if (control_info.control_element) {
@@ -554,7 +561,7 @@ OpenAjax.a11y.cache.ControlsCache.prototype.traverseDOMElementsForControlElement
 
  if (!dom_element) return;
 
- if (dom_element.type == NODE_TYPE.ELEMENT) {
+ if (dom_element.type == Node.ELEMENT_NODE) {
 
   ci = this.updateCacheItems(dom_element, control_info);
   
@@ -596,6 +603,90 @@ OpenAjax.a11y.cache.ControlsCache.prototype.updateCache = function () {
 
  this.up_to_date = true;
 };
+
+/**
+ * @method getItemsByNodeResults
+ *
+ * @memberOf OpenAjax.a11y.cache.ControlsCache
+ *
+ * @desc Returns an array of cache items with node results based on the filter 
+ *
+ * @param  {Number}  filter  - Filter for returning items with node results of a 
+ *                             particular type(s)  
+ *
+ * @return {Array} Returns array of cache items, can be empty
+ */
+
+OpenAjax.a11y.cache.ControlsCache.prototype.getItemsByNodeResults = function (filter, all_flag) {
+
+  return OpenAjax.a11y.util.getItemsByNodeResults(this.child_cache_elements, filter, all_flag);
+
+};
+
+/**
+ * @method getRuleResults
+ *
+ * @memberOf OpenAjax.a11y.cache.ControlsCache
+ *
+ * @desc Returns an array of rule results for the cache items in the controls cache 
+ *
+ * @param  {Number}  filter  - Filter for returning rules with particular type(s) of   
+ *
+ * @return {Array} Returns array of rule results, can be empty
+ */
+
+OpenAjax.a11y.cache.ControlsCache.prototype.getRuleResults = function (filter) {
+
+  function traverseCacheItems(cache_item) {
+  
+    var flag = false;
+    var de = cache_item.dom_element;
+    
+    if ((local_filter & RESULT_FILTER.PASS)                  && de.rules_passed.length)        flag = true; 
+    if (!flag && (local_filter & RESULT_FILTER.VIOLATION)    && de.rules_violations.length)    flag = true; 
+    if (!flag && (local_filter & RESULT_FILTER.WARNING)      && de.rules_warnings.length)      flag = true; 
+    if (!flag && (local_filter & RESULT_FILTER.MANUAL_CHECK) && de.rules_manual_checks.length) flag = true; 
+    if (!flag && (local_filter & RESULT_FILTER.NA)       && de.rules_hidden.length)        flag = true; 
+    
+    if (flag) cache_items.push(cache_item);
+
+    if (cache_item.child_cache_elements) {
+      var child_cache_elements     = cache_item.child_cache_elements;
+      var child_cache_elements_len = child_cache_elements.length;
+  
+      for (var i = 0; i < child_cache_elements_len; i++) {
+        var ci = child_cache_elements[i];
+
+        traverseCacheItems(ci);
+      }
+    }  
+  }
+
+  var RESULT_FILTER = OpenAjax.a11y.RESULT_FILTER;
+
+  var local_filter;
+
+  if (!filter) 
+    local_filter = RESULT_FILTER.ALL;
+  else
+    local_filter = filter;
+
+  var rule_results = [];
+  
+  var child_cache_elements     = this.child_cache_elements;
+  var child_cache_elements_len = child_cache_elements.length;
+  
+  for (var i = 0; i < child_cache_elements_len; i++) {
+    var ci = child_cache_elements[i];
+
+    traverseCacheItems(ci);
+  
+  } 
+
+  return cache_items;
+
+};
+
 
 
 /**
@@ -693,15 +784,11 @@ OpenAjax.a11y.cache.ControlsCache.prototype.getControlElementById = function (id
  
 OpenAjax.a11y.cache.ControlsCache.prototype.getLabelElementByCacheId = function (cache_id) {
 
- var i;
-
- for (i=0; i<this.label_elements.length; i++) {
-  if (this.label_elements[i].cache_id == cache_id) {
-   return this.label_elements[i];
+  for (var i = 0; i < this.label_elements.length; i++) {
+    if (this.label_elements[i].cache_id == cache_id) return this.label_elements[i];
   }
- }
 
- return null;
+  return null;
 };
 
 /**
@@ -777,12 +864,12 @@ OpenAjax.a11y.cache.ControlsCache.prototype.getElementTextContent = function (la
   var i;
   
   // If text node get the text and return
-  if( dom_element.type == NODE_TYPE.TEXT ) {
+  if( dom_element.type == Node.TEXT_NODE ) {
    var text = dom_element.text;
    strings.push( text );
   } else {
    // if an element for through all the children elements looking for text
-   if( dom_element.type == NODE_TYPE.ELEMENT ) {
+   if( dom_element.type == Node.ELEMENT_NODE ) {
    
     switch (dom_element.tag_name) {
 
@@ -829,34 +916,81 @@ OpenAjax.a11y.cache.ControlsCache.prototype.getElementTextContent = function (la
  
 OpenAjax.a11y.cache.ControlsCache.prototype.calculateLabelsUsingARIA = function () {
 
-  var i;
-  var ce;
- 
   var control_elements     = this.control_elements;
   var control_elements_len = control_elements.length;
   
   // first check if an label by reference
  
-  for (i=0; i<control_elements_len; i++) {
+  for (var i = 0; i < control_elements_len; i++) {
  
-    ce = control_elements[i];
- 
-    if ( (ce.dom_element.aria_labelledby && ce.dom_element.aria_labelledby.length) || 
-         (ce.dom_element.aria_label && ce.dom_element.aria_label.length) ||
-         (ce.dom_element.widget_info)) {
+    var ce = control_elements[i];
+    var de = ce.dom_element;
+    
+    if ( (de.aria_labelledby && de.aria_labelledby.length) || 
+         (de.aria_label && de.aria_label.length) ||
+         (de.widget_info)) {
          
       this.dom_cache.getNameFromARIALabel(ce);
       
       // If title attribute is the result clear label for use of other labeling techniques
-      if (ce.label_source == OpenAjax.a11y.SOURCE.TITLE_ATTRIBUTE) {
-        ce.label = "";
-        ce.label_length = 0;
-        ce.label_for_comparison = "";
-        ce.label_source =  OpenAjax.a11y.SOURCE.NONE;
+      if (ce.computed_label_source == OpenAjax.a11y.SOURCE.TITLE_ATTRIBUTE && !ce.widget_info) {
+        ce.computed_label = "";
+        this.addLabel(ce, "", OpenAjax.a11y.SOURCE.NONE);
       }
     }
   }
 };
+
+
+/**
+ * @method addFieldsetLegend
+ *
+ * @memberOf OpenAjax.a11y.cache.ControlsCache
+ *
+ * @desc Adds legend content to computed label if control is contained in a fieldset/legend
+ *
+ * @param {Object}  control  -  Control Object
+ */
+ 
+OpenAjax.a11y.cache.ControlsCache.prototype.addFieldsetLegend = function (control) {
+
+   // Add fieldset/legend information if defined
+   if (control.fieldset_element && 
+       control.fieldset_element.legend_element) {
+       control.computed_label = control.fieldset_element.legend_element.computed_label + " ";
+       control.computed_label_length = control.computed_label.length;
+   }
+   
+};
+
+/**
+ * @method addLabel
+ *
+ * @memberOf OpenAjax.a11y.cache.ControlsCache
+ *
+ * @desc Adds legend content to computed label if control is contained in a fieldset/legend
+ *
+ * @param {Object}  control -  Control Object
+ * @param {String}  label   -  label text
+ * @param {Number}  source  -  label source
+ */
+ 
+OpenAjax.a11y.cache.ControlsCache.prototype.addLabel = function (control, label, source) {
+
+  if (source === OpenAjax.a11y.SOURCE.NONE) {
+    control.computed_label  = "";
+    if (control.widget_info) control.accessible_name = "";
+  } else {
+    this.addFieldsetLegend(control);
+    control.computed_label += label + " ";
+  }
+  
+  control.computed_label_length = control.computed_label.length;
+  control.computed_label_source = source;
+  control.computed_label_for_comparison = control.computed_label.normalizeSpace().toLowerCase();
+   
+};
+
 
 /**
  * @method calculateLabelsByReference
@@ -869,20 +1003,16 @@ OpenAjax.a11y.cache.ControlsCache.prototype.calculateLabelsUsingARIA = function 
  
 OpenAjax.a11y.cache.ControlsCache.prototype.calculateLabelsByReference = function () {
 
-  var i;
-  var id;
-  var ce;
-  var le;
- 
   var label_elements      = this.label_elements;
   var label_elements_len = label_elements.length;
   
   // first check if an label by reference
  
-  for (i = 0; i < label_elements_len; i++) {
+  for (var i = 0; i < label_elements_len; i++) {
  
-    le = label_elements[i];
+    var le = label_elements[i];
  
+    var id;
     if (le.for_id) {
       id = le.for_id;
     }
@@ -891,23 +1021,17 @@ OpenAjax.a11y.cache.ControlsCache.prototype.calculateLabelsByReference = functio
     }  
 
     if (id && id.length) {
-      ce = this.getControlElementById(id);
+      var ce = this.getControlElementById(id);
       
       if (ce) {
-   
-        // Add fieldset/legend information if defined
-        if (ce.label === "" && 
-          ce.fieldset_element && 
-          ce.fieldset_element.legend_element) {
-          ce.label = ce.fieldset_element.legend_element.label + " ";
-          ce.label_length = ce.label.length;
-        }
-    
-        le.unused_label = false;
-        ce.label += le.label + " ";
-        ce.label_length = ce.label.length;
-        ce.label_source = OpenAjax.a11y.SOURCE.LABEL_REFERENCE;
-        ce.label_for_comparison = ce.label.normalizeSpace().toLowerCase();
+
+        // check to see if label defined (i.e. an ARIA technique)
+
+        if (ce.computed_label.length === 0) {
+          this.addLabel(ce, le.computed_label, OpenAjax.a11y.SOURCE.LABEL_REFERENCE);
+          le.unused_label = false;          
+          le.control_element = ce;
+        }  
       }
       else {
         le.unused_label = true;
@@ -927,44 +1051,27 @@ OpenAjax.a11y.cache.ControlsCache.prototype.calculateLabelsByReference = functio
  
 OpenAjax.a11y.cache.ControlsCache.prototype.calculateLabelsByEncapsulation = function () {
 
-  var i;
-  var ce;
- 
   var control_elements = this.control_elements;
   var control_elements_len = control_elements.length;
   
-  // first check if an label by reference
+  for (var i = 0; i < control_elements_len; i++) {
  
-  for (i = 0; i < control_elements_len; i++) {
- 
-    ce = control_elements[i];
+    var ce = control_elements[i];
  
     switch (ce.control_type) {
   
-    case OpenAjax.a11y.CONTROL_TYPE.BUTTON:
-      if (ce.dom_element.tag_name == 'button') {
-        ce.label = this.getElementTextContent(ce, false);
-        ce.label_length = ce.label.length;
-        ce.label_source = OpenAjax.a11y.SOURCE.TEXT_CONTENT;
-        ce.label_for_comparison = ce.label.normalizeSpace().toLowerCase();        
-      }
+    case OpenAjax.a11y.CONTROL_TYPE.BUTTON_ELEMENT:
+      this.addLabel(ce, this.getElementTextContent(ce, false), OpenAjax.a11y.SOURCE.TEXT_CONTENT);
       break;
   
     default:
-      if (ce.label.length === 0 && 
-          ce.label_element) {
     
-        // Add fieldset/legend information if defined
-        if (ce.fieldset_element && 
-            ce.fieldset_element.legend_element) {
-          ce.label = ce.fieldset_element.legend_element.label + " ";   
-          ce.label_length = ce.label.length;
-        }
-       
-        ce.label += ce.label_element.label + " ";
-        ce.label_length = ce.label.length;
-        ce.label_source = OpenAjax.a11y.SOURCE.LABEL_ENCAPSULATION;
-        ce.label_for_comparison = ce.label.normalizeSpace().toLowerCase();
+      // first check if an label exists
+
+      if (ce.computed_label.length === 0 && ce.label_element) {  
+        this.addLabel(ce, ce.label_element.computed_label, OpenAjax.a11y.SOURCE.LABEL_ENCAPSULATION);
+        ce.label_element.unused_label = false;
+        ce.label_element.control_element = ce;
       }
       break;
     } // end switch 
@@ -972,43 +1079,88 @@ OpenAjax.a11y.cache.ControlsCache.prototype.calculateLabelsByEncapsulation = fun
 };
 
 /**
- * @method calculateLabelsByTitle
+ * @method calculateLabelsByOther
  *
  * @memberOf OpenAjax.a11y.cache.ControlsCache
  *
- * @desc Iterates the list of control elements and calculates the accessible label for
- *         any control elements that do NOT have an accessible label, but has a TITLE attribute value 
+ * @desc Iterates the list of control elements and calculates the 
+ *       accessible label for any control elements that do NOT have 
+ *       a computed label, but has a VALUE, ALT or TITLE attribute value 
  */
  
-OpenAjax.a11y.cache.ControlsCache.prototype.calculateLabelsByTitle = function () {
+OpenAjax.a11y.cache.ControlsCache.prototype.calculateLabelsByOther = function () {
 
-  var i;
-  var ce;
- 
+  var CONTROL_TYPE = OpenAjax.a11y.CONTROL_TYPE;
+  
   var control_elements     = this.control_elements;
   var control_elements_len = control_elements.length;
   
-  // first check if an label by reference
+  // first check if an label exits
  
-  for (i=0; i<control_elements_len; i++) {
+  for (var i = 0; i < control_elements_len; i++) {
  
-    ce = control_elements[i];
+    var ce = control_elements[i];
  
-    if (ce.label.length === 0 && 
-        ce.dom_element.title &&
-        ce.dom_element.title.length) {
+    if (ce.computed_label.length === 0) {
+      var de = ce.dom_element;
+
+      switch (ce.control_type) {
+  
+      case CONTROL_TYPE.BUTTON_INPUT:
+        if (ce.value && ce.value.length) {   
+          this.addLabel(ce, ce.value, OpenAjax.a11y.SOURCE.VALUE_ATTRIBUTE);        
+        }
+        else {
+          this.addLabel(ce, "", OpenAjax.a11y.SOURCE.NONE);                  
+        }
+        break;
+ 
+      case CONTROL_TYPE.IMAGE:
+
+        if (de.alt) {
+          this.addLabel(ce, de.alt, OpenAjax.a11y.SOURCE.ALT_ATTRIBUTE);        
+        }
+        else {
+          if (de.title && de.title.length) {
+            this.addLabel(ce, de.title, OpenAjax.a11y.SOURCE.TITLE_ATTRIBUTE);       
+          }
+          else {
+            this.addLabel(ce, "", OpenAjax.a11y.SOURCE.NONE);      
+          }
+        }  
+        break;
+
+      case CONTROL_TYPE.SUBMIT:
+
+        if (ce.value && ce.value.length) {
+          this.addLabel(ce, ce.value, OpenAjax.a11y.SOURCE.VALUE_ATTRIBUTE);        
+        }
+        else {
+          this.addLabel(ce, "SUBMIT", OpenAjax.a11y.SOURCE.BUTTON_TYPE);      
+        }  
+        break;
+
+      case CONTROL_TYPE.RESET:
+
+        if (ce.value && ce.value.length) {
+          this.addLabel(ce, ce.value, OpenAjax.a11y.SOURCE.VALUE_ATTRIBUTE);        
+        }
+        else {
+          this.addLabel(ce, "RESET", OpenAjax.a11y.SOURCE.BUTTON_TYPE);      
+        }  
+        break;
+
+      default:
     
-      // Add fieldset/legend information if defined
-      if (ce.fieldset_element && 
-        ce.fieldset_element.legend_element) {
-        ce.label = ce.fieldset_element.legend_element.label; 
-        ce.label_length = ce.label.length;
-      }
-       
-      ce.label += ce.dom_element.title;
-      ce.label_length = ce.label.length;
-      ce.label_source = OpenAjax.a11y.SOURCE.TITLE_ATTRIBUTE;
-      ce.label_for_comparison = ce.label.normalizeSpace().toLowerCase();
+        if (de.title &&
+            de.title.length) {
+          // first check if an label exists
+
+          this.addLabel(ce, ce.dom_element.title, OpenAjax.a11y.SOURCE.TITLE_ATTRIBUTE);
+        }
+
+        break;
+      } // end switch 
     }
   }
 };
@@ -1018,14 +1170,19 @@ OpenAjax.a11y.cache.ControlsCache.prototype.calculateLabelsByTitle = function ()
  *
  * @memberOf OpenAjax.a11y.cache.ControlsCache
  *
- * @desc Calculates labels for form controls, based on the order of label calculation techniques 
+ * @desc Calculates labels for all form controls, based on the order of label 
+ *       calculation techniques used by browsers to generate accessible names
+ *       for accessibility APIs used by assistive technologies 
  */
  
 OpenAjax.a11y.cache.ControlsCache.prototype.calculateControlLabels = function () {
+
+  // These functions are called in the order of overrides
+  // Once a control has a label it is ignored by subsequent function calls
   this.calculateLabelsUsingARIA();
   this.calculateLabelsByReference();
   this.calculateLabelsByEncapsulation();
-  this.calculateLabelsByTitle();
+  this.calculateLabelsByOther();
 };
 
 /* ---------------------------------------------------------------- */
@@ -1052,7 +1209,7 @@ OpenAjax.a11y.cache.ControlsCache.prototype.calculateControlLabels = function ()
  *
  * @property  {String}  action  - The value of the action attribute of the form control
  * @property  {String}  method  - The value of the method attribute of the form control
- * @property  {String}  name    - The value of the name attribute of the form control
+ * @property  {String}  name_attribute  - The value of the name attribute of the form control
  */
 
 OpenAjax.a11y.cache.FormElement = function (dom_element, control_info) {
@@ -1067,7 +1224,8 @@ OpenAjax.a11y.cache.FormElement = function (dom_element, control_info) {
  
   this.action = dom_element.node.action;
   this.method = dom_element.node.method;
-  this.name   = dom_element.node.name;
+  
+  this.name_attribute   = dom_element.node.name;
          
 };
 
@@ -1089,7 +1247,7 @@ OpenAjax.a11y.cache.FormElement.prototype.addChildControl = function (child_cont
 }; 
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.FormElement
  *
@@ -1098,8 +1256,8 @@ OpenAjax.a11y.cache.FormElement.prototype.addChildControl = function (child_cont
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.FormElement.prototype.getResultRules = function () {
-  return this.dom_element.getResultRules();
+OpenAjax.a11y.cache.FormElement.prototype.getNodeResults = function () {
+  return this.dom_element.getNodeResults();
 };
 
 /**
@@ -1281,7 +1439,7 @@ OpenAjax.a11y.cache.FieldsetElement.prototype.addChildControl = function (child_
 }; 
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.FieldsetElement
  *
@@ -1290,8 +1448,8 @@ OpenAjax.a11y.cache.FieldsetElement.prototype.addChildControl = function (child_
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.FieldsetElement.prototype.getResultRules = function () {
-  return this.dom_element.getResultRules();
+OpenAjax.a11y.cache.FieldsetElement.prototype.getNodeResults = function () {
+  return this.dom_element.getNodeResults();
 };
 
 /**
@@ -1408,7 +1566,11 @@ OpenAjax.a11y.cache.FieldsetElement.prototype.getEvents = function () {
  */
  
 OpenAjax.a11y.cache.FieldsetElement.prototype.toString = function () {
- return "Fieldset: " + this.number_of_controls + " controls"; 
+ if (this.legend_element)  
+   return "fieldset: has legend";
+ else
+   return "fieldset: no legend"; 
+     
 };
 
 /* ---------------------------------------------------------------- */
@@ -1433,8 +1595,8 @@ OpenAjax.a11y.cache.FieldsetElement.prototype.toString = function () {
  * @property  {Number}      control_type          - Constant indicating the type of cache control object  
  *
  * @property  {FieldsetElement}  fieldset_element     - Reference to any fieldset elements this legend is nested in
- * @property  {String}           label                - Text content of the legend element 
- * @property  {String}           label_for_comparison - Label for comparison (lowercase, space normalization and trimmed)
+ * @property  {String}           computed_label                - Text content of the legend element 
+ * @property  {String}           computed_label_for_comparison - Label for comparison (lowercase, space normalization and trimmed)
  */
 
 OpenAjax.a11y.cache.LegendElement = function (dom_element, control_info) {
@@ -1448,9 +1610,9 @@ OpenAjax.a11y.cache.LegendElement = function (dom_element, control_info) {
  
   this.fieldset_element = control_info.fieldset_element;
   
-  this.label = "";
-  this.label_length = 0;
-  this.label_for_comparison = "";
+  this.computed_label = "";
+  this.computed_label_length = 0;
+  this.computed_label_for_comparison = "";
 
   if (control_info.fieldset_element) {
     control_info.fieldset_element.legend_count++;
@@ -1477,7 +1639,7 @@ OpenAjax.a11y.cache.LegendElement.prototype.addChildControl = function (child_co
 }; 
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.LegendElement
  *
@@ -1486,8 +1648,8 @@ OpenAjax.a11y.cache.LegendElement.prototype.addChildControl = function (child_co
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.LegendElement.prototype.getResultRules = function () {
-  return this.dom_element.getResultRules();
+OpenAjax.a11y.cache.LegendElement.prototype.getNodeResults = function () {
+  return this.dom_element.getNodeResults();
 };
 
 /**
@@ -1604,7 +1766,11 @@ OpenAjax.a11y.cache.LegendElement.prototype.getEvents = function () {
  */
  
 OpenAjax.a11y.cache.LegendElement.prototype.toString = function () {
- return "Legend " + this.document_order; 
+ if (this.computed_label.length) 
+   return "legend: " + this.computed_label; 
+ else
+   return "legend: empty"; 
+ 
 };
 
 /* ---------------------------------------------------------------- */
@@ -1628,8 +1794,12 @@ OpenAjax.a11y.cache.LegendElement.prototype.toString = function () {
  * @property  {Array}       child_cache_elements  - Array of child cache control elements as part of cache control tree 
  * @property  {Number}      control_type          - Constant indicating the type of cache control object  
  *
- * @property  {String}      label                 - Text content of the label element 
- * @property  {String}      label_for_comparison  - Label for comparison (lowercase, space normalization and trimmed)
+ * @property  {String}      computed_label                 - Text content of the label element 
+ * @property  {Number}      computed_label_len             - Length of the computed label  
+ * @property  {String}      computed_label_for_comparison  - Label for comparison (lowercase, space normalization and trimmed)
+ *
+ * @property  {Boolean}     unused_label                   - Boolean indicting where the label references a form control 
+ * @property  {Object}      control_element    - Reference to the control that the label elements is associated with  
  *
  * @property  {FieldsetElement}  fieldset_element     - Reference to any fieldset elements this label is nested in
  */
@@ -1644,9 +1814,12 @@ OpenAjax.a11y.cache.LabelElement = function (dom_element, control_info) {
  
  this.control_type = OpenAjax.a11y.CONTROL_TYPE.LABEL;
 
- this.label = "";
- this.label_length = 0;
- this.label_for_comparison = "";
+ this.computed_label = "";
+ this.computed_label_length = 0;
+ this.computed_label_for_comparison = "";
+
+ this.unused_label    =  true;
+ this.control_element =  null;
 
  this.fieldset_element = control_info.fieldset_element;
 
@@ -1673,7 +1846,7 @@ OpenAjax.a11y.cache.LabelElement.prototype.addChildControl = function (child_con
 }; 
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.LabelElement
  *
@@ -1682,8 +1855,8 @@ OpenAjax.a11y.cache.LabelElement.prototype.addChildControl = function (child_con
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.LabelElement.prototype.getResultRules = function () {
-  return this.dom_element.getResultRules();
+OpenAjax.a11y.cache.LabelElement.prototype.getNodeResults = function () {
+  return this.dom_element.getNodeResults();
 };
 
 /**
@@ -1799,7 +1972,10 @@ OpenAjax.a11y.cache.LabelElement.prototype.getEvents = function () {
  */
  
 OpenAjax.a11y.cache.LabelElement.prototype.toString = function () {
- return "Label " + this.document_order; 
+ if (this.computed_label.length) 
+   return "label: " + this.computed_label; 
+ else
+   return "label: empty"; 
 };
 
 /* ---------------------------------------------------------------- */
@@ -1823,12 +1999,12 @@ OpenAjax.a11y.cache.LabelElement.prototype.toString = function () {
  * @property  {Array}       child_cache_elements  - Array of child cache control elements as part of cache control tree 
  * @property  {String}      type                  - Type of input element  
  * @property  {Number}      control_type          - Constant indicating the type of cache control object  
- * @property  {String}      name                  - Text content of the name attribute  
+ * @property  {String}      name_attribute        - Text content of the name attribute  
  *
- * @property  {String}      label                 - Calculated label for the input element 
- * @property  {Number}      label_length          - Length of the label property 
- * @property  {Number}      label_source          - Constant representing how a label was calculated 
- * @property  {String}      label_for_comparison  - Label for comparison (lowercase, space normalization and trimmed)
+ * @property  {String}      computed_label                 - Calculated label for the input element 
+ * @property  {Number}      computed_label_length          - Length of the label property 
+ * @property  {Number}      computed_label_source          - Constant representing how a label was calculated 
+ * @property  {String}      computed_label_for_comparison  - Label for comparison (lowercase, space normalization and trimmed)
  *
  * @property  {LabelElement}     label_element    - Reference to any label element that this input is nested in
  * @property  {FieldsetElement}  fieldset_element - Reference to any fieldset elements this input is nested in
@@ -1847,31 +2023,24 @@ OpenAjax.a11y.cache.InputElement = function (dom_element, control_info) {
   this.cache_id    = "";
   this.document_order = 0;
   
-  this.type    = node.type; 
+  
   this.value   = node.value; 
   this.checked = node.checked;
 
-  this.name          = node.getAttribute('name');
-  this.required      = node.getAttribute('required');
-  this.aria_required = node.getAttribute('aria-required');
-  this.aria_invalid  = node.getAttribute('aria-invalid');
+  this.name_attribute = node.getAttribute('name');
+  this.required       = node.getAttribute('required');
+  this.aria_required  = node.getAttribute('aria-required');
+  this.aria_invalid   = node.getAttribute('aria-invalid');
 
-  this.control_type  = OpenAjax.a11y.CONTROL_TYPE.UNKOWN; 
-  this.label = "";
-  this.label_length = 0;
-  this.label_source = OpenAjax.a11y.SOURCE.NONE;
-  this.label_for_comparison = "";
+  this.control_type  = OpenAjax.a11y.CONTROL_TYPE.UNKNOWN; 
 
-  this.type = node.type;
+  this.type = "text";  
+  if (node.type) this.type = node.type; 
 
   switch (node.type) {
  
   case 'button':
-    this.control_type  = OpenAjax.a11y.CONTROL_TYPE.BUTTON; 
-    this.label = node.value; 
-    this.label_length = this.label.length;
-    this.label_source = OpenAjax.a11y.SOURCE.VALUE_ATTRIBUTE;
-    this.label_for_comparison = this.label.normalizeSpace().toLowerCase();
+    this.control_type  = OpenAjax.a11y.CONTROL_TYPE.BUTTON_INPUT; 
     break;
 
   case 'file':
@@ -1900,58 +2069,14 @@ OpenAjax.a11y.cache.InputElement = function (dom_element, control_info) {
     
   case 'image':
     this.control_type  = OpenAjax.a11y.CONTROL_TYPE.IMAGE; 
-    if (node.alt) {
-      this.label = node.alt; 
-      this.label_length = this.label.length;
-      this.label_source = OpenAjax.a11y.SOURCE.ALT_ATTRIBUTE;
-      this.label_for_comparison = this.label.normalizeSpace().toLowerCase();
-    }
-    else {
-      if (node.title) {
-        this.label = node.title;
-        this.label_length = this.label.length;
-        this.label_source = OpenAjax.a11y.SOURCE.TITLE_ATTRIBUTE;
-        this.label_for_comparison = this.label.normalizeSpace().toLowerCase();
-      }
-      else {
-        this.label = "";
-        this.label_length = 0;
-        this.label_source = OpenAjax.a11y.SOURCE.NONE;
-        this.label_for_comparison = "";
-      }   
-    }
     break;
 
   case 'submit':
     this.control_type  = OpenAjax.a11y.CONTROL_TYPE.SUBMIT; 
-    if (node.value) {
-      this.label = node.value; 
-      this.label_length = this.label.length;
-      this.label_source = OpenAjax.a11y.SOURCE.VALUE_ATTRIBUTE;
-      this.label_for_comparison = this.label.normalizeSpace().toLowerCase();
-    }
-    else {
-      this.label = this.type.capitalize();
-      this.label_length = this.label.length;
-      this.label_source = OpenAjax.a11y.SOURCE.BUTTON_TYPE;
-      this.label_for_comparison = this.label.normalizeSpace().toLowerCase();
-    }
     break;
     
   case 'reset':
     this.control_type  = OpenAjax.a11y.CONTROL_TYPE.RESET; 
-    if (node.value) {
-      this.label = node.value; 
-      this.label_length = this.label.length;
-      this.label_source = OpenAjax.a11y.SOURCE.VALUE_ATTRIBUTE;
-      this.label_for_comparison = this.label.normalizeSpace().toLowerCase();
-    }
-    else {
-      this.label = this.type.capitalize();
-      this.label_length = this.label.length;
-      this.label_source = OpenAjax.a11y.SOURCE.BUTTON_TYPE;
-      this.label_for_comparison = this.label.normalizeSpace().toLowerCase();
-    }
     break;
   
   default:
@@ -1967,7 +2092,7 @@ OpenAjax.a11y.cache.InputElement = function (dom_element, control_info) {
 };
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.InputElement
  *
@@ -1976,8 +2101,8 @@ OpenAjax.a11y.cache.InputElement = function (dom_element, control_info) {
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.InputElement.prototype.getResultRules = function () {
-  return this.dom_element.getResultRules();
+OpenAjax.a11y.cache.InputElement.prototype.getNodeResults = function () {
+  return this.dom_element.getNodeResults();
 };
 
 /**
@@ -2045,7 +2170,7 @@ OpenAjax.a11y.cache.InputElement.prototype.getCacheProperties = function (unsort
   var properties = this.dom_element.getCacheProperties(unsorted);
 
   cache_nls.addPropertyIfDefined(properties, this, 'label');
-  cache_nls.addPropertyIfDefined(properties, this, 'label_source');
+  cache_nls.addPropertyIfDefined(properties, this, 'computed_label_source');
   cache_nls.addPropertyIfDefined(properties, this, 'label_for_comparison');
   cache_nls.addPropertyIfDefined(properties, this, 'is_widget');
 
@@ -2093,7 +2218,7 @@ OpenAjax.a11y.cache.InputElement.prototype.getEvents = function () {
 };
 
 /**
- * @method getLabelNLS
+ * @method getNLSLabel
  *
  * @memberOf OpenAjax.a11y.cache.InputElement
  *
@@ -2105,17 +2230,17 @@ OpenAjax.a11y.cache.InputElement.prototype.getEvents = function () {
  *                            with a 'label and 'style' property
  */
 
-OpenAjax.a11y.cache.InputElement.prototype.getLabelNLS = function () {
+OpenAjax.a11y.cache.InputElement.prototype.getNLSLabel = function () {
 
   var cache_nls = OpenAjax.a11y.cache_nls;
   
   var label_style = {};
   
-  if (this.label_length) {
-    return this.label;
+  if (this.computed_label_length) {
+    return this.computed_label;
   }
   else {
-    return cache_nls.getMissingLabelMessageNLS();
+    return cache_nls.getNLSMissingLabelMessage();
   }
   
 };
@@ -2136,7 +2261,7 @@ OpenAjax.a11y.cache.InputElement.prototype.getLabelSourceNLS = function () {
 
   var cache_nls = OpenAjax.a11y.cache_nls;
   
-  return cache_nls.getValueNLS('label_source', this.label_source);
+  return cache_nls.getNLSValue('computed_label_source', this.computed_label_source);
   
 };
 
@@ -2175,19 +2300,19 @@ OpenAjax.a11y.cache.InputElement.prototype.toString = function () {
  * @property  {DOMElement}  dom_element  - Reference to the dom element representing the button element
  * @property  {String}      cache_id     - String that uniquely identifies the cache element object in the cache
  *
- * @property  {String}      name            - Value of the name attribute
+ * @property  {String}      name_attribute  - Value of the name attribute
  *
  * @property  {Array}       child_cache_elements  - Array of child cache control elements as part of cache control tree 
  * @property  {Number}      control_type          - Constant indicating the type of cache control object  
  *
  * @property  {FieldsetElement}  fieldset_element - Reference to any fieldset elements this button element is nested in
  *
- * @property  {String}      label                 - Calculated label for the button element 
- * @property  {Number}      label_length          - Length of the label property 
- * @property  {String}      label_for_comparison  - Label for comparison (lowercase, space normalization and trimmed)
+ * @property  {String}     computed_label                  - Calculated label for the button element 
+ * @property  {Number}     computed_label_length           - Length of the label property 
+ * @property  {String}     computed_ label_for_comparison  - Label for comparison (lowercase, space normalization and trimmed)
  *
- * @property  {String}      readonly              - The value of the readonly attribute 
- * @property  {String}      disabled              - The value of the disabled attribute
+ * @property  {String}     readonly              - The value of the readonly attribute 
+ * @property  {String}     disabled              - The value of the disabled attribute
  */
 
 OpenAjax.a11y.cache.ButtonElement = function (dom_element, control_info) {
@@ -2199,14 +2324,10 @@ OpenAjax.a11y.cache.ButtonElement = function (dom_element, control_info) {
  
   var node = dom_element.node;
  
-  this.control_type = OpenAjax.a11y.CONTROL_TYPE.BUTTON; 
+  this.control_type   = OpenAjax.a11y.CONTROL_TYPE.BUTTON_ELEMENT; 
  
-  this.name          = node.getAttribute('name');
+  this.name_attribute = node.getAttribute('name');
   
-  this.label  = "";
-  this.label_length = 0;
-  this.label_for_comparison = "";
- 
   this.readonly  = node.readonly;
   this.disabled  = node.disabled;
  
@@ -2232,7 +2353,7 @@ OpenAjax.a11y.cache.ButtonElement.prototype.addChildControl = function (child_co
 }; 
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.ButtonElement
  *
@@ -2241,8 +2362,8 @@ OpenAjax.a11y.cache.ButtonElement.prototype.addChildControl = function (child_co
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.ButtonElement.prototype.getResultRules = function () {
-  return this.dom_element.getResultRules();
+OpenAjax.a11y.cache.ButtonElement.prototype.getNodeResults = function () {
+  return this.dom_element.getNodeResults();
 };
 
 /**
@@ -2304,7 +2425,7 @@ OpenAjax.a11y.cache.ButtonElement.prototype.getCacheProperties = function (unsor
   var properties = this.dom_element.getCacheProperties(unsorted);
 
   cache_nls.addPropertyIfDefined(properties, this, 'label');
-  cache_nls.addPropertyIfDefined(properties, this, 'label_source');
+  cache_nls.addPropertyIfDefined(properties, this, 'computed_label_source');
   cache_nls.addPropertyIfDefined(properties, this, 'label_for_comparison');
 
   if (!unsorted) this.dom_element.sortItems(properties);
@@ -2351,7 +2472,7 @@ OpenAjax.a11y.cache.ButtonElement.prototype.getEvents = function () {
 };
 
 /**
- * @method getLabelNLS
+ * @method getNLSLabel
  *
  * @memberOf OpenAjax.a11y.cache.ButtonElement
  *
@@ -2363,17 +2484,17 @@ OpenAjax.a11y.cache.ButtonElement.prototype.getEvents = function () {
  *                            with a 'label and 'style' property
  */
 
-OpenAjax.a11y.cache.ButtonElement.prototype.getLabelNLS = function () {
+OpenAjax.a11y.cache.ButtonElement.prototype.getNLSLabel = function () {
 
   var cache_nls = OpenAjax.a11y.cache_nls;
   
   var label_style = {};
   
-  if (this.label_length) {
-    return this.label;
+  if (this.computed_label_length) {
+    return this.computed_label;
   }
   else {
-    return cache_nls.getMissingLabelMessageNLS();
+    return cache_nls.getNLSMissingLabelMessage();
   }
   
 };
@@ -2396,7 +2517,7 @@ OpenAjax.a11y.cache.ButtonElement.prototype.getLabelSourceNLS = function () {
   
   var label_style = {};
   
-  return cache_nls.getValueNLS('label_source', this.label_source);
+  return cache_nls.getNLSValue('computed_label_source', this.computed_label_source);
   
 };
 
@@ -2411,7 +2532,7 @@ OpenAjax.a11y.cache.ButtonElement.prototype.getLabelSourceNLS = function () {
  */
  
 OpenAjax.a11y.cache.ButtonElement.prototype.toString = function () {
- return "Button " + this.document_order; 
+ return "button"; 
 };
 
 /* ---------------------------------------------------------------- */
@@ -2432,14 +2553,15 @@ OpenAjax.a11y.cache.ButtonElement.prototype.toString = function () {
  * @property  {String}      cache_id        - String that uniquely identifies the cache element object in the cache
  * @property  {Number}      document_order  - Ordinal position of the control element in the document in relationship to other control elements
  *
- * @property  {String}      name            - Value of the name attribute
+ * @property  {String}      name_attribute  - Value of the name attribute
+ * @property  {String}      type            - Type of form control
  *
  * @property  {Array}       child_cache_elements  - Array of child cache control elements as part of cache control tree 
  * @property  {Number}      control_type          - Constant indicating the type of cache control object  
  *
- * @property  {String}      label                 - Calculated label for the textarea element 
- * @property  {Number}      label_length          - Length of the label property 
- * @property  {String}      label_for_comparison  - Label for comparison (lowercase, space normalization and trimmed)
+ * @property  {String}      computed_label                 - Calculated label for the textarea element 
+ * @property  {Number}      computed_label_length          - Length of the label property 
+ * @property  {String}      computed_label_for_comparison  - Label for comparison (lowercase, space normalization and trimmed)
  *
  * @property  {LabelElement}     label_element    - Reference to any label element that this input is nested in
  * @property  {FieldsetElement}  fieldset_element - Reference to any fieldset elements this input is nested in
@@ -2458,17 +2580,15 @@ OpenAjax.a11y.cache.TextareaElement = function (dom_element, control_info) {
   this.dom_element    = dom_element;
   this.cache_id       = "";
   this.document_order = 0;
+  this.type = "textarea";  
 
   this.control_type = OpenAjax.a11y.CONTROL_TYPE.TEXTAREA;
  
   this.label_element  = control_info.label_element;
   this.fieldset_element = control_info.fieldset_element;
   
-  this.name          = node.getAttribute('name');
+  this.name_attribute  = node.getAttribute('name');
   
-  this.label  = "";
-  this.label_for_comparison = "";
-
   this.rows = node.rows; 
   this.cols = node.cols; 
  
@@ -2478,7 +2598,7 @@ OpenAjax.a11y.cache.TextareaElement = function (dom_element, control_info) {
 };
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.TextareaElement
  *
@@ -2487,8 +2607,8 @@ OpenAjax.a11y.cache.TextareaElement = function (dom_element, control_info) {
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.TextareaElement.prototype.getResultRules = function () {
-  return this.dom_element.getResultRules();
+OpenAjax.a11y.cache.TextareaElement.prototype.getNodeResults = function () {
+  return this.dom_element.getNodeResults();
 };
 
 /**
@@ -2550,7 +2670,7 @@ OpenAjax.a11y.cache.TextareaElement.prototype.getCacheProperties = function (uns
   var properties = this.dom_element.getCacheProperties(unsorted);
 
   cache_nls.addPropertyIfDefined(properties, this, 'label');
-  cache_nls.addPropertyIfDefined(properties, this, 'label_source');
+  cache_nls.addPropertyIfDefined(properties, this, 'computed_label_source');
   cache_nls.addPropertyIfDefined(properties, this, 'label_for_comparison');
 
   if (!unsorted) this.dom_element.sortItems(properties);
@@ -2596,7 +2716,7 @@ OpenAjax.a11y.cache.TextareaElement.prototype.getEvents = function () {
 };
 
 /**
- * @method getLabelNLS
+ * @method getNLSLabel
  *
  * @memberOf OpenAjax.a11y.cache.TextareaElement
  *
@@ -2608,15 +2728,15 @@ OpenAjax.a11y.cache.TextareaElement.prototype.getEvents = function () {
  *                            with a 'label and 'style' property
  */
 
-OpenAjax.a11y.cache.TextareaElement.prototype.getLabelNLS = function () {
+OpenAjax.a11y.cache.TextareaElement.prototype.getNLSLabel = function () {
 
   var cache_nls = OpenAjax.a11y.cache_nls;
   
-  if (this.label_length) {
-    return this.label;
+  if (this.computed_label_length) {
+    return this.computed_label;
   }
   else {
-    return cache_nls.getMissingLabelMessageNLS();
+    return cache_nls.getNLSMissingLabelMessage();
   }
   
 };
@@ -2638,7 +2758,7 @@ OpenAjax.a11y.cache.TextareaElement.prototype.getLabelSourceNLS = function () {
 
   var cache_nls = OpenAjax.a11y.cache_nls;
   
-  return cache_nls.getValueNLS('label_source', this.label_source);
+  return cache_nls.getNLSValue('computed_label_source', this.computed_label_source);
   
 };
 
@@ -2653,7 +2773,7 @@ OpenAjax.a11y.cache.TextareaElement.prototype.getLabelSourceNLS = function () {
  */
  
 OpenAjax.a11y.cache.TextareaElement.prototype.toString = function () {
- return "Textarea " + this.document_order; 
+ return "Textarea"; 
 };
 
 /* ---------------------------------------------------------------- */
@@ -2674,7 +2794,8 @@ OpenAjax.a11y.cache.TextareaElement.prototype.toString = function () {
  * @property  {String}      cache_id        - String that uniquely identifies the cache element object in the cache
  * @property  {Number}      document_order  - Ordinal position of the control element in the document in relationship to other control elements
  *
- * @property  {String}      name            - Value of the name attribute
+ * @property  {String}      name_attribute  - Value of the name attribute
+ * @property  {String}      type            - String indicating the type of form control
  *
  * @property  {Array}       child_cache_elements  - Array of child cache control elements as part of cache control tree 
  * @property  {Array}       option_elements       - Array of child cache option elements  
@@ -2683,9 +2804,9 @@ OpenAjax.a11y.cache.TextareaElement.prototype.toString = function () {
  * @property  {LabelElement}     label_element    - Reference to any label element that this input is nested in
  * @property  {FieldsetElement}  fieldset_element - Reference to any fieldset elements this select element is nested in
  *
- * @property  {String}      label                 - Calculated label for the select element 
- * @property  {Number}      label_length          - Length of the label property 
- * @property  {String}      label_for_comparison  - Label for comparison (lowercase, space normalization and trimmed)
+ * @property  {String}      computed_label                 - Calculated label for the select element 
+ * @property  {Number}      computed_label_length          - Length of the label property 
+ * @property  {String}      computed_label_for_comparison  - Label for comparison (lowercase, space normalization and trimmed)
  * @property  {String}      size                  - The value of the size attribute 
  * @property  {String}      multiple              - The value of the multiple attribute
  */
@@ -2704,12 +2825,9 @@ OpenAjax.a11y.cache.SelectElement = function (dom_element, control_info) {
 
   var node = dom_element.node;
 
-  this.name          = node.getAttribute('name');
+  this.name_attribute  = node.getAttribute('name');
+  this.type = "select";
   
-  this.label = "";
-  this.label_length = 0;
-  this.label_for_comparison = "";
-
   this.size   = node.size;
   this.multiple = node.multiple;
  
@@ -2757,7 +2875,7 @@ OpenAjax.a11y.cache.SelectElement.prototype.addOption = function (option_element
 }; 
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.SelectElement
  *
@@ -2766,8 +2884,8 @@ OpenAjax.a11y.cache.SelectElement.prototype.addOption = function (option_element
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.SelectElement.prototype.getResultRules = function () {
-  return this.dom_element.getResultRules();
+OpenAjax.a11y.cache.SelectElement.prototype.getNodeResults = function () {
+  return this.dom_element.getNodeResults();
 };
 
 /**
@@ -2829,7 +2947,7 @@ OpenAjax.a11y.cache.SelectElement.prototype.getCacheProperties = function (unsor
   var properties = this.dom_element.getCacheProperties(unsorted);
 
   cache_nls.addPropertyIfDefined(properties, this, 'label');
-  cache_nls.addPropertyIfDefined(properties, this, 'label_source');
+  cache_nls.addPropertyIfDefined(properties, this, 'computed_label_source');
   cache_nls.addPropertyIfDefined(properties, this, 'label_for_comparison');
 
   if (!unsorted) this.dom_element.sortItems(properties);
@@ -2876,7 +2994,7 @@ OpenAjax.a11y.cache.SelectElement.prototype.getEvents = function () {
 };
 
 /**
- * @method getLabelNLS
+ * @method getNLSLabel
  *
  * @memberOf OpenAjax.a11y.cache.SelectElement
  *
@@ -2888,17 +3006,17 @@ OpenAjax.a11y.cache.SelectElement.prototype.getEvents = function () {
  *                            with a 'label and 'style' property
  */
 
-OpenAjax.a11y.cache.SelectElement.prototype.getLabelNLS = function () {
+OpenAjax.a11y.cache.SelectElement.prototype.getNLSLabel = function () {
 
   var cache_nls = OpenAjax.a11y.cache_nls;
   
   var label_style = {};
   
-  if (this.label_length) {
-    return this.label;
+  if (this.computed_label_length) {
+    return this.computed_label;
   }
   else {
-    return cache_nls.getMissingLabelMessageNLS();
+    return cache_nls.getNLSMissingLabelMessage();
   }
   
 };
@@ -2922,7 +3040,7 @@ OpenAjax.a11y.cache.SelectElement.prototype.getLabelSourceNLS = function () {
   
   var label_style = {};
   
-  return cache_nls.getValueNLS('label_source', this.label_source);
+  return cache_nls.getNLSValue('computed_label_source', this.computed_label_source);
   
 };
 
@@ -2963,9 +3081,9 @@ OpenAjax.a11y.cache.SelectElement.prototype.toString = function () {
  *
  * @property  {SelectElement}  select_element     - Reference to the select element that this optgroup is nested in
  *
- * @property  {String}      label                 - Calculated label for the select element 
- * @property  {Number}      label_length          - Length of the label property 
- * @property  {String}      label_for_comparison  - Label for comparison (lowercase, space normalization and trimmed)
+ * @property  {String}      computed_label                 - Calculated label for the select element 
+ * @property  {Number}      computed_label_length          - Length of the label property 
+ * @property  {String}      computed_label_for_comparison  - Label for comparison (lowercase, space normalization and trimmed)
  */
 
 OpenAjax.a11y.cache.OptgroupElement = function (dom_element, control_info) {
@@ -2979,9 +3097,9 @@ OpenAjax.a11y.cache.OptgroupElement = function (dom_element, control_info) {
  
  this.select_element = control_info.select_element;
          
- this.label = dom_element.node.label;
- this.label_length = this.label.length;
- this.label_for_comparison = this.label.normalizeSpace().toLowerCase();
+ this.computed_label = dom_element.node.computed_label;
+ this.computed_label_length = this.computed_label.length;
+ this.computed_label_for_comparison = this.computed_label.normalizeSpace().toLowerCase();
  
 };
 
@@ -3004,7 +3122,7 @@ OpenAjax.a11y.cache.OptgroupElement.prototype.addChildControl = function (child_
 }; 
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.OptgroupElement
  *
@@ -3013,8 +3131,8 @@ OpenAjax.a11y.cache.OptgroupElement.prototype.addChildControl = function (child_
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.OptgroupElement.prototype.getResultRules = function () {
-  return this.dom_element.getResultRules();
+OpenAjax.a11y.cache.OptgroupElement.prototype.getNodeResults = function () {
+  return this.dom_element.getNodeResults();
 };
 
 /**
@@ -3076,7 +3194,7 @@ OpenAjax.a11y.cache.OptgroupElement.prototype.getCacheProperties = function (uns
   var properties = this.dom_element.getCacheProperties(unsorted);
 
   cache_nls.addPropertyIfDefined(properties, this, 'label');
-  cache_nls.addPropertyIfDefined(properties, this, 'label_source');
+  cache_nls.addPropertyIfDefined(properties, this, 'computed_label_source');
   cache_nls.addPropertyIfDefined(properties, this, 'label_for_comparison');
 
   if (!unsorted) this.dom_element.sortItems(properties);
@@ -3173,7 +3291,7 @@ OpenAjax.a11y.cache.OptionElement = function (dom_element, control_info) {
 };
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.OptionElement
  *
@@ -3182,8 +3300,8 @@ OpenAjax.a11y.cache.OptionElement = function (dom_element, control_info) {
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.OptionElement.prototype.getResultRules = function () {
-  return this.dom_element.getResultRules();
+OpenAjax.a11y.cache.OptionElement.prototype.getNodeResults = function () {
+  return this.dom_element.getNodeResults();
 };
 
 /**
@@ -3245,7 +3363,7 @@ OpenAjax.a11y.cache.OptionElement.prototype.getCacheProperties = function (unsor
   var properties = this.dom_element.getCacheProperties(unsorted);
 
   cache_nls.addPropertyIfDefined(properties, this, 'label');
-  cache_nls.addPropertyIfDefined(properties, this, 'label_source');
+  cache_nls.addPropertyIfDefined(properties, this, 'computed_label_source');
   cache_nls.addPropertyIfDefined(properties, this, 'label_for_comparison');
 
   if (!unsorted) this.dom_element.sortItems(properties);
@@ -3324,14 +3442,14 @@ OpenAjax.a11y.cache.OptionElement.prototype.toString = function () {
  * @property  {Number}      document_order  - Ordinal position of the control element in the document in relationship to other control elements
  *
  * @property  {Array}       child_cache_elements  - Array of child cache control elements as part of cache control tree 
- * @property  {String}      type                  - Type of input element  
+ * @property  {String}      type                  - String indicating the type of input element  
  * @property  {Number}      control_type          - Constant indicating the type of cache control object  
- * @property  {String}      name                  - Text content of the name attribute  
+ * @property  {String}      name_attribute        - Text content of the name attribute  
  *
- * @property  {String}  label                 - Calculated label for the input element 
- * @property  {Number}  label_length          - Length of the label property 
- * @property  {Number}  label_source          - Constant representing how a label was calculated 
- * @property  {String}  label_for_comparison  - Label for comparison (lowercase, space normalization and trimmed)
+ * @property  {String}  computed_label                 - Calculated label for the input element 
+ * @property  {Number}  computed_label_length          - Length of the label property 
+ * @property  {Number}  computed_label_source          - Constant representing how a label was calculated 
+ * @property  {String}  computed_label_for_comparison  - Label for comparison (lowercase, space normalization and trimmed)
  *
  * @property  {LabelElement}     label_element    - Reference to any label element that this input is nested in
  * @property  {FieldsetElement}  fieldset_element - Reference to any fieldset elements this input is nested in
@@ -3355,16 +3473,12 @@ OpenAjax.a11y.cache.WidgetElement = function (dom_element, control_info) {
   this.value   = node.value; 
   this.checked = node.checked;
 
-  this.name          = node.getAttribute('name');
-  this.required      = node.getAttribute('required');
-  this.aria_required = node.getAttribute('aria-required');
-  this.aria_invalid  = node.getAttribute('aria-invalid');
+  this.name_attribute = node.getAttribute('name');
+  this.required       = node.getAttribute('required');
+  this.aria_required  = node.getAttribute('aria-required');
+  this.aria_invalid   = node.getAttribute('aria-invalid');
 
-  this.control_type  = OpenAjax.a11y.CONTROL_TYPE.WIDGET; 
-  this.label = "";
-  this.label_length = 0;
-  this.label_source = OpenAjax.a11y.SOURCE.NONE;
-  this.label_for_comparison = "";
+  this.control_type   = OpenAjax.a11y.CONTROL_TYPE.WIDGET; 
   
   this.label_element    = control_info.label_element;
   this.fieldset_element = control_info.fieldset_element;
@@ -3389,7 +3503,7 @@ OpenAjax.a11y.cache.WidgetElement.prototype.addChildControl = function (child_co
 }; 
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.WidgetElement
  *
@@ -3398,8 +3512,8 @@ OpenAjax.a11y.cache.WidgetElement.prototype.addChildControl = function (child_co
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.WidgetElement.prototype.getResultRules = function () {
-  return this.dom_element.getResultRules();
+OpenAjax.a11y.cache.WidgetElement.prototype.getNodeResults = function () {
+  return this.dom_element.getNodeResults();
 };
 
 /**
@@ -3467,7 +3581,7 @@ OpenAjax.a11y.cache.WidgetElement.prototype.getCacheProperties = function (unsor
   var properties = this.dom_element.getCacheProperties(unsorted);
 
   cache_nls.addPropertyIfDefined(properties, this, 'label');
-  cache_nls.addPropertyIfDefined(properties, this, 'label_source');
+  cache_nls.addPropertyIfDefined(properties, this, 'computed_label_source');
   cache_nls.addPropertyIfDefined(properties, this, 'label_for_comparison');
 
   if (!unsorted) this.dom_element.sortItems(properties);
@@ -3514,7 +3628,7 @@ OpenAjax.a11y.cache.WidgetElement.prototype.getEvents = function () {
 };
 
 /**
- * @method getLabelNLS
+ * @method getNLSLabel
  *
  * @memberOf OpenAjax.a11y.cache.WidgetElement
  *
@@ -3526,17 +3640,17 @@ OpenAjax.a11y.cache.WidgetElement.prototype.getEvents = function () {
  *                            with a 'label and 'style' property
  */
 
-OpenAjax.a11y.cache.WidgetElement.prototype.getLabelNLS = function () {
+OpenAjax.a11y.cache.WidgetElement.prototype.getNLSLabel = function () {
 
   var cache_nls = OpenAjax.a11y.cache_nls;
   
   var label_style = {};
   
-  if (this.label_length) {
-    return this.label;
+  if (this.computed_label_length) {
+    return this.computed_label;
   }
   else {
-    return cache_nls.getMissingLabelMessageNLS();
+    return cache_nls.getNLSMissingLabelMessage();
   }
   
 };
@@ -3557,7 +3671,7 @@ OpenAjax.a11y.cache.WidgetElement.prototype.getLabelSourceNLS = function () {
 
   var cache_nls = OpenAjax.a11y.cache_nls;
   
-  return cache_nls.getValueNLS('label_source', this.label_source);
+  return cache_nls.getNLSValue('computed_label_source', this.computed_label_source);
   
 };
 

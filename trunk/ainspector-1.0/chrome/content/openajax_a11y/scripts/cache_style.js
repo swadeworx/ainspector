@@ -28,8 +28,8 @@
  * @property  {String}  display     - Computed value of the CSS 'display' property
  * @property  {String}  visibility  - Computed value of the CSS 'visibility' property
  *
- * @property  {Number}  graphical   - Constant representing the graphical visibility of the element (i.e is it visible to people with sight)
- * @property  {Number}  at          - Constant representing the assistive technology visibility of the element (i.e is it visible to people using a screen reader)
+ * @property  {Number}  is_visible_onscreen   - Constant representing the graphical visibility of the element (i.e is it visible to people with sight)
+ * @property  {Number}  is_visible_at         - Constant representing the assistive technology visibility of the element (i.e is it visible to people using a screen reader)
  * 
  * @property  {String}  color                 - Computed value of the CSS 'color' property
  * @property  {String}  color_hex             - Computed value of the CSS 'color' property in hexidecimal format
@@ -178,7 +178,7 @@ OpenAjax.a11y.cache.DOMElementComputedStyle = function (dom_element, parent_elem
  this.background_position = style.getPropertyValue("background-position");
  
  this.font_family = style.getPropertyValue("font-family");  
- this.font_size  = normalizeFontSize(style.getPropertyValue("font-size"), parent_element); 
+ this.font_size   = normalizeFontSize(style.getPropertyValue("font-size"), parent_element); 
  this.font_weight = normalizeFontWeight(style.getPropertyValue("font-weight"), parent_element); 
  
  this.position = style.getPropertyValue("position");

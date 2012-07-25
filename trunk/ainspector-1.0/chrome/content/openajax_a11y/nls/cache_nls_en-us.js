@@ -32,7 +32,7 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
     /*
      * The types of ways a rule can be included in a ruleset
      */
-    rule_types: ['Undefined', 'Required', 'Recommendation', 'Conditional'],
+    rule_types: ['Undefined', 'Required', 'Recommendation'],
 
     /*
      * Relative implementation priorities of complying to rule requirements
@@ -73,57 +73,57 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
     /**
      * Severity of not passing a rule for a particular requirement set, like WCAG 2.0
      */
-    severities: [{ label       : 'Not Applicable', 
-                   abbrev      : 'N/A', 
-                   description : 'The rule is not applicable to an element',
-                   tooltip     : 'The number of elements to which the rule did not apply'
+    severities: [{ label       : 'None', 
+                   abbrev      : 'none', 
+                   description : 'No rule results for this element or text node',
+                   tooltip     : 'No rule results were associated with this element or text node'
                   },
-                 { label       : 'Pass', 
-                   abbrev      : 'P', 
-                   description : 'The element passed the rule',
-                   tooltip     : 'The number of elements that passed the rule'
-                  },
-                 { label       : 'Violation', 
+                  { label       : 'Violation', 
                    abbrev      : 'V', 
-                   description : 'The element failed the rule and the rule is required',
-                   tooltip     : 'The number of elements that failed'
-                  },
-                 { label       : 'Recommendation', 
-                   abbrev      : 'R', 
-                   description : 'The element failed the rule and the rule is recommended',
-                   tooltip     : 'The number of elements that failed recommended rules'
-                  },
-                 { label       : 'Manual Check', 
-                   abbrev      : 'MC', 
-                   description : 'The element requires human inspection and judgement to determine if the requirement has been met',
-                   tooltip     : 'The number of elements that require manual checks for determining if requirements were met'
+                   description : 'The element failed a required rule',
+                   tooltip     : 'The number of elements that failed a required rule'
                   },
                  { label       : 'Warning', 
                    abbrev      : 'W', 
-                   description : 'A warning indicates the element is used in a coding pattern that may cause accessibiity problems',
-                   tooltip     : 'The number of elements in a coding pattern that may cause accessibility problems'
+                   description : 'The element that failed a recommended rule',
+                   tooltip     : 'The number of elements that failed a recommended rule'
+                  },
+                 { label       : 'Manual Check', 
+                   abbrev      : 'MC', 
+                   description : 'The element requires human inspection and judgement to determine if the requirement of the rule has been met',
+                   tooltip     : 'The number of elements that require manual checks'
                   },
                  { label       : 'Hidden', 
                    abbrev      : 'H', 
                    description : 'A hidden element was not evaluted for accessibility, since it is invisible to users',
                    tooltip     : 'The number of elements that are hidden from users on the page and therefore not evaluated for accessibility'
                   },
-                 { label       : 'Informational', 
-                   abbrev      : 'I', 
-                   description : 'Element has an informational message useful for accessibility',
-                   tooltip     : 'The number of elements with informational messages useful for accessibility'
-                  },
                  { label       : 'Not Evaluated', 
-                   abbrev      : 'na', 
-                   description : 'Element did not meet the criteria of a rule for evaluation',
-                   tooltip     : 'Number of elements that did not meet the criteria of rules for evaluation'
+                   abbrev      : 'ne', 
+                   description : 'Element was not evaluated',
+                   tooltip     : 'The number of elements that are not evaluated for accessibility'
                   },
-                 { label       : 'none', 
-                   abbrev      : 'none', 
-                   description : 'No rules applied to this element',
-                   tooltip     : 'No rules applied to this element'
+                 { label       : 'Pass', 
+                   abbrev      : 'P', 
+                   description : 'The element passed the rule',
+                   tooltip     : 'The number of elements that passed a required or recommended rule'
+                  },
+                 { label       : 'A', 
+                   abbrev      : 'A', 
+                   description : 'WCAG 2.0 level A',
+                   tooltip     : 'The element passes WCAG 2.0 level A requirements'
+                  },                 
+                 { label       : 'AA', 
+                   abbrev      : 'AA', 
+                   description : 'WCAG 2.0 level AA',
+                   tooltip     : 'The element passes WCAG 2.0 level AA requirements'
+                  },
+                 { label       : 'AAA', 
+                   abbrev      : 'AAA', 
+                   description : 'WCAG 2.0 level AAA',
+                   tooltip     : 'The element passes WCAG 2.0 level AAA requirements'
                   }
-                ],  
+                  ],  
 
 
     /*
@@ -251,15 +251,15 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
         label       : 'Graphical Visibility',
         description : 'Can the item be seen visually',
         values      : ['Undefined value', 'Unknown', 'Hidden', 'Visible']
-      },
-      'at' : { 
-        label       : 'AT Visibility',
-        description : 'Can the item be seen be assitive technologies',
-        values : ['Undefined value', 'Unknown', 'Hidden', 'Visible']
       }, 
       'is_large_font' : { 
         label       : 'Large Font',
         description : 'Boolean value used in WCAG 2.0 evaluation of color contrast ratio'
+      }, 
+      'is_visible_to_at' : { 
+        label       : 'AT Visible',
+        description : 'Is the element and its content visible to Assistive Technology',
+        values : ['undefined', 'unknown', 'hidden', 'visible']
       }, 
 
 
@@ -332,8 +332,12 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
     /*
      * Control Cache object attributes
      */
-      'label_source' : {
-        label       : 'Label Type',
+      'computed_label' : {
+        label       : 'Label (computed)',
+        description : 'The label communicated to assistive technologies for identifying the form control.'
+      },     
+      'computed_label_source' : {
+        label       : 'Labeling Technique',
         description : 'The technique for defining the label',
         values      : ['unkown', 'none', 'label by reference', 'label encapsulation', 'title attribute', 'value attribute', 'alt attribute', 'button type', 'child text content', 'aria labelledby', 'aria label']
       },     
@@ -344,6 +348,22 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
       'num_visible_main_landmarks' : {
         label       : 'Visibile main landmarks',
         description : 'Number of visible main landmarks'
+      },     
+      'fieldset_element' : {
+        label       : 'Fieldset/Legend',
+        description : 'Content of the fieldset legend element'
+      },     
+      'legend_count' : {
+        label       : 'Legend Count',
+        description : 'Number of legend elements contained in a fieldset element'
+      },     
+      'accessible_name' : {
+        label       : 'Name',
+        description : 'The name of a widget used by assistive technologies to identify the widget.'
+      },     
+      'accessible_description' : {
+        label       : 'Description',
+        description : 'The description used by assistive technologies to provide additional information about a form control, widget, link, image or other element.'
       },     
     /*
      * Link Cache object attributes
@@ -367,7 +387,7 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
         values      : ['unkown',  'broken', 'vaild', 'not tested', 'error']
       },
       'name_attribute' : {
-        label       : 'name',
+        label       : 'Name attribute',
         description : 'Value of the name attribute'
       },
       'target' : {

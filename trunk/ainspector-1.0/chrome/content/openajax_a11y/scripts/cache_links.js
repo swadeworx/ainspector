@@ -66,7 +66,7 @@ OpenAjax.a11y.cache.LinksCache = function (dom_cache) {
   this.sort_property = 'document_order';
   this.sort_ascending = true;
   
-  this.rule_summary_results  = new OpenAjax.a11y.ResultRuleSummary();
+  this.evaluation_results  = new OpenAjax.a11y.EvaluationResult();
 }; 
 
 /**
@@ -454,7 +454,7 @@ OpenAjax.a11y.cache.LinksCache.prototype.traverseDOMElementsForLinkElements = fu
 
   if (!dom_element) return;
 
-  if (dom_element.type == NODE_TYPE.ELEMENT) {
+  if (dom_element.type == Node.ELEMENT_NODE) {
 
     this.updateCacheItems(dom_element);
   
@@ -693,7 +693,7 @@ OpenAjax.a11y.cache.LinkElement = function (dom_element) {
 };
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.LinkElement
  *
@@ -702,8 +702,8 @@ OpenAjax.a11y.cache.LinkElement = function (dom_element) {
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.LinkElement.prototype.getResultRules = function () {
-  return this.dom_element.getResultRules();
+OpenAjax.a11y.cache.LinkElement.prototype.getNodeResults = function () {
+  return this.dom_element.getNodeResults();
 };
 
 /**
@@ -836,7 +836,7 @@ OpenAjax.a11y.cache.LinkElement.prototype.getLinkType = function () {
 
   var cache_nls = OpenAjax.a11y.cache_nls;
   
-  return cache_nls.getValueNLS('link_type', this.link_type);
+  return cache_nls.getNLSValue('link_type', this.link_type);
   
 };
 
@@ -907,7 +907,7 @@ OpenAjax.a11y.cache.DuplicateNameItem.prototype.addLinkElement = function (link_
 };
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.DuplicateNameItem
  *
@@ -916,8 +916,8 @@ OpenAjax.a11y.cache.DuplicateNameItem.prototype.addLinkElement = function (link_
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.DuplicateNameItem.prototype.getResultRules = function () {
-  return this.dom_element.getResultRules();
+OpenAjax.a11y.cache.DuplicateNameItem.prototype.getNodeResults = function () {
+  return this.dom_element.getNodeResults();
 };
 
 
@@ -1080,7 +1080,7 @@ OpenAjax.a11y.cache.DuplicateHREFItem.prototype.addLinkElement = function (link_
 };
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.DuplicateHREFItem
  *
@@ -1089,8 +1089,8 @@ OpenAjax.a11y.cache.DuplicateHREFItem.prototype.addLinkElement = function (link_
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.DuplicateHREFItem.prototype.getResultRules = function () {
-  return this.dom_element.getResultRules();
+OpenAjax.a11y.cache.DuplicateHREFItem.prototype.getNodeResults = function () {
+  return this.dom_element.getNodeResults();
 };
 
 /**

@@ -57,7 +57,7 @@ OpenAjax.a11y.cache.AbbreviationsCache = function (dom_cache) {
   this.sort_property  = 'abbreviation_text';
   this.sort_ascending = true;
   
-  this.rule_summary_results  = new OpenAjax.a11y.ResultRuleSummary();
+  this.evaluation_results  = new OpenAjax.a11y.EvaluationResult();
  
 };
 
@@ -214,7 +214,7 @@ OpenAjax.a11y.cache.AbbreviationsCache.prototype.traverseDOMElementsForAbbreviat
 
  if (!dom_element) return;
 
- if (dom_element.type == NODE_TYPE.ELEMENT) {
+ if (dom_element.type == Node.ELEMENT_NODE) {
 
   this.updateCacheItems(dom_element);
   
@@ -368,7 +368,7 @@ OpenAjax.a11y.cache.AbbreviationItem = function (abbreviation) {
 }; 
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.AbbreviationItem
  *
@@ -377,8 +377,8 @@ OpenAjax.a11y.cache.AbbreviationItem = function (abbreviation) {
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.AbbreviationItem.prototype.getResultRules = function () {
-  return this.dom_elements[0].getResultRules();
+OpenAjax.a11y.cache.AbbreviationItem.prototype.getNodeResults = function () {
+  return this.dom_elements[0].getNodeResults();
 };
 
 /**

@@ -20,10 +20,12 @@
    
 
 OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
+
+    rule_scope: ['unkown', 'Element', 'Page', 'Website'],
+    
     message_severities: {
       MUST : 'must', 
-      SHOULD: 'should', 
-      MAY: 'may'
+      SHOULD: 'should'
     },
     
     missing_message : "The following message id is not defined: ",
@@ -47,119 +49,474 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
     //
     rules: {
         COLOR_1: {
-            ID:                  'COLOR 1',
-            TITLE:               'Text content %s exceed CCR of 4.5 for any size text or 3.1 for large and/or bolded text',
-            PURPOSE:             'Text on the page %s have sufficient contrast for people with low vision to read',
-            MESSAGE_PASS:        'The CCR of %1 exceeds the 4.5 for plain text and 3.1 for large text and/or bolded text.',
-            MESSAGE_FAIL:        'The CCR of %1 does not exceed CCR of 4.5 for plain text or 3.1 for large and/or bolded text.',
-            MESSAGE_MANUAL_PASS: 'The CCR of %1 exceeds CCR requirements, but a background image may reduce this CCR and so a manual check is required.',
-            MESSAGE_MANUAL_FAIL: 'The CCR of %1 does not meet CCR requirements, but a background image may imporve the CCR and so a manual check is required.',
-            MESSAGE_HIDDEN:      'The element is not displayed visually.'
+            ID:             'COLOR 1',
+            DEFINITION:     'Text content %s exceed Color Contrast Ratio (CCR) of 4.5 for any size text or 3.1 for large and/or bolded text',
+            SUMMARY:        'Text %s exceed CCR of 4.5',
+            ACTION:         'Adjust foreground and background colors to improve color contrast',
+            MANUAL_BG_PASS: 'Background image may reduce color contrast',
+            MANUAL_BG_FAIL: 'Background image may improve color contrast',
+            HIDDEN:         'Text is hidden from asssistive technologies.',
+            TARGET_RESOURCES_DESC: 'All elements with text content',
+            PURPOSE:        ['The higher the color contrast of text the more easy it is to read, especially for people with visual impairments'                   
+                            ],
+            TECHNIQUES:     [ 'Change the foreground color to a more complemtary color to the background color',
+                              'Change the background color to a more complemtary color to the foreground color'
+                            ],
+            INFORMATIONAL_LINKS: [{ type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                               title: 'WCAG 2.0 Success Criterion 1.4.3 Contrast (Minimum): The visual presentation of text and images of text has a contrast ratio of at least 4.5:1', 
+                               url:   'http://www.w3.org/TR/WCAG20/#visual-audio-contrast-contrast'
+                             },
+                             { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                               title: 'How to meet Success Criterion 1.4.3 Contrast (Minimum): The visual presentation of text and images of text has a contrast ratio of at least 4.5:1', 
+                               url:   'http://www.w3.org/WAI/WCAG20/quickref/#qr-visual-audio-contrast'
+                             }
+                            ]
         },
         COLOR_2: {
-            ID:                  'COLOR 2',
-            TITLE:               'Text content exceed CCR of 7.0 for any size text or 4.5 for large and/or bolded text',
-            PURPOSE:             'Text on the page %s have sufficient contrast for people with low vision to read',
-            MESSAGE_PASS:        'The CCR of %1 exceeds the 7.0 for plain text and 4.5 for large text and/or bolded text.',
-            MESSAGE_FAIL:        'The CCR of %1 does not exceed CCR of 7.0 for plain text or 4.5 for large and/or bolded text.',
-            MESSAGE_MANUAL_PASS: 'The CCR of %1 exceeds CCR requirements, but a background image may reduce this CCR and so a manual check is required.',
-            MESSAGE_MANUAL_FAIL: 'The CCR of %1 does not meet CCR requirements, but a background image may imporve the CCR and so a manual check is required.',
-            MESSAGE_HIDDEN:      'The element is not displayed visually.'
+            ID:             'COLOR 2',
+            DEFINITION:     'Text content %s exceed Color Contrast Ratio (CCR) of 7.0 for any size text or 4.5 for large and/or bolded text',
+            SUMMARY:        'Text %s exceed CCR of 7.0',
+            ACTION:         'Adjust foreground and background colors to improve color contrast',
+            MANUAL_BG_PASS: 'Background image may reduce color contrast',
+            MANUAL_BG_FAIL: 'Background image may improve color contrast',
+            HIDDEN:         'Text is hidden from asssistive technologies.',
+            TARGET_RESOURCES_DESC: 'All elements with text content',
+            PURPOSE:        ['The higher the color contrast of text the more easy it is to read, especially for people with visual impairments'                   
+                            ],
+            TECHNIQUES:     ['Change the foreground color to a more complemtary color to the background color',
+                             'Change the background color to a more complemtary color to the foreground color'
+                            ],
+            INFORMATIONAL_LINKS:      [{ type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                               title: 'WCAG 2.0 Success Criterion 1.4.6 Contrast (Enhanced): The visual presentation of text and images of text has a contrast ratio of at least 7:1', 
+                               url:   'http://www.w3.org/TR/WCAG20/#visual-audio-contrast7'
+                             },
+                             { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                               title: 'How to meet Success Criterion 1.4.6 Contrast (Enhanced): The visual presentation of text and images of text has a contrast ratio of at least 7:1', 
+                               url:   'http://www.w3.org/WAI/WCAG20/quickref/#qr-visual-audio-contrast7'
+                             }                            
+                            ]
         },
         CONTROL_1: {
-            ID:                    'CONTROL 1',
-            TITLE:                 'textarea, select and input elements of type text, password, checkbox, radio and file % have an accessible label',
-            PURPOSE:               'Labels are used by assistive technologies to provide information on the purpose of the form control to people with disabilities and increases the area on the screen for mouse users interact with the control.',
-            MESSAGE_PASS:          '%1 control has label.',
-            MESSAGE_LABEL_MISSING: '%1 control is missing a label.',
-            MESSAGE_HIDDEN:        '%1 is hidden from assistive technology, so at users will not have access to the control.'
+            ID:                    'Control Rule 1',
+            DEFINITION:            '@textarea@, @select@ and @input@ elements of type @text@, @password@, @checkbox@, @radio@ and @file@ %s have an accessible label',
+            SUMMARY:               'Controls %s have labels',
+            PASS:                  '%1 control has label',
+            CORRECTIVE_ACTION:     'Add label to %1 control',
+            HIDDEN:                '%1 control is hidden from assistive technologies.',
+            TARGET_RESOURCES_DESC: '@textarea@, @select@ and @input@ elements of type @text@, @password@, @checkbox@, @radio@ and @file@',
+            PURPOSE: [
+              'A label associated with a form control insures that information about the form control is spoken by screen readers when it receives focus'                   
+            ],
+            TECHNIQUES: [
+              'The preferred technique for labeling for controls is using the @label@ element and referencing the @id@ attribute value of the form control element',
+              'Use the @label@ element to encapsulate the form control element',
+              'In special cases, use @aria-labelledby@ attribute to reference the id(s) of the elements on the page that describe the purpose of the form control element',
+              'In special cases, use @aria-label@ attribute to provide a explicit text description of the purpose of the form control element'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: The @label@ element', 
+                url:   'http://www.w3.org/TR/html4/interact/forms.html#edef-LABEL'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H44: Using label elements to associate text labels with form controls', 
+                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H44'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H65: Using the title attribute to identify form controls when the label element cannot be used', 
+                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H65'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H71: Providing a description for groups of form controls using fieldset and legend elements', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H71'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Labels for Form Controls Overview', 
+                url:   'http://html.cita.illinois.edu/nav/form/'
+              }                            
+            ]
         },
         CONTROL_2: {
-            ID:                    'CONTROL 2',
-            TITLE:                 'Every input type image %s have an alt or title attribute with content',
-            PURPOSE:               'The alt attribute on input type image is used by assistive technologies to provide information on the purpose of the form control to people with disabilities.',
-            MESSAGE_PASS:          'Image button control has label.',
-            MESSAGE_ALT_MISSING:   'Image button control is missing alt text.',
-            MESSAGE_HIDDEN:        'Image button is hidden from assistive technology, so at users will not have access to the control.'
+            ID:                    'Control Rule 2',
+            DEFINITION:            'Every @input@ type @image@ %s have an @alt@ or @title@ attribute with content',
+            SUMMARY:               'Image button %s have alt content',
+            PASS:                  'Image button has label',
+            CORRECTIVE_ACTION_1:   'Add @alt@ attribute with text content',
+            CORRECTIVE_ACTION_2:   'Add text content to the @alt@ attribute',
+            HIDDEN:                'Image button is hidden from asssistive technologies.',
+            TARGET_RESOURCES_DESC: 'input elements of type image',
+            PURPOSE: [
+              'A label associated with a form control insures that information about the form control is spoken by screen readers when it receives focus'                   
+            ],
+            TECHNIQUES: [
+              'The preferered technique for labeling for controls is using the @label@ element and referencing the @id@ attribute value of the form control element',
+              'Use the @label@ element to encapsulate the form control element',
+              'In special cases, use @aria-labelledby@ attributes to reference the id(s) of the elements on the page that describe the purpose of the form control element',
+              'In special cases, use @aria-label@ attributes to provide a explicit text description of the purpose of the form control element'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: The @label@ element', 
+                url:   'http://www.w3.org/TR/html4/interact/forms.html#edef-LABEL'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H36: Using alt attributes on images used as submit buttons', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H36'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Labels for Form Controls Overview', 
+                url:   'http://html.cita.illinois.edu/nav/form/'
+              }                            
+            ]
         },
         CONTROL_3: {
-            ID:                          'CONTROL 3',
-            TITLE:                       'Groups of radio buttons % be contained in fieldset/legend or aria labeling',
-            PURPOSE:                     'The fieldset/legend provides a grouping label to help users of assistive technology understand the context of the radio buton labels.',
-            MESSAGE_HAS_LEGEND:          'Radio button uses FIELDSET/LEGEND elements for group labeling',
-            MESSAGE_HAS_ARIA_LABELLEDBY: 'Radio button uses ARIA-LABELLEDBY for group labeling',
-            MESSAGE_HAS_ARIA_LABEL:      'Radio button uses ARIA-LABEL for group labeling',
-            MESSAGE_LEGEND_MISSING:      'Radio button is NOT contained in a FIELDSET/LEGEND elements or using ARIA labeling techniques to include group label',
-            MESSAGE_HIDDEN:              'Radio button is hidden from assistive technology, so at users will not have access to the control.'
+            ID:                    'Control Rule 3',
+            DEFINITION:            'Every input type radio %s be contained in a @fieldset@ and @legend@ elements to provide grouping information for radio button groups',
+            SUMMARY:               'Radio button %s use FIELDSET/LEGEND',
+            PASS:                  'Radio button uses @fieldset@ and @legend@ elements, and the @legend@ element has text content',
+            MANUAL_CHECK_1:        'Radio button uses aria-labelledby, verify the label text content includes group information',
+            MANUAL_CHECK_2:        'Radio button uses aria-label, verify the label text content includes group information',
+            CORRECTIVE_ACTION_1:   'Add a @legend@ element to with text content to the @fieldset@ element to provide grouping label information for the radio buttons.',
+            CORRECTIVE_ACTION_2:   'Add a @fieldset@ and @legend@ elements to provide grouping label information for the radio buttons.',
+            HIDDEN:                'Radio button is hidden from asssistive technologies.',
+            TARGET_RESOURCES_DESC: 'input elements of type radio',
+            PURPOSE: [
+              'Radio buttons need a common grouping label to provide a context for each radio button option'                   
+            ],
+            TECHNIQUES: [
+              '@fieldset@/@legend@ element combination is the preferred technique to provide a grouping label for radio buttons',
+              '@aria-labelledby@ attributes can provide a grouping label with references to the grouping text content and the radio button option text content',
+              '@aria-label@ attributes can provide a grouping label that includes both the grouping and radio button option text content'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: The @fieldset@ and @legend@ elements', 
+                url:   'http://www.w3.org/TR/html4/interact/forms.html#edef-FIELDSET'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H71: Providing a description for groups of form controls using fieldset and legend elements', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H71'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H90: Indicating required form controls using label or legend', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H90'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'iCITA: Example 7: Fieldset/Legend for grouping radio buttons', 
+                url:   'http://html.cita.illinois.edu/nav/form/radio/index.php?example=6'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'IBM Web checklist: HTML example 6', 
+                url:   'http://www-03.ibm.com/able/guidelines/web/webstructure.html'
+              }                            
+            ]
         },
         CONTROL_4: {
-            ID:                  'CONTROL 4',
-            TITLE:               'Button elements % have text content and input type button must have a value attribute with content',
-            PURPOSE:             'The value attribute of a button element is used by assistive technologies to provide information on the purpose of the form control to people with disabilities.',
-            MESSAGE_HAS_CONTENT: 'Button has text content',
-            MESSAGE_NO_CONTENT:  'Button has does NOT have text content',
-            MESSAGE_HIDDEN:      'Button is hidden from assistive technology, so at users will not have access to the control.'
+            ID:                    'Control Rule 4',
+            DEFINITION:            '@button@ elements %s have text content',
+            SUMMARY:               '@button@s %s have content',
+            PASS:                  '@button@ element has text content',
+            CORRECTIVE_ACTION:     'Add text content to @button@ element',
+            HIDDEN:                '@button@ element is hidden from asssistive technologies.',
+            TARGET_RESOURCES_DESC: '@button@ elements',
+            PURPOSE: [
+              'The text content of a @button@ element is used as a label to insure that the purpose of the button is spoken by screen readers when the button receives focus'                   
+            ],
+            TECHNIQUES: [
+              'The text content of the @button@ element and the @alt@ attribute content of images inside the button is used as the text content'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: The @button@ elements', 
+                url:   'http://www.w3.org/TR/html4/interact/forms.html#edef-BUTTON'
+              }
+            ]
         },
         CONTROL_5: {
-            ID:                   'CONTROL 5',
-            TITLE:                'Textarea, select, input and button elements with id attributes, %s have unique id values on the page',
-            PURPOSE:              'Duplicate ids may result in the improper calucation of labels for assistive technologies.',
-            MESSAGE_UNIQUE_ID:    'The id \'%1\' is unique on the page',
-            MESSAGE_DUPLICATE_ID: 'The id \'%1\' is NOT unique on the page'
+            ID:                    'Control Rule 5',
+            DEFINITION:            '@id@ attributes %s have unique values on the web page',
+            SUMMARY:               '@id@ %s be unique',
+            PASS:                  '\'%1\' @id@ attribute value is unique',
+            CORRECTIVE_ACTION:     'Update elements that share the \'%1\' @id@ value to have unique @id@ values',
+            HIDDEN:                '%1 control is hidden from assistive technologies.',
+            TARGET_RESOURCES_DESC: 'Form control elements with @id@ attributes',
+            PURPOSE: [
+              '@id@ attribute values can be used as references for @label@ elements, if @id@ attribute values are not unique it can result incorrect labeling of form controls'                   
+            ],
+            TECHNIQUES: [
+              'If a form control defines an @id@ attribute, make sure the valeu is unique'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: @id@ attribute', 
+                url:   'http://www.w3.org/TR/html4/struct/global.html#adef-id'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'F77: Failure of Success Criterion 4.1.1 due to duplicate values of type ID', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/F77'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H88: Using HTML according to spec', 
+                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H88'
+              }                             
+            ]
         },
         CONTROL_6: {
-            ID:                 'CONTROL 6',
-            TITLE:              'Label with a "for" attribute reference does not reference a form control',
-            PURPOSE:            'This may be an improperly referenced for control, since the for attribute is designed to associate a label with a form control.  ',
-            MESSAGE_NO_CONTROL: 'Label reference points to a %1 element, not a form control',
-            MESSAGE_NO_ELEMENT: 'Label does NOT reference any element on the page'
+            ID:                    'Control Rule 6',
+            DEFINITION:            '@label@ element using the @for@ attribute %s reference a form control on the page',
+            SUMMARY:               '@label@ %s reference control',
+            CORRECTIVE_ACTION:     'Change the @label@ element @for@ attribute to reference \'%1\' to reference a form control',
+            TARGET_RESOURCES_DESC: '@label@ elements',
+            PURPOSE: [
+              '@label@ elements only are useful for accessibility when they reference or encapsulate form controls'                   
+            ],
+            TECHNIQUES: [
+              '@label@ elements using the FOR attribute need to reference a form control with the corresponding @id@ attribute value'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: The @label@ element FOR attribute', 
+                url:   'http://www.w3.org/TR/html4/interact/forms.html#adef-for'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H44: Using label elements to associate text labels with form controls', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H44'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA: Using @label@ Element for Labeling Form Controls', 
+                url:   'http://html.cita.illinois.edu/nav/form/form-label-markup.php'
+              }                             
+            ]
         },
         CONTROL_7: {
-            ID:                  'CONTROL 7',
-            TITLE:               'LABEL element or legend element %s contain content',
-            PURPOSE:             'Labels without any content cannot describe the purpose of the associated form control.',
-            MESSAGE_NO_CONTENT:  'LABEL element does NOT have any content',
-            MESSAGE_HAS_CONTENT: 'LABEL element has content'
+            ID:                    'Control Rule 7',
+            DEFINITION:            '@label@ element or legend element %s contain text content',
+            SUMMARY:               '@label@ %s have content',
+            PASS:                  '@%1@ has text content',
+            CORRECTIVE_ACTION:     'Add text content to the @%1@ element',
+            HIDDEN:                '@%1@ control is hidden from asssistive technologies, so @%2@ content is ignored',
+            TARGET_RESOURCES_DESC: '@label@ and @legend@ elements',
+            PURPOSE: [
+              'For @label@ and @legend@ elements only are useful for accessibility when they contain content'                   
+            ],
+            TECHNIQUES: [
+              'Add text content to @label@ and @legend@ elements that help describe the purpose of the form control'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: The @label@ element @for@ attribute', 
+                url:   'http://www.w3.org/TR/html4/interact/forms.html#adef-for'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H44: Using @label@ elements to associate text labels with form controls', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H44'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H88: Using HTML according to spec', 
+                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H88'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA: Using @label@ element for Labeling Form Controls', 
+                url:   'http://html.cita.illinois.edu/nav/form/form-label-markup.php'
+              }                             
+            ]
         },
         CONTROL_8: {
-            ID:                    'CONTROL 8',
-            TITLE:                 'Fieldset %s contain exactly one legend element',
-            PURPOSE:               'Multiple legend elements contained in the same fieldset may result in the improper calucation of labels for assistive technologies.',
-            MESSAGE_NO_LEGEND:     'No LEGEND element found for FIELDSET element',
-            MESSAGE_MORE_THAN_ONE: 'More than one LEGEND element found for FIELDSET element',
-            MESSAGE_JUST_ONE:      'FIELDSET element has just one LEGEND element'
+            ID:                    'Control Rule 8',
+            DEFINITION:            '@fieldset@ element %s contain exactly one legend element',
+            SUMMARY:               '@fieldset@ %s have one legend',
+            PASS:                  '@fieldset@ has one @legend@ element',
+            CORRECTIVE_ACTION_1:   'Add @legend@ element',
+            CORRECTIVE_ACTION_2:   'Remove %1 @legend@ elements',
+            HIDDEN:                '@fieldset@ element is hidden from asssistive technologies.',
+            TARGET_RESOURCES_DESC: '@fieldset@ and @legend@ elements',
+            PURPOSE: [
+              'Multiple legend elements contained in the same fieldset may result in the improper calucation of labels for assistive technologies.'                   
+            ],
+            TECHNIQUES: [
+              '@fieldset@ element should have one and only one @legend@ elements to help describe the purpose of the form controls contained in the @fieldset@ element'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: Adding structure to forms: the @fieldset@ and @legend@ elements', 
+                url:   'http://www.w3.org/TR/html4/interact/forms.html#edef-FIELDSET'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H71: Providing a description for groups of form controls using fieldset and legend elements', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H71'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H88: Using HTML according to spec', 
+                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H88'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA: Using @label@ element for Labeling Form Controls', 
+                url:   'http://html.cita.illinois.edu/nav/form/form-label-markup.php'
+              }                             
+            ]
         },
         CONTROL_9: {
-            ID:                          'CONTROL 9',
-            TITLE:                       'TITLE attribute %s not be used to label form controls',
-            PURPOSE:                     'The title attribute was not designed to be a label for form controls and is often used for other purposes in a web page',
-            MESSAGE_USES_TITLE:          'Avoid using TITLE attribute to label form controls',
-            MESSAGE_DOES_NOT_USE_TITLE : 'Does not use TITLE attribute to label form controls'
+            ID:                    'Control Rule 9',
+            DEFINITION:            '@title@ attribute %s not be used to label form controls',
+            SUMMARY:               '@title@ %s not be label',
+            PASS:                  '@title@ is not used as label',
+            CORRECTIVE_ACTION:     'Use @label@ element or ARIA technique to label %1 form control',
+            HIDDEN:                '%1 control is hidden from asssistive technologies.',
+            TARGET_RESOURCES_DESC: '@textarea@, @select@ and @input@ elements',
+            PURPOSE: [
+              '@title@ attribute is defined in HTML specifications as a way to label form controls'                   
+            ],
+            TECHNIQUES: [
+              'The preferered technique for labeling for controls is using the @label@ element and referencing the @id@ attribute value of the form control element',
+              'Use the @label@ element to encapsulate the form control element',
+              'In special cases, use @aria-labelledby@ attributes to reference the id(s) of the elements on the page that describe the purpose of the form control element',
+              'In special cases, use @aria-label@ attributes to provide a explicit text description of the purpose of the form control element'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: Adding structure to forms: the @fieldset@ and @legend@ elements', 
+                url:   'http://www.w3.org/TR/html4/interact/forms.html#edef-FIELDSET'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H88: Using HTML according to spec', 
+                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H88'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA: Using @label@ element for Labeling Form Controls', 
+                url:   'http://html.cita.illinois.edu/nav/form/form-label-markup.php'
+              }                             
+            ]
         },
         CONTROL_10: {
-            ID:                      'CONTROL 10',
-            TITLE:                   'Accessible labels %s be unique for every textarea, select and input element of type text, password, radio, and checkbox on a page',
-            PURPOSE:                 'If may be difficult for people using assistive technologies to understand the puropose of form controls when more than one form control share the same label text content.',
-            MESSAGE_DUPLICATE_LABEL: 'The label \'%1\' is NOT unique on the page',
-            MESSAGE_LABEL_UNIQUE:    'The label \'%1\' is unique on the page',
-            MESSAGE_HIDDEN:          'Form control is hidden from assistive technology, so not tested'
+            ID:                    'Control Rule 10',
+            DEFINITION:            'Labels %s be unique for every textarea, select and input element of type text, password, radio, and checkbox on a page',
+            SUMMARY:               'Labels %s be unique',
+            PASS:                  'Label is unique',
+            CORRECTIVE_ACTION_1:   'Add label to %1 control',
+            CORRECTIVE_ACTION_2:   'Change the @label@ element content, use @fieldset@/@legend@ elements or ARIA technique to make label text content unique on the page',
+            HIDDEN:                '%1 control is hidden from asssistive technologies.',
+            TARGET_RESOURCES_DESC: '@textarea@, @select@ and @input@ elements of type @text@, @password@, @checkbox@, @radio@ and @file@',
+            PURPOSE: [
+              'Labels that are unique make it possible for people to understand the different purposes of form controls on the same page'                   
+            ],
+            TECHNIQUES: [
+              'The preferred technique for labeling for controls is using the @label@ element and referencing the @id@ attribute value of the form control element',
+              'Use the @label@ element to encapsulate the form control element',
+              'In special cases, use @aria-labelledby@ attribute to reference the id(s) of the elements on the page that describe the purpose of the form control element',
+              'In special cases, use @aria-label@ attribute to provide a explicit text description of the purpose of the form control element'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: The @label@ element', 
+                url:   'http://www.w3.org/TR/html4/interact/forms.html#edef-LABEL'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H44: Using label elements to associate text labels with form controls', 
+                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H44'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H65: Using the title attribute to identify form controls when the label element cannot be used', 
+                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H65'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H71: Providing a description for groups of form controls using fieldset and legend elements', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H71'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Labels for Form Controls Overview', 
+                url:   'http://html.cita.illinois.edu/nav/form/'
+              }                            
+            ]
         },
         CONTROL_11: {
-            ID:                      'CONTROL 11',
-            TITLE:                   'If there is more than one form on page, input element of type submit and reset %s have unique labels using the value attribute',
-            PURPOSE:                 'If there is more than form on the page the reset and submit buttons should have unique labels to help users of assistive technology understand which form they are reseting or submitting.',
-            MESSAGE_DUPLICATE_LABEL: 'The label \'%1\' is NOT unique on the page',
-            MESSAGE_LABEL_UNIQUE:    'The label is unique on the page',
-            MESSAGE_HIDDEN:          'Form control is hidden from assistive technology, so they will not see it'
+            ID:                    'CONTROL 11',
+            DEFINITION:            'If there is more than one form on page, input element of type submit and reset %s have unique labels using the value attribute',
+            SUMMARY:               'Labels %s be unique',
+            PASS:                  'Label is unique',
+            CORRECTIVE_ACTION_1:   'Add label to %1 control',
+            CORRECTIVE_ACTION_2:   'Change the @value@ attribute content, use @fieldset@/@legend@ elements or ARIA technique to make @submit@ and @reset@ labels unique on the page',
+            HIDDEN:                '%1 control is hidden from asssistive technologies.',
+            TARGET_RESOURCES_DESC: '@textarea@, @select@ and @input@ elements of type @text@, @password@, @checkbox@, @radio@ and @file@',
+            PURPOSE: [
+              'Labels that are unique make it possible for people to understand the different purposes of form controls on the same page',                   
+              '@submit@ and @reset@ form controls have default labels and if there is more than one form on a page the user may not understand which form they are submitting'                   
+            ],
+            TECHNIQUES: [
+              'The preferred technique for changing the default label for @submit@ and @reset@ controls is the @value@ attribute',
+              'In special cases, use @aria-labelledby@ attribute to reference the id(s) of the elements on the page that describe the purpose of the form control element',
+              'In special cases, use @aria-label@ attribute to provide a explicit text description of the purpose of the form control element'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: The @label@ element', 
+                url:   'http://www.w3.org/TR/html4/interact/forms.html#edef-LABEL'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H44: Using label elements to associate text labels with form controls', 
+                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H44'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H65: Using the title attribute to identify form controls when the label element cannot be used', 
+                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H65'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H71: Providing a description for groups of form controls using fieldset and legend elements', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H71'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Labels for Form Controls Overview', 
+                url:   'http://html.cita.illinois.edu/nav/form/'
+              }                            
+            ]
         },
+        CONTROL_12: {
+            ID:                    'Control Rule 12',
+            DEFINITION:            'Labels %s be must describe the purpose of every button, textarea, select and input element of type text, password, radio, and checkbox on a page',
+            SUMMARY:               'Labels %s be descriptive',
+            MANUAL_CHECK:          'Verify the label describes the purpose and input required for @%1@ form control',
+            CORRECTIVE_ACTION:     'Add a @label@ element, use @fieldset@/@legend@ elements or ARIA lechnique to provide a label for @%1@ form control',
+            HIDDEN:                '%1 control is hidden from asssistive technologies.',
+            TARGET_RESOURCES_DESC: '@textarea@, @select@ and @input@ elements of type @text@, @password@, @checkbox@, @radio@ and @file@',
+            PURPOSE: [
+              'Labels that are unique make it possible for people to understand the different purposes of form controls on the same page'                   
+            ],
+            TECHNIQUES: [
+              'The preferred technique for labeling for controls is using the @label@ element and referencing the @id@ attribute value of the form control element',
+              'Use the @label@ element to encapsulate the form control element',
+              'In special cases, use @aria-labelledby@ attribute to reference the id(s) of the elements on the page that describe the purpose of the form control element',
+              'In special cases, use @aria-label@ attribute to provide a explicit text description of the purpose of the form control element'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: The @label@ element', 
+                url:   'http://www.w3.org/TR/html4/interact/forms.html#edef-LABEL'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H44: Using label elements to associate text labels with form controls', 
+                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H44'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H65: Using the title attribute to identify form controls when the label element cannot be used', 
+                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H65'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H71: Providing a description for groups of form controls using fieldset and legend elements', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H71'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Labels for Form Controls Overview', 
+                url:   'http://html.cita.illinois.edu/nav/form/'
+              }                            
+            ]
+        },    
         HEADING_1: {
             ID:                    'HEADING 1',
-            TITLE:                 'Each page should contain at least one H1 element and each H1 element must have content',
-            PURPOSE:               'The H1 element can be used to help provide an accessible title for the web page and mark the beginning of the main content.',
-            MESSAGE_HAS_H1:        'H1 element is on page and has content',
-            MESSAGE_H1_NO_CONTENT: 'H1 element does not have text content',
-            MESSAGE_H1_MISSING:    'Page does not have an H1 element',
-            MESSAGE_H1_HIDDEN:     'H1 is hidden from assistive technology, so they will not see it'
+            TITLE:                 'Each page should contain at least one @h1@element and each @h1@element must have content',
+            PURPOSE:               'The @h1@element can be used to help provide an accessible title for the web page and mark the beginning of the main content.',
+            MESSAGE_HAS_H1:        '@h1@element is on page and has content',
+            MESSAGE_H1_NO_CONTENT: '@h1@element does not have text content',
+            MESSAGE_H1_MISSING:    'Page does not have an @h1@element',
+            MESSAGE_H1_HIDDEN:     '@h1@is hidden from assistive technology, so they will not see it'
         },
         HEADING_2: {
             ID:                 'HEADING 2',
@@ -177,7 +534,7 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
         },
         HEADING_4: {
             ID:                       'HEADING 4',
-            TITLE:                    'Headings within landmarks must be properly nested, if there are no MAIN landmarks the headings after the last H1 must be properly nested',
+            TITLE:                    'Headings within landmarks must be properly nested, if there are no @main@ landmarks the headings after the last @h1@must be properly nested',
             PURPOSE:                  'The proper nesting of headings provide information on the relationships between sections of content.',
             MESSAGE_PROPER_NESTING:   'Heading is properly nested',
             MESSAGE_IMPROPER_NESTING: 'Heading is not properly nested',
@@ -209,67 +566,219 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             MESSAGE_TO_LONG: 'Heading is %1 characters in length, in general heading should be less %2 characters in length'
         },
         IMAGE_1: {
-            ID:                   'IMAGE 1',
-            TITLE:                'Each image %s have an alt attribute',
-            PURPOSE:              'People who cannot see the images need to have a text equivalent of the image',
-            MESSAGE_PASS:         'Image has alt attribute.',
-            MESSAGE_ALT_MISSING:  'Alt attribute is missing, image elements not marked as presentational %s be an alt attribute.',
-            MESSAGE_PRESENTATION: 'Image has the role=presentation, this indicates the image is purely stylistic or redundent with text content.',
-            MESSAGE_HIDDEN:       'Image is hidden from users of assistive technologies.'
+            ID:                    'Image Rule 1',
+            DEFINITION:            'Each image %s have an alt attribute',
+            SUMMARY:               'Image %s have alt',
+            PASS:                  'Image has @alt@ attribute',
+            CORRECTIVE_ACTION:     'Add a @alt@ attribute to the image',
+            PRESENTATION:          '%1 element is hidden from asssistive technologies using the ARIA technique @role="presentation"@',
+            HIDDEN:                '%1 element is hidden from asssistive technologies using CSS',
+            TARGET_RESOURCES_DESC: '@img@ and @area@',
+            PURPOSE: [
+              'Alt text provides a description of the image for people who cannot see the image',                   
+              'Alt text that is an empty string is ignored by assistive technologies and indicates an image is being used for styling rather than meaningful content'                   
+            ],
+            TECHNIQUES: [
+              '@alt@ text content should describe the content and/or the purpose of them image as succinctly as possible (less than ~100 characters)',
+              'If an image is purely stylistic or decorative set the @alt@ text conent should be the empty string (i.e. @alt=""@)'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: 13.8 How to specify alternate text', 
+                url:   'http://www.w3.org/TR/html4/struct/objects.html#adef-alt'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G94: Providing short text alternative for non-text content that serves the same purpose and presents the same information as the non-text content', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G94'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G95: Providing short text alternatives that provide a brief description of the non-text content', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G95'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Text Equivalents for Images and other Non-Text Objects Best Practices', 
+                url:   'http://html.cita.illinois.edu/text/'
+              }                            
+            ]
         },
         IMAGE_2: {
-            ID:                   'IMAGE 2',
-            TITLE:                'If the longdesc attribute is defined, it %s have valid URI',
-            PURPOSE:              'People who are trying to follow the link to get more detialed information about the image will be confused if the link is broke.',
-            MESSAGE_PASS:         'Image longdesc "%1" is a valid URI.',
-            MESSAGE_FAIL:         'The longdesc reference "%1" %s be a valid url.',
-            MESSAGE_PRESENTATION: 'Image has the role=presentation, so the assistive technology user will not have access to longdesc reference.',
-            MESSAGE_HIDDEN:       'Image is hidden from users of assistive technologies, so they will not have access to the longdesc reference.',
-            MESSAGE_NOT_TESTED:   'The testing of URLs is disabled, you must manually test the longdesc url: %1.',
-            MESSAGE_ERROR:        'The testing of URLs resulted in an error, you must manually test the longdesc url: %1.',
-            MESSAGE_NA:           'Image does not have a longdesc attribute.'
+            ID:                    'Image Rule 2',
+            DEFINITION:            'The @longdesc@ attribute %s have a valid URI',
+            SUMMARY:               '@longdesc@ %s be valid',
+            PASS:                  '@longdesc@ attribute is a valid URI',
+            CORRECTIVE_ACTION:     'Change @longdesc@ attribute to a valid URI',
+            MANUAL_CHECK:          'Use a browser to test if the @longdesc@ attribute is a valid URL',
+            HIDDEN:                '@img@ element is hidden from asssistive technologies using CSS',
+            TARGET_RESOURCES_DESC: '@img@',
+            PURPOSE: [
+              'Some images (i.e charts, bar graphs, organizational charts, complex pictures and images) need a longer text equivalent than can be provided with the alt text content'
+            ],
+            TECHNIQUES: [
+              '@longdesc@ can be used to provide an internal link or extenal link to information that provides a extended and more detailed text equivalent of the image'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: longdesc attribute', 
+                url:   'http://www.w3.org/TR/html4/struct/objects.html#adef-longdesc-IMG'
+              },
+              { type: OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE,
+                title: 'H45: Using longdesc',
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H45'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G92: Providing long description for non-text content that serves the same purpose and presents ', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G92'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G74: Providing a long description in text near the non-text content, with a reference to the location of the long description in the short description', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G74'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G73: Providing a long description in another location with a link to it that is immediately adjacent to the non-text content', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G73'
+              },
+              { type: OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE,
+                title: 'H45: Using longdesc',
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H45'
+              },  
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Text Equivalents for Images and other Non-Text Objects Best Practices', 
+                url:   'http://html.cita.illinois.edu/text/'
+              }                            
+            ]
         },
         IMAGE_3: {
-            ID:                   'IMAGE 3',        
-            TITLE:                'The file name of the image %s not be part of the alt text content',
-            PURPOSE:              'The file name in all but a very limited number of situations does not provide any useful information to people who cannot see the image.',
-            MESSAGE_NA:           'Image does not use the file name as the alt text',
-            MESSAGE_FAIL:         'The file name %1 is being used as the alt text, the alt text $s describe the purpose or content of informative images, or be empty if the image is decorative',
-            MESSAGE_HIDDEN:       'Image is hidden from users of assistive technologies, so they will not have access to the alt text content.',
-            MESSAGE_NO_FILE_NAME: 'Image alt text does not contain file name',
-            MESSAGE_NO_ALT:       'Image does not have ALT text'
+            ID:                    'IMAGE 3',        
+            TITLE:                 'The file name of the image %s not be part of the alt text content',
+            ID:                    'Image Rule 3',
+            DEFINITION:            'The file name of the image %s not be part of the alt text content',
+            SUMMARY:               'Don\'t use filename',
+            PASS:                  '@alt@ attribute does not contain the filename',
+            CORRECTIVE_ACTION:     'Change @alt@ attribute to describe the purpose and/or content of the image',
+            PRESENTATION:          '%1 control is hidden from asssistive technologies using the ARIA technique @role="presentation"@',
+            HIDDEN:                '%1 control is hidden from asssistive technologies using CSS',
+            TARGET_RESOURCES_DESC: '@img@ and @area@',
+            PURPOSE: [
+              'Alt text provides a description of the image for people who cannot see the image and the file name is not useful information',                   
+              'Alt text that is an empty string is ignored by assistive technologies and indicates an image is being used for styling rather than meaningful content'                   
+            ],
+            TECHNIQUES: [
+              '@alt@ text content should describe the content and/or the purpose of them image as succinctly as possible (less than ~100 characters)',
+              'If an image is purely stylistic or decorative set the @alt@ text conent should be the empty string (i.e. @alt=""@)'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: 13.8 How to specify alternate text', 
+                url:   'http://www.w3.org/TR/html4/struct/objects.html#adef-alt'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G94: Providing short text alternative for non-text content that serves the same purpose and presents the same information as the non-text content', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G94'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G95: Providing short text alternatives that provide a brief description of the non-text content', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G95'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'F30: Failure of Success Criterion 1.1.1 and 1.2.1 due to using text alternatives that are not alternatives (e.g., filenames or placeholder text)', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/F30'
+              }                            
+            ]
         },
         IMAGE_4_EN: {
-            ID:                   'IMAGE 4-ENGLISH',        
-            TITLE:                'Alt text %s be no more than 100 characters long.',
-            PURPOSE:              'Since alt text is often rendered through speech it should be as succinct as possible.',
-            MESSAGE_PASS:         'The alt text of %1 characters is shorter than the maximum %2 characters.',
-            MESSAGE_ALT_TO_LONG:  'The alt text is %1 characters, the length %s NOT exceed %2 characters.  If an image needs a longer description use the longdesc attribute or other technique to provide a linger description.',
-            MESSAGE_NA :          'Image is hidden, marked as presentation or the alt attribute is missing or empty.'
-        },
-        IMAGE_4_FR: {
-            ID:                   'IMAGE 4-FRENCH',        
-            TITLE:                'ALT text  %s be no more than 120 characters long.',
-            PURPOSE:              'Since alt text is often rendered through speech it should be as succinct as possible.',
-            MESSAGE_PASS:         'The alt text of %1 characters is shorter than the maximum %2 characters.',
-            MESSAGE_ALT_TO_LONG:  'The alt text is %1 characters, the length %s NOT exceed %2 characters.  If an image needs a longer description use the longdesc attribute or other technique to provide a linger description.',
-            MESSAGE_NA :          'Image is hidden, marked as presentation or the alt attribute is missing or empty.'
+            ID:                    'Image Rule 4 (English)',
+            DEFINITION:            'The length of the @alt@ attribute content %s less than 100 characters',
+            SUMMARY:               '@alt@ less than 100 characters',
+            PASS:                  '@alt@ attribute is less than 100 characters',
+            CORRECTIVE_ACTION:     'Change @alt@ attribute content to less than 100 characters',
+            PRESENTATION:          '%1 control is hidden from asssistive technologies using the ARIA technique @role="presentation"@',
+            HIDDEN:                '%1 control is hidden from asssistive technologies using CSS',
+            TARGET_RESOURCES_DESC: '@img@ and @area@',
+            PURPOSE: [
+              'Alt text provides a description of the image for people who cannot see the image and the file name is not useful information',                   
+              'Alt text that is an empty string is ignored by assistive technologies and indicates an image is being used for styling rather than meaningful content'                   
+            ],
+            TECHNIQUES: [
+              '@alt@ text content should describe the content and/or the purpose of them image as succinctly as possible (less than ~100 characters)',
+              'If an image is purely stylistic or decorative set the @alt@ text conent should be the empty string (i.e. @alt=""@)'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: 13.8 How to specify alternate text', 
+                url:   'http://www.w3.org/TR/html4/struct/objects.html#adef-alt'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G94: Providing short text alternative for non-text content that serves the same purpose and presents the same information as the non-text content', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G94'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G95: Providing short text alternatives that provide a brief description of the non-text content', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G95'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'F30: Failure of Success Criterion 1.1.1 and 1.2.1 due to using text alternatives that are not alternatives (e.g., filenames or placeholder text)', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/F30'
+              }                            
+            ]
         },
         IMAGE_5: {
-            ID:                    'IMAGE 5',
-            TITLE:                 'If an image has a height or width of 1 pixel or its alt text set to empty, the image %s set its role attribute to "presentation" or the image %s be removed and CSS %s should be used for positioning.',
-            PURPOSE:               'Small image are usually used for styling and should be marked with role=presentation to make sure assistive technologies ignore them',
-            MESSAGE_NA:            'Image is missing an alt attribute, is hidden or has its role set to presentation.',
-            MESSAGE_ALT_NOT_EMPTY: 'Images that are only 1 pixel high or wide must set it\'s alt text to empty.',
-            MESSAGE_PASS:          'Image is more than 1 pixel high or wide, hidden, or already has its alt text set to empty.'
+            ID:                    'Image Rule 5',
+            DEFINITION:            'If an image has a height or width of 1 pixel or its alt text set to empty, the image %s set its role attribute to "presentation" or the image %s be removed and CSS %s should be used for positioning.',
+            SUMMARY:               '@alt=""@ for small images',
+            PASS:                  'Image is not a small image',
+            CORRECTIVE_ACTION:     'Change @alt@ attribute content to empty string',
+            PRESENTATION:          '%1 element is hidden from asssistive technologies using the ARIA technique @role="presentation"@',
+            HIDDEN:                '%1 element is hidden from asssistive technologies using CSS',
+            TARGET_RESOURCES_DESC: '@img@',
+            PURPOSE: [
+              'Images that are 1 pixel high or 1 pixel wide are stylistic images and the @alt@ attribute should be set to the empty string'                   
+            ],
+            TECHNIQUES: [
+              'Small images are purely stylistic or decorative and the @alt@ text conent should be the empty string (i.e. @alt=""@)'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: 13.8 How to specify alternate text', 
+                url:   'http://www.w3.org/TR/html4/struct/objects.html#adef-alt'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'F30: Failure of Success Criterion 1.1.1 and 1.2.1 due to using text alternatives that are not alternatives (e.g., filenames or placeholder text)', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/F30'
+              }                            
+            ]
         },
         IMAGE_6: {
-            ID:                   'IMAGE 6',
-            TITLE:                'If the alt is empty or role is set presentation verify the image is used just for styling or decoration',
-            PURPOSE:              'Images used for styling and decoration should be marked with role=presentation to make sure assistive technologies ignore them, if they have important content they should have descriptive alt text',
-            MESSAGE_HIDDEN:       'Image is hidden from users of assistive technologies.',
-            MESSAGE_NA:           'Image has alt text content ',
-            MESSAGE_VERIFY:       'Since the image has no alt attribute, empty alt text, or role is set to presentation, verify the image is purely used for styling or decoration.'
+            ID:                    'Image Rule 6',
+            DEFINITION:            'If @alt=""@ or @role="presentation"@ the image %s be used just for styling or decoration',
+            SUMMARY:               '@alt=""@ or @role="presentation"@ %s be decorative',
+            MANUAL_CHECK:          'Verify the image is only used for styling or decoration',
+            HIDDEN:                '%1 element is hidden from asssistive technologies using CSS',
+            TARGET_RESOURCES_DESC: '@img@',
+            PURPOSE: [
+              'If an image is purely decoration or used for styling users of screen readers do not need to know the image exists',                   
+              'If an image does not have alt text content and contains information, users of assistive technology will not have access to the information'                   
+            ],
+            TECHNIQUES: [
+              'Use the attributes @alt=""@ or @role="presentation"@ to indicate an image is used purely for stylistic or decorative purposes'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: 13.8 How to specify alternate text', 
+                url:   'http://www.w3.org/TR/html4/struct/objects.html#adef-alt'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G94: Providing short text alternative for non-text content that serves the same purpose and presents the same information as the non-text content', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G94'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G95: Providing short text alternatives that provide a brief description of the non-text content', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G95'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Text Equivalents for Images and other Non-Text Objects Best Practices', 
+                url:   'http://html.cita.illinois.edu/text/'
+              }                            
+            ]
         },
         LANDMARK_1: {
             ID:             'LANDMARK 1',
@@ -292,9 +801,9 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             TITLE:          'If there are two or more landmarks of the same type, they %s have unique labels',
             PURPOSE:        'When there are two or more landmarks of the same type labels make it possible for people using assistive technology to identify the differences between the landmarks.',            
             MESSAGE_PASS_ONLY_ONE:  'There is only one %1 landmark in the page',
-            MESSAGE_PASS_UNIQUE:    'The "%1" label is unique for the %2 landmarks',
+            MESSAGE_PASS_UNIQUE:    'The \'%1\' label is unique for the %2 landmarks',
             MESSAGE_FAIL_NO_LABEL:  'The %2 landmark does not have a label, when there are more than one of the same type of landmark on the page the landmark needs a label',
-            MESSAGE_FAIL_DUPLICATE: 'The "%1" label is NOT unique for the %2 landmarks',
+            MESSAGE_FAIL_DUPLICATE: 'The \'%1\' label is NOT unique for the %2 landmarks',
             MESSAGE_HIDDEN: 'The %1 landmark is hidden, if the landmark content became visible the label would NOT be unique.'
         },
         LANDMARK_4: {
@@ -378,7 +887,7 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                      'TABLE 2T',
             TITLE:                   'Each data table %s have a effective caption with content',
             PURPOSE:                 'It is important to provide an effective caption for a table to identify the purpose of the table and to disern the table from other tables on the page.',
-            MESSAGE_PASS:            'Data table has the caption element or a summary attribute of "%1".',
+            MESSAGE_PASS:            'Data table has the caption element or a summary attribute of \'%1\'.',
             MESSAGE_FAIL:            'Data table is missing a caption element and summary attribute with text content, the page %s have either a caption element or a summary attribute with text content.',
             MESSAGE_NOT_DATA_TABLE:  'Table is not a data table, and therefore should not have a caption element.',
             MESSAGE_HIDDEN:          'Table is hidden from users of assistive technologies, so rule was not evaluated.'
@@ -387,7 +896,7 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                      'TABLE 2S',
             TITLE:                   'If there is only one data table on a page, it %s have an effective caption with content',
             PURPOSE:                 'It is important to provide an effective caption for a table to identify the purpose of the table.',
-            MESSAGE_PASS:            'Data table has the effective caption: "%1".',
+            MESSAGE_PASS:            'Data table has the effective caption: \'%1\'.',
             MESSAGE_FAIL:            'The effective caption is missing or is empty, a data table %s have a caption element, aria-label attribute, or arial-labelledby attribute with references to text content that describe the purpose of the table.',
             MESSAGE_NOT_DATA_TABLE:  'Table is not a data table, and therefore should not have an effective caption.',
             MESSAGE_HIDDEN:          'Table is hidden from users of assistive technologies, so rule was not evaluated.'
@@ -396,7 +905,7 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                      'TABLE 2M',
             TITLE:                   'If there is more than one data table, each data table %s have an effective caption with content.',
             PURPOSE:                 'It is important to provide an effective caption for a table to identify the purpose of the table and to disern the table from other tables on the page.',
-            MESSAGE_PASS:            'Table has an effective caption: "%1"',
+            MESSAGE_PASS:            'Table has an effective caption: \'%1\'',
             MESSAGE_FAIL:            'Since there is more than one data table, the table %s have a caption element, an arial-label attribute, or an aria-labelledby attribute to create an effective caption.',
             MESSAGE_ONLY_ONE:        'There is only one visible data table, so the rule was not evaluated.',
             MESSAGE_HIDDEN:          'The table is hidden from people using assistive technologies, so the rule was not evaluated.',
@@ -406,8 +915,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                       'TABLE 3',
             TITLE:                    'The effective caption content and effective summary content of each data table %s not be the same',
             PURPOSE:                  'It is important to provide an unique effective captions to more easily disern a table from other tables on the page.',
-            MESSAGE_UNIQUE:           'The effective caption "%1" is unique from the effective summary "%2".',
-            MESSAGE_NOT_UNIQUE:       'The effective caption "%1" is the same as the effective summary "%2", the effective caption should be used to describe the purpose of the table and the effective summary information about the data in the table or conclusions the author intended to be understood from viewing the data.',
+            MESSAGE_UNIQUE:           'The effective caption \'%1\' is unique from the effective summary "%2".',
+            MESSAGE_NOT_UNIQUE:       'The effective caption \'%1\' is the same as the effective summary "%2", the effective caption should be used to describe the purpose of the table and the effective summary information about the data in the table or conclusions the author intended to be understood from viewing the data.',
             MESSAGE_HIDDEN:           'Table is hidden from users of assistive technologies, so rule was not evaluated.',
             MESSAGE_MISSING:          'Either or both of the effective caption or effective summary are either not defined or are empty, so rule was not evaluated.',
             MESSAGE_NOT_DATA_TABLE:   'Table is not a data table, rule does not apply.'
@@ -426,7 +935,7 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                      'TABLE 5',
             TITLE:                   'Each data tables %s have an effective summary',
             PURPOSE:                 'It is important to provide a description of the content or point of the data table content so that people using speech do not have to read all the cells.',
-            MESSAGE_PASS:            'Table has an effective caption: "%1"',
+            MESSAGE_PASS:            'Table has an effective caption: \'%1\'',
             MESSAGE_VIOLATION:       'The effective caption is missing or empty, the table must have a summary attribute or an aria-describedby attribute to create effective summary.',
             MESSAGE_RECOMMENDATION:  'The effective caption is missing or empty, the table should have a summary attribute or an aria-describedby attribute to create effective summary.',
             MESSAGE_MANUAL:          'The effective caption is missing or empty, the table may need a summary attribute or an aria-describedby attribute to create effective summary.',
@@ -440,15 +949,15 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             PURPOSE:                           'Complex data tables require much more specific definition of header cells for each data cell and using IDs on the header cells is required for identifying the header cells.',
             MESSAGE_PASS:                      'Table header cell has unique ID',
             MESSAGE_NO_CONTENT:                'Table header cell does not contain content, it is unsual for a header cell to not have content.',
-            MESSAGE_NOT_UNIQUE_VIOLATION:      'Table header cell has duplicate ID: "%1\", header cells in complex tables must have unique ids.',
-            MESSAGE_NOT_UNIQUE_RECOMMENDATION: 'Table header cell has duplicate ID: "%1\", header cells in complex tables should have unique ids.',
-            MESSAGE_NOT_UNIQUE_MANUAL:         'Table header cell has duplicate ID: "%1\", header cells in complex tables may need unique ids.',
-            MESSAGE_NO_ID_VIOLATON:            'Table header cell is missing an ID attribute, header cells in complex tables must have an id.',
-            MESSAGE_NO_ID_RECOMMENDATION:      'Table header cell is missing an ID attribute, header cells in complex tables should have an id.',
-            MESSAGE_NO_ID_MANUAL:              'Table header cell is missing an ID attribute, header cells in complex tables may need an id.',
+            MESSAGE_NOT_UNIQUE_VIOLATION:      'Table header cell has duplicate ID: \'%1\', header cells in complex tables must have unique ids.',
+            MESSAGE_NOT_UNIQUE_RECOMMENDATION: 'Table header cell has duplicate ID: \'%1\', header cells in complex tables should have unique ids.',
+            MESSAGE_NOT_UNIQUE_MANUAL:         'Table header cell has duplicate ID: \'%1\', header cells in complex tables may need unique ids.',
+            MESSAGE_NO_ID_VIOLATON:            'Table header cell is missing an @id@ attribute, header cells in complex tables must have an id.',
+            MESSAGE_NO_ID_RECOMMENDATION:      'Table header cell is missing an @id@ attribute, header cells in complex tables should have an id.',
+            MESSAGE_NO_ID_MANUAL:              'Table header cell is missing an @id@ attribute, header cells in complex tables may need an id.',
             MESSAGE_HIDDEN:                    'Table header cell is hidden hidden from assistive technologies, rule was not evaluated.',
             MESSAGE_TABLE_PASS:                'All %1 header cells have unique ids.',
-            MESSAGE_TABLE_MISSING_HEADERS:     '%1 header cells of %2 header cells in the table have missing or dulicate ID values.',
+            MESSAGE_TABLE_MISSING_HEADERS:     '%1 header cells of %2 header cells in the table have missing or dulicate @id@ values.',
             MESSAGE_TABLE_DATA_TABLE:          'Simple data table, rule only applies to complex data tables.',
             MESSAGE_TABLE_LAYOUT_TABLE:        'Layout table, rule only applies to complex data tables.',
             MESSAGE_TABLE_HIDDEN:              'The table is hidden from people using assistive technologies.'
@@ -473,7 +982,7 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                             'TABLE 8',
             TITLE:                          'Each complex data table %s have an effective summary.',
             PURPOSE:                        'It is critical to provide a description of the content or point of the data in a complex data table content so that people using speech do not have to read all the cells.',
-            MESSAGE_PASS:                   'Complex data table has the effective summary "%1"',
+            MESSAGE_PASS:                   'Complex data table has the effective summary \'%1\'',
             MESSAGE_VIOLATION:              'Complex data tables must have a summary attribute or an aria-describedby attribute to create effective summary.',
             MESSAGE_RECOMMENDATION:         'Complex data tables should have a summary attribute or an aria-describedby attribute to create effective summary.',
             MESSAGE_MANUAL:                 'Complex data tables may need a summary attribute or an aria-describedby attribute to create effective summary.',
@@ -495,8 +1004,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
         },
         LAYOUT_2: {
             ID:                       'LAYOUT 2',
-            TITLE:                    'If a table is a layout table that is more than 1 column wide, the content needs to be meaningful when table markup is ignored.',
-            PURPOSE:                  '',
+            DEFINITION:               'If a table is a layout table that is more than 1 column wide, the content needs to be meaningful when table markup is ignored.',
+            SUMMARY:                  'Layout content must make sense',
             PURPOSE:                  'The use of layout tables can result in content being read using speech to be read out of the intended reading order of the author.',
             MESSAGE_PASS:             'The layout table is only one column wide.',
             MESSAGE_VIOLATION:        'The page content must be meaningful when the %1 column by %2 row table markup is disabled.',
@@ -505,39 +1014,161 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             MESSAGE_HIDDEN:           'The table is hidden from people using assistive technologies, so the rule was not evaluated'
         },
         LAYOUT_3: {
-            ID:                       'LAYOUT 3',
-            TITLE:                    'If the table is a layout table, the rule test the table element and all of its children for role="presentation"',
-            PURPOSE:                  'The use of role=presentation on table markup makes it easier for people using assistive technology to ignore the table markup.',
-            MESSAGE_PASS:             'The %1 element has role="presentation".',
-            MESSAGE_VIOLATION:        'The %1 element must use the attribute role="presentation".',
-            MESSAGE_RECOMMENDATION:   'The %1 element should use the attribute role="presentation".',
-            MESSAGE_NOT_LAYOUT_TABLE: 'The table is a data table, so the rule was not evaluated.',
-            MESSAGE_HIDDEN:           'The table is hidden from people using assistive technologies, so the rule was not evaluated'
+            ID:                 'LAYOUT 3',
+            DEFINITION:         'If the table is a layout table, set role="presentation" on TABLE, TR and TD elements in the table',
+            SUMMARY:            'Presentation role on layout tables',
+            ACTION:             'Add role="presentation" attribute.',
+            MESSAGE_HIDDEN:     'The table is hidden from people using assistive technologies, so the rule was not evaluated',
+            TECHNIQUES:         ['Use the role="presentation" attribute on TABLE, TR and TD elements used in layout tables'],
+            INFORMATIONAL_LINKS:          [{type:  OpenAjax.a11y.REFERENCES.REQUIREMENT, 
+                                  title: 'ARIA Presentation Role Value ', 
+                                  url:   'http://www.w3.org/TR/wai-aria/roles#presentation'
+                                 }
+                                ]
         },
         TITLE_1: {
-            ID:                'TITLE 1',
-            TITLE:             'Document %s have a title element with content.',
-            PURPOSE:           'The title is important to help people understand the type of content or purpose of a web page.',
-            MESSAGE_HAS_TITLE: 'Document has a TITLE element with content.',
-            MESSAGE_NO_TITLE:  'Document TITLE element is missing or empty.'
+            ID:                 'TITLE 1',
+            DEFINITION:         'Document %s have a TITLE element with content.',
+            SUMMARY:            'Title web page',
+            ACTION_NO_TITLE:    'Add TITLE element to web page',
+            ACTION_TITLE_EMPTY: 'Add text content to TITLE element',
+            PURPOSE:            ['The TITLE element text content can be accessed by asssitive technologies to understand the purpose of the web page.'
+                                ],
+            TECHNIQUES:         ['Use TITLE element text content to describe the content of a web page'],
+            INFORMATIONAL_LINKS:          [{type:  OpenAjax.a11y.REFERENCES.REQUIREMENT, 
+                                  title: 'HTML TITLE Element Specification', 
+                                  url:   'http://www.w3.org/TR/html4/struct/global.html#edef-TITLE'
+                                 }, 
+                                 {type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                                  title: 'G88: Providing descriptive titles for Web pages', 
+                                  url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G88'
+                                 }, 
+                                 {type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                                  title: 'H25: Providing a title using the title element', 
+                                  url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H25'
+                                 }
+                                ]
         },
         TITLE_2: {
-            ID:                      'TITLE 2',
-            TITLE:                   'If a page contains both MAIN landmarks and H1 elements, each H1 element %s be a label for a MAIN landmark.',
-            PURPOSE:                 'H1 can provide a redundent navigational marker for the start of main content, and orient users to the section of the page.',
-            MESSAGE_H1_IS_NOT_LABEL: 'H1 element is NOT a label for a MAIN landmark.',
-            MESSAGE_H1_IS_LABEL:     'H1 element is a label for a MAIN landmark.',
-            MESSAGE_NO_ROLE_MAIN:    'No MAIN landmarks on the page, rule for H1 elements does not apply.',
-            MESSAGE_HIDDEN:          'H1 element is hidden from assistive technology, so will not be seen.'
-        },    
+            ID:            'TITLE 2',
+            DEFINITION:    '@h1@elements %s be used as labels for @main@ landmarks',
+            SUMMARY:       '@h1@labels @main@ landmarks',
+            ACTION_MAIN:   'Add @h1@element as label to @main@ landmark.',
+            ACTION_H1:     'Make @h1@the label of a @main@ landmark',
+            TARGET:        '@h1@elements and @main@ landmarks',
+            HIDDEN:        'Make @h1@element visible to assistive technologies',
+            PURPOSE:       ['@h1@headings can be used to provide redundent navigation points to assistive technology users to the start of the main content'
+                           ],
+            TECHNIQUES:    ['Include an @h1@element for each @main@ landmark',
+                            'Use an @id@ attribute to identify each @h1@element',
+                            'Use ARIA-LABELLEDBY attribute to associate a @h1@element as a label to each @main@ element',
+                            'Position @h1@elements in document right before the main content they label'
+                           ],
+            INFORMATIONAL_LINKS:     [{type:  OpenAjax.a11y.REFERENCES.REQUIREMENT, 
+                             title: '@h1@Element Specification', 
+                             url:   'http://www.w3.org/TR/html4/struct/global.html#edef-H1'
+                             }, 
+                             {type:  OpenAjax.a11y.REFERENCES.REQUIREMENT, 
+                              title: 'Main Landmark Specificaion', 
+                              url:   'http://www.w3.org/TR/wai-aria/roles#main'
+                             }, 
+                             {type:  OpenAjax.a11y.REFERENCES.REQUIREMENT, 
+                              title: 'aria-labelledby specification', 
+                              url:   'http://www.w3.org/TR/wai-aria/states_and_properties#aria-labelledby'
+                             },
+                             {type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                              title: 'IBM Home Page', 
+                              url:   'http://www.ibm.com'
+                             },
+                             {type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                              title: 'Disability Resources at Illinois', 
+                              url:   'http://www.w3.org/TR/wai-aria/states_and_properties#aria-labelledby'
+                             }
+                           ]
+        },
         TITLE_3: {
-            ID:                   'TITLE 3',
-            TITLE:                'If there are both H1 elements and MAIN landmarks the H1 elements %s only be used as labels for MAIN landmarks',
-            PURPOSE:              'Using H1s as labels for main landmarks assures that users will receive consistent information about the content of each main section.',
-            MESSAGE_H1_IS_LABEL:  'The H1 element is a label for a MAIN landmark.',
-            MESSAGE_H1_NOT_LABEL: 'The H1 element is NOT a label for a MAIN landmark.',
-            MESSAGE_HIDDEN:       'The H1 element is hidden to assistive technologies.'
+            ID:               'TITLE 3',
+            DEFINITION:       'Each @main@ landmark %s have one @h1@element',
+            SUMMARY:          'One @h1@per @main@ landmark',
+            ACTION_TO_MANY:   'Remove %1 @h1@element labeling references from @main@ landmark',
+            ACTION_MISSING:   'Add @h1@element label reference to @main@ landmark',
+            HIDDEN:           'Make @h1@element visible to assistive technologies.',
+            PURPOSE:          ['@h1@headings can be used to provide redundent navigation points to assistive technology users to the start of the main content',
+                               'If there is more than one @h1@element in the @main@ landmark the start of the main content will not be clear to assistive technology users'
+                              ],
+            TECHNIQUES:       ['Use one @h1@element for each @main@ landmark',
+                               'Use an @id@ attribute to identify each @h1@element',
+                               'Use ARIA-LABELLEDBY attribute to associate a @h1@element as a label to each @main@ element',
+                               'Position @h1@elements in document right before the main content they label'
+                              ],
+            INFORMATIONAL_LINKS:        [{type:  OpenAjax.a11y.REFERENCES.REQUIREMENT, 
+                                title: '@h1@Element Specification', 
+                                url:   'http://www.w3.org/TR/html4/struct/global.html#edef-H1'
+                               }, 
+                               {type:  OpenAjax.a11y.REFERENCES.REQUIREMENT, 
+                                title: 'Main Landmark Specificaion', 
+                                url:   'http://www.w3.org/TR/wai-aria/roles#main'
+                               }, 
+                               {type:  OpenAjax.a11y.REFERENCES.REQUIREMENT, 
+                                title: 'aria-labelledby specification', 
+                                url:   'http://www.w3.org/TR/wai-aria/states_and_properties#aria-labelledby'
+                               },
+                               {type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                                title: 'IBM Home Page', 
+                                url:   'http://www.ibm.com'
+                               },
+                               {type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                                title: 'Disability Resources at Illinois', 
+                                url:   'http://www.w3.org/TR/wai-aria/states_and_properties#aria-labelledby'
+                               }
+                              ]
+        },
+        WIDGET_1: {
+            ID:                    'Widget Rule 1',
+            DEFINITION:            'Widgets %s have an accessible name',
+            SUMMARY:               'Widget %s have name',
+            PASS:                  '%1 widget has name',
+            CORRECTIVE_ACTION:     'Add name to %1 widget',
+            HIDDEN:                '%1 widget is hidden from assistive technologies.',
+            TARGET_RESOURCES_DESC: 'Elements with @role@ attribute values that are defined as widgets',
+            PURPOSE: [
+              'A name associated with a widget insures that information about the widget is spoken by screen readers when it receives focus'                   
+            ],
+            TECHNIQUES: [
+              'In some cases the child text nodes and @alt@ from descendant image elements will be used as the name for a widget',
+              'Use @aria-labelledby@ attribute to reference the id(s) of the elements on the page that describe the purpose of the widget',
+              'Use @aria-label@ attribute to provide a explicit text description of the purpose of the widget'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Accessible Name Calculation', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#namecalculation'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: aria-labelledby', 
+                url:   'http://www.w3.org/TR/wai-aria/states_and_properties#aria-labelledby'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: aria-label', 
+                url:   'http://www.w3.org/TR/wai-aria/states_and_properties#aria-label'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G108'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'WAI-ARIA 1.0 Authoring Practices', 
+                url:   'http://www.w3.org/TR/wai-aria-practices/'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'OAA Web Accessibility ARIA Examples', 
+                url:   'http://oaa-accessibility.org/examples/'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'Accessible jQuery-ui Components Demonstration', 
+                url:   'http://access.aol.com/aegis/#goto_slider'
+              }                            
+            ]
         }
-
    }
 });

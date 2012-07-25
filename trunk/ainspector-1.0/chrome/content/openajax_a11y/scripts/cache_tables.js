@@ -93,7 +93,7 @@ OpenAjax.a11y.cache.TablesCache = function (dom_cache) {
   this.sort_property  = 'document_order';
   this.ascending      = true;
 
-  this.rule_summary_results  = new OpenAjax.a11y.ResultRuleSummary();
+  this.evaluation_results  = new OpenAjax.a11y.EvaluationResult();
    
 };
 
@@ -207,7 +207,7 @@ OpenAjax.a11y.cache.TablesCache = function (dom_cache) {
  };
 
 /**
- * @method getResultRuleByCacheId
+ * @method getRuleResultByCacheId
  * 
  * @memberOf OpenAjax.a11y.cache.TablesCache
  *
@@ -217,11 +217,11 @@ OpenAjax.a11y.cache.TablesCache = function (dom_cache) {
  *
  * @return {ResultRule | null} Returns cache rule result object if cache id is found, otherwise null
  */
- OpenAjax.a11y.cache.TablesCache.prototype.getResultRuleByCacheId = function (cache_id) {
+ OpenAjax.a11y.cache.TablesCache.prototype.getRuleResultByCacheId = function (cache_id) {
 
    var i;
    var rr;
-   var rule_results     = this.rule_summary_results.rule_results;
+   var rule_results     = this.evaluation_results.rule_results;
    var rule_results_len = rule_results.length;
       
    for (i = 0; i < rule_results_len; i++) {
@@ -412,7 +412,7 @@ OpenAjax.a11y.cache.TablesCache = function (dom_cache) {
 
    if (!dom_element) return;
 
-     if (dom_element.type == NODE_TYPE.ELEMENT) {
+     if (dom_element.type == Node.ELEMENT_NODE) {
 
        ti = this.updateCacheItems(dom_element, table_info);
   
@@ -1207,7 +1207,7 @@ OpenAjax.a11y.cache.TableElement.prototype.addChild = function (table_element) {
  };
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.TableElement
  *
@@ -1216,8 +1216,8 @@ OpenAjax.a11y.cache.TableElement.prototype.addChild = function (table_element) {
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.TableElement.prototype.getResultRules = function () {
-  return this.dom_element.getResultRules();
+OpenAjax.a11y.cache.TableElement.prototype.getNodeResults = function () {
+  return this.dom_element.getNodeResults();
 };
 
 /**
@@ -1236,7 +1236,7 @@ OpenAjax.a11y.cache.TableElement.prototype.getAttributes = function (unsorted) {
   
   var attributes = this.dom_element.getAttributes(unsorted);
   
-  attributes.push(cache_nls.getLabelAndValueNLS('summary', this.summary));
+  attributes.push(cache_nls.getNLSLabelAndValue('summary', this.summary));
   
   if (!unsorted) this.dom_element.sortItems(attributes);
   
@@ -1292,13 +1292,13 @@ OpenAjax.a11y.cache.TableElement.prototype.getCacheProperties = function () {
   
   var properties = this.dom_element.getCacheProperties();
   
-  properties.push(cache_nls.getLabelAndValueNLS('is_data_table', this.is_data_table));
-  properties.push(cache_nls.getLabelAndValueNLS('is_complex_data_table', this.is_complex_data_table));
-  properties.push(cache_nls.getLabelAndValueNLS('effective_caption', this.effective_caption));
-  properties.push(cache_nls.getLabelAndValueNLS('effective_summary', this.effective_summary));
-  properties.push(cache_nls.getLabelAndValueNLS('max_row', this.max_row));
-  properties.push(cache_nls.getLabelAndValueNLS('max_column', this.max_column));
-  properties.push(cache_nls.getLabelAndValueNLS('nesting_level', this.nesting_level));
+  properties.push(cache_nls.getNLSLabelAndValue('is_data_table', this.is_data_table));
+  properties.push(cache_nls.getNLSLabelAndValue('is_complex_data_table', this.is_complex_data_table));
+  properties.push(cache_nls.getNLSLabelAndValue('effective_caption', this.effective_caption));
+  properties.push(cache_nls.getNLSLabelAndValue('effective_summary', this.effective_summary));
+  properties.push(cache_nls.getNLSLabelAndValue('max_row', this.max_row));
+  properties.push(cache_nls.getNLSLabelAndValue('max_column', this.max_column));
+  properties.push(cache_nls.getNLSLabelAndValue('nesting_level', this.nesting_level));
   
   this.dom_element.sortItems(properties);
   
@@ -1403,7 +1403,7 @@ OpenAjax.a11y.cache.CaptionElement = function (dom_element, table_info) {
 };
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.CaptionElement
  *
@@ -1412,8 +1412,8 @@ OpenAjax.a11y.cache.CaptionElement = function (dom_element, table_info) {
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.CaptionElement.prototype.getResultRules = function () {
-  return this.dom_element.getResultRules();
+OpenAjax.a11y.cache.CaptionElement.prototype.getNodeResults = function () {
+  return this.dom_element.getNodeResults();
 };
 
 /**
@@ -1581,7 +1581,7 @@ OpenAjax.a11y.cache.THeadElement.prototype.addChild = function (child_object) {
 }; 
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.THeadElement
  *
@@ -1590,8 +1590,8 @@ OpenAjax.a11y.cache.THeadElement.prototype.addChild = function (child_object) {
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.THeadElement.prototype.getResultRules = function () {
-  return this.dom_element.getResultRules();
+OpenAjax.a11y.cache.THeadElement.prototype.getNodeResults = function () {
+  return this.dom_element.getNodeResults();
 };
 
 /**
@@ -1759,7 +1759,7 @@ OpenAjax.a11y.cache.TBodyElement.prototype.addChild = function (child_object) {
 }; 
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.TBodyElement
  *
@@ -1768,8 +1768,8 @@ OpenAjax.a11y.cache.TBodyElement.prototype.addChild = function (child_object) {
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.TBodyElement.prototype.getResultRules = function () {
-  return this.dom_element.getResultRules();
+OpenAjax.a11y.cache.TBodyElement.prototype.getNodeResults = function () {
+  return this.dom_element.getNodeResults();
 };
 
 /**
@@ -1936,7 +1936,7 @@ OpenAjax.a11y.cache.TableRowElement.prototype.addChild = function (child_object)
 }; 
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.TableRowElement
  *
@@ -1945,8 +1945,8 @@ OpenAjax.a11y.cache.TableRowElement.prototype.addChild = function (child_object)
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.TableRowElement.prototype.getResultRules = function () {
-  return this.dom_element.getResultRules();
+OpenAjax.a11y.cache.TableRowElement.prototype.getNodeResults = function () {
+  return this.dom_element.getNodeResults();
 };
 
 /**
@@ -2186,7 +2186,7 @@ OpenAjax.a11y.cache.TableCellElement.prototype.addChild = function (table_elemen
 }; 
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.TableCellElement
  *
@@ -2195,8 +2195,8 @@ OpenAjax.a11y.cache.TableCellElement.prototype.addChild = function (table_elemen
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.TableCellElement.prototype.getResultRules = function () {
-  return this.dom_element.getResultRules();
+OpenAjax.a11y.cache.TableCellElement.prototype.getNodeResults = function () {
+  return this.dom_element.getNodeResults();
 };
 
 /**

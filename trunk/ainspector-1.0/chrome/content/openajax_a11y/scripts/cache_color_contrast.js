@@ -56,7 +56,7 @@ OpenAjax.a11y.cache.ColorContrastCache = function (dom_cache) {
   this.up_to_date = false;
   this.length = 0;
   
-  this.rule_summary_results  = new OpenAjax.a11y.ResultRuleSummary();
+  this.evaluation_results  = new OpenAjax.a11y.EvaluationResult();
   
 };
 
@@ -183,6 +183,7 @@ OpenAjax.a11y.cache.ColorContrastCache.prototype.getItemByCacheId = function (ca
   return null;  
 };
 
+
 /**
  * @method emptyCache
  *
@@ -235,7 +236,7 @@ OpenAjax.a11y.cache.ColorContrastCache.prototype.traverseDOMElementsForColorCont
   
   if (! dom_element) return;
   
-  if (dom_element.type == NODE_TYPE.ELEMENT) {
+  if (dom_element.type == Node.ELEMENT_NODE) {
     
     for (var i = 0; i < dom_element.child_dom_elements.length; i++) {
       this.traverseDOMElementsForColorContrast(dom_element.child_dom_elements[i]);
@@ -423,6 +424,8 @@ OpenAjax.a11y.cache.ColorContrastItem = function (font_family, font_size, font_w
   
   this.is_large_font = is_large_font;
   
+  this.wcag_severity = OpenAjax.a11y.SEVERITY.NONE;
+  
   this.dom_text_nodes = [];
 };
 
@@ -441,7 +444,7 @@ OpenAjax.a11y.cache.ColorContrastItem.prototype.addToCharacterCount = function (
 };
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.ColorContrastItem
  *
@@ -450,8 +453,8 @@ OpenAjax.a11y.cache.ColorContrastItem.prototype.addToCharacterCount = function (
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.ColorContrastItem.prototype.getResultRules = function () {
-  return this.dom_text_nodes[0].getResultRules();
+OpenAjax.a11y.cache.ColorContrastItem.prototype.getNodeResults = function () {
+  return this.dom_text_nodes[0].getNodeResults();
 };
 
 /**
@@ -567,105 +570,33 @@ OpenAjax.a11y.cache.ColorContrastItem.prototype.getEvents = function () {
 };
 
 /**
- * @method getColorContrastSummary
+ * @method getColorContrastSeverity
  *
  * @memberOf OpenAjax.a11y.cache.ColorContrastItem
  *
- * @desc Returns the worst severity level of color contrast rules
+ * @desc Returns the WCAG 2.0 severity level of color contrast for the cache items
  *
  * @return {Object} Results an object wiith two properties: 'severity' : nls value of the severity, 'style' : a severity styling constant
  */
 
-OpenAjax.a11y.cache.ColorContrastItem.prototype.getColorContrastSummary = function () {
+OpenAjax.a11y.cache.ColorContrastItem.prototype.getColorContrastSeverity = function () {
 
+  var ro = {};
   
-  function hasRule(node_results, rules) {
-  
-    var i;
-    var j;
-    
-    var node_results_len = node_results.length;
-    var rules_len        = rules.length;
-    
-    for (i = 0; i < node_results_len; i++ ) {
-      for (j = 0; j < rules_len; j++) {
-        if (node_results[i].rule_result.rule.rule_id == rules[j]) return true;
-      }
-    }
-    return false;
-  }
+//  OpenAjax.a11y.console("Color contrast severity: " + this.wcag_severity);
 
-  var i;
-  
-  var cache_nls      = OpenAjax.a11y.cache_nls;
   var SEVERITY       = OpenAjax.a11y.SEVERITY;
   var SEVERITY_STYLE = OpenAjax.a11y.SEVERITY_STYLE;
-  var severity;
-  var last_severity_value;
-  var a = {};
-  var last_a = {};
-
-  severity = cache_nls.getSeverityNLS(SEVERITY.NONE); 
-  a.label    = severity.label;
-  a.style    = SEVERITY_STYLE[SEVERITY.NONE];
-  var dtn;
   
-  var color_rules = ['COLOR_1', 'COLOR_2'];
-
-  last_severity_value = SEVERITY.NONE;
-
-  for (i = 0; i < this.dom_text_nodes.length; i++ ) {
+  var severity = OpenAjax.a11y.cache_nls.getSeverityNLS(this.wcag_severity); 
   
-    dtn = this.dom_text_nodes[i];
+  ro.label       = severity.label;
+  ro.abbrev      = severity.abbrev;
+  ro.description = severity.description;
+  ro.tooltip     = severity.tooltip;
+  ro.style       = SEVERITY_STYLE[this.wcag_severity];
 
-    if (last_severity_value == SEVERITY.NONE && 
-        hasRule(dtn.rules_hidden, color_rules)) {
-      severity = cache_nls.getSeverityNLS(SEVERITY.HIDDEN);
-      a.style    = SEVERITY_STYLE[SEVERITY.HIDDEN];
-      last_severity_value = SEVERITY.HIDDEN;
-    }
-
-    if ((last_severity_value == SEVERITY.NONE ||
-         last_severity_value == SEVERITY.HIDDEN) &&
-        hasRule(dtn.rules_passed, color_rules)) {
-      severity = cache_nls.getSeverityNLS(SEVERITY.PASS);
-      a.style  = SEVERITY_STYLE[SEVERITY.PASS];
-      last_severity_value = SEVERITY.PASS;
-    }
-
-    if ((last_severity_value == SEVERITY.NONE ||
-         last_severity_value == SEVERITY.HIDDEN ||
-         last_severity_value == SEVERITY.PASS) &&
-        hasRule(dtn.rules_recommendations, color_rules)) {
-      severity = cache_nls.getSeverityNLS(SEVERITY.RECOMMENDATION);
-      a.style  = SEVERITY_STYLE[SEVERITY.RECOMMENDATION];
-      last_severity_value = SEVERITY.RECOMMENDATION;
-    }
-
-    if ((last_severity_value == SEVERITY.NONE ||
-         last_severity_value == SEVERITY.HIDDEN ||
-         last_severity_value == SEVERITY.PASS ||
-         last_severity_value == SEVERITY.RECOMMENDATION) &&
-        hasRule(dtn.rules_manual_checks, color_rules)) {
-      severity = cache_nls.getSeverityNLS(SEVERITY.MANUAL_CHECK);
-      a.style  = SEVERITY_STYLE[SEVERITY.MANUAL_CHECK];
-      last_severity_value = SEVERITY.MANUAL_CHECK;
-    }
-
-    if (hasRule(dtn.rules_violations, color_rules)) {
-      severity = cache_nls.getSeverityNLS(SEVERITY.VIOLATION);
-      a.style  = SEVERITY_STYLE[SEVERITY.VIOLATION];
-      break;
-    }
-
-  }  
-
-  a.label       = severity.label;
-  a.abbrev      = severity.abbrev;
-  a.description = severity.description;
-  a.tooltip     = severity.tooltip;
-
-  return a;
+  return ro;
   
 };
 
@@ -681,20 +612,10 @@ OpenAjax.a11y.cache.ColorContrastItem.prototype.getColorContrastSummary = functi
 
 OpenAjax.a11y.cache.ColorContrastItem.prototype.toString = function () {
   
-  var str = "";
+  var str = this.dom_text_nodes.length;
   
-  str += " Color Contrast Item " + this.cache_id + "\n";
-  
-  str += "  Font Family     : " + this.font_family + "\n";
-  str += "  Font Size      : " + this.font_size + "\n";
-  str += "  Font Weight     : " + this.font_weight + "\n";
-  str += "  Color        : " + this.color + "\n";
-  str += "  Background Color   : " + this.background_color + "\n";
-  str += "  Background Image   : " + this.background_image + "\n";
-  str += "  Background Repeat  : " + this.background_repeat + "\n";
-  str += "  Color Contrast Ratio : " + this.color_contrast_ratio + "\n";
-  str += "  Number of Characters : " + this.character_count + "\n";
-  str += "  Number of Nodes   : " + this.dom_text_nodes.length + "\n\n";
-  
+  if (this.dom_text_nodes.length != 1) str += " elements"; 
+  else str += " element";
+    
   return str;
 };

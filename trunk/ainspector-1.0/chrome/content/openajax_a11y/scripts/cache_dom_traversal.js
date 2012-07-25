@@ -186,7 +186,7 @@ OpenAjax.a11y.cache.DOMCache.prototype.traverseDOMElementsForAllCaches = functio
  if (!dom_element) return;
  // if an element for through all the children elements looking for text
 
- if (dom_element.type == NODE_TYPE.ELEMENT) {
+ if (dom_element.type == Node.ELEMENT_NODE) {
 
   this.abbreviations_cache.updateCacheItems(dom_element);
   this.images_cache.updateCacheItems(dom_element);
@@ -277,9 +277,6 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateDOMElementCache = function () {
   this.log.update(OpenAjax.a11y.PROGRESS.CACHE_END, "Completed DOM element update, new cache includes " + this.element_cache.dom_elements.length + " DOMElement objects");
  }
 
- // Identify elements with duplicate ID values
- this.element_with_id_cache.checkForUniqueIDs();
-
  // Calculate aria-descriptions
  this.calculateDescriptions();
 
@@ -365,17 +362,18 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateDOMElements = function (node, paren
 
   switch (node.nodeType ) {
 
-  case NODE_TYPE.DOCUMENT:
+  case Node.DOCUMENT_NODE:
+  case Node.DOCUMENT_TYPE_NODE:
     // OpenAjax.a11y.console("Document node type");
     break;
 
-  case NODE_TYPE.ELEMENT:
+  case Node.ELEMENT_NODE:
     // OpenAjax.a11y.console(node.tagName);
     
-
     var dom_element = new OpenAjax.a11y.cache.DOMElement(node, parent_dom_element);
 
     dom_element.addComputedStyle(parent_dom_element);
+    
     dom_element.calculateXPath(parent_dom_element);
     this.element_cache.addDOMElement(dom_element);
 
@@ -393,11 +391,8 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateDOMElements = function (node, paren
       de = this.element_with_id_cache.getDOMElementById(dom_element.id);
       
       if (de) {
-        dom_element.id_unique = false;
-        de.id_unique = false;
-      }
-      else {
-        dom_element.id_unique = true;      
+        dom_element.id_unique = OpenAjax.a11y.ID.NOT_UNIQUE;
+        de.id_unique = OpenAjax.a11y.ID.NOT_UNIQUE;
       }
       
       this.element_with_id_cache.dom_elements.push(dom_element);
@@ -408,9 +403,10 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateDOMElements = function (node, paren
 
     case 'frame':
     case 'iframe':
-      // OpenAjax.a11y.console("frame: " + node.src);
 
-      var frame_doc = node.contentDocument;
+      var frame_doc = node.contentWindow.document;
+
+//      OpenAjax.a11y.console("frame: " + node.src + " " + frame_doc);
 
       if (frame_doc && frame_doc.firstChild) {
         for (n = frame_doc.firstChild; n !== null; n = n.nextSibling) {
@@ -433,14 +429,14 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateDOMElements = function (node, paren
     return dom_element;
     break;
 
-  case NODE_TYPE.TEXT:
+  case Node.TEXT_NODE:
     // OpenAjax.a11y.console("DOM node text: " + node.data);
 
    var dom_text = new OpenAjax.a11y.cache.DOMText(node, parent_dom_element);
 
    if (dom_text.text_length) {
    
-     if (!previous_sibling || previous_sibling.type == NODE_TYPE.ELEMENT) {
+     if (!previous_sibling || previous_sibling.type == Node.ELEMENT_NODE) {
    
        this.element_cache.addDOMText(dom_text);
        if (parent_dom_element) parent_dom_element.addChild(dom_text);
@@ -494,46 +490,71 @@ OpenAjax.a11y.cache.DOMCache.prototype.calculateDescriptions = function () {
  *
  * @memberOf OpenAjax.a11y.cache.DOMCache
  *
- * @desc Add an ARIA label to cache element if aria-labelledy or aria-label attributes are defined
+ * @desc Calculates a computed label and accessible name based on ARIA properties
+ *
+ * @param {Object} control - Control cache element object
+ */
+
+OpenAjax.a11y.cache.DOMCache.prototype.getNameFromARIALabel = function (control) {
+
+  var SOURCE = OpenAjax.a11y.SOURCE;
+
+  var computed_label = "";
+  var computed_label_source = SOURCE.NONE;
+  var de = control.dom_element;
+  var wi = de.widget_info;
+  
+  if (de.aria_labelledby) {
+    computed_label = this.element_with_id_cache.getTextFromIds(de.aria_labelledby);
+    computed_label_source = SOURCE.ARIA_LABELLEDBY;
+  }
+  else if (de.aria_label) {
+    computed_label = de.aria_label;
+    computed_label_source = SOURCE.ARIA_LABEL;
+  }
+  else if (wi && wi.nameFromContent) {
+    computed_label = de.getText();
+    computed_label_source = SOURCE.TEXT_CONTENT;
+  } else if (de.title) {
+    computed_label = de.title;
+    computed_label_source = SOURCE.TITLE_ATTRIBUTE;
+  }
+
+  control.computed_label = computed_label;
+  control.computed_label_length = computed_label.length;
+  control.computed_label_source = computed_label_source;
+  control.computed_label_for_comparison = computed_label.normalizeSpace().toLowerCase();
+  control.accessible_name = computed_label;
+
+  this.getDescriptionFromARIADescribedby(control);
+};
+
+/**
+ * @method getDescriptionFromARIADescribedby
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMCache
+ *
+ * @desc Calculates a description based on ARIA properties
  *
  * @param {Object} element - Cache element object
  */
 
-OpenAjax.a11y.cache.DOMCache.prototype.getNameFromARIALabel = function (element) {
+OpenAjax.a11y.cache.DOMCache.prototype.getDescriptionFromARIADescribedby = function (element) {
 
-  var SOURCE = OpenAjax.a11y.SOURCE;
-
-  var label = "";
-  var label_source = SOURCE.NONE;
   var de = element.dom_element;
-  var wi = de.widget_info;
   
-  if (de.aria_labelledby) {
-    label = this.element_with_id_cache.getTextFromIds(de.aria_labelledby);
-    label_source = SOURCE.ARIA_LABELLEDBY;
+  if (de.aria_describedby) {
+    element.accessible_description = this.element_with_id_cache.getTextFromIds(de.aria_describedby);
   }
-  else if (de.aria_label) {
-    label = de.aria_label;
-    label_source = SOURCE.ARIA_LABEL;
+  else {
+    element.accessible_description = "";  
   }
-  else if (wi && wi.nameFromContent) {
-    label = de.getText();
-    label_source = SOURCE.TEXT_CONTENT;
-  } else if (de.title) {
-    label = de.title;
-    label_source = SOURCE.TITLE_ATTRIBUTE;
-  }
-
-
- element.label = label;
- element.label_length = label.length;
- element.label_source = label_source;
- element.label_for_comparison = label.normalizeSpace().toLowerCase();
-
+  
 };
 
+
 /**
- * @method getNameFromARIALabel
+ * @method getTextFromIDs
  * @memberOf OpenAjax.a11y.cache.DOMCache
  *
  * @desc Returns the text content of the elements identified in the list of ids
@@ -577,7 +598,10 @@ OpenAjax.a11y.cache.DOMCache.prototype.sortArrayOfObjects = function(objects, pr
 
   var objects_len = objects.length;
  
-  for (i=0; i<objects_len; i++) return_objects[i] = objects[i];
+  for (i = 0; i < objects_len; i++) {
+    return_objects[i] = objects[i];
+    return_objects[i].duplicate = false;
+  }  
 
   if( ascending ) {
     do{

@@ -18,6 +18,8 @@
 /*                       OpenAjax Constants                         */ 
 /* ---------------------------------------------------------------- */
 
+// Test comment
+
 /** 
  * @namespace OpenAjax
  */
@@ -83,29 +85,40 @@ OpenAjax.a11y.SUPPORTS_EVENT_ANALYSIS = false;
  */
 OpenAjax.a11y.URL_TESTING_ENABLED  = false;  
 
+
 /**
- * @constant SUPPORTS_URL_TESTING
- *
+ * @constant ELEMENT_FORMATING
  * @memberOf OpenAjax.a11y
- *
- * @type Boolean
- *
- * @default false
- *
- * @desc If the user agent supports URL testing this should be set to 'true'
+ * @type String
+ * @default 'CAPS'
+ * @desc Defines the formating of element names in NLS message strings
  */
-OpenAjax.a11y.SUPPORTS_URL_TESTING = false;  
+OpenAjax.a11y.ELEMENT_FORMATING = 'CAPS';
 
-// DOM Node Type Constants 
 
-var NODE_TYPE = {
-  ELEMENT   : 1,
-  ATTRIBUTE : 2,
-  TEXT      : 3,
-  COMMENT   : 8,
-  DOCUMENT  : 9
+/**
+ * @constant RESULT_FILTER
+ * @memberOf OpenAjax.a11y
+ * @type Number
+ * @desc Constants related to filtering both node results and rule results
+ * @example
+ * OpenAjax.a11y.RESULT_FILTER.ALL
+ * OpenAjax.a11y.RESULT_FILTER.PASS
+ * OpenAjax.a11y.RESULT_FILTER.VIOLATION
+ * OpenAjax.a11y.RESULT_FILTER.WARNING
+ * OpenAjax.a11y.RESULT_FILTER.MANUAL_CHECK
+ * OpenAjax.a11y.RESULT_FILTER.HIDDEN
+ * OpenAjax.a11y.RESULT_FILTER.NA
+ */ 
+OpenAjax.a11y.RESULT_FILTER = OpenAjax.a11y.RESULT_FILTER || {
+  ALL            : 63,
+  PASS           : 1,
+  VIOLATION      : 2,
+  WARNING        : 4,
+  MANUAL_CHECK   : 8,
+  HIDDEN         : 16, // hidden only applies to node results 
+  NOT_APPLICABLE : 32  // not applicable only applies to rule results
 };
-
 
 /**
  * @constant DEFAULT_PREFS
@@ -115,9 +128,9 @@ var NODE_TYPE = {
  */
 
 OpenAjax.a11y.DEFAULT_PREFS = OpenAjax.a11y.DEFAULT_PREFS || {
-  RULESET_ID   : "WCAG20_ARIA_TRANS",
-  WCAG20_LEVEL : 3,
-  BROKEN_LINKS : false
+  RULESET_ID     : "WCAG20_ARIA_TRANS",
+  WCAG20_LEVEL   : 3,
+  BROKEN_LINKS   : false
 };
 
 /**
@@ -175,9 +188,10 @@ OpenAjax.a11y.PROGRESS = OpenAjax.a11y.PROGRESS || {
  * OpenAjax.a11y.WCAG20_LEVEL.AAA
  */ 
 OpenAjax.a11y.WCAG20_LEVEL = OpenAjax.a11y.WCAG20_LEVEL || {
-  A   : 1,
-  AA  : 2,
-  AAA : 3
+  A       : 1,
+  AA      : 2,
+  AAA     : 3,
+  UNKNOWN : -1
 };
 
 
@@ -189,14 +203,54 @@ OpenAjax.a11y.WCAG20_LEVEL = OpenAjax.a11y.WCAG20_LEVEL || {
  *
  * @example
  * OpenAjax.a11y.RULE.REQUIRED               
- * OpenAjax.a11y.RULE.RECOMMENDATION               
- * OpenAjax.a11y.RULE.CONDITIONAL               
+ * OpenAjax.a11y.RULE.RECOMMENDED               
  */
 OpenAjax.a11y.RULE = OpenAjax.a11y.RULE || {
   REQUIRED       : 1,
-  RECOMMENDATION : 2,
-  CONDITIONAL    : 3
+  RECOMMENDED    : 2
 };
+
+/**
+ * @constant RULE_SCOPE
+ * @memberOf OpenAjax.a11y
+ * @type Number
+ * @desc Defines a required or recommended rule 
+ *
+ * @example
+ * OpenAjax.a11y.RULE_SCOPE.UNKNOWN               
+ * OpenAjax.a11y.RULE_SCOPE.NODE (deprecated)               
+ * OpenAjax.a11y.RULE_SCOPE.ELEMENT               
+ * OpenAjax.a11y.RULE_SCOPE.PAGE               
+ */
+OpenAjax.a11y.RULE_SCOPE = OpenAjax.a11y.RULE_SCOPE || {
+  UNKNOWN : 0,
+  NODE    : 1,
+  ELEMENT : 1,
+  PAGE    : 2
+};
+
+
+/**
+ * @constant TEST_RESULT
+ * @memberOf OpenAjax.a11y
+ * @type Number
+ * @desc Types of node results from an evaluation  
+ *
+ * @example
+ * OpenAjax.a11y.TEST_RESULT.PASS
+ * OpenAjax.a11y.TEST_RESULT.FAIL
+ * OpenAjax.a11y.TEST_RESULT.MANUAL_CHECK
+ * OpenAjax.a11y.TEST_RESULT.HIDDEN
+ * OpenAjax.a11y.TEST_RESULT.NONE
+ */
+OpenAjax.a11y.TEST_RESULT = OpenAjax.a11y.TEST_RESULT || {
+  PASS         : 1,
+  FAIL         : 2,
+  MANUAL_CHECK : 3,
+  HIDDEN       : 4,
+  NONE         : 5
+};
+
 
 /**
  * @constant SEVERITY
@@ -205,29 +259,28 @@ OpenAjax.a11y.RULE = OpenAjax.a11y.RULE || {
  * @desc Severity of a rule results 
  *
  * @example
- * OpenAjax.a11y.SEVERITY.NA               
- * OpenAjax.a11y.SEVERITY.PASS             
- * OpenAjax.a11y.SEVERITY.FAIL             
+ * OpenAjax.a11y.SEVERITY.NONE    
  * OpenAjax.a11y.SEVERITY.VIOLATION        
- * OpenAjax.a11y.SEVERITY.RECOMMENDATION   
- * OpenAjax.a11y.SEVERITY.MANUAL_CHECK
  * OpenAjax.a11y.SEVERITY.WARNING          
+ * OpenAjax.a11y.SEVERITY.MANUAL_CHECK
  * OpenAjax.a11y.SEVERITY.HIDDEN           
- * OpenAjax.a11y.SEVERITY.INFORMATIONAL    
  * OpenAjax.a11y.SEVERITY.NOT_EVALUATED    
+ * OpenAjax.a11y.SEVERITY.PASS             
+ * OpenAjax.a11y.SEVERITY.PASS_LEVEL_A             
+ * OpenAjax.a11y.SEVERITY.PASS_LEVEL_AA             
+ * OpenAjax.a11y.SEVERITY.PASS_LEVEL_AAA             
  */
 OpenAjax.a11y.SEVERITY = OpenAjax.a11y.SEVERITY || {
-  NA             : 0,
-  PASS           : 1,
-  FAIL           : 2,
-  VIOLATION      : 2,
-  RECOMMENDATION : 3,
-  MANUAL_CHECK   : 4,
-  WARNING        : 5,  // This is some type of coding inconsistency that may be related to accessibility
-  HIDDEN         : 6,  // Content is hidden and not tested for accessibility
-  INFORMATIONAL  : 7,
-  NOT_EVALUATED  : 8,
-  NONE           : 9
+  NONE           : 0,
+  VIOLATION      : 1, 
+  WARNING        : 2,
+  MANUAL_CHECK   : 3,
+  HIDDEN         : 4,  // Content is hidden and not tested for accessibility
+  NOT_APPLICABLE : 5,
+  PASS           : 6,
+  PASS_LEVEL_A   : 7,
+  PASS_LEVEL_AA  : 8,
+  PASS_LEVEL_AAA : 9
 };
 
 /**
@@ -240,16 +293,16 @@ OpenAjax.a11y.SEVERITY = OpenAjax.a11y.SEVERITY || {
  * OpenAjax.a11y.SEVERITY_STYLE[OpenAjax.a11y.SEVERITY.PASS];
  */
 OpenAjax.a11y.SEVERITY_STYLE = [
-  "na",
-  "passed",
+  "none",
   "violation",
-  "recommendation",
-  "manual_check",
   "warning",
+  "manual_check",
   "hidden",
-  "informational",
   "not_evaluated",
-  "none"
+  "passed",
+  "passed",
+  "passed",
+  "passed"
   ];
 
 /**
@@ -298,21 +351,23 @@ OpenAjax.a11y.STATUS = OpenAjax.a11y.STATUS || {
  *       how to improve the accessibility
  * @example
  * OpenAjax.a11y.REFERENCES.UNKNOWN          
- * OpenAjax.a11y.REFERENCES.REQUIREMENT      
+ * OpenAjax.a11y.REFERENCES.SPECIFICATION     
+ * OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE        
  * OpenAjax.a11y.REFERENCES.TECHNIQUE        
+ * OpenAjax.a11y.REFERENCES.EXAMPLE 
  * OpenAjax.a11y.REFERENCES.MANUAL_CHECK
- * OpenAjax.a11y.REFERENCES.BEST_PRACTICE 
- * OpenAjax.a11y.REFERENCES.AUTHORING     
+ * OpenAjax.a11y.REFERENCES.AUTHORING_TOOL     
  * OpenAjax.a11y.REFERENCES.OTHER         
  */ 
 OpenAjax.a11y.REFERENCES = OpenAjax.a11y.REFERENCES || {
-  UNKNOWN       : 0,
-  REQUIREMENT   : 1,
-  TECHNIQUE     : 2,
-  MANUAL_CHECK  : 3,
-  BEST_PRACTICE : 4,
-  AUTHORING     : 5,
-  OTHER         : 6
+  UNKNOWN         : 0,
+  SPECIFICATION   : 1,
+  WCAG_TECHNIQUE  : 2,
+  TECHNIQUE       : 3,
+  EXAMPLE         : 4,
+  MANUAL_CHECK    : 5,
+  AUTHORING_TOOL  : 6,
+  OTHER           : 7
 };
 
 /**
@@ -439,7 +494,9 @@ OpenAjax.a11y.SOURCE = OpenAjax.a11y.SOURCE || {
  *
  * @example
  * OpenAjax.a11y.CONTROL_TYPE.UNKNOWN  
- * OpenAjax.a11y.CONTROL_TYPE.BUTTON   
+ * OpenAjax.a11y.CONTROL_TYPE.BUTTON_ELEMENT   
+ * OpenAjax.a11y.CONTROL_TYPE.BUTTON_INPUT   
+ * OpenAjax.a11y.CONTROL_TYPE.CHECKBOX   
  * OpenAjax.a11y.CONTROL_TYPE.FIELDSET 
  * OpenAjax.a11y.CONTROL_TYPE.FORM     
  * OpenAjax.a11y.CONTROL_TYPE.HIDDEN   
@@ -448,29 +505,35 @@ OpenAjax.a11y.SOURCE = OpenAjax.a11y.SOURCE || {
  * OpenAjax.a11y.CONTROL_TYPE.OPTION   
  * OpenAjax.a11y.CONTROL_TYPE.OPTGROUP   
  * OpenAjax.a11y.CONTROL_TYPE.PASSWORD 
+ * OpenAjax.a11y.CONTROL_TYPE.RADIO    
  * OpenAjax.a11y.CONTROL_TYPE.RESET    
  * OpenAjax.a11y.CONTROL_TYPE.SELECT   
  * OpenAjax.a11y.CONTROL_TYPE.SUBMIT   
  * OpenAjax.a11y.CONTROL_TYPE.TEXT     
  * OpenAjax.a11y.CONTROL_TYPE.TEXTAREA 
+ * OpenAjax.a11y.CONTROL_TYPE.WIDGET 
  */
 OpenAjax.a11y.CONTROL_TYPE = OpenAjax.a11y.CONTROL_TYPE || {
-  UNKNOWN  : 1,
-  BUTTON   : 2,
-  FIELDSET : 3,
-  FORM     : 4,
-  HIDDEN   : 5,
-  IMAGE    : 6,
-  LABEL    : 7,
-  OPTION   : 8,
-  OPTGROUP : 9,
-  PASSWORD : 10,
-  RESET    : 11,
-  SELECT   : 12,
-  SUBMIT   : 13,
-  TEXT     : 14,
-  TEXTAREA : 15,
-  WIDGET   : 16
+  UNKNOWN        : 1,
+  BUTTON_ELEMENT : 2,
+  BUTTON_INPUT   : 3,
+  CHECKBOX       : 4,
+  FIELDSET       : 5,
+  FILE           : 6,
+  FORM           : 7,
+  HIDDEN         : 8,
+  IMAGE          : 9,
+  LABEL          : 10,
+  OPTION         : 11,
+  OPTGROUP       : 12,
+  PASSWORD       : 13,
+  RADIO          : 14,
+  RESET          : 15,
+  SELECT         : 16,
+  SUBMIT         : 17,
+  TEXT           : 18,
+  TEXTAREA       : 19,
+  WIDGET         : 20
 };
 
 /**

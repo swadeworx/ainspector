@@ -54,7 +54,7 @@ OpenAjax.a11y.cache.MediaCache = function (dom_cache) {
   this.sort_property = 'document_order';
   this.sort_ascending = false;
  
-  this.rule_summary_results  = new OpenAjax.a11y.ResultRuleSummary();
+  this.evaluation_results  = new OpenAjax.a11y.EvaluationResult();
 }; 
 
 /**
@@ -186,7 +186,7 @@ OpenAjax.a11y.cache.MediaCache.prototype.traverseDOMElementsForMediaElements = f
 
   if (!dom_element) return;
 
-  if (dom_element.type == NODE_TYPE.ELEMENT) {
+  if (dom_element.type == Node.ELEMENT_NODE) {
 
     this.updateCacheItems(dom_element);
   
@@ -343,7 +343,7 @@ OpenAjax.a11y.cache.MediaElement = function (dom_element) {
 };
 
 /**
- * @method getResultRules
+ * @method getNodeResults
  *
  * @memberOf OpenAjax.a11y.cache.MediaElement
  *
@@ -352,8 +352,8 @@ OpenAjax.a11y.cache.MediaElement = function (dom_element) {
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.MediaElement.prototype.getResultRules = function () {
-  return this.dom_element.getResultRules();
+OpenAjax.a11y.cache.MediaElement.prototype.getNodeResults = function () {
+  return this.dom_element.getNodeResults();
 };
 
 /**
