@@ -1,0 +1,22 @@
+<!-- Rule Properties Dialog -->
+
+<!ENTITY rp_dialog.title                  "Rule Information">
+<!ENTITY rp_dialog.buttonLabel            "Close">
+<!ENTITY rp_dialog.basic                  "Basic">
+<!ENTITY rp_dialog.additional             "Additional">
+<!ENTITY rp_dialog.rule                   "Rule: ">
+<!ENTITY rp_dialog.ruleId                 "ID">
+<!ENTITY rp_dialog.ruleScope              "Scope">
+<!ENTITY rp_dialog.ruleDefinition         "Definition">
+<!ENTITY rp_dialog.ruleSummary            "Rule Summary">
+<!ENTITY rp_dialog.ruleTargetDescription  "Target Resources Description">
+<!ENTITY rp_dialog.ruleTargetResources    "Target Resources">
+<!ENTITY rp_dialog.ruleWCAG20Requirements "WCAG 2.0 Requirements">
+<!ENTITY rp_dialog.rulePurpose            "Purpose">
+<!ENTITY rp_dialog.ruleTechniques         "Techniques">
+<!ENTITY rp_dialog.ruleInformationalLinks "Informational Links">
+<!ENTITY rp_dialog.ruleAdditionalDetails  "Additional Details">
+<!ENTITY rp_dialog.ruleShowAdditionalDetails  "Show Additional Details">
+
+
+
