@@ -1,0 +1,45 @@
+
+vbox#ID_VBOX_RULESETS,
+vbox#ID_VBOX_LEVEL,
+vbox#ID_VBOX_OTHER,
+vbox#ID_VBOX_RESULTS,
+vbox#ID_VBOX_MENU_ICON {
+  margin-top: 0.25em;
+  margin-left: 0.25em;
+  margin-right: 0.25em;
+  padding: 0.25em;
+}
+
+/*
+vbox#ID_VBOX_RULESETS
+{
+  margin-top: 0.5em;
+  margin-left: 0.5em;
+  margin-right: 0.5em;
+}
+*/
+
+label.header {
+  margin: 0;
+  padding: 0;
+  font-size: 110%;    
+  font-weight: bold;    
+}
+
+label,
+textbox,
+checkbox {
+  margin-left: 0.5em;
+}
+
+radio {
+  margin-left: 1em;   
+}
+
+/*
+vbox#ID_VBOX_OTHER,
+vbox#ID_VBOX_RESULTS,
+vbox#ID_VBOX_MENU_ICON {
+  border-top: #cccccc 1px solid; 
+}
+*/
