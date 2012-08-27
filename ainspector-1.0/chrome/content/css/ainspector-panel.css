@@ -1,6 +1,13 @@
 #ainspector-panel .ai-table-list-items {
-  pading: 50px;
   width: 100%;
+}
+
+.table-scrollable {
+	width: 100%;
+  display:block;
+  border-top: 1px solid grey;
+  border-bottom: 1px solid grey;
+   
 }
 
 .ai-table-list-items tr:nth-child(even) {
@@ -9,6 +16,13 @@
 .ai-table-list-items tr:nth-child(odd) {
     background-color: #FFFFFF;
 }
+
+.mybuttons {
+  padding-top: 10px;
+  margin-top: 10px;
+  margin-left: 2px;
+}
+
 
 .domTable tr:nth-child(even) {
     background-color: #EFEFEF;
@@ -193,7 +207,7 @@ body {
 #ainspector-panel #toolbarDiv #button{
     display: inline;
     position: relative;
-    top: 26px;
+    top: 28px;
     right: 1000px;
     font-size: 8pt;
     z-index: 99;
@@ -353,13 +367,29 @@ body {
   text-align: center;
 }
 
+.view-panel {
+  display:block;
+  text-align: left;
+  font-family: sans-serif;
+  font-size: 10pt;
+  font-weight: bold;
+  color: grey;
+}
+.ruleset-div {
+  font-size: 9pt;
+  text-align: left;
+  color: #767676;
+  height: 40px;
+  margin-left: 0.5px;
+}
+
 .ruleset-title{
   font-family: sans-serif;
   font-size: 9pt;
   font-weight: bold;
   color: black;
-  padding-left: 2em;
-  margin-left: 2%;
+  padding-left: 1em;
+  margin-left: 0.5px;
 }
 
 .ruleset-value{
