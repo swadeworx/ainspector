@@ -36,7 +36,7 @@ FBL.ns(function() { with (FBL) {
     parentPanel: main_panel,
     
     title: side_panel_title,
-    order: 0,
+    order: 1,
     editable: true,
 
     /**
@@ -49,11 +49,8 @@ FBL.ns(function() { with (FBL) {
      */
     initialize: function(context, doc) {
       
-      FBTrace.sysout("inside initialise of sidepanel-rules.js: " + main_panel);
-//      this.onKeyPress = bind(this.onKeyPress, this);
-//      this.onCLick = bind(this.setSelection, this);
-      FBTrace.sysout("this: ", this);
-      FBTrace.sysout("arguments: ", arguments);
+      this.onKeyPress = bind(this.onKeyPress, this);
+      this.onCLick = bind(this.setSelection, this);
       Firebug.Panel.initialize.apply(this, arguments);
     },
 
@@ -65,24 +62,20 @@ FBL.ns(function() { with (FBL) {
      * @param  oldPanelNode
      */
     initializeNode: function(oldPanelNode) {
-      FBTrace.sysout("inside initialiseNode() of sidepanel-rules.js");
 
+      appendStylesheet(this.panelNode.ownerDocument, "chrome://selectbug/skin/selectbug.css");
       appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/ainspector-side-panel.css");
       appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/fonts-min.css");
       appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/tabview.css");
       appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/ainspector.css");
       appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/allyGrade.css");
       appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/grid.css");
-      
-      FBTrace.sysout("added css");
 
-      this.setSelection = Obj.bind(this.setSelection, this);
-      this.onKeyPress = Obj.bind(this.onKeyPress, this);
-      
-      FBTrace.sysout("bind the listeners");
+      this.setSelection = bind(this.setSelection, this);
+      this.onKeyPress = bind(this.onKeyPress, this);
       this.mainPanel.panelNode.addEventListener("click", this.setSelection, false);
       this.mainPanel.panelNode.addEventListener("keypress", this.onKeyPress, true);
-      FBTrace.sysout("add listeners");
+      
       Firebug.Panel.initializeNode.apply(this, arguments);
    
     },
@@ -102,13 +95,14 @@ FBL.ns(function() { with (FBL) {
       var prev_cell;
       var next_cell;
       
-      FBTrace.sysout("inside onkeypress of sidepanel - rules", event);
       var table_rows = event.target.offsetParent.rows;
-    
+      FBTrace.sysout("AINSPECTOR_FB.RulesSidePanel.onkeyPress- event: ", event);
+      FBTrace.sysout("table_rows: ", table_rows);
       if (!table_rows) return;
       
       var no_of_rows = table_rows.length;
       var flag = false;
+      var is_header_row = false;
       
       for (var row=0; row < no_of_rows; row++) {
       
@@ -118,20 +112,20 @@ FBL.ns(function() { with (FBL) {
         for (class_name_it; class_name_it < class_list.length; class_name_it++) {
         
           if (class_list[class_name_it] == "gridRowSelected") {
-         
             flag = true;
             break;
           }   
         }
-       
+        
         if (flag == true){
           current_row = table_rows[row];
- 
+          FBTrace.sysout();
           if (row < no_of_rows) {
            
-            if (row == 1) previous_row = table_rows[no_of_rows-1];
+//            if (row == 1) previous_row = table_rows[no_of_rows-1];
            
-            else previous_row = table_rows[row-1];
+//            else
+              previous_row = table_rows[row-1];
            
             next_row = table_rows[row+1];
           
@@ -141,21 +135,31 @@ FBL.ns(function() { with (FBL) {
           }
           
           break;
+        } else {
+          continue;
         }
       } //end for
       
+      var rule_result_objet = null;
+      
       if (event.keyCode == KeyEvent.DOM_VK_UP) {
       
-        result = previous_row.repObject.dom_element;
-        rule_result_array = this.showOnRuleResultsTabSelect(result);
-        
-        if (rule_result_array.length > 0) this.rebuild(rule_result_array);
+        result = previous_row.repObject;
+        if (result.dom_element) rule_result_objet = this.showOnRuleResultsTabSelect(result.dom_element);
+        else if(result) rule_result_objet = this.showOnRuleResultsTabSelect(result);
+        else AINSPECTOR_FB.emptySidePanelTemplate.tag.replace({messg: "please select an element row in the left panel"}, this.panelNode);
+        if (rule_result_objet) this.rebuild(rule_result_objet);
       
       } else if (event.keyCode == KeyEvent.DOM_VK_DOWN) {
-        result = next_row.repObject.dom_element;
-        rule_result_array = this.showOnRuleResultsTabSelect(result);
+        
+        FBTrace.sysout("next_row: ", next_row);
+        result = next_row.repObject;
+        FBTrace.sysout("cache_item: ", result);
+        
+        if (result.dom_element) rule_result_objet = this.showOnRuleResultsTabSelect(result.dom_element);
+        else rule_result_objet = this.showOnRuleResultsTabSelect(result);
        
-        if (rule_result_array.length > 0) this.rebuild(rule_result_array);
+        this.rebuild(rule_result_objet);
 
       } else if (event.keyCode == KeyEvent.DOM_VK_LEFT) {
         this.setSelection(event);
@@ -197,7 +201,6 @@ FBL.ns(function() { with (FBL) {
      */
     show: function() {
      
-      FBTrace.sysout("inside show() of sidepanel-rules.js");
       Firebug.Panel.show.apply(this, arguments);
     },
      
@@ -214,7 +217,7 @@ FBL.ns(function() { with (FBL) {
       if (dom_element)
        this.rebuild(this.showOnRuleResultsTabSelect(dom_element));
       else 
-       this.rebuild(this.showOnRuleResultsTabSelect(selection.value.dom_element));
+       this.rebuild(this.showOnRuleResultsTabSelect(selection.value));
     },
      
      /**
@@ -280,7 +283,9 @@ FBL.ns(function() { with (FBL) {
     setSelection : function(event) {
    
       var element = Firebug.getRepObject(event.target);
-       
+      
+      if (!element) return;
+      
       try {
       
         if (element.dom_element) this.rebuild(this.showOnRuleResultsTabSelect(element.dom_element));
@@ -305,20 +310,24 @@ FBL.ns(function() { with (FBL) {
     showOnRuleResultsTabSelect : function(cache_item) {
        
       var cache_item = cache_item;
-      var rule_results = cache_item.getNodeResults();
+      var rule_results = cache_item.node_results;
       
-      FBTrace.sysout("rule_results in ................", rule_results);
       var rule_result_array = new Array();
 
       for (var i=0; i<rule_results.length; i++) {
         rule_result_array.push(rule_results[i]);
         var nResult = rule_results[i];
-        FBTrace.sysout("sev label: ", nResult.getSeverityLabel());
-        FBTrace.sysout("sev style: ", nResult.getSeverityStyle());
-        FBTrace.sysout("prop: ", nResult.getRule());
+//        FBTrace.sysout("sev label: ", nResult.getNLSSeverityLabel());
+//        FBTrace.sysout("sev style: ", nResult.getSeverityStyle());
+//        FBTrace.sysout("rule is: ", nResult.getRule());
       }
       
-      return rule_result_array;
+      var result_obj = {
+          cache_item : cache_item.cache_item,
+          rule_result_array : rule_result_array
+      };
+      
+      return result_obj;
        
     },
     
@@ -329,29 +338,25 @@ FBL.ns(function() { with (FBL) {
      * 
      * @param resultArray
      */
-    rebuild: function(resultArray){
+    rebuild: function(resultObject){
     
       this.panelNode.id = "ainspector-side-panel";
-      var flag = true;
-        
-      /*for (var i in resultArray){ 
+      var cache_item = resultObject.cache_item;
+      FBTrace.sysout("rebuild() -cache_item :", cache_item);
+      var element = "Element" + cache_item.document_order + ": " + cache_item.toString();
       
-        if(resultArray.hasOwnProperty(i)){
-          
-          flag = false;
-          break;
-        }
-      }
-        
-      if (flag) {
-        var header_elements = ["Result", "Rule ID", "Message"];
-        //clearNode(this.panelNode.offsetParent.children[1]);
-        AINSPECTOR_FB.emptyTemplate.tag.replace({header_elements: header_elements}, this.panelNode);
-      } else {*/
+      FBTrace.sysout("element: ", element);
       
-        rulesPlate.tag.replace({object: resultArray}, this.panelNode);
-//      }
-     
+      if (resultObject.rule_result_array.length > 0) rulesPlate.tag.replace({object: resultObject.rule_result_array, element: element}, this.panelNode);
+      
+      else AINSPECTOR_FB.emptySidePanelTemplate.tag.replace({messg: "no rule results"}, this.panelNode);
+    },
+    
+    showEmptySidePanel : function() {
+
+      this.panelNode.id = "ainspector-side-panel";
+      
+      AINSPECTOR_FB.emptySidePanelTemplate.tag.replace({messg: "no elements to select in the main panel"}, this.panelNode);
     },
 
     /**
@@ -391,28 +396,13 @@ FBL.ns(function() { with (FBL) {
     
   });
 
-  var BaseRep = domplate(Firebug.Rep, {
-    
-    /**
-     * getNaturalTag
-     * 
-     * @desc
-     * 
-     * @param value
-     */
-    getNaturalTag: function(value) {
-    
-      var rep = Firebug.getRep(value);
-      var tag = rep.shortTag ? rep.shortTag : rep.tag;
-      return tag;
-    }
-  });
-
-  var rulesPlate = domplate(BaseRep, {
+  var rulesPlate = domplate(AINSPECTOR_FB.BaseRep, {
     
     tag:
+      
       DIV({class: "side-panel"},
-        
+        DIV({class: "eval-results"}, "Evaluation Results By Rule"),
+        DIV({class: "element-select"}, "$element"),
         TABLE({class: "domTree domTable ai-sidepanel-table", cellpadding: 0, cellspacing: 0, onclick: "$onClick", "aria-selected" : "true",
          tabindex: "0", onkeypress: "$onKeyPressedRow"},
          THEAD(
@@ -425,7 +415,11 @@ FBL.ns(function() { with (FBL) {
           FOR("member", "$object|memberIterator", TAG("$row", {member: "$member"}))
         ) //end TBODY
       ),
-      BUTTON({class: "button", onclick: "$showMoreProperties", id: "rule_info_button"}, "Rule Information")    
+//      BUTTON({class: "more-info", onclick: "$showMoreProperties", id: "rule_info_button"}, "Rule Information"),
+      DIV({class: "notificationButton-rule"},
+        BUTTON({onclick: "$showMoreProperties"}, "Rule Information"),
+        BUTTON({onclick: "$getElementInformation", style: "margin: 0.5em;"}, "Element Information")
+      )
     ),
     
     row:
@@ -466,16 +460,13 @@ FBL.ns(function() { with (FBL) {
      * 
      * @desc respond to "Rule Information" button
      *
-     * @param {Object} event
+     * @param {Object} event - event triggered when clicked on "More Information on Rule" button
      */
     showMoreProperties : function(event) {
       
-      FBTrace.sysout("event in showMoreProperties: ", event);
-      
       var tree = getAncestorByClass(event.target, "side-panel");
-      
-      var table = tree.children[1];
-      FBTrace.sysout("table: ", table);
+      var table = getChildByClass(tree, "ai-sidepanel-table");
+//      var table = tree.children[1];
       var tbody = table.children[1];
       
       var rows = tbody.children;
@@ -484,7 +475,7 @@ FBL.ns(function() { with (FBL) {
       
       var flag = false;
       
-      for (var i=0; i<=rows.length; i++) {
+      for (var i=0; i<rows.length; i++) {
         
         var class_list = rows[i].classList;
         
@@ -501,11 +492,63 @@ FBL.ns(function() { with (FBL) {
           break;
         }
       }
-
-      FBTrace.sysout("row: ", row.repObject.rule_result);
+      if (row) {
+        window.openDialog("chrome://ainspector/content/rule_properties/rule-properties.xul", "_rule_properties_dialog", "chrome,contentscreen,resizable=yes", row.repObject.rule_result);      
+      } else {
+        alert("please select a row in the side panel");
+//        win.document.write("<p>This is 'myWindow'</p>");
+      }
+    },
+    
+    /**
+     * @function getElementInformation
+     * 
+     * @desc calls a utility that opens a xul window for more properties of the element selected in the panel
+     * 
+     * @param {Object} event - event triggered when clicked on Element Information button
+     */
+    getElementInformation : function(event) {
+      FBTrace.sysout("event.target: ", event.target);
+//      var tree = getAncestorByClass(event.target, "side-panel");
+//      var table = getChildByClass(tree, "ai-sidepanel-table");
       
-      window.openDialog("chrome://ainspector/content/rule_properties/rule-properties.xul", "", "chrome,contentscreen,resizable=yes", row.repObject.rule_result); 
-    },  
+      var main_panel = Firebug.currentContext.getPanel("AInspector");
+      
+      var table_container = getChildByClass(main_panel.table, "table-scrollable"); 
+      var table = getChildByClass(table_container, "ai-table-list-items");
+      
+//      var table = tree.children[1];
+      var tbody = table.children[1];
+      
+      var rows = tbody.children;
+      
+      var row;
+      
+      var flag = false;
+      
+      for (var i=0; i<rows.length; i++) {
+        
+        var class_list = rows[i].classList;
+        
+        for (var j=0; j<class_list.length; j++) {
+          
+          if (class_list[j] == "gridRowSelected") {
+            flag = true;
+            break;
+          }
+        }
+        
+        if (flag == true) {
+          row = rows[i];
+          break;
+        } else {
+          
+        }
+      }
+
+      FBTrace.sysout("row: ", row);
+      window.openDialog("chrome://ainspector/content/item_properties/cache-item-properties.xul", "cache_item_properties_dialog", "chrome,contentscreen,resizable=yes", row.repObject.cache_item);
+    },
       
     /**
      * @function onClick
@@ -557,13 +600,7 @@ FBL.ns(function() { with (FBL) {
      */
     createMember: function(name, value, level)  {
       
-      FBTrace.sysout("name:", name);
-      FBTrace.sysout("value:", value);
-      FBTrace.sysout("level: " + level);
-      
-      if (level !=0) {
-        FBTrace.sysout("value.label:"+ value.label);
-        FBTrace.sysout("value.value: " + value.value);
+      if (level !=0) { //if it is child
           
         return {
           propertyLabel:value.label,
@@ -574,11 +611,11 @@ FBL.ns(function() { with (FBL) {
 
         };
       } else {
-        FBTrace.sysout("value.label:"+ value.getMessage());
+//        FBTrace.sysout("value.label:"+ value.getMessage());
 
       }
       return {
-        label: value.getSeverityLabel(),  
+        label: value.getNLSSeverityLabel(),  
         action: value.getMessage(),
           
           hasChildren: this.hasChildren(value),
@@ -594,11 +631,7 @@ FBL.ns(function() { with (FBL) {
      
       var properties = object.getRuleProperties();
       
-      FBTrace.sysout("properties: ", properties);
       var length = properties.length;
-      
-      FBTrace.sysout("length: "+ length);
-
       
       if (length > 0) return true;
       
@@ -622,10 +655,8 @@ FBL.ns(function() { with (FBL) {
      */
     getAccessibility : function(object){
     
-      var severity =  object.getSeverityLabel();
+      var severity =  object.getNLSSeverityLabel();
       
-      FBTrace.sysout("severity: " + severity);
-    
       if (severity == "Pass")  return this.strTagPass;
     
       if (severity == "Violation") return this.strTagViolation;
@@ -817,7 +848,7 @@ FBL.ns(function() { with (FBL) {
     }
     
   });
-  
+
   Firebug.registerPanel(rulesSidePanel);
 
 }});

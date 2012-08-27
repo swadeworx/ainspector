@@ -14,15 +14,22 @@
  * limitations under the License.
  */
 
-var AINSPECTOR_FB = AINSPECTOR_FB || {};	
+/**
+ * @file panel-images.js
+ * 
+ * Create images Object in response to the Images toolbar button on the A11Y Panel
+ *   1. Clear the Panel view if it has any old data on it
+ *   2. Get the Control Rule Results from the OAA Cache library
+ *   3. Calls the Generic template to display the rendered HTML on to the Images Panel
+ */
+var AINSPECTOR_FB = AINSPECTOR_FB || {};  
 
 with (FBL) {
   
   panel : null;
-  image_elements: null;
-
+  
   AINSPECTOR_FB.images = {
-		  
+      
   /**
    * @function viewPanel 
    * 
@@ -36,71 +43,52 @@ with (FBL) {
    * @property {Object} cache_object - container for all the element properties
    * 
    */
-  viewPanel: function(context, panel_name, cache_object) {		
+  viewPanel: function(context, panel_name, cache_object) {    
     
-    FBTrace.sysout("Firebug in images view panel: ", window);
-    //adds or removes the side panels from the extension depending on the panel we are in 
-    AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels(false);
-    
+//  adds or removes the side panels from the extension depending on the panel we are in 
+    AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels(true);
     if (!context) context = Firebug.currentContext;
-    
     if (!panel_name) panel_name = "AInspector";
 
-    FBTrace.sysout("context: ", context);
-
     panel = context.getPanel(panel_name, true);
-    FBTrace.sysout("panel: ", panel);
 
-    if (!cache_object) cache_object = AINSPECTOR_FB.cacheUtil.updateCache();  
-    
-    FBTrace.sysout("cache_object: ", cache_object);
+    if (!cache_object) {
+      if (AINSPECTOR_FB.ruleset_object)
+        cache_object = AINSPECTOR_FB.ruleset_object;
+      else
+        cache_object = AINSPECTOR_FB.cacheUtil.updateCache();
+    }
 
     /* Clear the panel before writing anything onto the report*/
     if (panel) {
-      FBTrace.sysout("inside clearnode 1");
-
       clearNode(panel.panelNode);
-      
-//      var sidePanel = Firebug.currentContext.getPanel('rulesSidePanel');
-//      FBTrace.sysout("inside clearnode 2", sidePanel);
-//      clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
-      FBTrace.sysout("inside clearnode 3");
-
+      clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
     }
 
-    var images_cache = cache_object.dom_cache.images_cache;
-    images_cache.sortImageElements('document_order', true);
-    FBTrace.sysout("images_cache: ", images_cache);
-
-    var images_cache_elements = images_cache.getItemsByNodeResults(OpenAjax.a11y.RESULT_FILTER.ALL);
+    /* Get the Image rules results from the ruleset selected in preferences*/
+    var images_cache_elements_results = cache_object.getCacheItemsByRuleCategory(OpenAjax.a11y.RULE_CATEGORIES.IMAGES, OpenAjax.a11y.RESULT_FILTER.ALL);
     
+    var cache_item_results = images_cache_elements_results.cache_item_results;
+
     AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
     
     var toolbar = panel.document.createElement("div");
     toolbar.id = "toolbarDiv";
-    FBTrace.sysout("images_cache_elements: ", images_cache_elements);
-
-    panel.table = AINSPECTOR_FB.template.grid.header.replace({elements: images_cache_elements}, toolbar, AINSPECTOR_FB.template.grid);
+    
+    panel.table = AINSPECTOR_FB.template.grid.header.replace({elements: cache_item_results, view:"Images"}, toolbar, AINSPECTOR_FB.template.grid);
     
     var element = panel.document.createElement("div");
     element.style.display = "block";
-	  
-    FBTrace.sysout("images_cache_elements: ", images_cache_elements);
-
+    
     panel.panelNode.id = "ainspector-panel"; 
     panel.panelNode.appendChild(toolbar);
-	  panel.panelNode.appendChild(element);
-	
-	  var table = panel.table.lastChild;
-	  var tbody = table.lastChild;
-  
-	  FBTrace.sysout("panel.table: ", panel.table);
-	  FBTrace.sysout("table: ", table);
-    FBTrace.sysout("tbody: ", tbody);
+    panel.panelNode.appendChild(element);
+    AINSPECTOR_FB.template.grid.setTableMenuItems(panel.table);
 
-//  panel.table = AINSPECTOR_FB.images.imagesTemplate.tableTag.append( {image_elements: image_elements}, panel.panelNode, AINSPECTOR_FB.images.imagesTemplate);
-//	this.select(image_elements[0]);
-//	Firebug.currentContext.getPanel('rulesSidePanel').sView(true, images_cache.image_elements[0]);
+    var selected_row = AINSPECTOR_FB.toolbarUtil.selectRow(panel, cache_item_results[0], false, "images");
+    
+    if (AINSPECTOR_FB.previous_selected_row != null && selected_row) Firebug.currentContext.getPanel('rulesSidePanel').sView(true, cache_item_results[selected_row]);
+    else Firebug.currentContext.getPanel('rulesSidePanel').sView(true, cache_item_results[0]);
   },
     
   /**
@@ -112,12 +100,30 @@ with (FBL) {
    * @property {Object} selection - set an object to the panel to be used by the side panels when selected first time
    */
   select : function(object) {
-     panel.selection = object;
-    
-     AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[1].children[0]);
+     
+     if  (AINSPECTOR_FB.previous_selected_row != null) {
+       var selected_row = AINSPECTOR_FB.previous_selected_row;
+       panel.selection = AINSPECTOR_FB.previous_selected_row;
+       var rows = panel.table.children[6].children[1].children;
+       FBTrace.sysout("rows: ", rows);
+       var row = null;
+       var i = 0;
+       
+       for (i; i <= rows.length; i++) {
+         row = rows[i];
+         FBTrace.sysout("row: ", row.children[0].textContent);
+         if (row.children[0].textContent == selected_row.children[0].textContent) {
+           break;
+         }
+       } 
+       
+       FBTrace.sysout("AINSPECTOR_FB.images.select() - AINSPECTOR_FB.previous_selected_row: ", AINSPECTOR_FB.previous_selected_row);
+       AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[6].children[1].children[i]);
+     } else {
+       panel.selection = object;
+       AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[6].children[1].children[0]);
+     }
       
   }
-}; //end of images
-  
-  
-  }
+  }; //end of images
+}

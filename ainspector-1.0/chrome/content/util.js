@@ -24,7 +24,7 @@ FBL.ns(function() { with (FBL) {
    * @namespace AINSPECTOR_FB.gridHeaderColumnResize
    */
   AINSPECTOR_FB.gridHeaderColumnResize = {
-		  
+      
     resizing: false,
     currColumn: null,
     startX: 0,
@@ -42,7 +42,7 @@ FBL.ns(function() { with (FBL) {
      */
     onMouseClick: function(event) {
         
-	  if (!isLeftClick(event)) return;
+    if (!isLeftClick(event)) return;
 
       // Avoid click event for sorting, if the resizing has been just finished.
       var rightNow = (new Date()).getTime();
@@ -60,7 +60,7 @@ FBL.ns(function() { with (FBL) {
      */
     onMouseDown: function(event) {
         
-   	  if (!isLeftClick(event)) return;
+       if (!isLeftClick(event)) return;
 
       var target = event.target;
       
@@ -88,7 +88,7 @@ FBL.ns(function() { with (FBL) {
         
       if (AINSPECTOR_FB.gridHeaderColumnResize.resizing) {
             
-    	if (hasClass(target, "gridHeaderCellBox")) target.style.cursor = "e-resize";
+      if (hasClass(target, "gridHeaderCellBox")) target.style.cursor = "e-resize";
 
         AINSPECTOR_FB.gridHeaderColumnResize.onResizing(event);
         return;
@@ -166,13 +166,13 @@ FBL.ns(function() { with (FBL) {
 
       if (column.previousSibling) {
 
-    	if (x < offset.x + 4)
+      if (x < offset.x + 4)
           return 1;   // Mouse is close to the left side of the column (target).
       }
 
       if (column.nextSibling) {
             
-    	if (x > offset.x + size.width - 6)
+      if (x > offset.x + size.width - 6)
           return 2;  // Mouse is close to the right side.
       }
       return 0;
@@ -205,7 +205,7 @@ FBL.ns(function() { with (FBL) {
 
       if (FBTrace.DBG_COOKIES) {
             
-    	var colId = AINSPECTOR_FB.gridHeaderColumnResize.currColumn.getAttribute("id");
+      var colId = AINSPECTOR_FB.gridHeaderColumnResize.currColumn.getAttribute("id");
         FBTrace.sysout("cookies.Start resizing column (id): " + colId +
                 ", start width: " + AINSPECTOR_FB.gridHeaderColumnResize.startWidth + "\n");
       }
@@ -261,34 +261,48 @@ FBL.ns(function() { with (FBL) {
         FBTrace.sysout("cookies.End resizing column (id): " + colId +
                 ", new width: " + newWidth + "\n");
       }
-    }	  
+    }    
   };
   
   /**
    * @namespace AINSPECTOR_FB.ainspectorUtil
    */
   AINSPECTOR_FB.ainspectorUtil = {
-	
-	/**
-	 * @function hasProperty
-	 * 
-	 * @desc 
-	 * 
-	 * @param {Array} elements
-	 */	  
-	hasProperty : function(elements){
-	  var flag = true;
-	
-	  for(var key in elements) {
+  
+  /**
+   * @function hasProperty
+   * 
+   * @desc 
+   * 
+   * @param {Array} elements
+   */    
+  hasProperty : function(elements){
+    var flag = true;
+  
+    for(var key in elements) {
         if (elements.hasOwnProperty(key)) {
-	      flag = false;
-	      break;
-	    }
-	  }
-	  return flag;
+        flag = false;
+        break;
+      }
+    }
+    return flag;
     },
     
-    	
+    colorToHex : function(color) {
+      if (color.substr(0, 1) === '#') {
+        return color;
+    }
+    var digits = /(.*?)rgb\((\d+), (\d+), (\d+)\)/.exec(color);
+    if (digits == null) return "";
+    var red = parseInt(digits[2]);
+    var green = parseInt(digits[3]);
+    var blue = parseInt(digits[4]);
+    
+    var rgb = blue | (green << 8) | (red << 16);
+    return digits[1] + '#' + rgb.toString(16);
+    },
+    
+      
     /**
      * @function truncateText
      * 
@@ -298,11 +312,11 @@ FBL.ns(function() { with (FBL) {
      * @return
      */
     truncateText : function(text_content){
-    	
-      var max_text_length = 40;
+      
+      var max_text_length = 60;
       var truncated_text = text_content.substring(0, max_text_length);
       
-      if (text_content.length > 40) truncated_text = truncated_text + "...";
+      if (text_content.length > 60) truncated_text = truncated_text + "...";
       
       return truncated_text;
     },
@@ -316,7 +330,7 @@ FBL.ns(function() { with (FBL) {
      */
     getFileName : function (url){
        
-	    if (url){
+      if (url){
         var file_name = url.toString().match(/.*\/(.*)$/);
 
         if (file_name && file_name.length > 1){
@@ -335,14 +349,14 @@ FBL.ns(function() { with (FBL) {
      */
     loadCSSToStylePanel : function(document){
 
-	  this.loadCSS("chrome://ainspector/content/css/ainspector-panel.css", document);
+    this.loadCSS("chrome://ainspector/content/css/ainspector-panel.css", document);
       this.loadCSS("chrome://ainspector/content/css/fonts-min.css", document);
       this.loadCSS("chrome://ainspector/content/css/tabview.css", document);
       this.loadCSS("chrome://ainspector/content/css/allyGrade.css", document);
       this.loadCSS("chrome://ainspector/content/css/grid.css", document); 
     },
-		  
-	/**
+      
+  /**
      * @function loadCSS
      * 
      * @desc dynamically add a style sheet to the document.
@@ -411,8 +425,8 @@ FBL.ns(function() { with (FBL) {
       var numerical = !this.hasClass(column, "alphaValue");
 
       for (column = column.previousElementSibling; column; ) {
-    	++colIndex;
-    	column = column.previousElementSibling;
+      ++colIndex;
+      column = column.previousElementSibling;
       }
 
       this.sort(table, colIndex, numerical, order);
@@ -466,7 +480,7 @@ FBL.ns(function() { with (FBL) {
       values.sort(function(a, b) { return a.value < b.value ? -1 : 1; });
 
       if ((header.sorted && header.sorted == 1) || (!header.sorted && order == "asc")) {
-    	removeClass(header, "sortedDescending");
+      removeClass(header, "sortedDescending");
         this.setClass(header, "sortedAscending");
         header.sorted = -1;
 
@@ -476,7 +490,7 @@ FBL.ns(function() { with (FBL) {
           if (values[i].info) tbody.appendChild(values[i].info);
         }
       } else {
-    	removeClass(header, "sortedAscending");
+      removeClass(header, "sortedAscending");
         this.setClass(header, "sortedDescending");
         header.sorted = 1;
 
@@ -574,7 +588,7 @@ FBL.ns(function() { with (FBL) {
           var cls = classes[i].trim();
                 
           if (cls != "") {
-        	if (this.hasClass(node, cls) == false) return false;
+          if (this.hasClass(node, cls) == false) return false;
             found = true;
           }
         }
@@ -601,7 +615,7 @@ FBL.ns(function() { with (FBL) {
      * @return node
      */
     getChildByClass : function(node) {
-    	
+      
       if (!node) {
         return null;
       }
@@ -633,23 +647,23 @@ FBL.ns(function() { with (FBL) {
      * @return 
      */
     isGridRow: function(node) {
-	  
-      return AINSPECTOR_FB.ainspectorUtil.hasClass(node, "gridRow");
-	},
     
-	/**
-	 * @function getAncestorByClass
-	 * 
-	 * @desc
-	 * 
-	 * @param {Object} node
-	 * @param {String} className
-	 */
+      return AINSPECTOR_FB.ainspectorUtil.hasClass(node, "gridRow");
+  },
+    
+  /**
+   * @function getAncestorByClass
+   * 
+   * @desc
+   * 
+   * @param {Object} node
+   * @param {String} className
+   */
     getAncestorByClass : function(node, className) {
-      
-	  for (var parent = node; parent; parent = parent.parentNode) {
+  
+      for (var parent = node; parent; parent = parent.parentNode) {
             
-		if (this.hasClass(parent, className)) return parent;
+        if (this.hasClass(parent, className)) return parent;
       }
 
       return null;
@@ -669,16 +683,16 @@ FBL.ns(function() { with (FBL) {
       var k=-1, e=elem;
       
       while (e) {
-    	
-    	if ( "previousSibling" in e ) {
-    	
-    	  e = e.previousSibling;
-    	  k = k + 1;
-    	
-    	} else {
-    	  k= -1;
-    	  break;
-    	}
+      
+      if ( "previousSibling" in e ) {
+      
+        e = e.previousSibling;
+        k = k + 1;
+      
+      } else {
+        k= -1;
+        break;
+      }
       }
       return k;
     },
@@ -770,92 +784,92 @@ FBL.ns(function() { with (FBL) {
 AINSPECTOR_FB.event = {
 
 
-	    /**
-	     * Hash of subscribers where the key is the event name and the value is an array of callbacks-type objects
-	     * The callback objects have keys "callback" which is the function to be called and "that" which is the value
-	     * to be assigned to the "this" object when the function is called
-	     */
-	    subscribers: {},
+      /**
+       * Hash of subscribers where the key is the event name and the value is an array of callbacks-type objects
+       * The callback objects have keys "callback" which is the function to be called and "that" which is the value
+       * to be assigned to the "this" object when the function is called
+       */
+      subscribers: {},
 
-	    /**
-	     * Adds a new listener
-	     *
-	     * @param {String} event_name Name of the event
-	     * @param {Function} callback A function to be called when the event fires
-	     * @param {Object} that Object to be assigned to the "this" value of the callback function
-	     */
-	    addListener: function(event_name, callback, that) {
-	        if (typeof this.subscribers[event_name] === 'undefined') {
-	            this.subscribers[event_name] = [];
-	        }
-	        this.subscribers[event_name].push({callback: callback, that: that});
-	    },
+      /**
+       * Adds a new listener
+       *
+       * @param {String} event_name Name of the event
+       * @param {Function} callback A function to be called when the event fires
+       * @param {Object} that Object to be assigned to the "this" value of the callback function
+       */
+      addListener: function(event_name, callback, that) {
+          if (typeof this.subscribers[event_name] === 'undefined') {
+              this.subscribers[event_name] = [];
+          }
+          this.subscribers[event_name].push({callback: callback, that: that});
+      },
 
-	    /**
-	     * @function removeListener
-	     * 
-	     * @desc Removes a listener
-	     *
-	     * @param {String} event_name Name of the event
-	     * @param {Function} callback The callback function that was added as a listener
-	     * @return {Boolean} TRUE is the listener was removed successfully, FALSE otherwise (for example in cases when the listener doesn't exist)
-	     */
-	    removeListener: function(event_name, callback) {
-	        var i;
-	        for (i in this.subscribers[event_name]) {
-	            if (this.subscribers[event_name][i].callback === callback) {
-	                this.subscribers[event_name].splice(i, 1);
-	                return true;
-	            }
-	        }
-	        return false;
-	    },
+      /**
+       * @function removeListener
+       * 
+       * @desc Removes a listener
+       *
+       * @param {String} event_name Name of the event
+       * @param {Function} callback The callback function that was added as a listener
+       * @return {Boolean} TRUE is the listener was removed successfully, FALSE otherwise (for example in cases when the listener doesn't exist)
+       */
+      removeListener: function(event_name, callback) {
+          var i;
+          for (i in this.subscribers[event_name]) {
+              if (this.subscribers[event_name][i].callback === callback) {
+                  this.subscribers[event_name].splice(i, 1);
+                  return true;
+              }
+          }
+          return false;
+      },
 
-	    /**
-	     * Fires the event
-	     *
-	     * @param {String} event_nama Name of the event
-	     * @param {Object} event_object Any object that will be passed to the subscribers, can be anything
-	     */
-	    fire: function(event_name, event_object) {
-	        var i, listener;
+      /**
+       * Fires the event
+       *
+       * @param {String} event_nama Name of the event
+       * @param {Object} event_object Any object that will be passed to the subscribers, can be anything
+       */
+      fire: function(event_name, event_object) {
+          var i, listener;
 
-	        if (typeof this.subscribers[event_name] === 'undefined') {
-	            return false;
-	        }
+          if (typeof this.subscribers[event_name] === 'undefined') {
+              return false;
+          }
 
-	        for (i = 0; i < this.subscribers[event_name].length; i++) {
-	            listener = this.subscribers[event_name][i];
-	            listener.callback.call(listener.that, event_object);
-	        }
-	        return true;
-	    },
-	    
-	    /**
-	     * @function dispatchMouseEvent
-	     * 
-	     * @desc
-	     * 
-	     * @param {Object} node
-	     * @param {Object} eventType
-	     * @param {Object} clientX
-	     * @param {Object} clientY
-	     * @param {Object} button
-	     */
-	    dispatchMouseEvent : function (node, eventType, clientX, clientY, button) {
-	        if (!clientX)
-	            clientX = 0;
-	        if (!clientY)
-	            clientY = 0;
-	        if (!button)
-	            button = 0;
-	        if (typeof node == "string")
-	            node = $(node);
-	        var doc = node.ownerDocument;
-	        var event = doc.createEvent('MouseEvents');
-	        event.initMouseEvent(eventType, true, true, doc.defaultView,
-	            0, 0, 0, clientX, clientY, false, false, false, false, button, null);
-	        node.dispatchEvent(event);
-	    },
-	};
+          for (i = 0; i < this.subscribers[event_name].length; i++) {
+              listener = this.subscribers[event_name][i];
+              listener.callback.call(listener.that, event_object);
+          }
+          return true;
+      },
+      
+      /**
+       * @function dispatchMouseEvent
+       * 
+       * @desc
+       * 
+       * @param {Object} node
+       * @param {Object} eventType
+       * @param {Object} clientX
+       * @param {Object} clientY
+       * @param {Object} button
+       */
+      dispatchMouseEvent : function (node, eventType, clientX, clientY, button) {
+          if (!clientX)
+              clientX = 0;
+          if (!clientY)
+              clientY = 0;
+          if (!button)
+              button = 0;
+          if (typeof node == "string")
+              node = $(node);
+          var doc = node.ownerDocument;
+          var event = doc.createEvent('MouseEvents');
+          event.initMouseEvent(eventType, true, true, doc.defaultView,
+              0, 0, 0, clientX, clientY, false, false, false, false, button, null);
+          node.dispatchEvent(event);
+      },
+  };
 });
