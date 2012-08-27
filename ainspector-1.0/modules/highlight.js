@@ -1,5 +1,5 @@
 /**
- * Copyright 2011 University Of Illinois
+ * Copyright 2012 University Of Illinois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,43 +14,87 @@
  * limitations under the License.
  */
 
-var EXPORTED_SYMBOLS = ["highLight"]; //Export items from module and inject them into the import scope
+var EXPORTED_SYMBOLS = ["OAA_WEB_ACCESSIBILITY"]; //Export items from module and inject them into the import scope
 
 var console = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
 
-var highLight = highLight || {};
+var Node = Node || {
+  ELEMENT_NODE    :  1,
+  ATTRIBUTE_NODE  :  2,
+  TEXT_NODE       :  3
+  }
 
-highLight.highlightModule = {
+
+/** 
+ * @namespace OAA_WEB_ACCESSIBILITY
+ */
+
+var OAA_WEB_ACCESSIBILITY  = OAA_WEB_ACCESSIBILITY || {};
+
+/** 
+ * @namespace OAA_WEB_ACCESSIBILITY.util
+ */
+
+OAA_WEB_ACCESSIBILITY.util = OAA_WEB_ACCESSIBILITY.util || {};
+
+/* ---------------------------------------------------------------- */
+/*                      Highlight Module                            */ 
+/* ---------------------------------------------------------------- */
+
+/** 
+ * @namespace OAA_WEB_ACCESSIBILITY.util.highlightModule
+ */
+
+OAA_WEB_ACCESSIBILITY.util.highlightModule = {
   
   last_highlighted_nodes: [],
-  
-  /**
-   * @function highlightObject
-   *
-   * @memeberOf highLight.highlightModule
-   *
-   * @desc highlights set of nodes selected on a webpage
-   *
-   * @param {Array} items - one or more nodes to highlight
-   * 
-   * @param {Object} document
-   */
-  highlightNodes : function (items, document) {
-	
-	var node;
-	var no_of_items = items.length;
-	var style;
-	var tag_name;
+  document: null,
 
-	if (this.last_highlighted_nodes.length > 0) {
+  /**
+   * @function initHighlight
+   * 
+   * @memberOf OAA_WEB_ACCESSIBILITY.util.highlightModule
+   *
+   * @desc Initialize highlight module
+   *
+   * @param {Object}  document  - Document object model of the browser view to highlight
+   */
+   initHighlight : function (document) {
 	
-	  this.unHighlightNodes(this.last_highlighted_nodes, document); 
-	}
+	this.document = document;
 	
-	for (var i = 0; i < items.length; i++) {
-	  var item = items[i];
+   },	
+
+  /**
+   * @function highlightCacheItems
+   *
+   * @memberOf OAA_WEB_ACCESSIBILITY.util.highlightModule
+   *
+   * @desc highlights set of nodes selected on a page
+   *
+   * @param {Array}   items     - An array of OAA cache items to highlight
+   */
+   highlightCacheItems : function (items) {
+     
+     console.logStringMessage("OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems");
+     
+     if (this.last_highlighted_nodes && this.last_highlighted_nodes.length) {
+	
+       this.removeHighlight(); 
+     }
+
+    if (!items || typeof items.length == 'undefined') return;
+    
+    var node = null;
+    var items_len = items.length;
+    var style;
+    var tag_name;
+
+    for (var i = 0; i < items_len; i++) {
 	  
-	  if (item.dom_element) {
+      var item = items[i];
+	  
+      if (item.dom_element) {  // item is a cache element object
 		
 		if (item.dom_element.image_only) {
 	      node = item.dom_element.node.getElementsByTagName("img")[0];
@@ -61,29 +105,43 @@ highLight.highlightModule = {
 		style = item.dom_element.computed_style;
 		tag_name = item.dom_element.tag_name;
 	  }
-	  else {
-  
-	    if (item.type == 1) { //if node type is element
-	      node = item.node;
+	  else { 
+        // If item is a dom element object or text node object
+        switch (item.type) {
+        
+        case Node.ELEMENT_NODE:
+          node = item.node;
+          style = item.computed_style;
+          tag_name = item.tag_name;
+          break;
+          
+        case Node.TEXT_NODE:
+	      if (item.parent_element) {
+	        node = item.parent_element.node;        
+            style = item.parent_element.computed_style;
+            tag_name = item.parent_element.tag_name;
+	      }  
+          break;
+        
+        default: 
+          break;
 	    }
-	    else {
-	      if (item.parent_element) node = item.parent_element.node;
-	    }
-	    style = item.computed_style;
-	    tag_name = item.parent_element.tag_name;
+	   
 	  }
+    console.logStringMessage("highlightModule: ", node);
 
 	  if (node) {
 
 //		check if the node is off screen or hidden from assistive technologies
-		console.logStringMessage("style.visibility;" + style.visibility);
-		console.logStringMessage("style.display;" + style.display);
+//		console.logStringMessage("style.visibility;" + style.visibility);
+//		console.logStringMessage("style.display;" + style.display);
 
 		if (style.visibility == "hidden" || style.display == "none") {
-		  this.isVisibletoAT(document, tag_name, style, node);
+		  console.logStringMessage("node is hidden: ", node);
+		  this.isVisibletoAT(tag_name, style, node);
 		} else {
 		  node.style.outline = "medium solid red";
-
+		  console.logStringMessage("node is visible");
  	      // If true, element is aligned with top of scroll area.
 	      // If false, it is aligned with bottom.
 	      node.scrollIntoView(true);
@@ -95,45 +153,46 @@ highLight.highlightModule = {
   },
   
   /**
-   * @function unHighlightNodes
+   * @function removeHighlight
+   * 
+   * @memberOf OAA_WEB_ACCESSIBILITY.util.highlightModule
    * 
    * @desc unhighlights the nodes that are highlighted earlier and 
-   * removes the informational message added to a page if the 
-   * element is hidden from Assistive technlogies
-   *
-   * @param {Array} nodes - one or more nodes to unhighlight
-   * @param {Object} document - document
+   *       removes the informational message added to a page if the 
+   *       element is hidden from Assistive technlogies
    */
-  unHighlightNodes : function(nodes, document) {
+   removeHighlight : function() {
   
-    if (!nodes) return;
+    if (!this.last_highlighted_nodes) return;
 	
-	var length = nodes.length;
+	var length = this.last_highlighted_nodes.length;
+	var obj = this.document.getElementById("vId");
 	
-	var obj = document.getElementById("vId");
-	if (obj)  document.body.removeChild(obj);
+	if (obj)  this.document.body.removeChild(obj);
 
 	for (var i = 0; i < length; i++) {
-	  nodes[i].style.outline = ""; 
+	  this.last_highlighted_nodes[i].style.outline = ""; 
 	}
   },
   
   /**
    * @function isVisibletoAT
    * 
+   * @memberOf OAA_WEB_ACCESSIBILITY.util.highlightModule
+   *
    * @desc Position a div on the left side of the view port 
    * 
-   * @param {Object} node
+   * @param {Object} element
    */
-  isVisibletoAT : function (document, element, style, node) {
+  isVisibletoAT : function (element, style, node) {
 	  
-	  var new_div_element = document.createElement('div');
+	  var new_div_element = this.document.createElement('div');
 	  var style_div = 'width:400px; padding:10px; border:3px solid blue; margin:0px; color:red; font-size:20px; position:fixed; ';
 
 	  new_div_element.id = 'vId';
 	  new_div_element.setAttribute("style", style_div);
 	  new_div_element.innerHTML = 'Element is off-screen or hidden from assistive technologies';
      
-	  document.body.insertBefore(new_div_element,document.body.childNodes[0]);
+	  this.document.body.insertBefore(new_div_element,this.document.body.childNodes[0]);
   }
 };
