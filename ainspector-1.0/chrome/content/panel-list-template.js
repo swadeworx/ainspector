@@ -2,7 +2,7 @@ var AINSPECTOR_FB = AINSPECTOR_FB || {};
 
 with (FBL) {
   AINSPECTOR_FB.template = AINSPECTOR_FB.template || {};
-  
+    
   AINSPECTOR_FB.template.grid = domplate({
     
     header : DIV({class : "main-panel"},
