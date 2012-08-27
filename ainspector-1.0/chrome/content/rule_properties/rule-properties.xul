@@ -4,9 +4,9 @@
 <?xml-stylesheet href="chrome://global/skin/global.css"?>
 <?xml-stylesheet href="chrome://firebug/skin/customizeShortcuts.css" ?>
 
-<?xml-stylesheet href="chrome://rule-properties/skin/rule-properties.css" type="text/css"?>
+<?xml-stylesheet href="chrome://rule_properties/skin/rule-properties.css" type="text/css"?>
 
-<!DOCTYPE page SYSTEM "chrome://rule-properties/locale/rule-properties.dtd">
+<!DOCTYPE page SYSTEM "chrome://rule_properties/locale/rule-properties.dtd">
 
 <dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
   xmlns:html="http://www.w3.org/1999/xhtml"

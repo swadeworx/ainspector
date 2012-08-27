@@ -45,12 +45,12 @@ OAA_WEB_ACCESSIBILITY_RULE_PROPS.onLoad = function () {
   
   this.rule_properties = rule_properties;
   
-  var node_result  = window.arguments[0];
+  var result_object  = window.arguments[0];
   
-  this.node_result = node_result;
+  this.result_object = result_object;
   
   if (rule_properties) {
-    if (node_result) rule_properties.update(node_result);
+    if (result_object) rule_properties.update(result_object);
     else rule_properties.clear();
   }
   
@@ -67,7 +67,7 @@ OAA_WEB_ACCESSIBILITY_RULE_PROPS.onLoad = function () {
 OAA_WEB_ACCESSIBILITY_RULE_PROPS.onUnload = function () {
 
   this.rule_properties = null;
-  this.node_result = null;
+  this.result_object = null;
     
 };
 
@@ -81,7 +81,7 @@ OAA_WEB_ACCESSIBILITY_RULE_PROPS.onUnload = function () {
  
 OAA_WEB_ACCESSIBILITY_RULE_PROPS.dialog = function () {
 
-  this.node_result = null;
+  this.result_object = null;
   
   var doc = window.document;
   
@@ -113,7 +113,7 @@ OAA_WEB_ACCESSIBILITY_RULE_PROPS.dialog = function () {
  
 OAA_WEB_ACCESSIBILITY_RULE_PROPS.dialog.prototype.clear = function () {
 
-  this.node_result = null;
+  this.result_object = null;
   
   var util = OAA_WEB_ACCESSIBILITY_RULE_PROPS.util;
   
@@ -150,24 +150,29 @@ OAA_WEB_ACCESSIBILITY_RULE_PROPS.dialog.prototype.clear = function () {
  *
  * @desc Shows the rule properites of a node result
  *
- * @param {NodeResult}  node_result  - Node result    
+ * @param {NodeResult | RuleResult}  result_object  - Node or rule result object    
  */
  
-OAA_WEB_ACCESSIBILITY_RULE_PROPS.dialog.prototype.update = function (node_result) {
+OAA_WEB_ACCESSIBILITY_RULE_PROPS.dialog.prototype.update = function (result_object) {
 
   var i;
+  var rule;
   var nls_strings = document.getElementById("ID_STRINGBUNDLE_RULE_PROPERTIES");
+  var wcag20_nls = OpenAjax.a11y.all_wcag20_nls.getNLS();
 
-  this.node_result = node_result;
+  this.result_object = result_object;
 
-  if (this.node_result) {
+  if (this.result_object) {
   
     var util = OAA_WEB_ACCESSIBILITY_RULE_PROPS.util;
-    var rule = this.node_result.getRule();
+    
+    if (result_object.getRule) rule = this.result_object.getRule();
+    else if (rule_object.rule) rule = this.result_object.rule;
+      else rule = result_object;
   
-    util.updateText(this.node_summary,    this.node_result.getRuleSummary());
+    util.updateText(this.node_summary,    this.result_object.getRuleSummary());
   
-    util.updateText(this.node_definition, this.node_result.getRuleDefinition());
+    util.updateText(this.node_definition, this.result_object.getRuleDefinition());
     
     // Purpose
 
@@ -190,11 +195,11 @@ OAA_WEB_ACCESSIBILITY_RULE_PROPS.dialog.prototype.update = function (node_result
     var wcag_nls = rule.getNLSRequirements();
     
     util.removeChildNodes(this.node_wcag20_requirements);
-    util.addListItem(this.node_wcag20_requirements, 'primary', wcag_nls.primary.title + " (" + OpenAjax.a11y.all_wcag20_nls.getNLSLevel(wcag_nls.primary.level) + ") Primary", wcag_nls.primary.url_spec);
+    util.addListItem(this.node_wcag20_requirements, 'primary', wcag_nls.primary.title + " (" + wcag20_nls.getNLSWCAG20Level(wcag_nls.primary.level) + ") Primary", wcag_nls.primary.url_spec);
     
     for (i = 0; i < wcag_nls.related.length; i++ ) {
       var related = wcag_nls.related[i];       
-      util.addListItem(this.node_wcag20_requirements, 'related', related.title + " (" + OpenAjax.a11y.all_wcag20_nls.getNLSLevel(related.level) + ")", related.url_spec);
+      util.addListItem(this.node_wcag20_requirements, 'related', related.title + " (" + wcag20_nls.getNLSWCAG20Level(related.level) + ")", related.url_spec);
     } // end loop
 
     // Add techniques
