@@ -3,7 +3,8 @@
 <!ENTITY  ainspector.toolbarbutton.media.label          "Media">
 <!ENTITY  ainspector.toolbarbutton.controls.label       "Controls">
 <!ENTITY  ainspector.toolbarbutton.colorContrast.label  "Color Contrast">
-<!ENTITY  ainspector.toolbarbutton.headings.label       "Headings/Landmarks">
+<!ENTITY  ainspector.toolbarbutton.content.label       "Content/Landmarks">
+<!ENTITY  ainspector.toolbarbutton.headers.label       "Headers/Landmarks">
 <!ENTITY  ainspector.toolbarbutton.links.label          "Links">
 <!ENTITY  ainspector.toolbarbutton.lists.label          "Lists">
 <!ENTITY  ainspector.toolbarbutton.tables.label         "Tables">
@@ -12,20 +13,3 @@
 <!ENTITY  ainspector.toolbarbutton.navigation.label     "Navigation">
 <!ENTITY  ainspector.toolbarbutton.preferences.label     "Preferences">
 
-<!-- Preferences Panel -->
-
-<!ENTITY preferences.ruleset       "Select Ruleset">
-<!ENTITY preferences.levelLabel    "Select WCAG 2.0 Success Criteria Level">
-<!ENTITY preferences.levelAAA      "Level A, AA and AAA (highest level of accessibility)">
-<!ENTITY preferences.levelAA       "Level A and AA">
-<!ENTITY preferences.levelA        "Level A (lowest level of accessibility)">
-<!ENTITY preferences.descriptionLabel  "Description">
-<!ENTITY preferences.authorLabel       "Author">
-<!ENTITY preferences.otherOptions      "Other Options">
-<!ENTITY preferences.brokenLinks         "Enable checking for broken links">
-<!ENTITY preferences.brokenLinksTooltip  "Checking for links will significantly increase the time to evaluate a document">
-<!ENTITY preferences.showMenu            "Show 'Accessibility' menu in main menu">
-<!ENTITY preferences.showMenuTooltip     "If enabled the 'Accessibility' menu will be visible in the main menu">
-<!ENTITY preferences.saveLabel           "OK">
-<!ENTITY preferences.cancelLabel          "Cancel">
-<!ENTITY preferences.defaultsLabel       "Restore Default Preferences">
