@@ -26,7 +26,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
   level : "Level ",
 
   levels : ['Undefined', 'A','AA','AAA'],
-  
+
   principles : {
     //
     // Principle 1: Perceivable

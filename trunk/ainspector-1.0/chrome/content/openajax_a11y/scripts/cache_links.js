@@ -66,7 +66,6 @@ OpenAjax.a11y.cache.LinksCache = function (dom_cache) {
   this.sort_property = 'document_order';
   this.sort_ascending = true;
   
-  this.evaluation_results  = new OpenAjax.a11y.EvaluationResult();
 }; 
 
 /**

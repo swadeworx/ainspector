@@ -97,8 +97,6 @@ OpenAjax.a11y.cache.TitleMainCache = function (dom_cache) {
   
   this.page_element = null;
  
-  this.evaluation_results  = new OpenAjax.a11y.EvaluationResult();
- 
 };
 
 /**
@@ -804,7 +802,7 @@ OpenAjax.a11y.cache.H1Element.prototype.getEvents = function () {
  */
   
 OpenAjax.a11y.cache.H1Element.prototype.toString = function () {
-  return "H1 element: " + this.name;  
+  return "H1: " + this.name;  
 };
 
 /* ---------------------------------------------------------------- */
@@ -984,7 +982,7 @@ OpenAjax.a11y.cache.TitleElement.prototype.getEvents = function () {
  */
   
 OpenAjax.a11y.cache.TitleElement.prototype.toString = function () {
-  return "TITLE element: " + this.name;  
+  return "TITLE: " + this.name;  
 };
 
 
@@ -1176,5 +1174,5 @@ OpenAjax.a11y.cache.PageElement.prototype.getEvents = function () {
  */
   
 OpenAjax.a11y.cache.PageElement.prototype.toString = function () {
-  return "BODY element";  
+  return "BODY";  
 };

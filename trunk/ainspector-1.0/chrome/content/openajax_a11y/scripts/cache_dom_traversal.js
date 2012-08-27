@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+ 
 /* ---------------------------------------------------------------- */
 /*                            DOMCache                              */
 /* ---------------------------------------------------------------- */
@@ -46,7 +46,6 @@
  * @property {Object}  color_contrast_cache      - Cache of abbreviation items
  * @property {Object}  controls_cache            - Cache of form controls and widgets
  * @property {Object}  headings_landmarks_cache  - Cache of headings and abbreviations
- * @property {Object}  title_main_cache          - Cache of title, h1 and main landmark elements
  * @property {Object}  images_cache              - Cache of image and area elements
  * @property {Object}  languages_cache           - Cache of language change items
  * @property {Object}  links_cache               - Cache of a and area elements
@@ -100,7 +99,6 @@ OpenAjax.a11y.cache.DOMCache.prototype.initCache = function () {
  this.color_contrast_cache     = new OpenAjax.a11y.cache.ColorContrastCache(this);
  this.controls_cache           = new OpenAjax.a11y.cache.ControlsCache(this);
  this.headings_landmarks_cache = new OpenAjax.a11y.cache.HeadingsLandmarksCache(this);
- this.title_main_cache         = new OpenAjax.a11y.cache.TitleMainCache(this);
  this.images_cache             = new OpenAjax.a11y.cache.ImagesCache(this);
  this.languages_cache          = new OpenAjax.a11y.cache.LanguagesCache(this);
  this.links_cache              = new OpenAjax.a11y.cache.LinksCache(this);
@@ -168,7 +166,6 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateCache = function (cache_name) {
  *
  * @param  dom_element       Object  Current DOMElement object being processed
  * @param  landmark_info     Object  LandmarkInfo object containing current landmark and heading information for tree representations
- * @param  main_info         Object  MainInfo object containing current main, h1 and title information for tree representations
  * @param  table_info        Object  TableInfo object containing current table information for tree representations
  * @param  control_info      Object  ControlInfo object containing current control information for tree representations
  * @param  list_info         Object  Current LanguageElement object that contains the DOMElement
@@ -178,7 +175,6 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateCache = function (cache_name) {
 
 OpenAjax.a11y.cache.DOMCache.prototype.traverseDOMElementsForAllCaches = function (dom_element,
                                           landmark_info,
-                                          main_info,
                                           table_info,
                                           control_info,
                                           list_info) {
@@ -198,11 +194,10 @@ OpenAjax.a11y.cache.DOMCache.prototype.traverseDOMElementsForAllCaches = functio
   var hi = this.headings_landmarks_cache.updateCacheItems(dom_element, landmark_info);
   var li = this.lists_cache.updateCacheItems(dom_element, list_info);
   var ti = this.tables_cache.updateCacheItems(dom_element, table_info);
-  var mi = this.title_main_cache.updateCacheItems(dom_element, main_info);
 
   var children_length = dom_element.child_dom_elements.length;
   for (var i = 0; i<children_length; i++ ) {
-   this.traverseDOMElementsForAllCaches(dom_element.child_dom_elements[i], hi, mi, ti, ci, li);
+   this.traverseDOMElementsForAllCaches(dom_element.child_dom_elements[i], hi, ti, ci, li);
   } // end loop
  } else {
    this.color_contrast_cache.updateCacheItems(dom_element);
@@ -227,14 +222,13 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateAllCaches = function () {
  var children_len = children.length;
 
  var hi = new OpenAjax.a11y.cache.LandmarkInfo(null);
- var mi = new OpenAjax.a11y.cache.MainInfo(null);
  var ti = new OpenAjax.a11y.cache.TableInfo(null);
  var ci = new OpenAjax.a11y.cache.ControlInfo(null);
  var li = new OpenAjax.a11y.cache.ListInfo(null);
 
  this.log.update(OpenAjax.a11y.PROGRESS.CACHE_START, "Updating all caches");
  for (i=0; i < children_len; i++) {
-  this.traverseDOMElementsForAllCaches(children[i], hi, mi, ti, ci, li);
+  this.traverseDOMElementsForAllCaches(children[i], hi, ti, ci, li);
  }
 
  this.controls_cache.calculateControlLabels();
@@ -264,14 +258,14 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateDOMElementCache = function () {
 
  // if the page contains a body element start there, since there are fewer elements to traverse
  if (this.document && this.document.body) {
-  // OpenAjax.a11y.console("Creating DOM elements from body element");
+  // OpenAjax.a11y.logger.debug("Creating DOM elements from body element");
   this.log.update(OpenAjax.a11y.PROGRESS.CACHE_START, "Updating DOM elements");
   this.updateDOMElements(this.document.body, null, null);
   this.log.update(OpenAjax.a11y.PROGRESS.CACHE_END, "Completed DOM element update, new cache includes " + this.element_cache.dom_elements.length + " DOMElement objects");
  }
  // If there are frames start at the top element
  else {
-  // OpenAjax.a11y.console("Creating DOM elements with frames");
+  // OpenAjax.a11y.logger.debug("Creating DOM elements with frames");
   this.log.update(OpenAjax.a11y.PROGRESS.CACHE_START, "Updating DOM elements using frames");
   this.updateDOMElements(this.document, null, null);
   this.log.update(OpenAjax.a11y.PROGRESS.CACHE_END, "Completed DOM element update, new cache includes " + this.element_cache.dom_elements.length + " DOMElement objects");
@@ -364,11 +358,11 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateDOMElements = function (node, paren
 
   case Node.DOCUMENT_NODE:
   case Node.DOCUMENT_TYPE_NODE:
-    // OpenAjax.a11y.console("Document node type");
+    // OpenAjax.a11y.logger.debug("Document node type");
     break;
 
   case Node.ELEMENT_NODE:
-    // OpenAjax.a11y.console(node.tagName);
+    // OpenAjax.a11y.logger.debug(node.tagName);
     
     var dom_element = new OpenAjax.a11y.cache.DOMElement(node, parent_dom_element);
 
@@ -406,7 +400,7 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateDOMElements = function (node, paren
 
       var frame_doc = node.contentWindow.document;
 
-//      OpenAjax.a11y.console("frame: " + node.src + " " + frame_doc);
+//      OpenAjax.a11y.logger.debug("frame: " + node.src + " " + frame_doc);
 
       if (frame_doc && frame_doc.firstChild) {
         for (n = frame_doc.firstChild; n !== null; n = n.nextSibling) {
@@ -430,7 +424,7 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateDOMElements = function (node, paren
     break;
 
   case Node.TEXT_NODE:
-    // OpenAjax.a11y.console("DOM node text: " + node.data);
+    // OpenAjax.a11y.logger.debug("DOM node text: " + node.data);
 
    var dom_text = new OpenAjax.a11y.cache.DOMText(node, parent_dom_element);
 
@@ -461,6 +455,7 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateDOMElements = function (node, paren
   return null;
 
 };
+
 
 /**
  * @method calculateDescriptions

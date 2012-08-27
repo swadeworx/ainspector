@@ -10,16 +10,17 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * @desc Images must have alt attribute
  */
  
-{ rule_id           : 'IMAGE_1', 
+{ rule_id             : 'IMAGE_1', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
-  last_updated      : '2012-04-12', 
-  wcag_primary_id   : '1.1.1',
-  wcag_related_ids  : [],
+  rule_category       : OpenAjax.a11y.RULE_CATEGORIES.IMAGES,
+  last_updated        : '2012-04-12', 
+  wcag_primary_id     : '1.1.1',
+  wcag_related_ids    : [],
   target_resources    : ['img', 'area'],
-  cache_dependency  : 'images_cache',
-  cache_properties  : ['alt', 'role', 'is_visible_to_at'],
+  cache_dependency    : 'images_cache',
+  cache_properties    : ['alt', 'role', 'is_visible_to_at'],
   language_dependency : "",
-  validate          : function (dom_cache, rule_result) {
+  validate            : function (dom_cache, rule_result) {
  
     var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
     var VISIBILITY  = OpenAjax.a11y.VISIBILITY;
@@ -48,7 +49,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
             }
           }
           else {
-            rule_result.addResult(TEST_RESULT.HIDDEN, ie, 'HIDDEN', []);     
+            rule_result.addResult(TEST_RESULT.HIDDEN, ie, 'HIDDEN', [de.tag_name]);     
           }
         }      
       } // end loop
@@ -64,6 +65,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 { rule_id             : 'IMAGE_2', 
   last_updated        : '2011-09-16', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+  rule_category       : OpenAjax.a11y.RULE_CATEGORIES.IMAGES,
   wcag_primary_id     : '1.1.1',
   wcag_related_ids    : [],
   target_resources    : ['img'],
@@ -127,6 +129,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 { rule_id             : 'IMAGE_3', 
   last_updated        : '2011-09-16', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+  rule_category       : OpenAjax.a11y.RULE_CATEGORIES.IMAGES,
   wcag_primary_id     : '1.1.1',
   wcag_related_ids    : [],
   target_resources    : ['img'],
@@ -172,7 +175,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
               }
             }
             else {
-              rule_result.addResult(TEST_RESULT.HIDDEN, ie, 'HIDDEN', []);     
+              rule_result.addResult(TEST_RESULT.HIDDEN, ie, 'HIDDEN', [de.tag_name]);     
             }
           }  
         }      
@@ -189,6 +192,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 { rule_id             : 'IMAGE_4_EN', 
   last_updated        : '2011-09-16', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+  rule_category       : OpenAjax.a11y.RULE_CATEGORIES.IMAGES,
   wcag_primary_id     : '1.1.1',
   wcag_related_ids    : [],
   target_resources    : ['img', 'area'],
@@ -226,7 +230,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
             }
           }
           else {
-            rule_result.addResult(TEST_RESULT.HIDDEN, ie, 'HIDDEN', []);     
+            rule_result.addResult(TEST_RESULT.HIDDEN, ie, 'HIDDEN', [de.tag_name]);     
           }
         }      
       } // end loop
@@ -242,6 +246,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 { rule_id             : 'IMAGE_5', 
   last_updated        : '2011-09-16', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+  rule_category       : OpenAjax.a11y.RULE_CATEGORIES.IMAGES,
   wcag_primary_id     : '1.1.1',
   wcag_related_ids    : [],
   target_resources    : ['img'],
@@ -295,6 +300,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  */
 { rule_id             : 'IMAGE_6', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+  rule_category       : OpenAjax.a11y.RULE_CATEGORIES.IMAGES,
   last_updated        : '2011-09-16', 
   wcag_primary_id     : '1.1.1',
   wcag_related_ids    : [],
@@ -323,7 +329,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
           }
         }    
         else {
-          rule_result.addResult(TEST_RESULT.HIDDEN, ie, 'HIDDEN', []);     
+          rule_result.addResult(TEST_RESULT.HIDDEN, ie, 'HIDDEN', [de.tag_name]);     
         }
       } // end loop
     } 

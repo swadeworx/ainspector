@@ -18,6 +18,7 @@
 /*                   OpenAjax High Level APIs                       */ 
 /* ---------------------------------------------------------------- */
 
+OpenAjax.a11y.logger = {};
 
 /**
  * @function console
@@ -28,10 +29,12 @@
  * 
  * @param {String} message - Message to send to the console 
  */
-OpenAjax.a11y.console = function (message) {
-  if (OpenAjax.a11y.CONSOLE_MESSAGES) {
-    var console = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
-    console.logStringMessage(message);
+OpenAjax.a11y.logger.debug = function (message) {
+  if (OpenAjax.a11y.CONSOLE_MESSAGES && 
+      OAA_WEB_ACCESSIBILITY_LOGGING && 
+      OAA_WEB_ACCESSIBILITY_LOGGING.logger && 
+      OAA_WEB_ACCESSIBILITY_LOGGING.logger.log) {
+    OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug(message);
   }   
 };  
    

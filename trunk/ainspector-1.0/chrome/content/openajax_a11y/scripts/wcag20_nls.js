@@ -46,7 +46,7 @@ OpenAjax.a11y.WCAG20 = function() {
  * @param  {Object}  nls     - Localized WCAG 2.0 object
  */
 
-OpenAjax.a11y.WCAG20.prototype.addNLS = function(locale, nls) {
+OpenAjax.a11y.WCAG20.prototype.addNLS = function (locale, nls) {
 
   var item;
   var  p,  p_id,  np;  /* WCAG 2.0 Principle */
@@ -54,18 +54,18 @@ OpenAjax.a11y.WCAG20.prototype.addNLS = function(locale, nls) {
   var sc, sc_id, nsc;  /* WCAG 2.0 Success Criterion */
 
   // Validate the WCAG 2.0 NLS properties
-  if (!nls.abbrev) OpenAjax.a11y.console("Missing abbreviation property for WCAG 2.0 with locale: " + locale);
-  if (!nls.title)  OpenAjax.a11y.console("Missing title property for WCAG 2.0 with locale: "        + locale);
-  if (!nls.url)    OpenAjax.a11y.console("Missing abbreviation property for WCAG 2.0 with locale: " + locale);
-  if (!nls.levels) OpenAjax.a11y.console("Missing levels property for WCAG 2.0 with locale: "        + locale);
+  if (!nls.abbrev) OpenAjax.a11y.logger.debug("Missing abbreviation property for WCAG 2.0 with locale: " + locale);
+  if (!nls.title)  OpenAjax.a11y.logger.debug("Missing title property for WCAG 2.0 with locale: "        + locale);
+  if (!nls.url)    OpenAjax.a11y.logger.debug("Missing abbreviation property for WCAG 2.0 with locale: " + locale);
+  if (!nls.levels) OpenAjax.a11y.logger.debug("Missing levels property for WCAG 2.0 with locale: "        + locale);
   
   var wcag20 = new OpenAjax.a11y.WCAG20NLS(locale, nls.abbrev, nls.title, nls.url, nls.levels);
   
- //  OpenAjax.a11y.console("WCAG 2.0 " + nls.title + " for " + locale); 
+ //  OpenAjax.a11y.logger.debug("WCAG 2.0 " + nls.title + " for " + locale); 
   
   if (!nls.principles || typeof nls.principles !== 'object') {
   
-    OpenAjax.a11y.console("Missing principles object or not at an object for WCAG 2.0 with locale: " + locale);
+    OpenAjax.a11y.logger.debug("Missing principles object or not at an object for WCAG 2.0 with locale: " + locale);
     return;
     
   } else {
@@ -74,7 +74,7 @@ OpenAjax.a11y.WCAG20.prototype.addNLS = function(locale, nls) {
     
       p = nls.principles[p_id];
       
-//      OpenAjax.a11y.console("Principle " + p.title); 
+//      OpenAjax.a11y.logger.debug("Principle " + p.title); 
       
       np = new OpenAjax.a11y.WCAG20NLSPrinciple(p_id, p);
       
@@ -82,7 +82,7 @@ OpenAjax.a11y.WCAG20.prototype.addNLS = function(locale, nls) {
       
         g = p.guidelines[g_id];
     
-//        OpenAjax.a11y.console("  Guideline " + g.title); 
+//        OpenAjax.a11y.logger.debug("  Guideline " + g.title); 
       
         ng = new OpenAjax.a11y.WCAG20NLSGuideline(np, g_id, g);
 
@@ -92,7 +92,7 @@ OpenAjax.a11y.WCAG20.prototype.addNLS = function(locale, nls) {
      
           nsc = new OpenAjax.a11y.WCAG20NLSSuccessCriterion(np, ng, sc_id, sc);
           
-//          OpenAjax.a11y.console("    Success Criteria " + nsc.sc_id + " (" + sc_id + "): " + sc.title); 
+//          OpenAjax.a11y.logger.debug("    Success Criteria " + nsc.sc_id + " (" + sc_id + "): " + sc.title); 
       
           ng.success_criteria.push(nsc); 
       
@@ -126,24 +126,6 @@ OpenAjax.a11y.WCAG20.prototype.getNLS = function() {
   
 };
 
-
-/**
- * @method getWCAG20Level
- *
- * @memberOf OpenAjax.a11y.WCAG20
- *
- * @desc Returns an NLS localized version of WCAG 2.0 level 
- *
- * @param {Number}  level  -  Numerical constant defined in OAA cache representing the level
- */
-
-OpenAjax.a11y.WCAG20.prototype.getNLSLevel = function(level) {
-
-  var wcag20_nls = this.nls[OpenAjax.a11y.locale];
-
-  return wcag20_nls.levels[level];
-  
-};
 
 
 /* ---------------------------------------------------------------- */
@@ -202,7 +184,7 @@ OpenAjax.a11y.WCAG20NLS.prototype.getNLSItemById = function(id) {
   
      var p = this.principles[i];
 
-//     OpenAjax.a11y.console("P Compare: " + p.principle_id + " " + id );
+//     OpenAjax.a11y.logger.debug("P Compare: " + p.principle_id + " " + id );
 
      if (p.principle_id == id) return p;     
 
@@ -210,7 +192,7 @@ OpenAjax.a11y.WCAG20NLS.prototype.getNLSItemById = function(id) {
      
        var g = p.guidelines[j];
 
-//       OpenAjax.a11y.console("  G Compare: " + g.guideline_id + " " + id );
+//       OpenAjax.a11y.logger.debug("  G Compare: " + g.guideline_id + " " + id );
 
        if (g.guideline_id == id) return g;
      
@@ -218,7 +200,7 @@ OpenAjax.a11y.WCAG20NLS.prototype.getNLSItemById = function(id) {
        
          var sc = g.success_criteria[k];
 
-//         OpenAjax.a11y.console("  SC Compare: " + sc.success_criteria_id + " " + id );
+//         OpenAjax.a11y.logger.debug("  SC Compare: " + sc.success_criteria_id + " " + id );
 
          if (sc.sc_id == id) return sc;
        
@@ -229,6 +211,63 @@ OpenAjax.a11y.WCAG20NLS.prototype.getNLSItemById = function(id) {
   } // end loop   
     
   return null;  
+};
+
+
+/**
+ * @method getSuccessCriteriaLevel
+ *
+ * @memberOf OpenAjax.a11y.WCAG20NLS
+ *
+ * @desc Returns the success criteria 
+ *
+ * @param {String}  sc_id  -  String representing the success criteria id
+ *
+ * @return {Number}  Number representing the WCAG 2.0 success level 
+ */
+
+OpenAjax.a11y.WCAG20NLS.prototype.getSuccessCriteriaLevel = function (sc_id) {
+
+  var principles = this.principles;
+
+  for (i = 0; i < principles.length; i++) {
+
+    var p = wcag20_nls.principles[i];
+
+    for (j = 0; j < p.guidelines.length; j++) {
+
+      var g = p.guidelines[i];
+
+      for (k = 0; k < g.success_criteria.length; k++) {
+      
+        var sc = g.success_criteria[i];
+        
+        if (sc.sc_id === sc_id) return sc.level;
+
+      }
+    }
+  }
+
+  return OpenAjax.a11y.WCAG20_LEVEL.UNKNOWN;
+
+};
+
+
+
+/**
+ * @method getNLSWCAG20Level
+ *
+ * @memberOf OpenAjax.a11y.WCAG20NLS
+ *
+ * @desc Returns an NLS localized version of WCAG 2.0 success criterion level 
+ *
+ * @param {Number}  level  -  Numerical constant defined in OAA cache representing the WCAG 2.0 success criterion level
+ */
+
+OpenAjax.a11y.WCAG20NLS.prototype.getNLSWCAG20Level = function (level) {
+
+  return this.levels[level];
+  
 };
 
 

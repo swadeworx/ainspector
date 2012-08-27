@@ -15,6 +15,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 	     
 {  rule_id             : 'CONTROL_1',
    rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+   rule_category       : OpenAjax.a11y.RULE_CATEGORIES.CONTROLS,
    last_updated        : '2011-09-16', 
    wcag_primary_id     : '3.3.2',
    wcag_related_ids    : ['1.3.1', '2.4.6'],
@@ -72,16 +73,17 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * @desc Every input type image must have an alt or title attribute with content
  */
 	     
-{  rule_id           : 'CONTROL_2', 
-   rule_scope        : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
-   last_updated      : '2011-09-16', 
-   wcag_primary_id   : '3.3.2',
-   wcag_related_ids  : ['1.3.1', '2.4.6'],
-   target_resources  : ['input[type="image"]'],
-   cache_dependency  : 'controls_cache',
-   cache_properties  : ['alt', 'title'],
+{  rule_id             : 'CONTROL_2', 
+   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+   rule_category       : OpenAjax.a11y.RULE_CATEGORIES.CONTROLS,
+   last_updated        : '2011-09-16', 
+   wcag_primary_id     : '3.3.2',
+   wcag_related_ids    : ['1.3.1', '2.4.6'],
+   target_resources    : ['input[type="image"]'],
+   cache_dependency    : 'controls_cache',
+   cache_properties    : ['alt', 'title'],
    language_dependency : "",
-   validate          : function (dom_cache, rule_result) {
+   validate            : function (dom_cache, rule_result) {
   
      var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
    
@@ -129,16 +131,17 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  *
  * @desc Groups of radio buttons should be contained in fieldset/legend
  */
-{ rule_id           : 'CONTROL_3', 
-  rule_scope        : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
-  last_updated      : '2011-09-16', 
-  wcag_primary_id   : '3.3.2',
-  wcag_related_ids  : ['1.3.1', '2.4.6'],
-  target_resources  : ['input[type="radio"]'],
-  cache_dependency  : 'controls_cache',
-  cache_properties  : ['fieldset_element'],
+{ rule_id             : 'CONTROL_3', 
+  rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+  rule_category       : OpenAjax.a11y.RULE_CATEGORIES.CONTROLS,
+  last_updated        : '2011-09-16', 
+  wcag_primary_id     : '3.3.2',
+  wcag_related_ids    : ['1.3.1', '2.4.6'],
+  target_resources    : ['input[type="radio"]'],
+  cache_dependency    : 'controls_cache',
+  cache_properties    : ['fieldset_element'],
   language_dependency : "",
-  validate          : function (dom_cache, rule_result) {
+  validate            : function (dom_cache, rule_result) {
   
      var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
      var VISIBILITY  = OpenAjax.a11y.VISIBILITY;
@@ -197,16 +200,17 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  *
  * @desc Button elements must have text content and input type button must have a value attribute with content
  */
-{ rule_id           : 'CONTROL_4', 
-  rule_scope        : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
-  last_updated      : '2011-09-16', 
-  wcag_primary_id   : '3.3.2',
-  wcag_related_ids  : ['1.3.1', '2.4.6'],
-  target_resources  : ['button'],
-  cache_dependency  : 'controls_cache',
-  cache_properties  : ['computed_label'],
+{ rule_id             : 'CONTROL_4', 
+  rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+  rule_category       : OpenAjax.a11y.RULE_CATEGORIES.CONTROLS,
+  last_updated        : '2011-09-16', 
+  wcag_primary_id     : '3.3.2',
+  wcag_related_ids    : ['1.3.1', '2.4.6'],
+  target_resources    : ['button'],
+  cache_dependency    : 'controls_cache',
+  cache_properties    : ['computed_label'],
   language_dependency : "",
-  validate          : function (dom_cache, rule_result) {
+  validate            : function (dom_cache, rule_result) {
 
      var TEST_RESULT   = OpenAjax.a11y.TEST_RESULT;
      var VISIBILITY = OpenAjax.a11y.VISIBILITY;
@@ -252,16 +256,17 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  *
  * @note Do not need to test for invisible elements, since getElementById searches all elements int he DOM
  */
-{ rule_id           : 'CONTROL_5', 
-  rule_scope        : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
-  last_updated      : '2011-09-16', 
-  wcag_primary_id   : '4.1.1',
-  wcag_related_ids  : ['3.3.2', '1.3.1', '2.4.6'],
-  target_resources  : ['input[type="checkbox"]', 'input[type="radio"]', 'input[type="text"]', 'input[type="password"]', 'input[type="file"]', 'select', 'textarea'],
-  cache_dependency  : 'controls_cache',
-  cache_properties  : ['id'],
+{ rule_id             : 'CONTROL_5', 
+  rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+  rule_category       : OpenAjax.a11y.RULE_CATEGORIES.CONTROLS,
+  last_updated        : '2011-09-16', 
+  wcag_primary_id     : '4.1.1',
+  wcag_related_ids    : ['3.3.2', '1.3.1', '2.4.6'],
+  target_resources    : ['input[type="checkbox"]', 'input[type="radio"]', 'input[type="text"]', 'input[type="password"]', 'input[type="file"]', 'select', 'textarea'],
+  cache_dependency    : 'controls_cache',
+  cache_properties    : ['id'],
   language_dependency : "",
-  validate          : function (dom_cache, rule_result) {
+  validate            : function (dom_cache, rule_result) {
 
     var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
     var VISIBILITY  = OpenAjax.a11y.VISIBILITY;
@@ -307,16 +312,17 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * 
  * @desc Label element with a for attribute reference does not reference a form control
  */
-{ rule_id           : 'CONTROL_6', 
-  rule_scope        : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
-  last_updated      : '2011-09-16', 
-  wcag_primary_id   : '3.3.2',
-  wcag_related_ids  : ['1.3.1', '2.4.6'],
-  target_resources  : ['label'],
-  cache_dependency  : 'controls_cache',
-  cache_properties  : ['for'],
+{ rule_id             : 'CONTROL_6', 
+  rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+  rule_category       : OpenAjax.a11y.RULE_CATEGORIES.CONTROLS,
+  last_updated        : '2011-09-16', 
+  wcag_primary_id     : '3.3.2',
+  wcag_related_ids    : ['1.3.1', '2.4.6'],
+  target_resources    : ['label'],
+  cache_dependency    : 'controls_cache',
+  cache_properties    : ['for'],
   language_dependency : "",
-  validate          : function (dom_cache, rule_result) {
+  validate            : function (dom_cache, rule_result) {
 
     var TEST_RESULT   = OpenAjax.a11y.TEST_RESULT;
     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
@@ -344,16 +350,17 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * @desc Label or legend element should contain content 
  */
  
-{ rule_id           : 'CONTROL_7', 
-  rule_scope        : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
-  last_updated      : '2011-09-16', 
-  cache_dependency  : 'controls_cache',
-  wcag_primary_id   : '3.3.2',
-  wcag_related_ids  : ['1.3.1', '2.4.6'],
-  target_resources  : ['label', 'legend'],
-  cache_properties  : ['computed_label'],
+{ rule_id             : 'CONTROL_7', 
+  rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+  rule_category       : OpenAjax.a11y.RULE_CATEGORIES.CONTROLS,
+  last_updated        : '2011-09-16', 
+  cache_dependency    : 'controls_cache',
+  wcag_primary_id     : '3.3.2',
+  wcag_related_ids    : ['1.3.1', '2.4.6'],
+  target_resources    : ['label', 'legend'],
+  cache_properties    : ['computed_label'],
   language_dependency : "",
-  validate          : function (dom_cache, rule_result) {
+  validate            : function (dom_cache, rule_result) {
 
     var TEST_RESULT   = OpenAjax.a11y.TEST_RESULT;
     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
@@ -400,16 +407,17 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * @desc Fieldset should contain exactly one legend element 
  */
  
-{ rule_id           : 'CONTROL_8', 
-  rule_scope        : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
-  last_updated      : '2011-09-16', 
-  wcag_primary_id   : '3.3.2',
-  wcag_related_ids  : ['1.3.1', '2.4.6', '4.1.1'],
-  target_resources  : ['fieldset'],
-  cache_dependency  : 'controls_cache',
-  cache_properties  : ['legend_count'],
+{ rule_id             : 'CONTROL_8', 
+  rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+  rule_category       : OpenAjax.a11y.RULE_CATEGORIES.CONTROLS,
+  last_updated        : '2011-09-16', 
+  wcag_primary_id     : '3.3.2',
+  wcag_related_ids    : ['1.3.1', '2.4.6', '4.1.1'],
+  target_resources    : ['fieldset'],
+  cache_dependency    : 'controls_cache',
+  cache_properties    : ['legend_count'],
   language_dependency : "",
-  validate          : function (dom_cache, rule_result) {
+  validate            : function (dom_cache, rule_result) {
 
     var TEST_RESULT   = OpenAjax.a11y.TEST_RESULT;
     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
@@ -453,16 +461,17 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * @desc Form controls should not be labelled using the TITLE attribute 
  */
  
-{ rule_id           : 'CONTROL_9', 
-  rule_scope        : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
-  last_updated      : '2011-09-16', 
-  wcag_primary_id   : '3.3.2',
-  wcag_related_ids  : ['4.1.1'],
-  target_resources  : ['input', 'select', 'textarea'],
-  cache_dependency  : 'controls_cache',
-  cache_properties : ['title'],
+{ rule_id             : 'CONTROL_9', 
+  rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+  rule_category       : OpenAjax.a11y.RULE_CATEGORIES.CONTROLS,
+  last_updated        : '2011-09-16', 
+  wcag_primary_id     : '3.3.2',
+  wcag_related_ids    : ['4.1.1'],
+  target_resources    : ['input', 'select', 'textarea'],
+  cache_dependency    : 'controls_cache',
+  cache_properties    : ['title'],
   language_dependency : "",
-  validate          : function (dom_cache, rule_result) {
+  validate            : function (dom_cache, rule_result) {
 
     var TEST_RESULT   = OpenAjax.a11y.TEST_RESULT;
     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
@@ -504,16 +513,17 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  *       and checkbox on a page
  */
  
-{ rule_id           : 'CONTROL_10', 
-  rule_scope        : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
-  last_updated      : '2011-09-16', 
-  wcag_primary_id   : '2.4.6',
-  wcag_related_ids  : ['1.3.1', '3.3.2'],
+{ rule_id             : 'CONTROL_10', 
+  rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+  rule_category       : OpenAjax.a11y.RULE_CATEGORIES.CONTROLS,
+  last_updated        : '2011-09-16', 
+  wcag_primary_id     : '2.4.6',
+  wcag_related_ids    : ['1.3.1', '3.3.2'],
   target_resources    : ['input[type="checkbox"]', 'input[type="radio"]', 'input[type="text"]', 'input[type="password"]', 'input[type="file"]', 'select', 'textarea'],
   cache_dependency    : 'controls_cache',
   cache_properties    : ['computed_label', 'fieldset_element', 'computed_label_source', 'name_attribute'],
   language_dependency : "",
-  validate          : function (dom_cache, rule_result) {
+  validate            : function (dom_cache, rule_result) {
 
     var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
@@ -581,16 +591,17 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * 
  */
  
-{ rule_id           : 'CONTROL_11', 
-  rule_scope        : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
-  last_updated      : '2011-09-16', 
-  wcag_primary_id   : '2.4.6',
-  wcag_related_ids  : ['1.3.1', '3.3.2'],
-  target_resources  : ['input[type="submit]', 'input[type="reset]'],
-  cache_dependency  : 'controls_cache',
-  cache_properties : ['computed_label', 'value'],
+{ rule_id             : 'CONTROL_11', 
+  rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+  rule_category       : OpenAjax.a11y.RULE_CATEGORIES.CONTROLS,
+  last_updated        : '2011-09-16', 
+  wcag_primary_id     : '2.4.6',
+  wcag_related_ids    : ['1.3.1', '3.3.2'],
+  target_resources    : ['input[type="submit]', 'input[type="reset]'],
+  cache_dependency    : 'controls_cache',
+  cache_properties    : ['computed_label', 'value'],
   language_dependency : "",
-  validate          : function (dom_cache, rule_result) {
+  validate            : function (dom_cache, rule_result) {
 
     var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
    
@@ -614,16 +625,17 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * 
  */
  
-{ rule_id           : 'CONTROL_12', 
-  rule_scope        : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
-  last_updated      : '2011-09-16', 
-  wcag_primary_id   : '2.4.6',
-  wcag_related_ids  : ['1.3.1', '3.3.2'],
-  target_resources  : ['button', 'input[type="checkbox"]', 'input[type="radio"]', 'input[type="text"]', 'input[type="password"]', 'input[type="file"]', 'input[type="submit]', 'input[type="reset]', 'select', 'textarea'],
-  cache_dependency  : 'controls_cache',
-  cache_properties : ['computed_label'],
+{ rule_id             : 'CONTROL_12', 
+  rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+  rule_category       : OpenAjax.a11y.RULE_CATEGORIES.CONTROLS,
+  last_updated        : '2011-09-16', 
+  wcag_primary_id     : '2.4.6',
+  wcag_related_ids    : ['1.3.1', '3.3.2'],
+  target_resources    : ['button', 'input[type="checkbox"]', 'input[type="radio"]', 'input[type="text"]', 'input[type="password"]', 'input[type="file"]', 'input[type="submit]', 'input[type="reset]', 'select', 'textarea'],
+  cache_dependency    : 'controls_cache',
+  cache_properties    : ['computed_label'],
   language_dependency : "",
-  validate          : function (dom_cache, rule_result) {
+  validate            : function (dom_cache, rule_result) {
 
     var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
@@ -680,6 +692,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 	     
 { rule_id             : 'WIDGET_1', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+  rule_category       : OpenAjax.a11y.RULE_CATEGORIES.WIDGETS,
   last_updated        : '2012-04-12', 
   wcag_primary_id     : '4.1.2',
   wcag_related_ids    : ['1.3.1', '3.3.2'],

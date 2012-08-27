@@ -63,7 +63,6 @@ OpenAjax.a11y.cache.ListsCache = function (dom_cache) {
 
   this.landmark_count  = 0;
   
-  this.evaluation_results  = new OpenAjax.a11y.EvaluationResult();
 };
 
 /** 

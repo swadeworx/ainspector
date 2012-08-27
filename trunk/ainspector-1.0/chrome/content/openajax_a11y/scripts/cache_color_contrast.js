@@ -56,7 +56,6 @@ OpenAjax.a11y.cache.ColorContrastCache = function (dom_cache) {
   this.up_to_date = false;
   this.length = 0;
   
-  this.evaluation_results  = new OpenAjax.a11y.EvaluationResult();
   
 };
 
@@ -85,7 +84,7 @@ OpenAjax.a11y.cache.ColorContrastCache.prototype.addColorContrastItem = function
     cci = this.color_contrast_items[i];
     cs = dom_text_node.computed_style;
     
-    // OpenAjax.a11y.console("color compare " + dom_text_node.computed_style.color + " with " + item.color );
+    // OpenAjax.a11y.logger.debug("color compare " + dom_text_node.computed_style.color + " with " + item.color );
     
     if ( cci && 
          cci.color &&
@@ -583,12 +582,12 @@ OpenAjax.a11y.cache.ColorContrastItem.prototype.getColorContrastSeverity = funct
 
   var ro = {};
   
-//  OpenAjax.a11y.console("Color contrast severity: " + this.wcag_severity);
+//  OpenAjax.a11y.logger.debug("Color contrast severity: " + this.wcag_severity);
 
   var SEVERITY       = OpenAjax.a11y.SEVERITY;
   var SEVERITY_STYLE = OpenAjax.a11y.SEVERITY_STYLE;
   
-  var severity = OpenAjax.a11y.cache_nls.getSeverityNLS(this.wcag_severity); 
+  var severity = OpenAjax.a11y.cache_nls.getNLSSeverity(this.wcag_severity); 
   
   ro.label       = severity.label;
   ro.abbrev      = severity.abbrev;

@@ -319,10 +319,10 @@ OpenAjax.a11y.Log.prototype.consoleStatusLog = function ( message, time ) {
  if (!OpenAjax.a11y.LOG_MESSAGES_TO_CONSOLE) return;
   
  if (typeof time == 'number') {
-  OpenAjax.a11y.console( message + ": " + this.timeInMillisecondToString(time) + " (" + this.rule_count + " of " + this.rules_max +")");
+  OpenAjax.a11y.logger.debug( message + ": " + this.timeInMillisecondToString(time) + " (" + this.rule_count + " of " + this.rules_max +")");
  }
  else {
-  OpenAjax.a11y.console( message );    
+  OpenAjax.a11y.logger.debug( message );    
  }
 }; 
 

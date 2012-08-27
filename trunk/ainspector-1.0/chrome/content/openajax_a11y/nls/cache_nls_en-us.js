@@ -124,7 +124,62 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
                    tooltip     : 'The element passes WCAG 2.0 level AAA requirements'
                   }
                   ],  
-
+                  
+    /**
+     * Implementation level of a rule on a web page
+     */
+  implementation_levels : [
+    { 'abbrev'      : 'n/a',
+      'label'       : 'n/a',
+      'description' : 'Accessibility check did not apply to the elements contained in this page',
+      'style'       : 'not_applicable'
+    },
+    { 'abbrev'      : 'C',
+      'label'       : 'Complete',
+      'description' : 'All accessibility requirements have been met',
+      'style'       : 'complete'
+    },
+    { 'abbrev'      : 'AC',
+      'label'       : 'Almost Complete',
+      'description' : '95% or more of the accessibility checks have passed',
+      'style'       : 'almost_complete'
+    },
+    { 'abbrev'      : 'PI',
+      'label'       : 'Partial Implementation',
+      'description' : 'More than 50% of the automated accessibility checks have passed',
+      'style'       : 'partial_implementation'
+    },
+    { 'abbrev'      : 'NI',
+      'label'       : 'Not Implemented',
+      'description' : 'Less than 50% of the automated accessibility checks have passed',
+      'style'       : 'not_implemented'
+    },
+    { 'abbrev'      : 'MC',
+      'label'       : 'Manual Check',
+      'description' : 'Human inspection and judgement is required to verify compliance',
+      'style'       : 'manual_check'
+    },
+    { 'abbrev'      : 'C+MC',
+      'label'       : 'Complete with Manual Checks',
+      'description' : 'All automated accessibility checks have passed, but human inspection and judgement is still required to verify compliance',
+      'style'       : 'manual_check'
+    },  
+    { 'abbrev'      : 'AC+MC',
+      'label'       : 'Almost Complete with Manual Checks',
+      'description' : '95% or more of the automated accessibility checks have passed and human inspection and judgement is also required to verify compliance',
+      'style'       : 'almost_complete'
+    },
+    { 'abbrev'      : 'PI+MC',
+      'description' : '50% or more of the automated accessibility checks have passed and human inspection and judgement is also required to verify compliance',
+      'label'       : 'Partial Implementation with Manual Checks',
+      'style'       : 'partial_implementation'
+    },
+    { 'abbrev'      : 'NI+MC',
+      'label'       : 'Not Implemented with Manual Checks',
+      'description' : 'Less than 50% of the automated accessibility checks have passed and human inspection and judgement is also required to verify compliance',
+      'style'       : 'not_implementation'
+    }
+  ],
 
     /*
      * Status of a rule for evaluating a requirement

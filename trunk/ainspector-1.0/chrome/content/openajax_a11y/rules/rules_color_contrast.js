@@ -13,6 +13,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  
 { rule_id             : 'COLOR_1', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+  rule_category       : OpenAjax.a11y.RULE_CATEGORIES.COLOR_CONTRAST,
   last_updated        : '2012-06-12', 
   wcag_primary_id     : '1.4.3',
   wcag_related_ids    : ['1.4.1','1.4.6'],
@@ -106,9 +107,10 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 	     
  { rule_id           : 'COLOR_2', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+  rule_category       : OpenAjax.a11y.RULE_CATEGORIES.COLOR_CONTRAST,
   last_updated        : '2012-06-12', 
-  wcag_primary_id     : '1.4.3',
-  wcag_related_ids    : ['1.4.1','1.4.6'],
+  wcag_primary_id     : '1.4.6',
+  wcag_related_ids    : ['1.4.1','1.4.3'],
   target_resources    : ['img', 'area'],
   cache_dependency    : 'color_contrast_cache',
   cache_properties    : ['color_hex', 'background_color_hex', 'background_image', 'is_large_font', 'color_contrast_ratio'],

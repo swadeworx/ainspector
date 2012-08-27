@@ -93,8 +93,6 @@ OpenAjax.a11y.cache.TablesCache = function (dom_cache) {
   this.sort_property  = 'document_order';
   this.ascending      = true;
 
-  this.evaluation_results  = new OpenAjax.a11y.EvaluationResult();
-   
 };
 
 /**

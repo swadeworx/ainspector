@@ -67,7 +67,7 @@ OpenAjax.a11y.CacheNLS.prototype.getCacheNLS = function() {
 };
 
 /**
- * @method getSeverityNLS
+ * @method getNLSSeverity
  *
  * @memberOf OpenAjax.a11y.CacheNLS
  *
@@ -75,17 +75,37 @@ OpenAjax.a11y.CacheNLS.prototype.getCacheNLS = function() {
  *
  * @param  {Number}  severity  -  The constant representing the severity of the results
  *
- * @return {Object} Returns an object with the four properties: 'label', 'abbrev', 'description' snf 'tooltip'
+ * @return {Object} Returns an object with four properties: 'label', 'abbrev', 'description' and 'tooltip'
+ *                  All properties are String objects
  */
  
-OpenAjax.a11y.CacheNLS.prototype.getSeverityNLS = function(severity) {
+OpenAjax.a11y.CacheNLS.prototype.getNLSSeverity = function(severity) {
 
   return this.nls[OpenAjax.a11y.locale].severities[severity];
 
 };
 
 /**
- * @method getRuleTypeNLS
+ * @method getNLSImplementationLevel
+ *
+ * @memberOf OpenAjax.a11y.CacheNLS
+ *
+ * @desc Returns the implementation level object with NLS information
+ *
+ * @param  {Number}  level  -  The constant representing the implementation level of a rule result
+ *
+ * @return {Object} Returns an object with four properties: 'label', 'abbrev', 'tooltip' and 'style'
+ *                  All properties are String objects
+ */
+ 
+OpenAjax.a11y.CacheNLS.prototype.getNLSImplementationLevel = function(level) {
+
+  return this.nls[OpenAjax.a11y.locale].implementation_levels[level];
+
+};
+
+/**
+ * @method getNLSRuleType
  *
  * @memberOf OpenAjax.a11y.CacheNLS
  *
@@ -96,7 +116,7 @@ OpenAjax.a11y.CacheNLS.prototype.getSeverityNLS = function(severity) {
  * @return {String} Returns an NLS localized string representing the type of rule in the ruleset
  */
  
-OpenAjax.a11y.CacheNLS.prototype.getRuleTypeNLS = function(rule_type) {
+OpenAjax.a11y.CacheNLS.prototype.getNLSRuleType = function(rule_type) {
 
   return this.nls[OpenAjax.a11y.locale].rule_types[rule_type];
 

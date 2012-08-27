@@ -53,7 +53,6 @@ OpenAjax.a11y.cache.ImagesCache = function (dom_cache) {
   this.sort_property  = 'document_order';
   this.sort_ascending = true;
 
-  this.evaluation_results  = new OpenAjax.a11y.EvaluationResult();
 }; 
 
 /**
@@ -143,26 +142,6 @@ OpenAjax.a11y.cache.ImagesCache.prototype.emptyCache = function () {
   this.up_to_date = false;
 
 };
-
-/**
- * @method getItemsByNodeResults
- *
- * @memberOf OpenAjax.a11y.cache.ImagesCache
- *
- * @desc Returns an array of cache items with node results based on the filter 
- *
- * @param  {Number}  filter  - Filter for returning items with node results of a 
- *                             particular type(s)  
- *
- * @return {Array} Returns array of cache items, can be empty
- */
-
-OpenAjax.a11y.cache.ImagesCache.prototype.getItemsByNodeResults = function (filter, all_flag) {
-
-  return OpenAjax.a11y.util.getItemsByNodeResults(this.image_elements, filter, all_flag);
-
-};
-
 
 /**
  * @method updateCacheItems
@@ -497,7 +476,7 @@ OpenAjax.a11y.cache.ImageElement.prototype.getCacheProperties = function (unsort
 
 OpenAjax.a11y.cache.ImageElement.prototype.getCachePropertyValue = function (property) {
 
-//  OpenAjax.a11y.console("Image property: " + property + " value= " + this[property]);
+//  OpenAjax.a11y.logger.debug("Image property: " + property + " value= " + this[property]);
 
   if (typeof this[property] == 'undefined') {
     return this.dom_element.getCachePropertyValue(property);

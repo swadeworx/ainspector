@@ -510,69 +510,152 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ]
         },    
         HEADING_1: {
-            ID:                    'HEADING 1',
-            TITLE:                 'Each page should contain at least one @h1@element and each @h1@element must have content',
-            PURPOSE:               'The @h1@element can be used to help provide an accessible title for the web page and mark the beginning of the main content.',
-            MESSAGE_HAS_H1:        '@h1@element is on page and has content',
-            MESSAGE_H1_NO_CONTENT: '@h1@element does not have text content',
-            MESSAGE_H1_MISSING:    'Page does not have an @h1@element',
-            MESSAGE_H1_HIDDEN:     '@h1@is hidden from assistive technology, so they will not see it'
-        },
+            ID:                    'Heading Rule 1',
+            DEFINITION:            'Each page %s contain at least one @h1@ element and each @h1@ element must have content',
+            SUMMARY:               'Page %s have @h1@ element',
+            PASS:                  'Page has @h1@ element',
+            CORRECTIVE_ACTION_1:   'Add a @h1@ element at the begining of the main content of the page',
+            CORRECTIVE_ACTION_2:   '@h1@ element does not contain content',
+            HIDDEN:                '@h1@ element is hidden from asssistive technologies.',
+            TARGET_RESOURCES_DESC: '@h1@ and @body@ elements',
+            PURPOSE: [
+              'Headings provide a navigation point for users of asssitive technologies to the main content and help users understand the main content of the page'                   
+            ],
+            TECHNIQUES: [
+              'Include an @h1@ element at the begining of the main content',
+              'The text content of the @h1@ element should describe the main content of the page',
+              'The @h1@ element should be visible graphically and to assistive technologies, do not hide using CSS techniques'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: The @h1@ element', 
+                url:   'http://www.w3.org/TR/html4/struct/global.html#edef-H1'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G130: Providing descriptive headings', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G130'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G141: Organizing a page using headings', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G141'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Unique Title', 
+                url:   'http://html.cita.illinois.edu/nav/title/'
+              }                            
+            ]
+        },    
         HEADING_2: {
-            ID:                 'HEADING 2',
-            TITLE:              'The text content of headings of the same level that share the same parent heading or landmark role should be unique',
-            PURPOSE:            'Headings can describe the content of a section in the document, it is rare that two sections of a document at the same level would have the same content.',
-            MESSAGE_UNIQUE:     'Heading is unique',
-            MESSAGE_NOT_UNIQUE: 'Heading is not unique'
-        },
+            ID:                    'Heading Rule 2',
+            DEFINITION:            '@h1@ elements %s should be a child element of a @main@ landmark',
+            SUMMARY:               '@h1@ %s be in @main@ landmark',
+            PASS:                  '@h1@ is a child element of a @main@ landmark',
+            CORRECTIVE_ACTION:     'Position the @h1@ element as one of the first descendant elements of a @main@ landmark',
+            HIDDEN:                '@h1@ element is hidden from asssistive technologies.',
+            TARGET_RESOURCES_DESC: '@h1@ elements and elements with ARIA attribute @role="main"@',
+            PURPOSE: [
+              'Headings provide a navigation point for users of asssitive technologies to the main content and help users understand the main content of the page',
+              'Including both @main@ landmarks and @h1@ elements provides a redundent way for users of assistive technology to find the main topics of a web page'
+            ],
+            TECHNIQUES: [
+              'Include an @h1@ element at the beginning of each @main@ landmark',
+              'If there is more than one @main@ landmark, use @aria-labelledby@ on the @main@ landmark to reference the @h1@ element as a name for @main@ landmark'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: The @h1@ element', 
+                url:   'http://www.w3.org/TR/html4/struct/global.html#edef-H1'
+              },                            
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: @main@ role', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#main'
+              }                            
+            ]
+        },    
         HEADING_3: {
-            ID:                 'HEADING 3',
-            TITLE:              'Heading content %s describe the section or sub section',
-            PURPOSE:            'Headings can provide information about a section in a document',
-            MESSAGE_CHECK:      'Check to make sure the heading accurately describes the section of the document',
-            MESSAGE_HIDDEN:     'Heading is hidden from assistive technology, so they will not see it'
-        },
+            ID:                    'Heading Rule 3',
+            DEFINITION:            'Sibling heading elements %s should be unique',
+            SUMMARY:               'Sibling headings %s be unique',
+            PASS:                  '%1 heading content is unique among sibling headings',
+            CORRECTIVE_ACTION:     'Change %1 heading content to describe the differences sibling sections',
+            HIDDEN:                '%1 element is hidden from asssistive technologies.',
+            TARGET_RESOURCES_DESC: 'Heading elements',
+            PURPOSE: [
+              'If section headings that share the same parent heading are NOT unique users of assistive technology will not be able to descern the differences between sibling secitons of the web resource'
+            ],
+            TECHNIQUES: [
+              'Make sure the content of sibling headings that share the same parent heading help users understand the unique content of each section they describe'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: Headings: The H1, H2, H3, H4, H5, H6 elements', 
+                url:   'http://www.w3.org/TR/html4/struct/global.html#edef-H1'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G130: Providing descriptive headings', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G130'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G141: Organizing a page using headings', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G141'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Unique Title', 
+                url:   'http://html.cita.illinois.edu/nav/title/'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Sub Headings', 
+                url:   'http://html.cita.illinois.edu/nav/heading/'
+              }                            
+            ]
+        },    
         HEADING_4: {
-            ID:                       'HEADING 4',
-            TITLE:                    'Headings within landmarks must be properly nested, if there are no @main@ landmarks the headings after the last @h1@must be properly nested',
-            PURPOSE:                  'The proper nesting of headings provide information on the relationships between sections of content.',
-            MESSAGE_PROPER_NESTING:   'Heading is properly nested',
-            MESSAGE_IMPROPER_NESTING: 'Heading is not properly nested',
-            MESSAGE_HIDDEN:           'Content is hidden from assistive technology, so they will not see it'
-        },
-        HEADING_5: {
-            ID:                 'HEADING 5',
-            TITLE:              'A headings %s not be hidden with CSS display=none',
-            PURPOSE:            'Authors sometimes use CSS display=none on headings to hide them from visual rendering and not aware that this also hides the heading from assistive technology.',
-            MESSAGE_HIDDEN:     'Content is hidden from assistive technology, so they will not see it'
-        },
-        HEADING_6: {
-            ID:                 'HEADING 6',
-            TITLE:              'Heading element content %s not only come alt text of images',
-            PURPOSE:            'Headings made up of only image content may not have the color contrast needed by people with low vision to read.',
-            MESSAGE_HAS_TEXT:   'Heading has text content',
-            MESSAGE_ONLY_IMAGE: 'Heading content should NOT come only from images'
-        },
-        HEADING_7: {
-            ID:             'HEADING 7',
-            TITLE:          'Headings %s have text content',
-            PURPOSE:        'Headings without content cannot provide a description of a section of a web page.',
-            MESSAGE_EMPTY:  'Heading has no text content'
-        },
-        HEADING_8_EN: {
-            ID:              'HEADING 8-EN',
-            TITLE:           'Headings %s be concise and therefore typically not contain more than 100 characters (English Only)',
-            PURPOSE:         '',
-            MESSAGE_TO_LONG: 'Heading is %1 characters in length, in general heading should be less %2 characters in length'
-        },
+            ID:                    'Heading Rule 4',
+            DEFINITION:            'Heading elements %s describe the sections they label',
+            SUMMARY:               'Headings %s be descriptive',
+            MANUAL_CHECK:          'Check %1 element to make sure it describes the section it labels',
+            HIDDEN:                '%1 element is hidden from asssistive technologies.',
+            TARGET_RESOURCES_DESC: 'Heading elements',
+            PURPOSE: [
+              'If headings are NOT descriptive or unique they will confuse users of assistive technology'
+            ],
+            TECHNIQUES: [
+              'Include headings elements at the proper level for each section of a web page',
+              'Use headings as labels for ARIA landmarks to provide redundent page navigation capabilities for users of assistive technologies',
+              'Check headings against other headings in the document to make sure the headings uniquely describe content of each section of the web page',
+              'If headings are too similar to each other users of assistive technology will not be able to use them to understand the differences between different sections of the web page'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: Headings: The H1, H2, H3, H4, H5, H6 elements', 
+                url:   'http://www.w3.org/TR/html4/struct/global.html#edef-H1'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G130: Providing descriptive headings', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G130'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G141: Organizing a page using headings', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G141'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Unique Title', 
+                url:   'http://html.cita.illinois.edu/nav/title/'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Sub Headings', 
+                url:   'http://html.cita.illinois.edu/nav/heading/'
+              }                            
+            ]
+        },    
         IMAGE_1: {
             ID:                    'Image Rule 1',
             DEFINITION:            'Each image %s have an alt attribute',
             SUMMARY:               'Image %s have alt',
             PASS:                  'Image has @alt@ attribute',
             CORRECTIVE_ACTION:     'Add a @alt@ attribute to the image',
-            PRESENTATION:          '%1 element is hidden from asssistive technologies using the ARIA technique @role="presentation"@',
-            HIDDEN:                '%1 element is hidden from asssistive technologies using CSS',
+            PRESENTATION:          '@%1@ element is hidden from asssistive technologies using the ARIA technique @role="presentation"@',
+            HIDDEN:                '@%1@ element is hidden from asssistive technologies using CSS',
             TARGET_RESOURCES_DESC: '@img@ and @area@',
             PURPOSE: [
               'Alt text provides a description of the image for people who cannot see the image',                   
@@ -655,8 +738,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               'Don\'t use filename',
             PASS:                  '@alt@ attribute does not contain the filename',
             CORRECTIVE_ACTION:     'Change @alt@ attribute to describe the purpose and/or content of the image',
-            PRESENTATION:          '%1 control is hidden from asssistive technologies using the ARIA technique @role="presentation"@',
-            HIDDEN:                '%1 control is hidden from asssistive technologies using CSS',
+            PRESENTATION:          '@%1@ control is hidden from asssistive technologies using the ARIA technique @role="presentation"@',
+            HIDDEN:                '@%1@ control is hidden from asssistive technologies using CSS',
             TARGET_RESOURCES_DESC: '@img@ and @area@',
             PURPOSE: [
               'Alt text provides a description of the image for people who cannot see the image and the file name is not useful information',                   
@@ -691,8 +774,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               '@alt@ less than 100 characters',
             PASS:                  '@alt@ attribute is less than 100 characters',
             CORRECTIVE_ACTION:     'Change @alt@ attribute content to less than 100 characters',
-            PRESENTATION:          '%1 control is hidden from asssistive technologies using the ARIA technique @role="presentation"@',
-            HIDDEN:                '%1 control is hidden from asssistive technologies using CSS',
+            PRESENTATION:          '@%1@ control is hidden from asssistive technologies using the ARIA technique @role="presentation"@',
+            HIDDEN:                '@%1@ control is hidden from asssistive technologies using CSS',
             TARGET_RESOURCES_DESC: '@img@ and @area@',
             PURPOSE: [
               'Alt text provides a description of the image for people who cannot see the image and the file name is not useful information',                   
@@ -727,8 +810,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               '@alt=""@ for small images',
             PASS:                  'Image is not a small image',
             CORRECTIVE_ACTION:     'Change @alt@ attribute content to empty string',
-            PRESENTATION:          '%1 element is hidden from asssistive technologies using the ARIA technique @role="presentation"@',
-            HIDDEN:                '%1 element is hidden from asssistive technologies using CSS',
+            PRESENTATION:          '@%1@ element is hidden from asssistive technologies using the ARIA technique @role="presentation"@',
+            HIDDEN:                '@%1@ element is hidden from asssistive technologies using CSS',
             TARGET_RESOURCES_DESC: '@img@',
             PURPOSE: [
               'Images that are 1 pixel high or 1 pixel wide are stylistic images and the @alt@ attribute should be set to the empty string'                   
@@ -752,7 +835,7 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             DEFINITION:            'If @alt=""@ or @role="presentation"@ the image %s be used just for styling or decoration',
             SUMMARY:               '@alt=""@ or @role="presentation"@ %s be decorative',
             MANUAL_CHECK:          'Verify the image is only used for styling or decoration',
-            HIDDEN:                '%1 element is hidden from asssistive technologies using CSS',
+            HIDDEN:                '@%1@ element is hidden from asssistive technologies using CSS',
             TARGET_RESOURCES_DESC: '@img@',
             PURPOSE: [
               'If an image is purely decoration or used for styling users of screen readers do not need to know the image exists',                   
@@ -779,22 +862,51 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
                 url:   'http://html.cita.illinois.edu/text/'
               }                            
             ]
-        },
+        },    
         LANDMARK_1: {
-            ID:             'LANDMARK 1',
-            TITLE:          'Pages %s have main landmark',
-            PURPOSE:        'The main landmark provides an easy way for users of assistive technology to get to the main content of the web page and know where the main content begins and ends.',            
-            MESSAGE_PASS:   'The page has %1 main landmarks',
-            MESSAGE_FAIL:   'The page has no main landmarks',
-            MESSAGE_HIDDEN: 'The page has %1 hidden main landmarks, hidden landmarks cannot be used by people with assistive technologies.'
+            ID:                    'Landmark Rule 1',
+            DEFINITION:            'Each page %s contain at least one @main@ landmark',
+            SUMMARY:               'Page %s have @main@ landmark',
+            PASS:                  'Page has @main@ element',
+            CORRECTIVE_ACTION:     'Add a @main@ landmark to the page, the main landmark must contain the main content of the page',
+            HIDDEN:                '@main@ landmark is hidden from asssistive technologies.',
+            TARGET_RESOURCES_DESC: '@main@ landmark',
+            PURPOSE: [
+              'Main landmarks provide a navigation point for users of asssitive technologies to the main content of the page'                   
+            ],
+            TECHNIQUES: [
+              'Include an @role="main"@ attribute on the element that contains the main content',
+              'Use the aria-labelledby or aria-label to describe the content of the main landmark'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: main role', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#main'
+              }                            
+            ]
         },
         LANDMARK_2: {
-            ID:             'LANDMARK 2',
-            TITLE:          'All visible content %s be contained within a landmark',
-            PURPOSE:        'Landmarks provide an easy way for users of assistive technology to navigate and identify all of the sections of information on a web page.',            
-            MESSAGE_PASS:   'The \'%1\' element with rendered content is in a %2 landmark',
-            MESSAGE_FAIL:   'The \'%1\' element with rendered content is not contained in a landmark',
-            MESSAGE_HIDDEN: 'The \'%1\' element with content is hidden, if the element can made visible (i.e. through scripting) it would not be in a landmark.'
+            ID:                    'Landmark Rule 2',
+            DEFINITION:            'All rendered content %s be contained in a landmark',
+            SUMMARY:               'Content %s be in landmark',
+            PASS:                  '@%1@ element is in @%2@ landmark',
+            MANUAL_CHECK:          '@%1@ element may contain renderable content, if so move it into an appropriate landmark',
+            CORRECTIVE_ACTION:     'Move @%1@ element into an appropriate landmark',
+            HIDDEN:                '@%1@ element is hidden from asssistive technologies.',
+            TARGET_RESOURCES_DESC: 'all renderable content',
+            PURPOSE: [
+              'Landmarks provide a way to organize content of a page to users of assistive technology, similar to visual and interaction designers organize information for people using a graphical rendering of the content.'                   
+            ],
+            TECHNIQUES: [
+              'Use the appropriate landmarks to identify the different sections of a web page',
+              'The most important landmarks are the @main@ and @navigation@ landmarks since they will be the most used'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Landmark Roles', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#landmark_roles'
+              }                            
+            ]
         },
         LANDMARK_3: {
             ID:             'LANDMARK 3',

@@ -102,11 +102,11 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        enabled  : true
      },
    HEADING_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE.RECOMMENDED,
        enabled  : true
      },
    HEADING_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE.RECOMMENDED,
        enabled  : true
      },
    HEADING_3 : {
@@ -114,22 +114,6 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        enabled  : true
      },
    HEADING_4 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
-       enabled  : true
-     },
-   HEADING_5 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
-       enabled  : true
-     },
-   HEADING_6 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
-       enabled  : true
-     },
-   HEADING_7 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
-       enabled  : true
-     },
-   HEADING_8_EN : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
        enabled  : true
      },
@@ -162,94 +146,6 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        enabled  : true
      },
    LANDMARK_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
-       enabled  : true
-     },
-   LANDMARK_3 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
-       enabled  : true
-     },
-   LANDMARK_4 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
-       enabled  : true
-     },
-   LAYOUT_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
-       enabled  : true
-     },
-   LAYOUT_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
-       enabled  : true
-     },
-   LAYOUT_3 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
-       enabled  : true
-     },
-   LINK_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
-       enabled  : true
-     },
-   LINK_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
-       enabled  : true
-     },
-   LINK_3 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
-       enabled  : true
-     },
-   LIST_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
-       enabled  : true
-     },
-   MEDIA_1 :{
-       type     : OpenAjax.a11y.RULE.REQUIRED,
-       enabled  : true
-     },
-   MEDIA_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
-       enabled  : true
-     },
-   TABLE_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
-       enabled  : true
-     },
-   TABLE_2T : {
-       type      : OpenAjax.a11y.RULE.REQUIRED,
-       enabled  : true
-     },
-   TABLE_3 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
-       enabled  : true
-     },
-   TABLE_4 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
-       enabled  : true
-     },
-   TABLE_5 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
-       enabled  : true
-     },
-   TABLE_6 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
-       enabled  : true
-     },
-   TABLE_7 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
-       enabled  : true
-     },
-   TABLE_8 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
-       enabled  : true
-     },
-   TITLE_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
-       enabled  : true
-     },
-   TITLE_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
-       enabled  : true
-     },
-   TITLE_3 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
        enabled  : true
      },
