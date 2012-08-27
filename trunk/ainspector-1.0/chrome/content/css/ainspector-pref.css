@@ -30,10 +30,6 @@
 #ainspector-pref-panel input{
   max-width: 400%;
 }
-.button{
-  background-color: #F0F0F0;
-  margin-right: 20px; 
-}
 
 .rulesetSelected {
   background: #33A1DE;

@@ -61,10 +61,10 @@
   width:80%;
 }
 .warnMsgTxt {
-  background-color: #333333;
+  background-color: #DAA520;
   color: white;
   font-weight: bold;
-  width:25%;
+  display:block;
 }
 .infoMsgTxt {
   color: purple;
