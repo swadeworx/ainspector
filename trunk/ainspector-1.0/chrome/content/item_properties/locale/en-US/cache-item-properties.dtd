@@ -1,0 +1,35 @@
+<!-- Rule Properties Dialog -->
+
+<!ENTITY CIP_DIALOG.title            "Cache Item Information">
+<!ENTITY CIP_DIALOG.buttonLabel      "Close">
+<!ENTITY CIP_DIALOG.attributes       "HTML Attributes">
+<!ENTITY CIP_DIALOG.properties       "Properties">
+<!ENTITY CIP_DIALOG.style            "Style and Position">
+<!ENTITY CIP_DIALOG.events           "Events">
+<!ENTITY CIP_DIALOG.item             "Element: ">
+<!ENTITY CIP_DIALOG.noItem           "no item selected">
+
+<!ENTITY CIP_DIALOG.value            "Value">
+
+<!ENTITY CIP_DIALOG.attributeHeading  "HTML and ARIA Attributes">
+<!ENTITY CIP_DIALOG.attribute        "Attribute">
+<!ENTITY CIP_DIALOG.attributeSummary "List of HTML attributes for a element node">
+<!ENTITY CIP_DIALOG.attributeNone    "No attributes">
+
+<!ENTITY CIP_DIALOG.propertyHeading  "Calculated Properties">
+<!ENTITY CIP_DIALOG.property         "Property">
+<!ENTITY CIP_DIALOG.propertySummary  "List of calculate properties of a cache item useful for accessibility testing and comparison">
+<!ENTITY CIP_DIALOG.propertyNone     "No properties">
+
+<!ENTITY CIP_DIALOG.styleHeading     "Styling, Dimensions and Positioning">
+<!ENTITY CIP_DIALOG.style            "Style">
+<!ENTITY CIP_DIALOG.styleSummary     "List of calculated styling values for a cache item">
+<!ENTITY CIP_DIALOG.styleNone        "No styling properties">
+
+<!ENTITY CIP_DIALOG.eventHeading     "User Interface Event Handlers">
+<!ENTITY CIP_DIALOG.event            "Event">
+<!ENTITY CIP_DIALOG.eventSummary     "List of events for a cache item">
+<!ENTITY CIP_DIALOG.eventNone        "No events">
+<!ENTITY CIP_DIALOG.eventOnElement   "On Element">
+<!ENTITY CIP_DIALOG.eventOnAncestor  "On Ancestor">
+
