@@ -18,17 +18,16 @@ var AINSPECTOR_FB = AINSPECTOR_FB || {};
 
 with (FBL) {
 
+  AINSPECTOR_FB.previous_selected_row = null;
+  AINSPECTOR_FB.selected_toolbar_button = null;
+  
   AINSPECTOR_FB.ruleset_title = null;
   AINSPECTOR_FB.selected_level = null;
-  AINSPECTOR_FB.result_ruleset = null;
+  AINSPECTOR_FB.ruleset_object = null;
   
   AINSPECTOR_FB.last_node_highlighted = null;
   
   AINSPECTOR_FB.rules_registered = null;
-  AINSPECTOR_FB.style_registered = null;
-  AINSPECTOR_FB.properties_registered = null;
-  AINSPECTOR_FB.attributes_registered = null;
-  AINSPECTOR_FB.events_registered = null;
   AINSPECTOR_FB.font_properties_registered = null;
   
   AINSPECTOR_FB.preferences = null;
@@ -64,7 +63,8 @@ with (FBL) {
      */
     updateCache: function() {
 
-      var ruleset_result_cache;
+      FBTrace.sysout("inside AINSPECTOR_FB.cacheUtil.updateCache()");
+      
       var doc;
       var url;
       try { 
@@ -75,35 +75,38 @@ with (FBL) {
         url = window.opener.parent.location.href;
       } // end try
 
-      FBTrace.sysout("OAA_WEB_ACCESSIBILITY_PREF: ", OAA_WEB_ACCESSIBILITY_PREF);
-      
       var preferences = OAA_WEB_ACCESSIBILITY_PREF.util.getPreferences();
-//      var preferences = OAA_WEB_ACCESSIBILITY_PREF.preferences;
-      FBTrace.sysout("preferences*********************************: ", preferences);
-
-      FBTrace.sysout("level: ", OpenAjax.a11y.all_wcag20_nls.getNLSLevel(preferences.wcag20_level));
-      FBTrace.sysout("OpenAjax.a11y.all_rulesets:", OpenAjax.a11y.all_rulesets);
+      FBTrace.sysout("preferences: ", preferences);
       
-      AINSPECTOR_FB.preferences = preferences;
-
       var ruleset = OpenAjax.a11y.all_rulesets.getRuleset(preferences.ruleset_id);
-      
-      AINSPECTOR_FB.selected_level = OpenAjax.a11y.all_wcag20_nls.getNLSLevel(preferences.wcag20_level);
-      AINSPECTOR_FB.ruleset_title = ruleset.ruleset_title;
-      FBTrace.sysout("ruleset:", ruleset);
-
+      FBTrace.sysout("ruleset: ", ruleset);
       
       if (ruleset) {
         ruleset.setEvaluationLevel(preferences.wcag20_level);
-        ruleset.setBrokenLinkTesting(preferences.broken_links);  
-        ruleset_result_cache = ruleset.evaluate(url, doc.title, doc, null, true);
+        ruleset.setBrokenLinkTesting(preferences.broken_links);
+        FBTrace.sysout("before calling evaluate ", ruleset);
+        ruleset.evaluate(url, doc.title, doc, null, true);
+        FBTrace.sysout("after calling evaluate ", ruleset);
+
       } else {
         FBTrace.sysout("  ** Ruleset with the id '" + ruleset_id + "' not found!!");
       }
-      AINSPECTOR_FB.result_ruleset = ruleset_result_cache;
-      return ruleset_result_cache;
+      
+      AINSPECTOR_FB.preferences = preferences;
+      FBTrace.sysout("OpenAjax.a11y.all_wcag20_nls ", OpenAjax.a11y.all_wcag20_nls.getNLS().getNLSWCAG20Level(preferences.wcag20_level));
+
+      AINSPECTOR_FB.selected_level = OpenAjax.a11y.all_wcag20_nls.getNLS().getNLSWCAG20Level(preferences.wcag20_level);
+      AINSPECTOR_FB.ruleset_title = ruleset.ruleset_title;
+      AINSPECTOR_FB.ruleset_object = ruleset;
+      
+      return ruleset;
     },
     
+    /**
+     * @function getAllRulesets
+     * 
+     * @desc
+     */
     getAllRulesets : function() {
       return OpenAjax.a11y.all_rulesets.getAllRuleSets();  
     }
@@ -129,26 +132,27 @@ with (FBL) {
       throw Components.results.NS_NOINTERFACE;
     },
 
-  /**
-   * @function onStateChange
-   * 
-   * @desc monitor user actions on web pages, when user click a link
-   * 
-   * @param {Object} webProgress
-   * @param {Object} request
-   * @param {Boolean} flags
-   * @param {Boolean} status
-   */
-  onStateChange: function (webProgress, request, flags, status) {
+    /**
+     * @function onStateChange
+     * 
+     * @desc monitor user actions on web pages, when user click a link
+     * 
+     * @param {Object} webProgress
+     * @param {Object} request
+     * @param {Boolean} flags
+     * @param {Boolean} status
+     */
+    onStateChange: function (webProgress, request, flags, status) {
     
-    if (flags & AINSPECTOR_FB.STATE_STOP && flags & AINSPECTOR_FB.STATE_IS_WINDOW) {
-      var location_href = webProgress.DOMWindow.location.href;
+      if (flags & AINSPECTOR_FB.STATE_STOP && flags & AINSPECTOR_FB.STATE_IS_WINDOW) {
+        var location_href = webProgress.DOMWindow.location.href;
   
-      if (location_href == AINSPECTOR_FB.top_location_href) {
-      FBTrace.sysout('onStateChange () location_href: ' + location_href + "..." + AINSPECTOR_FB.top_location_href);
-        return AINSPECTOR_FB.cacheUtil.updateCache();
+        if (location_href == AINSPECTOR_FB.top_location_href) {
+          FBTrace.sysout('onStateChange () location_href: ' + location_href + "..." + AINSPECTOR_FB.top_location_href);
+          
+          return AINSPECTOR_FB.cacheUtil.updateCache();
+        }
       }
-    }
     },
 
     /**
@@ -159,16 +163,23 @@ with (FBL) {
      * @param {Object} location
      * @param {Boolean} flags
      */
-  onLocationChange: function (webProgress, request, location, flags) {
+    onLocationChange: function (webProgress, request, location, flags) {
+    
       if (request) { // ignore call if request arg is null
-      FBTrace.sysout('onLocationChange () : location_href: ' + webProgress.DOMWindow.top.location.href);
+      
+        FBTrace.sysout('onLocationChange () : location_href: ' + webProgress.DOMWindow.top.location.href);
   
         AINSPECTOR_FB.top_location_href = webProgress.DOMWindow.top.location.href;
+        
+        /* Set previous_selected_row to null whenever there is a new request */
+        AINSPECTOR_FB.previous_selected_row = null;
       }
     },
 
     onProgressChange: function (a, b, c, d, e, f) {},
+  
     onSecurityChange: function (a, b, c) {},
+  
     onStatusChange: function (a, b, c, d) {}
 
   };
@@ -183,6 +194,7 @@ with (FBL) {
    */
 
   AINSPECTOR_FB.onLoad = function() {
+    
     var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
       .getInterface(Components.interfaces.nsIWebNavigation)
       .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
@@ -192,8 +204,6 @@ with (FBL) {
 
     mainWindow.gBrowser.addProgressListener(AINSPECTOR_FB.tabProgressListener);
     AINSPECTOR_FB.cacheUtil.updateCache();
-    
-//  Firebug.preferences.initializeUI();
     
   };
   

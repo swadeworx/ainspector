@@ -34,7 +34,7 @@ FBL.ns(function() { with (FBL) {
   * @namespace AINSPECTOR_FB.toolbarUtil
   */
  AINSPECTOR_FB.toolbarUtil = {
-    
+     
   /**
    * @function getToolbarButtonClass
    * 
@@ -149,19 +149,32 @@ FBL.ns(function() { with (FBL) {
    */
   viewHTMLPanel: function(event) {
 
-    var table = getChildByClass(event.target.offsetParent, "ai-table-list-items");
-    var row =  getChildByClass(event.target.offsetParent, "tableRow");
-      var child;
-      var tbody = table.children[1];
-      var node = null;
+    var main_panel_div =  getAncestorByClass(event.target, "main-panel");
+    var sub_div = getChildByClass(main_panel_div, "table-scrollable");
+    var table = getChildByClass(sub_div, "ai-table-list-items");;
+    var row = null;
+    
+    if (table) {
+      row =  getChildByClass(sub_div, "tableRow");
+    } else { 
+      table = getChildByClass(sub_div, "domTable");
+      row =  getChildByClass(sub_div, "treeRow");
+    }
+     
+    var child;
+    var tbody = table.children[1];
+    var node = null;
 
-      for (var i = 0; i < tbody.children.length; i++) {
-        var flag = false;
-        var row = tbody.children[i];
-        node = row;
-        for (var j = 0; j < row.children.length; j++) {
+    for (var i = 0; i < tbody.children.length; i++) {
+      var flag = false;
+      var row = tbody.children[i];
+      node = row;
+      
+      for (var j = 0; j < row.children.length; j++) {
         var cell = row.children[j];
+      
         for (var k=0; k<cell.classList.length;k++) {
+        
           if (cell.classList[k] ==  "gridCellSelected") {
             flag = true;
             break;
@@ -169,14 +182,99 @@ FBL.ns(function() { with (FBL) {
         }//end for
         if (flag == true) break;
       }
-        if (flag == true) break;
-      }
-      
-      node = node.repObject.dom_element.node;
-      var panel = Firebug.chrome.selectPanel("html");
-      panel.select(node);
+      if (flag == true) break;
+    }
+    
+    var item = null;
+    if (node.repObject.cache_item) {
+      item = node.repObject.cache_item;
+    } else {
+      if (node.repObject.dom_text_nodes) return;
+      if (node.repObject.parent_element) item = node.repObject.parent_element.node;
+    }
+    AINSPECTOR_FB.previous_selected_row = node;
+    
+    if (item.dom_element) node = item.dom_element.node;
+    else node = item.node;
+    
+    var panel = Firebug.chrome.selectPanel("html");
+    panel.select(node);
   },
+  
+  /**
+   * @function selectRow
+   * 
+   * @desc sets the first row object in to the panel and highlight() function to highlight the first row 
+   * 
+   * @param {Object} object - first image object in the images cache
+   * @property {Object} selection - set an object to the panel to be used by the side panels when selected first time
+   */
+  selectRow: function(panel, object, is_a_tree, toolbar_button) {
+
+    if  (AINSPECTOR_FB.previous_selected_row != null &&
+        AINSPECTOR_FB.selected_toolbar_button == toolbar_button) {
+      var selected_row = AINSPECTOR_FB.previous_selected_row;
+      panel.selection = AINSPECTOR_FB.previous_selected_row;
+//      var rows = panel.table.children[6].children[1].children;
+      var rows = null;
+      rows = panel.table.children[1].children[0].children[1].children;
+      FBTrace.sysout("rows: ", rows);
       
+      var row = null;
+      var i = 0;
+      
+      for (i; i < rows.length; i++) {
+        row = rows[i];
+//        FBTrace.sysout("row " + i, rows[i]);
+        
+        if (is_a_tree == true) {
+          if (row.repObject.children) {
+            var children = row.repObject.children;
+            
+            for (var j=0; j<children.length; j++) {
+              var child = children[j];
+              FBTrace.sysout("child: ", child);
+              FBTrace.sysout("sevrow: ", selected_row);
+              if (child.cache_item.toString() == selected_row.repObject.cache_item.toString() &&
+                child.cache_item.document_order == selected_row.repObject.cache_item.document_order) {
+                var new_table = AINSPECTOR_FB.treeTemplate.grid.openRow(row);
+                FBTrace.sysout("new_table: ", new_table);
+                j = j+1;
+                var k = i+j;
+                AINSPECTOR_FB.flatListTemplateUtil.highlight(new_table.children[1].children[0].children[1].children[i+j]);
+                return k;
+                break;
+              }
+            }
+          }
+        } else { //flat list
+          if (row.children[0].textContent == selected_row.children[0].textContent &&
+           row.repObject.cache_item.document_order == selected_row.repObject.cache_item.document_order) {
+            AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[1].children[0].children[1].children[i]);
+            return i;
+            break;
+          }
+        }
+      } 
+      
+      FBTrace.sysout("AINSPECTOR_FB.images.select() - AINSPECTOR_FB.previous_selected_row: ", AINSPECTOR_FB.previous_selected_row);
+      
+//      if (is_a_tree == true)  AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[6].children[1].children[i]);
+//      else AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[1].children[0].children[1].children[i]);
+      
+      
+    } else {
+      panel.selection = object;
+    
+//      if (is_a_tree == true) AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[6].children[1].children[0]); 
+        
+//      else AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[1].children[0].children[1].children[0]);
+      AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[1].children[0].children[1].children[0]);
+    }
+    
+    AINSPECTOR_FB.selected_toolbar_button = toolbar_button;
+  },
+  
   /**
    * @function getRulesetLEvel
    * 
@@ -194,6 +292,18 @@ FBL.ns(function() { with (FBL) {
     else if (level == 2) return "A & AA";
     else return "A, AA & AAA";
           
+  },
+  
+  getPixelsFromTop : function(obj) {
+    var objFromTop = obj.offsetTop;
+
+    while(obj.offsetParent!=null) {
+      var objParent = obj.offsetParent;
+      objFromTop += objParent.offsetTop;
+      obj = objParent;
+    }
+    FBTrace.sysout("valueeeeeeeeeeeeee....", objFromTop);
+    return objFromTop;
   },
        
   /**
@@ -258,8 +368,12 @@ AINSPECTOR_FB.flatListTemplateUtil = {
    */
   onKeyPressTable: function(event){
     
-  event.stopPropagation();
-  var table = getAncestorByClass(event.target, "ai-table-list-items");
+    event.stopPropagation();
+    
+    var main_panel = getAncestorByClass(event.target, "main-panel");
+    var table_div = getChildByClass(main_panel, "table-scrollable");
+    var table = getChildByClass(table_div, "ai-table-list-items");
+    FBTrace.sysout("table: ", table);
     
     switch(event.keyCode) {
         
@@ -280,14 +394,20 @@ AINSPECTOR_FB.flatListTemplateUtil = {
       //break;
     case KeyEvent.DOM_VK_DOWN: //down
 
-    if (table.tabIndex == '0') {
-      table.setAttribute('tabindex', '-1');
-      table.rows[0].setAttribute('tabindex', '0');
-      table.rows[0].focus();
-      break;
-    }  
-    var all_rows = table.getElementsByClassName("gridRow");
-        var current_index = Array.indexOf(all_rows, event.target);
+      if (table.tabIndex == '0') {
+        table.setAttribute('tabindex', '-1');
+        table.rows[0].setAttribute('tabindex', '0');
+        setClass(table.rows[0], "headerRowSelected");
+        table.rows[0].focus();
+        var side_panel = Firebug.currentContext.getPanel('rulesSidePanel');
+        AINSPECTOR_FB.emptySidePanelTemplate.tag.replace({messg: "please select an element row in the left panel"}, side_panel.panelNode);
+        break;
+      }  
+      FBTrace.sysout("AINSPECTOR_FB.flatListTemplateUtil.onKeyPressTable - down arrow");
+      var all_rows = table.getElementsByClassName("gridRow");
+      var current_index = Array.indexOf(all_rows, event.target);
+      FBTrace.sysout("current_index: "+ current_index);
+      
         var index = Array.indexOf(all_rows, event.target);
         var key = event.keyCode;
         var forward = key == KeyEvent.DOM_VK_RIGHT || key == KeyEvent.DOM_VK_DOWN;
@@ -301,12 +421,19 @@ AINSPECTOR_FB.flatListTemplateUtil = {
             var next_row = all_rows[new_index];
 //          unhighlighting from rows in panel
             var current_row = all_rows[index];
-
+            var header_row = all_rows[index];
             if (current_index != 0) {
+              
+//              if (current_index == 1) {
+//                FBTrace.sysout("all_rows:", all_rows);
+//                FBTrace.sysout("header_row: ", header_row);
+//                if(hasClass(header_row, "headerRowSelected")) AINSPECTOR_FB.ainspectorUtil.removeClass(header_row, "headerRowSelected");
+//              }
+              
               AINSPECTOR_FB.ainspectorUtil.removeClass(current_row, "gridRowSelected");
                 
               for (var c=0; c< current_row.cells.length; c++) AINSPECTOR_FB.ainspectorUtil.removeClass(current_row.cells[c], "gridCellSelected");
-            }
+            } 
 
 //          highlight rows from panel
             all_rows[new_index].focus();
@@ -490,13 +617,27 @@ AINSPECTOR_FB.flatListTemplateUtil = {
      * 
      * @desc double click on a row/cell takes to the HTML panel of Firebug from the ainspector panel
      * 
-     * @param event
+     * @param event - event triggered on a table cell of a particular row
      */ 
     doubleClick: function(event){
+      
+      var row = getAncestorByClass(event.target, "tableRow");
+      
+      if (!row) row = getAncestorByClass(event.target, "treeRow");
+      
+      FBTrace.sysout("AINSPECTOR_FB.flatListTemplateUtil.doubleClick()- row: ", row);
+      
+      var object = row.repObject;
+      var node = null;
+      
+      if (object.cache_item.dom_element) node = object.cache_item.dom_element.node;
 
-      var element = event.target.repObject;
-      var node = element.dom_element.node;
+      else node = object.cache_item.node;
+      
+      AINSPECTOR_FB.previous_selected_row = row;
+      
       var panel = Firebug.chrome.selectPanel("html");
+
       panel.select(node);
     },
     
@@ -509,7 +650,6 @@ AINSPECTOR_FB.flatListTemplateUtil = {
      */
     unHighlight : function (table) {
       
-      FBTrace.sysout("table: ", table);
       var tbody = table.children[1];
       var rows = tbody.children;
       
@@ -554,16 +694,20 @@ AINSPECTOR_FB.flatListTemplateUtil = {
     highlight : function (row) {
       
       AINSPECTOR_FB.ainspectorUtil.setClass(row, "gridRowSelected");
+      
       for (var i=0; i< row.children.length; i++) {
         AINSPECTOR_FB.ainspectorUtil.setClass(row.children[i], "gridCellSelected");
       }
-      OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject]);
+      FBTrace.sysout("AINSPECTOR_FB.flatListTemplate.highlight() - row: ", row);
+      if (row.repObject.cache_item) OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject.cache_item]);
+      else OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject]);
 
     },
     
     /**
      * @function highlightRow
      *  
+     * @memberof AINSPECTOR_FB.flatListTemplateUtil
      * @desc highlight a row when a row is selected in a panel
      * Set the "gridRowSelected" and "gridCellSelected" classes to the selected Row and 
      * cells in that row remove these classes from earlier selected row.
@@ -578,11 +722,12 @@ AINSPECTOR_FB.flatListTemplateUtil = {
       var table = getAncestorByClass(event.target, "ai-table-list-items");
       var current_row =  getAncestorByClass(event.target, "tableRow");
       var tbody = table.children[1]; //nomber of rows in a table
+//      FBTrace.sysout("AINSPECTOR_FB.flatListTemplateUtil.table: ", tbody);
       var row;
       var cell;
 
       if (!current_row) { //to highlight header cells
-      current_row =  getAncestorByClass(event.target, "gridHeaderRow");
+        current_row =  getAncestorByClass(event.target, "gridHeaderRow");
         tbody = table.children[0];
         
         if (event.keyCode == 38 || event.keyCode == 37) {
@@ -635,7 +780,7 @@ AINSPECTOR_FB.flatListTemplateUtil = {
       }
         
       }
-      this.highlight(current_row);
+      AINSPECTOR_FB.flatListTemplateUtil.highlight(current_row);
     },
     
     /**
@@ -695,6 +840,7 @@ AINSPECTOR_FB.flatListTemplateUtil = {
       }
         
       }
+      FBTrace.sysout("current_row: ", current_row);
       this.highlight(current_row);
     },
     
@@ -726,7 +872,6 @@ AINSPECTOR_FB.flatListTemplateUtil = {
       var cache_item_properties = [];
       
       var length = cache_items.length;
-      FBTrace.sysout("cache_items: ", cache_items);
       
       for (var i = 0; i < length; i++) {
         
@@ -794,84 +939,55 @@ AINSPECTOR_FB.tabPanelUtil = {
      */
     onAppendSidePanel: function(panelType) {
 
+      FBTrace.sysout("onAppendSidePanel: ", panelType);
       Firebug.registerPanel(panelType);
+      FBTrace.sysout("onAppendSidePanel afer register: ", Firebug);
+
     },
     
     /**
      * @function addAndRemoveSidePanels
      * 
-     * @desc 
-     * 
-     * @param {Boolean} pref - 
+     * @desc registers side panels according to the toolbar buttons selected
+     *   like for 'Images' toolabr button on A11y Panel - 'Rule Results' side panel is registered
+     *   like for 'Color Contrast' toolabr button on A11y Panel - 'Font Properties' side panel is registered
+     *   
+     * @param {Boolean} flag - a boolean value to check which toolbar button has to have the respective side panels
      */
-    addAndRemoveSidePanels : function(pref) {
+    addAndRemoveSidePanels : function(flag) {
       
-      var panelType_rule = Firebug.getPanelType("rulesSidePanel");
-      var panelType_attributes = Firebug.getPanelType("attributesSidePanel");
-      var panelType_properties = Firebug.getPanelType("propertiesSidePanel");
-      var panelType_events = Firebug.getPanelType("eventsSidePanel");
-      var panelType_style = Firebug.getPanelType("styleSidePanel");
-      var panelType_colorContrast = Firebug.getPanelType('colorContrastSidePanel');
+      var panelType_rules = Firebug.getPanelType("rulesSidePanel");
+      var panelType_colorContrast = Firebug.getPanelType("colorContrastSidePanel");
   
-      if (pref == true){
-        AINSPECTOR_FB.rules_registered = panelType_rule;
-        AINSPECTOR_FB.attributes_registered = panelType_attributes;
-        AINSPECTOR_FB.style_registered = panelType_style;
-        AINSPECTOR_FB.properties_registered = panelType_properties;
-        AINSPECTOR_FB.events_registered = panelType_events;
-        AINSPECTOR_FB.font_properties_registered = panelType_colorContrast;
-      
-        if (panelType_rule) AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_rule);
-      
-        if (panelType_attributes) AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_attributes);
-      
-        if (panelType_style) AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_style);
-      
-        if (panelType_properties) AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_properties);
-      
-        if (panelType_events) AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_events);
-      
-        if (panelType_colorContrast) AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_colorContrast);
+      /* flag == true if it is other than color contrast toolbar button*/
+      if (flag) {
+        if (panelType_colorContrast) {
+          
+          AINSPECTOR_FB.font_properties_registered = panelType_colorContrast;
+          AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_colorContrast);
+        }
+        if (panelType_rules) {
+          //nothing
+        } else {
+          FBTrace.sysout("AINSPECTOR_FB.rules_registered: ", AINSPECTOR_FB.rules_registered);
+          panelType_rules = AINSPECTOR_FB.rules_registered;
+          AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_rules);
+  
+        }
+      } else { //if it is only color contrast panel
         
-        return;
-      }
-  
-      if (panelType_rule) {
-        //nothing
-      } else {
-        panelType_rule = AINSPECTOR_FB.rules_registered;
-        AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_rule);
-      }
-  
-      if (panelType_style) {
-        AINSPECTOR_FB.style_registered = panelType_style;
-        AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_style);
-      }
- 
-      if (panelType_attributes) {
- 
-      } else {
-      panelType_attributes = AINSPECTOR_FB.attributes_registered;
-      AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_attributes);
-      }
- 
-      if (panelType_properties) {
-  
-      } else {
-      panelType_properties = AINSPECTOR_FB.properties_registered;
-      AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_properties);
-      }
- 
-      if (panelType_events) {
- 
-      } else {
-        panelType_events = AINSPECTOR_FB.events_registered;
-        AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_events);
-      }
+        if (panelType_rules) {
+          AINSPECTOR_FB.rules_registered = panelType_rules;
+          AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_rules);     
+        }
+        
+        if (panelType_colorContrast) {
+          //nothing
+        } else {
+          panelType_colorContrast = AINSPECTOR_FB.font_properties_registered;
+          AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_colorContrast);
+        }
       
-      if (panelType_colorContrast) {
-        AINSPECTOR_FB.font_properties_registered = panelType_colorContrast;
-        AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_colorContrast);
       }
     }
  };
