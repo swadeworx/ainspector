@@ -11,6 +11,8 @@ resource  preferences                chrome/content/preferences/
 skin      preferences  classic/1.0   chrome/content/preferences/skin/
 locale    preferences  en-US         chrome/content/preferences/locale/en-US/
 
-resource  rule_properties                chrome/content/rule_properties/
-skin      rule_properties  classic/1.0   chrome/content/rule_properties/skin/
-locale    rule_properties  en-US         chrome/content/rule_properties/locale/en-US/
+skin        item_properties  classic/1.0      chrome/content/item_properties/skin/
+locale      item_properties  en-US            chrome/content/item_properties/locale/en-US/
+
+skin        rule_properties  classic/1.0      chrome/content/rule_properties/skin/
+locale      rule_properties  en-US            chrome/content/rule_properties/locale/en-US/
