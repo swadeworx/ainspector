@@ -117,8 +117,6 @@ OpenAjax.a11y.cache.ControlsCache = function (dom_cache) {
   this.sort_property  = 'document_order';
   this.ascending    = true;
  
-  this.evaluation_results  = new OpenAjax.a11y.EvaluationResult();
- 
 };
 
 /**
@@ -153,7 +151,7 @@ OpenAjax.a11y.cache.ControlsCache.prototype.addChildControl = function (control_
 
 OpenAjax.a11y.cache.ControlsCache.prototype.addControlElement = function (control_element) {
 
-  OpenAjax.a11y.console("  Adding control element: " + control_element.dom_element.tag_name + " ("+ control_element.control_type + ")");
+//  OpenAjax.a11y.logger.debug("  Adding control element: " + control_element.dom_element.tag_name + " ("+ control_element.control_type + ")");
 
   // item must exist and have the position property
   if (control_element) {
@@ -602,25 +600,6 @@ OpenAjax.a11y.cache.ControlsCache.prototype.updateCache = function () {
  this.dom_cache.log.update(OpenAjax.a11y.PROGRESS.CACHE_END, "Completed control elements cache update.");
 
  this.up_to_date = true;
-};
-
-/**
- * @method getItemsByNodeResults
- *
- * @memberOf OpenAjax.a11y.cache.ControlsCache
- *
- * @desc Returns an array of cache items with node results based on the filter 
- *
- * @param  {Number}  filter  - Filter for returning items with node results of a 
- *                             particular type(s)  
- *
- * @return {Array} Returns array of cache items, can be empty
- */
-
-OpenAjax.a11y.cache.ControlsCache.prototype.getItemsByNodeResults = function (filter, all_flag) {
-
-  return OpenAjax.a11y.util.getItemsByNodeResults(this.child_cache_elements, filter, all_flag);
-
 };
 
 /**

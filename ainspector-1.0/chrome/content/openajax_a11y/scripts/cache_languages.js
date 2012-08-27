@@ -55,8 +55,6 @@ OpenAjax.a11y.cache.LanguagesCache = function (dom_cache) {
   this.sort_property  = 'lang';
   this.sort_ascending = false;
 
-  this.evaluation_results  = new OpenAjax.a11y.EvaluationResult();
-    
 };
 
 /**

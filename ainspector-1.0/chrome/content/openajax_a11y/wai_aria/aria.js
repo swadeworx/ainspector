@@ -290,7 +290,7 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          		roleType : "widget"
          	},
          	
-         	"complementry" : {
+         	"complementary" : {
          		container : null,
          		props : ["aria-expanded"],
          		reqProps : ["aria-labelledby"],

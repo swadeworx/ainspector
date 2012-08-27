@@ -18,11 +18,11 @@ scripts/cache_nls.js            \
 scripts/cache_media.js          \
 scripts/cache_style.js          \
 scripts/cache_tables.js         \
-scripts/cache_title_main.js     \
 scripts/cache_util.js           \
 scripts/progress_log.js         \
 scripts/rules.js                \
 scripts/rule_results.js         \
+scripts/cache_item_results.js   \
 scripts/wcag20_results.js       \
 scripts/wcag20_ruleset.js       \
 scripts/wcag20_nls.js 

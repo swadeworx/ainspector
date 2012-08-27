@@ -57,8 +57,6 @@ OpenAjax.a11y.cache.AbbreviationsCache = function (dom_cache) {
   this.sort_property  = 'abbreviation_text';
   this.sort_ascending = true;
   
-  this.evaluation_results  = new OpenAjax.a11y.EvaluationResult();
- 
 };
 
 /**

@@ -24,81 +24,6 @@
 
 OpenAjax.a11y.util = OpenAjax.a11y.util || {};
 
-/**
- * @function getItemsByNodeResults
- *
- * @memberOf OpenAjax.a11y.util
- * 
- * @desc Returns an array of cache items with node results based on the filter 
- *
- * @param  {Array}  cache_items  - Array of cache element items
- * @param  {Number}  filter       - Filter for returning items with node results of a 
- *                                  particular type(s)  
- * @param  {Boolean}  all_flag  - When true all items of the cache are returned
- *
- * @return {Array} Returns array of cache items, can be empty
- */
- 
-OpenAjax.a11y.util.getItemsByNodeResults = function(cache_elements, filter, all_flag) {
-
-  function traverseCacheItems(cache_item) {
-  
-    var de = null;
-    var flag = all_flag;
-    if (typeof cache_item.dom_element  != 'undefined') de = cache_item.dom_element;
-    if (typeof cache_item.tag_name     != 'undefined') de = cache_item;
-    
-    if (!de) return;
-    
-    if ((local_filter & RESULT_FILTER.PASS)                  && de.rules_passed.length)        flag = true; 
-    if (!flag && (local_filter & RESULT_FILTER.VIOLATION)    && de.rules_violations.length)    flag = true; 
-    if (!flag && (local_filter & RESULT_FILTER.WARNING)      && de.rules_warnings.length)      flag = true; 
-    if (!flag && (local_filter & RESULT_FILTER.MANUAL_CHECK) && de.rules_manual_checks.length) flag = true; 
-    if (!flag && (local_filter & RESULT_FILTER.HIDDEN)       && de.rules_hidden.length)        flag = true; 
-    
-    if (flag) cache_items.push(cache_item);
-
-    var child_cache_elements     = [];
-    var child_cache_elements_len = 0;
-
-    if (cache_item.child_cache_elements) {    
-      child_cache_elements = cache_item.child_cache_elements;
-    }  
-
-    if (cache_item.child_dom_elements) {    
-      child_cache_elements = cache_item.child_dom_elements;
-    }  
-
-    child_cache_elements_len = child_cache_elements.length;
-
-    for (var i = 0; i < child_cache_elements_len; i++) {
-      var ci = child_cache_elements[i];
-      traverseCacheItems(ci);
-    }
-  }
-
-  if (typeof all_flag == 'undefined') all_flag = false;
-
-  var RESULT_FILTER = OpenAjax.a11y.RESULT_FILTER;
-
-  var local_filter;
-
-  if (!filter) 
-    local_filter = RESULT_FILTER.ALL;
-  else
-    local_filter = filter;
-
-  var cache_items = [];
-  
-  var cache_elements_len = cache_elements.length;
-  
-  for (var i = 0; i < cache_elements_len; i++) {
-    var ci = cache_elements[i];
-    traverseCacheItems(ci);
-  } 
-  
-  return cache_items;
-};  
 
 /**
  * @function transformElementMarkup
@@ -233,7 +158,7 @@ OpenAjax.a11y.util.RGBToHEX = function( rgb_color ) {
    } // end loop
  
    color_hex = hex[0] + hex[1] + hex[2]; 
-   // OpenAjax.a11y.console( rgb_color + " " + color_hex );
+   // OpenAjax.a11y.logger.debug( rgb_color + " " + color_hex );
    
   }
   else {  

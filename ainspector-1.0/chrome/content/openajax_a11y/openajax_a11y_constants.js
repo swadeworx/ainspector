@@ -85,6 +85,19 @@ OpenAjax.a11y.SUPPORTS_EVENT_ANALYSIS = false;
  */
 OpenAjax.a11y.URL_TESTING_ENABLED  = false;  
 
+/**
+ * @constant DATA_TABLE_ASSUMPTION
+ *
+ * @memberOf OpenAjax.a11y
+ *
+ * @type Boolean
+ * @default true
+ * @desc If true assume table markup is for a data table
+ *       If false assume table markup is for layout, unless header cells or other 
+ *       information indciates its a data table
+ */
+OpenAjax.a11y.DATA_TABLE_ASSUMPTION  = true;  
+
 
 /**
  * @constant ELEMENT_FORMATING
@@ -131,6 +144,50 @@ OpenAjax.a11y.DEFAULT_PREFS = OpenAjax.a11y.DEFAULT_PREFS || {
   RULESET_ID     : "WCAG20_ARIA_TRANS",
   WCAG20_LEVEL   : 3,
   BROKEN_LINKS   : false
+};
+
+/**
+ * @constant RULE_CATEGORIES
+ * @memberOf OpenAjax.a11y
+ * @type Number
+ * @desc Numbercal contant representing the rule category that is bit maskable
+ *
+ * @example
+ * OpenAjax.a11y.RULE_CATEGORIES.UNKNOWN  
+ * OpenAjax.a11y.RULE_CATEGORIES.ALL_DOM_ELEMENTS      
+ * OpenAjax.a11y.RULE_CATEGORIES.ABBREVIATIONS      
+ * OpenAjax.a11y.RULE_CATEGORIES.COLOR_CONTRAST      
+ * OpenAjax.a11y.RULE_CATEGORIES.CONTROLS      
+ * OpenAjax.a11y.RULE_CATEGORIES.HEADINGS_LANDMARKS      
+ * OpenAjax.a11y.RULE_CATEGORIES.IMAGES      
+ * OpenAjax.a11y.RULE_CATEGORIES.LANGUAGE      
+ * OpenAjax.a11y.RULE_CATEGORIES.LINKS      
+ * OpenAjax.a11y.RULE_CATEGORIES.LISTS      
+ * OpenAjax.a11y.RULE_CATEGORIES.MEDIA      
+ * OpenAjax.a11y.RULE_CATEGORIES.TABLES      
+ */
+OpenAjax.a11y.RULE_CATEGORIES = OpenAjax.a11y.RULE_CATEGORIES || {
+  UNDEFINED          : 0,
+  ABBREVIATIONS      : 1,
+  AUDIO              : 2,
+  COLOR_CONTRAST     : 4,
+  CONTROLS           : 8,
+  HEADINGS           : 16,
+  IMAGES             : 32,
+  LANDMARKS          : 64,
+  LANGUAGE           : 128,
+  LINKS              : 256,
+  LISTS              : 512,
+  TABLES             : 1024,
+  VIDEO              : 2048,
+  WIDGETS            : 4096,
+  CONTENT            : 8192,
+  // Composite categories
+  ALL_DOM_ELEMENTS     : 8191,  // all categories
+  WIDGETS_CONTROLS     : 4104,  // 4096+8
+  AUDIO_VIDEO          : 2050,  // 2048+2
+  HEADINGS_LANDMARKS   : 80,    // 16+64
+  CONTENT_IN_LANDMARKS : 8256   // 64+8192
 };
 
 /**
@@ -202,13 +259,31 @@ OpenAjax.a11y.WCAG20_LEVEL = OpenAjax.a11y.WCAG20_LEVEL || {
  * @desc Defines a required or recommended rule 
  *
  * @example
+ * OpenAjax.a11y.RULE.UNKNOWN               
  * OpenAjax.a11y.RULE.REQUIRED               
  * OpenAjax.a11y.RULE.RECOMMENDED               
  */
 OpenAjax.a11y.RULE = OpenAjax.a11y.RULE || {
+  UNKNOWN        : 0,
   REQUIRED       : 1,
   RECOMMENDED    : 2
 };
+
+/**
+ * @constant RULE_GROUP
+ * @memberOf OpenAjax.a11y
+ * @type Number
+ * @desc Defines a grouping of rules 
+ *
+ * @example
+ * OpenAjax.a11y.RULE_GROUP.RULE_CATEGORIES               
+ * OpenAjax.a11y.RULE_GROUP.WCAG20            
+ */
+OpenAjax.a11y.RULE_GROUP = OpenAjax.a11y.RULE_GROUP || {
+  RULE_CATEGORIES : 1,
+  WCAG20          : 2
+};
+
 
 /**
  * @constant RULE_SCOPE
@@ -251,6 +326,36 @@ OpenAjax.a11y.TEST_RESULT = OpenAjax.a11y.TEST_RESULT || {
   NONE         : 5
 };
 
+/**
+ * @constant IMPLEMENTATION_LEVEL
+ * @memberOf OpenAjax.a11y
+ * @type Number
+ * @desc Implementation levels of a rule on a page  
+ *
+ * @example
+ * OpenAjax.a11y.IMPLEMENTATION_LEVEL.NOT_APPLICABLE
+ * OpenAjax.a11y.IMPLEMENTATION_LEVEL.MANUAL_CHECKS
+ * OpenAjax.a11y.IMPLEMENTATION_LEVEL.COMPLETE
+ * OpenAjax.a11y.IMPLEMENTATION_LEVEL.COMPLETE_WITH_MANUAL_CHECKS
+ * OpenAjax.a11y.IMPLEMENTATION_LEVEL.ALMOST_COMPLETE
+ * OpenAjax.a11y.IMPLEMENTATION_LEVEL.ALMOST_COMPLETE_WITH_MANUAL_CHECKS
+ * OpenAjax.a11y.IMPLEMENTATION_LEVEL.PARTIAL_IMPLEMENTATION
+ * OpenAjax.a11y.IMPLEMENTATION_LEVEL.PARTIAL_IMPLEMENTATION_WITH_MANUAL_CHECKS
+ * OpenAjax.a11y.IMPLEMENTATION_LEVEL.NOT_IMPLEMENTATED
+ * OpenAjax.a11y.IMPLEMENTATION_LEVEL.NOT_IMPLEMENTATED_WITH_MANUAL_CHECKS
+ */
+OpenAjax.a11y.IMPLEMENTATION_LEVEL = OpenAjax.a11y.IMPLEMENTATION_LEVEL || {
+  NOT_APPLICABLE                            : 0,
+  COMPLETE                                  : 1, 
+  ALMOST_COMPLETE                           : 2,
+  PARTIAL_IMPLEMENTATION                    : 3,
+  NOT_IMPLEMENTED                           : 4,
+  MANUAL_CHECKS                             : 5,
+  COMPLETE_WITH_MANUAL_CHECKS               : 6,
+  ALMOST_COMPLETE_WITH_MANUAL_CHECKS        : 7,
+  PARTIAL_IMPLEMENTATION_WITH_MANUAL_CHECKS : 8,
+  NOT_IMPLEMENTED_WITH_MANUAL_CHECKS        : 9
+};
 
 /**
  * @constant SEVERITY

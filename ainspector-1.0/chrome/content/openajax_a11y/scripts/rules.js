@@ -50,6 +50,7 @@ OpenAjax.a11y.Rule = function (nls, rule_item) {
   this.nls                 = nls;
   this.rule_id             = rule_item.rule_id;   
   this.rule_scope          = rule_item.rule_scope;   
+  this.rule_category       = rule_item.rule_category;   
   this.wcag_primary_id     = rule_item.wcag_primary_id;   
   this.wcag_related_ids    = rule_item.wcag_related_ids;
   this.last_updated        = rule_item.last_updated;
@@ -195,25 +196,19 @@ OpenAjax.a11y.Rule.prototype.getNLSSummary = function (rule_type) {
   
     if (str.indexOf(vstr) >= 0) {
     
-      if (rule_type) {
-    
-        switch (rule_type) {
-        case RULE.REQUIRED:
-          message = nls_rules.message_severities.MUST;
-          break;
+      switch (rule_type) {
+      
+      case RULE.REQUIRED:
+        message = nls_rules.message_severities.MUST;
+        break;
 
-        case RULE.RECOMMENDATION:
-          message = nls_rules.message_severities.SHOULD;
-          break;
+      case RULE.RECOMMENDED:
+        message = nls_rules.message_severities.SHOULD;
+        break;
 
-        default:
-          message = "unkown";
-          break; 
-        }
-      }
-      // If no rule type is defined assume "must"
-      else {
-        message = nls_rules.message_severities.MUST;      
+      default:
+        message = "unknown";
+        break; 
       }
       
       str = str.replace(vstr, message);  
@@ -392,7 +387,7 @@ OpenAjax.a11y.Rule.prototype.getMessage = function (node_result) {
   
   if (!str) return nls_rules.missing_message + node_result.message_id;
     
-//    OpenAjax.a11y.console("Rule: " + this.rule_id + " Message: " + str);
+//    OpenAjax.a11y.logger.debug("Rule: " + this.rule_id + " Message: " + str);
 
   var vstr; // i.e. %1, %2 ....
   var len = node_result.message_arguments.length;
@@ -479,9 +474,9 @@ OpenAjax.a11y.Rule.prototype.getNLSRequirements = function () {
  *
  * @memberOf OpenAjax.a11y.Rule
  *
- * @desc Returns the WCAG 2.0 Success Level of the rule
+ * @desc Returns the WCAG 2.0 Success Level of the rule based on the primary id of the rule
  *
- * @return  {Number}  Number representing the level of the rule
+ * @return  {Number}  Number representing the WCAG 2.0 success criterion level of the rule
  */
 
 OpenAjax.a11y.Rule.prototype.getWCAG20Level = function () {
@@ -491,6 +486,83 @@ OpenAjax.a11y.Rule.prototype.getWCAG20Level = function () {
   return sc.level;
 
 };
+
+/**
+ * @method getNLSWCAG20Level
+ *
+ * @memberOf OpenAjax.a11y.Rule
+ *
+ * @desc Returns the NLS String based on the WCAG 2.0 Success Level of the rule based on the primary id of the rule
+ *
+ * @return  {String}  String representing the WCAG 2.0 success criterion level of the rule
+ */
+
+OpenAjax.a11y.Rule.prototype.getNLSWCAG20Level = function () {
+
+  var sc = this.wcag20_nls.getNLSItemById(this.wcag_primary_id);
+
+  return this.wcag20_nls.getNLSWCAG20Level(sc.level);
+
+};
+
+
+/**
+ * @method getWCAG20PrincipleIndex
+ *
+ * @memberOf OpenAjax.a11y.Rule
+ *
+ * @desc Returns the WCAG 2.0 Principle index based on the primay id of the rule
+ *       Used in aggregating rule results
+ *
+ * @return  {Number}  Number of the WCAG20Result principle index
+ */
+
+OpenAjax.a11y.Rule.prototype.getWCAG20PrincipleIndex = function () {
+
+   var indexes = this.wcag_primary_id.split('.');
+
+   return (parseInt(indexes[0], 10) - 1);
+
+};
+
+/**
+ * @method getWCAG20GuidelineIndex
+ *
+ * @memberOf OpenAjax.a11y.Rule
+ *
+ * @desc Returns the WCAG 2.0 Guideline index based on the primay id of the rule
+ *       Used in aggregating rule results
+ *
+ * @return  {Number}  Number of the WCAG20Result guideline index
+ */
+
+OpenAjax.a11y.Rule.prototype.getWCAG20GuidelineIndex = function () {
+
+   var indexes = this.wcag_primary_id.split('.');
+
+   return (parseInt(indexes[1], 10) - 1);
+
+};
+
+/**
+ * @method getWCAG20SuccessCriteriaIndex
+ *
+ * @memberOf OpenAjax.a11y.Rule
+ *
+ * @desc Returns the WCAG 2.0 Success Criteria index based on the primay id of the rule
+ *       Used in aggregating rule results
+ *
+ * @return  {Number}  Number of the WCAG20Result sucess criteria index
+ */
+
+OpenAjax.a11y.Rule.prototype.getWCAG20SuccessCriteriaIndex = function () {
+
+   var indexes = this.wcag_primary_id.split('.');
+
+   return (parseInt(indexes[2], 10) - 1);
+
+};
+
 
 /* ---------------------------------------------------------------- */
 /*                             Rules                                */
@@ -529,37 +601,37 @@ OpenAjax.a11y.Rules.prototype.addRule = function (rule_item) {
   var errors = false;
 
   if (this.getRuleByRuleId(rule_item.rule_id)) {
-    OpenAjax.a11y.console("  ** Duplicate Rule ID: " + rule_item.rule_id);
+    OpenAjax.a11y.logger.debug("  ** Duplicate Rule ID: " + rule_item.rule_id);
     errors = true;
   }  
   
   if (typeof rule_item.wcag_primary_id !== 'string') {
-    OpenAjax.a11y.console("  ** Rule " + rule_item.rule_id + " primary wcag id is missing"); 
+    OpenAjax.a11y.logger.debug("  ** Rule " + rule_item.rule_id + " primary wcag id is missing"); 
     errors = true;
   }  
   
   if (typeof rule_item.wcag_related_ids !== 'object') {
-    OpenAjax.a11y.console("  ** Rule " + rule_item.rule_id + " related wcag ids is missing"); 
+    OpenAjax.a11y.logger.debug("  ** Rule " + rule_item.rule_id + " related wcag ids is missing"); 
     errors = true;
   }  
   
   if (!this.validCacheDependency(rule_item.cache_dependency)) {
-    OpenAjax.a11y.console("  ** Rule " + rule_item.rule_id + " has invalid or missing cache dependency property"); 
+    OpenAjax.a11y.logger.debug("  ** Rule " + rule_item.rule_id + " has invalid or missing cache dependency property"); 
     errors = true;
   }  
 
   if (typeof rule_item.cache_properties !== 'object') {
-    OpenAjax.a11y.console("  ** Rule " + rule_item.rule_id + " cache properties is missing or not an array"); 
+    OpenAjax.a11y.logger.debug("  ** Rule " + rule_item.rule_id + " cache properties is missing or not an array"); 
     errors = true;
   }  
   
   if (typeof rule_item.language_dependency !== 'string') {
-    OpenAjax.a11y.console("  ** Rule " + rule_item.rule_id + " language property is missing or not a string"); 
+    OpenAjax.a11y.logger.debug("  ** Rule " + rule_item.rule_id + " language property is missing or not a string"); 
     errors = true;
   }  
   
   if (typeof rule_item.validate !== 'function') {
-    OpenAjax.a11y.console("  ** Rule " + rule_item.rule_id + " validate property is missing or not a function"); 
+    OpenAjax.a11y.logger.debug("  ** Rule " + rule_item.rule_id + " validate property is missing or not a function"); 
     errors = true;
   }  
 
@@ -589,18 +661,18 @@ OpenAjax.a11y.Rules.prototype.addRulesFromJSON = function (rule_array) {
 
   var rule_item;
 
-//  OpenAjax.a11y.console(" ---- Adding OAA Rules ---- ");
+//  OpenAjax.a11y.logger.debug(" ---- Adding OAA Rules ---- ");
 
   for (var i = 0; i < rule_array.length; i++) {
 
     rule_item = rule_array[i];
     
-//    OpenAjax.a11y.console("  Rule: " + rule_item.id);
-//    OpenAjax.a11y.console("  last update: " + rule_item.last_updated);
-//    OpenAjax.a11y.console("   dependency: " + rule_item.cache_dependency);
-//    OpenAjax.a11y.console("   properties: " + typeof rule_item.cache_properties);
-//    OpenAjax.a11y.console("     language: " + rule_item.language_dependency);
-//    OpenAjax.a11y.console("     validate: " + typeof rule_item.validate);
+//    OpenAjax.a11y.logger.debug("  Rule: " + rule_item.id);
+//    OpenAjax.a11y.logger.debug("  last update: " + rule_item.last_updated);
+//    OpenAjax.a11y.logger.debug("   dependency: " + rule_item.cache_dependency);
+//    OpenAjax.a11y.logger.debug("   properties: " + typeof rule_item.cache_properties);
+//    OpenAjax.a11y.logger.debug("     language: " + rule_item.language_dependency);
+//    OpenAjax.a11y.logger.debug("     validate: " + typeof rule_item.validate);
 
     this.addRule(rule_item);
 
@@ -675,6 +747,67 @@ OpenAjax.a11y.Rules.prototype.validCacheDependency = function (cache_name) {
                     
   return false;
 };
+
+/**
+ * @method toOAAWikiFormat()
+ *
+ * @memberOf OpenAjax.a11y.Rules
+ *
+ * @desc Checks to see if the cache reference is valid 
+ *
+ * @return  {Boolean} Returns string containing rule information
+ */
+
+OpenAjax.a11y.Rules.prototype.toOAAWikiFormat = function () {
+
+  function ruleCategoryToWikiFormat(rule_category, title) {
+  
+    var category_rules = [];
+    var i;
+    var r;
+   
+    for (i = 0; i < this.rules.length; i++ ) {
+    
+      r = this.rules[i];
+      
+      if (r.rule_category === rule_category) category_rules.push(r);
+      
+    }
+    
+    wiki_str += "\n\n== " + title + "==\n";  
+
+    for (i = 0; i < category_rules.length; i++ ) {
+    
+      r = category_rules[i];
+    
+      wiki_str += "\n=== " + r.getNLSRuleId() + ": " + r.getNLSDefinition() + "===\n\n";  
+
+      wiki_str += "Rule id: " + r.rule_id + "\n";  
+      wiki_str += "Rule id (NLS): " + r.getNLSRuleId() + "\n";  
+      wiki_str += "Definition: " +  r.getNLSDefinition() + "\n + ";  
+
+    }
+    
+  }
+
+
+
+  var wiki_str = "";
+  
+  var RULE_CATEGORIES = OpenAjax.a11y.RULE_CATEGORIES;
+  
+  ruleCategoryToWikiFormat(RULE_CATEGORIES.CONTROLS, 'Form Controls');
+  ruleCategoryToWikiFormat(RULE_CATEGORIES.IMAGES, 'Images');
+  ruleCategoryToWikiFormat(RULE_CATEGORIES.HEADINGS, 'Headings');
+  ruleCategoryToWikiFormat(RULE_CATEGORIES.LANDMARKS, 'Landmarks');
+  ruleCategoryToWikiFormat(RULE_CATEGORIES.COLOR_CONTRAST, 'Color Contrast');
+  
+  return wiki_str;
+
+};
+
+
+
 
 
 

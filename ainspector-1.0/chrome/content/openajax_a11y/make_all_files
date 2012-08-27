@@ -17,9 +17,9 @@ scripts/cache_lists.js \
 scripts/cache_media.js \
 scripts/cache_style.js \
 scripts/cache_tables.js \
-scripts/cache_title_main.js \
 scripts/rules.js \
 scripts/rule_results.js \
+scripts/cache_item_results.js \
 scripts/cache_nls.js \
 scripts/wcag20_nls.js \
 scripts/wcag20_results.js \
@@ -32,6 +32,7 @@ nls/wcag20_nls_en-us.js \
 rules/rules_color_contrast.js \
 rules/rules_controls.js \
 rules/rules_images.js \
+rules/rules_headings_landmarks.js \
 rulesets/wcag20_aria_transitional_ruleset.js \
 rulesets/wcag20_aria_strict_ruleset.js > openajax_a11y_all.js
 

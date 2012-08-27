@@ -54,7 +54,6 @@ OpenAjax.a11y.cache.MediaCache = function (dom_cache) {
   this.sort_property = 'document_order';
   this.sort_ascending = false;
  
-  this.evaluation_results  = new OpenAjax.a11y.EvaluationResult();
 }; 
 
 /**
@@ -475,6 +474,6 @@ OpenAjax.a11y.cache.MediaElement.prototype.getEvents = function () {
  */
  
  OpenAjax.a11y.cache.MediaElement.prototype.toString = function () {
-   return "Media " + this.document_order + ": " + this.dom_element.tag_name;
+   return this.dom_element.tag_name;
  };
 

@@ -323,7 +323,7 @@ OpenAjax.a11y.cache.DOMElementComputedStyle.prototype.calculateColorContrastRati
 
 OpenAjax.a11y.cache.DOMElementComputedStyle.prototype.getLuminance = function (color) {
 
- // OpenAjax.a11y.console("  " + color );
+ // OpenAjax.a11y.logger.debug("  " + color );
 
  // Get decimal values
  var R8bit = parseInt(color.substring(0,2),16);

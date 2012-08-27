@@ -24,13 +24,17 @@
  * @memberOf OpenAjax.a11y
  *
  * @desc Constructor for an object that contains a the results of 
- *          the evaluation for a WCAG 2.0 Principle
+ *       the evaluation of WCAG 2.0 requirements
  *
- * @param  {RulesetPrinciple}  ruleset_principle  - Ruleset Principle object
+ * @param  {Object}  ruleset  - Ruleset object
+ * @param  {String}  url      - URL of web page analyzed
+ * @param  {String}  title    - title of web page analyzed
  *
- * @property  {WCAG20RulesetPrinciple}   ruleset_principle        - Reference to the associated ruleset principle
- * @property  {ResultSummaryRule}        evaluation_results     - Reference to the rule summary information for the guideline 
- * @property  {Array}                    result_guidelines        - Array of ruleset rule objects associated with the success criterion
+ * @property  {RuleResultAggregation}  level_all_results          - Reference to the rule results summary for all rules 
+ * @property  {RuleResultAggregation}  level_a_summary_results    - Reference to the rule results summary for success criterion level A rules 
+ * @property  {RuleResultAggregation}  level_aa_summary_results   - Reference to the rule results summary for success criterion level AA rules 
+ * @property  {RuleResultAggregation}  level_aaa_summary_results  - Reference to the rule results summary for success criterion level AAA rules 
+ * @property  {Array}                  principle_results          - Array of WCAG20ResultPrinciple objects
  */
  
 OpenAjax.a11y.WCAG20Result = function (ruleset, url, title) {
@@ -39,10 +43,10 @@ OpenAjax.a11y.WCAG20Result = function (ruleset, url, title) {
   this.title = title;
   this.url   = url;
   
-  this.evaluation_results     = new OpenAjax.a11y.EvaluationResult();
-  this.rule_a_summary_results   = new OpenAjax.a11y.EvaluationResult();
-  this.rule_aa_summary_results  = new OpenAjax.a11y.EvaluationResult();
-  this.rule_aaa_summary_results = new OpenAjax.a11y.EvaluationResult();
+  this.level_all_results         = new OpenAjax.a11y.RuleResultAggregation('wcag20_all_results');
+  this.level_a_summary_results   = new OpenAjax.a11y.RuleResultAggregation('level_a_summary_results');
+  this.level_aa_summary_results  = new OpenAjax.a11y.RuleResultAggregation('level_aa_summary_results');
+  this.level_aaa_summary_results = new OpenAjax.a11y.RuleResultAggregation('level_aaa_summary_results');
   
   this.principle_results = [];
 
@@ -52,64 +56,64 @@ OpenAjax.a11y.WCAG20Result = function (ruleset, url, title) {
   
   gr  = new OpenAjax.a11y.WCAG20ResultGuideline('1.1');
   
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('1.1.1');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('1.1.1');
   gr.addSuccessCriterionResult(scr);  
   
   pr.addGuidelineResult(gr);
   
   gr  = new OpenAjax.a11y.WCAG20ResultGuideline('1.2');
   
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('1.2.1');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('1.2.1');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('1.2.2');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('1.2.2');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('1.2.3');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('1.2.3');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('1.2.4');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('1.2.4');
   gr.addSuccessCriterionResult(scr);    
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('1.2.5');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('1.2.5');
   gr.addSuccessCriterionResult(scr);    
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('1.2.6');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('1.2.6');
   gr.addSuccessCriterionResult(scr);    
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('1.2.7');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('1.2.7');
   gr.addSuccessCriterionResult(scr);    
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('1.2.8');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('1.2.8');
   gr.addSuccessCriterionResult(scr);    
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('1.2.9');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('1.2.9');
   gr.addSuccessCriterionResult(scr);  
   
   pr.addGuidelineResult(gr);
 
   gr  = new OpenAjax.a11y.WCAG20ResultGuideline('1.3');
   
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('1.3.1');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('1.3.1');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('1.3.2');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('1.3.2');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('1.3.3');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('1.3.3');
   gr.addSuccessCriterionResult(scr);  
   
   pr.addGuidelineResult(gr);
 
   gr  = new OpenAjax.a11y.WCAG20ResultGuideline('1.4');
   
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('1.4.1');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('1.4.1');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('1.4.2');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('1.4.2');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('1.4.3');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('1.4.3');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('1.4.4');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('1.4.4');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('1.4.5');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('1.4.5');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('1.4.6');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('1.4.6');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('1.4.7');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('1.4.7');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('1.4.8');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('1.4.8');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('1.4.9');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('1.4.9');
   gr.addSuccessCriterionResult(scr);  
   
   pr.addGuidelineResult(gr);
@@ -120,60 +124,60 @@ OpenAjax.a11y.WCAG20Result = function (ruleset, url, title) {
   
   gr  = new OpenAjax.a11y.WCAG20ResultGuideline('2.1');
   
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('2.1.1');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('2.1.1');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('2.1.2');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('2.1.2');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('2.1.3');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('2.1.3');
   gr.addSuccessCriterionResult(scr);  
   
   pr.addGuidelineResult(gr);
 
   gr  = new OpenAjax.a11y.WCAG20ResultGuideline('2.2');
   
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('2.2.1');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('2.2.1');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('2.2.2');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('2.2.2');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('2.2.3');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('2.2.3');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('2.2.4');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('2.2.4');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('2.2.5');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('2.2.5');
   gr.addSuccessCriterionResult(scr);  
   
   pr.addGuidelineResult(gr);
 
   gr  = new OpenAjax.a11y.WCAG20ResultGuideline('2.3');
   
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('2.3.1');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('2.3.1');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('2.3.2');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('2.3.2');
   gr.addSuccessCriterionResult(scr);  
   
   pr.addGuidelineResult(gr);
 
   gr  = new OpenAjax.a11y.WCAG20ResultGuideline('2.4');
   
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('2.4.1');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('2.4.1');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('2.4.2');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('2.4.2');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('2.4.3');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('2.4.3');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('2.4.4');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('2.4.4');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('2.4.5');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('2.4.5');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('2.4.6');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('2.4.6');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('2.4.7');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('2.4.7');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('2.4.8');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('2.4.8');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('2.4.9');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('2.4.9');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('2.4.10');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('2.4.10');
   gr.addSuccessCriterionResult(scr);  
   
   pr.addGuidelineResult(gr);
@@ -184,49 +188,49 @@ OpenAjax.a11y.WCAG20Result = function (ruleset, url, title) {
   
   gr  = new OpenAjax.a11y.WCAG20ResultGuideline('3.1');
   
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('3.1.1');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('3.1.1');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('3.1.2');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('3.1.2');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('3.1.3');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('3.1.3');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('3.1.4');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('3.1.4');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('3.1.5');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('3.1.5');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('3.1.6');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('3.1.6');
   gr.addSuccessCriterionResult(scr);  
   
   pr.addGuidelineResult(gr);
 
   gr  = new OpenAjax.a11y.WCAG20ResultGuideline('3.2');
   
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('3.2.1');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('3.2.1');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('3.2.2');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('3.2.2');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('3.2.3');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('3.2.3');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('3.2.4');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('3.2.4');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('3.2.5');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('3.2.5');
   gr.addSuccessCriterionResult(scr);  
   
   pr.addGuidelineResult(gr);
 
   gr  = new OpenAjax.a11y.WCAG20ResultGuideline('3.3');
   
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('3.3.1');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('3.3.1');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('3.3.2');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('3.3.2');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('3.3.3');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('3.3.3');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('3.3.4');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('3.3.4');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('3.3.5');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('3.3.5');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('3.3.6');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('3.3.6');
   gr.addSuccessCriterionResult(scr);  
   
   pr.addGuidelineResult(gr);
@@ -237,14 +241,15 @@ OpenAjax.a11y.WCAG20Result = function (ruleset, url, title) {
 
   gr  = new OpenAjax.a11y.WCAG20ResultGuideline('4.1');
 
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('4.1.1');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('4.1.1');
   gr.addSuccessCriterionResult(scr);  
-  scr = new OpenAjax.a11y.WCAG20ResultGuideline('4.1.2');
+  scr = new OpenAjax.a11y.WCAG20ResultSuccessCriterion('4.1.2');
   gr.addSuccessCriterionResult(scr);  
   
   pr.addGuidelineResult(gr);
 
   this.addPrincipleResult(pr);
+
 
 };
 
@@ -276,18 +281,24 @@ OpenAjax.a11y.WCAG20Result.prototype.addPrincipleResult = function (principle_re
  
 OpenAjax.a11y.WCAG20Result.prototype.addRuleResult = function (rule_result) {
 
-  switch (ruleset_rule.wcag20_level) {
+  var rule_mapping = rule_result.rule_mapping;
+
+//  OpenAjax.a11y.logger.debug("primary: " + rule_result.rule.wcag_primary_id + " level: " + rule_mapping.wcag20_level + " p: " + rule_mapping.wcag20_principle_index  + " g: " + rule_mapping.wcag20_guideline_index + " sc: " + rule_mapping.wcag20_success_criterion_index );
+
+  this.level_all_results.addRuleResult(rule_result);
+
+  switch (rule_mapping.wcag20_level) {
                      
   case OpenAjax.a11y.WCAG20_LEVEL.A:
-    this.rule_a_summary_results.addRuleResult(rule_result);
+    this.level_a_summary_results.addRuleResult(rule_result);
     break;
                      
   case OpenAjax.a11y.WCAG20_LEVEL.AA:
-    this.rule_aa_summary_results.addRuleResult(rule_result);
+    this.level_aa_summary_results.addRuleResult(rule_result);
     break;
                      
   case OpenAjax.a11y.WCAG20_LEVEL.AAA:
-    this.rule_aaa_summary_results.addRuleResult(rule_result);
+    this.level_aaa_summary_results.addRuleResult(rule_result);
     break;
                        
   default:
@@ -295,7 +306,9 @@ OpenAjax.a11y.WCAG20Result.prototype.addRuleResult = function (rule_result) {
                       
   } // end switch
 
-  if (rule_result.principle_index >= 0) this.principle_results[rule_result.principle_index].addRuleResult(rule_result);
+//  OpenAjax.a11y.logger.debug("WCAG20Result: " + rule_result.rule.wcag_primary_id + " pi: " + rule_mapping.wcag20_principle_index + " gi: " + rule_mapping.wcag20_guideline_index  + " gi: " + rule_mapping.wcag20_success_criterion_index);
+
+  this.principle_results[rule_mapping.wcag20_principle_index].addRuleResult(rule_mapping, rule_result);
 
 };
 
@@ -436,15 +449,15 @@ OpenAjax.a11y.WCAG20Result.prototype.toString = function () {
  *
  * @param  {String}  principle_id  - Principle ID
  *
- * @property  {String}              principle_id             - Principle id
- * @property  {ResultSummaryRule}   evaluation_results     - Reference to the rule summary information for the guideline 
- * @property  {Array}               result_guidelines        - Array of ruleset rule objects associated with the success criterion
+ * @property  {String}                 principle_id            - Principle id
+ * @property  {RuleResultAggregation}  rule_result_aggregation - Reference to the rule results summary information for the principle 
+ * @property  {Array}                  result_guidelines       - Array of wcag guideline result objects for this principle
  */
  
 OpenAjax.a11y.WCAG20ResultPrinciple = function (principle_id) {
 
   this.principle_id = principle_id;
-  this.evaluation_results = new OpenAjax.a11y.EvaluationResult();
+  this.rule_result_aggregation = new OpenAjax.a11y.RuleResultAggregation('wcag20_principle_' + principle_id);
   this.guideline_results = [];
 
 };
@@ -470,16 +483,19 @@ OpenAjax.a11y.WCAG20ResultPrinciple.prototype.addGuidelineResult = function (gui
  *
  * @memberOf OpenAjax.a11y.WCAG20ResultPrinciple
  *
- * @desc Add rule result object to the aggregations of rule results by WCAG 2.0 Guidelines, Success Criteria and SC Levels 
+ * @desc Add rule result object to the aggregation of rule results for a WCAG 2.0 principle 
  *
- * @param  {RuleResult}  rule_result  - Rule result object to add
+ * @param  {RuleMapping}  rule_mapping  - Rule mapping information for the rule
+ * @param  {RuleResult}   rule_result   - Rule result object to add
  */
  
-OpenAjax.a11y.WCAG20Result.prototype.addRuleResult = function (rule_result) {
+OpenAjax.a11y.WCAG20ResultPrinciple.prototype.addRuleResult = function (rule_mapping, rule_result) {
 
-  this.evaluation_results.addRuleResult(rule_result);
+//  OpenAjax.a11y.logger.debug("WCAG20ResultPrinciple: " + rule_result.rule.wcag_primary_id );
 
-  if (rule_result.guideline_index >= 0) this.guidelines_results[rule_result.guideline_index].addRuleResult(rule_result);
+  this.rule_result_aggregation.addRuleResult(rule_result);
+
+  this.guideline_results[rule_mapping.wcag20_guideline_index].addRuleResult(rule_mapping, rule_result);
 
 };
 
@@ -516,15 +532,15 @@ OpenAjax.a11y.WCAG20ResultPrinciple.prototype.toString = function () {
  *
  * @param  {String}  guideline_id  - Guideline id 
  *
- * @property  {String}                   guideline_id             - Guideline id
- * @property  {ResultSummaryRule}        evaluation_results     - Reference to the rule summary information for the guideline 
- * @property  {Array}                    result_sucess_creiteria  - Array of ruleset rule objects associated with the success criterion
+ * @property  {String}                 guideline_id             - Guideline id
+ * @property  {RuleResultAggregation}  rule_result_aggregation  - Reference to the rule results summary information for a guideline 
+ * @property  {Array}                  result_sucess_creiteria  - Array of success criterion result objects for the guideline
  */
  
 OpenAjax.a11y.WCAG20ResultGuideline = function (guideline_id) {
 
   this.guideline_id = guideline_id;
-  this.evaluation_results = new OpenAjax.a11y.EvaluationResult();
+  this.rule_result_aggregation = new OpenAjax.a11y.RuleResultAggregation('wcag20_guideline_' + guideline_id);
   this.success_criteria_results = [];
 
 };
@@ -550,16 +566,19 @@ OpenAjax.a11y.WCAG20ResultGuideline.prototype.addSuccessCriterionResult = functi
  *
  * @memberOf OpenAjax.a11y.WCAG20ResultGuideline
  *
- * @desc Add rule result object to the aggregations of rule results by WCAG 2.0 Guideline and Success Criteria 
+ * @desc Add rule result object to the aggregation of rule results for a WCAG 2.0 guideline 
  *
- * @param  {RuleResult}  rule_result  - Rule result object to add
+ * @param  {RuleMapping}  rule_mapping  - Rule mapping information for the rule
+ * @param  {RuleResult}   rule_result   - Rule result object to add
  */
  
-OpenAjax.a11y.WCAG20Result.prototype.addRuleResult = function (rule_result) {
+OpenAjax.a11y.WCAG20ResultGuideline.prototype.addRuleResult = function (rule_mapping, rule_result) {
 
-  this.evaluation_results.addRuleResult(rule_result);
+//  OpenAjax.a11y.logger.debug("WCAG20ResultGuideline: " + rule_result.rule.wcag_primary_id );
 
-  if (rule_result.success_criteria_index >= 0) this.success_criteria_results[rule_result.success_criteria_index].addRuleResult(rule_result);
+  this.rule_result_aggregation.addRuleResult(rule_result);
+
+  this.success_criteria_results[rule_mapping.wcag20_success_criterion_index].addRuleResult(rule_result);
 
 };
 
@@ -594,15 +613,14 @@ OpenAjax.a11y.WCAG20ResultGuideline.prototype.toString = function () {
  *
  * @param  {String}      success_criterion_id  - Success Criterion ID
  *
- * @property  {String}   success_criterion_id  - Success Criterion ID
- * @property  {Array}    evaluation_results  - Array of ruleset rule objects associated with the success criterion
+ * @property  {String}   success_criterion_id    - Success Criterion ID
+ * @property  {Array}    rule_result_aggregation - Reference to the rule results summary information for a success criterion
  */
  
 OpenAjax.a11y.WCAG20ResultSuccessCriterion = function (success_criterion_id) {
 
-  this.success_criterion_id  = success_criterion_id;
-  this.evaluation_results      = new OpenAjax.a11y.EvaluationResult();
-  this.rule_results = [];
+  this.success_criterion_id     = success_criterion_id;
+  this.rule_result_aggregation  = new OpenAjax.a11y.RuleResultAggregation('wcag20_success_criterion_' + success_criterion_id);
 };
 
 /** 
@@ -610,16 +628,16 @@ OpenAjax.a11y.WCAG20ResultSuccessCriterion = function (success_criterion_id) {
  *
  * @memberOf OpenAjax.a11y.WCAG20ResultSuccessCriterion
  *
- * @desc Add rule result object
+ * @desc Add rule result object to the aggregation of rule results for a WCAG 2.0 guideline 
  *
- * @param  {ResultRule}  rule_result  - Rule result object to add
+ * @param  {RuleResult}   rule_result   - Rule result object to add
  */
  
 OpenAjax.a11y.WCAG20ResultSuccessCriterion.prototype.addRuleResult = function (rule_result) {
 
-  this.evaluation_results.addRuleResult(rule_result);
-  
-  this.rule_results.push(rule_result);
+//  OpenAjax.a11y.logger.debug("WCAG20ResultSuccessCriterion: " + rule_result.rule.wcag_primary_id );
+
+  this.rule_result_aggregation.addRuleResult(rule_result);
 
 };
 

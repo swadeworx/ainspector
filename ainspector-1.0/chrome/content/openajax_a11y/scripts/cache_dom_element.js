@@ -371,14 +371,15 @@ OpenAjax.a11y.cache.DOMElementCache.prototype.checkForUniqueIDs = function () {
  * @param  {DOMElement}  parent_element - DOMElement object that is the current parent in the tree
  *
  * @property  {DOMElement}  parent_landmark      - LandmarkElement object that contains this element
- * @property  {String}      parent_landmark_role - role of parent landmark element 
  *
  * @property  {LandmarkElement}  parent_landmark - LandmarkElement object that contains the text content
- * @property  {String}      parent_landmark_role - role of parent landmark element 
  *
  * @property {Number}  type - Type of DOM node element or text
  * @property {String}  text - Text content of DOM text node
  *
+ * @property {String}   text_normalized         - Normalized text in the node
+ * @property {Number}   text_length             - length of the normalized text in the node 
+ * 
  * @property {String}  cache_id        - String that uniquely identifies the cache element in the DOMCache
  * @property {Number}  document_order  - The ordinal position of this DOM text node in the DOM
  *
@@ -400,12 +401,11 @@ OpenAjax.a11y.cache.DOMText = function (node, parent_element) {
   this.parent_element = parent_element;
  
   this.parent_landmark      = null;
-  this.parent_landmark_role = "";
  
   this.text_normalized = this.text.normalizeSpace();
   var text_length      = this.text_normalized.length;
-  this.text_length     = text_length;
- 
+  this.text_length     = text_length; 
+  
   parent_element.addToCharacterCount(text_length);
  
   this.computed_style = parent_element.computed_style;
@@ -498,32 +498,32 @@ OpenAjax.a11y.cache.DOMText.prototype.getAccessibility = function () {
   var severity;
   var a = {};
 
-  severity = cache_nls.getSeverityNLS(SEVERITY.NONE); 
+  severity = cache_nls.getNLSSeverity(SEVERITY.NONE); 
   a.label    = severity.label;
   a.style    = SEVERITY_STYLE[SEVERITY.NONE];
 
   if (this.rules_hidden.length) {
-    severity = cache_nls.getSeverityNLS(SEVERITY.HIDDEN);
+    severity = cache_nls.getNLSSeverity(SEVERITY.HIDDEN);
     a.style    = SEVERITY_STYLE[SEVERITY.HIDDEN];
   }
   
   if (this.rules_passed.length) {
-    severity = cache_nls.getSeverityNLS(SEVERITY.PASS);
+    severity = cache_nls.getNLSSeverity(SEVERITY.PASS);
     a.style    = SEVERITY_STYLE[SEVERITY.PASS];
   }
 
   if (this.rules_manual_checks.length) {
-    severity = cache_nls.getSeverityNLS(SEVERITY.MANUAL_CHECK);
+    severity = cache_nls.getNLSSeverity(SEVERITY.MANUAL_CHECK);
     a.style    = SEVERITY_STYLE[SEVERITY.MANUAL_CHECK];
   }
 
   if (this.rules_warnings.length) {
-    severity = cache_nls.getSeverityNLS(SEVERITY.WARNING);
+    severity = cache_nls.getNLSSeverity(SEVERITY.WARNING);
     a.style    = SEVERITY_STYLE[SEVERITY.WARNING];
   }
   
   if (this.rules_violations.length) {
-    severity = cache_nls.getSeverityNLS(SEVERITY.VIOLATION);
+    severity = cache_nls.getNLSSeverity(SEVERITY.VIOLATION);
     a.style       = SEVERITY_STYLE[SEVERITY.VIOLATION];
   }
 
@@ -589,6 +589,8 @@ OpenAjax.a11y.cache.DOMText.prototype.getCacheProperties = function () {
   cache_nls.addPropertyIfDefined(properties, this, 'text_length');
   cache_nls.addPropertyIfDefined(properties, this, 'has_rule_results');
   
+  cache_nls.addPropertyIfDefined(properties, this, 'parent_landmark');
+  
   return properties;
 
 };
@@ -631,35 +633,35 @@ OpenAjax.a11y.cache.DOMText.prototype.getColorContrastSummary = function () {
   var a = {};
   var last_a = {};
 
-  severity = cache_nls.getSeverityNLS(SEVERITY.NONE); 
+  severity = cache_nls.getNLSSeverity(SEVERITY.NONE); 
   a.label    = severity.label;
   a.style    = SEVERITY_STYLE[SEVERITY.NONE];
   
   var color_rules = ['COLOR_1', 'COLOR_2'];
 
   if (hasRule(this.rules_hidden, color_rules)) {
-    severity = cache_nls.getSeverityNLS(SEVERITY.HIDDEN);
+    severity = cache_nls.getNLSSeverity(SEVERITY.HIDDEN);
     a.style    = SEVERITY_STYLE[SEVERITY.HIDDEN];
   }
 
   if (hasRule(this.rules_passed, color_rules)) {
-    severity = cache_nls.getSeverityNLS(SEVERITY.PASS);
+    severity = cache_nls.getNLSSeverity(SEVERITY.PASS);
     a.style  = SEVERITY_STYLE[SEVERITY.PASS];
   }
 
   if (hasRule(this.rules_warnings, color_rules)) {
-    severity = cache_nls.getSeverityNLS(SEVERITY.WARNING);
+    severity = cache_nls.getNLSSeverity(SEVERITY.WARNING);
     a.style  = SEVERITY_STYLE[SEVERITY.WARNING];
     last_severity_value = SEVERITY.WARNING;
   }
 
   if (hasRule(this.rules_manual_checks, color_rules)) {
-    severity = cache_nls.getSeverityNLS(SEVERITY.MANUAL_CHECK);
+    severity = cache_nls.getNLSSeverity(SEVERITY.MANUAL_CHECK);
     a.style  = SEVERITY_STYLE[SEVERITY.MANUAL_CHECK];
   }
 
   if (hasRule(this.rules_violations, color_rules)) {
-      severity = cache_nls.getSeverityNLS(SEVERITY.VIOLATION);
+      severity = cache_nls.getNLSSeverity(SEVERITY.VIOLATION);
       a.style  = SEVERITY_STYLE[SEVERITY.VIOLATION];
   }
 
@@ -859,7 +861,6 @@ OpenAjax.a11y.cache.DOMText.prototype.toString = function(option) {
  * @property {DOMElement} parent_element      - The parent DOMElement of this DOMElement in the tree
  *
  * @property {LandmarkElement}  parent_landmark - LandmarkElement object that contains this element
- * @property {String}     parent_landmark_role  - role of parent landmark
  *
  * @property {Number}     type                - Type of DOM node is element  
  * @property {Number}     document_order      - The ordinal position of this DOM element node in the DOM
@@ -951,7 +952,6 @@ OpenAjax.a11y.cache.DOMElement = function (node, parent_dom_element) {
   var aria_properties = [];
  
   this.parent_landmark = null;
-  this.parent_landmark_role = "";
 
   // Cache important attributes for accessibility
   i = 0;
@@ -1174,32 +1174,32 @@ OpenAjax.a11y.cache.DOMElement.prototype.getAccessibility = function () {
   var severity;
   var a = {};
 
-  severity = cache_nls.getSeverityNLS(SEVERITY.NONE); 
+  severity = cache_nls.getNLSSeverity(SEVERITY.NONE); 
   a.label    = severity.label;
   a.style    = SEVERITY_STYLE[SEVERITY.NONE];
 
   if (this.rules_hidden.length) {
-    severity = cache_nls.getSeverityNLS(SEVERITY.HIDDEN);
+    severity = cache_nls.getNLSSeverity(SEVERITY.HIDDEN);
     a.style    = SEVERITY_STYLE[SEVERITY.HIDDEN];
   }
   
   if (this.rules_passed.length) {
-    severity = cache_nls.getSeverityNLS(SEVERITY.PASS);
+    severity = cache_nls.getNLSSeverity(SEVERITY.PASS);
     a.style    = SEVERITY_STYLE[SEVERITY.PASS];
   }
 
   if (this.rules_manual_checks.length) {
-    severity = cache_nls.getSeverityNLS(SEVERITY.MANUAL_CHECK);
+    severity = cache_nls.getNLSSeverity(SEVERITY.MANUAL_CHECK);
     a.style    = SEVERITY_STYLE[SEVERITY.MANUAL_CHECK];
   }
 
   if (this.rules_warnings.length) {
-    severity = cache_nls.getSeverityNLS(SEVERITY.WARNING);
+    severity = cache_nls.getNLSSeverity(SEVERITY.WARNING);
     a.style    = SEVERITY_STYLE[SEVERITY.WARNING];
   }
   
   if (this.rules_violations.length) {
-    severity = cache_nls.getSeverityNLS(SEVERITY.VIOLATION);
+    severity = cache_nls.getNLSSeverity(SEVERITY.VIOLATION);
     a.style       = SEVERITY_STYLE[SEVERITY.VIOLATION];
   }
 
@@ -1250,35 +1250,35 @@ OpenAjax.a11y.cache.DOMElement.prototype.getColorContrastSummary = function () {
   var a = {};
   var last_a = {};
 
-  severity = cache_nls.getSeverityNLS(SEVERITY.NONE); 
+  severity = cache_nls.getNLSSeverity(SEVERITY.NONE); 
   a.label    = severity.label;
   a.style    = SEVERITY_STYLE[SEVERITY.NONE];
   
   var color_rules = ['COLOR_1', 'COLOR_2'];
 
   if (hasRule(this.rules_hidden, color_rules)) {
-    severity = cache_nls.getSeverityNLS(SEVERITY.HIDDEN);
+    severity = cache_nls.getNLSSeverity(SEVERITY.HIDDEN);
     a.style    = SEVERITY_STYLE[SEVERITY.HIDDEN];
   }
 
   if (hasRule(this.rules_passed, color_rules)) {
-    severity = cache_nls.getSeverityNLS(SEVERITY.PASS);
+    severity = cache_nls.getNLSSeverity(SEVERITY.PASS);
     a.style  = SEVERITY_STYLE[SEVERITY.PASS];
   }
 
   if (hasRule(this.rules_warnings, color_rules)) {
-    severity = cache_nls.getSeverityNLS(SEVERITY.WARNING);
+    severity = cache_nls.getNLSSeverity(SEVERITY.WARNING);
     a.style  = SEVERITY_STYLE[SEVERITY.WARNING];
     last_severity_value = SEVERITY.WARNING;
   }
 
   if (hasRule(this.rules_manual_checks, color_rules)) {
-    severity = cache_nls.getSeverityNLS(SEVERITY.MANUAL_CHECK);
+    severity = cache_nls.getNLSSeverity(SEVERITY.MANUAL_CHECK);
     a.style  = SEVERITY_STYLE[SEVERITY.MANUAL_CHECK];
   }
 
   if (hasRule(this.rules_violations, color_rules)) {
-      severity = cache_nls.getSeverityNLS(SEVERITY.VIOLATION);
+      severity = cache_nls.getNLSSeverity(SEVERITY.VIOLATION);
       a.style  = SEVERITY_STYLE[SEVERITY.VIOLATION];
   }
 
@@ -1494,7 +1494,6 @@ OpenAjax.a11y.cache.DOMElement.prototype.getCacheProperties = function () {
 
   cache_nls.addPropertyIfDefined(properties, this, 'document_order');
 
-  cache_nls.addPropertyIfDefined(properties, this, 'parent_landmark_role');
   cache_nls.addPropertyIfDefined(properties, this, 'parent_landmark');
 
   cache_nls.addPropertyIfDefined(properties, this, 'is_widget');
@@ -1521,7 +1520,7 @@ OpenAjax.a11y.cache.DOMElement.prototype.getCacheProperties = function () {
 
 OpenAjax.a11y.cache.DOMElement.prototype.getCachePropertyValue = function (property) {
 
-//  OpenAjax.a11y.console("dom element property: " + property + " value= " + this[property]);
+//  OpenAjax.a11y.logger.debug("dom element property: " + property + " value= " + this[property]);
 
   if (typeof this[property] == 'undefined') {
      if(typeof this.computed_style[property] == 'undefined') {
@@ -1920,61 +1919,60 @@ OpenAjax.a11y.cache.DOMElement.prototype.getText = function() {
  
 OpenAjax.a11y.cache.DOMElement.prototype.getTextObject = function() {
 
- function getText(dom_element, strings, texts, alts) {
-  // If text node get the text and return
-  if( dom_element.type == Node.TEXT_NODE ) {
-   var text = dom_element.text;
-   strings.push( text );
-   texts.push( text );
-  } else {
-   // if an element for through all the children elements looking for text
-   if( dom_element.type == Node.ELEMENT_NODE ) {
-    // check to see if IMG or AREA element and to use ALT content if defined
-    if((dom_element.tag_name == 'img') || (dom_element.tag_name == 'area')) {
-     
-     if (dom_element.alt) {
-       strings.push(dom_element.alt);
-       alts.push(dom_element.alt);
-     }  
-     
-     if( dom_element.node.offsetHeight > o.height ) {
-       o.height = dom_element.node.offsetHeight;
-     } //endif
-     
-     if( dom_element.node.offsetWidth > o.width ) {
-       o.width = dom_element.node.offsetWidth;
-     } //endif
-     
-     o.image_count = o.image_count + 1;
-     
+  function getText(dom_element, strings, texts, alts) {
+    // If text node get the text and return
+    if( dom_element.type == Node.TEXT_NODE ) {
+      var text = dom_element.text;
+      strings.push( text );
+      texts.push( text );
     } else {
-    
-     for (var i = 0; i < dom_element.child_dom_elements.length; i++ ) {
-      getText( dom_element.child_dom_elements[i], strings, texts, alts);
-     } // endfor
+      // if an element for through all the children elements looking for text
+      if( dom_element.type == Node.ELEMENT_NODE ) {
+        // check to see if IMG or AREA element and to use ALT content if defined
+        if((dom_element.tag_name == 'img') || (dom_element.tag_name == 'area')) {
      
-    } // endif
+          if (dom_element.alt) {
+            strings.push(dom_element.alt);
+            alts.push(dom_element.alt);
+          }  
+     
+          if( dom_element.node.offsetHeight > o.height ) {
+            o.height = dom_element.node.offsetHeight;
+          } //endif
+     
+          if( dom_element.node.offsetWidth > o.width ) {
+             o.width = dom_element.node.offsetWidth;
+          } //endif
+     
+          o.image_count = o.image_count + 1;
+     
+        } else {
     
-   } // endif  
-  } // endif
- } // end function getStrings
+          for (var i = 0; i < dom_element.child_dom_elements.length; i++ ) {
+            getText( dom_element.child_dom_elements[i], strings, texts, alts);
+          } // endfor
+     
+        } // endif
+      } // endif  
+    } // endif
+  } // end function getStrings
 
- // Create return object
- var o = {};
- var name_array = [];
- var name_from_text_nodes_array = [];
- var name_from_image_alt_array = [];
- o.height = 0;
- o.width = 0;
- o.image_count = 0;
+  // Create return object
+  var o = {};
+  var name_array = [];
+  var name_from_text_nodes_array = [];
+  var name_from_image_alt_array = [];
+  o.height = 0;
+  o.width = 0;
+  o.image_count = 0;
 
 
- getText(this, name_array, name_from_text_nodes_array, name_from_image_alt_array); 
+  getText(this, name_array, name_from_text_nodes_array, name_from_image_alt_array); 
  
- o.name         = name_array.join("").normalizeSpace();
- o.name_from_text_nodes = name_from_text_nodes_array.join("").normalizeSpace().toLowerCase();
- o.name_from_image_alt = name_from_image_alt_array.join("").normalizeSpace().toLowerCase();
- return o;
+  o.name         = name_array.join("").normalizeSpace();
+  o.name_from_text_nodes = name_from_text_nodes_array.join("").normalizeSpace().toLowerCase();
+  o.name_from_image_alt = name_from_image_alt_array.join("").normalizeSpace().toLowerCase();
+  return o;
  
 }; // end function OpenAjax.cache.util.getAccessibleText
 
@@ -1987,7 +1985,6 @@ OpenAjax.a11y.cache.DOMElement.prototype.getTextObject = function() {
  * @desc Returns a String of the text content of a DOMElement and all its descendent DOMElements
  *
  * @return {Number}  Returns the number of descendent elements in a DOMElement object
- *
  */
  
 OpenAjax.a11y.cache.DOMElement.prototype.getElementCount = function() {
@@ -2023,6 +2020,11 @@ OpenAjax.a11y.cache.DOMElement.prototype.getElementCount = function() {
  */
 
 OpenAjax.a11y.cache.DOMElement.prototype.toString = function() {
- return this.tag_name;
+ var str = this.tag_name;
+ 
+ if (this.role && this.role.length) return str + "[" + this.role + "]";
+ if (this.id && this.id.length) return str + "#" + this.id;
+ 
+ return str;
 };
 
