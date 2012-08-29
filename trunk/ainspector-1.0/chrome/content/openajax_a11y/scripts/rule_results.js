@@ -103,22 +103,6 @@ OpenAjax.a11y.NodeResult.prototype.getRuleCategory = function () {
   
 };
 
-/**
- * @method getSeverity
- *
- * @memberOf OpenAjax.a11y.NodeResult
- *
- * @desc Returns a human readable text for the severity based on the current NLS setting
- * 
- * @return {Object} Returns a human readable information about the everity
- */
-
-OpenAjax.a11y.NodeResult.prototype.getSeverity = function () {
-
-  return OpenAjax.a11y.cache_nls.getNLSSeverity(this.node_result_value);
-  
-};
-
 
 /**
  * @method getRule
@@ -136,6 +120,37 @@ OpenAjax.a11y.NodeResult.prototype.getRule = function () {
    
 };
 
+/**
+ * @method getRuleId
+ *
+ * @memberOf OpenAjax.a11y.NodeResult
+ *
+ * @desc Returns the id of the rule associated with this result
+ * 
+ * @return {String} String representing the rule id
+ */
+
+OpenAjax.a11y.NodeResult.prototype.getRuleId = function () {
+
+  return this.rule_result.getRuleId();
+   
+};
+
+/**
+ * @method getNLSRuleId
+ *
+ * @memberOf OpenAjax.a11y.NodeResult
+ *
+ * @desc Returns the nls id of the rule associated with this result
+ * 
+ * @return {String} String representing the nls rule id
+ */
+
+OpenAjax.a11y.NodeResult.prototype.getNLSRuleId = function () {
+
+  return this.rule_result.getNLSRuleId();
+   
+};
 
 /**
  * @method getRuleDefinition
@@ -168,22 +183,6 @@ OpenAjax.a11y.NodeResult.prototype.getRuleSummary = function () {
 
   return this.rule_result.getRuleSummary();
   
-};
-
-/**
- * @method getRuleId
- *
- * @memberOf OpenAjax.a11y.NodeResult
- *
- * @desc Returns a NLS localized version of the rule id
- * 
- * @return {String} Returns a NLS localized version of the rule id
- */
-
-OpenAjax.a11y.NodeResult.prototype.getRuleId = function () {
-
-  return this.rule_result.getRuleId();
-   
 };
 
 
@@ -232,15 +231,47 @@ OpenAjax.a11y.NodeResult.prototype.getRuleProperties = function () {
  *
  * @desc Returns a NLS localized version of the type of rule in a ruleset
  * 
- * @return {String} Returns a NLS localized version of the type of rule in the ruleset
+ * @return {String} Returns a NLS localized version of the type of rule in the ruleset (i.e. recommended or required)
  */
 
 OpenAjax.a11y.NodeResult.prototype.getNLSRuleType = function () {
+
+  return this.rule_result.getNLSRuleType();
+   
+};
+
+
+/**
+ * @method getRuleType
+ *
+ * @memberOf OpenAjax.a11y.NodeResult
+ *
+ * @desc Returns a the type of rule in a ruleset (i.e. recommended or required)
+ * 
+ * @return {String} Returns a NLS localized version of the type of rule in the ruleset (i.e. recommended or required)
+ */
+
+OpenAjax.a11y.NodeResult.prototype.getRuleType = function () {
 
   return this.rule_result.getRuleType();
    
 };
 
+/**
+ * @method getNLSSeverity
+ *
+ * @memberOf OpenAjax.a11y.NodeResult
+ *
+ * @desc Returns a human readable text for the severity based on the current NLS setting
+ * 
+ * @return {Object} Returns a human readable information about the everity
+ */
+
+OpenAjax.a11y.NodeResult.prototype.getNLSSeverity = function () {
+
+  return OpenAjax.a11y.cache_nls.getNLSSeverity(this.node_result_value);
+  
+};
 
 /**
  * @method getNLSSeverityLabel
@@ -380,6 +411,61 @@ OpenAjax.a11y.NodeResult.prototype.toXML = function () {
 };
 
 /**
+ * @method toJSON
+ *
+ * @memberOf OpenAjax.a11y.NodeResult
+ *
+ * @desc Creates JSON object descibing the properties of the node result
+ *
+ * @param {String} prefix  -  A prefix string typically spaces
+ * 
+ * @return String information about the node result 
+ */
+
+OpenAjax.a11y.NodeResult.prototype.toJSON = function (prefix) {
+
+  var next_prefix = "";
+  
+  if (typeof prefix !== 'string' || prefix.length === 0) prefix = "";
+  else next_prefix = prefix + "    ";
+
+  var severity = this.getNLSSeverity();
+  
+  var result_props = this.getRuleProperties();
+  
+  var json = "";
+
+  json += prefix + "{ 'result_label'    : '" + severity.label + "',";
+  json += prefix + "  'result_style'    : '" + this.getSeverityStyle() + "',";
+  json += prefix + "  'result_abbrev'   : '" + severity.abbrev + "',";
+  json += prefix + "  'rule_id'         : '" + this.getRuleId() + "',";
+  json += prefix + "  'nls_rule_id'     : '" + this.getNLSRuleId() + "',";
+  json += prefix + "  'rule_type'       : "  + this.getRuleType() + ",";
+  json += prefix + "  'nls_rule_type'   : '" + this.getNLSRuleType() + "',";
+  json += prefix + "  'message'         : '" + this.getMessage() + "'},";
+
+  var max = result_props.length;
+  var last = max - 1;
+  
+  if (max > 0) {
+    json += prefix + "  'properties' : [";
+    for (var i = 0; i < max; i++) {
+      var result_prop = result_props[i];
+      if (i === last) json += next_prefix + "{ 'label' : '" + result_prop.label + "', 'value' : '" + result_prop.value + "'}";
+      else json += next_prefix + "{ 'label' : '" + result_prop.label + "', 'value' : '" + result_prop.value + "'},";
+    }
+    json += prefix + "  ]";
+  }
+  else {
+    json += prefix + "  'properties' : []";
+  }
+    
+  json += prefix + "}";
+  
+  return json;
+};
+
+/**
  * @method toHTML
  *
  * @memberOf OpenAjax.a11y.NodeResult
@@ -422,6 +508,10 @@ OpenAjax.a11y.NodeResult.prototype.toHTML = function (ruleset_nls) {
  * @property  {Rule}               rule            - Reference to the assciated rule
  * @property  {Boolean}            rule_evaluated  - True if rule was evaluated, false if rule was disabled or 
  *                                                   not included becase of the WCAG 2.0 level being evaluated
+ * @property  {Number}  implementation_level       - Number constant associated with an implementation level
+ * @property  {Number}  implementation_level_sort  - A sorting constant based on both implementation level and manual checks 
+ * @property  {Number}  implementation_percentage  - Percentage implementation of automated checks
+ * @property  {Number}  manual_check_count         - Number of elements that need a manual check
  *
  * @property  {Array}  nodes_passed         - Array of all the node results that passed
  * @property  {Array}  nodes_violations     - Array of all the node results that resulted in violations
@@ -438,7 +528,12 @@ OpenAjax.a11y.RuleResult = function (rule_mapping) {
   
   this.cache_id        = rule_mapping.rule.rule_id;
   
-  this.node_results_passed  = [];
+  this.implementation_level      = OpenAjax.a11y.IMPLEMENTATION_LEVEL.UNDEFINED;
+  this.implementation_level_sort = OpenAjax.a11y.IMPLEMENTATION_LEVEL.UNDEFINED;
+  this.implementation_percentage = 0;
+  this.manual_check_count        = 0;
+  
+  this.node_results_passed         = [];
   this.node_results_violations     = [];
   this.node_results_warnings       = [];
   this.node_results_manual_checks  = [];
@@ -566,17 +661,37 @@ OpenAjax.a11y.RuleResult.prototype.addResult = function (test_result, cache_item
 };
 
 /**
- * @method getImplementationLevel
+ * @method setEvaluationLevelToDisabled
  *
  * @memberOf OpenAjax.a11y.RuleResult
  *
- * @desc Returns the level of implementation of the rule  
+ * @desc Sets evaluation level of the rule result to disabled 
+ *       (i.e. rule was not evaluated due to user configuration settings)
+ */
+
+OpenAjax.a11y.RuleResult.prototype.setEvaluationLevelToDisabled = function () {
+
+  this.implementation_level      = OpenAjax.a11y.IMPLEMENTATION_LEVEL.RULE_DISABLED;
+  this.implementation_level_sort = OpenAjax.a11y.IMPLEMENTATION_LEVEL.NOT_APPLICABLE;
+
+  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("Rule: " + this.rule.rule_id + " Level: " + this.implementation_level + " Level sort: " + this.implementation_level_sort);
+
+};  
+
+/**
+ * @method calculateImplementationLevel
+ *
+ * @memberOf OpenAjax.a11y.RuleResult
+ *
+ * @desc Caclulates the level of implementation of the rule  
  *
  * @return {Number}  Implementation level of the rule
  */
 
-OpenAjax.a11y.RuleResult.prototype.getImplementationLevel = function () {
+OpenAjax.a11y.RuleResult.prototype.calculateImplementationLevel = function () {
 
+  if (this.implementation_level !== OpenAjax.a11y.IMPLEMENTATION_LEVEL.UNDEFINED) return this.implementation_level;
+  
   var IMPLEMENTATION_LEVEL = OpenAjax.a11y.IMPLEMENTATION_LEVEL;
   
   var level = IMPLEMENTATION_LEVEL.NOT_APPLICABLE;
@@ -593,6 +708,9 @@ OpenAjax.a11y.RuleResult.prototype.getImplementationLevel = function () {
   t += w;
   
   var mc = this.node_results_manual_checks.length;
+  
+  this.manual_check_count = mc;
+  
   t += mc;
   
   if (t) {
@@ -602,7 +720,9 @@ OpenAjax.a11y.RuleResult.prototype.getImplementationLevel = function () {
       t = t - mc;
 
       var percentage = Math.round((p * 100) / t);
-      
+
+      this.implementation_percentage = percentage;
+
       level = IMPLEMENTATION_LEVEL.NOT_IMPLEMENTED; 
       
       if (percentage === 100) level = IMPLEMENTATION_LEVEL.COMPLETE;
@@ -610,18 +730,44 @@ OpenAjax.a11y.RuleResult.prototype.getImplementationLevel = function () {
         else if (percentage >= 50) level = IMPLEMENTATION_LEVEL.PARTIAL_IMPLEMENTATION;
         
     } 
-    
-    if (mc > 0) level += IMPLEMENTATION_LEVEL.MANUAL_CHECKS;
+
+    level_sort = 2 * level;
+    if (mc > 0) {
+      level_sort += 1;
+      if (level === 0) level_sort += 1.5;
+      level += IMPLEMENTATION_LEVEL.MANUAL_CHECKS;
+    }  
+
   
   }
   else {
-    level = IMPLEMENTATION_LEVEL.NOT_APPLICABLE;
+    level      = IMPLEMENTATION_LEVEL.NOT_APPLICABLE;
+    level_sort = IMPLEMENTATION_LEVEL.NOT_APPLICABLE + 0.5;  // 0.5 is an adjustment to accommodate disabled in the sorting
   }
+  
+  this.implementation_level      = level;
+  this.implementation_level_sort = level_sort;
 
-//  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("Rule: " + this.rule.rule_id + " Level: " + level + " percent: " + percentage + " total: " + t + "  p: " + p + "  v: " + v + "  w: " + w + "  mc: " + mc);
+  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("Rule: " + this.rule.rule_id + " Level: " + this.implementation_level + " Level sort: " + this.implementation_level_sort);
+  
+  return this.implementation_level;
 
-  return level;
+};
 
+/**
+ * @method getImplementationLevel
+ *
+ * @memberOf OpenAjax.a11y.RuleResult
+ *
+ * @desc Returns the level of implementation of the rule result
+ *
+ * @return {Number}  Implementation level of the rule
+ */
+
+OpenAjax.a11y.RuleResult.prototype.getImplementationLevel = function () {
+
+  return this.calculateImplementationLevel();
+  
 };
 
 /**
@@ -631,15 +777,28 @@ OpenAjax.a11y.RuleResult.prototype.getImplementationLevel = function () {
  *
  * @desc Returns the NLS string values assoacited with the level of implementation of the rule  
  *
- * @return {Object} Returns an object with four properties: 'label', 'abbrev', 'description' and 'style'
+ * @return {Object} Returns an object with four properties: 'percentage_of_rules_that_pass', 'manual_check_count', 'label', 'abbrev', 'description' and 'style'
  *                  All properties are String objects
  */
 
 OpenAjax.a11y.RuleResult.prototype.getNLSImplementationLevel = function () {
 
+  var IMPLEMENTATION_LEVEL = OpenAjax.a11y.IMPLEMENTATION_LEVEL;
+
   var level = this.getImplementationLevel();
 
-  return OpenAjax.a11y.cache_nls.getNLSImplementationLevel(level);
+  var nls_implementation_level = OpenAjax.a11y.cache_nls.getNLSImplementationLevel(level);
+  
+  if (level !== IMPLEMENTATION_LEVEL.NOT_APPLICABLE && 
+      level !== IMPLEMENTATION_LEVEL.RULE_DISABLED) {
+    
+    if (level !== IMPLEMENTATION_LEVEL.MANUAL_CHECKS) nls_implementation_level.label = this.implementation_percentage + "%";
+    else nls_implementation_level = OpenAjax.a11y.cache_nls.getNLSImplementationLevel(IMPLEMENTATION_LEVEL.NOT_APPLICABLE);    
+  }  
+  
+  nls_implementation_level.manual_check_count = this.manual_check_count;
+  
+  return nls_implementation_level;
  
 };
 
@@ -661,11 +820,61 @@ OpenAjax.a11y.RuleResult.prototype.getRule = function () {
 };
 
 /**
+ * @method getRuleId
+ *
+ * @memberOf OpenAjax.a11y.NodeResult
+ *
+ * @desc Returns the id of the rule associated with this rule result
+ * 
+ * @return {String} String representing the rule id
+ */
+
+OpenAjax.a11y.RuleResult.prototype.getRuleId = function () {
+
+  return this.rule_mapping.rule.rule_id;
+   
+};
+
+/**
+ * @method getNLSRuleId
+ *
+ * @memberOf OpenAjax.a11y.NodeResult
+ *
+ * @desc Returns the nls id of the rule associated with this rule result
+ * 
+ * @return {String} String representing the nls rule id
+ */
+
+OpenAjax.a11y.RuleResult.prototype.getNLSRuleId = function () {
+
+  return this.rule_mapping.rule.getNLSRuleId();
+   
+};
+
+
+
+/**
+ * @method getRuleType
+ *
+ * @memberOf OpenAjax.a11y.RuleResult
+ *
+ * @desc Returns the type of rule (i.e. required, recommended) 
+ *
+ * @return {Number} Returns a numerical representation of the rule type 
+ */
+
+OpenAjax.a11y.RuleResult.prototype.getRuleType = function () {
+ 
+  return this.rule_mapping.type;  
+
+};
+
+/**
  * @method getNLSRuleType
  *
  * @memberOf OpenAjax.a11y.RuleResult
  *
- * @desc Creates a NLS text string representation of the type of rule (i.e. required, recommended, conditional) 
+ * @desc Returns a NLS text string representation of the type of rule (i.e. required, recommended) 
  *
  * @return {String} Returns a NLS text string representation of the rule type 
  */
@@ -674,10 +883,9 @@ OpenAjax.a11y.RuleResult.prototype.getNLSRuleType = function () {
 
   var cache_nls = OpenAjax.a11y.cache_nls;
   
-  return cache_nls.getNLSRuleType(this.rule_type);  
+  return cache_nls.getNLSRuleType(this.rule_mapping.type);  
 
 };
-
 
 /**
  * @method getRuleDefinition
@@ -812,7 +1020,7 @@ OpenAjax.a11y.RuleResult.prototype.getResultNodeByCacheId = function (cache_id) 
 
 OpenAjax.a11y.RuleResult.prototype.toString = function () {
 
- var str = this.getRuleDefinition() + ": " + this.getNLSImplementationLevel().label + " (" + this.getImplementationLevel() + ")"; 
+ var str = this.getRuleDefinition() + ": " + this.getNLSImplementationLevel().label + " (" + this.implemenetation_level + ")"; 
 
  return str;
 };
@@ -833,6 +1041,11 @@ OpenAjax.a11y.RuleResult.prototype.toString = function () {
  *
  * @property  {String}  cache_id  -  String to uniquely represent the aggregation object
  *
+ * @property  {Number}  implementation_level       - Number constant associated with an implementation level
+ * @property  {Number}  implementation_level_sort  - A sorting constant based on both implementation level and manual checks 
+ * @property  {Number}  implementation_percentage  - Percentage implementation of automated checks
+ * @property  {Number}  manual_check_count         - Number of elements that need a manual check
+ *
  * @property  {Number}  number_of_rule_results_all_nodes_pass         - Number of rule results where all the node results pass
  * @property  {Number}  number_of_rule_results_with_node_violations   - Number of rule results with at least one node result with a violation
  * @property  {Number}  number_of_rule_results_with_node_warning      - Number of rule results with at least one node result with a warning
@@ -852,6 +1065,11 @@ OpenAjax.a11y.RuleResultAggregation = function (cache_id) {
 
   if (cache_id) this.cache_id = cache_id;
   else this.cache_id = 'no_aggregation_id';
+  
+  this.implementation_level      = OpenAjax.a11y.IMPLEMENTATION_LEVEL.UNDEFINED;
+  this.implementation_level_sort = OpenAjax.a11y.IMPLEMENTATION_LEVEL.UNDEFINED;
+  this.implementation_percentage = 0;
+  this.manual_check_count        = 0;
   
   this.number_of_required_rules = 0;
   this.number_of_recommended_rules = 0;
@@ -899,7 +1117,90 @@ OpenAjax.a11y.RuleResultAggregation.prototype.addRuleResult = function (rule_res
 };
 
 /**
- * @method getImplementationLevel
+ * @method caclulateImplementationLevel
+ *
+ * @memberOf OpenAjax.a11y.RuleResultAggregation
+ *
+ * @desc Calculates the level of implementation based on an average of rule implementation of 
+ *       the rule results in the list.  
+ *
+ * @return  {Number}  Constant indicating level implementation
+ */
+
+OpenAjax.a11y.RuleResultAggregation.prototype.calculateImplementationLevel = function () {
+
+  if (this.implementation_level !== OpenAjax.a11y.IMPLEMENTATION_LEVEL.UNDEFINED) return this.implementation_level;
+
+  var IMPLEMENTATION_LEVEL = OpenAjax.a11y.IMPLEMENTATION_LEVEL;
+  
+  var rule_results     = this.rule_results;
+  var rule_results_len = rule_results.length;
+  
+//  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("  Number of rule results: " + rule_results_len);  
+
+  var percentage_summation = 0;
+  var percentage_count = 0;
+
+  for (var i = 0; i < rule_results_len; i++ ) {
+    
+    var r_result = rule_results[i];
+    
+    if (r_result.rule_evaluated) {
+    
+      var il = r_result.getImplementationLevel();
+      
+      if (il !== IMPLEMENTATION_LEVEL.NOT_APPLICABLE && 
+          il !== IMPLEMENTATION_LEVEL.RULE_DISABLED) {
+
+        this.manual_check_count += r_result.manual_check_count;
+
+        if (il !== IMPLEMENTATION_LEVEL.MANUAL_CHECKS) { 
+          percentage_summation += r_result.implementation_percentage;
+          percentage_count += 1;
+        }        
+      }
+    }    
+  }
+
+  var level = IMPLEMENTATION_LEVEL.NOT_APPLICABLE; 
+  this.implementation_level_sort =  IMPLEMENTATION_LEVEL.NOT_APPLICABLE;
+
+  if (percentage_count > 0) {
+  
+    var percentage = Math.round(percentage_summation / percentage_count);
+
+    level = IMPLEMENTATION_LEVEL.NOT_IMPLEMENTED; 
+      
+    if (percentage === 100) level = IMPLEMENTATION_LEVEL.COMPLETE;
+    else if (percentage >= 95) level = IMPLEMENTATION_LEVEL.ALMOST_COMPLETE;
+      else if (percentage >= 50) level = IMPLEMENTATION_LEVEL.PARTIAL_IMPLEMENTATION;
+    
+    this.implementation_percentage = percentage;
+
+    if (this.manual_check_count > 0) level += IMPLEMENTATION_LEVEL.MANUAL_CHECKS;
+
+  }
+  else {
+    if (this.manual_check_count > 0) level = IMPLEMENTATION_LEVEL.MANUAL_CHECKS;
+    this.implementation_percentage = 0;
+  }
+
+  if (level === IMPLEMENTATION_LEVEL.MANUAL_CHECKS) {
+    this.implementation_level_sort =  IMPLEMENTATION_LEVEL.NOT_APPLICABLE + 0.5;
+  }
+  else {
+    this.implementation_level_sort =  IMPLEMENTATION_LEVEL.NOT_APPLICABLE + 1 + Math.round((100 - this.implementation_percentage));
+  }  
+  
+  this.implementation_level      = level;
+
+  // OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("    LEVEL: " + this.implementation_level + "  level sort: " + this.implementation_level_sort);  
+
+  return this.implementation_level;
+};
+
+/**
+ * @method getImplementationLevel 
  *
  * @memberOf OpenAjax.a11y.RuleResultAggregation
  *
@@ -912,52 +1213,7 @@ OpenAjax.a11y.RuleResultAggregation.prototype.addRuleResult = function (rule_res
 
 OpenAjax.a11y.RuleResultAggregation.prototype.getImplementationLevel = function () {
 
-  var IMPLEMENTATION_LEVEL = OpenAjax.a11y.IMPLEMENTATION_LEVEL;
-  
-  var level = IMPLEMENTATION_LEVEL.NOT_APPLICABLE;
-  
-  var rule_results     = this.rule_results;
-  var rule_results_len = rule_results.length;
-  
-  var total_implementation_level       = 0; 
-  var total_implementation_level_count = 0; 
-  
-  var manual_checks = 0;
-
-//  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("  Number of rule results: " + rule_results_len);  
-
-  for (var i = 0; i < rule_results_len; i++ ) {
-    
-    var r_result = rule_results[i];
-    
-    if (r_result.rule_evaluated) {
-      var il = r_result.getImplementationLevel();
-      
-      if (il >= IMPLEMENTATION_LEVEL.MANUAL_CHECKS) { 
-        manual_checks = IMPLEMENTATION_LEVEL.MANUAL_CHECKS;
-        il = il - IMPLEMENTATION_LEVEL.MANUAL_CHECKS;
-      }  
-      
-      if (il > 0) {
-        total_implementation_level += il;
-        total_implementation_level_count += 1;
-      }  
-      
-//      OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("    Rule: " + r_result.rule.rule_id + "  Level: " + il + " Total: " + total_implementation_level + " count: " + total_implementation_level_count);
-      
-    }    
-  }
-
-  if (total_implementation_level_count > 0) {
-    level = Math.round(total_implementation_level / total_implementation_level_count);
-    if (level >= IMPLEMENTATION_LEVEL.MANUAL_CHECKS) level = IMPLEMENTATION_LEVEL.NOT_IMPLEMENTED;
-  }
-
-  level += manual_checks;
-//
-  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("    LEVEL: " + level + "  count: " + total_implementation_level_count + "  total: " + total_implementation_level);  
-
-  return level;
+  return this.calculateImplementationLevel();
 
 };
 
@@ -968,17 +1224,28 @@ OpenAjax.a11y.RuleResultAggregation.prototype.getImplementationLevel = function 
  *
  * @desc Returns the NLS level of implementation of the list of rule results  
  *
- * @return {Object} Returns an object with four properties: 'label', 'abbrev', 'description' and 'style'
+ * @return {Object} Returns an object with four properties: 'percentage_of_rules_that_pass', 'manual_check_count', 'label', 'abbrev', 'description' and 'style'
  *                  All properties are String objects
  */
 
 OpenAjax.a11y.RuleResultAggregation.prototype.getNLSImplementationLevel = function () {
 
-  var level = this.getImplementationLevel();
-  
-//  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("  Impl. Level: " + level + " (number)");  
+  var IMPLEMENTATION_LEVEL = OpenAjax.a11y.IMPLEMENTATION_LEVEL;
 
-  return OpenAjax.a11y.cache_nls.getNLSImplementationLevel(level);
+  var level = this.getImplementationLevel();
+
+  var nls_implementation_level = OpenAjax.a11y.cache_nls.getNLSImplementationLevel(level);
+  
+  if (level !== IMPLEMENTATION_LEVEL.NOT_APPLICABLE && 
+      level !== IMPLEMENTATION_LEVEL.RULE_DISABLED) {
+    
+    if (level !== IMPLEMENTATION_LEVEL.MANUAL_CHECKS) nls_implementation_level.label = this.implementation_percentage + "%";
+    else nls_implementation_level = OpenAjax.a11y.cache_nls.getNLSImplementationLevel(IMPLEMENTATION_LEVEL.NOT_APPLICABLE);    
+  }  
+  
+  nls_implementation_level.manual_check_count = this.manual_check_count;
+  
+  return nls_implementation_level;
  
 };
 
@@ -1164,9 +1431,53 @@ OpenAjax.a11y.RuleCategoryResult.prototype.addRuleResult = function (rule_result
 
 OpenAjax.a11y.cache.RuleResultSummary.prototype.addRuleResultItem = function(rule_result_item) {
 
-  if (rule_result_item) this.rule_result_items.push(rule_result_item);
+  if (rule_result_item) { 
+    rule_result_item.calculateImplementationLevel();
+    this.rule_result_items.push(rule_result_item);
+  }  
   
 };
+
+/**
+ * @method sortByImplementationLevel
+ *
+ * @memberOf OpenAjax.a11y.cache.RuleResultSummary
+ *
+ * @desc Sorts rule results items array by rule implementation level
+ */
+
+OpenAjax.a11y.cache.RuleResultSummary.prototype.sortByImplementationLevel = function() {
+
+  var rule_result_items     = this.rule_result_items;
+  var rule_result_items_len = rule_result_items.length;
+
+  // check to see if there are enough elements for a sort and if the items in the list are rule results
+  if (rule_result_items_len < 2 || rule_result_items[0].group_item) return;
+
+  do {
+    var swapped = false;
+    for (i = 1; i < rule_result_items_len; i++) {
+    
+      if (rule_result_items[i-1].implementation_level_sort < rule_result_items[i].implementation_level_sort || 
+           (rule_result_items[i-1].implementation_level_sort === rule_result_items[i]._level_sort &&
+            rule_result_items[i-1].rule.manual_check_count > rule_result_items[i].manual_check_count) ||
+           (rule_result_items[i-1].implementation_level_sort === rule_result_items[i].implementation_level_sort &&
+            rule_result_items[i-1].rule.getWCAG20Level() > rule_result_items[i].rule.getWCAG20Level()) || 
+           (rule_result_items[i-1].implementation_level_sort === rule_result_items[i].implementation_level_sort &&
+            rule_result_items[i-1].rule.getWCAG20Level() === rule_result_items[i].rule.getWCAG20Level() &&
+            rule_result_items[i-1].rule_mapping.type > rule_result_items[i].rule_mapping.type)) {
+        // swap the values
+        temp = rule_result_items[i-1];
+        rule_result_items[i-1] = rule_result_items[i];
+        rule_result_items[i] = temp;
+        swapped = true;
+      } 
+    } // end loop
+  } while (swapped);
+
+};
+
+
 
 
 /* ---------------------------------------------------------------- */
@@ -1192,10 +1503,13 @@ OpenAjax.a11y.cache.RuleResultSummary.prototype.addRuleResultItem = function(rul
 
 OpenAjax.a11y.cache.RuleResultSummaryGroup = function(description, aggregation) {
   
-  this.description = description;
-  this.cache_id    = aggregation.cache_id;
-  this.rule_result_aggregation = aggregation;
-  this.group_item  = true; 
+  this.description               = description;
+  this.cache_id                  = aggregation.cache_id;
+  this.rule_result_aggregation   = aggregation;
+  this.implementation_level      = OpenAjax.a11y.IMPLEMENTATION_LEVEL.UNDEFINED;
+  this.implementation_level_sort = OpenAjax.a11y.IMPLEMENTATION_LEVEL.UNDEFINED;
+  this.group_item                = true; 
+  this.number_of_rules           = 0;
 
   this.rule_result_items = [];
   
@@ -1208,13 +1522,130 @@ OpenAjax.a11y.cache.RuleResultSummaryGroup = function(description, aggregation) 
  *
  * @desc Adds a rule result object to the rule result group
  *
- * @property  {Object}  rule_result_item  - RuleResultSummaryGroup or RuleResult object 
+ * @param  {Object}  rule_result_item  - RuleResultSummaryGroup or RuleResult object 
  */
 
 OpenAjax.a11y.cache.RuleResultSummaryGroup.prototype.addRuleResultItem = function(rule_result_item) {
 
-  if (rule_result_item) this.rule_result_items.push(rule_result_item);
+  if (rule_result_item) { 
+    rule_result_item.calculateImplementationLevel();
+    this.rule_result_items.push(rule_result_item);
+  }  
   
+};
+
+/**
+ * @method getNumberOfRules
+ *
+ * @memberOf OpenAjax.a11y.cache.RuleResultSummaryGroup
+ *
+ * @desc Adds a rule result object to the rule result group
+ *
+ * @return  {Number}  Number of rules associated with in a group 
+ */
+
+OpenAjax.a11y.cache.RuleResultSummaryGroup.prototype.getNumberOfRules = function() {
+
+  var count = 0;
+
+  for (var i = 0; i < this.rule_result_items.length; i++) {
+  
+    var rr_item = this.rule_result_items[i];
+  
+    if (rr_item.group_item) count += rr_item.getNumberOfRules();
+    else count++;
+    
+  }
+  
+  return count;
+};
+
+/**
+ * @method calculateImplementationLevel
+ *
+ * @memberOf OpenAjax.a11y.cache.RuleResultSummaryGroup
+ *
+ * @desc Calculates implementation level of a group of rule eveluation results
+ */
+
+OpenAjax.a11y.cache.RuleResultSummaryGroup.prototype.calculateImplementationLevel = function() {
+
+  this.rule_result_aggregation.calculateImplementationLevel();
+  this.implementation_level      = this.rule_result_aggregation.implementation_level;
+  this.implementation_level_sort = this.rule_result_aggregation.implementation_level_sort;
+  
+  this.sortByImplementationLevel();
+};
+
+/**
+ * @method getImplementationLevel 
+ *
+ * @memberOf OpenAjax.a11y.cache.RuleResultSummaryGroup
+ *
+ * @desc Returns the level of implementation based on an average of rule implementation of 
+ *       the rule results in the group.  
+ *
+ * @return {Number}  Implementation level of the rule
+ */
+
+OpenAjax.a11y.cache.RuleResultSummaryGroup.prototype.getImplementationLevel = function () {
+
+  return this.rule_result_aggregation.getImplementationLevel();
+};
+
+/**
+ * @method getNLSImplementationLevel
+ *
+ * @memberOf OpenAjax.a11y.cache.RuleResultSummaryGroup
+ *
+ * @desc Returns the NLS level of implementation of the list of rule results associated with this group 
+ *
+ * @return {Object} Returns an object with four properties: 'percentage_of_rules_that_pass', 'manual_checks', 'label', 'abbrev', 'description' and 'style'
+ *                  All properties are String objects
+ */
+
+OpenAjax.a11y.cache.RuleResultSummaryGroup.prototype.getNLSImplementationLevel = function () {
+
+  return this.rule_result_aggregation.getNLSImplementationLevel();
+ 
+};
+
+/**
+ * @method sortByImplementationLevel
+ *
+ * @memberOf OpenAjax.a11y.cache.RuleResultSummaryGroup
+ *
+ * @desc Sorts rule results array by rule implementation level
+ */
+
+OpenAjax.a11y.cache.RuleResultSummaryGroup.prototype.sortByImplementationLevel = function() {
+
+  var rule_result_items     = this.rule_result_items;
+  var rule_result_items_len = rule_result_items.length;
+
+  // check to see if there are enough elements for a sort and if the items in the list are rule results
+  if (rule_result_items_len < 2 || rule_result_items[0].group_item) return;
+
+  do {
+    var swapped = false;
+    for (var i = 1; i < rule_result_items_len; i++) {
+      if (rule_result_items[i-1].implementation_level_sort < rule_result_items[i].implementation_level_sort || 
+           (rule_result_items[i-1].implementation_level_sort === rule_result_items[i]._level_sort &&
+            rule_result_items[i-1].rule.manual_check_count > rule_result_items[i].manual_check_count) ||
+           (rule_result_items[i-1].implementation_level_sort === rule_result_items[i].implementation_level_sort &&
+            rule_result_items[i-1].rule.getWCAG20Level() > rule_result_items[i].rule.getWCAG20Level()) || 
+           (rule_result_items[i-1].implementation_level_sort === rule_result_items[i].implementation_level_sort &&
+            rule_result_items[i-1].rule.getWCAG20Level() === rule_result_items[i].rule.getWCAG20Level() &&
+            rule_result_items[i-1].rule_mapping.type > rule_result_items[i].rule_mapping.type)) {
+        // swap the values
+        temp = rule_result_items[i-1];
+        rule_result_items[i-1] = rule_result_items[i];
+        rule_result_items[i] = temp;
+        swapped = true;
+      } 
+    } // end loop
+  } while (swapped);
+
 };
 
 

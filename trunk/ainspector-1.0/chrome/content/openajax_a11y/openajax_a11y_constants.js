@@ -154,7 +154,7 @@ OpenAjax.a11y.DEFAULT_PREFS = OpenAjax.a11y.DEFAULT_PREFS || {
  *
  * @example
  * OpenAjax.a11y.RULE_CATEGORIES.UNKNOWN  
- * OpenAjax.a11y.RULE_CATEGORIES.ALL_DOM_ELEMENTS      
+ * OpenAjax.a11y.RULE_CATEGORIES.ALL_CATEGORIES      
  * OpenAjax.a11y.RULE_CATEGORIES.ABBREVIATIONS      
  * OpenAjax.a11y.RULE_CATEGORIES.COLOR_CONTRAST      
  * OpenAjax.a11y.RULE_CATEGORIES.CONTROLS      
@@ -183,7 +183,7 @@ OpenAjax.a11y.RULE_CATEGORIES = OpenAjax.a11y.RULE_CATEGORIES || {
   WIDGETS            : 4096,
   CONTENT            : 8192,
   // Composite categories
-  ALL_DOM_ELEMENTS     : 8191,  // all categories
+  ALL_CATEGORIES       : 16383, 
   WIDGETS_CONTROLS     : 4104,  // 4096+8
   AUDIO_VIDEO          : 2050,  // 2048+2
   HEADINGS_LANDMARKS   : 80,    // 16+64
@@ -278,10 +278,12 @@ OpenAjax.a11y.RULE = OpenAjax.a11y.RULE || {
  * @example
  * OpenAjax.a11y.RULE_GROUP.RULE_CATEGORIES               
  * OpenAjax.a11y.RULE_GROUP.WCAG20            
+ * OpenAjax.a11y.RULE_GROUP.ALL_RULE_LIST           
  */
 OpenAjax.a11y.RULE_GROUP = OpenAjax.a11y.RULE_GROUP || {
   RULE_CATEGORIES : 1,
-  WCAG20          : 2
+  WCAG20          : 2,
+  ALL_RULE_LIST   : 3
 };
 
 
@@ -333,6 +335,7 @@ OpenAjax.a11y.TEST_RESULT = OpenAjax.a11y.TEST_RESULT || {
  * @desc Implementation levels of a rule on a page  
  *
  * @example
+ * OpenAjax.a11y.IMPLEMENTATION_LEVEL.UNDEFINED
  * OpenAjax.a11y.IMPLEMENTATION_LEVEL.NOT_APPLICABLE
  * OpenAjax.a11y.IMPLEMENTATION_LEVEL.MANUAL_CHECKS
  * OpenAjax.a11y.IMPLEMENTATION_LEVEL.COMPLETE
@@ -343,8 +346,10 @@ OpenAjax.a11y.TEST_RESULT = OpenAjax.a11y.TEST_RESULT || {
  * OpenAjax.a11y.IMPLEMENTATION_LEVEL.PARTIAL_IMPLEMENTATION_WITH_MANUAL_CHECKS
  * OpenAjax.a11y.IMPLEMENTATION_LEVEL.NOT_IMPLEMENTATED
  * OpenAjax.a11y.IMPLEMENTATION_LEVEL.NOT_IMPLEMENTATED_WITH_MANUAL_CHECKS
+ * OpenAjax.a11y.IMPLEMENTATION_LEVEL.RULE_DISABLED
  */
 OpenAjax.a11y.IMPLEMENTATION_LEVEL = OpenAjax.a11y.IMPLEMENTATION_LEVEL || {
+  UNDEFINED                                 : -1,
   NOT_APPLICABLE                            : 0,
   COMPLETE                                  : 1, 
   ALMOST_COMPLETE                           : 2,
@@ -354,7 +359,8 @@ OpenAjax.a11y.IMPLEMENTATION_LEVEL = OpenAjax.a11y.IMPLEMENTATION_LEVEL || {
   COMPLETE_WITH_MANUAL_CHECKS               : 6,
   ALMOST_COMPLETE_WITH_MANUAL_CHECKS        : 7,
   PARTIAL_IMPLEMENTATION_WITH_MANUAL_CHECKS : 8,
-  NOT_IMPLEMENTED_WITH_MANUAL_CHECKS        : 9
+  NOT_IMPLEMENTED_WITH_MANUAL_CHECKS        : 9,
+  RULE_DISABLED                             : 10  
 };
 
 /**
@@ -464,6 +470,7 @@ OpenAjax.a11y.STATUS = OpenAjax.a11y.STATUS || {
  * OpenAjax.a11y.REFERENCES.AUTHORING_TOOL     
  * OpenAjax.a11y.REFERENCES.OTHER         
  */ 
+ 
 OpenAjax.a11y.REFERENCES = OpenAjax.a11y.REFERENCES || {
   UNKNOWN         : 0,
   SPECIFICATION   : 1,
@@ -472,7 +479,8 @@ OpenAjax.a11y.REFERENCES = OpenAjax.a11y.REFERENCES || {
   EXAMPLE         : 4,
   MANUAL_CHECK    : 5,
   AUTHORING_TOOL  : 6,
-  OTHER           : 7
+  LIBRARY_PRODUCT : 7,
+  OTHER           : 8
 };
 
 /**

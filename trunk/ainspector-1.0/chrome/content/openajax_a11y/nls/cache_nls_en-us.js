@@ -129,14 +129,14 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
      * Implementation level of a rule on a web page
      */
   implementation_levels : [
-    { 'abbrev'      : 'n/a',
-      'label'       : 'n/a',
-      'description' : 'Accessibility check did not apply to the elements contained in this page',
+    { 'abbrev'      : 'na',
+      'label'       : 'na',
+      'description' : 'Accessibility technique evaluated by this rule does not apply to the elements or content found on this page',
       'style'       : 'not_applicable'
     },
     { 'abbrev'      : 'C',
       'label'       : 'Complete',
-      'description' : 'All accessibility requirements have been met',
+      'description' : 'All automated accessibility checks have been met',
       'style'       : 'complete'
     },
     { 'abbrev'      : 'AC',
@@ -177,7 +177,12 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
     { 'abbrev'      : 'NI+MC',
       'label'       : 'Not Implemented with Manual Checks',
       'description' : 'Less than 50% of the automated accessibility checks have passed and human inspection and judgement is also required to verify compliance',
-      'style'       : 'not_implementation'
+      'style'       : 'not_implemented'
+    },
+    { 'abbrev'      : 'disabled',
+      'label'       : 'disabled',
+      'description' : 'Rule was not evaluated due to configuration settings',
+      'style'       : 'not_applicable'
     }
   ],
 

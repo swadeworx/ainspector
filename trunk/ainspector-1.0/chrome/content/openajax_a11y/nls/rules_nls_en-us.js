@@ -62,6 +62,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             TECHNIQUES:     [ 'Change the foreground color to a more complemtary color to the background color',
                               'Change the background color to a more complemtary color to the foreground color'
                             ],
+            MANUAL_CHECKS: [
+            ],
             INFORMATIONAL_LINKS: [{ type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
                                title: 'WCAG 2.0 Success Criterion 1.4.3 Contrast (Minimum): The visual presentation of text and images of text has a contrast ratio of at least 4.5:1', 
                                url:   'http://www.w3.org/TR/WCAG20/#visual-audio-contrast-contrast'
@@ -86,6 +88,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             TECHNIQUES:     ['Change the foreground color to a more complemtary color to the background color',
                              'Change the background color to a more complemtary color to the foreground color'
                             ],
+            MANUAL_CHECKS: [
+            ],
             INFORMATIONAL_LINKS:      [{ type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
                                title: 'WCAG 2.0 Success Criterion 1.4.6 Contrast (Enhanced): The visual presentation of text and images of text has a contrast ratio of at least 7:1', 
                                url:   'http://www.w3.org/TR/WCAG20/#visual-audio-contrast7'
@@ -112,6 +116,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
               'Use the @label@ element to encapsulate the form control element',
               'In special cases, use @aria-labelledby@ attribute to reference the id(s) of the elements on the page that describe the purpose of the form control element',
               'In special cases, use @aria-label@ attribute to provide a explicit text description of the purpose of the form control element'
+            ],
+            MANUAL_CHECKS: [
             ],
             INFORMATIONAL_LINKS: [
               { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
@@ -154,6 +160,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
               'In special cases, use @aria-labelledby@ attributes to reference the id(s) of the elements on the page that describe the purpose of the form control element',
               'In special cases, use @aria-label@ attributes to provide a explicit text description of the purpose of the form control element'
             ],
+            MANUAL_CHECKS: [
+            ],
             INFORMATIONAL_LINKS: [
               { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
                 title: 'HTML 4.01 Specification: The @label@ element', 
@@ -187,6 +195,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
               '@fieldset@/@legend@ element combination is the preferred technique to provide a grouping label for radio buttons',
               '@aria-labelledby@ attributes can provide a grouping label with references to the grouping text content and the radio button option text content',
               '@aria-label@ attributes can provide a grouping label that includes both the grouping and radio button option text content'
+            ],
+            MANUAL_CHECKS: [
             ],
             INFORMATIONAL_LINKS: [
               { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
@@ -225,6 +235,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             TECHNIQUES: [
               'The text content of the @button@ element and the @alt@ attribute content of images inside the button is used as the text content'
             ],
+            MANUAL_CHECKS: [
+            ],
             INFORMATIONAL_LINKS: [
               { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
                 title: 'HTML 4.01 Specification: The @button@ elements', 
@@ -245,6 +257,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ],
             TECHNIQUES: [
               'If a form control defines an @id@ attribute, make sure the valeu is unique'
+            ],
+            MANUAL_CHECKS: [
             ],
             INFORMATIONAL_LINKS: [
               { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
@@ -272,6 +286,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ],
             TECHNIQUES: [
               '@label@ elements using the FOR attribute need to reference a form control with the corresponding @id@ attribute value'
+            ],
+            MANUAL_CHECKS: [
             ],
             INFORMATIONAL_LINKS: [
               { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
@@ -301,6 +317,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ],
             TECHNIQUES: [
               'Add text content to @label@ and @legend@ elements that help describe the purpose of the form control'
+            ],
+            MANUAL_CHECKS: [
             ],
             INFORMATIONAL_LINKS: [
               { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
@@ -335,6 +353,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ],
             TECHNIQUES: [
               '@fieldset@ element should have one and only one @legend@ elements to help describe the purpose of the form controls contained in the @fieldset@ element'
+            ],
+            MANUAL_CHECKS: [
             ],
             INFORMATIONAL_LINKS: [
               { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
@@ -372,6 +392,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
               'In special cases, use @aria-labelledby@ attributes to reference the id(s) of the elements on the page that describe the purpose of the form control element',
               'In special cases, use @aria-label@ attributes to provide a explicit text description of the purpose of the form control element'
             ],
+            MANUAL_CHECKS: [
+            ],
             INFORMATIONAL_LINKS: [
               { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
                 title: 'HTML 4.01 Specification: Adding structure to forms: the @fieldset@ and @legend@ elements', 
@@ -404,6 +426,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
               'Use the @label@ element to encapsulate the form control element',
               'In special cases, use @aria-labelledby@ attribute to reference the id(s) of the elements on the page that describe the purpose of the form control element',
               'In special cases, use @aria-label@ attribute to provide a explicit text description of the purpose of the form control element'
+            ],
+            MANUAL_CHECKS: [
             ],
             INFORMATIONAL_LINKS: [
               { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
@@ -446,6 +470,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
               'In special cases, use @aria-labelledby@ attribute to reference the id(s) of the elements on the page that describe the purpose of the form control element',
               'In special cases, use @aria-label@ attribute to provide a explicit text description of the purpose of the form control element'
             ],
+            MANUAL_CHECKS: [
+            ],
             INFORMATIONAL_LINKS: [
               { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
                 title: 'HTML 4.01 Specification: The @label@ element', 
@@ -485,6 +511,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
               'Use the @label@ element to encapsulate the form control element',
               'In special cases, use @aria-labelledby@ attribute to reference the id(s) of the elements on the page that describe the purpose of the form control element',
               'In special cases, use @aria-label@ attribute to provide a explicit text description of the purpose of the form control element'
+            ],
+            MANUAL_CHECKS: [
             ],
             INFORMATIONAL_LINKS: [
               { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
@@ -526,6 +554,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
               'The text content of the @h1@ element should describe the main content of the page',
               'The @h1@ element should be visible graphically and to assistive technologies, do not hide using CSS techniques'
             ],
+            MANUAL_CHECKS: [
+            ],
             INFORMATIONAL_LINKS: [
               { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
                 title: 'HTML 4.01 Specification: The @h1@ element', 
@@ -561,6 +591,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
               'Include an @h1@ element at the beginning of each @main@ landmark',
               'If there is more than one @main@ landmark, use @aria-labelledby@ on the @main@ landmark to reference the @h1@ element as a name for @main@ landmark'
             ],
+            MANUAL_CHECKS: [
+            ],
             INFORMATIONAL_LINKS: [
               { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
                 title: 'HTML 4.01 Specification: The @h1@ element', 
@@ -585,6 +617,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ],
             TECHNIQUES: [
               'Make sure the content of sibling headings that share the same parent heading help users understand the unique content of each section they describe'
+            ],
+            MANUAL_CHECKS: [
             ],
             INFORMATIONAL_LINKS: [
               { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
@@ -624,6 +658,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
               'Use headings as labels for ARIA landmarks to provide redundent page navigation capabilities for users of assistive technologies',
               'Check headings against other headings in the document to make sure the headings uniquely describe content of each section of the web page',
               'If headings are too similar to each other users of assistive technology will not be able to use them to understand the differences between different sections of the web page'
+            ],
+            MANUAL_CHECKS: [
             ],
             INFORMATIONAL_LINKS: [
               { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
@@ -665,6 +701,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
               '@alt@ text content should describe the content and/or the purpose of them image as succinctly as possible (less than ~100 characters)',
               'If an image is purely stylistic or decorative set the @alt@ text conent should be the empty string (i.e. @alt=""@)'
             ],
+            MANUAL_CHECKS: [
+            ],
             INFORMATIONAL_LINKS: [
               { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
                 title: 'HTML 4.01 Specification: 13.8 How to specify alternate text', 
@@ -698,6 +736,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ],
             TECHNIQUES: [
               '@longdesc@ can be used to provide an internal link or extenal link to information that provides a extended and more detailed text equivalent of the image'
+            ],
+            MANUAL_CHECKS: [
             ],
             INFORMATIONAL_LINKS: [
               { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
@@ -749,6 +789,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
               '@alt@ text content should describe the content and/or the purpose of them image as succinctly as possible (less than ~100 characters)',
               'If an image is purely stylistic or decorative set the @alt@ text conent should be the empty string (i.e. @alt=""@)'
             ],
+            MANUAL_CHECKS: [
+            ],
             INFORMATIONAL_LINKS: [
               { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
                 title: 'HTML 4.01 Specification: 13.8 How to specify alternate text', 
@@ -785,6 +827,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
               '@alt@ text content should describe the content and/or the purpose of them image as succinctly as possible (less than ~100 characters)',
               'If an image is purely stylistic or decorative set the @alt@ text conent should be the empty string (i.e. @alt=""@)'
             ],
+            MANUAL_CHECKS: [
+            ],
             INFORMATIONAL_LINKS: [
               { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
                 title: 'HTML 4.01 Specification: 13.8 How to specify alternate text', 
@@ -819,6 +863,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             TECHNIQUES: [
               'Small images are purely stylistic or decorative and the @alt@ text conent should be the empty string (i.e. @alt=""@)'
             ],
+            MANUAL_CHECKS: [
+            ],
             INFORMATIONAL_LINKS: [
               { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
                 title: 'HTML 4.01 Specification: 13.8 How to specify alternate text', 
@@ -843,6 +889,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ],
             TECHNIQUES: [
               'Use the attributes @alt=""@ or @role="presentation"@ to indicate an image is used purely for stylistic or decorative purposes'
+            ],
+            MANUAL_CHECKS: [
             ],
             INFORMATIONAL_LINKS: [
               { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
@@ -878,6 +926,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
               'Include an @role="main"@ attribute on the element that contains the main content',
               'Use the aria-labelledby or aria-label to describe the content of the main landmark'
             ],
+            MANUAL_CHECKS: [
+            ],
             INFORMATIONAL_LINKS: [
               { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
                 title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: main role', 
@@ -900,6 +950,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             TECHNIQUES: [
               'Use the appropriate landmarks to identify the different sections of a web page',
               'The most important landmarks are the @main@ and @navigation@ landmarks since they will be the most used'
+            ],
+            MANUAL_CHECKS: [
             ],
             INFORMATIONAL_LINKS: [
               { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
@@ -1132,6 +1184,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ACTION:             'Add role="presentation" attribute.',
             MESSAGE_HIDDEN:     'The table is hidden from people using assistive technologies, so the rule was not evaluated',
             TECHNIQUES:         ['Use the role="presentation" attribute on TABLE, TR and TD elements used in layout tables'],
+            MANUAL_CHECKS: [
+            ],
             INFORMATIONAL_LINKS:          [{type:  OpenAjax.a11y.REFERENCES.REQUIREMENT, 
                                   title: 'ARIA Presentation Role Value ', 
                                   url:   'http://www.w3.org/TR/wai-aria/roles#presentation'
@@ -1147,6 +1201,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             PURPOSE:            ['The TITLE element text content can be accessed by asssitive technologies to understand the purpose of the web page.'
                                 ],
             TECHNIQUES:         ['Use TITLE element text content to describe the content of a web page'],
+            MANUAL_CHECKS: [
+            ],
             INFORMATIONAL_LINKS:          [{type:  OpenAjax.a11y.REFERENCES.REQUIREMENT, 
                                   title: 'HTML TITLE Element Specification', 
                                   url:   'http://www.w3.org/TR/html4/struct/global.html#edef-TITLE'
@@ -1176,6 +1232,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
                             'Use ARIA-LABELLEDBY attribute to associate a @h1@element as a label to each @main@ element',
                             'Position @h1@elements in document right before the main content they label'
                            ],
+            MANUAL_CHECKS: [
+            ],
             INFORMATIONAL_LINKS:     [{type:  OpenAjax.a11y.REFERENCES.REQUIREMENT, 
                              title: '@h1@Element Specification', 
                              url:   'http://www.w3.org/TR/html4/struct/global.html#edef-H1'
@@ -1213,6 +1271,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
                                'Use ARIA-LABELLEDBY attribute to associate a @h1@element as a label to each @main@ element',
                                'Position @h1@elements in document right before the main content they label'
                               ],
+            MANUAL_CHECKS: [
+            ],
             INFORMATIONAL_LINKS:        [{type:  OpenAjax.a11y.REFERENCES.REQUIREMENT, 
                                 title: '@h1@Element Specification', 
                                 url:   'http://www.w3.org/TR/html4/struct/global.html#edef-H1'
@@ -1250,6 +1310,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
               'In some cases the child text nodes and @alt@ from descendant image elements will be used as the name for a widget',
               'Use @aria-labelledby@ attribute to reference the id(s) of the elements on the page that describe the purpose of the widget',
               'Use @aria-label@ attribute to provide a explicit text description of the purpose of the widget'
+            ],
+            MANUAL_CHECKS: [
             ],
             INFORMATIONAL_LINKS: [
               { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
