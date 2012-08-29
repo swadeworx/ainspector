@@ -1,4 +1,5 @@
 <!ENTITY  ainspector.toolbarbutton.report.label         "Report">
+<!ENTITY  ainspector.toolbarbutton.summary.label         "Summary">
 <!ENTITY  ainspector.toolbarbutton.images.label         "Images">
 <!ENTITY  ainspector.toolbarbutton.media.label          "Media">
 <!ENTITY  ainspector.toolbarbutton.controls.label       "Controls">
