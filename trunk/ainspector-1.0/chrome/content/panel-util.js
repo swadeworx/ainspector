@@ -958,9 +958,10 @@ AINSPECTOR_FB.tabPanelUtil = {
       
       var panelType_rules = Firebug.getPanelType("rulesSidePanel");
       var panelType_colorContrast = Firebug.getPanelType("colorContrastSidePanel");
+      var panelType_elements = Firebug.getPanelType("elementsSidePanel");
   
       /* flag == true if it is other than color contrast toolbar button*/
-      if (flag) {
+      if (flag == true) {
         if (panelType_colorContrast) {
           
           AINSPECTOR_FB.font_properties_registered = panelType_colorContrast;
@@ -974,7 +975,7 @@ AINSPECTOR_FB.tabPanelUtil = {
           AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_rules);
   
         }
-      } else { //if it is only color contrast panel
+      } else if (flag == false){ //if it is only color contrast panel
         
         if (panelType_rules) {
           AINSPECTOR_FB.rules_registered = panelType_rules;
@@ -988,6 +989,24 @@ AINSPECTOR_FB.tabPanelUtil = {
           AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_colorContrast);
         }
       
+      } else { //for summary view
+        if (panelType_rules) {
+          AINSPECTOR_FB.rules_registered = panelType_rules;
+          AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_rules);     
+        }
+        if (panelType_colorContrast) {
+          
+          AINSPECTOR_FB.font_properties_registered = panelType_colorContrast;
+          AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_colorContrast);
+        }
+        
+        if (panelType_elements) {
+          
+        } else {
+          panelType_elements = AINSPECTOR_FB.elements_registered;
+          AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_elements);
+        }
+        
       }
     }
  };

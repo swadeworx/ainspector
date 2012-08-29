@@ -115,7 +115,7 @@ with (FBL) {
                  wc: object.warnings_count, 
                  mc: object.manual_checks_count,
                  vc: object.violations_count,
-                 object: object,
+                 object: object
                };
              },
              

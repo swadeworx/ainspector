@@ -74,7 +74,7 @@ with (FBL) {
       if (!controls_cache_element_results) {
         panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.replace({view:"Links"}, toolbar, null);
       } else {
-        if (controls_cache_elements.is_a_tree == true)
+        if (controls_cache_elements.is_tree == true)
         
           panel.table = AINSPECTOR_FB.treeTemplate.grid.tag.replace({object: controls_cache_element_results, view: "Controls"}, toolbar, AINSPECTOR_FB.treeTemplate.grid);
         else  
@@ -92,7 +92,7 @@ with (FBL) {
       if (!controls_cache_element_results) {
         Firebug.currentContext.getPanel('rulesSidePanel').showEmptySidePanel();
       } else {
-        var selected_row = AINSPECTOR_FB.toolbarUtil.selectRow(panel, controls_cache_element_results[0], controls_cache_elements.is_a_tree, "controls");
+        var selected_row = AINSPECTOR_FB.toolbarUtil.selectRow(panel, controls_cache_element_results[0], controls_cache_elements.is_tree, "controls");
         
         if (AINSPECTOR_FB.previous_selected_row != null && selected_row) Firebug.currentContext.getPanel('rulesSidePanel').sView(true, controls_cache_element_results[selected_row]);
         
