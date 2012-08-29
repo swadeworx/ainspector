@@ -97,7 +97,7 @@ OpenAjax.a11y.Rulesets.prototype.getRuleset = function(ruleset_id) {
  *
  * @desc Gets NLS ruleset information for all rulesets  
  *
- * @returns  {Array}  ruleset_id  - Array of objects that contain NLS information about a ruleset
+ * @returns  {Array} Array of objects that contain NLS information about a ruleset
  */
 
 OpenAjax.a11y.Rulesets.prototype.getAllRulesets = function() {
@@ -137,7 +137,8 @@ OpenAjax.a11y.Rulesets.prototype.getAllRulesets = function() {
  *
  * @property {Array}  rule_mappings - Array of WCAG20RuleMapping objects          
  *
- * @property {Number} wcag20_level - Level of WCAG 2.0 Success Criteria to evaluate (i.e. A, AA, AAA)
+ * @property {Number}   wcag20_level                      - Level of WCAG 2.0 Success Criteria to evaluate (i.e. A, AA, AAA)
+ * @property {Boolean}  wcag20_recommended_rules_enabled  - If true recommended rules are evaluated
  *
  * NOTE: The following properties are defined after each evaluation
  *
@@ -178,6 +179,7 @@ OpenAjax.a11y.WCAG20Ruleset = function (ruleset_data) {
   this.type = "WCAG20";
   this.ruleset_title = {};
   this.wcag20_level = OpenAjax.a11y.WCAG20_LEVEL.AA;
+  this.wcag20_recommended_rules_enabled = true;
   
   // Check for ruleset id
 
@@ -344,6 +346,21 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.setEvaluationLevel = function (level) {
 };
 
 /**
+ * @method setRecommendedRulesEnabled
+ *
+ * @memberOf OpenAjax.a11y.WCAG20Ruleset
+ *
+ * @desc Enable and disable evaluation of recommeneded rules 
+ *
+ * @param  {Boolean}    enabled   - True to evaluate recommended rules, False if not to evaluated recommeneded rules
+ */
+ 
+OpenAjax.a11y.WCAG20Ruleset.prototype.setRecommendedRulesEnabled = function (enabled) {
+
+  this.wcag20_recommended_rules_enabled = enabled;
+  
+};
+/**
  * @method setBrokenLinkTesting
  *
  * @memberOf OpenAjax.a11y.WCAG20Ruleset
@@ -433,59 +450,59 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.evaluate = function (url, title, doc, prog
     if (rule_mapping) {
 
       rule_result = new OpenAjax.a11y.RuleResult(rule_mapping); 
-      
-      if (rule_mapping.enabled) {      
+
+//      OpenAjax.a11y.logger.debug("Rule: " + rule + "  Enabled: " + rule_mapping.enabled  + "  Mapping: " + rule_mapping.type + "  Recommended: " + this.wcag20_recommended_rules_enabled);
+
+      if (rule_mapping.enabled && 
+          (rule_mapping.type === OpenAjax.a11y.RULE.REQUIRED ||
+           this.wcag20_recommended_rules_enabled) &&
+          (rule && rule_mapping.wcag20_level <= this.wcag20_level)) {      
 
         this.log.update(PROGRESS.REQUIREMENT, rule_mapping.rule_id, rule.rule_id);   
 
-        OpenAjax.a11y.logger.debug("Validating rule " + i + ": " + rule.rule_id + "  " + rule_definition + " level: " + rule_mapping.wcag20_level);
+        rule_result.rule_evaluated = true;
 
-        // Check to see if the rule is defined is of the right level  
-        if (rule && rule_mapping.wcag20_level <= this.wcag20_level) {
-
-          rule_result.rule_evaluated = true;
-
-          // Check to see if the specialized cache needed for the rule is already 
-          // If not create the specialized cache
+        // Check to see if the specialized cache needed for the rule is already 
+        // If not create the specialized cache
                      
-          if (!build_cache ) {
-            var up_to_date = this.dom_cache.isUpToDate(rule.cache_dependency);
-            if (up_to_date.exists) {
-              if(!up_to_date.up_to_date) this.dom_cache.updateCache(rule.cache_dependency);
-            } else {
-              this.log.update(PROGRESS.RULE, "Cache " + rule.cache_dependency + " for rule with id=" + rule.rule_id +  " does not exist.");
-              continue;
-            }
-          } 
+        if (!build_cache ) {
+          var up_to_date = this.dom_cache.isUpToDate(rule.cache_dependency);
+          if (up_to_date.exists) {
+            if(!up_to_date.up_to_date) this.dom_cache.updateCache(rule.cache_dependency);
+          } else {
+            this.log.update(PROGRESS.RULE, "Cache " + rule.cache_dependency + " for rule with id=" + rule.rule_id +  " does not exist.");
+            continue;
+          }
+        } 
 
-          if (rule.language_dependency.length) {
-            // Rules with a language restriction
-            if (rule.language_dependency.indexOf(OpenAjax.a11y.locale) >= 0) {
-              rule.validate(this.dom_cache, rule_result);
-            }
-            else {
-              this.log.update(PROGRESS.RULE, "Rule with id='" + rule.rule_id + "' does not apply to locale: " + OpenAjax.a11y.locale);                           
-            }
+        if (rule.language_dependency.length) {
+          // Rules with a language restriction
+          if (rule.language_dependency.indexOf(OpenAjax.a11y.locale) >= 0) {
+            rule.validate(this.dom_cache, rule_result);
           }
           else {
-            // Rules without any language restrictions
-            rule.validate(this.dom_cache, rule_result);
-          }   
-
-          this.log.update(PROGRESS.RULE, rule_definition, rule.rule_id);
-                     
+            this.log.update(PROGRESS.RULE, "Rule with id='" + rule.rule_id + "' does not apply to locale: " + OpenAjax.a11y.locale);                           
+          }
         }
         else {
-          if (rule) this.log.update(PROGRESS.RULE, " ** Rule with id=" + rule.rule_id + " is disabled");       
-          else this.log.update(PROGRESS.RULE, " ** Rule for success criteria " + rsc.ruleset_id + " is undefined");                            
-        }
-      }   
+          // Rules without any language restrictions
+          rule.validate(this.dom_cache, rule_result);
+        }   
+
+        this.log.update(PROGRESS.RULE, rule_definition, rule.rule_id);
+                     
+      }
+      else {
+        rule_result.setEvaluationLevelToDisabled();
+        if (rule) this.log.update(PROGRESS.RULE, " ** Rule with id=" + rule.rule_id + " is disabled");       
+        else this.log.update(PROGRESS.RULE, " ** Rule for success criteria " + rsc.ruleset_id + " is undefined");                            
+      }
 
       this.rule_category_results.addRuleResult(rule_result);
       
       this.wcag20_results.addRuleResult(rule_result);
 
-      OpenAjax.a11y.logger.debug("Aggregating rule Results: " + rule_result);
+      // OpenAjax.a11y.logger.debug("Aggregating rule Results: " + rule_result);
 
     }                 
   } // end rule loop
@@ -510,11 +527,29 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.evaluate = function (url, title, doc, prog
 
 OpenAjax.a11y.WCAG20Ruleset.prototype.getCacheItemsByRuleCategory = function (rule_category, filter) {
 
-  var results = new OpenAjax.a11y.cache.FilteredCacheItemResults(this.dom_cache);
+  var results = new OpenAjax.a11y.cache.FilteredCacheItemResults(this);
   
   if (this.dom_cache) results.getCacheItemResults(rule_category, filter);
   
   return results;
+
+};
+
+/**
+ * @method getRuleResultsByRuleCategory
+ *
+ * @memberOf OpenAjax.a11y.WCAG20Ruleset
+ *
+ * @desc Returns an object containing a array of rule results for a rule category
+ *
+ * @param {Number}  rule_category
+ * @param {Number}  filter 
+ * @param {Number}  wcag20_level 
+ *
+ * @return {FilteredRuleCategoryResults}  The object containing the filtered rule and summary results
+ */
+
+OpenAjax.a11y.WCAG20Ruleset.prototype.getRuleResultsByRuleCategory = function (rule_category, filter, wcag20_level) {
 
 };
 
@@ -532,7 +567,7 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.getRuleResultsByRuleCategories = function 
 
   function addRuleCategory(title, aggregation) {
   
-    var rule_result_summary_group = new OpenAjax.a11y.cache.RuleResultSummaryGroup(title, aggregation);
+    var rrs_group = new OpenAjax.a11y.cache.RuleResultSummaryGroup(title, aggregation);
     
     var rule_results     = aggregation.rule_results;
     var rule_results_len = rule_results.length;
@@ -541,10 +576,12 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.getRuleResultsByRuleCategories = function 
       var rule_result = rule_results[i];
       var rule_wcag20_level = rule_result.rule.getWCAG20Level();
       
-      if (rule_wcag20_level <= wcag20_level) rule_result_summary_group.addRuleResultItem(rule_result);
+      if (rule_wcag20_level <= wcag20_level) rrs_group.addRuleResultItem(rule_result);
     }
     
-    rule_result_summary.addRuleResultItem(rule_result_summary_group);
+    rrs_group.sortByImplementationLevel();
+    
+    rule_result_summary.addRuleResultItem(rrs_group);
   
   }
 
@@ -576,6 +613,148 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.getRuleResultsByRuleCategories = function 
 };
 
 /**
+ * @method getRuleResultsByWCAG20
+ *
+ * @memberOf OpenAjax.a11y.WCAG20Ruleset
+ *
+ * @desc Returns an object containing a set of rules organized in a tree structure by WCAG 2.0 Principles, Guidelines and Success Criteria
+ *
+ * @return {RuleResultSummary}  The object containing the set of cache items
+ */
+
+OpenAjax.a11y.WCAG20Ruleset.prototype.getRuleResultsByWCAG20 = function (wcag20_level) {
+
+  function addSuccessCriteriaResult(guideline_group, success_criterion_result) {
+  
+    var sc_nls      = wcag20_nls.getNLSItemById(success_criterion_result.success_criterion_id);
+    var title       = sc_nls.title;
+    var aggregation = success_criterion_result.rule_result_aggregation;
+    
+    // OpenAjax.a11y.logger.debug("      SC: " + title + " Aggregation: " + aggregation + " Level: " + sc_nls.level);
+
+    if (sc_nls.level <=  wcag20_level) {
+ 
+      var rrs_group = new OpenAjax.a11y.cache.RuleResultSummaryGroup(title, aggregation);
+      
+      for (var i = 0; i < success_criterion_result.rule_results.length ; i++) { 
+        var r_result = success_criterion_result.rule_results[i];  
+        rrs_group.addRuleResultItem(r_result);
+      }  
+    
+      guideline_group.addRuleResultItem(rrs_group);
+    }  
+  }
+
+  function addGuidelineResult(principle_group, guideline_result) {
+  
+    var title       = wcag20_nls.getNLSItemById(guideline_result.guideline_id).title;
+    var aggregation = guideline_result.rule_result_aggregation;
+
+    // OpenAjax.a11y.logger.debug("    G: " + title + " Aggregation: " + aggregation );
+
+    var rrs_group = new OpenAjax.a11y.cache.RuleResultSummaryGroup(title, aggregation);
+    
+    for (var i = 0; i < guideline_result.success_criteria_results.length ; i++) {
+      var sc_result = guideline_result.success_criteria_results[i];
+      addSuccessCriteriaResult(rrs_group, sc_result);
+    }
+    
+    principle_group.addRuleResultItem(rrs_group);
+
+  }
+
+
+  function addPrincipleResult(principle_result) {
+  
+    var title       = wcag20_nls.getNLSItemById(principle_result.principle_id).title;
+    var aggregation = principle_result.rule_result_aggregation;
+
+    // OpenAjax.a11y.logger.debug("  P: " + title + " Aggregation: " + aggregation );
+
+    var rrs_group = new OpenAjax.a11y.cache.RuleResultSummaryGroup(title, aggregation);
+    
+    for (var i = 0; i < principle_result.guideline_results.length ; i++) {
+      var g_result = principle_result.guideline_results[i];
+      addGuidelineResult(rrs_group, g_result); 
+    }  
+    
+    rule_result_summary.addRuleResultItem(rrs_group);
+  
+  }
+
+  var wcag20_results = this.wcag20_results;
+  
+  var wcag20_nls = OpenAjax.a11y.all_wcag20_nls.getNLS(); 
+
+  var rule_result_summary = new OpenAjax.a11y.cache.RuleResultSummary('Rule Categories');
+
+  if (wcag20_results) {
+  
+    for (var i = 0; i < wcag20_results.principle_results.length; i++ ) addPrincipleResult(wcag20_results.principle_results[i]);
+  
+  }
+  
+  return rule_result_summary;
+
+};
+
+/**
+ * @method getAllRuleResults
+ *
+ * @memberOf OpenAjax.a11y.WCAG20Ruleset
+ *
+ * @desc Returns an object containing a set of all rule results
+ *
+ * @return {RuleResultSummary}  The object containing the set of cache items
+ */
+
+OpenAjax.a11y.WCAG20Ruleset.prototype.getAllRuleResults = function (wcag20_level) {
+
+  function addRulesFromCategory(aggregation) {
+  
+    var rule_results     = aggregation.rule_results;
+    var rule_results_len = rule_results.length;
+      
+    for (var i = 0; i < rule_results_len ; i++) {
+      var rule_result = rule_results[i];
+      var rule_wcag20_level = rule_result.rule.getWCAG20Level();
+      
+      if (rule_wcag20_level <= wcag20_level) rule_result_summary.addRuleResultItem(rule_result);
+    }
+  
+  }
+
+  var rule_category_results = this.rule_category_results;
+
+  var rule_result_summary = new OpenAjax.a11y.cache.RuleResultSummary('Rule Categories');
+  
+  if (rule_category_results) {
+  
+//  addRulesFromCategory(rule_category_results.abbreviation_rule_results);
+    addRulesFromCategory(rule_category_results.audio_rule_results);
+    addRulesFromCategory(rule_category_results.color_contrast_rule_results);
+    addRulesFromCategory(rule_category_results.control_rule_results);
+    addRulesFromCategory(rule_category_results.heading_rule_results);
+    addRulesFromCategory(rule_category_results.image_rule_results);
+    addRulesFromCategory(rule_category_results.landmark_rule_results);
+//  addRulesFromCategory(rule_category_results.language_rule_results);
+    addRulesFromCategory(rule_category_results.link_rule_results);
+//  addRulesFromCategory(rule_category_results.list_rule_results);
+    addRulesFromCategory(rule_category_results.table_rule_results);
+    addRulesFromCategory(rule_category_results.video_rule_results);
+    addRulesFromCategory(rule_category_results.widget_rule_results);
+    addRulesFromCategory(rule_category_results.content_rule_results);
+
+    rule_result_summary.sortByImplementationLevel();
+
+  }
+  
+  return rule_result_summary;
+
+};
+
+
+/**
  * @method getRuleResultsByRuleGrouping
  *
  * @memberOf OpenAjax.a11y.WCAG20Ruleset
@@ -600,6 +779,12 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.getRuleResultsByRuleGrouping = function (g
     break;
     
   case RULE_GROUP.WCAG20:
+    results = this.getRuleResultsByWCAG20(wcag20_level);
+    break;
+
+  case RULE_GROUP.ALL_RULE_LIST:
+    results = this.getAllRuleResults(wcag20_level);
+    break;
 
   default:
     break;
@@ -613,14 +798,133 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.getRuleResultsByRuleGrouping = function (g
  *
  * @memberOf OpenAjax.a11y.WCAG20Ruleset
  *
- * @desc Determines is a window document property is the one for this evaluation 
+ * @desc Determines if a window document property is the one for this evaluation 
  *
- * @param {Documemnt object} document - Window document to test
+ * @param {Object}  document  -  Document Object Model (DOM) to be analyzed
+ *
+ * @param {Boolean}  True if the same document, false if not
  */
  
 OpenAjax.a11y.WCAG20Ruleset.prototype.isSameDocument = function (document) {
     
   return this.doc === document;
+    
+};
+ 
+/**
+ * @method toJSON
+ *
+ * @memberOf OpenAjax.a11y.WCAG20Ruleset
+ *
+ * @desc Creates a JSON representation of the ruleset 
+ *
+ * @param {String} prefix  -  A prefix string typically spaces
+ *
+ * @param {String} JSON formatted string representing the ruleset
+ */
+ 
+OpenAjax.a11y.WCAG20Ruleset.prototype.toJSON = function (prefix) {
+  
+  function referencesToJSON(name, refs, last) {
+  
+    var title = "";
+    var url = "";
+
+    var refs_len = refs.length;
+    var refs_last = refs_len - 1;
+      
+    if (refs_len > 0) {
+      json += next_prefix + "  '" + name + "' : ["; 
+      for (var i = 0; i < refs_len; i++) {
+        var ref = refs[i];
+        
+        if (typeof ref === 'string') {
+           title = ref;
+           url = "";
+        }
+        else {
+           title = ref.title;
+           url = ref.url;
+        }
+        
+        if (i === refs_last) json += next_prefix_2 + "{ 'title' : '" + title + "', 'url' : '" + url + "'}";
+        else json += next_prefix_2 + "{ 'title' : '" + title + "', 'url' : '" + url + "'},";
+      }       
+      json += next_prefix + "  ]"; 
+    }
+    else {
+      json += next_prefix + "  'purpose'    : []";       
+    }
+    
+    if (typeof last === 'undefined' || !last) json += ',';
+    
+  } // end function
+    
+  var next_prefix = "";
+  var next_prefix_2 = "";
+
+  if (typeof prefix !== 'string' || prefix.length === 0) {
+    prefix = "";
+  }  
+  else {
+    next_prefix   = prefix + "    ";  
+    next_prefix_2 = prefix + "        ";  
+  }
+  
+  var json = "";
+  
+  var i;
+  var j;
+
+  var rule_mappings_len = this.rule_mappings.length;
+  var rule_mappings_last = rule_mappings_len - 1;
+
+  json += "{";
+
+  json += prefix + "  'ruleset_id'          : '" + this.ruleset_id + "',";
+  json += prefix + "  'ruleset_title'       : '" + this.ruleset_title + "',";
+  json += prefix + "  'ruleset_description' : '" + this.ruleset_description + "',";
+  json += prefix + "  'ruleset_author_name' : '" + this.ruleset_author_name + "',";
+  json += prefix + "  'ruleset_author_url'  : '" + this.ruleset_author_url + "',";
+  json += prefix + "  'ruleset_updated'     : '" + this.ruleset_updated + "',";
+  json += prefix + "  'wcag20_level'        : "  + this.wcag20_level + ",";
+  json += prefix + "  'rec_rules_enabled'   : "  + this.wcag20_recommended_rules_enabled + ",";
+
+  if (rule_mappings_len > 0) {
+    json += prefix + "  'rules' : {";
+    
+    for (i = 0; i < rule_mappings_len; i++) {
+      var rm = this.rule_mappings[i];
+      var r = rm.rule;
+      json += next_prefix + "'" + r.rule_id + "' : {"; 
+      json += next_prefix + "  'enabled'          : "  + rm.enabled + ","; 
+      json += next_prefix + "  'rule_type'        : "  + rm.type + ",";
+      json += next_prefix + "  'scope'            : "  + r.rule_scope + ","; 
+      json += next_prefix + "  'nls_scope'        : '" + r.getNLSRuleScope() + "',"; 
+      json += next_prefix + "  'wcag_primary_id'  : '" + r.wcag_primary_id + "',"; 
+      json += next_prefix + "  'wcag_related_ids' : '" + r.wcag_related_ids + "',"; 
+      json += next_prefix + "  'definition'       : '" + r.getNLSDefinition(rm.type) + "',"; 
+      json += next_prefix + "  'summary'          : '" + r.getNLSSummary(rm.type) + "',"; 
+      
+      referencesToJSON('purpose', r.getNLSPurpose());
+      referencesToJSON('techniques', r.getNLSTechniques());
+      referencesToJSON('informational_links', r.getNLSInformationalLinks(), true);
+
+      if (i === rule_mappings_last) json += next_prefix + "}";
+      else json += next_prefix + "},";
+      
+    }  // end loop
+    
+   json += prefix + "  }";
+   
+  }
+  else {
+    json += prefix + "  'rules' : {}";
+  }
+  
+  json += prefix + "}";
+ 
+  return json;
     
 };
  

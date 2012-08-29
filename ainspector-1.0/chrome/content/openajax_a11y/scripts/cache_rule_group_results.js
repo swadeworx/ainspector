@@ -15,11 +15,11 @@
  */
 
 /* ---------------------------------------------------------------- */
-/*                      FilteredCacheItemResults                    */
+/*                      FilteredRuleGroupResults                    */
 /* ---------------------------------------------------------------- */
 
 /**
- * @constructor FilteredCacheItemResults
+ * @constructor FilteredRuleGroupResults
  *
  * @memberOf OpenAjax.a11y.cache
  *
@@ -28,7 +28,7 @@
  *
  * @param  {Object}  ruleset  - ruleset and evaluation results used to generate the filtered results
  *
- * @property  {Boolean} is_tree      - At least one of the CacheItemResults contains child items
+ * @property  {Boolean} is_tree      - At least one of the FilteredRuleResults contains child items
  * @property  {Object}  dom_cache      - dom cache to use in generating filtered results 
  * 
  * @property  {Array}   cache_item_results        - list of top level cache item results
@@ -36,7 +36,7 @@
  *                                                - of the elements in the cache item results array
  */
 
- OpenAjax.a11y.cache.FilteredCacheItemResults = function(ruleset) {
+ OpenAjax.a11y.cache.FilteredRuleGroupResults = function(ruleset) {
 
   this.is_tree = false;
   this.ruleset = ruleset;
@@ -49,9 +49,9 @@
 };
 
 /**
- * @method getCacheItemResults
+ * @method getFilteredRuleResults
  *
- * @memberOf OpenAjax.a11y.cache.FilteredCacheItemResults
+ * @memberOf OpenAjax.a11y.cache.FilteredRuleGroupResults
  *
  * @desc Constructs a data structure of cache items associated with a rule category 
  *       The cache items returned can be filtered by the tpe of evaluation result 
@@ -60,7 +60,7 @@
  * @param  {Number}  filter         - Number representing the evaluation results filter
  */
 
- OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.getCacheItemResults = function(rule_category, filter) {
+ OpenAjax.a11y.cache.FilteredRuleGroupResults.prototype.getFilteredRuleResults = function(rule_category, filter) {
 
 //  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("filter 1: " + filter + " " + rule_category);
 
@@ -86,12 +86,12 @@
     var cache =  this.dom_cache.headings_landmarks_cache;
     
     if (cache.title_element) { 
-      ci_result = this.getFilteredCacheItemResult(cache.title_element, rule_category, filter);
+      ci_result = this.getFilteredFilteredRuleResult(cache.title_element, rule_category, filter);
       if (ci_result) this.cache_item_results.push(ci_result);
     }
 
     if (cache.page_element)  { 
-      ci_result = this.getFilteredCacheItemResult(cache.page_element, rule_category, filter);
+      ci_result = this.getFilteredFilteredRuleResult(cache.page_element, rule_category, filter);
       if (ci_result) this.cache_item_results.push(ci_result);
     }
     
@@ -128,9 +128,9 @@
 };
 
 /**
- * @method getFilteredCacheItemResult
+ * @method getFilteredFilteredRuleResult
  *
- * @memberOf OpenAjax.a11y.cache.FilteredCacheItemResults
+ * @memberOf OpenAjax.a11y.cache.FilteredRuleGroupResults
  * 
  * @desc Returns an nested lists of cache item results by node results based on the filter 
  *
@@ -139,10 +139,10 @@
  * @param  {Number}  filter         - Filter for returning items with node results of a 
  *                                    particular type(s)
  *
- * @return {CacheItemResult}  New cache item result
+ * @return {FilteredRuleResult}  New cache item result
  */
  
-OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.getFilteredCacheItemResult = function(cache_item, rule_category, filter) {
+OpenAjax.a11y.cache.FilteredRuleGroupResults.prototype.getFilteredFilteredRuleResult = function(cache_item, rule_category, filter) {
 
   function severityLevelFilter(result_filter, node_results) {
     var node_results_len = node_results.length;
@@ -155,7 +155,7 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.getFilteredCacheItemResul
         if (filter & result_filter) { 
           ci_result.node_results.push(node_result);
           count += 1;
-          OpenAjax.a11y.cache.FilteredCacheItemResults.add_flag = true;
+          OpenAjax.a11y.cache.FilteredRuleGroupResults.add_flag = true;
         }
         else {
           ci_result.number_of_node_results_filtered += 1;
@@ -176,7 +176,7 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.getFilteredCacheItemResul
     
   if (!de) return null;
     
-  var ci_result = new OpenAjax.a11y.cache.CacheItemResult(cache_item);
+  var ci_result = new OpenAjax.a11y.cache.FilteredRuleResult(cache_item);
     
   ci_result.violations_count    += severityLevelFilter(RESULT_FILTER.VIOLATION,    de.rules_violations);
   ci_result.warnings_count      += severityLevelFilter(RESULT_FILTER.WARNING,      de.rules_warnings);
@@ -190,7 +190,7 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.getFilteredCacheItemResul
 /**
  * @method filterCacheItemsByNodeResultsFromList
  *
- * @memberOf OpenAjax.a11y.cache.FilteredCacheItemResults
+ * @memberOf OpenAjax.a11y.cache.FilteredRuleGroupResults
  * 
  * @desc Returns an nested lists of cache item results by node results based on the filter 
  *
@@ -202,7 +202,7 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.getFilteredCacheItemResul
  * @return {Number}  Number of cache items that were not included due to filter settings
  */
  
-OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.filterCacheItemsByNodeResultsFromList = function(cache_items, rule_category, filter) {
+OpenAjax.a11y.cache.FilteredRuleGroupResults.prototype.filterCacheItemsByNodeResultsFromList = function(cache_items, rule_category, filter) {
 
   this.is_tree = false;
 
@@ -218,11 +218,11 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.filterCacheItemsByNodeRes
   
     var ci = cache_items[i];
     
-    OpenAjax.a11y.cache.FilteredCacheItemResults.add_flag = (filter === RESULT_FILTER.ALL);
+    OpenAjax.a11y.cache.FilteredRuleGroupResults.add_flag = (filter === RESULT_FILTER.ALL);
 
-    var ci_result = this.getFilteredCacheItemResult(ci, rule_category, filter);
+    var ci_result = this.getFilteredFilteredRuleResult(ci, rule_category, filter);
     
-    if (ci_result && OpenAjax.a11y.cache.FilteredCacheItemResults.add_flag || all_flag) this.cache_item_results.push(ci_result);
+    if (ci_result && OpenAjax.a11y.cache.FilteredRuleGroupResults.add_flag || all_flag) this.cache_item_results.push(ci_result);
     else count++;
     
   } 
@@ -233,7 +233,7 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.filterCacheItemsByNodeRes
 /**
  * @method filterCacheItemsByNodeResultsFromTree
  *
- * @memberOf OpenAjax.a11y.cache.FilteredCacheItemResults
+ * @memberOf OpenAjax.a11y.cache.FilteredRuleGroupResults
  * 
  * @desc Returns an nested lists of cache item results by node results based on the filter 
  *
@@ -244,19 +244,19 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.filterCacheItemsByNodeRes
  * @return {Number}  Number of cache items that were not included due to filter settings
  */
  
-OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.filterCacheItemsByNodeResultsFromTree = function(cache_items, rule_category, filter) {
+OpenAjax.a11y.cache.FilteredRuleGroupResults.prototype.filterCacheItemsByNodeResultsFromTree = function(cache_items, rule_category, filter) {
 
   function traverseCacheItems(cache_item_result, cache_item) {
   
 //    OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("  CI result: " + cache_item_result + "      cache item: " + cache_item );
     
-    OpenAjax.a11y.cache.FilteredCacheItemResults.add_flag = all_flag;
+    OpenAjax.a11y.cache.FilteredRuleGroupResults.add_flag = all_flag;
 
-    var ci_result = getFilteredCacheItemResult(cache_item, rule_category, filter);
+    var ci_result = getFilteredFilteredRuleResult(cache_item, rule_category, filter);
 
-    if (OpenAjax.a11y.cache.FilteredCacheItemResults.add_flag) {
+    if (OpenAjax.a11y.cache.FilteredRuleGroupResults.add_flag) {
       if (cache_item_result && all_flag) {
-        cache_item_result.addChildCacheItemResult(ci_result);
+        cache_item_result.addChildFilteredRuleResult(ci_result);
         is_tree = true;
       } else {
         cache_items_results.push(ci_result);
@@ -292,7 +292,7 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.filterCacheItemsByNodeRes
   
   var filtered_count = 0;
   
-  var getFilteredCacheItemResult = this.getFilteredCacheItemResult;
+  var getFilteredFilteredRuleResult = this.getFilteredFilteredRuleResult;
 
   var cache_items_results = this.cache_item_results;
 
@@ -313,7 +313,7 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.filterCacheItemsByNodeRes
 /**
  * @method toJSON
  *
- * @memberOf OpenAjax.a11y.cache.FilteredCacheItemResults
+ * @memberOf OpenAjax.a11y.cache.FilteredRuleGroupResults
  *
  * @desc Returns an JSON representation of the filtered cache item results 
  *
@@ -322,7 +322,7 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.filterCacheItemsByNodeRes
  * @return  {String}  JSON string representing the report data 
  */
 
-OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.toJSON = function(prefix) {
+OpenAjax.a11y.cache.FilteredRuleGroupResults.prototype.toJSON = function(prefix) {
 
   var next_prefix = "";
 
@@ -360,7 +360,7 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.toJSON = function(prefix)
 /**
  * @method toHTML
  *
- * @memberOf OpenAjax.a11y.cache.FilteredCacheItemResults
+ * @memberOf OpenAjax.a11y.cache.FilteredRuleGroupResults
  *
  * @desc Returns an HTML representation of the filtered cache item results 
  *
@@ -369,7 +369,7 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.toJSON = function(prefix)
  * @return  {String}  String representing the HTML for the report 
  */
 
-OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.toHTML = function(title) {
+OpenAjax.a11y.cache.FilteredRuleGroupResults.prototype.toHTML = function(title) {
 
   var html = "";
   
@@ -380,7 +380,6 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.toHTML = function(title) 
   html += "    <script type='text/javascript'>\n";
   html += "      result_data = " + this.toJSON("\n      ") + ";\n\n";
   html += "      ruleset = " + this.ruleset.toJSON("\n      ") + ";\n\n";
-  html += "      wcag20  = " + this.ruleset.wcag20_nls.toJSON("\n      ") + ";\n\n";
   html += "    </script>\n";
   html += "  </head>\n";
   html += "  <body>\n";
@@ -393,11 +392,11 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.toHTML = function(title) 
 
 
 /* ---------------------------------------------------------------- */
-/*                           CacheItemResult                        */
+/*                           FilteredRuleResult                        */
 /* ---------------------------------------------------------------- */
 
 /**
- * @constructor CacheItemResult
+ * @constructor FilteredRuleResult
  *
  * @memberOf OpenAjax.a11y.cache
  *
@@ -423,7 +422,7 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.toHTML = function(title) 
  * @property {Array}   children             - Array of cache item result objects  
  */
 
- OpenAjax.a11y.cache.CacheItemResult = function(cache_item) {
+ OpenAjax.a11y.cache.FilteredRuleResult = function(cache_item) {
 
   this.cache_item = cache_item;
   
@@ -446,16 +445,16 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.toHTML = function(title) 
 };
 
 /**
- * @method addChildCacheItemResult
+ * @method addChildFilteredRuleResult
  *
- * @memberOf OpenAjax.a11y.cache.CacheItemResult
+ * @memberOf OpenAjax.a11y.cache.FilteredRuleResult
  *
  * @desc Adds a cache item result to the children list of a cache item result object 
  *          
  * @param  {CacheItem Object}  cache_item  - cache item to be included in filtered results
  */
 
-OpenAjax.a11y.cache.CacheItemResult.prototype.addChildCacheItemResult = function(cache_item) {
+OpenAjax.a11y.cache.FilteredRuleResult.prototype.addChildFilteredRuleResult = function(cache_item) {
 
   if (cache_item) { 
     this.children.push(cache_item);
@@ -468,7 +467,7 @@ OpenAjax.a11y.cache.CacheItemResult.prototype.addChildCacheItemResult = function
 /**
  * @method toJSON
  *
- * @memberOf OpenAjax.a11y.cache.CacheItemResult
+ * @memberOf OpenAjax.a11y.cache.FilteredRuleResult
  *
  * @desc Returns a JSON representation of the cache item 
  *          
@@ -477,7 +476,7 @@ OpenAjax.a11y.cache.CacheItemResult.prototype.addChildCacheItemResult = function
  * @return  {String}  String representing the cache item result object
  */
 
-OpenAjax.a11y.cache.CacheItemResult.prototype.toJSON = function(prefix) {
+OpenAjax.a11y.cache.FilteredRuleResult.prototype.toJSON = function(prefix) {
 
   var next_prefix = "";
   var next_prefix_2 = "";

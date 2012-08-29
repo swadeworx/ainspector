@@ -175,7 +175,7 @@ OpenAjax.a11y.WCAG20NLS = function(locale, abbrev, title, url, levels) {
  *
  * @param {String}  id  -  id for the wcag item to get NLS information
  *
- * @return {Object}  WCAG 2.0 NL object
+ * @return {Object}  WCAG 2.0 NLS object
  */
 
 OpenAjax.a11y.WCAG20NLS.prototype.getNLSItemById = function(id) {
@@ -270,6 +270,35 @@ OpenAjax.a11y.WCAG20NLS.prototype.getNLSWCAG20Level = function (level) {
   
 };
 
+/**
+ * @method toJSON
+ *
+ * @memberOf OpenAjax.a11y.WCAG20NLS
+ *
+ * @desc Returns an nls JSON representation of wcag 2.0 information
+ *
+ * @param {String} prefix  -  A prefix string typically spaces
+ * 
+ * @return {String}  JSON formatted string 
+ */
+
+OpenAjax.a11y.WCAG20NLS.prototype.toJSON = function(prefix) {
+
+  var next_prefix = "";
+
+  if (typeof prefix !== 'string' || prefix.length === 0) prefix = "";
+  else next_prefix = prefix + "  ";
+  
+  var json = "";
+  
+  json += "{";
+ 
+  for (var i = 0; i < this.principles.length; i++) json += this.principles[i].toJSON(next_prefix);
+  
+  json += prefix + "}";
+
+  return json;
+};
 
 /* ---------------------------------------------------------------- */
 /*                       WCAG20NLSPrinciple                           */
@@ -303,6 +332,39 @@ OpenAjax.a11y.WCAG20NLSPrinciple = function(principle_id, info) {
   this.guidelines = [];
   
 };
+
+/**
+ * @method toJSON
+ *
+ * @memberOf OpenAjax.a11y.WCAG20NLSPrinciple
+ *
+ * @desc Returns an nls JSON representation of wcag 2.0 principle information
+ *
+ * @param {String} prefix  -  A prefix string typically spaces
+ * 
+ * @return {String}  JSON formatted string 
+ */
+
+OpenAjax.a11y.WCAG20NLSPrinciple.prototype.toJSON = function(prefix) {
+
+  if (typeof prefix !== 'string' || prefix.length === 0) prefix = "";
+  
+  var json = "";
+       
+  json += prefix + "'" + this.principle_id + "' : { "; 
+
+  json += prefix + "  'type'           : 'p',"; 
+  json += prefix + "  'title'          : '" + this.title + "',"; 
+  json += prefix + "  'drescription'   : '" + this.description + "',"; 
+  json += prefix + "  'url'            : '" + this.url_spec + "',"; 
+
+  json += prefix + "},"; 
+    
+  for (var i = 0; i < this.guidelines.length; i++) json += this.guidelines[i].toJSON(prefix);
+  
+  return json;
+};
+
 
 /* ---------------------------------------------------------------- */
 /*                       WCAG20NLSGuideline                           */
@@ -342,6 +404,40 @@ OpenAjax.a11y.WCAG20NLSGuideline = function(principle, guideline_id, info) {
   this.success_criteria = [];
   
 };
+
+/**
+ * @method toJSON
+ *
+ * @memberOf OpenAjax.a11y.WCAG20NLSGuideline
+ *
+ * @desc Returns an nls JSON representation of wcag 2.0 guideline information
+ *
+ * @param {String} prefix  -  A prefix string typically spaces
+ * 
+ * @return {String}  JSON formatted string 
+ */
+
+OpenAjax.a11y.WCAG20NLSGuideline.prototype.toJSON = function(prefix) {
+
+  if (typeof prefix !== 'string' || prefix.length === 0) prefix = "";
+  
+  var json = "";
+       
+  json += prefix + "'" + this.guideline_id + "' : { "; 
+
+  json += prefix + "  'type'           : 'g',"; 
+  json += prefix + "  'title'          : '" + this.title + "',"; 
+  json += prefix + "  'drescription'   : '" + this.description + "',"; 
+  json += prefix + "  'url'            : '" + this.url_spec + "',"; 
+
+  json += prefix + "},"; 
+    
+  for (i = 0; i < this.success_criteria.length; i++) json += this.success_criteria[i].toJSON(prefix);
+  
+  return json;
+};
+
+
 
 /* ---------------------------------------------------------------- */
 /*                       WCAG20NLSSuccessCriterion                    */
@@ -390,42 +486,36 @@ OpenAjax.a11y.WCAG20NLSSuccessCriterion = function(principle, guideline, sc_id, 
 };
 
 /**
- * @member addResource
+ * @method toJSON
  *
- * @memberOf OpenAjax.a11y.RequirementInfo
+ * @memberOf OpenAjax.a11y.WCAG20NLSSuccessCriterion
  *
- * @desc Add a resource with localized NLS values to the NLS requirement information 
+ * @desc Returns an nls JSON representation of wcag 2.0 success criterion information
  *
- * @param {ResourceInfo}  resource  - Resource object to add 
+ * @param {String} prefix  -  A prefix string typically spaces
+ * 
+ * @return {String}  JSON formatted string 
  */
 
-OpenAjax.a11y.WCAG20NLSSuccessCriterion.prototype.addResource = function(resource) {
-
-  this.resources.push(resource);
+OpenAjax.a11y.WCAG20NLSSuccessCriterion.prototype.toJSON = function(prefix) {
   
-};
-
-/* ---------------------------------------------------------------- */
-/*                        ResourceInfo                              */
-/* ---------------------------------------------------------------- */
-
-/**
- * @constructor ResourceInfo
- *
- * @memberOf OpenAjax.a11y
- *
- * @desc Resource information with properties with localized NLS values 
- *
- * @param {String}  type   - Number of the requirement 
- * @param {String}  title  - Title of the requirement 
- * @param {String}  url    - URL to information on the requirement
- */
-
-OpenAjax.a11y.ResourceInfo = function(type, title, url) {
-
-  this.type  = type;      
-  this.title = title;      
-  this.url   = url;     
+  if (typeof prefix !== 'string' || prefix.length === 0) prefix = "";
   
+  var json = "";
+       
+  json += prefix + "'" + this.sc_id + "' : { "; 
+
+  json += prefix + "  'type'           : 'sc',"; 
+  json += prefix + "  'level'          : " + this.level + ","; 
+  json += prefix + "  'title'          : '" + this.title + "',"; 
+  json += prefix + "  'drescription'   : '" + this.description + "',"; 
+  json += prefix + "  'url'            : '" + this.url_spec + "',"; 
+  json += prefix + "  'url_meet'       : '" + this.url_meet + "',"; 
+  json += prefix + "  'url_understand' : '" + this.url_understand + "',"; 
+
+  if (this.sc_id === '4.1.2') json += prefix + "}"; 
+  else json += prefix + "},"; 
+    
+  return json;
 };
 

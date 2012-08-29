@@ -316,14 +316,14 @@ OpenAjax.a11y.Log.prototype.toJSON = function () {
   
 OpenAjax.a11y.Log.prototype.consoleStatusLog = function ( message, time ) {
  
- if (!OpenAjax.a11y.LOG_MESSAGES_TO_CONSOLE) return;
+  if (!OpenAjax.a11y.LOG_MESSAGES_TO_CONSOLE) return;
   
- if (typeof time == 'number') {
-  OpenAjax.a11y.logger.debug( message + ": " + this.timeInMillisecondToString(time) + " (" + this.rule_count + " of " + this.rules_max +")");
- }
- else {
-  OpenAjax.a11y.logger.debug( message );    
- }
+    if (typeof time == 'number') {
+      OpenAjax.a11y.logger.debug( message + ": " + this.timeInMillisecondToString(time) + " (" + this.rule_count + " of " + this.rules_max +")");
+    }
+    else {
+      OpenAjax.a11y.logger.debug( message );    
+    }
 }; 
 
 /**
@@ -390,7 +390,7 @@ OpenAjax.a11y.Log.prototype.update = function (state, message, rule_id) {
   log_rule.id = rule_id;
   log_rule.message = message;
   log_rule.time  = change;
-  this.last_requirement_item.addLogRule( log_rule );
+  if (this.last_requirement_item) this.last_requirement_item.addLogRule( log_rule );
   this.consoleStatusLog(" " + message, change); 
   this.rule_count++; 
   break;

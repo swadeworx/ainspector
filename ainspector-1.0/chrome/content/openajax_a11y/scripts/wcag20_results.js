@@ -621,6 +621,8 @@ OpenAjax.a11y.WCAG20ResultSuccessCriterion = function (success_criterion_id) {
 
   this.success_criterion_id     = success_criterion_id;
   this.rule_result_aggregation  = new OpenAjax.a11y.RuleResultAggregation('wcag20_success_criterion_' + success_criterion_id);
+  
+  this.rule_results = [];
 };
 
 /** 
@@ -638,6 +640,8 @@ OpenAjax.a11y.WCAG20ResultSuccessCriterion.prototype.addRuleResult = function (r
 //  OpenAjax.a11y.logger.debug("WCAG20ResultSuccessCriterion: " + rule_result.rule.wcag_primary_id );
 
   this.rule_result_aggregation.addRuleResult(rule_result);
+  
+  this.rule_results.push(rule_result);
 
 };
 

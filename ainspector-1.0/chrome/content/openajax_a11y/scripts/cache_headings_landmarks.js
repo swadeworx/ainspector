@@ -1488,10 +1488,10 @@ OpenAjax.a11y.cache.H1Element.prototype.isH1UsedAsLabelForMainRole = function ()
   if (me) {
     var h1_elements = me.h1_elements;
     
-    OpenAjax.a11y.logger.debug("Number of H1 elements: " + h1_elements.length + " (" + me + ")");
+    // OpenAjax.a11y.logger.debug("Number of H1 elements: " + h1_elements.length + " (" + me + ")");
     
     for (var i = 0; i < h1_elements.length; i++) {
-      OpenAjax.a11y.logger.debug("  H1 elements: " + this + " " + h1_elements[i]);
+      // OpenAjax.a11y.logger.debug("  H1 elements: " + this + " " + h1_elements[i]);
       if (this === h1_elements[i] ) {
         this.is_child_of_main = true;
         break;

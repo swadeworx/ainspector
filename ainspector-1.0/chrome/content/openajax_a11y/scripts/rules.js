@@ -148,22 +148,22 @@ OpenAjax.a11y.Rule.prototype.getNLSDefinition = function (rule_type) {
           break;
 
         default:
-          message = "";
+          message = nls_rules.message_severities.MUST + "/" + nls_rules.message_severities.SHOULD;
           break; 
         }
-      }
-      // If no rule type is defined assume "must"
-      else {
-        message = nls_rules.message_severities.MUST;      
-      }
+     }
+     else {
+       // If no rule type is defined assume "must"
+        message = nls_rules.message_severities.MUST + "/" + nls_rules.message_severities.SHOULD;
+     }
       
-      str = str.replace(vstr, message);  
-    }  
+     str = str.replace(vstr, message);  
+   }  
     
-    return OpenAjax.a11y.util.transformElementMarkup(str);
-  }
+   return OpenAjax.a11y.util.transformElementMarkup(str);
+ }
       
-  return "Definition not found for rule: " + this.rule_id;
+ return "Definition not found for rule: " + this.rule_id;
   
 };
 
@@ -560,6 +560,23 @@ OpenAjax.a11y.Rule.prototype.getWCAG20SuccessCriteriaIndex = function () {
    var indexes = this.wcag_primary_id.split('.');
 
    return (parseInt(indexes[2], 10) - 1);
+
+};
+
+/**
+ * @method toJSON
+ *
+ * @memberOf OpenAjax.a11y.Rule
+ *
+ * @desc Returns a JSON representation of the rule
+ *
+ * @return  {String}  Returns a JSON representation of the rule
+ */
+
+OpenAjax.a11y.Rule.prototype.toJSON = function () {
+  var json = "";
+  
+  return json;
 
 };
 
