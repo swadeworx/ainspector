@@ -11,6 +11,9 @@
   <script type="application/x-javascript" src="chrome://ainspector/content/cache-util.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-list-template.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-tree-template.js"/>
+  
+  <script type="application/x-javascript" src="chrome://ainspector/content/panel-summary.js"/>
+  
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-images.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-controls.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/panel-colorContrast.js"/>
@@ -36,9 +39,11 @@
   <script type="application/x-javascript" src="chrome://ainspector/content/ainspector-firebug.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/sidePanel-rules.js"/>
   <script type="application/x-javascript" src="chrome://ainspector/content/sidePanel-colorContrast.js"/>  
-  <script type="application/x-javascript" src="chrome://ainspector/content/sidePanel-accessible-properties.js"/>
+  <script type="application/x-javascript" src="chrome://ainspector/content/sidePanel-elements.js"/>
+  
   
   <commandset id="mainCommandSet"> 
+  	<command id="ainspector_summary_view_button" oncommand="AINSPECTOR_FB.summary.viewPanel(Firebug.currentContext)"/>
     <command id="ainspector_content_view_button" oncommand="AINSPECTOR_FB.content.viewPanel(Firebug.currentContext)"/>
     <command id="ainspector_headers_view_button" oncommand="AINSPECTOR_FB.headers.viewPanel(Firebug.currentContext)"/>
     <command id="ainspector_images_view_button" oncommand="AINSPECTOR_FB.images.viewPanel(Firebug.currentContext)"/>
@@ -53,7 +58,9 @@
     <hbox id="fbToolbarInner" insertbefore="fbDetachButton" flex="1" align="center"> 
       <hbox id="fbFirebugExtensionButtons" insertafter="fbNetButtons"> 
         <toolbarseparator/>
-            <toolbarbutton id="content" label="&ainspector.toolbarbutton.content.label;" class="toolbar-text-button fbInternational" checked="true" command="ainspector_content_view_button" type="radio" group="RadioGroup"/>
+        	<toolbarbutton id="summary" label="&ainspector.toolbarbutton.summary.label;" class="toolbar-text-button fbInternational" checked="true" command="ainspector_summary_view_button" type="radio" group="RadioGroup"/>
+            <toolbarseparator/>
+            <toolbarbutton id="content" label="&ainspector.toolbarbutton.content.label;" class="toolbar-text-button fbInternational" command="ainspector_content_view_button" type="radio" group="RadioGroup"/>
             <toolbarseparator/>
             <toolbarbutton id="headers" label="&ainspector.toolbarbutton.headers.label;" class="toolbar-text-button fbInternational" command="ainspector_headers_view_button" type="radio" group="RadioGroup"/>
             <toolbarseparator/>

@@ -29,6 +29,7 @@ with (FBL) {
   
   AINSPECTOR_FB.rules_registered = null;
   AINSPECTOR_FB.font_properties_registered = null;
+  AINSPECTOR_FB.elements_registered = null;
   
   AINSPECTOR_FB.preferences = null;
 
