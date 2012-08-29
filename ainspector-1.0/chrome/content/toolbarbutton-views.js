@@ -129,7 +129,7 @@ with (FBL) {
     if (!cache_item_results) {
       panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.replace({view:"Tables"}, toolbar, null);
     } else {
-      if (tables_cache_elements_results.is_a_tree == true)
+      if (tables_cache_elements_results.is_tree == true)
         panel.table = AINSPECTOR_FB.treeTemplate.grid.tag.replace({object: cache_item_results, view: "Tables"}, toolbar, AINSPECTOR_FB.treeTemplate.grid);
       else
         panel.table = AINSPECTOR_FB.template.grid.header.replace({elements: cache_item_results, view:"Tables"}, toolbar, AINSPECTOR_FB.template.grid);
@@ -144,7 +144,7 @@ with (FBL) {
     if (!cache_item_results) {
       Firebug.currentContext.getPanel('rulesSidePanel').showEmptySidePanel();
     } else {
-      AINSPECTOR_FB.toolbarUtil.selectRow(panel, cache_item_results[0], tables_cache_elements_results.is_a_tree);
+      AINSPECTOR_FB.toolbarUtil.selectRow(panel, cache_item_results[0], tables_cache_elements_results.is_tree);
       Firebug.currentContext.getPanel('rulesSidePanel').sView(true, cache_item_results[0]);
     }
   };

@@ -166,7 +166,7 @@ with (FBL) {
     var toolbar = panel.document.createElement("div");
     toolbar.id = "toolbarDiv";
     
-    if (header_cache_elements_results.is_a_tree == true)
+    if (header_cache_elements_results.is_tree == true)
       
       panel.table = AINSPECTOR_FB.treeTemplate.grid.tag.replace({object: cache_item_results, view: "Headings and Landmarks"}, toolbar, AINSPECTOR_FB.treeTemplate.grid);
     else  
@@ -182,7 +182,7 @@ with (FBL) {
     
     AINSPECTOR_FB.template.grid.setTableMenuItems(panel.table);
 
-    var selected_row = AINSPECTOR_FB.toolbarUtil.selectRow(panel, cache_item_results[0], header_cache_elements_results.is_a_tree, "headers");
+    var selected_row = AINSPECTOR_FB.toolbarUtil.selectRow(panel, cache_item_results[0], header_cache_elements_results.is_tree, "headers");
    
     if (AINSPECTOR_FB.previous_selected_row != null && selected_row) Firebug.currentContext.getPanel('rulesSidePanel').sView(true, cache_item_results[selected_row]);
     else Firebug.currentContext.getPanel('rulesSidePanel').sView(true, cache_item_results[0]);
