@@ -400,7 +400,7 @@ AINSPECTOR_FB.flatListTemplateUtil = {
         setClass(table.rows[0], "headerRowSelected");
         table.rows[0].focus();
         var side_panel = Firebug.currentContext.getPanel('rulesSidePanel');
-        AINSPECTOR_FB.emptySidePanelTemplate.tag.replace({messg: "please select an element row in the left panel"}, side_panel.panelNode);
+        AINSPECTOR_FB.emptySidePanelTemplate.tag.replace({messg: "please select an element row in the left panel", desc: "Evaluation Results By Rule"}, side_panel.panelNode);
         break;
       }  
       FBTrace.sysout("AINSPECTOR_FB.flatListTemplateUtil.onKeyPressTable - down arrow");
@@ -962,6 +962,10 @@ AINSPECTOR_FB.tabPanelUtil = {
   
       /* flag == true if it is other than color contrast toolbar button*/
       if (flag == true) {
+        if (panelType_elements) {
+          AINSPECTOR_FB.elements_registered = panelType_elements;
+          AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_elements);
+        }
         if (panelType_colorContrast) {
           
           AINSPECTOR_FB.font_properties_registered = panelType_colorContrast;
@@ -976,6 +980,10 @@ AINSPECTOR_FB.tabPanelUtil = {
   
         }
       } else if (flag == false){ //if it is only color contrast panel
+        if (panelType_elements) {
+          AINSPECTOR_FB.elements_registered = panelType_elements;
+          AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_elements);
+        }
         
         if (panelType_rules) {
           AINSPECTOR_FB.rules_registered = panelType_rules;

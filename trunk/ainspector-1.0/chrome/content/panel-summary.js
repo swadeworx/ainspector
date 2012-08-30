@@ -81,13 +81,13 @@ with (FBL) {
     panel.panelNode.id = "ainspector-panel"; 
     panel.panelNode.appendChild(toolbar);
     panel.panelNode.appendChild(element);
-    /* AINSPECTOR_FB.template.grid.setTableMenuItems(panel.table);
-
-    var selected_row = AINSPECTOR_FB.toolbarUtil.selectRow(panel, cache_item_results[0], false, "images");
     
-    if (AINSPECTOR_FB.previous_selected_row != null && selected_row) Firebug.currentContext.getPanel('rulesSidePanel').sView(true, cache_item_results[selected_row]);
-    else Firebug.currentContext.getPanel('rulesSidePanel').sView(true, cache_item_results[0]);
-*/
+    AINSPECTOR_FB.template.grid.setTableMenuItems(panel.table);
+
+    var selected_row = AINSPECTOR_FB.toolbarUtil.selectRow(panel, rule_result_items[0], false, "sumary");
+    
+    if (AINSPECTOR_FB.previous_selected_row != null && selected_row) Firebug.currentContext.getPanel('elementsSidePanel').sView(true, rule_result_items[selected_row]);
+    else Firebug.currentContext.getPanel('elementsSidePanel').sView(true, rule_result_items[0]);
     }
   };
   
@@ -176,8 +176,6 @@ with (FBL) {
          * @param
          */
         createMembers: function(iterator, rule_result_item) {
-          
-          FBTrace.sysout("rule_result_item: ", rule_result_item);
           
           var description          = "no description";
           var wcag20_sc_level      = "";

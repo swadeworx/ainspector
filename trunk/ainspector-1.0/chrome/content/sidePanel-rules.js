@@ -145,9 +145,15 @@ FBL.ns(function() { with (FBL) {
       if (event.keyCode == KeyEvent.DOM_VK_UP) {
       
         result = previous_row.repObject;
-        if (result.dom_element) rule_result_objet = this.showOnRuleResultsTabSelect(result.dom_element);
-        else if(result) rule_result_objet = this.showOnRuleResultsTabSelect(result);
-        else AINSPECTOR_FB.emptySidePanelTemplate.tag.replace({messg: "please select an element row in the left panel"}, this.panelNode);
+        
+        if (result.dom_element) {
+          rule_result_objet = this.showOnRuleResultsTabSelect(result.dom_element);
+        } else if(result) {
+          rule_result_objet = this.showOnRuleResultsTabSelect(result);
+        } else {
+          var headers = ["Result/Property", "Message/Value"];
+          AINSPECTOR_FB.emptySidePanelTemplate.tag.replace({headers: headers, messg: "please select an element row in the left panel", desc: "Evaluation Results By Rule"}, this.panelNode);
+        }  
         if (rule_result_objet) this.rebuild(rule_result_objet);
       
       } else if (event.keyCode == KeyEvent.DOM_VK_DOWN) {
@@ -347,16 +353,20 @@ FBL.ns(function() { with (FBL) {
       
       FBTrace.sysout("element: ", element);
       
-      if (resultObject.rule_result_array.length > 0) rulesPlate.tag.replace({object: resultObject.rule_result_array, element: element}, this.panelNode);
+      if (resultObject.rule_result_array.length > 0) {
+        rulesPlate.tag.replace({object: resultObject.rule_result_array, element: element}, this.panelNode);
       
-      else AINSPECTOR_FB.emptySidePanelTemplate.tag.replace({messg: "no rule results"}, this.panelNode);
+      } else {
+        var headers = ["Result/Property", "Message/Value"];
+        AINSPECTOR_FB.emptySidePanelTemplate.tag.replace({headers: headers, messg: "no rule results", desc: "Evaluation Results By Rule"}, this.panelNode);
+      }
     },
     
     showEmptySidePanel : function() {
 
       this.panelNode.id = "ainspector-side-panel";
-      
-      AINSPECTOR_FB.emptySidePanelTemplate.tag.replace({messg: "no elements to select in the main panel"}, this.panelNode);
+      var headers = ["Result/Property", "Message/Value"];
+      AINSPECTOR_FB.emptySidePanelTemplate.tag.replace({headers: headers, messg: "no elements to select in the main panel", desc: "Evaluation Results By Rule"}, this.panelNode);
     },
 
     /**
@@ -415,7 +425,6 @@ FBL.ns(function() { with (FBL) {
           FOR("member", "$object|memberIterator", TAG("$row", {member: "$member"}))
         ) //end TBODY
       ),
-//      BUTTON({class: "more-info", onclick: "$showMoreProperties", id: "rule_info_button"}, "Rule Information"),
       DIV({class: "notificationButton-rule"},
         BUTTON({onclick: "$showMoreProperties"}, "Rule Information"),
         BUTTON({onclick: "$getElementInformation", style: "margin: 0.5em;"}, "Element Information")
