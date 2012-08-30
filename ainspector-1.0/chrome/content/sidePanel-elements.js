@@ -38,6 +38,7 @@ FBL.ns(function() { with (FBL) {
     title: side_panel_title,
     order: 1,
     editable: true,
+    node_results_array : [],
 
     /**
      * @constructor initialize
@@ -113,15 +114,12 @@ FBL.ns(function() { with (FBL) {
       if (state) {
       
         try {
-        
-          if (first_element.hasOwnProperty("dom_element")) result = first_element.dom_element;
-         
-          else result = first_element;
+          if (!first_element) return;
           
-          rule_result_array = this.showOnRuleResultsTabSelect(result);
-
-          //if (rule_result_array.length > 0) this.rebuild(rule_result_array);
-          this.rebuild(rule_result_array);
+          this.aggregateNodeResults(first_element);
+          var rule = first_element.getRuleId() + ': ' + first_element.getRuleSummary();
+          this.rebuild(rule);
+          
         } catch (er) {
         }
       } else {
@@ -141,12 +139,13 @@ FBL.ns(function() { with (FBL) {
     setSelection : function(event) {
       
       var rule_result_item = Firebug.getRepObject(event.target);
+      this.node_results_array = [];
       
       if (!rule_result_item) return;
       
-      var node_results = this.aggragateNodeResults(rule_result_item);
-      
-      this.rebuild(rule_result_item.getRuleSummary(), node_results);
+      this.aggregateNodeResults(rule_result_item);
+      var rule = rule_result_item.getRuleId() + ': ' + rule_result_item.getRuleSummary();
+      this.rebuild(rule);
     },
     
     /**
@@ -156,41 +155,41 @@ FBL.ns(function() { with (FBL) {
      * 
      * @param resultArray
      */
-    rebuild: function(rule_summary, node_results){
+    rebuild: function(rule_summary){
+      this.panelNode.id = "ainspector-side-panel";
+      FBTrace.sysout("node_results_array: ", this.node_results_array);
       
-      if (node_reuslts.length > 0) elementsPlate.tag.replace({object: node_results, rule_summary: rule_summary}, this.panelNode);
-      
-      else AINSPECTOR_FB.emptySidePanelTemplate.tag.replace({messg: "no node results", summary : rule_summary}, this.panelNode); 
+      if (this.node_results_array.length > 0) {
+        elementsPlate.tag.replace({object: this.node_results_array, rule_summary: rule_summary}, this.panelNode);
+      } else {
+        var headers = ["Result", "Element"];
+        AINSPECTOR_FB.emptySidePanelTemplate.tag.replace({headers: headers, messg: "no node results", desc: rule_summary}, this.panelNode);
+      }
     },
     
     /**
-     * @function aggragateNodeResults
+     * @function aggregateNodeResults
      */
-    aggragateNodeResults : function(rule_result_item){
+    aggregateNodeResults : function(rule_result_item){
       
-      var node_results = [];
-      
-      if (rule_result_item.node_results_passed){
-        node_results.push(this.updateNodeResults(rule_result_item.node_results_passed));
+      if (rule_result_item.node_results_passed && rule_result_item.node_results_passed.length > 0){
+        this.updateNodeResults(rule_result_item.node_results_passed);
       }
-      if (rule_result_item.node_results_violations){
-        node_results.push(this.updateNodeResults(rule_result_item.node_results_violations));
+      if (rule_result_item.node_results_violations && rule_result_item.node_results_violations.length > 0){
+        this.updateNodeResults(rule_result_item.node_results_violations);
 
       }
-      if (rule_result_item.node_results_warnings){
-        node_results.push(this.updateNodeResults(rule_result_item.node_results_warnings));
+      if (rule_result_item.node_results_warnings && rule_result_item.node_results_warnings.length > 0){
+        this.updateNodeResults(rule_result_item.node_results_warnings);
 
       }
-      if (rule_result_item.node_results_manual_checks){
-        node_results.push(this.updateNodeResults(rule_result_item.node_results_manual_checks));
+      if (rule_result_item.node_results_manual_checks && rule_result_item.node_results_manual_checks.length > 0){
+        this.updateNodeResults(rule_result_item.node_results_manual_checks);
+      }
+      if (rule_result_item.node_results_hidden && rule_result_item.node_results_hidden.length > 0){
+        this.updateNodeResults(rule_result_item.node_results_hidden);
 
       }
-      if (rule_result_item.node_results_hidden){
-        node_results.push(this.updateNodeResults(rule_result_item.node_results_hidden));
-
-      }
-      
-      return node_results;
       
     },
     
@@ -198,22 +197,13 @@ FBL.ns(function() { with (FBL) {
      * @function updateNodeResults
      */
     updateNodeResults : function(node_results){
-      var node_results_array = [];
       
       for(var i = 0; i < node_results.length; i++) {
-        node_results_array.push(node_results[i]);
+        this.node_results_array.push(node_results[i]);
       }
       
-      return node_results_array;
     },
      
-    showEmptySidePanel : function() {
-
-      this.panelNode.id = "ainspector-side-panel";
-      
-      AINSPECTOR_FB.emptySidePanelTemplate.tag.replace({messg: "no elements to select in the main panel"}, this.panelNode);
-    },
-
     /**
      * setTrialSelector
      * 
@@ -250,23 +240,90 @@ FBL.ns(function() { with (FBL) {
           ) //end TR
         ), //end THEAD
         TBODY(
-//          FOR("member", "$object|memberIterator", TAG("$row", {member: "$member"}))
-            TR({},
-                TD("Hello"),
-                TD("world")
-                ),
-                TR({},
-                    TD("Hello world"),
-                    TD("world")
-                )
+          FOR("obj", "$object|getMembers",
+              TR({class: "treeRow gridRow", role: "row", _repObject: "$obj.cache", onclick: "$highlightRow"},
+                TD({class: "gridCell gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridLabel"},
+                  TAG("$obj.severity_label_style", {'member' : '$obj'}))),
+                TD({class: "gridCell gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridLabel"},"$obj.tag_name"))
+              ) //end TR
+            )
         ) //end TBODY
       ),
-//      BUTTON({class: "more-info", onclick: "$showMoreProperties", id: "rule_info_button"}, "Rule Information"),
       DIV({class: "notificationButton-rule"},
         BUTTON({onclick: "$showMoreProperties"}, "Rule Information"),
         BUTTON({onclick: "$getElementInformation", style: "margin: 0.5em;"}, "Element Information")
       )
     ),
+    
+    strTagPass : DIV({class: "treeLabel passMsgTxt"}, "$member.severityLabel"),
+    strTagViolation : DIV({class: "treeLabel violationMsgTxt"}, "$member.severityLabel"),
+    strTagManual : DIV({class: "treeLabel manualMsgTxt"}, "$member.severityLabel"),
+    strTagHidden : DIV({class: "treeLabel hiddenMsgTxt"}, "$member.severityLabel"),
+    strTagWarn : DIV({class: "treeLabel warnMsgTxt"}, "$member.severityLabel"),
+    
+    highlightRow : function(event){
+      FBTrace.sysout("highlightRow: ", event);
+      var table = getAncestorByClass(event.target, "ai-sidepanel-table");
+      var row = getAncestorByClass(event.target, "treeRow");
+      FBTrace.sysout("table: ", table);
+      FBTrace.sysout("row: ", row);
+      AINSPECTOR_FB.flatListTemplateUtil.unHighlight(table);
+      AINSPECTOR_FB.flatListTemplateUtil.highlight(row);
+    },
+    
+    /**
+     * @function getMembers
+     * 
+     * @desc
+     * 
+     * @param elements - 
+     */
+    getMembers : function(object) {
+      var members = [];
+      
+      for (var p in object) members.push(this.createMembers(p, object[p]));
+      
+      return members;
+    },
+    
+    /**
+     * @function createMembers
+     * 
+     * @desc
+     * 
+     * @param key -
+     * @param object
+     */
+    createMembers : function(key, object){
+      FBTrace.sysout("object....................................", object);
+
+      return {
+        cache: object,
+        tag_name: this.getElement(object),
+        severity_label_style : this.getSeverityLabel(object),
+        severityLabel : object.getNLSSeverityLabel()
+      };
+    },
+    
+    getSeverityLabel : function(object){
+      
+    var severity_label = object.getNLSSeverityLabel();
+    
+    if (severity_label == 'Warning') return this.strTagWarn;
+    if (severity_label == 'Manual Check') return this.strTagManual;
+    if (severity_label == 'Pass') return this.strTagPass;
+    if (severity_label == 'Hidden') return this.strTagHidden;
+    if (severity_label == 'Violation') return this.strTagViolation;
+
+//      return object.getNLSSeverityLabel();
+    },
+    
+    getElement : function(object) {
+      var tag_name = object.cache_item.toString();
+      
+      return AINSPECTOR_FB.ainspectorUtil.truncateText(tag_name);
+      
+    },
     
 
     /**
@@ -278,8 +335,14 @@ FBL.ns(function() { with (FBL) {
      */
     showMoreProperties : function(event) {
       
-      var tree = getAncestorByClass(event.target, "side-panel");
-      var table = getChildByClass(tree, "ai-sidepanel-table");
+    var main_panel = Firebug.currentContext.getPanel("AInspector");
+      
+    var table_container = getChildByClass(main_panel.table, "table-scrollable"); 
+    var table = getChildByClass(table_container, "ai-table-list-items");
+      
+      
+//      var tree = getAncestorByClass(event.target, "side-panel");
+//      var table = getChildByClass(tree, "ai-sidepanel-table");
 //      var table = tree.children[1];
       var tbody = table.children[1];
       
@@ -323,13 +386,13 @@ FBL.ns(function() { with (FBL) {
      */
     getElementInformation : function(event) {
       FBTrace.sysout("event.target: ", event.target);
-//      var tree = getAncestorByClass(event.target, "side-panel");
-//      var table = getChildByClass(tree, "ai-sidepanel-table");
+      var tree = getAncestorByClass(event.target, "side-panel");
+      var table = getChildByClass(tree, "ai-sidepanel-table");
       
-      var main_panel = Firebug.currentContext.getPanel("AInspector");
+//      var main_panel = Firebug.currentContext.getPanel("AInspector");
       
-      var table_container = getChildByClass(main_panel.table, "table-scrollable"); 
-      var table = getChildByClass(table_container, "ai-table-list-items");
+//      var table_container = getChildByClass(main_panel.table, "table-scrollable"); 
+//      var table = getChildByClass(table_container, "ai-table-list-items");
       
 //      var table = tree.children[1];
       var tbody = table.children[1];

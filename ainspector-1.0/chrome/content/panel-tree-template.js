@@ -461,14 +461,16 @@ AINSPECTOR_FB.BaseRep = domplate(Firebug.Rep, {
     
     tag:
       DIV({class: "side-panel"},
-        DIV({class: "eval-results"}, "Evaluation Results By Rule"),
+        DIV({class: "eval-results"}, "$desc"),
         TABLE({class: "ai-sidepanel-table", cellpadding: 0, cellspacing: 0, role: "treegrid"},
           THEAD(
-            TR({class: "gridHeaderRow gridRow", id: "rulesTableHeader", "role": "row", tabindex: "0"},
-              TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, DIV({class: "gridHeaderCellBox"}, "Result/Property")),
-              TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, DIV({class: "gridHeaderCellBox"}, "Message/Value"))
-            )
-          ),
+              
+              TR({class: "gridHeaderRow gridRow", id: "rulesTableHeader", "role": "row", tabindex: "0"},
+                FOR('header', '$headers',
+                  TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, DIV({class: "gridHeaderCellBox"}, "$header"))
+              )//end FOR
+            ) //end TR
+          ), //end THEAD
           TBODY(
             TR({class: "tableRow gridRow", role: "row"},
               TD(DIV({class: "gridCol gridCell gridContent"},"$messg"))
