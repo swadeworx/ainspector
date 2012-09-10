@@ -40,9 +40,11 @@
 
 .violationMsgTxt {
    background-color: #b22222; 
-   color: #FFFFFF;
-   width:50%;
+   color: white;
+   font-weight: bold;
+   display:block;
 }
+
 .manualMsgTxt {
   color: #b22222;
 }

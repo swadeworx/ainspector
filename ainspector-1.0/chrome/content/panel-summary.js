@@ -44,7 +44,6 @@ with (FBL) {
     
 //  adds or removes the side panels from the extension depending on the panel we are in 
     AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels("none");
-    FBTrace.sysout("print it");
     if (!context) context = Firebug.currentContext;
     if (!panel_name) panel_name = "AInspector";
 
@@ -63,11 +62,11 @@ with (FBL) {
       clearNode(Firebug.currentContext.getPanel('elementsSidePanel').panelNode);
     }
     
-    var all_rules = cache_object.getRuleResultsByRuleGrouping(OpenAjax.a11y.RULE_GROUP.ALL_RULE_LIST, AINSPECTOR_FB.preferences.wcag20_level);
+    var all_rules = cache_object.getFilteredRuleResultsByRuleCategory(OpenAjax.a11y.RULE_CATEGORIES.ALL_CATEGORIES, "All Categories", AINSPECTOR_FB.preferences.wcag20_level, AINSPECTOR_FB.preferences.show_results_filter_value);
+    all_rules.sortRuleResultsByImplementationLevel();
     
-    FBTrace.sysout("all_rules: ", all_rules);
-    var rule_result_items = all_rules.rule_result_items;
-    
+    var rule_result_items = all_rules.filtered_rule_results;
+
     AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
     
     var toolbar = panel.document.createElement("div");
@@ -84,8 +83,8 @@ with (FBL) {
     
     AINSPECTOR_FB.template.grid.setTableMenuItems(panel.table);
 
-    var selected_row = AINSPECTOR_FB.toolbarUtil.selectRow(panel, rule_result_items[0], false, "sumary");
-    
+    var selected_row = AINSPECTOR_FB.toolbarUtil.selectRow(panel, rule_result_items[0], false, "summary");
+
     if (AINSPECTOR_FB.previous_selected_row != null && selected_row) Firebug.currentContext.getPanel('elementsSidePanel').sView(true, rule_result_items[selected_row]);
     else Firebug.currentContext.getPanel('elementsSidePanel').sView(true, rule_result_items[0]);
     }
@@ -94,7 +93,15 @@ with (FBL) {
   AINSPECTOR_FB.summaryTemplate = domplate({
     header :
       DIV({class: "main-panel"},
-        DIV({class: "view-panel"}, "$view"),
+        
+        DIV({class: "ruleset-div"},
+          SPAN({class: "ruleset-title"}, "Ruleset:  "),
+          SPAN({class: "ruleset-value"}, "$AINSPECTOR_FB.ruleset_title"),
+          SPAN({class: "ruleset-level"}, " Level:  "),
+          SPAN({class: "ruleset-level-value"}, "$AINSPECTOR_FB.selected_level"),
+          BUTTON({onclick: "$Firebug.preferenceModule.viewPanel", style: "margin-left: 0.5em;"}, "preferences"),
+          SPAN({class: "view-panel"}, "$view")
+        ),
         DIV({class: "table-scrollable"},
             TABLE({class: "ai-table-list-items", cellpadding: 0, id: "ai-table-list-items", cellspacing: 0, hiddenCols: "", role: "grid", "aria-selected" : "true",
              tabindex: "0", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressTable"},
@@ -120,7 +127,7 @@ with (FBL) {
                       DIV({class: "gridContent gridAlign"}, "$object.description")
                     ),
                     TD({class: "gridCol gridElementCol", id: "gridElementCol", role: "gridcell"},
-                      DIV({class: "gridContent gridAlign"}, "$object.required")
+                      DIV({class: "gridContent resultAlign"}, "$object.required")
                     ),
                     TD({class: "gridCol gridHiddenCol", id: "gridHiddenCol", role: "gridcell"},
                       DIV({class: "gridContent resultAlign"},  "$object.wcag20_sc_level")
@@ -143,10 +150,12 @@ with (FBL) {
         strTagViolation : DIV({class: "violationMsgTxt"}, "$object.PEPR"), //$object.violations_count
         strTagStyle : DIV({style: "color: gray"}, "$object.PEPR"), //$object.violations_count
         strTagPass : DIV({class: "passMsgTxt"}, "$object.PEPR"), //$object.passed_count
+        strTagWarn : DIV({class: "warnMsgTxt"}, "$object.PEPR"), //$object.warnings_count
+
         
         highlightRule : function(event){
     
-          panel.selection = Firebug.getRepObject(event.target);
+          panel.selected_summary_row = Firebug.getRepObject(event.target);
           AINSPECTOR_FB.flatListTemplateUtil.highlightRow(event);
         },
         
@@ -183,32 +192,35 @@ with (FBL) {
           var nls_implementation_level = null;
           var implementation_percentage = null;
           var manual_check_count = 0;
-          var rule_definition = rule_result_item.getRuleDefinition;
+          var rule_definition = rule_result_item.rule_result;
 
-          if (rule_definition) {
-            description               = rule_result_item.getRuleSummary();
-            required                 = (rule_result_item.rule_mapping.type === OpenAjax.a11y.RULE.REQUIRED) ? 'No' : 'Yes';
-            wcag20_sc_level          = rule_result_item.rule.getNLSWCAG20Level();
+          if (rule_result_item.rule_result) {
+            description               = rule_result_item.rule_result.getRuleSummary();
+            required                 = (rule_result_item.rule_result.rule_mapping.type === OpenAjax.a11y.RULE.REQUIRED) ? 'Yes' : 'No';
+            wcag20_sc_level          = rule_result_item.rule_result.rule.getNLSWCAG20Level();
+            implementation_percentage     = rule_result_item.rule_result.implementation_percentage;
+            nls_implementation_level = rule_result_item.rule_result.getNLSImplementationLevel();
             
-            implementation_percentage     = rule_result_item.implementation_percentage;
-            nls_implementation_level = rule_result_item.getNLSImplementationLevel();
           } else {
-            description          = rule_result_item.description;
-            
-            if (rule_result_item.rule_result_items) description += " (" + rule_result_item.getNumberOfRules() + " rules)";
-            
-            implementation_percentage     = rule_result_item.implementation_percentage;
-            nls_implementation_level = rule_result_item.rule_result_aggregation.getNLSImplementationLevel();
-          }
-          var PEPR = implementation_percentage + '%';
+            description          = rule_result_item.title;
+       
+            if (rule_result_item.getNumberOfRules) description += " (" + rule_result_item.getNumberOfRules() + " rules)";
+            implementation_percentage     = rule_result_item.getImplementationLevel();
+            nls_implementation_level = rule_result_item.getNLSImplementationLevel();
 
+          }
+          
+          var PEPR = implementation_percentage + '%';
+          
           if (nls_implementation_level.manual_check_count > 0)  manual_check_count = nls_implementation_level.manual_check_count;
           
           var implementation_percentage_tag = null;
           
           if (implementation_percentage == '100') implementation_percentage_tag = this.strTagPass;
           
-          else if (implementation_percentage < '100' ) implementation_percentage_tag = this.strTagViolation;
+          else if (implementation_percentage <= '50' ) implementation_percentage_tag = this.strTagViolation;
+          
+          else if (implementation_percentage > '50' && implementation_percentage < '100') implementation_percentage_tag = this.strTagWarn;
           
           else implementation_percentage_tag = this.strTagStyle;
           

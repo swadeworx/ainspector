@@ -93,7 +93,6 @@ FBL.ns(function() { with (FBL) {
       var prev_cell;
       var next_cell;
       
-      FBTrace.sysout("inside onkeypress of sidepanel - rules", event);
       var table_rows = event.target.offsetParent.rows;
     
       if (!table_rows) return;
@@ -299,7 +298,6 @@ FBL.ns(function() { with (FBL) {
       var cache_item = cache_item;
       var properties = cache_item.getStyle();
       
-      FBTrace.sysout("rule_results in *********................", properties);
       var rule_result_array = new Array();
       var label = null;
       
@@ -342,7 +340,6 @@ FBL.ns(function() { with (FBL) {
       
       fontPropertiesPlate.tag.replace({object: resultArray, item:cache_item}, this.panelNode);
       
-      FBTrace.sysout("panenode: ", this.panelNode);
       var panel = Firebug.currentContext.getPanel();
       var buttons = this.panelNode.getElementsByTagName("button");
       if (cache_item.dom_text_nodes.length > 0) buttons[0].disabled = true;
@@ -431,8 +428,6 @@ FBL.ns(function() { with (FBL) {
        getStyle : function(cache_item) {
          
          var computed_style = cache_item.computed_style;
-         FBTrace.sysout("cache_item: ", cache_item);
-         FBTrace.sysout("computed_style: ", cache_item.getStyle());
          var text_node_style = null;
          
          var color = "color: " + computed_style.color + "; ";
@@ -457,6 +452,7 @@ FBL.ns(function() { with (FBL) {
 
          return sample_text;
        },
+       
        /**
         * @function showMoreProperties
         * 

@@ -61,7 +61,7 @@ with (FBL) {
                          ),
                          TD({class: "gridCol gridViolationCol", id: "gridViolationCol", role: "gridcell"},
                            DIV({class: "gridContent resultAlign"}, 
-                            BUTTON({onclick: "$AINSPECTOR_FB.toolbarUtil.viewHTMLPanel", id: "html_panel_button", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.htmlButtonPress"}, "HTML"))
+                            BUTTON({onclick: "$AINSPECTOR_FB.toolbarUtil.gotoHTML", id: "html_panel_button", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.htmlButtonPress"}, "HTML"))
                          )
                        ) //end TR   
                      ) //end FOR
@@ -101,10 +101,9 @@ with (FBL) {
               * @param object
               */
              createMembers : function(key, object){
-               
                return {
-                 document_order: object.cache_item.document_order,
-                 tag_name: object.cache_item.toString(),
+                 document_order: (object.cache_item) ? object.cache_item.document_order : object.document_order,
+                 tag_name: (object.cache_item) ? object.cache_item.toString() : object.toString(),
                  hidden_count: this.getHiddenResultCount(object.hidden_count),
                  pass_count: this.getPassedResultCount(object.passed_count),
                  warning_count: this.getWarnResultCount(object.warnings_count),
@@ -141,7 +140,6 @@ with (FBL) {
               *  @param {Object} cache_item - object from OAA evaluation library
               */
              getHiddenResultCount : function(count) {
-//               FBTrace.sysout("object in getHiddenResultount: "+ count);
 
                if (count > 0) return this.strTagHidden;
                
@@ -243,21 +241,14 @@ with (FBL) {
 
                  // Iterate over all columns and create a menu item for each.
                  var content = Firebug.currentContext.getPanel("AInspector", true).table;
-                 FBTrace.sysout("AINSPECTOR_FB.template.grid.getcContextMenuItems() - content", content);
                  var table_div = getChildByClass(content, "table-scrollable");
 //                 FBTrace.sysout("AINSPECTOR_FB.template.grid.getcContextMenuItems() - main_panel_div", main_panel_div);
                  var table = getChildByClass(table_div, "ai-table-list-items");
                  
                  if (!table) table = getChildByClass(table_div, "domTable");
                  
-                 FBTrace.sysout("AINSPECTOR_FB.template.grid.getcContextMenuItems() - table_div", table_div);
-//                 var table = getChildByClass(table_div, "ai-table-list-items");
-                 FBTrace.sysout("AINSPECTOR_FB.template.grid.getcContextMenuItems() - table", table);
-//                 if (!table) table = getChildByClass(table_div, "domTable"); 
-
                  var hiddenCols = table.getAttribute("hiddenCols");
 
-                 FBTrace.sysout("hidden col: ", hiddenCols);
                  var lastVisibleIndex;
                  var visibleColCount = 0;
 
@@ -271,7 +262,6 @@ with (FBL) {
                    var column = columns[i];
                    var columnContent = column.getElementsByClassName("gridHeaderCellBox").item(0);
                    var visible = (hiddenCols.indexOf(column.id) == -1);
-                   FBTrace.sysout("visible: ", visible);
 
                    items.push({
                    label: columnContent.textContent,
@@ -308,7 +298,6 @@ with (FBL) {
               */
              onShowColumn : function(context, colId) {
                
-               FBTrace.sysout("colId: "+ colId);
                
                  var panel = Firebug.currentContext.getPanel("AInspector", true);
                  var content = panel.table;
@@ -318,15 +307,11 @@ with (FBL) {
                  
                  if (!table) table = getChildByClass(table_div, "domTable");
                  
-                 FBTrace.sysout("table in onShowColumn: ", table);
                  var hiddenCols = table.getAttribute("hiddenCols");
                  
-                 FBTrace.sysout("hiddenCols on onShowCOlmn: ", hiddenCols);
                  // If the column is already present in the list of hidden columns,
                  // remove it, otherwise append it.
                  var index = hiddenCols.indexOf(colId);
-                 FBTrace.sysout("index: " + index);
-                 FBTrace.sysout("hiddenCols: " , hiddenCols);
   
                  if (index >= 0) {
                    table.setAttribute("hiddenCols", hiddenCols.substr(0,index-1) +
@@ -409,9 +394,7 @@ with (FBL) {
                var tree = getAncestorByClass(event.target, "main-panel");
                var sub_div = getChildByClass(tree, "table-scrollable");
                var table = getChildByClass(sub_div, "ai-table-list-items");
-               FBTrace.sysout("tble", table );
 //               var table = tree.children[6];
-               FBTrace.sysout("table: ", table);
                var tbody = table.children[1];
                
                var rows = tbody.children;
@@ -438,8 +421,7 @@ with (FBL) {
                  }
                }
 
-               FBTrace.sysout("row: ", row);
-               window.openDialog("chrome://ainspector/content/item_properties/cache-item-properties.xul", "cache_item_properties_dialog", "chrome,contentscreen,resizable=yes", row.repObject.cache_item);
+               AINSPECTOR_FB.element_info_dialog = window.openDialog("chrome://ainspector/content/item_properties/cache-item-properties.xul", "cache_item_properties_dialog", "chrome,contentscreen,resizable=yes", row.repObject.cache_item);
              }
 
         });

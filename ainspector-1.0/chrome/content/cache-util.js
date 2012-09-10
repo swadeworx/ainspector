@@ -32,6 +32,9 @@ with (FBL) {
   AINSPECTOR_FB.elements_registered = null;
   
   AINSPECTOR_FB.preferences = null;
+  
+  AINSPECTOR_FB.rule_info_dialog = null;
+  AINSPECTOR_FB.element_info_dialog = null;
 
   Components.utils.import("resource://ainspector/highlight.js");
 
@@ -64,7 +67,7 @@ with (FBL) {
      */
     updateCache: function() {
 
-      FBTrace.sysout("inside AINSPECTOR_FB.cacheUtil.updateCache()");
+      FBTrace.sysout("****** Begin  AINSPECTOR_FB.cacheUtil.updateCache()   *******");
       
       var doc;
       var url;
@@ -77,28 +80,27 @@ with (FBL) {
       } // end try
 
       var preferences = OAA_WEB_ACCESSIBILITY_PREF.util.getPreferences();
-      FBTrace.sysout("preferences: ", preferences);
+      FBTrace.sysout("Preferences: ", preferences);
       
       var ruleset = OpenAjax.a11y.all_rulesets.getRuleset(preferences.ruleset_id);
-      FBTrace.sysout("ruleset: ", ruleset);
       
       if (ruleset) {
         ruleset.setEvaluationLevel(preferences.wcag20_level);
         ruleset.setBrokenLinkTesting(preferences.broken_links);
-        FBTrace.sysout("before calling evaluate ", ruleset);
         ruleset.evaluate(url, doc.title, doc, null, true);
-        FBTrace.sysout("after calling evaluate ", ruleset);
+        
+        FBTrace.sysout("ruleset: ", ruleset);
 
       } else {
         FBTrace.sysout("  ** Ruleset with the id '" + ruleset_id + "' not found!!");
       }
       
       AINSPECTOR_FB.preferences = preferences;
-      FBTrace.sysout("OpenAjax.a11y.all_wcag20_nls ", OpenAjax.a11y.all_wcag20_nls.getNLS().getNLSWCAG20Level(preferences.wcag20_level));
-
       AINSPECTOR_FB.selected_level = OpenAjax.a11y.all_wcag20_nls.getNLS().getNLSWCAG20Level(preferences.wcag20_level);
       AINSPECTOR_FB.ruleset_title = ruleset.ruleset_title;
       AINSPECTOR_FB.ruleset_object = ruleset;
+      
+      FBTrace.sysout("****** End  AINSPECTOR_FB.cacheUtil.updateCache()   *******");
       
       return ruleset;
     },
@@ -149,7 +151,7 @@ with (FBL) {
         var location_href = webProgress.DOMWindow.location.href;
   
         if (location_href == AINSPECTOR_FB.top_location_href) {
-          FBTrace.sysout('onStateChange () location_href: ' + location_href + "..." + AINSPECTOR_FB.top_location_href);
+//          FBTrace.sysout('onStateChange () location_href: ' + location_href + "..." + AINSPECTOR_FB.top_location_href);
           
           return AINSPECTOR_FB.cacheUtil.updateCache();
         }
@@ -168,7 +170,7 @@ with (FBL) {
     
       if (request) { // ignore call if request arg is null
       
-        FBTrace.sysout('onLocationChange () : location_href: ' + webProgress.DOMWindow.top.location.href);
+//        FBTrace.sysout('onLocationChange () : location_href: ' + webProgress.DOMWindow.top.location.href);
   
         AINSPECTOR_FB.top_location_href = webProgress.DOMWindow.top.location.href;
         

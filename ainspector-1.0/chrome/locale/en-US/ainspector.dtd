@@ -2,13 +2,14 @@
 <!ENTITY  ainspector.toolbarbutton.summary.label         "Summary">
 <!ENTITY  ainspector.toolbarbutton.images.label         "Images">
 <!ENTITY  ainspector.toolbarbutton.media.label          "Media">
-<!ENTITY  ainspector.toolbarbutton.controls.label       "Controls">
+<!ENTITY  ainspector.toolbarbutton.controls.label       "Form Controls">
 <!ENTITY  ainspector.toolbarbutton.colorContrast.label  "Color Contrast">
 <!ENTITY  ainspector.toolbarbutton.content.label       "Content/Landmarks">
 <!ENTITY  ainspector.toolbarbutton.headers.label       "Headers/Landmarks">
 <!ENTITY  ainspector.toolbarbutton.links.label          "Links">
 <!ENTITY  ainspector.toolbarbutton.lists.label          "Lists">
 <!ENTITY  ainspector.toolbarbutton.tables.label         "Tables">
+<!ENTITY  ainspector.toolbarbutton.audio.label         "Audio/Video">
 <!ENTITY  ainspector.toolbarbutton.abbr.label           "Abbrev/Lang">
 <!ENTITY  ainspector.toolbarbutton.elements.label       "All Elements">
 <!ENTITY  ainspector.toolbarbutton.navigation.label     "Navigation">

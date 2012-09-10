@@ -117,7 +117,6 @@ FBL.ns(function() { with (FBL) {
      */
     getContextMenuItems: function(object, target)
     {
-      FBTrace.sysout("AInspectorPanel.prototype.getContextMenuItems...");
       return AINSPECTOR_FB.template.grid.getContextMenuItems(this, arguments);
     }
   }); 
@@ -141,17 +140,18 @@ FBL.ns(function() { with (FBL) {
      */
     showPanel: function(browser, panel) { 
       
-      FBTrace.sysout("Inside Firebug.ainspectorModule.showPanel()");
+      FBTrace.sysout("**********      Begin Firebug.ainspectorModule.showPanel()     ************");
       var is_my_extension = panel && panel.name == panel_name;
       var my_extension_toolbar_buttons = Firebug.chrome.$("fbFirebugExtensionButtons");
 
       /* whether or not we display ainspector we still need to save the selected view */
       var toolbar_button_id = this.getToolbarButtonSelected(Firebug.chrome.$("fbFirebugExtensionButtons").children);
-      FBTrace.sysout("Firebug.ainspectorModule.showPanel() - toolbar_button_id: ", toolbar_button_id);
-      FBTrace.sysout("Firebug.ainspectorModule.showPanel() - window.AINSPECTOR_FB: ", window.AINSPECTOR_FB);
+      FBTrace.sysout("Firebug.ainspectorModule.showPanel() - selected toolbarbutton: ", toolbar_button_id);
 
       window.AINSPECTOR_FB[toolbar_button_id].viewPanel(Firebug.currentContext, panel_name, AINSPECTOR_FB.cacheUtil.updateCache());
 
+      FBTrace.sysout("**********      End Firebug.ainspectorModule.showPanel()     ************");
+      
       /* call FBL namespace function to hide the toolbar buttons if the selected panel is not my extensions panel*/
       collapse(my_extension_toolbar_buttons, !is_my_extension);
     },
@@ -242,7 +242,6 @@ FBL.ns(function() { with (FBL) {
     getToolbarButtonSelected : function(toolbarbuttons) {
     
       for (var i=1; i < toolbarbuttons.length; i=i+2){
-        FBTrace.sysout("toolbarbuttons[i]: ", toolbarbuttons[i]);
         if (toolbarbuttons[i].checked == true) return toolbarbuttons[i].id;
       }
       return AINSPECTOR_FB.DEFAULT_TOOLBAR_BUTTON_ID;
