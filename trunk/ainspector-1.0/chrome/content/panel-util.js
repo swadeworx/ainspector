@@ -20,9 +20,7 @@ FBL.ns(function() { with (FBL) {
     var Cu = Components.utils; 
 
     try {
-      FBTrace.sysout("OAA_WEB_ACCESSIBILITY (before): ", OAA_WEB_ACCESSIBILITY);
       AINSPECTOR_FB.highlightModule = Cu["import"]("resource://ainspector/highlight.js");
-      FBTrace.sysout("OAA_WEB_ACCESSIBILITY (after)", OAA_WEB_ACCESSIBILITY);
       OAA_WEB_ACCESSIBILITY.util.highlightModule.initHighlight(window.content.document);
 
     } catch (error) {
@@ -87,7 +85,8 @@ FBL.ns(function() { with (FBL) {
    */
   onToolbarKeyPress : function(event) {
   
-  var key = event.keyCode;
+    var key = event.keyCode;
+    
     var tabs;
 
     switch(key) {
@@ -135,70 +134,44 @@ FBL.ns(function() { with (FBL) {
    */
   getSelectedState : function (obj) {
   
-  if (obj == 'temp') return 'true';  
+    if (obj == 'temp') return 'true';  
   
-  return obj.selected ? "true" : "false";
+    return obj.selected ? "true" : "false";
   },
       
   /**
-   * @function viewHTMLPanel
+   * @function gotoHTML
    * 
    * @desc redirect to the HTML Panel of Firebug
    * 
    * @param {Object} event - event triggered on a row in the Links Table
    */
-  viewHTMLPanel: function(event) {
+  gotoHTML : function(event){
 
-    var main_panel_div =  getAncestorByClass(event.target, "main-panel");
-    var sub_div = getChildByClass(main_panel_div, "table-scrollable");
-    var table = getChildByClass(sub_div, "ai-table-list-items");;
-    var row = null;
+    var row = getAncestorByClass(event.target, "tableRow");
     
-    if (table) {
-      row =  getChildByClass(sub_div, "tableRow");
-    } else { 
-      table = getChildByClass(sub_div, "domTable");
-      row =  getChildByClass(sub_div, "treeRow");
-    }
-     
-    var child;
-    var tbody = table.children[1];
+    if (!row) row = getAncestorByClass(event.target, "treeRow");
+    
+    var object = Firebug.getRepObject(event.target);
+    var cache_item = null;
     var node = null;
-
-    for (var i = 0; i < tbody.children.length; i++) {
-      var flag = false;
-      var row = tbody.children[i];
-      node = row;
-      
-      for (var j = 0; j < row.children.length; j++) {
-        var cell = row.children[j];
-      
-        for (var k=0; k<cell.classList.length;k++) {
-        
-          if (cell.classList[k] ==  "gridCellSelected") {
-            flag = true;
-            break;
-          }//end if
-        }//end for
-        if (flag == true) break;
-      }
-      if (flag == true) break;
-    }
     
-    var item = null;
-    if (node.repObject.cache_item) {
-      item = node.repObject.cache_item;
+    if (object.cache_item) {
+      cache_item = object.cache_item;
     } else {
-      if (node.repObject.dom_text_nodes) return;
-      if (node.repObject.parent_element) item = node.repObject.parent_element.node;
+      if (object.dom_text_nodes) return;
+      if (object.parent_element) cache_item = object.parent_element.node;
+      if (object.dom_element) cache_item = object;
     }
-    AINSPECTOR_FB.previous_selected_row = node;
     
-    if (item.dom_element) node = item.dom_element.node;
-    else node = item.node;
+    AINSPECTOR_FB.previous_selected_row = row;
+    
+    if (cache_item.dom_element) node = cache_item.dom_element.node;
+    else node = cache_item.node;
     
     var panel = Firebug.chrome.selectPanel("html");
     panel.select(node);
+    
   },
   
   /**
@@ -218,14 +191,12 @@ FBL.ns(function() { with (FBL) {
 //      var rows = panel.table.children[6].children[1].children;
       var rows = null;
       rows = panel.table.children[1].children[0].children[1].children;
-      FBTrace.sysout("rows: ", rows);
       
       var row = null;
       var i = 0;
       
       for (i; i < rows.length; i++) {
         row = rows[i];
-//        FBTrace.sysout("row " + i, rows[i]);
         
         if (is_a_tree == true) {
           if (row.repObject.children) {
@@ -233,12 +204,10 @@ FBL.ns(function() { with (FBL) {
             
             for (var j=0; j<children.length; j++) {
               var child = children[j];
-              FBTrace.sysout("child: ", child);
-              FBTrace.sysout("sevrow: ", selected_row);
+
               if (child.cache_item.toString() == selected_row.repObject.cache_item.toString() &&
                 child.cache_item.document_order == selected_row.repObject.cache_item.document_order) {
                 var new_table = AINSPECTOR_FB.treeTemplate.grid.openRow(row);
-                FBTrace.sysout("new_table: ", new_table);
                 j = j+1;
                 var k = i+j;
                 AINSPECTOR_FB.flatListTemplateUtil.highlight(new_table.children[1].children[0].children[1].children[i+j]);
@@ -248,8 +217,17 @@ FBL.ns(function() { with (FBL) {
             }
           }
         } else { //flat list
+          var citem = null;
+          var sitem = null;
+          
+          if (row.repObject.cache_item) citem = row.repObject.cache_item;
+          else citem = row.repObject;
+          
+          if (selected_row.repObject.cache_item) sitem = selected_row.repObject.cache_item;
+          else sitem = selected_row.repObject;
+          
           if (row.children[0].textContent == selected_row.children[0].textContent &&
-           row.repObject.cache_item.document_order == selected_row.repObject.cache_item.document_order) {
+              citem.document_order == sitem.document_order) {
             AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[1].children[0].children[1].children[i]);
             return i;
             break;
@@ -257,18 +235,8 @@ FBL.ns(function() { with (FBL) {
         }
       } 
       
-      FBTrace.sysout("AINSPECTOR_FB.images.select() - AINSPECTOR_FB.previous_selected_row: ", AINSPECTOR_FB.previous_selected_row);
-      
-//      if (is_a_tree == true)  AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[6].children[1].children[i]);
-//      else AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[1].children[0].children[1].children[i]);
-      
-      
     } else {
       panel.selection = object;
-    
-//      if (is_a_tree == true) AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[6].children[1].children[0]); 
-        
-//      else AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[1].children[0].children[1].children[0]);
       AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[1].children[0].children[1].children[0]);
     }
     
@@ -294,17 +262,6 @@ FBL.ns(function() { with (FBL) {
           
   },
   
-  getPixelsFromTop : function(obj) {
-    var objFromTop = obj.offsetTop;
-
-    while(obj.offsetParent!=null) {
-      var objParent = obj.offsetParent;
-      objFromTop += objParent.offsetTop;
-      obj = objParent;
-    }
-    FBTrace.sysout("valueeeeeeeeeeeeee....", objFromTop);
-    return objFromTop;
-  },
        
   /**
    * @functon getRulesetTitle
@@ -373,7 +330,6 @@ AINSPECTOR_FB.flatListTemplateUtil = {
     var main_panel = getAncestorByClass(event.target, "main-panel");
     var table_div = getChildByClass(main_panel, "table-scrollable");
     var table = getChildByClass(table_div, "ai-table-list-items");
-    FBTrace.sysout("table: ", table);
     
     switch(event.keyCode) {
         
@@ -403,10 +359,8 @@ AINSPECTOR_FB.flatListTemplateUtil = {
         AINSPECTOR_FB.emptySidePanelTemplate.tag.replace({messg: "please select an element row in the left panel", desc: "Evaluation Results By Rule"}, side_panel.panelNode);
         break;
       }  
-      FBTrace.sysout("AINSPECTOR_FB.flatListTemplateUtil.onKeyPressTable - down arrow");
       var all_rows = table.getElementsByClassName("gridRow");
       var current_index = Array.indexOf(all_rows, event.target);
-      FBTrace.sysout("current_index: "+ current_index);
       
         var index = Array.indexOf(all_rows, event.target);
         var key = event.keyCode;
@@ -425,8 +379,6 @@ AINSPECTOR_FB.flatListTemplateUtil = {
             if (current_index != 0) {
               
 //              if (current_index == 1) {
-//                FBTrace.sysout("all_rows:", all_rows);
-//                FBTrace.sysout("header_row: ", header_row);
 //                if(hasClass(header_row, "headerRowSelected")) AINSPECTOR_FB.ainspectorUtil.removeClass(header_row, "headerRowSelected");
 //              }
               
@@ -456,82 +408,6 @@ AINSPECTOR_FB.flatListTemplateUtil = {
 //        sidePanel.panelNode.focus();
 //        setClass(sidePanel.panelNode, "focusRow");
 //      }
-        break;
-    }
-  },
-    
-  /**
-   * @function onKeyPressTree
-   * 
-   * @desc
-   * 
-   * @param {Object} event
-   */
-  onKeyPressTree : function (event) {
-    
-    event.stopPropagation();
-    var table = getAncestorByClass(event.target, "domTree");
-      
-    switch(event.keyCode) {
-          
-      case KeyEvent.DOM_VK_LEFT: //  
-        
-      case KeyEvent.DOM_VK_UP: //up
-        var row = findPrevious(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow);
-        
-      if (row) {
-        row.focus();
-        AINSPECTOR_FB.flatListTemplateUtil.highlightRow(event, row);
-      }
-      break;
-      
-      case KeyEvent.DOM_VK_RIGHT: //right
-          
-      case KeyEvent.DOM_VK_DOWN: //down
-
-      if (table.tabIndex == '0') {
-        table.setAttribute('tabindex', '-1');
-        table.rows[0].setAttribute('tabindex', '0');
-        table.rows[0].focus();
-        
-        break;
-      }  
-      var all_rows = table.getElementsByClassName("gridRow");
-        var current_index = Array.indexOf(all_rows, event.target);
-        var index = Array.indexOf(all_rows, event.target);
-        var key = event.keyCode;
-        var forward = key == KeyEvent.DOM_VK_RIGHT || key == KeyEvent.DOM_VK_DOWN;
-           
-        if (current_index != -1) {
-          var new_index = forward ? ++current_index : --current_index;
-           
-          //get the focus back to the first tab on the tool bar from the last tab of the toolbar
-          new_index = new_index < 0 ? all_rows.length -1 : (new_index >= all_rows.length ? 0 : new_index);
-                
-          if (all_rows[new_index]) { 
-            var next_row = all_rows[new_index];
-
-            //unhighlighting from rows in panel
-            var current_row = all_rows[index];
-
-            if (current_index != 0) {
-              AINSPECTOR_FB.ainspectorUtil.removeClass(current_row, "gridRowSelected");
-              
-              for (var c=0; c< current_row.cells.length; c++) AINSPECTOR_FB.ainspectorUtil.removeClass(current_row.cells[c], "gridCellSelected");
-            }
-
-//          highlight rows from panel
-          all_rows[new_index].focus();
-            AINSPECTOR_FB.ainspectorUtil.setClass(next_row, "gridRowSelected");
-            
-            for (var i=0; i< next_row.cells.length; i++) AINSPECTOR_FB.ainspectorUtil.setClass(next_row.cells[i], "gridCellSelected");
-          OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([next_row.repObject]);
-
-          }
-        }
-        event.stopPropagation();
-        event.preventDefault();
-           
         break;
     }
   },
@@ -578,10 +454,11 @@ AINSPECTOR_FB.flatListTemplateUtil = {
     
     switch(event.keyCode) {
       
-    case 13: //Enter
-      AINSPECTOR_FB.images.equivToolbarPlate.toHTMLPanel(event);
-    break;
-  }
+      case 13: //Enter
+        AINSPECTOR_FB.images.equivToolbarPlate.toHTMLPanel(event);
+      
+      break;
+    }
   },
   
 
@@ -619,13 +496,11 @@ AINSPECTOR_FB.flatListTemplateUtil = {
      * 
      * @param event - event triggered on a table cell of a particular row
      */ 
-    doubleClick: function(event){
+    doubleClick: function(event) {
       
       var row = getAncestorByClass(event.target, "tableRow");
       
       if (!row) row = getAncestorByClass(event.target, "treeRow");
-      
-      FBTrace.sysout("AINSPECTOR_FB.flatListTemplateUtil.doubleClick()- row: ", row);
       
       var object = row.repObject;
       var node = null;
@@ -698,7 +573,6 @@ AINSPECTOR_FB.flatListTemplateUtil = {
       for (var i=0; i< row.children.length; i++) {
         AINSPECTOR_FB.ainspectorUtil.setClass(row.children[i], "gridCellSelected");
       }
-      FBTrace.sysout("AINSPECTOR_FB.flatListTemplate.highlight() - row: ", row);
       if (row.repObject.cache_item) OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject.cache_item]);
       else OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject]);
 
@@ -722,7 +596,6 @@ AINSPECTOR_FB.flatListTemplateUtil = {
       var table = getAncestorByClass(event.target, "ai-table-list-items");
       var current_row =  getAncestorByClass(event.target, "tableRow");
       var tbody = table.children[1]; //nomber of rows in a table
-//      FBTrace.sysout("AINSPECTOR_FB.flatListTemplateUtil.table: ", tbody);
       var row;
       var cell;
 
@@ -840,7 +713,6 @@ AINSPECTOR_FB.flatListTemplateUtil = {
       }
         
       }
-      FBTrace.sysout("current_row: ", current_row);
       this.highlight(current_row);
     },
     
@@ -856,45 +728,6 @@ AINSPECTOR_FB.flatListTemplateUtil = {
       var table = getAncestorByClass(event.target, "ai-table-list-items");
       var column = getAncestorByClass(event.target, "gridHeaderCell");
       AINSPECTOR_FB.ainspectorUtil.sortColumn(table, column);
-    },
-    
-    /**
-     * @function getProps
-     * 
-     * @desc returns the properties of a cache_item
-     * 
-     * @param {Object} cache_items - cache Object returned by the OAA Evaluation library
-     * 
-     * @return props
-     */
-    getProps : function(cache_items) {
-      
-      var cache_item_properties = [];
-      
-      var length = cache_items.length;
-      
-      for (var i = 0; i < length; i++) {
-        
-        var cache_item = cache_items[i];
-        var props = [];
-        var dom_element = null;
-        
-        if (cache_item.dom_element) dom_element = cache_item.dom_element;
-        
-        else dom_element = cache_item;
-        
-        /*props.push(dom_element.rules_hidden.length);
-        props.push(dom_element.rules_passed.length);
-        props.push(dom_element.rules_warnings.length);
-        props.push(dom_element.rules_manual_checks.length);
-        props.push(dom_element.rules_violations.length);
-        
-        cache_item.properties = props;*/
-        cache_item_properties[i] = cache_item;
-      }
-      FBTrace.sysout("cache_item_properties: ", cache_item_properties);
-
-      return cache_item_properties;
     }
     
   };
@@ -903,6 +736,7 @@ AINSPECTOR_FB.flatListTemplateUtil = {
  * @namespace AINSPECTOR_FB.tabPanelUtil
  */
 AINSPECTOR_FB.tabPanelUtil = {
+  
   /**
    * @function updateToolbar
    * 
@@ -912,113 +746,114 @@ AINSPECTOR_FB.tabPanelUtil = {
    * @param {String} toolbar_button - name of the toolbar button selected
    */
   updateToolbar: function(panelType, toolbar_button) {
-     var removeBtn = Firebug.chrome.$(toolbar_button);
-     var registered = Firebug.getPanelType(panelType);
-    },
+  
+    var removeBtn = Firebug.chrome.$(toolbar_button);
+    var registered = Firebug.getPanelType(panelType);
+  },
     
-    /**
-     * @function onRemoveSidePanel
-     * @memberOf AINSPECTOR_FB.tabPanelUtil
-     * 
-     * @desc removes/unregisters sidePanal from any main panel depending on panelType
-     * 
-     *  @param {Object} panelType - type of the Panel  
-     */
+  /**
+   * @function onRemoveSidePanel
+   * @memberOf AINSPECTOR_FB.tabPanelUtil
+   * 
+   * @desc removes/unregisters sidePanal from any main panel depending on panelType
+   * 
+   *  @param {Object} panelType - type of the Panel  
+   */
   onRemoveSidePanel: function(panelType) {
    
     Firebug.unregisterPanel(panelType);
   },
 
   /**
-     * @function onAppendSidePanel
-     * @memberOf AINSPECTOR_FB.tabPanelUtil
-     * 
-     * @desc add/registers sidePanal from any main panel depending on panelType
-     * 
-     *  @param {Object} panelType - registered Panel  
-     */
-    onAppendSidePanel: function(panelType) {
+   * @function onAppendSidePanel
+   * @memberOf AINSPECTOR_FB.tabPanelUtil
+   * 
+   * @desc add/registers sidePanal from any main panel depending on panelType
+   * 
+   *  @param {Object} panelType - registered Panel  
+   */
+  onAppendSidePanel: function(panelType) {
 
-      FBTrace.sysout("onAppendSidePanel: ", panelType);
-      Firebug.registerPanel(panelType);
-      FBTrace.sysout("onAppendSidePanel afer register: ", Firebug);
-
-    },
+    Firebug.registerPanel(panelType);
+  },
     
-    /**
-     * @function addAndRemoveSidePanels
-     * 
-     * @desc registers side panels according to the toolbar buttons selected
-     *   like for 'Images' toolabr button on A11y Panel - 'Rule Results' side panel is registered
-     *   like for 'Color Contrast' toolabr button on A11y Panel - 'Font Properties' side panel is registered
-     *   
-     * @param {Boolean} flag - a boolean value to check which toolbar button has to have the respective side panels
-     */
-    addAndRemoveSidePanels : function(flag) {
+  /**
+   * @function addAndRemoveSidePanels
+   * 
+   * @desc registers side panels according to the toolbar buttons selected
+   *   like for 'Images' toolabr button on A11y Panel - 'Rule Results' side panel is registered
+   *   like for 'Color Contrast' toolabr button on A11y Panel - 'Font Properties' side panel is registered
+   *   
+   * @param {Boolean} flag - a boolean value to check which toolbar button has to have the respective side panels
+   */
+   addAndRemoveSidePanels : function(flag) {
       
-      var panelType_rules = Firebug.getPanelType("rulesSidePanel");
-      var panelType_colorContrast = Firebug.getPanelType("colorContrastSidePanel");
-      var panelType_elements = Firebug.getPanelType("elementsSidePanel");
+     var panelType_rules = Firebug.getPanelType("rulesSidePanel");
+     var panelType_colorContrast = Firebug.getPanelType("colorContrastSidePanel");
+     var panelType_elements = Firebug.getPanelType("elementsSidePanel");
   
-      /* flag == true if it is other than color contrast toolbar button*/
-      if (flag == true) {
-        if (panelType_elements) {
-          AINSPECTOR_FB.elements_registered = panelType_elements;
-          AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_elements);
-        }
-        if (panelType_colorContrast) {
+     /* flag == true if it is other than color contrast toolbar button*/
+     if (flag == true) {
+     
+       if (panelType_elements) {
+         AINSPECTOR_FB.elements_registered = panelType_elements;
+         AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_elements);
+       }
+       
+       if (panelType_colorContrast) {
           
-          AINSPECTOR_FB.font_properties_registered = panelType_colorContrast;
-          AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_colorContrast);
-        }
-        if (panelType_rules) {
-          //nothing
-        } else {
-          FBTrace.sysout("AINSPECTOR_FB.rules_registered: ", AINSPECTOR_FB.rules_registered);
-          panelType_rules = AINSPECTOR_FB.rules_registered;
-          AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_rules);
+         AINSPECTOR_FB.font_properties_registered = panelType_colorContrast;
+         AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_colorContrast);
+       }
+       
+       if (panelType_rules) {
+         //nothing
+       } else {
+         FBTrace.sysout("AINSPECTOR_FB.rules_registered: ", AINSPECTOR_FB.rules_registered);
+         panelType_rules = AINSPECTOR_FB.rules_registered;
+         AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_rules);
   
-        }
-      } else if (flag == false){ //if it is only color contrast panel
-        if (panelType_elements) {
-          AINSPECTOR_FB.elements_registered = panelType_elements;
-          AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_elements);
-        }
-        
-        if (panelType_rules) {
-          AINSPECTOR_FB.rules_registered = panelType_rules;
-          AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_rules);     
-        }
-        
-        if (panelType_colorContrast) {
-          //nothing
-        } else {
-          panelType_colorContrast = AINSPECTOR_FB.font_properties_registered;
-          AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_colorContrast);
-        }
+       }
+     } else if (flag == false){ //if it is only color contrast panel
       
-      } else { //for summary view
-        if (panelType_rules) {
-          AINSPECTOR_FB.rules_registered = panelType_rules;
-          AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_rules);     
-        }
-        if (panelType_colorContrast) {
-          
-          AINSPECTOR_FB.font_properties_registered = panelType_colorContrast;
-          AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_colorContrast);
-        }
+       if (panelType_elements) {
+         AINSPECTOR_FB.elements_registered = panelType_elements;
+         AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_elements);
+       }
         
-        if (panelType_elements) {
-          
-        } else {
-          panelType_elements = AINSPECTOR_FB.elements_registered;
-          AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_elements);
-        }
+       if (panelType_rules) {
+         AINSPECTOR_FB.rules_registered = panelType_rules;
+         AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_rules);     
+       }
         
-      }
-    }
+       if (panelType_colorContrast) {
+         //nothing
+       } else {
+         panelType_colorContrast = AINSPECTOR_FB.font_properties_registered;
+         AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_colorContrast);
+       }
+      
+     } else { //for summary view
+     
+       if (panelType_rules) {
+         AINSPECTOR_FB.rules_registered = panelType_rules;
+         AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_rules);     
+       }
+       
+       if (panelType_colorContrast) {
+          
+         AINSPECTOR_FB.font_properties_registered = panelType_colorContrast;
+         AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_colorContrast);
+       }
+        
+       if (panelType_elements) {
+          
+       } else {
+         panelType_elements = AINSPECTOR_FB.elements_registered;
+         AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_elements);
+       }
+     } 
+   }
  };
-
-
 
 }});

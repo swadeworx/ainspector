@@ -105,19 +105,16 @@ with (FBL) {
        var selected_row = AINSPECTOR_FB.previous_selected_row;
        panel.selection = AINSPECTOR_FB.previous_selected_row;
        var rows = panel.table.children[6].children[1].children;
-       FBTrace.sysout("rows: ", rows);
        var row = null;
        var i = 0;
        
        for (i; i <= rows.length; i++) {
          row = rows[i];
-         FBTrace.sysout("row: ", row.children[0].textContent);
          if (row.children[0].textContent == selected_row.children[0].textContent) {
            break;
          }
        } 
        
-       FBTrace.sysout("AINSPECTOR_FB.images.select() - AINSPECTOR_FB.previous_selected_row: ", AINSPECTOR_FB.previous_selected_row);
        AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[6].children[1].children[i]);
      } else {
        panel.selection = object;

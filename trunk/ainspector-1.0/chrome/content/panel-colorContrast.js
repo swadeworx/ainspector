@@ -197,7 +197,7 @@ with (FBL) {
           TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.background_image|getValue"),
           TD({class: "memberLabelCell", _repObject: "$member.value"}, TAG("$member.cc_severity", {'member' :"$member", 'object': "$member"})),
           TD({class: "memberLabelCell", _repObject: "$member.value"}, 
-            BUTTON({onclick: "$AINSPECTOR_FB.toolbarUtil.viewHTMLPanel", id: "html_panel_button", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.htmlButtonPress"}, "HTML")
+            BUTTON({onclick: "$AINSPECTOR_FB.toolbarUtil.gotoHTML", id: "html_panel_button", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.htmlButtonPress"}, "HTML")
           )
         ),
         
@@ -212,7 +212,7 @@ with (FBL) {
         TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px"},""),
         TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px"},""),
         TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px"},
-          BUTTON({onclick: "$AINSPECTOR_FB.toolbarUtil.viewHTMLPanel", id: "html_panel_button", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.htmlButtonPress"}, "HTML")
+          BUTTON({onclick: "$AINSPECTOR_FB.toolbarUtil.gotoHTML", id: "html_panel_button", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.htmlButtonPress"}, "HTML")
         )
        ),
     
@@ -441,7 +441,6 @@ with (FBL) {
           */
           onKeyPressedRow: function(event) {
             event.stopPropagation();
-         FBTrace.sysout("event.target: ", event.target);
 
             switch(event.keyCode) {
               case KeyEvent.DOM_VK_LEFT: //left
@@ -460,10 +459,7 @@ with (FBL) {
                 event.preventDefault();
                 var table = getAncestorByClass(event.target, "domTable");
 
-                FBTrace.sysout("table in tree up direction..................: ", table);
-
                 var row = findPrevious(event.target, this.isTreeRow, false);
-                FBTrace.sysout("row: ", row);
                 if (row) {
                     AINSPECTOR_FB.flatListTemplateUtil.highlightTreeRow(event, row);
                 } else {    
@@ -483,9 +479,7 @@ with (FBL) {
                 event.preventDefault();
                 var table = getAncestorByClass(event.target, "domTable");
 
-                FBTrace.sysout("table in tree: ", table);
                 var row = findNext(event.target, this.isTreeRow, false);
-                FBTrace.sysout("row: ", row);
 
                 if (row) row.focus();
 
@@ -529,7 +523,6 @@ with (FBL) {
           setClass(row, "opened");
           var repObject = row.newObject;
           
-          FBTrace.sysout("repObject: ", repObject);
           if (repObject) {
             var members = this.getMembers(repObject.children, level+1);
             

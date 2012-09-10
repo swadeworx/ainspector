@@ -50,6 +50,7 @@ FBL.ns(function() { with (FBL) {
      */
     initialize: function(context, doc) {
       
+      this.onKeyPress = bind(this.onKeyPress, this);
       this.onCLick = bind(this.setSelection, this);
       Firebug.Panel.initialize.apply(this, arguments);
     },
@@ -72,12 +73,117 @@ FBL.ns(function() { with (FBL) {
       appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/grid.css");
 
       this.setSelection = bind(this.setSelection, this);
+      this.onKeyPress = bind(this.onKeyPress, this);
       this.mainPanel.panelNode.addEventListener("click", this.setSelection, false);
+      this.mainPanel.panelNode.addEventListener("keypress", this.onKeyPress, true);
       
       Firebug.Panel.initializeNode.apply(this, arguments);
    
     },
     
+    /**
+     * @function onKeyPress
+     * 
+     * @desc
+     * 
+     * @param event
+     */
+    onKeyPress: function(event) {
+    
+      var current_row;
+      var next_row;
+      var previous_row;
+      var prev_cell;
+      var next_cell;
+      
+      var table_rows = event.target.offsetParent.rows;
+      FBTrace.sysout("AINSPECTOR_FB.RulesSidePanel.onkeyPress- event: ", event);
+      FBTrace.sysout("table_rows: ", table_rows);
+      if (!table_rows) return;
+      
+      var no_of_rows = table_rows.length;
+      var flag = false;
+      var is_header_row = false;
+      
+      for (var row=0; row < no_of_rows; row++) {
+      
+        var class_list = table_rows[row].classList;
+        var class_name_it = 0;
+       
+        for (class_name_it; class_name_it < class_list.length; class_name_it++) {
+        
+          if (class_list[class_name_it] == "gridRowSelected") {
+            flag = true;
+            break;
+          }   
+        }
+        
+        if (flag == true){
+          current_row = table_rows[row];
+          FBTrace.sysout();
+          if (row < no_of_rows) {
+           
+//            if (row == 1) previous_row = table_rows[no_of_rows-1];
+           
+//            else
+              previous_row = table_rows[row-1];
+           
+            next_row = table_rows[row+1];
+          
+          } else { //if we reach end of the table row then go back to first row
+            next_row = table_rows[1]; //table_rows[0] is the header row
+            previous_row = table_rows[row-1];
+          }
+          
+          break;
+        } else {
+          continue;
+        }
+      } //end for
+      
+      var rule_result_objet = null;
+      var rule = null;
+      
+      if (event.keyCode == KeyEvent.DOM_VK_UP) {
+      
+        result = previous_row.repObject;
+        rule = result.rule_result.rule.getNLSRuleId() + ': ' + result.rule_result.getRuleSummary();
+        
+        if (result) {
+          rule_result_objet = this.rebuild(rule, result.filtered_node_results);
+        
+        } else {
+          var headers = ["Result/Property", "Message/Value"];
+          AINSPECTOR_FB.emptySidePanelTemplate.tag.replace({headers: headers, messg: "please select an element row in the left panel", desc: "Evaluation Results By Rule"}, this.panelNode);
+        }  
+        
+      } else if (event.keyCode == KeyEvent.DOM_VK_DOWN) {
+        
+        FBTrace.sysout("next_row: ", next_row);
+        result = next_row.repObject;
+        FBTrace.sysout("cache_item: ", result);
+        rule = result.rule_result.rule.getNLSRuleId() + ': ' + result.rule_result.getRuleSummary();
+        
+        this.rebuild(rule, result.filtered_node_results);
+       
+      } else if (event.keyCode == KeyEvent.DOM_VK_LEFT) {
+        this.setSelection(event);
+     
+      } else if (event.keyCode == KeyEvent.DOM_VK_RIGHT) {
+        this.setSelection(event);
+     
+      } else if (event.keyCode == KeyEvent.DOM_VK_BACK_SPACE){
+     
+        this.deleteNode("node", "up");
+
+      } else if (event.keyCode == KeyEvent.DOM_VK_DELETE) {
+        this.deleteNode("node", "down");
+       
+      } else {
+        return;
+      }     
+    },
+     
     /**
      * @function destroyNode
      * 
@@ -103,23 +209,36 @@ FBL.ns(function() { with (FBL) {
       Firebug.Panel.show.apply(this, arguments);
     },
      
-     /**
-      * @function sView
-      * 
-      * @param {Boolean} state
-      * @param {Object} first_element
-      */
+    /**
+     * @function updateSelection
+     * 
+     * @desc
+     */
+    updateSelection : function() {
+    
+      var selected_summary_row = this.mainPanel.selected_summary_row;
+      
+      if (!selected_summary_row) return;
+      FBTrace.sysout("selected_summary_row: ", selected_summary_row);
+       var rule = selected_summary_row.rule_result.rule.getNLSRuleId() + ': ' + selected_summary_row.rule_result.getRuleSummary();
+       this.rebuild(rule, selected_summary_row.filtered_node_results);
+    },
+    
+   /**
+    * @function sView
+    * 
+    * @param {Boolean} state
+    * @param {Object} first_element
+    */
     sView: function(state, first_element){
     
       if (state) {
       
         try {
           if (!first_element) return;
-          
-          this.aggregateNodeResults(first_element);
-          var rule = first_element.getRuleId() + ': ' + first_element.getRuleSummary();
-          this.rebuild(rule);
-          
+          var rule = first_element.rule_result.rule.getNLSRuleId() + ': ' + first_element.rule_result.getRuleSummary();
+
+          this.rebuild(rule, first_element.filtered_node_results);
         } catch (er) {
         }
       } else {
@@ -143,9 +262,8 @@ FBL.ns(function() { with (FBL) {
       
       if (!rule_result_item) return;
       
-      this.aggregateNodeResults(rule_result_item);
-      var rule = rule_result_item.getRuleId() + ': ' + rule_result_item.getRuleSummary();
-      this.rebuild(rule);
+      var rule = rule_result_item.rule_result.rule.getNLSRuleId() + ': ' + rule_result_item.rule_result.getRuleSummary();
+      this.rebuild(rule, rule_result_item.filtered_node_results);
     },
     
     /**
@@ -155,55 +273,18 @@ FBL.ns(function() { with (FBL) {
      * 
      * @param resultArray
      */
-    rebuild: function(rule_summary){
+    rebuild: function(rule_summary, filtered_node_results){
       this.panelNode.id = "ainspector-side-panel";
-      FBTrace.sysout("node_results_array: ", this.node_results_array);
       
-      if (this.node_results_array.length > 0) {
-        elementsPlate.tag.replace({object: this.node_results_array, rule_summary: rule_summary}, this.panelNode);
+      if (filtered_node_results.length > 0) {
+        elementsPlate.tag.replace({object: filtered_node_results, rule_summary: rule_summary}, this.panelNode);
+        FBTrace.sysout("this.panelNode: ", this.panelNode);
       } else {
         var headers = ["Result", "Element"];
         AINSPECTOR_FB.emptySidePanelTemplate.tag.replace({headers: headers, messg: "no node results", desc: rule_summary}, this.panelNode);
       }
     },
     
-    /**
-     * @function aggregateNodeResults
-     */
-    aggregateNodeResults : function(rule_result_item){
-      
-      if (rule_result_item.node_results_passed && rule_result_item.node_results_passed.length > 0){
-        this.updateNodeResults(rule_result_item.node_results_passed);
-      }
-      if (rule_result_item.node_results_violations && rule_result_item.node_results_violations.length > 0){
-        this.updateNodeResults(rule_result_item.node_results_violations);
-
-      }
-      if (rule_result_item.node_results_warnings && rule_result_item.node_results_warnings.length > 0){
-        this.updateNodeResults(rule_result_item.node_results_warnings);
-
-      }
-      if (rule_result_item.node_results_manual_checks && rule_result_item.node_results_manual_checks.length > 0){
-        this.updateNodeResults(rule_result_item.node_results_manual_checks);
-      }
-      if (rule_result_item.node_results_hidden && rule_result_item.node_results_hidden.length > 0){
-        this.updateNodeResults(rule_result_item.node_results_hidden);
-
-      }
-      
-    },
-    
-    /**
-     * @function updateNodeResults
-     */
-    updateNodeResults : function(node_results){
-      
-      for(var i = 0; i < node_results.length; i++) {
-        this.node_results_array.push(node_results[i]);
-      }
-      
-    },
-     
     /**
      * setTrialSelector
      * 
@@ -231,20 +312,24 @@ FBL.ns(function() { with (FBL) {
       
       DIV({class: "side-panel"},
         DIV({class: "eval-results"}, "$rule_summary"),
-        TABLE({class: "domTree domTable ai-sidepanel-table", cellpadding: 0, cellspacing: 0, onclick: "$onClick", "aria-selected" : "true",
-         tabindex: "0", onkeypress: "$onKeyPressedRow"},
+        TABLE({class: "ai-sidepanel-table", cellpadding: 0, cellspacing: 0, "aria-selected" : "true", tabindex: "0"},
          THEAD(
           TR({class: "gridHeaderRow", id: "tableTableHeader", "role": "row", tabindex: "-1", "aria-selected" : "false"},
             TH({class: "gridHeaderCell"}, DIV({class: "gridHeaderCellBox"}, "Result")),
-            TH({class: "gridHeaderCell"}, DIV({class: "gridHeaderCellBox"}, "Element"))
+            TH({class: "gridHeaderCell"}, DIV({class: "gridHeaderCellBox"}, "Element")),
+            TH({class: "gridHeaderCell"}, DIV({class: "gridHeaderCellBox"}, "goto"))
           ) //end TR
         ), //end THEAD
         TBODY(
           FOR("obj", "$object|getMembers",
-              TR({class: "treeRow gridRow", role: "row", _repObject: "$obj.cache", onclick: "$highlightRow"},
-                TD({class: "gridCell gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridLabel"},
+              TR({class: "tableRow gridRow", role: "row", _repObject: "$obj.cache", onclick: "$highlightRow", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
+                TD({class: "gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridContent"},
                   TAG("$obj.severity_label_style", {'member' : '$obj'}))),
-                TD({class: "gridCell gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridLabel"},"$obj.tag_name"))
+                TD({class: "gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridContent"},"$obj.tag_name")),
+                TD({class: "gridCol", role: "gridcell"},
+                  DIV({class: "gridContent resultAlign"}, 
+                    BUTTON({onclick: "$gotoHTML", id: "html_panel_button", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.htmlButtonPress"}, "HTML"))
+                )
               ) //end TR
             )
         ) //end TBODY
@@ -255,16 +340,41 @@ FBL.ns(function() { with (FBL) {
       )
     ),
     
-    strTagPass : DIV({class: "treeLabel passMsgTxt"}, "$member.severityLabel"),
-    strTagViolation : DIV({class: "treeLabel violationMsgTxt"}, "$member.severityLabel"),
-    strTagManual : DIV({class: "treeLabel manualMsgTxt"}, "$member.severityLabel"),
-    strTagHidden : DIV({class: "treeLabel hiddenMsgTxt"}, "$member.severityLabel"),
-    strTagWarn : DIV({class: "treeLabel warnMsgTxt"}, "$member.severityLabel"),
+    strTagPass : DIV({class: "resultAlign passMsgTxt"}, "$member.severityLabel"),
+    strTagViolation : DIV({class: "resultAlign violationMsgTxt"}, "$member.severityLabel"),
+    strTagManual : DIV({class: "resultAlign manualMsgTxt"}, "$member.severityLabel"),
+    strTagHidden : DIV({class: "resultAlign hiddenMsgTxt"}, "$member.severityLabel"),
+    strTagWarn : DIV({class: "resultAlign warnMsgTxt"}, "$member.severityLabel"),
+    
+    gotoHTML : function(event){
+
+      var row = getAncestorByClass(event.target, "treeRow");
+      
+      var object = Firebug.getRepObject(event.target);
+      FBTrace.sysout("AINSPECTOR_FB.elementsSidePanel.gotoHTML() - ", object);
+      var cache_item = null;
+      var node = null;
+      
+      if (object.cache_item) {
+        cache_item = object.cache_item;
+      } else {
+        if (object.dom_text_nodes) return;
+        if (object.parent_element) cache_item = object.parent_element.node;
+      }
+      AINSPECTOR_FB.previous_selected_row = row;
+      
+      if (cache_item.dom_element) node = cache_item.dom_element.node;
+      else node = cache_item.node;
+      
+      var panel = Firebug.chrome.selectPanel("html");
+      panel.select(node);
+      
+    },
     
     highlightRow : function(event){
       FBTrace.sysout("highlightRow: ", event);
       var table = getAncestorByClass(event.target, "ai-sidepanel-table");
-      var row = getAncestorByClass(event.target, "treeRow");
+      var row = getAncestorByClass(event.target, "tableRow");
       FBTrace.sysout("table: ", table);
       FBTrace.sysout("row: ", row);
       AINSPECTOR_FB.flatListTemplateUtil.unHighlight(table);
@@ -295,7 +405,6 @@ FBL.ns(function() { with (FBL) {
      * @param object
      */
     createMembers : function(key, object){
-      FBTrace.sysout("object....................................", object);
 
       return {
         cache: object,
@@ -307,18 +416,23 @@ FBL.ns(function() { with (FBL) {
     
     getSeverityLabel : function(object){
       
-    var severity_label = object.getNLSSeverityLabel();
+      var severity_label = object.getNLSSeverityLabel();
     
-    if (severity_label == 'Warning') return this.strTagWarn;
-    if (severity_label == 'Manual Check') return this.strTagManual;
-    if (severity_label == 'Pass') return this.strTagPass;
-    if (severity_label == 'Hidden') return this.strTagHidden;
-    if (severity_label == 'Violation') return this.strTagViolation;
+      if (severity_label == 'Warning') return this.strTagWarn;
+      
+      if (severity_label == 'Manual Check') return this.strTagManual;
+      
+      if (severity_label == 'Pass') return this.strTagPass;
+      
+      if (severity_label == 'Hidden') return this.strTagHidden;
+      
+      if (severity_label == 'Violation') return this.strTagViolation;
 
-//      return object.getNLSSeverityLabel();
+//    return object.getNLSSeverityLabel();
     },
     
     getElement : function(object) {
+      
       var tag_name = object.cache_item.toString();
       
       return AINSPECTOR_FB.ainspectorUtil.truncateText(tag_name);
@@ -370,7 +484,7 @@ FBL.ns(function() { with (FBL) {
         }
       }
       if (row) {
-        window.openDialog("chrome://ainspector/content/rule_properties/rule-properties.xul", "_rule_properties_dialog", "chrome,contentscreen,resizable=yes", row.repObject.rule_result);      
+        AINSPECTOR_FB.rule_info_dialog = window.openDialog("chrome://ainspector/content/rule_properties/rule-properties.xul", "_rule_properties_dialog", "chrome,contentscreen,resizable=yes", row.repObject.rule_result);      
       } else {
         alert("please select a row in the side panel");
 //        win.document.write("<p>This is 'myWindow'</p>");
@@ -424,109 +538,9 @@ FBL.ns(function() { with (FBL) {
       }
 
       FBTrace.sysout("row: ", row);
-      window.openDialog("chrome://ainspector/content/item_properties/cache-item-properties.xul", "cache_item_properties_dialog", "chrome,contentscreen,resizable=yes", row.repObject.cache_item);
+      AINSPECTOR_FB.element_info_dialog = window.openDialog("chrome://ainspector/content/item_properties/cache-item-properties.xul", "cache_item_properties_dialog", "chrome,contentscreen,resizable=yes", row.repObject.cache_item);
     },
       
-    /**
-     * @function onClick
-     */
-    onClick: function(event) {
-          
-      if (!isLeftClick(event)) return;
-
-      var row = getAncestorByClass(event.target, "treeRow");
-      var label = getAncestorByClass(event.target, "treeLabel");
-    
-      if (label && hasClass(row, "hasChildren")) this.toggleRow(row);
-    },
-    
-        onKeyPressedTable: function(event) {
-    
-      switch(event.keyCode) {
-          
-        case 39: //right
-              event.stopPropagation();
-              event.preventDefault();
-              var label = findNextDown(event.target, this.isTreeRow);
-              label.focus();
-              break;
-        }
-      },
-
-
-    /**
-     * @function onKeyPressedRow
-     * 
-     * @desc
-     * 
-     * @param {Object} event
-     */
-    onKeyPressedRow: function(event) {
-        
-      event.stopPropagation();
-      FBTrace.sysout("event.target: ", event.target);
-
-      switch(event.keyCode) {
-          case KeyEvent.DOM_VK_LEFT: //left
-            event.preventDefault();
-            var row = getAncestorByClass(event.target, "treeRow");
-            
-            if (hasClass(row, "opened")) { // if open
-              this.closeRow(row); // close
-            } else {
-              var table = getAncestorByClass(event.target, "domTable");
-              table.focus(); // focus parent;
-            }
-            break;
-          
-          case KeyEvent.DOM_VK_UP: //up
-            event.preventDefault();
-            var table = getAncestorByClass(event.target, "domTable");
-
-            FBTrace.sysout("table in tree up direction..................: ", table);
-
-            var row = findPrevious(event.target, this.isTreeRow, false);
-            FBTrace.sysout("row: ", row);
-            if (row) {
-              AINSPECTOR_FB.flatListTemplateUtil.highlightTreeRow(event, row);
-            } else {  
-              if (event.target.rowIndex == '1') row = table.rows[0];
-            }
-            row.focus();
-            break;
-            
-          case KeyEvent.DOM_VK_RIGHT: //right
-            event.preventDefault();
-            var row = getAncestorByClass(event.target, "treeRow");
-
-            if (hasClass(row, "hasChildren")) this.openRow(row);
-            break;
-            
-          case KeyEvent.DOM_VK_DOWN: //down
-            event.preventDefault();
-            var table = getAncestorByClass(event.target, "domTable");
-
-            FBTrace.sysout("table in tree: ", table);
-            var row = findNext(event.target, this.isTreeRow, false);
-            FBTrace.sysout("row: ", row);
-
-            if (row) row.focus();
-
-            //If the event is fired on header row, rowIndex check is made to make sure header row is not highlight.
-            if (!event.target.rowIndex == '0') AINSPECTOR_FB.flatListTemplateUtil.highlightTreeRow(event, row);
-            break;
-            
-          case KeyEvent.DOM_VK_ENTER: //Enter
-            event.preventDefault();
-            var links = event.target.getElementsByClassName('objectLink');
-          
-            if (links[0]) AINSPECTOR.util.event.dispatchMouseEvent(links[0], 'click');
-          break;
-        }
-      },
-    
-      
-    
     /**
      * @function highlightRow
      * 

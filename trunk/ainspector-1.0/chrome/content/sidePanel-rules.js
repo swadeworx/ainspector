@@ -256,30 +256,6 @@ FBL.ns(function() { with (FBL) {
     },
      
     /**
-     * @function showContrastOrAllElements
-     * 
-     * @desc
-     * 
-     * @param {Boolean} state
-     * @param {Object} element
-     */
-    showContrastOrAllElements: function(state, element){
-    
-      if (state) {
-      
-        try {
-        
-          rule_result_array = this.showOnRuleResultsTabSelect(element);
-          
-          //if (rule_result_array.length > 0) this.rebuild(rule_result_array);
-          this.rebuild(rule_result_array);
-        } catch (er) {
-           
-        }
-      } 
-    },
-
-    /**
      * @function setSelection
      * 
      * @desc
@@ -362,11 +338,11 @@ FBL.ns(function() { with (FBL) {
       }
     },
     
-    showEmptySidePanel : function() {
+    showEmptySidePanel : function(mesg) {
 
       this.panelNode.id = "ainspector-side-panel";
       var headers = ["Result/Property", "Message/Value"];
-      AINSPECTOR_FB.emptySidePanelTemplate.tag.replace({headers: headers, messg: "no elements to select in the main panel", desc: "Evaluation Results By Rule"}, this.panelNode);
+      AINSPECTOR_FB.emptySidePanelTemplate.tag.replace({headers: headers, messg: mesg, desc: "Evaluation Results By Rule"}, this.panelNode);
     },
 
     /**
@@ -386,22 +362,6 @@ FBL.ns(function() { with (FBL) {
       this.lockedElement = target;
       this.lockedSelection = this.selection;
       this.rebuild();
-    },
-
-    /**
-     * showTrialSelector
-     * 
-     * @desc
-     * 
-     * @param trailSelector
-     */
-    showTrialSelector: function(trialSelector) {
-        
-      var show = trialSelector ? true : false;
-      collapse($('trialHint', this.document), show);
-      var trialSelectorDiv = $('trialSelector', this.document);
-      trialSelectorDiv.textContent = trialSelector;
-      collapse(trialSelectorDiv, !show);
     }
     
   });
@@ -502,7 +462,7 @@ FBL.ns(function() { with (FBL) {
         }
       }
       if (row) {
-        window.openDialog("chrome://ainspector/content/rule_properties/rule-properties.xul", "_rule_properties_dialog", "chrome,contentscreen,resizable=yes", row.repObject.rule_result);      
+        AINSPECTOR_FB.rule_info_dialog = window.openDialog("chrome://ainspector/content/rule_properties/rule-properties.xul", "_rule_properties_dialog", "chrome,contentscreen,resizable=yes", row.repObject.rule_result);      
       } else {
         alert("please select a row in the side panel");
 //        win.document.write("<p>This is 'myWindow'</p>");
@@ -556,7 +516,7 @@ FBL.ns(function() { with (FBL) {
       }
 
       FBTrace.sysout("row: ", row);
-      window.openDialog("chrome://ainspector/content/item_properties/cache-item-properties.xul", "cache_item_properties_dialog", "chrome,contentscreen,resizable=yes", row.repObject.cache_item);
+      AINSPECTOR_FB.element_info_dialog = window.openDialog("chrome://ainspector/content/item_properties/cache-item-properties.xul", "cache_item_properties_dialog", "chrome,contentscreen,resizable=yes", row.repObject.cache_item);
     },
       
     /**
@@ -854,6 +814,17 @@ FBL.ns(function() { with (FBL) {
       FBTrace.sysout("row: ", row);
       AINSPECTOR_FB.flatListTemplateUtil.unHighlight(table);
       AINSPECTOR_FB.flatListTemplateUtil.highlight(row);
+      
+      if (AINSPECTOR_FB.rule_info_dialog) {
+        FBTrace.sysout("AINSPECTOR_FB.rule_info_dialog: ", AINSPECTOR_FB.rule_info_dialog);
+        AINSPECTOR_FB.rule_info_dialog.rule_properties.update(row.repObject.rule_result);
+        AINSPECTOR_FB.rule_info_dialog.focus();
+      }
+      if (AINSPECTOR_FB.element_info_dialog) {
+        FBTrace.sysout("AINSPECTOR_FB.rule_info_dialog: ", AINSPECTOR_FB.element_info_dialog);
+        AINSPECTOR_FB.element_info_dialog.cache_item_properties.update(row.repObject.cache_item);
+        AINSPECTOR_FB.element_info_dialog.focus();
+      }
     }
     
   });

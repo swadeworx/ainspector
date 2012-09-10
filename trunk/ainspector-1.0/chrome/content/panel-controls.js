@@ -88,9 +88,9 @@ with (FBL) {
       panel.panelNode.appendChild(element);
 
       AINSPECTOR_FB.template.grid.setTableMenuItems(panel.table);
-      
+      var message = "no elements to select in the main panel";
       if (!controls_cache_element_results) {
-        Firebug.currentContext.getPanel('rulesSidePanel').showEmptySidePanel();
+        Firebug.currentContext.getPanel('rulesSidePanel').showEmptySidePanel(message);
       } else {
         var selected_row = AINSPECTOR_FB.toolbarUtil.selectRow(panel, controls_cache_element_results[0], controls_cache_elements.is_tree, "controls");
         
@@ -112,7 +112,6 @@ with (FBL) {
       
       panel.selection = object;
       
-      FBTrace.sysout("selection: ", panel);
       AINSPECTOR_FB.flatListTemplateUtil.highlight(panel.table.children[6].children[1].children[0]);
       
     }

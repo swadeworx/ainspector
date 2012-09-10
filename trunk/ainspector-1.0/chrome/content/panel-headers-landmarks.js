@@ -46,7 +46,7 @@ with (FBL) {
    */
   AINSPECTOR_FB.content.viewPanel = function (context, panel_name, cache_object) {
     
-    FBTrace.sysout("Inside the Content/Landmarks panel", AINSPECTOR_FB);
+    FBTrace.sysout("****** Begin Content/Landmarks panel ******");
     
 //  adds or removes the side panels from the extension depending on the panel we are in 
     AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels(true);
@@ -77,14 +77,12 @@ with (FBL) {
     
     var cache_item_results = content_cache_elements_results.cache_item_results;
     
-    FBTrace.sysout("cache_item_results", cache_item_results);
-    
     AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
     
     var toolbar = panel.document.createElement("div");
     toolbar.id = "toolbarDiv";
     
-    if (!cache_item_results) panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.replace({view:"Links"}, toolbar, null);
+    if (!cache_item_results) panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.replace({view:"Content in Landmarks"}, toolbar, null);
     
     else panel.table = AINSPECTOR_FB.template.grid.header.replace({elements: cache_item_results, view:"Content in Landmarks"}, toolbar, AINSPECTOR_FB.template.grid);
     
@@ -94,20 +92,6 @@ with (FBL) {
     panel.panelNode.id = "ainspector-panel"; 
     panel.panelNode.appendChild(toolbar);
     panel.panelNode.appendChild(element);
-    
-//    var table_height = panel.document.getElementById('ai-table-list-items');
-//    alert("table height............................"+ table_height.offsetHeight);
-    
-/*    var content_top = panel.document.getElementById("table-scrollable");
-    var content_bottom = panel.document.getElementById("mybuttons");
-    
-    FBTrace.sysout("content_top - style.height............................", content_top.style.height);
-    FBTrace.sysout("content_top - offsetHeight............................", content_top.offsetHeight);
-    FBTrace.sysout("content_top - clientHeight............................", content_top.clientHeight);
-    FBTrace.sysout("content_top - scrollHeight............................"+ content_top.scrollHeight);
-    var contentTop = AINSPECTOR_FB.toolbarUtil.getPixelsFromTop(content_top);
-    var contentBottom = AINSPECTOR_FB.toolbarUtil.getPixelsFromTop(content_bottom);
-    var contentHeight = contentBottom - contentTop;*/
     
     AINSPECTOR_FB.template.grid.setTableMenuItems(panel.table);
     
@@ -159,7 +143,7 @@ with (FBL) {
     
     var cache_item_results = header_cache_elements_results.cache_item_results;
     
-    FBTrace.sysout("AINSPECTOR_FB.headers.viewPanel() - cache_item_results", cache_item_results);
+    FBTrace.sysout("AINSPECTOR_FB.headers.viewPanel() - header_cache_elements_results", header_cache_elements_results);
     
     AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
     

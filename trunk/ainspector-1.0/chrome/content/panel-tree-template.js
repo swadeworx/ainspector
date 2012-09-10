@@ -55,7 +55,7 @@ with (FBL) {
             TD({class: "memberLabelCell", _repObject: "$member.value"},
               TAG("$member.violation_count", {'member' :"$member", 'object': "$member.value"})),
             TD({class: "memberLabelCell resultAlign", _repObject: "$member.value"},
-              BUTTON({onclick: "$AINSPECTOR_FB.toolbarUtil.viewHTMLPanel", id: "html_panel_button", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.htmlButtonPress"}, "HTML"))
+              BUTTON({onclick: "$AINSPECTOR_FB.toolbarUtil.gotoHTML", id: "html_panel_button", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.htmlButtonPress"}, "HTML"))
           ),
 
           strTag : DIV({class: "treeLabel"},"$member.name"),
@@ -126,7 +126,6 @@ with (FBL) {
         onKeyPressedRow: function(event) {
           
           event.stopPropagation();
-          FBTrace.sysout("event.target: ", event.target);
   
           switch(event.keyCode) {
         
@@ -148,10 +147,7 @@ with (FBL) {
               event.preventDefault();
               var table = getAncestorByClass(event.target, "domTable");
   
-              FBTrace.sysout("table in tree up direction..................: ", table);
-  
               var row = findPrevious(event.target, this.isTreeRow, false);
-              FBTrace.sysout("row: ", row);
 
               if (row) {
                 AINSPECTOR_FB.flatListTemplateUtil.highlightTreeRow(event, row);
@@ -177,9 +173,7 @@ with (FBL) {
               event.preventDefault();
               var table = getAncestorByClass(event.target, "domTable");
   
-              FBTrace.sysout("table in tree: ", table);
               var row = findNext(event.target, this.isTreeRow, false);
-              FBTrace.sysout("row: ", row);
 
               if (row) row.focus();
   
@@ -292,19 +286,24 @@ with (FBL) {
 //          var acc = value.dom_element.getAccessibility();
 //          var name = value.cache_item.dom_element.tag_name;
           
-          var name = value.cache_item.toString();
+          var name = null;
+          
+          if (value.cache_item) name = value.cache_item.toString();
+          else name = value.toString();
           
           var hasChildren = false;
           
-          if (value.children.length > 0) hasChildren = true;
+          if (value.children){
+            if (value.children.length > 0) hasChildren = true;
+          } else {
+            if (value.child_cache_elements && value.child_cache_elements.length > 0) hasChildren = true; 
+          }
           var styleTag;
-          
-          FBTrace.sysout("value: ", value);
           
           return {
             name: name, //name,
             hasChildren: hasChildren, 
-            children: value.children,
+            children: (value.children) ? value.children : value.child_cache_elements,
             value: (value != null) ? value : "",
             level: level,
             indent: level * 16,
@@ -407,9 +406,7 @@ with (FBL) {
           
           var sub_div = getChildByClass(tree, "table-scrollable");
           var table = getChildByClass(sub_div, "domTable");
-          FBTrace.sysout("tble", table );
 //        var table = tree.children[6];
-          FBTrace.sysout("table: ", table);
           var tbody = table.children[1];
           
           var rows = tbody.children;
@@ -436,8 +433,7 @@ with (FBL) {
             }
           }
 
-          FBTrace.sysout("row: ", row.repObject);
-          window.openDialog("chrome://ainspector/content/item_properties/cache-item-properties.xul", "cache_item_properties_dialog", "chrome,contentscreen,resizable=yes", row.repObject);
+          AINSPECTOR_FB.element_info_dialog = window.openDialog("chrome://ainspector/content/item_properties/cache-item-properties.xul", "cache_item_properties_dialog", "chrome,contentscreen,resizable=yes", row.repObject);
         }
   });
   
