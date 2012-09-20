@@ -81,9 +81,11 @@ with (FBL) {
 
       var preferences = OAA_WEB_ACCESSIBILITY_PREF.util.getPreferences();
       FBTrace.sysout("Preferences: ", preferences);
-      
+      FBTrace.sysout("OpenAjax: ", OpenAjax);
+
       var ruleset = OpenAjax.a11y.all_rulesets.getRuleset(preferences.ruleset_id);
-      
+      FBTrace.sysout("ruleset: ", ruleset);
+
       if (ruleset) {
         ruleset.setEvaluationLevel(preferences.wcag20_level);
         ruleset.setBrokenLinkTesting(preferences.broken_links);
