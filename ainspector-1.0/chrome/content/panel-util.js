@@ -33,6 +33,63 @@ FBL.ns(function() { with (FBL) {
   */
  AINSPECTOR_FB.toolbarUtil = {
      
+   viewPanel : function (context, panel_name, cache_object, rule_category, filter, rule_category_view, toolbar_button_id) {
+  
+     FBTrace.sysout("****** Begin Content/Landmarks panel ******");
+   
+//   adds or removes the side panels from the extension depending on the panel we are in 
+     AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels(true);
+
+     if (!context) context = Firebug.currentContext;
+     if (!panel_name) panel_name = "AInspector";
+
+     panel = context.getPanel(panel_name, true);
+
+     if (!cache_object) {
+       if (AINSPECTOR_FB.ruleset_object)
+         cache_object = AINSPECTOR_FB.ruleset_object;
+       else
+         cache_object = AINSPECTOR_FB.cacheUtil.updateCache();
+     }
+
+     /* Clear the panel before writing anything onto the report*/
+     if (panel) {
+       clearNode(panel.panelNode);
+       clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
+     }
+
+     /* Get the Image rules results from the ruleset selected in preferences*/
+     var cache_elements_results = cache_object.getCacheItemsByRuleCategory(rule_category, filter);
+   
+     FBTrace.sysout("cache_elements_results", cache_elements_results);
+   
+     var cache_item_results = cache_elements_results.cache_item_results;
+   
+     AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
+   
+     var toolbar = panel.document.createElement("div");
+     toolbar.id = "toolbarDiv";
+   
+     if (!cache_item_results) panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.replace({view: rule_category_view}, toolbar, null);
+   
+     else panel.table = AINSPECTOR_FB.template.grid.header.replace({elements: cache_item_results, view: rule_category_view}, toolbar, AINSPECTOR_FB.template.grid);
+   
+     var element = panel.document.createElement("div");
+     element.style.display = "block";
+   
+     panel.panelNode.id = "ainspector-panel"; 
+     panel.panelNode.appendChild(toolbar);
+     panel.panelNode.appendChild(element);
+   
+     AINSPECTOR_FB.template.grid.setTableMenuItems(panel.table);
+   
+     var selected_row =  AINSPECTOR_FB.toolbarUtil.selectRow(panel, cache_item_results[0], false, toolbar_button_id);
+   
+     if (AINSPECTOR_FB.previous_selected_row != null && selected_row) Firebug.currentContext.getPanel('rulesSidePanel').sView(true, cache_item_results[selected_row]);
+     else Firebug.currentContext.getPanel('rulesSidePanel').sView(true, cache_item_results[0]);
+   
+  },
+     
   /**
    * @function getToolbarButtonClass
    * 

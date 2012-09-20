@@ -46,7 +46,7 @@ with (FBL) {
     AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels("none");
     if (!context) context = Firebug.currentContext;
     if (!panel_name) panel_name = "AInspector";
-
+    FBTrace.sysout("inside summary");
     panel = context.getPanel(panel_name, true);
 
     if (!cache_object) {
