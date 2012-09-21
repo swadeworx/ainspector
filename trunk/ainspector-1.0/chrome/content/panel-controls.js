@@ -72,7 +72,7 @@ with (FBL) {
       FBTrace.sysout("controls_cache_elements: ", controls_cache_elements);
       
       if (!controls_cache_element_results) {
-        panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.replace({view:"Links"}, toolbar, null);
+        panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.replace({view:"Controls"}, toolbar, null);
       } else {
         if (controls_cache_elements.is_tree == true)
         

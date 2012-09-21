@@ -70,10 +70,20 @@ FBL.ns(function() { with (FBL) {
      var toolbar = panel.document.createElement("div");
      toolbar.id = "toolbarDiv";
    
-     if (!cache_item_results) panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.replace({view: rule_category_view}, toolbar, null);
+//     if (!cache_item_results) panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.replace({view: rule_category_view}, toolbar, null);
    
-     else panel.table = AINSPECTOR_FB.template.grid.header.replace({elements: cache_item_results, view: rule_category_view}, toolbar, AINSPECTOR_FB.template.grid);
-   
+//     else panel.table = AINSPECTOR_FB.template.grid.header.replace({elements: cache_item_results, view: rule_category_view}, toolbar, AINSPECTOR_FB.template.grid);
+     
+     if (!cache_elements_results) {
+       panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.replace({view:rule_category_view}, toolbar, null);
+     } else {
+       if (cache_elements_results.is_tree == true)
+       
+         panel.table = AINSPECTOR_FB.treeTemplate.grid.tag.replace({object: cache_elements_results, view: rule_category_view}, toolbar, AINSPECTOR_FB.treeTemplate.grid);
+       else  
+         panel.table = AINSPECTOR_FB.template.grid.header.replace({elements: cache_item_results, view: rule_category_view}, toolbar, AINSPECTOR_FB.template.grid);        
+     }
+     
      var element = panel.document.createElement("div");
      element.style.display = "block";
    
