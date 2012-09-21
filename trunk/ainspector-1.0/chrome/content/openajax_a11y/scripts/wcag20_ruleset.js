@@ -149,7 +149,10 @@ OpenAjax.a11y.Rulesets.prototype.getAllRulesets = function() {
  * @property {Object} wcag20_nls   - Reference to WCAG 2.0 NLS object for current language
  * @property {Object} log          - Reference to Log object
  * @property {Object} dom_cache    - Reference to DOMCache object
- * @property {Object} result       - Reference to WCAG20Result object
+ *
+ * @property {Array}  rule_results          - Array of rule results 
+ * @property {Object} wcag20_results        - Reference to WCAG20Results object
+ * @property {Object} rule_category_results - Reference to WCAG20Results object
  *
  * @example
  *
@@ -180,7 +183,9 @@ OpenAjax.a11y.WCAG20Ruleset = function (ruleset_data) {
   this.ruleset_title = {};
   this.wcag20_level = OpenAjax.a11y.WCAG20_LEVEL.AA;
   this.wcag20_recommended_rules_enabled = true;
-  
+
+  this.rule_results = [];
+
   // Check for ruleset id
 
   if (ruleset_data['ruleset_id']) {
@@ -426,9 +431,7 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.evaluate = function (url, title, doc, prog
 
   this.dom_cache = new OpenAjax.a11y.cache.DOMCache(url, title, doc, this.log);      
 
-  this.wcag20_results        = new OpenAjax.a11y.WCAG20Result(this, url, title); 
-
-  this.rule_category_results = new OpenAjax.a11y.RuleCategoryResult(this, url, title); 
+  this.rule_results = [];
 
   this.dom_cache.updateDOMElementCache();
   
@@ -451,7 +454,7 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.evaluate = function (url, title, doc, prog
 
       rule_result = new OpenAjax.a11y.RuleResult(rule_mapping); 
 
-//      OpenAjax.a11y.logger.debug("Rule: " + rule + "  Enabled: " + rule_mapping.enabled  + "  Mapping: " + rule_mapping.type + "  Recommended: " + this.wcag20_recommended_rules_enabled);
+      OpenAjax.a11y.logger.debug("Rule: " + rule + "  Enabled: " + rule_mapping.enabled  + "  Mapping: " + rule_mapping.type + "  Recommended: " + this.wcag20_recommended_rules_enabled);
 
       if (rule_mapping.enabled && 
           (rule_mapping.type === OpenAjax.a11y.RULE.REQUIRED ||
@@ -498,10 +501,10 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.evaluate = function (url, title, doc, prog
         else this.log.update(PROGRESS.RULE, " ** Rule for success criteria " + rsc.ruleset_id + " is undefined");                            
       }
 
-      this.rule_category_results.addRuleResult(rule_result);
+      rule_result.calculateImplementationLevel();
       
-      this.wcag20_results.addRuleResult(rule_result);
-
+      this.rule_results.push(rule_result);
+      
       // OpenAjax.a11y.logger.debug("Aggregating rule Results: " + rule_result);
 
     }                 
@@ -535,263 +538,386 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.getCacheItemsByRuleCategory = function (ru
 
 };
 
-/**
- * @method getRuleResultsByRuleCategory
- *
- * @memberOf OpenAjax.a11y.WCAG20Ruleset
- *
- * @desc Returns an object containing a array of rule results for a rule category
- *
- * @param {Number}  rule_category
- * @param {Number}  filter 
- * @param {Number}  wcag20_level 
- *
- * @return {FilteredRuleCategoryResults}  The object containing the filtered rule and summary results
- */
 
-OpenAjax.a11y.WCAG20Ruleset.prototype.getRuleResultsByRuleCategory = function (rule_category, filter, wcag20_level) {
-
-};
 
 /**
- * @method getRuleResultsByRuleCategories
- *
- * @memberOf OpenAjax.a11y.WCAG20Ruleset
- *
- * @desc Returns an object containing a set of rules organized in a tree structure by rule category
- *
- * @return {RuleResultSummary}  The object containing the set of cache items
- */
-
-OpenAjax.a11y.WCAG20Ruleset.prototype.getRuleResultsByRuleCategories = function (wcag20_level) {
-
-  function addRuleCategory(title, aggregation) {
-  
-    var rrs_group = new OpenAjax.a11y.cache.RuleResultSummaryGroup(title, aggregation);
-    
-    var rule_results     = aggregation.rule_results;
-    var rule_results_len = rule_results.length;
-      
-    for (var i = 0; i < rule_results_len ; i++) {
-      var rule_result = rule_results[i];
-      var rule_wcag20_level = rule_result.rule.getWCAG20Level();
-      
-      if (rule_wcag20_level <= wcag20_level) rrs_group.addRuleResultItem(rule_result);
-    }
-    
-    rrs_group.sortByImplementationLevel();
-    
-    rule_result_summary.addRuleResultItem(rrs_group);
-  
-  }
-
-  var rule_category_results = this.rule_category_results;
-
-  var rule_result_summary = new OpenAjax.a11y.cache.RuleResultSummary('Rule Categories');
-  
-  if (rule_category_results) {
-  
-//  addRuleCategory('Abbreviation Rules', rule_category_results.abbreviation_rule_results);
-    addRuleCategory('Audio Rules', rule_category_results.audio_rule_results);
-    addRuleCategory('Color Contrast Rules', rule_category_results.color_contrast_rule_results);
-    addRuleCategory('Form Control Rules', rule_category_results.control_rule_results);
-    addRuleCategory('Heading Rules', rule_category_results.heading_rule_results);
-    addRuleCategory('Image Rules', rule_category_results.image_rule_results);
-    addRuleCategory('Landmark Rules', rule_category_results.landmark_rule_results);
-//  addRuleCategory('Language Rules', rule_category_results.language_rule_results);
-    addRuleCategory('Link Rules', rule_category_results.link_rule_results);
-//  addRuleCategory('List Rules', rule_category_results.list_rule_results);
-    addRuleCategory('Table Rules', rule_category_results.table_rule_results);
-    addRuleCategory('Video Rules', rule_category_results.video_rule_results);
-    addRuleCategory('Widget Rules', rule_category_results.widget_rule_results);
-    addRuleCategory('Content Rules', rule_category_results.content_rule_results);
-    
-  }
-  
-  return rule_result_summary;
-
-};
-
-/**
- * @method getRuleResultsByWCAG20
+ * @method getFilteredRuleResultsByWCAG20
  *
  * @memberOf OpenAjax.a11y.WCAG20Ruleset
  *
  * @desc Returns an object containing a set of rules organized in a tree structure by WCAG 2.0 Principles, Guidelines and Success Criteria
  *
- * @return {RuleResultSummary}  The object containing the set of cache items
+ * @param {Number}  wcag20_level  -  WCAG 2.0 Success Criteria Level 
+ * @param {Number}  filter        -  Filter for node results (bit mapped mask)
+ * 
+ * @return {FilteredRuleResultsGroups}  The object containing the filtered rule results organized by wcag 2.0 requirements
  */
 
-OpenAjax.a11y.WCAG20Ruleset.prototype.getRuleResultsByWCAG20 = function (wcag20_level) {
+OpenAjax.a11y.WCAG20Ruleset.prototype.getFilteredRuleResultsByWCAG20 = function (wcag20_level, filter) {
 
-  function addSuccessCriteriaResult(guideline_group, success_criterion_result) {
+  var RULE_CATEGORIES = OpenAjax.a11y.RULE_CATEGORIES;
+
+  var nls_wcag20 = OpenAjax.a11y.all_wcag20_nls.getNLS();
+
+  var principles;
+  var principle;
+  var guideline;
+  var success_criterion;
+
+  principles = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(RULE_CATEGORIES.ALL_CATEGORIES, 'WCAG 2.0');
+
+  principle         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups('1', nls_wcag20.getNLSItemById('1').title, this);
   
-    var sc_nls      = wcag20_nls.getNLSItemById(success_criterion_result.success_criterion_id);
-    var title       = sc_nls.title;
-    var aggregation = success_criterion_result.rule_result_aggregation;
-    
-    // OpenAjax.a11y.logger.debug("      SC: " + title + " Aggregation: " + aggregation + " Level: " + sc_nls.level);
-
-    if (sc_nls.level <=  wcag20_level) {
- 
-      var rrs_group = new OpenAjax.a11y.cache.RuleResultSummaryGroup(title, aggregation);
-      
-      for (var i = 0; i < success_criterion_result.rule_results.length ; i++) { 
-        var r_result = success_criterion_result.rule_results[i];  
-        rrs_group.addRuleResultItem(r_result);
-      }  
-    
-      guideline_group.addRuleResultItem(rrs_group);
-    }  
-  }
-
-  function addGuidelineResult(principle_group, guideline_result) {
+  guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups('1.1', nls_wcag20.getNLSItemById('1.1').title, this);
   
-    var title       = wcag20_nls.getNLSItemById(guideline_result.guideline_id).title;
-    var aggregation = guideline_result.rule_result_aggregation;
-
-    // OpenAjax.a11y.logger.debug("    G: " + title + " Aggregation: " + aggregation );
-
-    var rrs_group = new OpenAjax.a11y.cache.RuleResultSummaryGroup(title, aggregation);
-    
-    for (var i = 0; i < guideline_result.success_criteria_results.length ; i++) {
-      var sc_result = guideline_result.success_criteria_results[i];
-      addSuccessCriteriaResult(rrs_group, sc_result);
-    }
-    
-    principle_group.addRuleResultItem(rrs_group);
-
-  }
-
-
-  function addPrincipleResult(principle_result) {
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('1.1.1', nls_wcag20.getNLSItemById('1.1.1').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
   
-    var title       = wcag20_nls.getNLSItemById(principle_result.principle_id).title;
-    var aggregation = principle_result.rule_result_aggregation;
+  principle.addFilteredRuleResultsGroup(guideline);
 
-    // OpenAjax.a11y.logger.debug("  P: " + title + " Aggregation: " + aggregation );
+  guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups('1.2', nls_wcag20.getNLSItemById('1.2').title, this);
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('1.2.1', nls_wcag20.getNLSItemById('1.2.1').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('1.2.2', nls_wcag20.getNLSItemById('1.2.2').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('1.2.3', nls_wcag20.getNLSItemById('1.2.3').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('1.2.4', nls_wcag20.getNLSItemById('1.2.4').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('1.2.5', nls_wcag20.getNLSItemById('1.2.5').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('1.2.6', nls_wcag20.getNLSItemById('1.2.6').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('1.2.7', nls_wcag20.getNLSItemById('1.2.7').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('1.2.8', nls_wcag20.getNLSItemById('1.2.8').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('1.2.9', nls_wcag20.getNLSItemById('1.2.9').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  principle.addFilteredRuleResultsGroup(guideline);
 
-    var rrs_group = new OpenAjax.a11y.cache.RuleResultSummaryGroup(title, aggregation);
-    
-    for (var i = 0; i < principle_result.guideline_results.length ; i++) {
-      var g_result = principle_result.guideline_results[i];
-      addGuidelineResult(rrs_group, g_result); 
-    }  
-    
-    rule_result_summary.addRuleResultItem(rrs_group);
+  guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups('1.3', nls_wcag20.getNLSItemById('1.3').title, this);
   
-  }
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('1.3.1', nls_wcag20.getNLSItemById('1.3.1').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('1.3.2', nls_wcag20.getNLSItemById('1.3.2').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('1.3.3', nls_wcag20.getNLSItemById('1.3.3').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  principle.addFilteredRuleResultsGroup(guideline);
 
-  var wcag20_results = this.wcag20_results;
+  guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups('1.4', nls_wcag20.getNLSItemById('1.4').title, this);
   
-  var wcag20_nls = OpenAjax.a11y.all_wcag20_nls.getNLS(); 
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('1.4.1', nls_wcag20.getNLSItemById('1.4.1').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('1.4.2', nls_wcag20.getNLSItemById('1.4.2').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('1.4.3', nls_wcag20.getNLSItemById('1.4.3').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('1.4.4', nls_wcag20.getNLSItemById('1.4.4').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('1.4.5', nls_wcag20.getNLSItemById('1.4.5').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('1.4.6', nls_wcag20.getNLSItemById('1.4.6').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('1.4.7', nls_wcag20.getNLSItemById('1.4.7').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('1.4.8', nls_wcag20.getNLSItemById('1.4.8').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('1.4.9', nls_wcag20.getNLSItemById('1.4.9').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  principle.addFilteredRuleResultsGroup(guideline);
 
-  var rule_result_summary = new OpenAjax.a11y.cache.RuleResultSummary('Rule Categories');
+  principles.addFilteredRuleResultsGroup(principle);
 
-  if (wcag20_results) {
+  principle         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups('2', nls_wcag20.getNLSItemById('2').title, this);
   
-    for (var i = 0; i < wcag20_results.principle_results.length; i++ ) addPrincipleResult(wcag20_results.principle_results[i]);
+  guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups('2.1', nls_wcag20.getNLSItemById('2.1').title, this);
   
-  }
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('2.1.1', nls_wcag20.getNLSItemById('2.1.1').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
   
-  return rule_result_summary;
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('2.1.2', nls_wcag20.getNLSItemById('2.1.2').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('2.1.3', nls_wcag20.getNLSItemById('2.1.3').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  principle.addFilteredRuleResultsGroup(guideline);
+
+  guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups('2.2', nls_wcag20.getNLSItemById('2.2').title, this);
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('2.2.1', nls_wcag20.getNLSItemById('2.2.1').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('2.2.2', nls_wcag20.getNLSItemById('2.2.2').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('2.2.3', nls_wcag20.getNLSItemById('2.2.3').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('2.2.4', nls_wcag20.getNLSItemById('2.2.4').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('2.2.5', nls_wcag20.getNLSItemById('2.2.5').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  principle.addFilteredRuleResultsGroup(guideline);
+
+  guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups('2.3', nls_wcag20.getNLSItemById('2.3').title, this);
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('2.3.1', nls_wcag20.getNLSItemById('2.3.1').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('2.3.2', nls_wcag20.getNLSItemById('2.3.2').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  principle.addFilteredRuleResultsGroup(guideline);
+
+  guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups('2.4', nls_wcag20.getNLSItemById('2.4').title, this);
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('2.4.1', nls_wcag20.getNLSItemById('2.4.1').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('2.4.2', nls_wcag20.getNLSItemById('2.4.2').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('2.4.3', nls_wcag20.getNLSItemById('2.4.3').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('2.4.4', nls_wcag20.getNLSItemById('2.4.4').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('2.4.5', nls_wcag20.getNLSItemById('2.4.5').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('2.4.6', nls_wcag20.getNLSItemById('2.4.6').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('2.4.7', nls_wcag20.getNLSItemById('2.4.7').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('2.4.8', nls_wcag20.getNLSItemById('2.4.8').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('2.4.9', nls_wcag20.getNLSItemById('2.4.9').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('2.4.10', nls_wcag20.getNLSItemById('2.4.10').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  principle.addFilteredRuleResultsGroup(guideline);
+
+  principles.addFilteredRuleResultsGroup(principle);
+
+  principle         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups('3', nls_wcag20.getNLSItemById('3').title, this);
+  
+  guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups('3.1', nls_wcag20.getNLSItemById('3.1').title, this);
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('3.1.1', nls_wcag20.getNLSItemById('3.1.1').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('3.1.2', nls_wcag20.getNLSItemById('3.1.2').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('3.1.3', nls_wcag20.getNLSItemById('3.1.3').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('3.1.4', nls_wcag20.getNLSItemById('3.1.4').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('3.1.5', nls_wcag20.getNLSItemById('3.1.5').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('3.1.6', nls_wcag20.getNLSItemById('3.1.6').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  principle.addFilteredRuleResultsGroup(guideline);
+
+
+  guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups('3.2', nls_wcag20.getNLSItemById('3.2').title, this);
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('3.2.1', nls_wcag20.getNLSItemById('3.2.1').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('3.2.2', nls_wcag20.getNLSItemById('3.2.2').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('3.2.3', nls_wcag20.getNLSItemById('3.2.3').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('3.2.4', nls_wcag20.getNLSItemById('3.2.4').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('3.2.5', nls_wcag20.getNLSItemById('3.2.5').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  principle.addFilteredRuleResultsGroup(guideline);
+
+  guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups('3.3', nls_wcag20.getNLSItemById('3.3').title, this);
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('3.3.1', nls_wcag20.getNLSItemById('3.3.1').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('3.3.2', nls_wcag20.getNLSItemById('3.3.2').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('3.3.3', nls_wcag20.getNLSItemById('3.3.3').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('3.3.4', nls_wcag20.getNLSItemById('3.3.4').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('3.3.5', nls_wcag20.getNLSItemById('3.3.5').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('3.3.6', nls_wcag20.getNLSItemById('3.3.6').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  principle.addFilteredRuleResultsGroup(guideline);
+
+  principles.addFilteredRuleResultsGroup(principle);
+
+  principle         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups('4', nls_wcag20.getNLSItemById('4').title, this);
+  
+  guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups('4.1', nls_wcag20.getNLSItemById('4.1').title, this);
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('4.1.1', nls_wcag20.getNLSItemById('4.1.1').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  
+  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup('4.1.2', nls_wcag20.getNLSItemById('4.1.2').title, this);
+  guideline.addFilteredRuleResultsGroup(success_criterion);  
+
+  principle.addFilteredRuleResultsGroup(guideline);
+
+  principles.addFilteredRuleResultsGroup(principle);
+
+  for (var i = 0; i < this.rule_results.length; i++) {
+  
+     var rule_result = this.rule_results[i];
+  
+     principles.addRuleResult(rule_result.getRule().wcag_primary_id, rule_result, wcag20_level, filter);
+     
+  }   
+  
+  return principles;
+
+
+};
+
+
+/**
+ * @method getFilteredRuleResultsByRuleCategories
+ *
+ * @memberOf OpenAjax.a11y.WCAG20Ruleset
+ *
+ * @desc Returns an object containing a set of rules organized in a tree structure by rule category
+ *
+ * @param {Number}  wcag20_level  -  WCAG 2.0 Success Criteria Level 
+ * @param {Number}  filter        -  Filter for node results (bit mapped mask)
+ *
+ * @return {FilteredRuleResultsGroups}  The object containing the filtered rule results organized by rule categories
+ */
+
+OpenAjax.a11y.WCAG20Ruleset.prototype.getFilteredRuleResultsByRuleCategories = function (wcag20_level, filter) {
+
+  var RULE_CATEGORIES = OpenAjax.a11y.RULE_CATEGORIES;
+
+  var groups = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(RULE_CATEGORIES.ALL_CATEGORIES, 'All Rule Categories');
+  var group;
+
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(RULE_CATEGORIES.AUDIO, 'Audio', this);
+  groups.addFilteredRuleResultsGroup(group);
+
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(RULE_CATEGORIES.COLOR_CONTRAST, 'Color Contrast', this);
+  groups.addFilteredRuleResultsGroup(group);
+
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(RULE_CATEGORIES.CONTROLS, 'Form Controls', this);
+  groups.addFilteredRuleResultsGroup(group);
+
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(RULE_CATEGORIES.HEADINGS, 'Headings', this);
+  groups.addFilteredRuleResultsGroup(group);
+
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(RULE_CATEGORIES.IMAGES, 'Images', this);
+  groups.addFilteredRuleResultsGroup(group);
+
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(RULE_CATEGORIES.LANDMARKS, 'Landmarks', this);
+  groups.addFilteredRuleResultsGroup(group);
+
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(RULE_CATEGORIES.LINKS, 'Links', this);
+  groups.addFilteredRuleResultsGroup(group);
+
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(RULE_CATEGORIES.TABLES, 'Tables', this);
+  groups.addFilteredRuleResultsGroup(group);
+
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(RULE_CATEGORIES.Video, 'Video', this);
+  groups.addFilteredRuleResultsGroup(group);
+
+  for (var i = 0; i < this.rule_results.length; i++) {
+  
+     var rule_result = this.rule_results[i];
+  
+     groups.addRuleResult(rule_result.getRule().rule_category, rule_result, wcag20_level, filter);
+     
+  }   
+  
+  return groups;
 
 };
 
 /**
- * @method getAllRuleResults
+ * @method getFilteredRuleResultsByRuleCategory
  *
  * @memberOf OpenAjax.a11y.WCAG20Ruleset
  *
- * @desc Returns an object containing a set of all rule results
+ * @desc Returns an object containing a set of all rule results for a set of rule categories
  *
- * @return {RuleResultSummary}  The object containing the set of cache items
+ * @param {Number}  category      -  Number of bit mask for which rule groups to include in the group 
+ * @param {String}  title         -  Title of the rule category 
+ * @param {Number}  wcag20_level  -  WCAG 2.0 Success Criteria Level 
+ * @param {Number}  filter        -  Filter for node results (bit mapped mask)
+ *
+ * @return {FilteredRuleResultsGroup}  The object containing the filtered rule results
  */
 
-OpenAjax.a11y.WCAG20Ruleset.prototype.getAllRuleResults = function (wcag20_level) {
+OpenAjax.a11y.WCAG20Ruleset.prototype.getFilteredRuleResultsByRuleCategory = function (category, title, wcag20_level, filter) {
 
-  function addRulesFromCategory(aggregation) {
+  var filtered_rule_results_group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(category, title, this);
   
-    var rule_results     = aggregation.rule_results;
-    var rule_results_len = rule_results.length;
-      
-    for (var i = 0; i < rule_results_len ; i++) {
-      var rule_result = rule_results[i];
-      var rule_wcag20_level = rule_result.rule.getWCAG20Level();
-      
-      if (rule_wcag20_level <= wcag20_level) rule_result_summary.addRuleResultItem(rule_result);
-    }
+  for (var i = 0; i < this.rule_results.length; i++) {
   
-  }
-
-  var rule_category_results = this.rule_category_results;
-
-  var rule_result_summary = new OpenAjax.a11y.cache.RuleResultSummary('Rule Categories');
+     var rule_result = this.rule_results[i];
+     
+     if (rule_result) filtered_rule_results_group.addRuleResult(rule_result.getRule().rule_category, rule_result, wcag20_level, filter);
+     
+  }   
   
-  if (rule_category_results) {
-  
-//  addRulesFromCategory(rule_category_results.abbreviation_rule_results);
-    addRulesFromCategory(rule_category_results.audio_rule_results);
-    addRulesFromCategory(rule_category_results.color_contrast_rule_results);
-    addRulesFromCategory(rule_category_results.control_rule_results);
-    addRulesFromCategory(rule_category_results.heading_rule_results);
-    addRulesFromCategory(rule_category_results.image_rule_results);
-    addRulesFromCategory(rule_category_results.landmark_rule_results);
-//  addRulesFromCategory(rule_category_results.language_rule_results);
-    addRulesFromCategory(rule_category_results.link_rule_results);
-//  addRulesFromCategory(rule_category_results.list_rule_results);
-    addRulesFromCategory(rule_category_results.table_rule_results);
-    addRulesFromCategory(rule_category_results.video_rule_results);
-    addRulesFromCategory(rule_category_results.widget_rule_results);
-    addRulesFromCategory(rule_category_results.content_rule_results);
-
-    rule_result_summary.sortByImplementationLevel();
-
-  }
-  
-  return rule_result_summary;
+  return filtered_rule_results_group;
 
 };
 
-
-/**
- * @method getRuleResultsByRuleGrouping
- *
- * @memberOf OpenAjax.a11y.WCAG20Ruleset
- *
- * @desc Returns an object containing a set of rules organized in a tree structure based on the grouping parameter
- *
- * @param {Number}  grouping  - Grouping of rules constant
- *
- * @return {RuleResultSummary}  The object containing the set of cache items
- */
-
-OpenAjax.a11y.WCAG20Ruleset.prototype.getRuleResultsByRuleGrouping = function (grouping, wcag20_level) {
-
-  var RULE_GROUP = OpenAjax.a11y.RULE_GROUP;
-  
-  var results = null;
-
-  switch  (grouping) {
-  
-  case RULE_GROUP.RULE_CATEGORIES:
-    results = this.getRuleResultsByRuleCategories(wcag20_level);
-    break;
-    
-  case RULE_GROUP.WCAG20:
-    results = this.getRuleResultsByWCAG20(wcag20_level);
-    break;
-
-  case RULE_GROUP.ALL_RULE_LIST:
-    results = this.getAllRuleResults(wcag20_level);
-    break;
-
-  default:
-    break;
-  }
-
- return results;
-};
 
 /**
  * @method isSameDocument
@@ -818,12 +944,13 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.isSameDocument = function (document) {
  *
  * @desc Creates a JSON representation of the ruleset 
  *
- * @param {String} prefix  -  A prefix string typically spaces
+ * @param  {String}  prefix         - A prefix string typically spaces for formatting output
+ * @param  {Number}  rule_category  - Number representing the rule categories to include 
  *
- * @param {String} JSON formatted string representing the ruleset
+ * @return {String} JSON formatted string representing the ruleset
  */
  
-OpenAjax.a11y.WCAG20Ruleset.prototype.toJSON = function (prefix) {
+OpenAjax.a11y.WCAG20Ruleset.prototype.toJSON = function (prefix, rule_category) {
   
   function referencesToJSON(name, refs, last) {
   
@@ -834,7 +961,7 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.toJSON = function (prefix) {
     var refs_last = refs_len - 1;
       
     if (refs_len > 0) {
-      json += next_prefix + "  '" + name + "' : ["; 
+      json += next_prefix + "  \"" + OpenAjax.a11y.util.escapeForJSON(name) + "\" : ["; 
       for (var i = 0; i < refs_len; i++) {
         var ref = refs[i];
         
@@ -847,13 +974,13 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.toJSON = function (prefix) {
            url = ref.url;
         }
         
-        if (i === refs_last) json += next_prefix_2 + "{ 'title' : '" + title + "', 'url' : '" + url + "'}";
-        else json += next_prefix_2 + "{ 'title' : '" + title + "', 'url' : '" + url + "'},";
+        if (i === refs_last) json += next_prefix_2 + "{ \"title\" : \"" + OpenAjax.a11y.util.escapeForJSON(title) + "\", \"url\" : \"" + OpenAjax.a11y.util.escapeForJSON(url) + "\"}";
+        else json += next_prefix_2 + "{ \"title\" : \"" + OpenAjax.a11y.util.escapeForJSON(title) + "\", \"url\" : \"" + OpenAjax.a11y.util.escapeForJSON(url) + "\"},";
       }       
       json += next_prefix + "  ]"; 
     }
     else {
-      json += next_prefix + "  'purpose'    : []";       
+      json += next_prefix + "  \"purpose\"    : []";       
     }
     
     if (typeof last === 'undefined' || !last) json += ',';
@@ -881,37 +1008,40 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.toJSON = function (prefix) {
 
   json += "{";
 
-  json += prefix + "  'ruleset_id'          : '" + this.ruleset_id + "',";
-  json += prefix + "  'ruleset_title'       : '" + this.ruleset_title + "',";
-  json += prefix + "  'ruleset_description' : '" + this.ruleset_description + "',";
-  json += prefix + "  'ruleset_author_name' : '" + this.ruleset_author_name + "',";
-  json += prefix + "  'ruleset_author_url'  : '" + this.ruleset_author_url + "',";
-  json += prefix + "  'ruleset_updated'     : '" + this.ruleset_updated + "',";
-  json += prefix + "  'wcag20_level'        : "  + this.wcag20_level + ",";
-  json += prefix + "  'rec_rules_enabled'   : "  + this.wcag20_recommended_rules_enabled + ",";
+  json += prefix + "  \"ruleset_id\"          : \"" + this.ruleset_id + "\",";
+  json += prefix + "  \"ruleset_title\"       : \"" + OpenAjax.a11y.util.escapeForJSON(this.ruleset_title) + "\",";
+  json += prefix + "  \"ruleset_description\" : \"" + OpenAjax.a11y.util.escapeForJSON(this.ruleset_description) + "\",";
+  json += prefix + "  \"ruleset_author_name\" : \"" + OpenAjax.a11y.util.escapeForJSON(this.ruleset_author_name) + "\",";
+  json += prefix + "  \"ruleset_author_url\"  : \"" + this.ruleset_author_url + "\",";
+  json += prefix + "  \"ruleset_updated\"     : \"" + this.ruleset_updated + "\",";
+  json += prefix + "  \"wcag20_level\"        : "  + this.wcag20_level + ",";
+  json += prefix + "  \"rec_rules_enabled\"   : "  + this.wcag20_recommended_rules_enabled + ",";
 
   if (rule_mappings_len > 0) {
-    json += prefix + "  'rules' : {";
+    json += prefix + "  \"rules\" : {";
     
     for (i = 0; i < rule_mappings_len; i++) {
       var rm = this.rule_mappings[i];
       var r = rm.rule;
-      json += next_prefix + "'" + r.rule_id + "' : {"; 
-      json += next_prefix + "  'enabled'          : "  + rm.enabled + ","; 
-      json += next_prefix + "  'rule_type'        : "  + rm.type + ",";
-      json += next_prefix + "  'scope'            : "  + r.rule_scope + ","; 
-      json += next_prefix + "  'nls_scope'        : '" + r.getNLSRuleScope() + "',"; 
-      json += next_prefix + "  'wcag_primary_id'  : '" + r.wcag_primary_id + "',"; 
-      json += next_prefix + "  'wcag_related_ids' : '" + r.wcag_related_ids + "',"; 
-      json += next_prefix + "  'definition'       : '" + r.getNLSDefinition(rm.type) + "',"; 
-      json += next_prefix + "  'summary'          : '" + r.getNLSSummary(rm.type) + "',"; 
       
-      referencesToJSON('purpose', r.getNLSPurpose());
-      referencesToJSON('techniques', r.getNLSTechniques());
-      referencesToJSON('informational_links', r.getNLSInformationalLinks(), true);
+      if (r.rule_category & rule_category) {
+        json += next_prefix + "\"" + r.rule_id + "\" : {"; 
+        json += next_prefix + "  \"enabled\"          : "  + rm.enabled + ","; 
+        json += next_prefix + "  \"rule_type\"        : "  + rm.type + ",";
+        json += next_prefix + "  \"scope\"            : "  + r.rule_scope + ","; 
+        json += next_prefix + "  \"nls_scope\"        : \"" + r.getNLSRuleScope() + "\","; 
+        json += next_prefix + "  \"wcag_primary_id\"  : \"" + r.wcag_primary_id + "\","; 
+        json += next_prefix + "  \"wcag_related_ids\" : \"" + r.wcag_related_ids + "\","; 
+        json += next_prefix + "  \"definition\"       : \"" + OpenAjax.a11y.util.escapeForJSON(r.getNLSDefinition(rm.type)) + "\","; 
+        json += next_prefix + "  \"summary\"          : \"" + OpenAjax.a11y.util.escapeForJSON(r.getNLSSummary(rm.type)) + "\","; 
+      
+        referencesToJSON('purpose', r.getNLSPurpose());
+        referencesToJSON('techniques', r.getNLSTechniques());
+        referencesToJSON('informational_links', r.getNLSInformationalLinks(), true);
 
-      if (i === rule_mappings_last) json += next_prefix + "}";
-      else json += next_prefix + "},";
+        if (i === rule_mappings_last) json += next_prefix + "}";
+        else json += next_prefix + "},";
+      }  
       
     }  // end loop
     
@@ -919,7 +1049,7 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.toJSON = function (prefix) {
    
   }
   else {
-    json += prefix + "  'rules' : {}";
+    json += prefix + "  \"rules\" : {}";
   }
   
   json += prefix + "}";

@@ -36,7 +36,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         var de = ie.dom_element;
      
         if (de.hasAttrWithValue('role', 'presentation')) {     
-          rule_result.addResult(TEST_RESULT.HIDDEN, ie, 'PRESENTATION', []);
+          rule_result.addResult(TEST_RESULT.HIDDEN, ie, 'PRESENTATION', [de.tag_name]);
         }
         else {
           if (de.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
@@ -45,7 +45,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
               rule_result.addResult(TEST_RESULT.PASS, ie, 'PASS', []);     
             }
             else {
-              rule_result.addResult(TEST_RESULT.FAIL, ie, 'CORRECTIVE_ACTION', []);     
+              rule_result.addResult(TEST_RESULT.FAIL, ie, 'CORRECTIVE_ACTION_1', [de.tag_name]);     
             }
           }
           else {
@@ -100,15 +100,15 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
                 break;
           
               case URL_RESULT.INVALID:
-                rule_result.addResult(TEST_RESULT.FAIL, ie, 'CORRECTIVE_ACTION', []);     
+                rule_result.addResult(TEST_RESULT.FAIL, ie, 'CORRECTIVE_ACTION_1', []);     
                 break;
           
               case URL_RESULT.NOT_TESTED:
-                rule_result.addResult(TEST_RESULT.MANUAL_CHECK, ie, 'MANUAL_CHECK', []);     
+                rule_result.addResult(TEST_RESULT.MANUAL_CHECK, ie, 'MANUAL_CHECK_1', []);     
                 break;
          
               default:
-                rule_result.addResult(TEST_RESULT.MANUAL_CHECK, ie, 'MANUAL_CHECK', []);
+                rule_result.addResult(TEST_RESULT.MANUAL_CHECK, ie, 'MANUAL_CHECK_1', []);
                 break;
               } 
           }
@@ -223,7 +223,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
           if (de.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
           
             if (ie.alt_length > MAX_ALT_TEXT_LENGTH) {
-              rule_result.addResult(TEST_RESULT.FAIL, ie, 'CORRECTIVE_ACTION', [MAX_ALT_TEXT_LENGTH]);     
+              rule_result.addResult(TEST_RESULT.FAIL, ie, 'CORRECTIVE_ACTION_1', [MAX_ALT_TEXT_LENGTH]);     
             }
             else {      
               rule_result.addResult(TEST_RESULT.PASS, ie, 'PASS', [MAX_ALT_TEXT_LENGTH]);     
@@ -278,7 +278,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
           if (de.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
           
             if ((ie.height <= MAX_IMAGE_HEIGHT || ie.width <= MAX_IMAGE_WIDTH) && ie.alt_length > 0 ) {
-              rule_result.addResult(TEST_RESULT.FAIL, ie, 'CORRECTIVE_ACTION', []);     
+              rule_result.addResult(TEST_RESULT.FAIL, ie, 'CORRECTIVE_ACTION_1', []);     
             }
             else {      
               rule_result.addResult(TEST_RESULT.PASS, ie, 'PASS', []);     
@@ -325,7 +325,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 
         if (de.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
           if (ie.alt_length === 0 || de.role == 'presentation') {     
-            rule_result.addResult(TEST_RESULT.MANUAL_CHECK, ie, 'MANUAL_CHECK', []);
+            rule_result.addResult(TEST_RESULT.MANUAL_CHECK, ie, 'MANUAL_CHECK_1', []);
           }
         }    
         else {

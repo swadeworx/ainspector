@@ -24,7 +24,6 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  
       var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
       var VISIBILITY  = OpenAjax.a11y.VISIBILITY;
-      var SOURCE      = OpenAjax.a11y.SOURCE;
   
       var h1_elements     = dom_cache.headings_landmarks_cache.h1_elements;
       var h1_elements_len = h1_elements.length;
@@ -101,7 +100,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         }
         else {
           if (he.is_child_of_main) rule_result.addResult(TEST_RESULT.PASS, he, 'PASS', []);
-          else rule_result.addResult(TEST_RESULT.FAIL, he, 'CORRECTIVE_ACTION', []);
+          else rule_result.addResult(TEST_RESULT.FAIL, he, 'CORRECTIVE_ACTION_1', []);
         }
         
       }
@@ -211,10 +210,10 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
                 
                 if (sh1.name_for_comparison === sh2.name_for_comparison) {
                   if (first_flag) { 
-                    rule_result.addResult(TEST_RESULT.FAIL, sh1, 'CORRECTIVE_ACTION', [sh1.dom_element.tag_name]); 
+                    rule_result.addResult(TEST_RESULT.FAIL, sh1, 'CORRECTIVE_ACTION_1', [sh1.dom_element.tag_name]); 
                     done_list.push(sh1);
                   }  
-                  rule_result.addResult(TEST_RESULT.FAIL, sh2, 'CORRECTIVE_ACTION', [sh2.dom_element.tag_name]);
+                  rule_result.addResult(TEST_RESULT.FAIL, sh2, 'CORRECTIVE_ACTION_1', [sh2.dom_element.tag_name]);
                   done_list.push(sh2);
                   first_flag = false;
                 }
@@ -279,7 +278,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         rule_result.addResult(TEST_RESULT.HIDDEN, he, 'HIDDEN', [de.tag_name]);                      
       }
       else {
-        rule_result.addResult(TEST_RESULT.MANUAL_CHECK, he, 'MANUAL_CHECK', [de.tag_name]);
+        rule_result.addResult(TEST_RESULT.MANUAL_CHECK, he, 'MANUAL_CHECK_1', [de.tag_name]);
       }  
     }
 
@@ -293,7 +292,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         rule_result.addResult(TEST_RESULT.HIDDEN, he, 'HIDDEN', [de.tag_name]);                      
       }
       else {
-        rule_result.addResult(TEST_RESULT.MANUAL_CHECK, he, 'MANUAL_CHECK', [de.tag_name]);
+        rule_result.addResult(TEST_RESULT.MANUAL_CHECK, he, 'MANUAL_CHECK_1', [de.tag_name]);
       }  
     }
   } // end validate function
@@ -341,7 +340,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 
     if (page_element) {
       // Test if no h1s
-      if (main_count === 0) rule_result.addResult(TEST_RESULT.FAIL, page_element, 'CORRECTIVE_ACTION', []);
+      if (main_count === 0) rule_result.addResult(TEST_RESULT.FAIL, page_element, 'CORRECTIVE_ACTION_1', []);
       else rule_result.addResult(TEST_RESULT.PASS, page_element, 'PASS', []);
     } 
     
@@ -390,8 +389,8 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
           rule_result.addResult(TEST_RESULT.PASS, de, 'PASS', [tag_name, de.parent_landmark.role]);
         }
         else {
-          if (de.may_have_renderable_content) rule_result.addResult(TEST_RESULT.MANUAL_CHECK, de, 'MANUAL_CHECK', [tag_name]);
-          else rule_result.addResult(TEST_RESULT.FAIL, de, 'CORRECTIVE_ACTION', [tag_name]);
+          if (de.may_have_renderable_content) rule_result.addResult(TEST_RESULT.MANUAL_CHECK, de, 'MANUAL_CHECK_1', [tag_name]);
+          else rule_result.addResult(TEST_RESULT.FAIL, de, 'CORRECTIVE_ACTION_1', [tag_name]);
         }  
       }  
     }    

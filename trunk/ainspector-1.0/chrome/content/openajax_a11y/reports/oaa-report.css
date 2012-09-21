@@ -1,0 +1,217 @@
+    <style type="text/css">     
+      body {
+          font-family: arial, helvetica, sans-serif;
+      }
+      
+      h1 {
+          font-size: 140%;
+      }
+      
+      h2 {
+          margin-top: 2em;
+          font-size: 120%;
+          border-bottom: black solid thin;
+      }
+
+      h3 {
+          margin-top: 1em;
+          font-size: 110%;
+          font-weight: normal;
+          margin-bottom: 0.5em;
+      }
+      
+      h3 span.summary {
+          font-size: 90%;
+          font-style: italic;
+          vertical-align: bottom;
+      }
+      
+      table {
+          border-collapse: collapse;
+      }
+      
+      
+      tr.odd {
+          background-color: #DDDDDD;
+      }
+
+      tr.odd td {
+          border-top: solid 1px #DDDDDD;
+      }
+
+      tr.even td {
+          border-top: solid 1px white;
+      }
+
+      th.order,
+      th.element,
+      th.hidden,
+      th.passed,
+      th.warning,
+      th.manual_check,
+      th.violation,
+      th.result,
+      th.required,
+      th.wcag20,
+      th.message
+      {
+          width: 5%;
+          padding-left: 0.25em;
+          padding-right: 0.25em;
+          border-bottom: black solid thin;
+          font-size: 90%;
+          vertical-align: bottom;
+      }
+
+
+      th.element,
+      th.message {
+          min-width: 40%;
+      }
+
+      td.element {
+          text-align: left;    
+      }
+
+      th.wcag20,
+      td.order,
+      td.required {
+        text-align: center;  
+        vertical-align: top;
+      } 
+
+      td.passed {
+          color: green;
+          font-size: 110%;
+      }
+      
+      td.warning {
+          color: white;
+          background-color: #DAA520;
+      }
+      
+      td.manual_check {
+          color: #b22222;
+          font-size: 110%;
+      }
+      
+      td.violation {
+          color: white;
+          background-color: #b22222;
+          font-weight: bold;
+      }
+
+      td.zero {
+         color: gray;
+         font-size: 90%;
+      }
+      
+      td.no {
+         color: gray;
+         font-size: 90%;
+      }
+
+      th.total,
+      td.total {
+        border-top: black thin solid;
+        font-weight: bold;
+        font-size: 100%;
+      }
+
+      td.total,
+      td.zero,
+      td.hidden,
+      td.passed,
+      td.warning,
+      td.manual_check,
+      td.violation
+      {
+          vertical-align: top;
+          text-align: center;
+      }
+
+      th.right {
+        text-align: right;
+      }
+
+      td.level_1 {
+        padding-left: 1em;
+      }
+
+      td.level_2 {
+        padding-left: 2em;
+      }
+      td.level_3 {
+        padding-left: 3em;
+      }
+      td.level_4 {
+        padding-left: 4em;
+      }
+      td.level_5 {
+        padding-left: 5em;
+      }
+      td.level_6 {
+        padding-left: 6em;
+      }
+      td.level_7 {
+        padding-left: 7em;
+      }
+      td.level_8 {
+        padding-left: 8em;
+      }
+      td.level_9 {
+        padding-left: 9em;
+      }
+      td.level_10 {
+        padding-left: 10em;
+      }
+      
+      a.element {
+          text-decoration: none;          
+      }
+
+      a.element:link,
+      a.element:visited {
+          color: black;          
+      }
+
+      a.element:focus,
+      a.element:hover,
+      a.element:active{
+          text-decoration: underline;          
+      }
+
+      div.element_details {
+           margin: 2em;
+      }
+      
+      ul.properties {
+          margin: 0;
+          padding: 0;
+          list-style: none;
+          margin-left: 1em;
+          margin-bottom: 0.5em;
+      }
+
+      ul.properties li span.label {
+        font-weight: bold;
+        font-size: 90%;
+        padding-left: 0.5em; 
+      }
+
+      ul.properties li span.value {
+        padding-left: 0.25em;
+      }
+
+span.message {
+    font-size: 110%;
+}
+
+p.properties {
+    font-size: 90%;
+    font-weight: bold;
+    margin: 0;
+    margin-top: 0.5em;
+    padding: 0;
+}
+    </style>

@@ -112,4 +112,3 @@ OpenAjax.a11y.all_wcag20_nls = OpenAjax.a11y.all_wcag20_nls || new OpenAjax.a11y
  */
 
 OpenAjax.a11y.all_rulesets   = OpenAjax.a11y.all_rulesets   || new OpenAjax.a11y.Rulesets();
-

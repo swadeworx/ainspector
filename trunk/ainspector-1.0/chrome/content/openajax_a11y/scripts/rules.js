@@ -362,88 +362,6 @@ OpenAjax.a11y.Rule.prototype.getNLSInformationalLinks = function () {
 
 
 /**
- * @method getMessage
- *
- * @memberOf OpenAjax.a11y.Rule
- *
- * @desc Returns an localized node result message 
- *
- * @param {NodeResult}  node_result  - Node result to generate message
- * @param {String}      format       - Changes how element codes '@' in messages is transformed, values are "text" and "html"
- */
-OpenAjax.a11y.Rule.prototype.getMessage = function (node_result) {
-
-  var nls_rules = this.nls[OpenAjax.a11y.locale];
-  
-  var SEVERITY = OpenAjax.a11y.SEVERITY;
-  
-  var i;
-  var message;
-  
-  // If no message id return the empty string
-  if (node_result.message_id.length === 0) return "";
-  
-  var str = nls_rules.rules[this.rule_id][node_result.message_id];
-  
-  if (!str) return nls_rules.missing_message + node_result.message_id;
-    
-//    OpenAjax.a11y.logger.debug("Rule: " + this.rule_id + " Message: " + str);
-
-  var vstr; // i.e. %1, %2 ....
-  var len = node_result.message_arguments.length;
-
-  // check to see if message has severity dependence
-  
-  vstr = "%s";
-  
-  if (str.indexOf(vstr) >= 0) {
-    
-    switch (node_result.severity) {
-    case SEVERITY.VIOLATION:
-      message = nls_rules.message_severities.MUST;
-      break;
-
-    case SEVERITY.WARNING:
-      message = nls_rules.message_severities.SHOULD;
-      break;
-
-    case SEVERITY.MANUAL_CHECK:
-      message = nls_rules.message_severities.MAY;
-      break;
-
-    default:
-      message = "";
-      break; 
-    }
-
-    str = str.replace(vstr, message);  
-  }
-  
-  // Replace 
-  
-  for (i = 0; i < len; i++) { 
-    vstr = "%" + (i+1); 
-    message = node_result.message_arguments[i];
-    
-    if (typeof message === 'string') {
-      message = message.normalizeSpace();
-    }
-    else {
-      if (typeof message === 'number') {
-        message = message.toString();
-      }
-      else {
-        message = "";
-      }  
-    }  
-    str = str.replace(vstr, message);
-  } // end loop
-
-  return OpenAjax.a11y.util.transformElementMarkup(str);
-  
-};
-
-/**
  * @method getNLSRequirements
  *
  * @memberOf OpenAjax.a11y.Rule
@@ -570,12 +488,122 @@ OpenAjax.a11y.Rule.prototype.getWCAG20SuccessCriteriaIndex = function () {
  *
  * @desc Returns a JSON representation of the rule
  *
+ * @param  {String}  prefix     - String of leading spaces for formatting JSON output (Optional) 
+ * @param  {Number}  rule_type  - Include a rule type for adjusting definition and summary strings to ruleset 
+ *                                requirements 
+ *
  * @return  {String}  Returns a JSON representation of the rule
  */
 
-OpenAjax.a11y.Rule.prototype.toJSON = function () {
+OpenAjax.a11y.Rule.prototype.toJSON = function (prefix, rule_type) {
+
+  function stringItem(property, value, last) {
+    if (typeof value === 'string') json += prefix + "    \"" + property + "\" : \"" + OpenAjax.a11y.util.escapeForJSON(value)  + "\"";    
+    else json += prefix + "    \"" + property + "\" : \"\"";
+    
+    if (last) json += "\n";
+    else json += ",\n";
+  }
+
+  function numberItem(property, value, last) {
+    json += prefix + "    \"" + property + "\" : " + value;    
+    
+    if (last) json += "\n";
+    else json += ",\n";
+  }
+
+  function stringListItem(property, list, last) {
+    json += prefix + "    \"" + property + "\" : [";
+    var last_item = list.length - 1;    
+    for (var i = 0; i < list.length; i++) {
+      if (last_item === i) json += "\"" + OpenAjax.a11y.util.escapeForJSON(list[i]) + "\"";
+      else json += "\"" + OpenAjax.a11y.util.escapeForJSON(list[i]) + "\",";
+    }
+    
+    if (last) json += "]\n";
+    else json += "],\n";
+  }
+
+  if (typeof prefix !== 'string') prefix = "";
+
   var json = "";
+
+  var rule     = this;
+  var nls_rule = this.nls[OpenAjax.a11y.locale].rules[this.rule_id];
+ 
+  json += prefix + "  {\n";
+
+  stringItem('rule_id', this.rule_id);
+  numberItem('scope', this.rule_scope);  
+  stringItem('wcag_primary', this.wcag_primary_id);  
+  stringListItem('wcag_related', this.wcag_related_ids);  
+  stringItem('last_updated', this.last_updated);
+  stringListItem('target_resources', this.target_resources); 
+  numberItem('rule_category', this.rule_category);
+  stringItem('language', this.language_dependency);
+  stringItem('cache_dependency', this.cache_dependency);
+  stringListItem('cache_properties', this.cache_properties);
+  stringItem('validate', this.validate.toString());
+    
+  stringItem('human_id', nls_rule['ID']);
   
+  if (typeof rule_type === 'number') {
+    stringItem('definition', this.getNLSDefinition(rule_type));
+    stringItem('summary', this.getNLSSummary(rule_type));
+  }
+  else {
+    stringItem('definition', nls_rule['DEFINITION']);
+    stringItem('summary', nls_rule['SUMMARY']);
+  }
+  
+  stringItem('target_resource_desc', nls_rule['TARGET_RESOURCES_DESC']);
+
+  stringItem('purpose_1', nls_rule['PURPOSE'][0]);
+  stringItem('purpose_2', nls_rule['PURPOSE'][1]);
+  stringItem('purpose_3', nls_rule['PURPOSE'][2]);
+  stringItem('purpose_4', nls_rule['PURPOSE'][3]);
+    
+  stringItem('technique_1', nls_rule['TECHNIQUES'][0]);
+  stringItem('technique_1_url', null);
+  stringItem('technique_2', nls_rule['TECHNIQUES'][1]);
+  stringItem('technique_2_url', null);
+  stringItem('technique_3', nls_rule['TECHNIQUES'][2]);
+  stringItem('technique_3_url', null);
+  stringItem('technique_4', nls_rule['TECHNIQUES'][3]); 
+  stringItem('technique_4_url', null);
+    
+  stringItem('manual_check_1', null);
+  stringItem('manual_check_1_url', null);
+  stringItem('manual_check_2', null);
+  stringItem('manual_check_2_url', null);
+  stringItem('manual_check_3', null);
+  stringItem('manual_check_3_url', null);
+  stringItem('manual_check_4', null); 
+  stringItem('manual_check_4_url', null);
+
+  stringItem('rule_result_all_manual_checks', nls_rule['RULE_RESULT_MESSAGES']['ALL_MANUAL_CHECKS']);    
+  stringItem('rule_result_all_pass', nls_rule['RULE_RESULT_MESSAGES']['ALL_PASS']);    
+  stringItem('rule_result_all_pass_with_manual_checks', nls_rule['RULE_RESULT_MESSAGES']['ALL_PASS_WITH_MANUAL_CHECKS']);    
+  stringItem('rule_result_some_fail', nls_rule['RULE_RESULT_MESSAGES']['SOME_FAIL']);    
+  stringItem('rule_result_some_fail_with_manual_checks', nls_rule['RULE_RESULT_MESSAGES']['SOME_FAIL_WITH_MANUAL_CHECKS']);    
+  stringItem('rule_result_all_fail', nls_rule['RULE_RESULT_MESSAGES']['ALL_FAIL']);    
+  stringItem('rule_result_all_fail_with_manual_checks', nls_rule['RULE_RESULT_MESSAGES']['ALL_FAIL_WITH_MANUAL_CHECKS']);    
+  stringItem('rule_result_not_applicable', nls_rule['RULE_RESULT_MESSAGES']['NOT_APPLICABLE']);    
+
+  stringItem('node_result_pass', nls_rule['NODE_RESULT_MESSAGES']['PASS']);    
+  stringItem('node_result_hidden', nls_rule['NODE_RESULT_MESSAGES']['HIDDEN']);
+  stringItem('node_result_presentation', nls_rule['NODE_RESULT_MESSAGES']['PRESENTATION']);
+    
+  stringItem('node_result_manual_check_1', nls_rule['NODE_RESULT_MESSAGES']['MANUAL_CHECK_1']);  
+  stringItem('node_result_manual_check_2', nls_rule['NODE_RESULT_MESSAGES']['MANUAL_CHECK_2']);
+  stringItem('node_result_manual_check_3', nls_rule['NODE_RESULT_MESSAGES']['MANUAL_CHECK_3']);
+    
+  stringItem('node_result_corrective_action_1', nls_rule['NODE_RESULT_MESSAGES']['CORRECTIVE_ACTION_1']);
+  stringItem('node_result_corrective_action_2', nls_rule['NODE_RESULT_MESSAGES']['CORRECTIVE_ACTION_2']);
+  stringItem('node_result_corrective_action_3', nls_rule['NODE_RESULT_MESSAGES']['CORRECTIVE_ACTION_3'], true);
+
+  json += prefix + "  }";
+ 
   return json;
 
 };
@@ -766,65 +794,36 @@ OpenAjax.a11y.Rules.prototype.validCacheDependency = function (cache_name) {
 };
 
 /**
- * @method toOAAWikiFormat()
+ * @method toJSON
  *
  * @memberOf OpenAjax.a11y.Rules
  *
- * @desc Checks to see if the cache reference is valid 
+ * @desc Exports current rule information to a JSON format 
  *
- * @return  {Boolean} Returns string containing rule information
+ * @return {String}  JSON formatted string
  */
 
-OpenAjax.a11y.Rules.prototype.toOAAWikiFormat = function () {
+OpenAjax.a11y.Rules.prototype.toJSON = function (prefix) {
 
-  function ruleCategoryToWikiFormat(rule_category, title) {
+  if (typeof prefix !== 'string') prefix = "";
+
+  var json = "";
+
+  json += prefix + "[\n";
+
+  var last = this.rules.length - 1;
+  for (var i = 0; i < this.rules.length; i++ ) {
   
-    var category_rules = [];
-    var i;
-    var r;
-   
-    for (i = 0; i < this.rules.length; i++ ) {
-    
-      r = this.rules[i];
-      
-      if (r.rule_category === rule_category) category_rules.push(r);
-      
-    }
-    
-    wiki_str += "\n\n== " + title + "==\n";  
-
-    for (i = 0; i < category_rules.length; i++ ) {
-    
-      r = category_rules[i];
-    
-      wiki_str += "\n=== " + r.getNLSRuleId() + ": " + r.getNLSDefinition() + "===\n\n";  
-
-      wiki_str += "Rule id: " + r.rule_id + "\n";  
-      wiki_str += "Rule id (NLS): " + r.getNLSRuleId() + "\n";  
-      wiki_str += "Definition: " +  r.getNLSDefinition() + "\n + ";  
-
-    }
+    var rule = this.rules[i];
+  
+    if (i === last) json += rule.toJSON(prefix)  + "\n";
+    else json += rule.toJSON(prefix) + ",\n";
     
   }
 
+  json += prefix + "]\n";
 
-
-  var wiki_str = "";
-  
-  var RULE_CATEGORIES = OpenAjax.a11y.RULE_CATEGORIES;
-  
-  ruleCategoryToWikiFormat(RULE_CATEGORIES.CONTROLS, 'Form Controls');
-  ruleCategoryToWikiFormat(RULE_CATEGORIES.IMAGES, 'Images');
-  ruleCategoryToWikiFormat(RULE_CATEGORIES.HEADINGS, 'Headings');
-  ruleCategoryToWikiFormat(RULE_CATEGORIES.LANDMARKS, 'Landmarks');
-  ruleCategoryToWikiFormat(RULE_CATEGORIES.COLOR_CONTRAST, 'Color Contrast');
-  
-  return wiki_str;
+  return json;
 
 };
-
-
-
-
-
-
+  

@@ -505,7 +505,7 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.updateCacheItems = function
     
     if (tag_name == 'title' && !this.has_title) {
   
-      me = new OpenAjax.a11y.cache.TitleElement(dom_element, li.main_element);    
+      me = new OpenAjax.a11y.cache.TitleElement(dom_element);    
    
       // There is only one title for a document, even when there are frames and iframes
       this.has_title = true;
@@ -1660,10 +1660,6 @@ OpenAjax.a11y.cache.H1Element.prototype.toString = function () {
  * @property  {String}       cache_id         - String that uniquely identifies the cache element object in the cache
  * @property  {Number}       document_order   - Ordinal position of the title and main cache items in the document to other title and main cache items
  *
- * @property  {MainElement}  parent_landmark  - Information about the parent main landmark (NOTE: can be null)
- *
- * @property  {Array}  child_cache_elements  - List of child cache title element, main landmarks and h1 heading element objects as part of cache title and main elements tree  
- *
  * @property  {Number}   type  -  Constant representing the title element 
  *
  * @property  {String}   name                  - Calculated accessible name of the heading 
@@ -1671,7 +1667,7 @@ OpenAjax.a11y.cache.H1Element.prototype.toString = function () {
  * @property  {String}   name_for_comparison   - Accessible name for comparison (i.e. lowercase, trimmed and space normalized)
  */
 
-OpenAjax.a11y.cache.TitleElement = function (dom_element, parent_landmark) {
+OpenAjax.a11y.cache.TitleElement = function (dom_element) {
 
   this.dom_element     = dom_element;
   this.cache_id        = "title";
@@ -1679,13 +1675,14 @@ OpenAjax.a11y.cache.TitleElement = function (dom_element, parent_landmark) {
 
   this.main_type          = OpenAjax.a11y.MAIN.TITLE_ELEMENT;
 
-  this.parent_landmark    = parent_landmark; // restricted to main landmarks
-  this.child_cache_elements = [];  // This array is always empty for the title element
-
   this.name                 = dom_element.getText();
   this.name_length          = this.name.length;
   this.name_for_comparison  = this.name.normalizeSpace().toLowerCase();
-  
+
+  // these can probably be removed some day
+  this.parent_landmark      = null; // restricted to main landmarks
+  this.child_cache_elements = [];  // This array is always empty for the title element
+
 }; 
 
 /**

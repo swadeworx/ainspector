@@ -29,19 +29,35 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
     },
     
     missing_message : "The following message id is not defined: ",
-    
-    caches : {
-      'abbreviations_cache'      : 'Abbreviation Rules',
-      'color_contrast_cache'     : 'Color Contrast Rules',
-      'controls_cache'           : 'Control Rules',
-      'headings_landmarks_cache' : 'Headings/Landmark Rules',
-      'title_main_cache'         : 'Title/Main Rules',
-      'images_cache'             : 'Image Rules',
-      'languages_cache'          : 'Language Rules',
-      'links_cache'              : 'Link Rules',
-      'lists_cache'              : 'List Rules',
-      'media_cache'              : 'Media Rules',
-      'tables_cache'             : 'Table Rules'
+
+    rule_catories: {
+      '1': 'abbrevitations',
+      '2': 'audio',  
+      '4': 'color',
+      '8': 'form controls',
+      '16': 'headings',
+      '32': 'images',
+      '64': 'landmarks',
+      '128': 'language',
+      '256': 'links',
+      '512': 'lists',
+      '1024': 'tables',
+      '2048': 'video',
+      '4096': 'widgets',
+      '8096': 'content'
+    },
+
+    DEFAULT_RULE_RESULT_MESSAGES: {
+      ELEM_SINGULAR:       'element',   
+      ELEM_PLURAL:         'elements',   
+      ALL_MANUAL_CHECKS:           '%N_MC %ELEM_MC require manual checking',
+      ALL_PASS:                     '%N_P %ELEM_P passed',
+      ALL_PASS_WITH_MANUAL_CHECKS:  '%N_P %ELEM_P passed and %N_MC %ELEM_MC require manual checking',
+      SOME_FAIL:                    '%N_P out of %N_T %ELEM_T failed',
+      SOME_FAIL_WITH_MANUAL_CHECKS: '%N_F out of %N_T %ELEM_T failed and %N_MC %ELEM_MC require manual checking',
+      ALL_FAIL:                     '%N_F %ELEM_F failed',
+      ALL_FAIL_WITH_MANUAL_CHECKS:  '%N_F %ELEM_F failed and %N_MC %ELEM_MC require manual checking',
+      NOT_APPLICABLE:               'No applicable elements'
     },
     
     //
@@ -49,14 +65,29 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
     //
     rules: {
         COLOR_1: {
-            ID:             'COLOR 1',
-            DEFINITION:     'Text content %s exceed Color Contrast Ratio (CCR) of 4.5 for any size text or 3.1 for large and/or bolded text',
-            SUMMARY:        'Text %s exceed CCR of 4.5',
-            ACTION:         'Adjust foreground and background colors to improve color contrast',
-            MANUAL_BG_PASS: 'Background image may reduce color contrast',
-            MANUAL_BG_FAIL: 'Background image may improve color contrast',
-            HIDDEN:         'Text is hidden from asssistive technologies.',
+            ID:                    'COLOR 1',
+            DEFINITION:            'Text content %s exceed Color Contrast Ratio (CCR) of 4.5 for any size text or 3.1 for large and/or bolded text',
+            SUMMARY:               'Text %s exceed CCR of 4.5',
             TARGET_RESOURCES_DESC: 'All elements with text content',
+            RULE_RESULT_MESSAGES: {
+              ELEM_SINGULAR:                'text element',   
+              ELEM_PLURAL:                  'text elements',   
+              ALL_MANUAL_CHECKS:            '%N_MC %ELEM_MC require a manual check for CCR > 4.5',
+              ALL_PASS:                     '%N_P %ELEM_P pass with a CCR > 4.5',
+              ALL_PASS_WITH_MANUAL_CHECKS:  '%N_P %ELEM_P pass and %N_MC %ELEM_MC require a manual check for CCR > 4.5',
+              SOME_FAIL:                    '%N_F out of %N_T %ELEM_T failed to have a CCR > 4.5',
+              SOME_FAIL_WITH_MANUAL_CHECKS: '%N_F out of %N_T %ELEM_T failed and %N_MC %ELEM_MC require a manual check for CCR > 4.5',
+              ALL_FAIL:                     '%N_F out of %N_T %ELEM_T failed to have a CCR > 4.5',
+              ALL_FAIL_WITH_MANUAL_CHECKS:  '%N_F out of %N_T %ELEM_T failed and %N_MC %ELEM_MC require a manual check for CCR > 4.5',
+              NOT_APPLICABLE:               'No text elements on page'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS:                'CCR exceeds 4.5',
+              CORRECTIVE_ACTION_1: 'Adjust foreground and background colors to improve color contrast',
+              MANUAL_CHECK_1:      'Background image may reduce color contrast',
+              MANUAL_CHECK_2:      'Background image may improve color contrast',
+              HIDDEN:              'Text is hidden from asssistive technologies.'
+            },  
             PURPOSE:        ['The higher the color contrast of text the more easy it is to read, especially for people with visual impairments'                   
                             ],
             TECHNIQUES:     [ 'Change the foreground color to a more complemtary color to the background color',
@@ -75,14 +106,29 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
                             ]
         },
         COLOR_2: {
-            ID:             'COLOR 2',
-            DEFINITION:     'Text content %s exceed Color Contrast Ratio (CCR) of 7.0 for any size text or 4.5 for large and/or bolded text',
-            SUMMARY:        'Text %s exceed CCR of 7.0',
-            ACTION:         'Adjust foreground and background colors to improve color contrast',
-            MANUAL_BG_PASS: 'Background image may reduce color contrast',
-            MANUAL_BG_FAIL: 'Background image may improve color contrast',
-            HIDDEN:         'Text is hidden from asssistive technologies.',
+            ID:                    'COLOR 2',
+            DEFINITION:            'Text content %s exceed Color Contrast Ratio (CCR) of 7.0 for any size text or 4.5 for large and/or bolded text',
+            SUMMARY:               'Text %s exceed CCR of 7.0',
             TARGET_RESOURCES_DESC: 'All elements with text content',
+            RULE_RESULT_MESSAGES: {
+              ELEM_SINGULAR:                'text element',   
+              ELEM_PLURAL:                  'text elements',   
+              ALL_MANUAL_CHECKS:            '%N_MC %ELEM_MC require a manual check for CCR > 7.0',
+              ALL_PASS:                     '%N_P %ELEM_P pass with a CCR > 7.0',
+              ALL_PASS_WITH_MANUAL_CHECKS:  '%N_P %ELEM_P pass and %N_MC %ELEM_MC require a manual check for CCR > 7.0',
+              SOME_FAIL:                    '%N_F out of %N_T %ELEM_T failed to have a CCR > 7.0',
+              SOME_FAIL_WITH_MANUAL_CHECKS: '%N_F out of %N_T %ELEM_T failed and %N_MC %ELEM_MC require a manual check for CCR > 7.0',
+              ALL_FAIL:                     '%N_F out of %N_T %ELEM_T failed to have a CCR > 7.0',
+              ALL_FAIL_WITH_MANUAL_CHECKS:  '%N_F out of %N_T %ELEM_T failed and %N_MC %ELEM_MC require a manual check for CCR > 7.0',
+              NOT_APPLICABLE:               'No text elements on page'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS:                'CCR exceeds 7.0',
+              CORRECTIVE_ACTION_1: 'Adjust foreground and background colors to improve color contrast',
+              MANUAL_CHECK_1:      'Background image may reduce color contrast',
+              MANUAL_CHECK_2:      'Background image may improve color contrast',
+              HIDDEN:              'Text is hidden from asssistive technologies.'
+            },  
             PURPOSE:        ['The higher the color contrast of text the more easy it is to read, especially for people with visual impairments'                   
                             ],
             TECHNIQUES:     ['Change the foreground color to a more complemtary color to the background color',
@@ -104,10 +150,21 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                    'Control Rule 1',
             DEFINITION:            '@textarea@, @select@ and @input@ elements of type @text@, @password@, @checkbox@, @radio@ and @file@ %s have an accessible label',
             SUMMARY:               'Controls %s have labels',
-            PASS:                  '%1 control has label',
-            CORRECTIVE_ACTION:     'Add label to %1 control',
-            HIDDEN:                '%1 control is hidden from assistive technologies.',
-            TARGET_RESOURCES_DESC: '@textarea@, @select@ and @input@ elements of type @text@, @password@, @checkbox@, @radio@ and @file@',
+            TARGET_RESOURCES_DESC: 'User interface form controls',
+            RULE_RESULT_MESSAGES: {
+              ELEM_SINGULAR:  'form control',   
+              ELEM_PLURAL:    'form controls',   
+              ALL_PASS:       '%N_P %ELEM_P have labels',
+              SOME_FAIL:      '%N_F out of %N_T %ELEM_T do NOT have labels, add labels to %N_F %ELEM_F missing a label',
+              ALL_FAIL:       'No form controls have labels, add labels to %N_F %ELEM_F missing a label',
+              NOT_APPLICABLE: 'No form control elements on this page'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS:                  '%1 control has label',
+              CORRECTIVE_ACTION_1:   'Add label to %1 control',
+              HIDDEN:                '%1 control is hidden from assistive technologies.',
+              TARGET_RESOURCES_DESC: '@textarea@, @select@ and @input@ elements of type @text@, @password@, @checkbox@, @radio@ and @file@'
+            },  
             PURPOSE: [
               'A label associated with a form control insures that information about the form control is spoken by screen readers when it receives focus'                   
             ],
@@ -146,11 +203,21 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                    'Control Rule 2',
             DEFINITION:            'Every @input@ type @image@ %s have an @alt@ or @title@ attribute with content',
             SUMMARY:               'Image button %s have alt content',
-            PASS:                  'Image button has label',
-            CORRECTIVE_ACTION_1:   'Add @alt@ attribute with text content',
-            CORRECTIVE_ACTION_2:   'Add text content to the @alt@ attribute',
-            HIDDEN:                'Image button is hidden from asssistive technologies.',
             TARGET_RESOURCES_DESC: 'input elements of type image',
+            RULE_RESULT_MESSAGES: {
+              ELEM_SINGULAR:  '@input[type="image"]@ form control',   
+              ELEM_PLURAL:    '@input[type="image"]@ form controls',   
+              ALL_PASS:       '%N_P @input[type="image"]@ %ELE_P have alt attribute with content',
+              SOME_FAIL:      '%N_F out of %N_T %ELEM_T do NOT have alt text or content, add descriptive alt attribute to %N_F %ELEM_F',
+              ALL_FAIL:       'No @input[type="image"]@ form controls have alt text or content, add descriptive alt attribute to %N_F %ELEM_F',
+              NOT_APPLICABLE: 'No @input[type="image"]@ form controls on this page'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS:                  'Image button has label',
+              CORRECTIVE_ACTION_1:   'Add @alt@ attribute with text content',
+              CORRECTIVE_ACTION_2:   'Add text content to the @alt@ attribute',
+              HIDDEN:                'Image button is hidden from asssistive technologies.'
+            },  
             PURPOSE: [
               'A label associated with a form control insures that information about the form control is spoken by screen readers when it receives focus'                   
             ],
@@ -181,13 +248,23 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                    'Control Rule 3',
             DEFINITION:            'Every input type radio %s be contained in a @fieldset@ and @legend@ elements to provide grouping information for radio button groups',
             SUMMARY:               'Radio button %s use FIELDSET/LEGEND',
-            PASS:                  'Radio button uses @fieldset@ and @legend@ elements, and the @legend@ element has text content',
-            MANUAL_CHECK_1:        'Radio button uses aria-labelledby, verify the label text content includes group information',
-            MANUAL_CHECK_2:        'Radio button uses aria-label, verify the label text content includes group information',
-            CORRECTIVE_ACTION_1:   'Add a @legend@ element to with text content to the @fieldset@ element to provide grouping label information for the radio buttons.',
-            CORRECTIVE_ACTION_2:   'Add a @fieldset@ and @legend@ elements to provide grouping label information for the radio buttons.',
-            HIDDEN:                'Radio button is hidden from asssistive technologies.',
             TARGET_RESOURCES_DESC: 'input elements of type radio',
+            RULE_RESULT_MESSAGES: {
+              ELEM_SINGULAR:  '@input[type="radio"]@ form control',   
+              ELEM_PLURAL:    '@input[type="radio"]@ form controls',   
+              ALL_PASS:       '%N_P %ELE_P are contained in a @fieldset/legend@ labeling elements',
+              SOME_FAIL:      '%N_F out of %N_T %ELEM_T are NOT contained in a @fieldset/legend@ labeling elements, add @fieldset/legend@ labeling elements to %N_F %ELEM_F',
+              ALL_FAIL:       'No @input[type="radio"]@ form controls are contained in a @fieldset/legend@ labeling elements, add @fieldset/legend@ labeling elements to %N_F %ELEM_F',
+              NOT_APPLICABLE: 'No @input[type="radio"]@ form controls on this page'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS:                  'Radio button uses @fieldset@ and @legend@ elements, and the @legend@ element has text content',
+              MANUAL_CHECK_1:        'Radio button uses aria-labelledby, verify the label text content includes group information',
+              MANUAL_CHECK_2:        'Radio button uses aria-label, verify the label text content includes group information',
+              CORRECTIVE_ACTION_1:   'Add a @legend@ element to with text content to the @fieldset@ element to provide grouping label information for the radio buttons.',
+              CORRECTIVE_ACTION_2:   'Add a @fieldset@ and @legend@ elements to provide grouping label information for the radio buttons.',
+              HIDDEN:                'Radio button is hidden from asssistive technologies.'
+            },  
             PURPOSE: [
               'Radio buttons need a common grouping label to provide a context for each radio button option'                   
             ],
@@ -225,10 +302,20 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                    'Control Rule 4',
             DEFINITION:            '@button@ elements %s have text content',
             SUMMARY:               '@button@s %s have content',
-            PASS:                  '@button@ element has text content',
-            CORRECTIVE_ACTION:     'Add text content to @button@ element',
-            HIDDEN:                '@button@ element is hidden from asssistive technologies.',
             TARGET_RESOURCES_DESC: '@button@ elements',
+            RULE_RESULT_MESSAGES: {
+              ELEM_SINGULAR:  '@button@ element',   
+              ELEM_PLURAL:    '@button@ elements',   
+              ALL_PASS:       '%N_P %ELE_P have text content',
+              SOME_FAIL:      '%N_F out of %N_T %ELEM_T do NOT have text content, add text content that describes the function of the button to the %N_F %ELEM_F',
+              ALL_FAIL:       'No @button@ elements have text content, add text content that describes the function of the button to the %N_F %ELEM_F',
+              NOT_APPLICABLE: 'No @button@ elements on this page'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS:                  '@button@ element has text content',
+              CORRECTIVE_ACTION_1:   'Add text content to @button@ element',
+              HIDDEN:                '@button@ element is hidden from asssistive technologies.'
+            },  
             PURPOSE: [
               'The text content of a @button@ element is used as a label to insure that the purpose of the button is spoken by screen readers when the button receives focus'                   
             ],
@@ -248,10 +335,20 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                    'Control Rule 5',
             DEFINITION:            '@id@ attributes %s have unique values on the web page',
             SUMMARY:               '@id@ %s be unique',
-            PASS:                  '\'%1\' @id@ attribute value is unique',
-            CORRECTIVE_ACTION:     'Update elements that share the \'%1\' @id@ value to have unique @id@ values',
-            HIDDEN:                '%1 control is hidden from assistive technologies.',
             TARGET_RESOURCES_DESC: 'Form control elements with @id@ attributes',
+            RULE_RESULT_MESSAGES: {
+              ELEM_SINGULAR:  'element',   
+              ELEM_PLURAL:    'elements',   
+              ALL_PASS:       '%N_P %ELEM_P have unique @id@ attribute values',
+              SOME_FAIL:      '%N_F out of %N_T %ELEM_T do NOT have unique @id@ attribute values, update the @id@ attribute values on the page to ensure that all elements have unique @id@ values',
+              ALL_FAIL:       'No elements have unique @id@ attribute values, update the @id@ attribute values on the page to ensure that all %N_T %ELEM_T have unique @id@ values',
+              NOT_APPLICABLE: 'No @id@ attributes on the elements in this page'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS:                  '\'%1\' @id@ attribute value is unique',
+              CORRECTIVE_ACTION_1:   'Update elements that share the \'%1\' @id@ value to have unique @id@ values',
+              HIDDEN:                '%1 control is hidden from assistive technologies.'
+            },  
             PURPOSE: [
               '@id@ attribute values can be used as references for @label@ elements, if @id@ attribute values are not unique it can result incorrect labeling of form controls'                   
             ],
@@ -279,8 +376,18 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                    'Control Rule 6',
             DEFINITION:            '@label@ element using the @for@ attribute %s reference a form control on the page',
             SUMMARY:               '@label@ %s reference control',
-            CORRECTIVE_ACTION:     'Change the @label@ element @for@ attribute to reference \'%1\' to reference a form control',
             TARGET_RESOURCES_DESC: '@label@ elements',
+            RULE_RESULT_MESSAGES: {
+              ELEM_SINGULAR:  '@label@ element',   
+              ELEM_PLURAL:    '@label@ elements',   
+              ALL_PASS:       '%N_P %ELEM_P use the @for@ attribute to reference form controls',
+              SOME_FAIL:      '%N_F out of %N_T %ELEM_T do NOT use the @for@ attribute to reference form controls, update the @label@ elements to use the @for@ attribute reference method to label form controls',
+              ALL_FAIL:       'None of the @label@ elements use the @for@ attribute to reference form controls on this page, update the %N_T %ELEM_T to use the @for@ attribute reference method to label form controls',
+              NOT_APPLICABLE: 'No @label@ elements in this page'
+            },
+            NODE_RESULT_MESSAGES: {
+              CORRECTIVE_ACTION_1:   'Change the @label@ element @for@ attribute to reference \'%1\' to reference a form control'
+            },  
             PURPOSE: [
               '@label@ elements only are useful for accessibility when they reference or encapsulate form controls'                   
             ],
@@ -308,10 +415,20 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                    'Control Rule 7',
             DEFINITION:            '@label@ element or legend element %s contain text content',
             SUMMARY:               '@label@ %s have content',
-            PASS:                  '@%1@ has text content',
-            CORRECTIVE_ACTION:     'Add text content to the @%1@ element',
-            HIDDEN:                '@%1@ control is hidden from asssistive technologies, so @%2@ content is ignored',
             TARGET_RESOURCES_DESC: '@label@ and @legend@ elements',
+            RULE_RESULT_MESSAGES: {
+              ELEM_SINGULAR:  '@label@ or @legend@ element',   
+              ELEM_PLURAL:    '@label@ or @legend@ elements',   
+              ALL_PASS:       '%N_P %ELEM_P have text content',
+              SOME_FAIL:      '%N_F out of %N_T %ELEM_T do NOT have text content, either add text content to the @label@ or @legend@ elements to help label a form control or if they are not used for labeling remove them from the page',
+              ALL_FAIL:       'None of the @label@ or @legend@ elements have text content, update the %N_T %ELEM_T to either add text content to help label a form control or if they are not used for labeling remove them from the page',
+              NOT_APPLICABLE: 'No @label@ or @legend@ elements in this page'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS:                  '@%1@ has text content',
+              CORRECTIVE_ACTION_1:   'Add text content to the @%1@ element',
+              HIDDEN:                '@%1@ control is hidden from asssistive technologies, so @%2@ content is ignored'
+            },
             PURPOSE: [
               'For @label@ and @legend@ elements only are useful for accessibility when they contain content'                   
             ],
@@ -343,11 +460,21 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                    'Control Rule 8',
             DEFINITION:            '@fieldset@ element %s contain exactly one legend element',
             SUMMARY:               '@fieldset@ %s have one legend',
-            PASS:                  '@fieldset@ has one @legend@ element',
-            CORRECTIVE_ACTION_1:   'Add @legend@ element',
-            CORRECTIVE_ACTION_2:   'Remove %1 @legend@ elements',
-            HIDDEN:                '@fieldset@ element is hidden from asssistive technologies.',
             TARGET_RESOURCES_DESC: '@fieldset@ and @legend@ elements',
+            RULE_RESULT_MESSAGES: {
+              ELEM_SINGULAR:  '@fieldset@ element',   
+              ELEM_PLURAL:    '@fieldset@ elements',   
+              ALL_PASS:       '%N_P %ELEM_P have only one @legend@ element',
+              SOME_FAIL:      '%N_F out of %N_T %ELEM_T have more than one @legend@ element or are missing a @legend@ element, update the %N_F %ELEM_F elements to include a single @legend@ element with text content that provides a grouping label for the form controls it contains',
+              ALL_FAIL:       'None of the @filedset@ elements have only one @legend@ element, update the %N_F %ELEM_F elements to include a single @legend@ element with text content that provides a grouping label for the form controls it contains',
+              NOT_APPLICABLE: 'No @fieldset@ elements in this page'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS:                  '@fieldset@ has one @legend@ element',
+              CORRECTIVE_ACTION_1:   'Add @legend@ element',
+              CORRECTIVE_ACTION_2:   'Remove %1 @legend@ elements',
+              HIDDEN:                '@fieldset@ element is hidden from asssistive technologies.'
+            },  
             PURPOSE: [
               'Multiple legend elements contained in the same fieldset may result in the improper calucation of labels for assistive technologies.'                   
             ],
@@ -379,10 +506,20 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                    'Control Rule 9',
             DEFINITION:            '@title@ attribute %s not be used to label form controls',
             SUMMARY:               '@title@ %s not be label',
-            PASS:                  '@title@ is not used as label',
-            CORRECTIVE_ACTION:     'Use @label@ element or ARIA technique to label %1 form control',
-            HIDDEN:                '%1 control is hidden from asssistive technologies.',
             TARGET_RESOURCES_DESC: '@textarea@, @select@ and @input@ elements',
+            RULE_RESULT_MESSAGES: {
+              ELEM_SINGULAR:  'form control',   
+              ELEM_PLURAL:    'form controls',   
+              ALL_PASS:       '%N_P %ELEM_P do not use the @title@ attribute for labeling',
+              SOME_FAIL:      '%N_F out of %N_T %ELEM_T use the @title@ attribute for labeling the form control, change the labeling technique of %N_F %ELEM_F to use @label@ element or aria labeling technique',
+              ALL_FAIL:       'All form controls on this page use the @title@ attribute for labeling the form controls, change the labeling technique of %N_F %ELEM_F to use @label@ element or aria labeling technique',
+              NOT_APPLICABLE: 'No form controls in this page'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS:                  '@title@ is not used as label',
+              CORRECTIVE_ACTION_1:   'Use @label@ element or ARIA technique to label %1 form control',
+              HIDDEN:                '%1 control is hidden from asssistive technologies.'
+            },  
             PURPOSE: [
               '@title@ attribute is defined in HTML specifications as a way to label form controls'                   
             ],
@@ -413,11 +550,21 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                    'Control Rule 10',
             DEFINITION:            'Labels %s be unique for every textarea, select and input element of type text, password, radio, and checkbox on a page',
             SUMMARY:               'Labels %s be unique',
-            PASS:                  'Label is unique',
-            CORRECTIVE_ACTION_1:   'Add label to %1 control',
-            CORRECTIVE_ACTION_2:   'Change the @label@ element content, use @fieldset@/@legend@ elements or ARIA technique to make label text content unique on the page',
-            HIDDEN:                '%1 control is hidden from asssistive technologies.',
             TARGET_RESOURCES_DESC: '@textarea@, @select@ and @input@ elements of type @text@, @password@, @checkbox@, @radio@ and @file@',
+            RULE_RESULT_MESSAGES: {
+              ELEM_SINGULAR:  'form control',   
+              ELEM_PLURAL:    'form controls',   
+              ALL_PASS:       '%N_P %ELEM_P have unique labels',
+              SOME_FAIL:      '%N_F out of %N_T %ELEM_T do NOT have unique labels, change the labeling of %N_F %ELEM_F to uniquely identify the purpose of the form control on the page',
+              ALL_FAIL:       'None of the form controls on this page have unique labels, change the labeling of %N_F %ELEM_F to uniquely identify the purpose of the form control on the page',
+              NOT_APPLICABLE: 'No form controls in this page'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS:                  'Label is unique',
+              CORRECTIVE_ACTION_1:   'Add label to %1 control',
+              CORRECTIVE_ACTION_2:   'Change the @label@ element content, use @fieldset@/@legend@ elements or ARIA technique to make label text content unique on the page',
+              HIDDEN:                '%1 control is hidden from asssistive technologies.'
+            },  
             PURPOSE: [
               'Labels that are unique make it possible for people to understand the different purposes of form controls on the same page'                   
             ],
@@ -456,11 +603,21 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                    'CONTROL 11',
             DEFINITION:            'If there is more than one form on page, input element of type submit and reset %s have unique labels using the value attribute',
             SUMMARY:               'Labels %s be unique',
-            PASS:                  'Label is unique',
-            CORRECTIVE_ACTION_1:   'Add label to %1 control',
-            CORRECTIVE_ACTION_2:   'Change the @value@ attribute content, use @fieldset@/@legend@ elements or ARIA technique to make @submit@ and @reset@ labels unique on the page',
-            HIDDEN:                '%1 control is hidden from asssistive technologies.',
-            TARGET_RESOURCES_DESC: '@textarea@, @select@ and @input@ elements of type @text@, @password@, @checkbox@, @radio@ and @file@',
+            TARGET_RESOURCES_DESC: '@submit@ and @reset@ buttons',
+            RULE_RESULT_MESSAGES: {
+              ELEM_SINGULAR:  '@submit@ or @reset@ button',   
+              ELEM_PLURAL:    '@submit@ or @reset@ buttons',   
+              ALL_PASS:       '%N_P %ELEM_P have unique labels',
+              SOME_FAIL:      '%N_F out of %N_T %ELEM_T do NOT have unique labels, change the labeling of %N_F %ELEM_F to uniquely identify the purpose of the @submit@ and @reset@ control on the page',
+              ALL_FAIL:       'None of the @submit@ or @reset@ buttons on this page have unique labels, change the labeling of %N_F %ELEM_F to uniquely identify the purpose of the @submit@ or @reset@ buttons on the page',
+              NOT_APPLICABLE: 'No @submit@ or @reset@ buttons in this page'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS:                  'Label is unique',
+              CORRECTIVE_ACTION_1:   'Add label to %1 control',
+              CORRECTIVE_ACTION_2:   'Change the @value@ attribute content, use @fieldset@/@legend@ elements or ARIA technique to make @submit@ and @reset@ labels unique on the page',
+              HIDDEN:                '%1 control is hidden from asssistive technologies.'
+            },  
             PURPOSE: [
               'Labels that are unique make it possible for people to understand the different purposes of form controls on the same page',                   
               '@submit@ and @reset@ form controls have default labels and if there is more than one form on a page the user may not understand which form they are submitting'                   
@@ -499,10 +656,21 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                    'Control Rule 12',
             DEFINITION:            'Labels %s be must describe the purpose of every button, textarea, select and input element of type text, password, radio, and checkbox on a page',
             SUMMARY:               'Labels %s be descriptive',
-            MANUAL_CHECK:          'Verify the label describes the purpose and input required for @%1@ form control',
-            CORRECTIVE_ACTION:     'Add a @label@ element, use @fieldset@/@legend@ elements or ARIA lechnique to provide a label for @%1@ form control',
-            HIDDEN:                '%1 control is hidden from asssistive technologies.',
             TARGET_RESOURCES_DESC: '@textarea@, @select@ and @input@ elements of type @text@, @password@, @checkbox@, @radio@ and @file@',
+            RULE_RESULT_MESSAGES: {
+              ELEM_SINGULAR:  'form control',   
+              ELEM_PLURAL:    'form controls',   
+              ALL_MANUAL_CHECKS:            '%N_MC %ELEM_MC require manual checks to verify they uniquely describe the purpose of each form control',
+              SOME_FAIL_WITH_MANUAL_CHECKS: '%N_F out of %N_T %ELEM_T do NOT have labels, add labels to the %N_F %ELEM_F that uniquely describe their purpose; and %N_MC %ELEM_MC require manual checks to verify they uniquely describe the purpose of each form control',
+              ALL_FAIL:                     '%N_F %ELEM_F do NOT have labels on this page, add labels to the %N_T %ELEM_T that uniquely describe their purpose',
+              ALL_FAIL_WITH_MANUAL_CHECKS:  '%N_F %ELEM_F do NOT have labels on this page, add labels to the %N_F %ELEM_F that uniquely describe their purpose; and %N_MC %ELEM_MC require manual checks to verify they uniquely describe the purpose of each form control',
+              NOT_APPLICABLE:               'No @submit@ or @reset@ buttons in this page'
+            },
+            NODE_RESULT_MESSAGES: {
+              MANUAL_CHECK_1:        'Verify the label describes the purpose and input required for @%1@ form control',
+              CORRECTIVE_ACTION_1:   'Add a @label@ element, use @fieldset@/@legend@ elements or ARIA lechnique to provide a label for @%1@ form control',
+              HIDDEN:                '%1 control is hidden from asssistive technologies.'
+            },  
             PURPOSE: [
               'Labels that are unique make it possible for people to understand the different purposes of form controls on the same page'                   
             ],
@@ -541,11 +709,19 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                    'Heading Rule 1',
             DEFINITION:            'Each page %s contain at least one @h1@ element and each @h1@ element must have content',
             SUMMARY:               'Page %s have @h1@ element',
-            PASS:                  'Page has @h1@ element',
-            CORRECTIVE_ACTION_1:   'Add a @h1@ element at the begining of the main content of the page',
-            CORRECTIVE_ACTION_2:   '@h1@ element does not contain content',
-            HIDDEN:                '@h1@ element is hidden from asssistive technologies.',
             TARGET_RESOURCES_DESC: '@h1@ and @body@ elements',
+            RULE_RESULT_MESSAGES: {
+              ELEM_SINGULAR:  '@h1@ element',   
+              ELEM_PLURAL:    '@h1@ elements',   
+              ALL_PASS:       'Page contains %N_MC %ELEM_MC',
+              ALL_FAIL:       'No @h1@ elements on the page, add a @h1@ element at the begining of the main content of the page'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS:                  'Page has @h1@ element',
+              CORRECTIVE_ACTION_1:   'Add a @h1@ element at the begining of the main content of the page',
+              CORRECTIVE_ACTION_2:   'Add content to the @h1@ element, the content should describe the content or the purpose of the page or main section',
+              HIDDEN:                '@h1@ element is not available to assistive technologies.'
+            },  
             PURPOSE: [
               'Headings provide a navigation point for users of asssitive technologies to the main content and help users understand the main content of the page'                   
             ],
@@ -577,14 +753,24 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
         },    
         HEADING_2: {
             ID:                    'Heading Rule 2',
-            DEFINITION:            '@h1@ elements %s should be a child element of a @main@ landmark',
+            DEFINITION:            'If the page contains both a @main@ landmark and an @h1@ element, the @h1@ element %s be a child of the main landmark.',
             SUMMARY:               '@h1@ %s be in @main@ landmark',
-            PASS:                  '@h1@ is a child element of a @main@ landmark',
-            CORRECTIVE_ACTION:     'Position the @h1@ element as one of the first descendant elements of a @main@ landmark',
-            HIDDEN:                '@h1@ element is hidden from asssistive technologies.',
             TARGET_RESOURCES_DESC: '@h1@ elements and elements with ARIA attribute @role="main"@',
+            RULE_RESULT_MESSAGES: {
+              ELEM_SINGULAR:  '@h1@ element',   
+              ELEM_PLURAL:    '@h1@ elements',   
+              ALL_PASS:       '%N_P %ELEM_P are children of @main@ landmarks',
+              SOME_FAIL:      '%N_F of %N_T %ELEM_T are NOT children of a @main@ landmark, either move the %N_F %ELEM_F to the begining of a @main@ landmark or change the @h1@ element to another heading level',
+              ALL_FAIL:       'None of the @h1@ elements on the page are a child of @main@ landmarks, either move the %N_T %ELEM_T to the begining of a @main@ landmark or change the @h1@ element to another heading level',
+              NOT_APPLICABLE: 'No @h1@ elements in this page'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS:                  '@h1@ is a child element of a @main@ landmark',
+              CORRECTIVE_ACTION_1:   'Position the @h1@ element as one of the first descendant elements of a @main@ landmark',
+              HIDDEN:                '@h1@ element is hidden from asssistive technologies.'
+            },  
             PURPOSE: [
-              'Headings provide a navigation point for users of asssitive technologies to the main content and help users understand the main content of the page',
+              'Headings provide a navigation point for users of assistive technologies to the primary content and help users understand understand that content',
               'Including both @main@ landmarks and @h1@ elements provides a redundent way for users of assistive technology to find the main topics of a web page'
             ],
             TECHNIQUES: [
@@ -608,10 +794,20 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                    'Heading Rule 3',
             DEFINITION:            'Sibling heading elements %s should be unique',
             SUMMARY:               'Sibling headings %s be unique',
-            PASS:                  '%1 heading content is unique among sibling headings',
-            CORRECTIVE_ACTION:     'Change %1 heading content to describe the differences sibling sections',
-            HIDDEN:                '%1 element is hidden from asssistive technologies.',
             TARGET_RESOURCES_DESC: 'Heading elements',
+            RULE_RESULT_MESSAGES: {
+              ELEM_SINGULAR:  'heading element',   
+              ELEM_PLURAL:    'heading elements',   
+              ALL_PASS:       '%N_P sibling %ELEM_P text content is unique',
+              SOME_FAIL:      '%N_F of %N_T sibling %ELEM_T text content is NOT unique, update the content of the %N_F sibling %ELEM_F to be unique',
+              ALL_FAIL:       'None of the sibling heading elements on the page have unique text content, update the text content of the %N_T sibling %ELEM_T to be unique',
+              NOT_APPLICABLE: 'No sibling headings on the page'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS:                  '%1 heading content is unique among sibling headings',
+              CORRECTIVE_ACTION_1:   'Change %1 heading content to describe the differences sibling sections',
+              HIDDEN:                '%1 element is hidden from asssistive technologies.'
+            },  
             PURPOSE: [
               'If section headings that share the same parent heading are NOT unique users of assistive technology will not be able to descern the differences between sibling secitons of the web resource'
             ],
@@ -647,9 +843,17 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                    'Heading Rule 4',
             DEFINITION:            'Heading elements %s describe the sections they label',
             SUMMARY:               'Headings %s be descriptive',
-            MANUAL_CHECK:          'Check %1 element to make sure it describes the section it labels',
-            HIDDEN:                '%1 element is hidden from asssistive technologies.',
             TARGET_RESOURCES_DESC: 'Heading elements',
+            RULE_RESULT_MESSAGES: {
+              ELEM_SINGULAR:  'heading element',   
+              ELEM_PLURAL:    'heading elements',   
+              ALL_MANUAL_CHECKS:            '%N_MC %ELEM_MC require manual checks to verify they describe the content of following section in the page',
+              NOT_APPLICABLE:               'No heading elements on his page in this page'
+            },
+            NODE_RESULT_MESSAGES: {
+              MANUAL_CHECK_1:        'Check %1 element to make sure it describes the section it labels',
+              HIDDEN:                '%1 element is hidden from asssistive technologies.'
+            },  
             PURPOSE: [
               'If headings are NOT descriptive or unique they will confuse users of assistive technology'
             ],
@@ -688,11 +892,21 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                    'Image Rule 1',
             DEFINITION:            'Each image %s have an alt attribute',
             SUMMARY:               'Image %s have alt',
-            PASS:                  'Image has @alt@ attribute',
-            CORRECTIVE_ACTION:     'Add a @alt@ attribute to the image',
-            PRESENTATION:          '@%1@ element is hidden from asssistive technologies using the ARIA technique @role="presentation"@',
-            HIDDEN:                '@%1@ element is hidden from asssistive technologies using CSS',
             TARGET_RESOURCES_DESC: '@img@ and @area@',
+            RULE_RESULT_MESSAGES: {
+              ELEM_SINGULAR:  '@img@ or @area@ element',   
+              ELEM_PLURAL:    '@img@ or @area@ elements',   
+              ALL_PASS:       '%N_P %ELEM_P have an @alt@ attribute',
+              SOME_FAIL:      '%N_F of %N_T %ELEM_T do NOT have an @alt@ attribute, add an @alt@ attribute with content that describes the content or purpose for each of the %N_F %ELEM_F',
+              ALL_FAIL:       'None of the @img@ or @area@ elements have an @alt@ attribute, add an @alt@ attribute with content that describes the content or purpose for each of the %N_T %ELEM_T',
+              NOT_APPLICABLE: 'No @img@ or @area@ elements on the page'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS:                  'Image has @alt@ attribute',
+              CORRECTIVE_ACTION_1:   'Add a @alt@ attribute to the @%1@ element',
+              PRESENTATION:          '@%1@ element is hidden from assistive technologies using the ARIA technique @role="presentation"@',
+              HIDDEN:                '@%1@ element is hidden from assistive technologies using CSS'
+            },  
             PURPOSE: [
               'Alt text provides a description of the image for people who cannot see the image',                   
               'Alt text that is an empty string is ignored by assistive technologies and indicates an image is being used for styling rather than meaningful content'                   
@@ -726,11 +940,22 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                    'Image Rule 2',
             DEFINITION:            'The @longdesc@ attribute %s have a valid URI',
             SUMMARY:               '@longdesc@ %s be valid',
-            PASS:                  '@longdesc@ attribute is a valid URI',
-            CORRECTIVE_ACTION:     'Change @longdesc@ attribute to a valid URI',
-            MANUAL_CHECK:          'Use a browser to test if the @longdesc@ attribute is a valid URL',
-            HIDDEN:                '@img@ element is hidden from asssistive technologies using CSS',
             TARGET_RESOURCES_DESC: '@img@',
+            RULE_RESULT_MESSAGES: {
+              ELEM_SINGULAR:  '@img@ element',   
+              ELEM_PLURAL:    '@img@ elements',   
+              ALL_MANUAL_CHECKS: '%N_MC %ELEM_MC with a @longdesc@ attribute require a manual check to verify the URI reference is valid',
+              ALL_PASS:          'Each of the %N_P %ELEM_P with a @longdesc@ attribute have valid URI reference',
+              SOME_FAIL:         '%N_F of %N_T %ELEM_T do NOT have an @alt@ attribute, add an @alt@ attribute with content that describes the content or purpose for each of the %N_F %ELEM_F',
+              ALL_FAIL:          'None of the @img@ or @area@ elements have an @alt@ attribute, add an @alt@ attribute with content that describes the content or purpose for each of the %N_T %ELEM_T',
+              NOT_APPLICABLE:    'No @img@ elements on the page'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS:                  '@longdesc@ attribute is a valid URI',
+              CORRECTIVE_ACTION_1:   'Change @longdesc@ attribute to a valid URI',
+              MANUAL_CHECK_1:        'Use a browser to test if the @longdesc@ attribute is a valid URL',
+              HIDDEN:                '@img@ element is hidden from asssistive technologies using CSS'
+            },  
             PURPOSE: [
               'Some images (i.e charts, bar graphs, organizational charts, complex pictures and images) need a longer text equivalent than can be provided with the alt text content'
             ],
@@ -771,16 +996,26 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ]
         },
         IMAGE_3: {
-            ID:                    'IMAGE 3',        
-            TITLE:                 'The file name of the image %s not be part of the alt text content',
             ID:                    'Image Rule 3',
             DEFINITION:            'The file name of the image %s not be part of the alt text content',
             SUMMARY:               'Don\'t use filename',
-            PASS:                  '@alt@ attribute does not contain the filename',
-            CORRECTIVE_ACTION:     'Change @alt@ attribute to describe the purpose and/or content of the image',
-            PRESENTATION:          '@%1@ control is hidden from asssistive technologies using the ARIA technique @role="presentation"@',
-            HIDDEN:                '@%1@ control is hidden from asssistive technologies using CSS',
             TARGET_RESOURCES_DESC: '@img@ and @area@',
+            RULE_RESULT_MESSAGES: {
+              ALL_MANUAL_CHECKS:           '',
+              ALL_PASS:                     '',
+              ALL_PASS_WITH_MANUAL_CHECKS:  '',
+              SOME_FAIL:                    '',
+              SOME_FAIL_WITH_MANUAL_CHECKS: '',
+              ALL_FAIL:                     '',
+              ALL_FAIL_WITH_MANUAL_CHECKS:  '',
+              NOT_APPLICABLE:                ''
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS:                  '@alt@ attribute does not contain the filename',
+              CORRECTIVE_ACTION_1:   'Change @alt@ attribute to describe the purpose and/or content of the image',
+              PRESENTATION:          '@%1@ control is hidden from asssistive technologies using the ARIA technique @role="presentation"@',
+              HIDDEN:                '@%1@ control is hidden from asssistive technologies using CSS'
+            },  
             PURPOSE: [
               'Alt text provides a description of the image for people who cannot see the image and the file name is not useful information',                   
               'Alt text that is an empty string is ignored by assistive technologies and indicates an image is being used for styling rather than meaningful content'                   
@@ -814,11 +1049,23 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                    'Image Rule 4 (English)',
             DEFINITION:            'The length of the @alt@ attribute content %s less than 100 characters',
             SUMMARY:               '@alt@ less than 100 characters',
-            PASS:                  '@alt@ attribute is less than 100 characters',
-            CORRECTIVE_ACTION:     'Change @alt@ attribute content to less than 100 characters',
-            PRESENTATION:          '@%1@ control is hidden from asssistive technologies using the ARIA technique @role="presentation"@',
-            HIDDEN:                '@%1@ control is hidden from asssistive technologies using CSS',
             TARGET_RESOURCES_DESC: '@img@ and @area@',
+            RULE_RESULT_MESSAGES: {
+              ALL_MANUAL_CHECKS:           '',
+              ALL_PASS:                     '',
+              ALL_PASS_WITH_MANUAL_CHECKS:  '',
+              SOME_FAIL:                    '',
+              SOME_FAIL_WITH_MANUAL_CHECKS: '',
+              ALL_FAIL:                     '',
+              ALL_FAIL_WITH_MANUAL_CHECKS:  '',
+              NOT_APPLICABLE:                ''
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS:                  '@alt@ attribute is less than 100 characters',
+              CORRECTIVE_ACTION_1:   'Change @alt@ attribute content to less than 100 characters',
+              PRESENTATION:          '@%1@ control is hidden from asssistive technologies using the ARIA technique @role="presentation"@',
+              HIDDEN:                '@%1@ control is hidden from asssistive technologies using CSS'
+            },  
             PURPOSE: [
               'Alt text provides a description of the image for people who cannot see the image and the file name is not useful information',                   
               'Alt text that is an empty string is ignored by assistive technologies and indicates an image is being used for styling rather than meaningful content'                   
@@ -852,11 +1099,23 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                    'Image Rule 5',
             DEFINITION:            'If an image has a height or width of 1 pixel or its alt text set to empty, the image %s set its role attribute to "presentation" or the image %s be removed and CSS %s should be used for positioning.',
             SUMMARY:               '@alt=""@ for small images',
-            PASS:                  'Image is not a small image',
-            CORRECTIVE_ACTION:     'Change @alt@ attribute content to empty string',
-            PRESENTATION:          '@%1@ element is hidden from asssistive technologies using the ARIA technique @role="presentation"@',
-            HIDDEN:                '@%1@ element is hidden from asssistive technologies using CSS',
             TARGET_RESOURCES_DESC: '@img@',
+            RULE_RESULT_MESSAGES: {
+              ALL_MANUAL_CHECKS:           '',
+              ALL_PASS:                     '',
+              ALL_PASS_WITH_MANUAL_CHECKS:  '',
+              SOME_FAIL:                    '',
+              SOME_FAIL_WITH_MANUAL_CHECKS: '',
+              ALL_FAIL:                     '',
+              ALL_FAIL_WITH_MANUAL_CHECKS:  '',
+              NOT_APPLICABLE:                ''
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS:                  'Image is not a small image',
+              CORRECTIVE_ACTION_1:   'Change @alt@ attribute content to empty string',
+              PRESENTATION:          '@%1@ element is hidden from asssistive technologies using the ARIA technique @role="presentation"@',
+              HIDDEN:                '@%1@ element is hidden from asssistive technologies using CSS'
+            },  
             PURPOSE: [
               'Images that are 1 pixel high or 1 pixel wide are stylistic images and the @alt@ attribute should be set to the empty string'                   
             ],
@@ -880,9 +1139,21 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                    'Image Rule 6',
             DEFINITION:            'If @alt=""@ or @role="presentation"@ the image %s be used just for styling or decoration',
             SUMMARY:               '@alt=""@ or @role="presentation"@ %s be decorative',
-            MANUAL_CHECK:          'Verify the image is only used for styling or decoration',
-            HIDDEN:                '@%1@ element is hidden from asssistive technologies using CSS',
             TARGET_RESOURCES_DESC: '@img@',
+            RULE_RESULT_MESSAGES: {
+              ALL_MANUAL_CHECKS:           '',
+              ALL_PASS:                     '',
+              ALL_PASS_WITH_MANUAL_CHECKS:  '',
+              SOME_FAIL:                    '',
+              SOME_FAIL_WITH_MANUAL_CHECKS: '',
+              ALL_FAIL:                     '',
+              ALL_FAIL_WITH_MANUAL_CHECKS:  '',
+              NOT_APPLICABLE:                ''
+            },
+            NODE_RESULT_MESSAGES: {
+              MANUAL_CHECK_1:        'Verify the image is only used for styling or decoration',
+              HIDDEN:                '@%1@ element is hidden from asssistive technologies using CSS'
+            },  
             PURPOSE: [
               'If an image is purely decoration or used for styling users of screen readers do not need to know the image exists',                   
               'If an image does not have alt text content and contains information, users of assistive technology will not have access to the information'                   
@@ -915,10 +1186,16 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                    'Landmark Rule 1',
             DEFINITION:            'Each page %s contain at least one @main@ landmark',
             SUMMARY:               'Page %s have @main@ landmark',
-            PASS:                  'Page has @main@ element',
-            CORRECTIVE_ACTION:     'Add a @main@ landmark to the page, the main landmark must contain the main content of the page',
-            HIDDEN:                '@main@ landmark is hidden from asssistive technologies.',
             TARGET_RESOURCES_DESC: '@main@ landmark',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS:          'Page has @main@ landmark',
+              ALL_FAIL:          'No @main@ landmark on the page, add a @main@ landmark that identifies the main (i.e. primary) content of the page'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS:                  'Page contains an %1 element with @role=main@',
+              CORRECTIVE_ACTION_1:   'Add a @main@ landmark to the page, the main landmark must contain the main content of the page',
+              HIDDEN:                '@main@ landmark is hidden from asssistive technologies.'
+            },  
             PURPOSE: [
               'Main landmarks provide a navigation point for users of asssitive technologies to the main content of the page'                   
             ],
@@ -939,11 +1216,24 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                    'Landmark Rule 2',
             DEFINITION:            'All rendered content %s be contained in a landmark',
             SUMMARY:               'Content %s be in landmark',
-            PASS:                  '@%1@ element is in @%2@ landmark',
-            MANUAL_CHECK:          '@%1@ element may contain renderable content, if so move it into an appropriate landmark',
-            CORRECTIVE_ACTION:     'Move @%1@ element into an appropriate landmark',
-            HIDDEN:                '@%1@ element is hidden from asssistive technologies.',
             TARGET_RESOURCES_DESC: 'all renderable content',
+            RULE_RESULT_MESSAGES: {
+              ELEM_SINGULAR:  'element',   
+              ELEM_PLURAL:    'elements',   
+              ALL_PASS:                     '%N_P %ELEM_P are in a landmark',
+              ALL_PASS_WITH_MANUAL_CHECKS:  '%N_P %ELEM_P are in a landmark and there are %N_MC %ELEM_MC that may include renderable content; elements that include renderable content %RULE_TYPE be contained in a landmark',
+              SOME_FAIL:                    '%N_F out of %N_T %ELEM_T are not in a landmark, update the landmark structure of the page and place %N_F %ELEM_F currently outside of landmarks into there proper landmark container',
+              SOME_FAIL_WITH_MANUAL_CHECKS: '%N_F out of %N_T %ELEM_T are not in a landmark, update the landmark structure of the page and place %N_F %ELEM_F currently outside of landmarks into there proper landmark container',
+              ALL_FAIL:                     'No landmarks on the page, create a landmark structure for your page and place %N_F %ELEM_F outside of landmarks into there proper landmark container',
+              ALL_FAIL_WITH_MANUAL_CHECKS:  'No landmarks on the page, create a landmark structure for your page and place %N_F %ELEM_F outside of landmarks into there proper landmark container',
+              NOT_APPLICABLE: 'No elements with content'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS:                  '@%1@ element is in @%2@ landmark',
+              MANUAL_CHECK_1:        '@%1@ element may contain renderable content, if so move it into an appropriate landmark',
+              CORRECTIVE_ACTION_1:   'Move @%1@ element into an appropriate landmark',
+              HIDDEN:                '@%1@ element is hidden from asssistive technologies.'
+            },  
             PURPOSE: [
               'Landmarks provide a way to organize content of a page to users of assistive technology, similar to visual and interaction designers organize information for people using a graphical rendering of the content.'                   
             ],
@@ -962,7 +1252,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
         },
         LANDMARK_3: {
             ID:             'LANDMARK 3',
-            TITLE:          'If there are two or more landmarks of the same type, they %s have unique labels',
+            DEFINITION:     'If there are two or more landmarks of the same type, they %s have unique labels',
+            SUMMARY:        '',
             PURPOSE:        'When there are two or more landmarks of the same type labels make it possible for people using assistive technology to identify the differences between the landmarks.',            
             MESSAGE_PASS_ONLY_ONE:  'There is only one %1 landmark in the page',
             MESSAGE_PASS_UNIQUE:    'The \'%1\' label is unique for the %2 landmarks',
@@ -1186,36 +1477,49 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             TECHNIQUES:         ['Use the role="presentation" attribute on TABLE, TR and TD elements used in layout tables'],
             MANUAL_CHECKS: [
             ],
-            INFORMATIONAL_LINKS:          [{type:  OpenAjax.a11y.REFERENCES.REQUIREMENT, 
-                                  title: 'ARIA Presentation Role Value ', 
-                                  url:   'http://www.w3.org/TR/wai-aria/roles#presentation'
-                                 }
-                                ]
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.REQUIREMENT, 
+                title: 'ARIA Presentation Role Value ', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#presentation'
+              }
+            ]
         },
         TITLE_1: {
-            ID:                 'TITLE 1',
-            DEFINITION:         'Document %s have a TITLE element with content.',
-            SUMMARY:            'Title web page',
-            ACTION_NO_TITLE:    'Add TITLE element to web page',
-            ACTION_TITLE_EMPTY: 'Add text content to TITLE element',
-            PURPOSE:            ['The TITLE element text content can be accessed by asssitive technologies to understand the purpose of the web page.'
-                                ],
-            TECHNIQUES:         ['Use TITLE element text content to describe the content of a web page'],
+            ID:                    'Title Rule 1',
+            DEFINITION:            'Page %s have a @title@ element with content.',
+            SUMMARY:               'Page %s have title',
+            TARGET_RESOURCES_DESC: '@title@',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS:          'Page has @title@ element with content',
+              ALL_FAIL:          'Page does not have @title@ element or the @title@ element is empty'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS:                'Page has @title@ element with content',
+              CORRECTIVE_ACTION_1: 'Add content to @title@ element',
+              CORRECTIVE_ACTION_2: 'Add @title@ element to page'
+            },  
+            PURPOSE: [
+              'The TITLE element text content can be accessed by asssitive technologies to understand the purpose of the web page.'
+            ],
+            TECHNIQUES: [
+                'Use TITLE element text content to describe the content of a web page'
+            ],
             MANUAL_CHECKS: [
             ],
-            INFORMATIONAL_LINKS:          [{type:  OpenAjax.a11y.REFERENCES.REQUIREMENT, 
-                                  title: 'HTML TITLE Element Specification', 
-                                  url:   'http://www.w3.org/TR/html4/struct/global.html#edef-TITLE'
-                                 }, 
-                                 {type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                                  title: 'G88: Providing descriptive titles for Web pages', 
-                                  url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G88'
-                                 }, 
-                                 {type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                                  title: 'H25: Providing a title using the title element', 
-                                  url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H25'
-                                 }
-                                ]
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.REQUIREMENT, 
+                title: 'HTML TITLE Element Specification', 
+                url:   'http://www.w3.org/TR/html4/struct/global.html#edef-TITLE'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G88: Providing descriptive titles for Web pages', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G88'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H25: Providing a title using the title element', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H25'
+              }
+            ]
         },
         TITLE_2: {
             ID:            'TITLE 2',
@@ -1299,10 +1603,22 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                    'Widget Rule 1',
             DEFINITION:            'Widgets %s have an accessible name',
             SUMMARY:               'Widget %s have name',
-            PASS:                  '%1 widget has name',
-            CORRECTIVE_ACTION:     'Add name to %1 widget',
-            HIDDEN:                '%1 widget is hidden from assistive technologies.',
             TARGET_RESOURCES_DESC: 'Elements with @role@ attribute values that are defined as widgets',
+            RULE_RESULT_MESSAGES: {
+              ALL_MANUAL_CHECKS:           '',
+              ALL_PASS:                     '',
+              ALL_PASS_WITH_MANUAL_CHECKS:  '',
+              SOME_FAIL:                    '',
+              SOME_FAIL_WITH_MANUAL_CHECKS: '',
+              ALL_FAIL:                     '',
+              ALL_FAIL_WITH_MANUAL_CHECKS:  '',
+              NOT_APPLICABLE:                ''
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS:                  '%1 widget has name',
+              CORRECTIVE_ACTION_1:   'Add name to %1 widget',
+              HIDDEN:                '%1 widget is hidden from assistive technologies.'
+            },
             PURPOSE: [
               'A name associated with a widget insures that information about the widget is spoken by screen readers when it receives focus'                   
             ],

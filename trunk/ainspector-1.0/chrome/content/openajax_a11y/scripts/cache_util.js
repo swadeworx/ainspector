@@ -24,6 +24,76 @@
 
 OpenAjax.a11y.util = OpenAjax.a11y.util || {};
 
+/**
+ * @function escapeForJSON
+ *
+ * @desc Returns an safe string for JSON output that has single quotes and new line characters
+ *
+ * @param  {String}  str - string to escape 
+ *
+ * @return {String}  Escaped string
+ */
+ 
+OpenAjax.a11y.util.escapeForJSON = function(str) {
+
+  if (typeof str === 'string' && str.length > 0) {
+    var return_str = str.replace("'", "\\'", "gi");
+    return_str = str.replace('"', '\\"', "gi");
+    return_str = return_str.replace("\n", "\\n", "gi");
+    return return_str;
+  }
+  return str;  
+};
+
+/**
+ * @function removeEscapesFromJSON
+ *
+ * @desc Returns an unescaped string from a JSON string that has been escaped for single quotes and new line characters
+ *
+ * @param  {String}  str - string to un escape 
+ *
+ * @return {String}  String with escape characters removed
+ */
+ 
+OpenAjax.a11y.util.removeEscapesFromJSON = function(str) {
+
+  if (typeof str === 'string' && str.length > 0) {
+    var return_str = str.replace("\\'", "'", "gi");
+    return_str = return_str.replace("\\n", "\n", "gi");
+    return return_str;
+  }
+  return str;  
+};
+
+
+
+/**
+ * @function getStringUsingURL
+ *
+ * @desc Reads a URL into a string
+ *       Used with creating HTML reports
+ *
+ * @param  {String}  url     - url to file 
+ */
+ 
+OpenAjax.a11y.util.initStringUsingURL = function(url) {
+
+  var xmlhttp = new XMLHttpRequest();
+
+//  OpenAjax.a11y.logger.debug( "REQUESTING URL: " + url);
+
+  xmlhttp.open("GET", url, false);
+  xmlhttp.send(null); 
+  
+  var str = xmlhttp.responseText;
+  
+//  OpenAjax.a11y.logger.debug( "TEXT: " + str);
+  
+  return str;
+  
+};
+ 
+
 
 /**
  * @function transformElementMarkup
@@ -227,3 +297,13 @@ if (typeof String.capitalize == "undefined") {
  };
 }
 
+/**
+ * @function replaceAll
+ * @memberOf String
+ */
+
+if (typeof String.capitalize == "undefined") {
+  String.prototype.replaceAll = function(str1, str2, ignore) {
+    return this.replace(new RegExp(str1.replace(/([\,\!\\\^\$\{\}\[\]\(\)\.\*\+\?\|\<\>\-\&])/g, function(c){return "\\" + c;}), "g"+(ignore?"i":"")), str2);
+  }; 
+}
