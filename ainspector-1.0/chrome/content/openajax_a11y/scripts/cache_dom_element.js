@@ -440,7 +440,7 @@ OpenAjax.a11y.cache.DOMText.prototype.addText = function (text) {
   
   var text_length = this.text_normalized.length;
 
-  parent_element.addToCharacterCount(text_length - this.text_length);
+  this.parent_element.addToCharacterCount(text_length - this.text_length);
 
   this.text_length = text_length;
   

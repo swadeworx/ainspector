@@ -149,11 +149,13 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        type     : OpenAjax.a11y.RULE.REQUIRED,
        enabled  : true
      },
+   TITLE_1 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       enabled  : true
+     },
    WIDGET_1 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
        enabled  : true
      }
   } 
 });
-
-

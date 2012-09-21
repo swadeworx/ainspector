@@ -334,8 +334,6 @@ OpenAjax.a11y.cache.MediaElement = function (dom_element) {
     break;
   
   default:
-    this.is_video = OpenAjax.a11y.MEDIA.MAYBE;
-    this.is_audio = OpenAjax.a11y.MEDIA.MAYBE;
     break;
   }
   

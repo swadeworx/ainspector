@@ -353,10 +353,10 @@ OpenAjax.a11y.WCAG20NLSPrinciple.prototype.toJSON = function(prefix) {
        
   json += prefix + "'" + this.principle_id + "' : { "; 
 
-  json += prefix + "  'type'           : 'p',"; 
-  json += prefix + "  'title'          : '" + this.title + "',"; 
-  json += prefix + "  'drescription'   : '" + this.description + "',"; 
-  json += prefix + "  'url'            : '" + this.url_spec + "',"; 
+  json += prefix + "  \"type\"           : \"p\","; 
+  json += prefix + "  \"title\"          : \"" + OpenAjax.a11y.util.escapeForJSON(this.title) + "\","; 
+  json += prefix + "  \"description\"    : \"" + OpenAjax.a11y.util.escapeForJSON(this.description) + "\","; 
+  json += prefix + "  \"url\"            : \"" + OpenAjax.a11y.util.escapeForJSON(this.url_spec) + "\","; 
 
   json += prefix + "},"; 
     
@@ -425,10 +425,10 @@ OpenAjax.a11y.WCAG20NLSGuideline.prototype.toJSON = function(prefix) {
        
   json += prefix + "'" + this.guideline_id + "' : { "; 
 
-  json += prefix + "  'type'           : 'g',"; 
-  json += prefix + "  'title'          : '" + this.title + "',"; 
-  json += prefix + "  'drescription'   : '" + this.description + "',"; 
-  json += prefix + "  'url'            : '" + this.url_spec + "',"; 
+  json += prefix + "  \"type\"           : \"g\","; 
+  json += prefix + "  \"title\"          : \"" + OpenAjax.a11y.util.escapeForJSON(this.title) + "\","; 
+  json += prefix + "  \"description\"    : \"" + OpenAjax.a11y.util.escapeForJSON(this.description) + "\","; 
+  json += prefix + "  \"url\"            : \"" + OpenAjax.a11y.util.escapeForJSON(this.url_spec) + "\","; 
 
   json += prefix + "},"; 
     
@@ -503,15 +503,15 @@ OpenAjax.a11y.WCAG20NLSSuccessCriterion.prototype.toJSON = function(prefix) {
   
   var json = "";
        
-  json += prefix + "'" + this.sc_id + "' : { "; 
+  json += prefix + "\"" + this.sc_id + "\" : { "; 
 
-  json += prefix + "  'type'           : 'sc',"; 
-  json += prefix + "  'level'          : " + this.level + ","; 
-  json += prefix + "  'title'          : '" + this.title + "',"; 
-  json += prefix + "  'drescription'   : '" + this.description + "',"; 
-  json += prefix + "  'url'            : '" + this.url_spec + "',"; 
-  json += prefix + "  'url_meet'       : '" + this.url_meet + "',"; 
-  json += prefix + "  'url_understand' : '" + this.url_understand + "',"; 
+  json += prefix + "  \"type\"           : \"sc\","; 
+  json += prefix + "  \"level\"          : " + this.level + ","; 
+  json += prefix + "  \"title\"          : \"" + OpenAjax.a11y.util.escapeForJSON(this.title) + "\","; 
+  json += prefix + "  \"description\"    : \"" + OpenAjax.a11y.util.escapeForJSON(this.description) + "\","; 
+  json += prefix + "  \"url\"            : \"" + this.url_spec + "\","; 
+  json += prefix + "  \"url_meet\"       : \"" + this.url_meet + "\","; 
+  json += prefix + "  \"url_understand\" : \"" + this.url_understand + "\","; 
 
   if (this.sc_id === '4.1.2') json += prefix + "}"; 
   else json += prefix + "},"; 

@@ -19,13 +19,14 @@ scripts/cache_style.js \
 scripts/cache_tables.js \
 scripts/rules.js \
 scripts/rule_results.js \
-scripts/cache_item_results.js \
+scripts/filtered_cache_item_results.js \
+scripts/filtered_rule_group_results.js \
 scripts/cache_nls.js \
 scripts/wcag20_nls.js \
-scripts/wcag20_results.js \
 scripts/wcag20_ruleset.js \
 scripts/progress_log.js \
 openajax_a11y.js \
+reports/reports_init.js \
 nls/cache_nls_en-us.js \
 nls/rules_nls_en-us.js \
 nls/wcag20_nls_en-us.js \
@@ -33,6 +34,7 @@ rules/rules_color_contrast.js \
 rules/rules_controls.js \
 rules/rules_images.js \
 rules/rules_headings_landmarks.js \
+rules/rules_title_main.js \
 rulesets/wcag20_aria_transitional_ruleset.js \
 rulesets/wcag20_aria_strict_ruleset.js > openajax_a11y_all.js
 

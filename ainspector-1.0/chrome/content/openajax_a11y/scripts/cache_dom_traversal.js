@@ -300,7 +300,7 @@ OpenAjax.a11y.cache.DOMCache.prototype.addTitleDOMElement = function () {
 
     de = new OpenAjax.a11y.cache.DOMElement(node, null);
     
-    de.hasTitle = true;
+    this.document_has_title = true;
 
     de.addComputedStyle(null);
     de.calculateXPath(null);
@@ -320,7 +320,7 @@ OpenAjax.a11y.cache.DOMCache.prototype.addTitleDOMElement = function () {
     
     de = new OpenAjax.a11y.cache.DOMElement(node, null);
     
-    de.hasTitle = false;
+    this.document_has_title = false;
 
     de.addComputedStyle(null);
     de.xpath = "";
@@ -424,13 +424,13 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateDOMElements = function (node, paren
     break;
 
   case Node.TEXT_NODE:
-    // OpenAjax.a11y.logger.debug("DOM node text: " + node.data);
+   // OpenAjax.a11y.logger.debug("DOM node text: " + node.data);
 
    var dom_text = new OpenAjax.a11y.cache.DOMText(node, parent_dom_element);
 
    if (dom_text.text_length) {
    
-     if (!previous_sibling || previous_sibling.type == Node.ELEMENT_NODE) {
+     if (!previous_sibling || previous_sibling.type === Node.ELEMENT_NODE) {
    
        this.element_cache.addDOMText(dom_text);
        if (parent_dom_element) parent_dom_element.addChild(dom_text);
@@ -438,7 +438,7 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateDOMElements = function (node, paren
      
      } else {
    
-       if (previous_sibiling) previous_sibiling.addText(dom_text.text);
+       if (previous_sibling) previous_sibling.addText(dom_text.text);
        return previous_sibling;
      }  
    }

@@ -17,11 +17,10 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   last_updated        : '2012-06-12', 
   wcag_primary_id     : '1.4.3',
   wcag_related_ids    : ['1.4.1','1.4.6'],
-  target_resources    : ['img', 'area'],
+  target_resources    : ['textnodes'],
   cache_dependency    : 'color_contrast_cache',
   cache_properties    : ['color_hex', 'background_color_hex', 'background_image', 'is_large_font', 'color_contrast_ratio'],
   language_dependency : "",
-  target_objects      : ['textnodes'],
   validate            : function (dom_cache, rule_result) {
   
       var MIN_CCR_NORMAL_FONT = 4.5;
@@ -33,6 +32,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
    
       var cc_items     = dom_cache.color_contrast_cache.color_contrast_items;
       var cc_items_len = cc_items.length;
+     
      
       for (var i = 0; i < cc_items_len; i++) {
 
@@ -51,11 +51,12 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
           // Passes color contrast requirements
           if (cc_item.background_image != "none") {
             test_result = TEST_RESULT.MANUAL_CHECK;
-            message_id = 'MANUAL_BG_PASS';
-            cc_item.wcag_severity = SEVERITY.MANUAL_CHECK;
-          }
+            message_id = 'MANUAL_CHECK_1';
+            cc_item.wcag_severity = SEVERITY.MANUAL_CHECK;          
+          }           
           else {
-            if (cc_item.wcag_severity !== SEVERITY.PASS_LEVEL_AAA) cc_item.wcag_severity = SEVERITY.PASS_LEVEL_AA;          
+            message_id = 'PASS';
+            cc_item.wcag_severity = SEVERITY.PASS;          
           }
         }
         else {
@@ -63,20 +64,20 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
           // Fails color contrast requirements
           if (cc_item.background_image == "none") {
             test_result  = TEST_RESULT.FAIL;
-            message_id = 'ACTION';
-            cc_item.wcag_severity = SEVERITY.VIOLATION;
+            message_id = 'CORRECTIVE_ACTION_1';
+            cc_item.wcag_severity = SEVERITY.VIOLATION;          
           }
           else {
             test_result  = TEST_RESULT.MANUAL_CHECK;
-            message_id = 'MANUAL_BG_FAIL';
-            cc_item.wcag_severity = SEVERITY.MANUAL_CHECK;
+            message_id = 'MANUAL_CHECK_2';
+            cc_item.wcag_severity = SEVERITY.MANUAL_CHECK;          
           }     
         }
 
         // update all the DOM Element nodes associated with the Color Contrast Item
 
         var dom_text_nodes_len = cc_item.dom_text_nodes.length;
-        
+
         var all_hidden_flag = true;
 
         for (var j = 0; j < dom_text_nodes_len; j++) {
@@ -91,8 +92,9 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
             rule_result.addResult(TEST_RESULT.HIDDEN, dtn, 'HIDDEN', []);
           }
         } // end loop
-        
+
         if (all_hidden_flag) cc_item.wcag_severity = SEVERITY.HIDDEN;
+
       } // end loop  
       
     } // end validate function
@@ -111,11 +113,10 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   last_updated        : '2012-06-12', 
   wcag_primary_id     : '1.4.6',
   wcag_related_ids    : ['1.4.1','1.4.3'],
-  target_resources    : ['img', 'area'],
+  target_resources    : ['textnodes'],
   cache_dependency    : 'color_contrast_cache',
   cache_properties    : ['color_hex', 'background_color_hex', 'background_image', 'is_large_font', 'color_contrast_ratio'],
   language_dependency : "",
-  target_objects      : ['textnodes'],
   validate            : function (dom_cache, rule_result) {
   
       var MIN_CCR_NORMAL_FONT = 7;
@@ -146,11 +147,12 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
           // Passes color contrast requirements
           if (cc_item.background_image != "none") {
             test_result = TEST_RESULT.MANUAL_CHECK;
-            message_id = 'MANUAL_BG_PASS';
+            message_id = 'MANUAL_CHECK_1';
             cc_item.wcag_severity = SEVERITY.MANUAL_CHECK;          
           }           
           else {
-            cc_item.wcag_severity = SEVERITY.PASS_LEVEL_AAA;          
+            message_id = 'PASS';
+            cc_item.wcag_severity = SEVERITY.PASS;          
           }
         }
         else {
@@ -158,12 +160,12 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
           // Fails color contrast requirements
           if (cc_item.background_image == "none") {
             test_result  = TEST_RESULT.FAIL;
-            message_id = 'ACTION';
-            if (cc_item.wcag_severity !== SEVERITY.PASS_LEVEL_AA) cc_item.wcag_severity = SEVERITY.VIOLATION;          
+            message_id = 'CORRECTIVE_ACTION_1';
+            cc_item.wcag_severity = SEVERITY.VIOLATION;          
           }
           else {
             test_result  = TEST_RESULT.MANUAL_CHECK;
-            message_id = 'MANUAL_BG_FAIL';
+            message_id = 'MANUAL_CHECK_2';
             cc_item.wcag_severity = SEVERITY.MANUAL_CHECK;          
           }     
         }
@@ -190,7 +192,9 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         if (all_hidden_flag) cc_item.wcag_severity = SEVERITY.HIDDEN;
 
       } // end loop  
-    }
+      
+    } // end validate function
+    
   }
 
  ]); 

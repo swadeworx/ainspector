@@ -55,7 +55,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
                rule_result.addResult(TEST_RESULT.PASS, ce, 'PASS', [ce.type.toUpperCase()]);     
              }
              else {
-               rule_result.addResult(TEST_RESULT.FAIL, ce, 'CORRECTIVE_ACTION', [ce.type.toUpperCase()]);     
+               rule_result.addResult(TEST_RESULT.FAIL, ce, 'CORRECTIVE_ACTION_1', [ce.type.toUpperCase()]);     
              }
            }
            else {
@@ -235,7 +235,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
                rule_result.addResult(TEST_RESULT.PASS, ce, 'PASS', []);     
              }
              else {
-               rule_result.addResult(TEST_RESULT.FAIL, ce, 'CORRECTIVE_ACTION', []);     
+               rule_result.addResult(TEST_RESULT.FAIL, ce, 'CORRECTIVE_ACTION_1', []);     
              }
            }
            else {
@@ -287,7 +287,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
           switch (de.id_unique) { 
         
           case ID.NOT_UNIQUE:
-            rule_result.addResult(TEST_RESULT.FAIL, ce, 'CORRECTIVE_ACTION', [de.id]);
+            rule_result.addResult(TEST_RESULT.FAIL, ce, 'CORRECTIVE_ACTION_1', [de.id]);
             break;          
           
           case ID.UNIQUE:
@@ -337,7 +337,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         var le = label_elements[i];
         
         if (le.unused_label) {
-          rule_result.addResult(TEST_RESULT.FAIL, le, 'CORRECTIVE_ACTION', [le.for_id]);
+          rule_result.addResult(TEST_RESULT.FAIL, le, 'CORRECTIVE_ACTION_1', [le.for_id]);
         }        
       } // end loop
     }     
@@ -384,7 +384,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
           if (cde.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
 
             if (le.computed_label && le.computed_label.length === 0) {
-              rule_result.addResult(TEST_RESULT.FAIL, le, 'CORRECTIVE_ACTION', [lde.tag_name]);
+              rule_result.addResult(TEST_RESULT.FAIL, le, 'CORRECTIVE_ACTION_1', [lde.tag_name]);
             }
             else {
               rule_result.addResult(TEST_RESULT.PASS, le, 'PASS', [lde.tag_name]);        
@@ -489,7 +489,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         if (de.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
 
           if (ce.computed_label_source === OpenAjax.a11y.SOURCE.TITLE_ATTRIBUTE) {
-            rule_result.addResult(TEST_RESULT.FAIL, ce, 'CORRECTIVE_ACTION', [de.tag_name]);        
+            rule_result.addResult(TEST_RESULT.FAIL, ce, 'CORRECTIVE_ACTION_1', [de.tag_name]);        
           }
           else {
             rule_result.addResult(TEST_RESULT.PASS, ce, 'PASS', []);                  
@@ -597,7 +597,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   last_updated        : '2011-09-16', 
   wcag_primary_id     : '2.4.6',
   wcag_related_ids    : ['1.3.1', '3.3.2'],
-  target_resources    : ['input[type="submit]', 'input[type="reset]'],
+  target_resources    : ['input[type="submit"]', 'input[type="reset"]'],
   cache_dependency    : 'controls_cache',
   cache_properties    : ['computed_label', 'value'],
   language_dependency : "",
@@ -631,7 +631,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   last_updated        : '2011-09-16', 
   wcag_primary_id     : '2.4.6',
   wcag_related_ids    : ['1.3.1', '3.3.2'],
-  target_resources    : ['button', 'input[type="checkbox"]', 'input[type="radio"]', 'input[type="text"]', 'input[type="password"]', 'input[type="file"]', 'input[type="submit]', 'input[type="reset]', 'select', 'textarea'],
+  target_resources    : ['button', 'input[type="checkbox"]', 'input[type="radio"]', 'input[type="text"]', 'input[type="password"]', 'input[type="file"]', 'input[type="submit"]', 'input[type="reset"]', 'select', 'textarea'],
   cache_dependency    : 'controls_cache',
   cache_properties    : ['computed_label'],
   language_dependency : "",
@@ -667,10 +667,10 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
           if (de.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) { 
           
             if (ce.computed_label && ce.computed_label.length) {
-              rule_result.addResult(TEST_RESULT.MANUAL_CHECK, ce, 'MANUAL_CHECK', [de.tag_name]);                
+              rule_result.addResult(TEST_RESULT.MANUAL_CHECK, ce, 'MANUAL_CHECK_1', [de.tag_name]);                
             }
             else {
-              rule_result.addResult(TEST_RESULT.FAIL, ce, 'CORRECTIVE_ACTION', [de.tag_name]);        
+              rule_result.addResult(TEST_RESULT.FAIL, ce, 'CORRECTIVE_ACTION_1', [de.tag_name]);        
             } 
             
           }
@@ -725,7 +725,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
                rule_result.addResult(TEST_RESULT.PASS, ce, 'PASS', [de.role.toUpperCase()]);     
              }
              else {
-               rule_result.addResult(TEST_RESULT.FAIL, ce, 'CORRECTIVE_ACTION', [de.role.toUpperCase()]);     
+               rule_result.addResult(TEST_RESULT.FAIL, ce, 'CORRECTIVE_ACTION_1', [de.role.toUpperCase()]);     
              }
            }
            else {
