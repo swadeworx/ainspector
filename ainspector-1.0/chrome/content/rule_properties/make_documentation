@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+jsdoc -d ./docs/ rule-properties.js 
+ 
