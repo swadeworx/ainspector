@@ -30,7 +30,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     id                : 'MEDIA_1',
     last_updated      : '2011-09-27',
     cache_dependency  : 'lists_cache',
-    cache_properties : [],
+    resource_properties : [],
     language          : "",
     validate          : function (dom_cache, rule_result) {
 
@@ -82,7 +82,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     id                : 'MEDIA_2',
     last_updated      : '2011-09-27',
     cache_dependency  : 'lists_cache',
-    cache_properties : [],
+    resource_properties : [],
     language          : "",
     validate          : function (dom_cache, rule_result) {
 

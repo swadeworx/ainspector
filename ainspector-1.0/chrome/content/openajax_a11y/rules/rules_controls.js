@@ -21,7 +21,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
    wcag_related_ids    : ['1.3.1', '2.4.6'],
    target_resources    : ['input[type="checkbox"]', 'input[type="radio"]', 'input[type="text"]', 'input[type="password"]', 'input[type="file"]', 'select', 'textarea'],
    cache_dependency    : 'controls_cache',
-   cache_properties    : ['computed_label', 'fieldset_element', 'computed_label_source', 'name_attribute'],
+   resource_properties : ['computed_label', 'fieldset_element', 'computed_label_source', 'name_attribute'],
    language_dependency : "",
    validate            : function (dom_cache, rule_result) {
    
@@ -81,7 +81,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
    wcag_related_ids    : ['1.3.1', '2.4.6'],
    target_resources    : ['input[type="image"]'],
    cache_dependency    : 'controls_cache',
-   cache_properties    : ['alt', 'title'],
+   resource_properties    : ['alt', 'title'],
    language_dependency : "",
    validate            : function (dom_cache, rule_result) {
   
@@ -139,7 +139,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.3.1', '2.4.6'],
   target_resources    : ['input[type="radio"]'],
   cache_dependency    : 'controls_cache',
-  cache_properties    : ['fieldset_element'],
+  resource_properties    : ['fieldset_element'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
   
@@ -208,7 +208,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.3.1', '2.4.6'],
   target_resources    : ['button'],
   cache_dependency    : 'controls_cache',
-  cache_properties    : ['computed_label'],
+  resource_properties    : ['computed_label'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -264,7 +264,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['3.3.2', '1.3.1', '2.4.6'],
   target_resources    : ['input[type="checkbox"]', 'input[type="radio"]', 'input[type="text"]', 'input[type="password"]', 'input[type="file"]', 'select', 'textarea'],
   cache_dependency    : 'controls_cache',
-  cache_properties    : ['id'],
+  resource_properties    : ['id'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -320,7 +320,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.3.1', '2.4.6'],
   target_resources    : ['label'],
   cache_dependency    : 'controls_cache',
-  cache_properties    : ['for'],
+  resource_properties    : ['for'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -358,7 +358,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_primary_id     : '3.3.2',
   wcag_related_ids    : ['1.3.1', '2.4.6'],
   target_resources    : ['label', 'legend'],
-  cache_properties    : ['computed_label'],
+  resource_properties    : ['computed_label'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -415,7 +415,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.3.1', '2.4.6', '4.1.1'],
   target_resources    : ['fieldset'],
   cache_dependency    : 'controls_cache',
-  cache_properties    : ['legend_count'],
+  resource_properties    : ['legend_count'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -469,7 +469,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['4.1.1'],
   target_resources    : ['input', 'select', 'textarea'],
   cache_dependency    : 'controls_cache',
-  cache_properties    : ['title'],
+  resource_properties    : ['title'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -521,7 +521,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.3.1', '3.3.2'],
   target_resources    : ['input[type="checkbox"]', 'input[type="radio"]', 'input[type="text"]', 'input[type="password"]', 'input[type="file"]', 'select', 'textarea'],
   cache_dependency    : 'controls_cache',
-  cache_properties    : ['computed_label', 'fieldset_element', 'computed_label_source', 'name_attribute'],
+  resource_properties    : ['computed_label', 'fieldset_element', 'computed_label_source', 'name_attribute'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -599,7 +599,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.3.1', '3.3.2'],
   target_resources    : ['input[type="submit"]', 'input[type="reset"]'],
   cache_dependency    : 'controls_cache',
-  cache_properties    : ['computed_label', 'value'],
+  resource_properties    : ['computed_label', 'value'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -633,7 +633,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.3.1', '3.3.2'],
   target_resources    : ['button', 'input[type="checkbox"]', 'input[type="radio"]', 'input[type="text"]', 'input[type="password"]', 'input[type="file"]', 'input[type="submit"]', 'input[type="reset"]', 'select', 'textarea'],
   cache_dependency    : 'controls_cache',
-  cache_properties    : ['computed_label'],
+  resource_properties    : ['computed_label'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -698,7 +698,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.3.1', '3.3.2'],
   target_resources    : ['[role="widget"]'],
   cache_dependency    : 'controls_cache',
-  cache_properties    : ['accessible_name', 'accessible_description', 'computed_label_source'],
+  resource_properties    : ['accessible_name', 'accessible_description', 'computed_label_source'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
    

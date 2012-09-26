@@ -191,7 +191,7 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
      */
     status: ['Undefined', 'Proposed', 'Accepted', 'Deprecated'],
 
-    cache_properties : {
+    resource_properties : {
 
     /*
      * DOMElement object properties
@@ -421,9 +421,17 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
         label       : 'Name',
         description : 'The name of a widget used by assistive technologies to identify the widget.'
       },     
+      'accessible_name_for_comparison' : {
+        label       : 'Name (normalized)',
+        description : 'Normailzed name of a widget for use in comparisons.'
+      },     
       'accessible_description' : {
         label       : 'Description',
         description : 'The description used by assistive technologies to provide additional information about a form control, widget, link, image or other element.'
+      },     
+      'accessible_description_for_comparison' : {
+        label       : 'Description (normalized)',
+        description : 'Normalized description used for comparisons.'
       },     
     /*
      * Link Cache object attributes
@@ -441,6 +449,11 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
         description : 'Type of link',
         values      : ['empty', 'other', 'internal link', 'link', 'secure link', 'ftp', 'secure ftps', 'file', 'javascript', 'mail to', 'target only']
       },
+      'accessible_name_source' : {
+        label       : 'Name from',
+        description : 'The technique for defining the accessible name of a link',
+        values      : ['unkown', 'none', 'label by reference', 'label encapsulation', 'title attribute', 'value attribute', 'alt attribute', 'button type', 'child text content', 'aria labelledby', 'aria label']
+      },     
       'is_broken' : {
         label       : 'Link broken',
         description : 'Tests to see if the link is broken, valid or has an error',

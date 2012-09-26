@@ -29,7 +29,7 @@
  * @property  {String}  visibility  - Computed value of the CSS 'visibility' property
  *
  * @property  {Number}  is_visible_onscreen   - Constant representing the graphical visibility of the element (i.e is it visible to people with sight)
- * @property  {Number}  is_visible_at         - Constant representing the assistive technology visibility of the element (i.e is it visible to people using a screen reader)
+ * @property  {Number}  is_visible_to_at      - Constant representing the assistive technology visibility of the element (i.e is it visible to people using a screen reader)
  * 
  * @property  {String}  color                 - Computed value of the CSS 'color' property
  * @property  {String}  color_hex             - Computed value of the CSS 'color' property in hexidecimal format

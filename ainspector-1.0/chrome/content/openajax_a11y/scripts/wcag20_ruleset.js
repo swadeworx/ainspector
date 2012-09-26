@@ -144,6 +144,7 @@ OpenAjax.a11y.Rulesets.prototype.getAllRulesets = function() {
  *
  * @property {String} title  - The title of the last document evaluated
  * @property {String} url    - The url of the last document evaluated
+ * @property {String} date   - Date of the evaluation
  *
  * @property {Object} doc          - Reference to browser document object model (DOM) that holds the document to be analyzed
  * @property {Object} wcag20_nls   - Reference to WCAG 2.0 NLS object for current language
@@ -174,10 +175,6 @@ OpenAjax.a11y.Rulesets.prototype.getAllRulesets = function() {
 OpenAjax.a11y.WCAG20Ruleset = function (ruleset_data) {
 
   var i;
-  var  p_id,  rp_data,  rp_new;  // variables for creating RulesetPrinciple objects
-  var  g_id,  rg_data,  rg_new;  // variables for creating RulesetGuideline objects
-  var sc_id, rsc_data, rsc_new;  // variables for creating RulesetSuccessCriterion objects
-  var  r_id,  rr_data,  rr_new;  // variables for creating RulesetRule objects
  
   this.type = "WCAG20";
   this.ruleset_title = {};
@@ -324,6 +321,8 @@ OpenAjax.a11y.WCAG20Ruleset = function (ruleset_data) {
   
   this.title = "";
   this.url   = "";
+  this.date  = "n/a";
+  this.time  = "n/a";
   
   this.doc       = null;
   this.log       = null;
@@ -423,6 +422,9 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.evaluate = function (url, title, doc, prog
   this.title = title;
   this.url   = url;
   
+  this.date = OpenAjax.a11y.util.getFormattedDate();
+  OpenAjax.a11y.logger.debug("DATE: " + this.date);
+  
   // OpenAjax.a11y.logger.debug("Starting evaluation: " + this.ruleset_id + " " + this.default_name + " " + this.number_of_rules + " rules" );
   
   this.log = new OpenAjax.a11y.Log(this.ruleset_id, this.default_name, this.number_of_rules, progessCallBackFunction);
@@ -454,7 +456,7 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.evaluate = function (url, title, doc, prog
 
       rule_result = new OpenAjax.a11y.RuleResult(rule_mapping); 
 
-      OpenAjax.a11y.logger.debug("Rule: " + rule + "  Enabled: " + rule_mapping.enabled  + "  Mapping: " + rule_mapping.type + "  Recommended: " + this.wcag20_recommended_rules_enabled);
+      OpenAjax.a11y.logger.debug("Rule: " + rule.rule_id + "  Enabled: " + rule_mapping.enabled  + "  Mapping: " + rule_mapping.type + "  Recommended: " + this.wcag20_recommended_rules_enabled);
 
       if (rule_mapping.enabled && 
           (rule_mapping.type === OpenAjax.a11y.RULE.REQUIRED ||

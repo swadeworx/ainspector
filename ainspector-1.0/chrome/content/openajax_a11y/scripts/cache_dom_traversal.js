@@ -474,10 +474,49 @@ OpenAjax.a11y.cache.DOMCache.prototype.calculateDescriptions = function () {
   for (var i = 0; i < dom_elements_len; i++ ) {
     de = dom_elements[i];
     
-    if (de.aria_describedby) {
+    if (de.aria_describedby === 'string' && !de.calculated_aria_description) {
       de.calculated_aria_description = this.getTextFromIDs(de.aria_describedby);  
     }
   }
+};
+
+/**
+ * @method getNameForLink
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMCache
+ *
+ * @desc Calculates a computed accessible name for a link, using ARIA properties if defined
+ *
+ * @param {LinkElement} link - Link element object
+ */
+
+OpenAjax.a11y.cache.DOMCache.prototype.getNameForLink = function (link) {
+
+  var SOURCE = OpenAjax.a11y.SOURCE;
+
+  var computed_label = "";
+  var computed_label_source = SOURCE.NONE;
+  var de = link.dom_element;
+  
+  if (de.aria_labelledby) {
+    computed_label = this.element_with_id_cache.getTextFromIds(de.aria_labelledby);
+    computed_label_source = SOURCE.ARIA_LABELLEDBY;
+  }
+  else if (de.aria_label) {
+    computed_label = de.aria_label;
+    computed_label_source = SOURCE.ARIA_LABEL;
+  }
+  else {
+    computed_label = de.getText();
+    computed_label_source = SOURCE.TEXT_CONTENT;
+  } 
+
+  link.accessible_name                = computed_label;
+  link.accessible_name_for_comparison = computed_label.toLowerCase().normalizeSpace();
+  link.accessible_name_length         = computed_label.length;
+  link.accessible_name_source         = computed_label_source;
+
+  this.getDescriptionFromARIADescribedby(link);
 };
 
 /**
@@ -536,13 +575,16 @@ OpenAjax.a11y.cache.DOMCache.prototype.getNameFromARIALabel = function (control)
 
 OpenAjax.a11y.cache.DOMCache.prototype.getDescriptionFromARIADescribedby = function (element) {
 
-  var de = element.dom_element;
+  var de = element.dom_element;  
+  if (typeof de !== 'object') de = element;
   
-  if (de.aria_describedby) {
+  if (de && de.aria_describedby) {
     element.accessible_description = this.element_with_id_cache.getTextFromIds(de.aria_describedby);
+    element.accessible_description_for_comparison = element.accessible_description.toLowerCase().normalizeSpace();
   }
   else {
     element.accessible_description = "";  
+    element.accessible_description_for_comparison = "";
   }
   
 };

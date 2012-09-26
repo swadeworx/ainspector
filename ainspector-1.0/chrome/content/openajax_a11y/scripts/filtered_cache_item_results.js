@@ -345,16 +345,20 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.toJSON = function(prefix)
   if (typeof prefix !== 'string' || prefix.length === 0) prefix = "";
   else next_prefix = prefix + "    ";  
   
-  var date = new Date();
-    
   var json = "";
+
+  var date = this.ruleset.date;
+  var url = this.ruleset.url;  
+  
+  var page_title = this.ruleset.title;
+  
+  if (page_title.length > 30) page_title = page_title.slice(0,27) + "...";
 
   json += "{";
 
   json += prefix + "  \"url\"    : \"" + OpenAjax.a11y.util.escapeForJSON(this.ruleset.url) + "\",";
   json += prefix + "  \"title\"  : \"" + OpenAjax.a11y.util.escapeForJSON(this.ruleset.title) + "\",";
-  json += prefix + "  \"date\"   : \"" + date.getMonth() + "/" + date.getDay() + "/" + date.getFullYear() + "\",";
-  json += prefix + "  \"time\"   : \"" + date.getHours() + ":" + date.getMinutes() + "\",";
+  json += prefix + "  \"date\"   : \"" + date + "\",";
 
   if (this.is_tree) json += prefix + "  \"is_tree\" : true,";
   else json += prefix + "  \"is_tree\" : false,";
@@ -420,6 +424,63 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.toHTML = function(title) 
   html += "</html>\n";
   
   return html;
+};
+
+/**
+ * @method toCSV
+ *
+ * @memberOf OpenAjax.a11y.cache.FilteredCacheItemResults
+ *
+ * @desc Returns an CSV representation of the filtered cache item results 
+ *
+ * @param  {String}  title  -   Title of the report
+ *
+ * @return  {String}  String representing the CSV for the report 
+ */
+
+OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.toCSV = function(title) {
+
+  var date = this.ruleset.date;
+  var url = this.ruleset.url;  
+  
+  var page_title = this.ruleset.title;
+  
+  if (page_title.length > 30) page_title = title.slice(0,27) + "...";
+    
+  var csv = "";
+  
+  var result_items     = this.cache_item_results;
+  var result_items_len = result_items.length;
+
+  for (var i = 0; i < result_items_len; i++) {
+         
+     var position = i+1;
+            
+     var result_item      = result_items[i];
+     var node_results     = result_item.node_results;
+     var node_results_len = node_results.length;
+            
+     for (var j = 0; j < node_results_len; j++) {
+            
+       var node_result = node_results[j];
+               
+       var str = position.toString(); 
+       csv += ",\""   + OpenAjax.a11y.util.escapeForJSON(result_item.cache_item.toString()); 
+       csv += "\",\"" + node_result.getNLSRuleId() + ": " + node_result.getRuleSummary();
+       csv += "\",\"" + node_result.getNLSRuleType();
+       csv += "\",\"" + node_result.getWCAG20SuccessCriterion();
+       csv += "\",\"" + node_result.getNLSWCAG20Level();
+       csv += "\",\"" + node_result.getNLSSeverityLabel();
+       csv += "\",\"" + OpenAjax.a11y.util.escapeForJSON(node_result.getMessage());
+       csv += "\",\"" + date;
+       csv += "\",\"" + OpenAjax.a11y.util.escapeForJSON(page_title);
+       csv += "\",\"" + url;
+       csv += "\"\n";
+               
+    }
+  }   
+
+  return csv;
 };
 
 

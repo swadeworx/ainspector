@@ -19,7 +19,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.4.1','1.4.6'],
   target_resources    : ['textnodes'],
   cache_dependency    : 'color_contrast_cache',
-  cache_properties    : ['color_hex', 'background_color_hex', 'background_image', 'is_large_font', 'color_contrast_ratio'],
+  resource_properties    : ['color_hex', 'background_color_hex', 'background_image', 'is_large_font', 'color_contrast_ratio'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
   
@@ -115,7 +115,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.4.1','1.4.3'],
   target_resources    : ['textnodes'],
   cache_dependency    : 'color_contrast_cache',
-  cache_properties    : ['color_hex', 'background_color_hex', 'background_image', 'is_large_font', 'color_contrast_ratio'],
+  resource_properties    : ['color_hex', 'background_color_hex', 'background_image', 'is_large_font', 'color_contrast_ratio'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
   

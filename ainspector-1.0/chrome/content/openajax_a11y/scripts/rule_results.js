@@ -185,6 +185,37 @@ OpenAjax.a11y.NodeResult.prototype.getRuleSummary = function () {
   
 };
 
+/**
+ * @method getNLSWCAG20Level
+ *
+ * @memberOf OpenAjax.a11y.NodeResult
+ *
+ * @desc Returns the NLS String based on the WCAG 2.0 Success Level of the rule based on the primary id of the rule
+ *
+ * @return  {String}  String representing the WCAG 2.0 success criterion level of the rule
+ */
+
+OpenAjax.a11y.NodeResult.prototype.getNLSWCAG20Level = function () {
+
+  return this.rule_result.getNLSWCAG20Level();
+
+};
+
+/**
+ * @method getWCAG20SuccessCriterion
+ *
+ * @memberOf OpenAjax.a11y.NodeResult
+ *
+ * @desc Returns the WCAG 2.0 Success Criterion number
+ *
+ * @return  {String}  WCAG20Result sucess criterion
+ */
+
+OpenAjax.a11y.NodeResult.prototype.getWCAG20SuccessCriterion = function () {
+
+  return this.rule_result.getWCAG20SuccessCriterion();
+
+};
 
 /**
  * @method getRuleProperties
@@ -202,7 +233,7 @@ OpenAjax.a11y.NodeResult.prototype.getRuleProperties = function () {
 
   var nls_prop_list = [];
   
-  var prop_list = this.rule_result.rule.cache_properties;
+  var prop_list = this.rule_result.rule.resource_properties;
   var value;
   var prop_item;
   
@@ -573,7 +604,7 @@ OpenAjax.a11y.NodeResult.prototype.toHTML = function (ruleset_nls) {
  * @property  {Number}  implementation_percentage  - Percentage implementation of automated checks
  * @property  {Number}  manual_check_count         - Number of elements that need a manual check
  *
- * @property  {String}  message_id          -  String reference to the message string in the NLS file for rule results
+ * @property  {String}  message          -  String message of rule implementation and correction 
  *
  * @property  {Array}  nodes_passed         - Array of all the node results that passed
  * @property  {Array}  nodes_violations     - Array of all the node results that resulted in violations
@@ -599,7 +630,7 @@ OpenAjax.a11y.RuleResult = function (rule_mapping) {
   this.implementation_level_sort = OpenAjax.a11y.IMPLEMENTATION_LEVEL.UNDEFINED;
   this.implementation_percentage = 0;
 
-  this.message_id = '';
+  this.message = '';
 
   this.node_results_passed         = [];
   this.node_results_violations     = [];
@@ -866,7 +897,7 @@ OpenAjax.a11y.RuleResult.prototype.getNLSImplementationLevel = function () {
 /**
  * @method getRule
  *
- * @memberOf OpenAjax.a11y.NodeResult
+ * @memberOf OpenAjax.a11y.RuleResult
  *
  * @desc Returns a rule object associated with this result
  * 
@@ -882,7 +913,7 @@ OpenAjax.a11y.RuleResult.prototype.getRule = function () {
 /**
  * @method getRuleId
  *
- * @memberOf OpenAjax.a11y.NodeResult
+ * @memberOf OpenAjax.a11y.RuleResult
  *
  * @desc Returns the id of the rule associated with this rule result
  * 
@@ -898,7 +929,7 @@ OpenAjax.a11y.RuleResult.prototype.getRuleId = function () {
 /**
  * @method getNLSRuleId
  *
- * @memberOf OpenAjax.a11y.NodeResult
+ * @memberOf OpenAjax.a11y.RuleResult
  *
  * @desc Returns the nls id of the rule associated with this rule result
  * 
@@ -911,7 +942,21 @@ OpenAjax.a11y.RuleResult.prototype.getNLSRuleId = function () {
    
 };
 
+/**
+ * @method getRuleScope
+ *
+ * @memberOf OpenAjax.a11y.RuleResult
+ *
+ * @desc Returns the scope of a rule (i.e. Page or Element)
+ * 
+ * @return {Number} Number representing the rule scope
+ */
 
+OpenAjax.a11y.RuleResult.prototype.getRuleScope = function () {
+
+  return this.rule_mapping.rule.rule_scope;
+   
+};
 
 /**
  * @method getRuleType
@@ -979,6 +1024,37 @@ OpenAjax.a11y.RuleResult.prototype.getRuleSummary = function () {
   
 };
 
+/**
+ * @method getNLSWCAG20Level
+ *
+ * @memberOf OpenAjax.a11y.RuleResult
+ *
+ * @desc Returns the NLS String based on the WCAG 2.0 Success Level of the rule based on the primary id of the rule
+ *
+ * @return  {String}  String representing the WCAG 2.0 success criterion level of the rule
+ */
+
+OpenAjax.a11y.RuleResult.prototype.getNLSWCAG20Level = function () {
+
+  return this.rule.getNLSWCAG20Level();
+
+};
+
+/**
+ * @method getWCAG20SuccessCriterion
+ *
+ * @memberOf OpenAjax.a11y.RuleResult
+ *
+ * @desc Returns the WCAG 2.0 Success Criterion number
+ *
+ * @return  {String}  WCAG20Result sucess criterion
+ */
+
+OpenAjax.a11y.RuleResult.prototype.getWCAG20SuccessCriterion = function () {
+
+  return this.rule.getWCAG20SuccessCriterion();
+
+};
 
 /**
  * @method getResultNodes
@@ -1075,6 +1151,64 @@ OpenAjax.a11y.RuleResult.prototype.getResultNodeByCacheId = function (cache_id) 
  */
 OpenAjax.a11y.RuleResult.prototype.getMessage = function () {
 
+  function pageMessageFromNLS(rule_id, id) {
+
+    var message = "";
+
+    if (id !== 'SOME_FAIL' && id !== 'NOT_APPLICABLE') {
+    
+      id_singular = id + '_SINGULAR';
+      id_plural   = id + '_PLURAL';
+
+      message = nls_rules.rules[rule_id]['RULE_RESULT_MESSAGES'][id_singular];
+
+      if (typeof message !== 'string' || (message.length === 0)) message = nls_rules.rules[rule_id]['RULE_RESULT_MESSAGES'][id_plural];
+
+      if (typeof message !== 'string' || (message.length === 0)) message = nls_rules['DEFAULT_RULE_RESULT_MESSAGES'][id_singular];
+      
+    }
+    else {
+    
+      message = nls_rules.rules[rule_id]['RULE_RESULT_MESSAGES'][id];
+
+      if (typeof message !== 'string' || (message.length === 0)) message = nls_rules['DEFAULT_RULE_RESULT_MESSAGES'][id];
+
+    }
+
+    return message;
+  }
+
+
+  function elementMessageFromNLS(rule_id, count, id) {
+
+    if (id !== 'SOME_FAIL' && id !== 'NOT_APPLICABLE') {
+      if(count > 1) id = id + '_PLURAL';
+      else id = id + '_SINGULAR';
+    }
+
+    var message = nls_rules.rules[rule_id]['RULE_RESULT_MESSAGES'][id];
+
+    if (typeof message !== 'string' || (message.length === 0)) message = nls_rules['DEFAULT_RULE_RESULT_MESSAGES'][id];
+
+    return message;
+  }
+
+  function getAndNLS() {
+
+    var message = nls_rules['AND'];
+
+    return message;
+  }
+
+  function getSoNLS() {
+
+    var message = nls_rules['SO'];
+
+    return message;
+  }
+
+  if (this.message && this.message.length > 0) return this.message;
+
   var nls_rules = OpenAjax.a11y.all_rules.nls[OpenAjax.a11y.locale];
   
   var RULE = OpenAjax.a11y.RULE;
@@ -1082,40 +1216,83 @@ OpenAjax.a11y.RuleResult.prototype.getMessage = function () {
   var failed_count = this.violations_count + this.warnings_count;
   var total_count = failed_count + this.passed_count;
 
-  // If no message id return the empty string
-  if (this.message_id.length === 0) {
-  
-    if ((this.passed_count === 0) && (failed_count === 0) && (this.manual_checks_count  >  0)) this.message_id = 'ALL_MANUAL_CHECKS';  
-    if ((this.passed_count  >  0) && (failed_count === 0) && (this.manual_checks_count === 0)) this.message_id = 'ALL_PASS';  
-    if ((this.passed_count  >  0) && (failed_count === 0) && (this.manual_checks_count  >  0)) this.message_id = 'ALL_PASS_WITH_MANUAL_CHECKS';  
-    if ((this.passed_count  >  0) && (failed_count  >  0) && (this.manual_checks_count === 0)) this.message_id = 'SOME_FAIL';  
-    if ((this.passed_count  >  0) && (failed_count  >  0) && (this.manual_checks_count  >  0)) this.message_id = 'SOME_FAIL_WITH_MANUAL_CHECKS';  
-    if ((this.passed_count === 0) && (failed_count  >  0) && (this.manual_checks_count === 0)) this.message_id = 'ALL_FAIL';  
-    if ((this.passed_count === 0) && (failed_count  >  0) && (this.manual_checks_count  >  0)) this.message_id = 'ALL_FAIL_WITH_MANUAL_CHECKS';  
-    if ((total_count === 0) && (this.manual_checks_count === 0)) this.message_id = 'NOT_APPLICABLE';  
-  
-  }
-  
   var rule_id = this.getRuleId();
 
-//  OpenAjax.a11y.logger.debug(" Passed: " + this.passed_count + " Violations: " + this.violations_count  + " Warnings: " + this.warnings_count + " Failed: " + failed_count  + " Manual Checks: " + this.manual_checks_count + " Message ID: " + this.message_id);
-//  OpenAjax.a11y.logger.debug(" Passed: " + typeof this.passed_count + " Violations: " + typeof this.violations_count  + " Warnings: " + typeof this.warnings_count + " Failed: " + typeof failed_count  + " Manual Checks: " + typeof this.manual_checks_count + " Message ID: " + this.message_id);
-
-  var message       = nls_rules.rules[rule_id]['RULE_RESULT_MESSAGES'][this.message_id];
-  var elem_singular = nls_rules.rules[rule_id]['RULE_RESULT_MESSAGES']['ELEM_SINGULAR'];
-  var elem_plural   = nls_rules.rules[rule_id]['RULE_RESULT_MESSAGES']['ELEM_PLURAL']; 
-
-  OpenAjax.a11y.logger.debug(" Rule ID: " + rule_id + " Message ID: " + this.message_id  + " Message: " + message  + " Length: " + (message ? message.length : 0));
-
-  if (typeof message       !== 'string' || (message.length       === 0)) message       = nls_rules['DEFAULT_RULE_RESULT_MESSAGES'][this.message_id];
-  if (typeof elem_singular !== 'string' || (elem_singular.length === 0)) elem_singular = nls_rules['DEFAULT_RULE_RESULT_MESSAGES']['ELEM_SINGULAR'];
-  if (typeof elem_plural   !== 'string' || (elem_plural.length   === 0)) elem_plural   = nls_rules['DEFAULT_RULE_RESULT_MESSAGES']['ELEM_PLURAL'];
-
-  OpenAjax.a11y.logger.debug(" Rule ID (after deafult): " + rule_id + " Message ID: " + this.message_id  + " Message: " + message  + " Length: " + (message ? message.length : 0));
-
-//  OpenAjax.a11y.logger.debug("String: " + str);
+  if (this.getRuleScope() === OpenAjax.a11y.RULE_SCOPE.ELEMENT) {
+    // Element rule messaging
   
-  if (!message || message.length === 0) return nls_rules.missing_message + this.message_id;
+    if ((this.passed_count === 0) && (failed_count === 0) && (this.manual_checks_count  >  0)) { 
+      this.message = elementMessageFromNLS(rule_id, this.manual_checks_count, 'MANUAL_CHECKS');
+    }
+    
+    if ((this.passed_count  >  0) && (failed_count === 0) && (this.manual_checks_count === 0)) {
+      this.message = elementMessageFromNLS(rule_id, this.passed_count, 'ALL_PASS');
+    }
+    
+    if ((this.passed_count  >  0) && (failed_count === 0) && (this.manual_checks_count  >  0)) {
+      this.message = elementMessageFromNLS(rule_id, this.passed_count, 'ALL_PASS');
+      this.message += getAndNLS();
+      this.message += elementMessageFromNLS(rule_id, this.manual_checks_count, 'MANUAL_CHECKS');
+    }
+    
+    if ((this.passed_count  >  0) && (failed_count  >  0) && (this.manual_checks_count === 0)) {
+      this.message = elementMessageFromNLS(rule_id, total_count, 'SOME_FAIL');
+      this.message += getAndNLS();
+      this.message += elementMessageFromNLS(rule_id, failed_count, 'CORRECTIVE_ACTION');
+    }
+    
+    if ((this.passed_count  >  0) && (failed_count  >  0) && (this.manual_checks_count  >  0)) {
+      this.message = elementMessageFromNLS(rule_id, total_count, 'SOME_FAIL');
+      this.message += getSoNLS();
+      this.message += elementMessageFromNLS(rule_id, failed_count, 'CORRECTIVE_ACTION');
+      this.message += getAndNLS();
+      this.message += elementMessageFromNLS(rule_id, this.manual_checks_count, 'MANUAL_CHECKS');
+    }
+    
+    if ((this.passed_count === 0) && (failed_count  >  0) && (this.manual_checks_count === 0)) {
+      this.message = elementMessageFromNLS(rule_id, total_count, 'ALL_FAIL');
+      this.message += getSoNLS();
+      this.message += elementMessageFromNLS(rule_id, failed_count, 'CORRECTIVE_ACTION');
+    }
+      
+    if ((this.passed_count === 0) && (failed_count  >  0) && (this.manual_checks_count  >  0)) {
+      this.message = elementMessageFromNLS(rule_id, total_count, 'ALL_FAIL');
+      this.message += getSoNLS();
+      this.message += elementMessageFromNLS(rule_id, failed_count, 'CORRECTIVE_ACTION');
+      this.message += getAndNLS();
+      this.message += elementMessageFromNLS(rule_id, this.manual_checks_count, 'MANUAL_CHECKS');
+    }  
+    
+    if ((total_count === 0) && (this.manual_checks_count === 0)) {
+      this.message = elementMessageFromNLS(rule_id, total_count, 'NOT_APPLICABLE');
+    }
+  }
+  else {
+    // Page Rule Messaging
+    
+    if ((this.passed_count === 0) && (failed_count === 0) && (this.manual_checks_count  >  0)) { 
+      this.message = pageMessageFromNLS(rule_id, 'MANUAL_CHECKS');
+    }
+    
+    if ((this.passed_count  >  0) && (failed_count === 0) && (this.manual_checks_count === 0)) {
+      this.message = pageMessageFromNLS(rule_id, 'ALL_PASS');
+    }
+    
+    if ((this.passed_count ===  0) && (failed_count > 0) && (this.manual_checks_count === 0)) {
+      this.message = pageMessageFromNLS(rule_id, 'ALL_FAIL');
+      this.message += getSoNLS();
+      this.message += elementMessageFromNLS(rule_id, failed_count, 'CORRECTIVE_ACTION');
+    }
+
+    if ((total_count === 0) && (this.manual_checks_count === 0)) {
+      this.message = pageMessageFromNLS(rule_id, total_count, 'NOT_APPLICABLE');
+    }
+
+  }
+  
+//  OpenAjax.a11y.logger.debug(" Passed: " + this.passed_count + " Violations: " + this.violations_count  + " Warnings: " + this.warnings_count + " Failed: " + failed_count  + " Manual Checks: " + this.manual_checks_count + " Message ID: " + this.message_id);
+  
+  if (!this.message || this.message.length === 0) return nls_rules.missing_message + this.message_id;
     
   var vstr; // i.e. %1, %2 ....
 
@@ -1123,7 +1300,7 @@ OpenAjax.a11y.RuleResult.prototype.getMessage = function () {
   
   var type;
   
-  if (message.indexOf("%RULE_TYPE") >= 0) {
+  if (this.message.indexOf("%RULE_TYPE") >= 0) {
     
     switch (this.rule_mapping.type) {
     case RULE.REQUIRED:
@@ -1139,35 +1316,26 @@ OpenAjax.a11y.RuleResult.prototype.getMessage = function () {
       break; 
     }
 
-    message = message.replaceAll("%RULE_TYPE", type);  
+    this.message = this.message.replaceAll("%RULE_TYPE", type);  
   }
   
   // Replace tokens with rule values
 
-  var plural = nls_rules.PLURAL;
+  this.message = this.message.replaceAll("%PER", this.implementation_percentage.toString());
+  
+  this.message = this.message.replaceAll("%N_F", failed_count.toString());
+  
+  this.message = this.message.replaceAll("%N_P", this.passed_count.toString());
+  
+  this.message = this.message.replaceAll("%N_T", total_count.toString() );
+  
+  this.message = this.message.replaceAll("%N_MC", this.manual_checks_count.toString());
+  
+  this.message = this.message.replaceAll("%N_H", this.hidden_count.toString());
 
-  message = message.replaceAll("%PER", this.implementation_percentage.toString());
-  
-  message = message.replaceAll("%N_F", failed_count.toString());
-  if (failed_count > 1) message = message.replaceAll("%ELEM_F", elem_plural);
-  else message = message.replaceAll("%ELEM_F", elem_singular);
-  
-  message = message.replaceAll("%N_P", this.passed_count.toString());
-  if (this.passed_count > 1) message = message.replace("%ELEM_P", elem_plural);
-  else message = message.replace("%ELEM_P", elem_singular);
-  
-  message = message.replaceAll("%N_T", total_count.toString() );
-  if (total_count > 1) message = message.replaceAll("%ELEM_T", elem_plural);
-  else message = message.replaceAll("%ELEM_T", elem_singular);
-  
-  message = message.replaceAll("%N_MC", this.manual_checks_count.toString());
-  if (this.manual_checks_count > 1) message = message.replaceAll("%ELEM_MC", elem_plural);
-  else message = message.replaceAll("%ELEM_MC", elem_singular);
-  
-  message = message.replaceAll("%N_H", this.hidden_count.toString());
+  this.message = OpenAjax.a11y.util.transformElementMarkup(this.message);
 
-  return OpenAjax.a11y.util.transformElementMarkup(message);
-  
+  return this.message;
 };
 
 /**
