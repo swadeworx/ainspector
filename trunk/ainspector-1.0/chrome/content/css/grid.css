@@ -30,7 +30,7 @@
     font-weight: normal;
     color: #000000; 
     font-size: medium;
-    background: #EEEEEE url(chrome://ainspector/skin/tableHeader.gif) repeat-x;
+    background: #EEEEEE url(chrome://firebug-a11y/skin/tableHeader.gif) repeat-x;
     white-space: nowrap; 
 }
 
@@ -46,29 +46,29 @@
 }
 
 .gridHeaderCell:hover:active {
-    background: #959595 url(chrome://ainspector/skin/tableHeaderActive.gif) repeat-x;
+    background: #959595 url(chrome://firebug-a11y/skin/tableHeaderActive.gif) repeat-x;
 }
 
 .gridHeaderCell:focus {
 	outline:none;
-  background: #959595 url(chrome://ainspector/skin/tableHeaderFocus.gif) bottom left repeat-x;
+  background: #959595 url(chrome://firebug-a11y/skin/tableHeaderFocus.gif) bottom left repeat-x;
 }
 
 .gridHeaderSorted {
-    background: #7D93B2 url(chrome://ainspector/skin/tableHeaderSorted.gif) repeat-x;
+    background: #7D93B2 url(chrome://firebug-a11y/skin/tableHeaderSorted.gif) repeat-x;
 }
 
 .gridHeaderSorted > .gridHeaderCellBox {
     border-right-color: #6B7C93;
-    background: url(chrome://ainspector/skin/arrowDown.png) no-repeat right;
+    background: url(chrome://firebug-a11y/skin/arrowDown.png) no-repeat right;
 }
 
 .gridHeaderSorted.sortedAscending > .gridHeaderCellBox {
-    background-image: url(chrome://ainspector/skin/arrowUp.png);
+    background-image: url(chrome://firebug-a11y/skin/arrowUp.png);
 }
 
 .gridHeaderSorted:hover:active {
-    background: #536B90 url(chrome://ainspector/skin/tableHeaderSortedActive.gif) repeat-x;
+    background: #536B90 url(chrome://firebug-a11y/skin/tableHeaderSortedActive.gif) repeat-x;
 }
 
 .gridCellSelected {

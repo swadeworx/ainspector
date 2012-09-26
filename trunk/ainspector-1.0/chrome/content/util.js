@@ -271,7 +271,7 @@ FBL.ns(function() { with (FBL) {
   
   /**
    * @function hasProperty
-   * 
+   * @memberOf AINSPECTOR_FB.ainspectorUtil
    * @desc 
    * 
    * @param {Array} elements
@@ -288,7 +288,11 @@ FBL.ns(function() { with (FBL) {
     return flag;
     },
     
-    colorToHex : function(color) {
+  /**
+   * @function colorToHex
+   * @memberOf AINSPECTOR_FB.ainspectorUtil
+   */
+  colorToHex : function(color) {
       if (color.substr(0, 1) === '#') {
         return color;
     }
@@ -305,6 +309,8 @@ FBL.ns(function() { with (FBL) {
       
     /**
      * @function truncateText
+     * 
+     * @memberOf AINSPECTOR_FB.ainspectorUtil
      * 
      * @desc
      * 
@@ -323,6 +329,7 @@ FBL.ns(function() { with (FBL) {
     
     /**
      * @function getFileName
+     * @memberOf AINSPECTOR_FB.ainspectorUtil
      * 
      * @desc retrive file name from the URL 
      * 
@@ -342,6 +349,7 @@ FBL.ns(function() { with (FBL) {
     
     /**
      * @function loadCSSToStylePanel
+     * @memberOf AINSPECTOR_FB.ainspectorUtil
      * 
      * @desc
      * 
@@ -349,15 +357,16 @@ FBL.ns(function() { with (FBL) {
      */
     loadCSSToStylePanel : function(document){
 
-    this.loadCSS("chrome://ainspector/content/css/ainspector-panel.css", document);
-      this.loadCSS("chrome://ainspector/content/css/fonts-min.css", document);
-      this.loadCSS("chrome://ainspector/content/css/tabview.css", document);
-      this.loadCSS("chrome://ainspector/content/css/allyGrade.css", document);
-      this.loadCSS("chrome://ainspector/content/css/grid.css", document); 
+    this.loadCSS("chrome://firebug-a11y/content/css/ainspector-panel.css", document);
+      this.loadCSS("chrome://firebug-a11y/content/css/fonts-min.css", document);
+      this.loadCSS("chrome://firebug-a11y/content/css/tabview.css", document);
+      this.loadCSS("chrome://firebug-a11y/content/css/allyGrade.css", document);
+      this.loadCSS("chrome://firebug-a11y/content/css/grid.css", document); 
     },
       
   /**
      * @function loadCSS
+     * @memberOf AINSPECTOR_FB.ainspectorUtil
      * 
      * @desc dynamically add a style sheet to the document.
      * 
@@ -382,6 +391,7 @@ FBL.ns(function() { with (FBL) {
 
     /**
      * @function AI_STR
+     * @memberOf AINSPECTOR_FB.ainspectorUtil
      * 
      * @desc
      * 
@@ -396,6 +406,7 @@ FBL.ns(function() { with (FBL) {
 
     /**
      * @function AI_STRF
+     * @memberOf AINSPECTOR_FB.ainspectorUtil
      * 
      * @desc
      * 
@@ -411,6 +422,7 @@ FBL.ns(function() { with (FBL) {
     
     /**
      * @function sortColumn
+     * @memberOf AINSPECTOR_FB.ainspectorUtil
      * 
      * @desc
      * 
@@ -434,6 +446,7 @@ FBL.ns(function() { with (FBL) {
 
     /**
      * @funstion sort
+     * @memberOf AINSPECTOR_FB.ainspectorUtil
      * 
      * @desc sort the table rows when clicked on header cell in all the views
      * 
@@ -504,6 +517,7 @@ FBL.ns(function() { with (FBL) {
     
     /**
      * @function setClass
+     * @memberOf AINSPECTOR_FB.ainspectorUtil
      * 
      * @desc
      * 

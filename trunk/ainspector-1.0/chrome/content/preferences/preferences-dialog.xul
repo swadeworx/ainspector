@@ -4,9 +4,9 @@
 <?xml-stylesheet href="chrome://global/skin/global.css"?>
 <?xml-stylesheet href="chrome://firebug/skin/customizeShortcuts.css" ?>
 
-<?xml-stylesheet href="chrome://preferences/skin/preferences-dialog.css" type="text/css"?>
+<?xml-stylesheet href="chrome://firebug-a11y-preferences/skin/preferences-dialog.css" type="text/css"?>
 
-<!DOCTYPE page SYSTEM "chrome://preferences/locale/preferences-dialog.dtd">
+<!DOCTYPE page SYSTEM "chrome://firebug-a11y-preferences/locale/preferences-dialog.dtd">
 
 <dialog xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul" 
   title="&pref_dialog.title;"
@@ -18,12 +18,12 @@
 
   <stringbundleset id="stringbundleset">
     <stringbundle id="ID_STRINGBUNDLE_PREFERENCES"
-      src="chrome://preferences/locale/preferences-config.properties"/>
+      src="chrome://firebug-a11y-preferences/locale/preferences-config.properties"/>
   </stringbundleset>
   
   <!-- EDIT: The following line may need to edited to the location of the openajax_a11y_all.js location -->
-  <script src="resource://utilities/logging.js"/>
-  <script src="resource://openajax/openajax_a11y_all.js"/>
+  <script src="resource://firebug-a11y-utilities/logging.js"/>
+  <script src="resource://firebug-a11y-openajax/openajax_a11y_all.js"/>
   <script src="preferences-config.js"/>
   <script src="preferences.js"/>
   <script src="preferences-dialog.js"/>

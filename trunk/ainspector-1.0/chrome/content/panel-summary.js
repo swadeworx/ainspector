@@ -41,12 +41,12 @@ with (FBL) {
      * 
      */
     viewPanel: function(context, panel_name, cache_object) {
-    
+    FBTrace.sysout("inside summary");
+
 //  adds or removes the side panels from the extension depending on the panel we are in 
     AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels("none");
     if (!context) context = Firebug.currentContext;
     if (!panel_name) panel_name = "AInspector";
-    FBTrace.sysout("inside summary");
     panel = context.getPanel(panel_name, true);
 
     if (!cache_object) {
@@ -72,8 +72,8 @@ with (FBL) {
     var toolbar = panel.document.createElement("div");
     toolbar.id = "toolbarDiv";
     
-    panel.table = AINSPECTOR_FB.summaryTemplate.header.replace({elements: rule_result_items, view: "All Rules"}, toolbar, AINSPECTOR_FB.summaryTemplate);
-    
+    panel.table = AINSPECTOR_FB.summary.summaryTemplate.header.replace({elements: rule_result_items, view: "All Rules"}, toolbar, AINSPECTOR_FB.summary.summaryTemplate);
+
     var element = panel.document.createElement("div");
     element.style.display = "block";
     
@@ -90,7 +90,7 @@ with (FBL) {
     }
   };
   
-  AINSPECTOR_FB.summaryTemplate = domplate({
+  AINSPECTOR_FB.summary.summaryTemplate = domplate({
     header :
       DIV({class: "main-panel"},
         
@@ -118,13 +118,13 @@ with (FBL) {
               TBODY({class: "tbody-scroll"},
                 FOR("object", "$elements|getMembers",
                   
-                  TR({class: "tableRow gridRow", role: "row", "aria-selected" : "$object.object|$AINSPECTOR_FB.toolbarUtil.getSelectedState", 
+                  TR({class: "tableRow gridRow", role: "row", "aria-selected" : "$object|$AINSPECTOR_FB.toolbarUtil.getSelectedState", 
                    tabindex: "$object.object|$AINSPECTOR_FB.toolbarUtil.getTabIndex", _repObject:"$object.rule_result_item", 
                     onfocus: "$AINSPECTOR_FB.flatListTemplateUtil.onFocus", onclick: "$highlightRule", 
                    ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
                   
                     TD({class: "gridCol gridOrderCol", id: "gridOrderCol", role: "gridcell"},
-                      DIV({class: "gridContent gridAlign"}, "$object.description")
+                      DIV({class: "gridContent gridAlign", title : "$object.description"}, "$object.description|AINSPECTOR_FB.ainspectorUtil.truncateText")
                     ),
                     TD({class: "gridCol gridElementCol", id: "gridElementCol", role: "gridcell"},
                       DIV({class: "gridContent resultAlign"}, "$object.required")
@@ -152,11 +152,25 @@ with (FBL) {
         strTagPass : DIV({class: "passMsgTxt"}, "$object.PEPR"), //$object.passed_count
         strTagWarn : DIV({class: "warnMsgTxt"}, "$object.PEPR"), //$object.warnings_count
 
-        
-        highlightRule : function(event){
+        /**
+         * @function highightRule
+         * 
+         * @desc gets the selected row in the grid to highlight.
+         *       Checks whether the 'Rule Information' button in the 'Elements' side panel is clicked. 
+         *       If the XUL window is already opened, updates the information of selected rule row. 
+         * 
+         * @param {Object} event - event triggered when row is selected in the Summary View grid
+         * 
+         */
+        highlightRule : function(event) {
     
           panel.selected_summary_row = Firebug.getRepObject(event.target);
           AINSPECTOR_FB.flatListTemplateUtil.highlightRow(event);
+          
+          if (AINSPECTOR_FB.rule_info_dialog) {
+            AINSPECTOR_FB.rule_info_dialog.rule_properties.update(panel.selected_summary_row.rule_result);
+            AINSPECTOR_FB.rule_info_dialog.focus();
+          }
         },
         
         /**
@@ -180,12 +194,14 @@ with (FBL) {
         /**
          * @function createMember
          * 
-         * @desc
+         * @desc creates a needed object to iterate in the domplate.
          * 
-         * @param
+         * @param {Number} iterator - incremental number
+         * @param {Object} rule_result_item - a single object with the rule results
+         * 
+         * @returns {Object} - to print on the Summary View
          */
         createMembers: function(iterator, rule_result_item) {
-          
           var description          = "no description";
           var wcag20_sc_level      = "";
           var required             = "";
@@ -193,9 +209,11 @@ with (FBL) {
           var implementation_percentage = null;
           var manual_check_count = 0;
           var rule_definition = rule_result_item.rule_result;
+          
+          FBTrace.sysout("rule_result_item: ", rule_result_item.rule_result.getMessage());
 
           if (rule_result_item.rule_result) {
-            description               = rule_result_item.rule_result.getRuleSummary();
+            description               = rule_result_item.rule_result.getMessage();
             required                 = (rule_result_item.rule_result.rule_mapping.type === OpenAjax.a11y.RULE.REQUIRED) ? 'Yes' : 'No';
             wcag20_sc_level          = rule_result_item.rule_result.rule.getNLSWCAG20Level();
             implementation_percentage     = rule_result_item.rule_result.implementation_percentage;
@@ -210,17 +228,19 @@ with (FBL) {
 
           }
           
-          var PEPR = implementation_percentage + '%';
-          
+          var PEPR = nls_implementation_level.label;
+
           if (nls_implementation_level.manual_check_count > 0)  manual_check_count = nls_implementation_level.manual_check_count;
           
           var implementation_percentage_tag = null;
           
-          if (implementation_percentage == '100') implementation_percentage_tag = this.strTagPass;
+          if (PEPR == '100%') implementation_percentage_tag = this.strTagPass;
           
-          else if (implementation_percentage <= '50' ) implementation_percentage_tag = this.strTagViolation;
+          else if (PEPR == '0%') implementation_percentage_tag = this.strTagViolation;
           
           else if (implementation_percentage > '50' && implementation_percentage < '100') implementation_percentage_tag = this.strTagWarn;
+          
+          else if (implementation_percentage <= '50' && implementation_percentage > '0') implementation_percentage_tag = this.strTagViolation;
           
           else implementation_percentage_tag = this.strTagStyle;
           

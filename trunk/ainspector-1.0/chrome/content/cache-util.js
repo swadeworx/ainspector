@@ -36,7 +36,7 @@ with (FBL) {
   AINSPECTOR_FB.rule_info_dialog = null;
   AINSPECTOR_FB.element_info_dialog = null;
 
-  Components.utils.import("resource://ainspector/highlight.js");
+  Components.utils.import("resource://firebug-a11y/highlight.js");
 
   /**
    * @namespace AINSPECTOR_FB.cacheUtil

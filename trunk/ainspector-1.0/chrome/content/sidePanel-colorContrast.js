@@ -60,13 +60,13 @@ FBL.ns(function() { with (FBL) {
     initializeNode: function(oldPanelNode) {
 
       appendStylesheet(this.panelNode.ownerDocument, "chrome://selectbug/skin/selectbug.css");
-      appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/ainspector-side-panel.css");
-      appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/userinterface.css");
-      appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/fonts-min.css");
-      appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/tabview.css");
-      appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/ainspector.css");
-      appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/allyGrade.css");
-      appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/grid.css");
+      appendStylesheet(this.panelNode.ownerDocument, "chrome://firebug-a11y/content/css/ainspector-side-panel.css");
+      appendStylesheet(this.panelNode.ownerDocument, "chrome://firebug-a11y/content/css/userinterface.css");
+      appendStylesheet(this.panelNode.ownerDocument, "chrome://firebug-a11y/content/css/fonts-min.css");
+      appendStylesheet(this.panelNode.ownerDocument, "chrome://firebug-a11y/content/css/tabview.css");
+      appendStylesheet(this.panelNode.ownerDocument, "chrome://firebug-a11y/content/css/ainspector.css");
+      appendStylesheet(this.panelNode.ownerDocument, "chrome://firebug-a11y/content/css/allyGrade.css");
+      appendStylesheet(this.panelNode.ownerDocument, "chrome://firebug-a11y/content/css/grid.css");
 
       this.setSelection = bind(this.setSelection, this);
       this.onKeyPress = bind(this.onKeyPress, this);
@@ -488,7 +488,7 @@ FBL.ns(function() { with (FBL) {
            }
          }
 
-         window.openDialog("chrome://ainspector/content/rule_properties/rule-properties.xul", "_rule_properties_dialog", "chrome,contentscreen,resizable=yes", row.repObject.rule_result); 
+         window.openDialog("chrome://firebug-a11y/content/rule_properties/rule-properties.xul", "_rule_properties_dialog", "chrome,contentscreen,resizable=yes", row.repObject.rule_result); 
        },
        
        getElementInformation : function(event) {
@@ -528,7 +528,7 @@ FBL.ns(function() { with (FBL) {
          }
 
 //         FBTrace.sysout("row: ", row.repObject);
-         window.openDialog("chrome://ainspector/content/item_properties/cache-item-properties.xul", "cache_item_properties_dialog", "chrome,contentscreen,resizable=yes", row.repObject);
+         window.openDialog("chrome://firebug-a11y/content/item_properties/cache-item-properties.xul", "cache_item_properties_dialog", "chrome,contentscreen,resizable=yes", row.repObject);
       
        }
   });
