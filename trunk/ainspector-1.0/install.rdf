@@ -5,7 +5,7 @@
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>firebug-a11y@cita.illinois.edu</em:id>
-    <em:version>0.93-alpha</em:version>   
+    <em:version>0.94-alpha</em:version>   
     <em:type>2</em:type>
     <em:optionsURL>chrome://firebug-a11y/content/preferences/preferences-dialog.xul </em:optionsURL>
    
@@ -15,7 +15,7 @@
       <Description>
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
         <em:minVersion>3.5</em:minVersion>
-        <em:maxVersion>14.*</em:maxVersion>
+        <em:maxVersion>20.*</em:maxVersion>
       </Description>
     </em:targetApplication>
    
