@@ -147,6 +147,9 @@ FBL.ns(function() { with (FBL) {
       /* whether or not we display ainspector we still need to save the selected view */
       var toolbar_button_id = this.getToolbarButtonSelected(Firebug.chrome.$("fbFirebugExtensionButtons").children);
       FBTrace.sysout("Firebug.ainspectorModule.showPanel() - selected toolbarbutton: ", toolbar_button_id);
+      FBTrace.sysout("Firebug.ainspectorModule.showPanel() - window.AINSPECTOR_FB: ", window.AINSPECTOR_FB);
+      FBTrace.sysout("Firebug.ainspectorModule.showPanel() -  panel_name: " + panel_name);
+      FBTrace.sysout("Firebug.ainspectorModule.showPanel() -  panel_name: " + panel_name);
 
       window.AINSPECTOR_FB[toolbar_button_id].viewPanel(Firebug.currentContext, panel_name, AINSPECTOR_FB.cacheUtil.updateCache());
 

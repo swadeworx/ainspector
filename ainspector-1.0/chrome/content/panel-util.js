@@ -20,7 +20,7 @@ FBL.ns(function() { with (FBL) {
     var Cu = Components.utils; 
 
     try {
-      AINSPECTOR_FB.highlightModule = Cu["import"]("resource://ainspector/highlight.js");
+      AINSPECTOR_FB.highlightModule = Cu["import"]("resource://firebug-a11y/highlight.js");
       OAA_WEB_ACCESSIBILITY.util.highlightModule.initHighlight(window.content.document);
 
     } catch (error) {
@@ -489,22 +489,34 @@ AINSPECTOR_FB.flatListTemplateUtil = {
   onFocus : function(event) {
 
     var event_target = event.target;
-
+    var repObject = Firebug.getRepObject(event.target); 
+      
     if (!event_target) return;
       
     var category = getClassValue(event_target, "tableRowView");
     var table_rows = getAncestorByClass(event_target, "gridRow");
-      
+    FBTrace.sysout("table_rows: ", table_rows);  
     if (table_rows) {
       var old_row = getElementByClass(table_rows, "selected");
 
       if (old_row) {
         old_row.setAttribute("aria-selected", "false");
+        old_row.setAttribute("aria-label", "null");
         old_row.setAttribute("tabindex", "-1");
         removeClass(old_row, "selected");
      }
     }
-
+    
+    //Summary Panel
+    if (repObject.rule_result){
+      var rule = repObject.rule_result.rule.getNLSRuleId() + ': ' + repObject.rule_result.getRuleSummary();
+      var resutlt = rule + 'with WCAG level' + repObject.rule_result.rule.getNLSWCAG20Level() + 'and' + repObject.getImplementationLevel() + '% of elements are passed the rule';
+      event_target.setAttribute("aria-label", rule);
+    } else {
+      var element = 'element' + repObject.cache_item.toString()+ repObject.violations_count + 'violations and'+ repObject.warnings_count + 'warnings'; 
+      event_target.setAttribute("aria-label", element);
+    }
+    
     event_target.setAttribute("aria-selected", "true");
     event_target.setAttribute("tabindex", "0");
     setClass(event_target, "selected");

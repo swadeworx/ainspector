@@ -32,7 +32,7 @@ Firebug.preferenceModule = extend(Firebug.Module, {
 	 */
 	viewPanel : function() {
 	  
-	  window.openDialog("chrome://ainspector/content/preferences/preferences-dialog.xul", "", "chrome,centerscreen,resizable=yes", "");
+	  window.openDialog("chrome://firebug-a11y/content/preferences/preferences-dialog.xul", "", "chrome,centerscreen,resizable=yes", "");
 
 	}
 });

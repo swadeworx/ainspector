@@ -1,42 +1,42 @@
 <?xml version="1.0"?>
-<!DOCTYPE ainspector SYSTEM "chrome://ainspector/locale/ainspector.dtd">
+<!DOCTYPE firebug-a11y SYSTEM "chrome://firebug-a11y/locale/ainspector.dtd">
 
 <overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"> 
   
   <stringbundleset id="stringbundleset">
-    <stringbundle id="ainspector_stringbundle" src="chrome://ainspector/locale/ainspector.properties"/>
-    <stringbundle id="ainspector_stringbundle1" src="chrome://ainspector/locale/all-properties.properties"/>
+    <stringbundle id="ainspector_stringbundle" src="chrome://firebug-a11y/locale/ainspector.properties"/>
+    <stringbundle id="ainspector_stringbundle1" src="chrome://firebug-a11y/locale/all-properties.properties"/>
   </stringbundleset>
   
-  <script type="application/x-javascript" src="chrome://ainspector/content/cache-util.js"/>
-  <script type="application/x-javascript" src="chrome://ainspector/content/panel-list-template.js"/>
-  <script type="application/x-javascript" src="chrome://ainspector/content/panel-tree-template.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/cache-util.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-list-template.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-tree-template.js"/>
   
-  <script type="application/x-javascript" src="chrome://ainspector/content/panel-summary.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-summary.js"/>
   
-  <script type="application/x-javascript" src="chrome://ainspector/content/panel-rule-categories.js"/>
-  <script type="application/x-javascript" src="chrome://ainspector/content/panel-colorContrast.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-rule-categories.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-colorContrast.js"/>
   
-  <script type="application/x-javascript" src="chrome://ainspector/content/utilities/logging.js"/>
-  <script type="application/x-javascript" src="chrome://ainspector/content/openajax_a11y/openajax_a11y_all.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/utilities/logging.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/openajax_a11y/openajax_a11y_all.js"/>
   
-  <script type="application/x-javascript" src="chrome://ainspector/content/panel-preferences.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-preferences.js"/>
   
-  <script type="application/x-javascript" src="chrome://ainspector/content/preferences-config.js"/>
-  <script type="application/x-javascript" src="chrome://ainspector/content/preferences/preferences.js"/>
-  <script type="application/x-javascript" src="chrome://ainspector/content/preferences/preferences-dialog.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/preferences-config.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/preferences/preferences.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/preferences/preferences-dialog.js"/>
   
   
-  <script type="application/x-javascript" src="chrome://ainspector/content/rule_properties/rule-properties.js"/>
-  <script type="application/x-javascript" src="chrome://ainspector/content/item_properties/cache-item-properties.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/rule_properties/rule-properties.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/item_properties/cache-item-properties.js"/>
   
-  <script type="application/x-javascript" src="chrome://ainspector/modules/highlight.js"/>
-  <script type="application/x-javascript" src="chrome://ainspector/content/util.js"/>
-  <script type="application/x-javascript" src="chrome://ainspector/content/panel-util.js"/>
-  <script type="application/x-javascript" src="chrome://ainspector/content/ainspector-firebug.js"/>
-  <script type="application/x-javascript" src="chrome://ainspector/content/sidePanel-rules.js"/>
-  <script type="application/x-javascript" src="chrome://ainspector/content/sidePanel-colorContrast.js"/>  
-  <script type="application/x-javascript" src="chrome://ainspector/content/sidePanel-elements.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/modules/highlight.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/util.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-util.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/ainspector-firebug.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/sidePanel-rules.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/sidePanel-colorContrast.js"/>  
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/sidePanel-elements.js"/>
   
   
   <commandset id="mainCommandSet"> 

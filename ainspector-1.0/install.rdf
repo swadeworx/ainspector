@@ -4,10 +4,10 @@
      xmlns:em="http://www.mozilla.org/2004/em-rdf#">
 
   <Description about="urn:mozilla:install-manifest">
-    <em:id>ainspector@cita.illinois.edu</em:id>
+    <em:id>firebug-a11y@cita.illinois.edu</em:id>
     <em:version>0.93-alpha</em:version>   
     <em:type>2</em:type>
-    <em:optionsURL>chrome://ainspector/content/preferences/preferences-dialog.xul </em:optionsURL>
+    <em:optionsURL>chrome://firebug-a11y/content/preferences/preferences-dialog.xul </em:optionsURL>
    
     <!-- Target Application this extension can install into, 
          with minimum and maximum supported versions. --> 
