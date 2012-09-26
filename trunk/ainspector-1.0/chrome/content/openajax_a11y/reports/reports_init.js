@@ -22,11 +22,17 @@
  * Initialize css and scripts for report files
  */
  
-OpenAjax.a11y.reportCSS = '  <style type="text/css">\n  <!-- Not initialized --> \n  </style>\n';
-OpenAjax.a11y.reportJS  = '  <script type="text/javascript">\n  <!-- Not initialized --> \n  </script>\n';
+OpenAjax.a11y.reportCSS            = '  <style type="text/css">\n  <!-- Not initialized --> \n  </style>\n';
+OpenAjax.a11y.reportJS             = '  <script type="text/javascript">\n  <!-- Not initialized --> \n  </script>\n';
 OpenAjax.a11y.reportBodyCacheItems = '  <body>\n  <!-- Not initialized --> \n  </body>\n';
+OpenAjax.a11y.ruleExportBody       = '  <body>\n  <!-- Not initialized --> \n  </body>\n';
+OpenAjax.a11y.ruleExportJS         = '  <script type="text/javascript">\n  <!-- Not initialized --> \n  </script>\n';
 
 // This initialized some strings for use by reports
+/*
 OpenAjax.a11y.reportCSS            = OpenAjax.a11y.util.initStringUsingURL('resource://report10/oaa-report.css');
 OpenAjax.a11y.reportJS             = OpenAjax.a11y.util.initStringUsingURL('resource://report10/oaa-report.js');
 OpenAjax.a11y.reportBodyCacheItems = OpenAjax.a11y.util.initStringUsingURL('resource://report10/oaa-report-body-cache-items.inc');
+OpenAjax.a11y.ruleExportBody       = OpenAjax.a11y.util.initStringUsingURL('resource://report10/oaa-rule-export-body.inc');
+OpenAjax.a11y.ruleExportJS         = OpenAjax.a11y.util.initStringUsingURL('resource://report10/oaa-rule-export.js');
+*/

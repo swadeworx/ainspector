@@ -35,6 +35,7 @@ rules/rules_controls.js \
 rules/rules_images.js \
 rules/rules_headings_landmarks.js \
 rules/rules_title_main.js \
+rules/rules_links.js \
 rulesets/wcag20_aria_transitional_ruleset.js \
 rulesets/wcag20_aria_strict_ruleset.js > openajax_a11y_all.js
 

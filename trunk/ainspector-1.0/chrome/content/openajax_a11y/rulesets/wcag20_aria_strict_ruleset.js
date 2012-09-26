@@ -149,6 +149,26 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        type     : OpenAjax.a11y.RULE.REQUIRED,
        enabled  : true
      },
+   LINK_1 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       enabled  : true
+     },
+   LINK_2 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       enabled  : true
+     },
+   LINK_3 : {
+       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       enabled  : true
+     },
+   LINK_4 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       enabled  : true
+     },
+   TABLE_1 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       enabled  : true
+     },
    TITLE_1 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
        enabled  : true

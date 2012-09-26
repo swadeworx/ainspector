@@ -1633,6 +1633,34 @@ OpenAjax.a11y.util.removeEscapesFromJSON = function(str) {
   return str;  
 };
 
+/**
+ * @function getFormattedDate
+ *
+ * @desc Returns a fomratted string (YYYY-MM-DD) represeting the current date
+ *       with leading zeros
+ *
+ * @return {String}  Formatted date string
+ */
+ 
+OpenAjax.a11y.util.getFormattedDate = function(str) {
+
+  function leadingZero(n) {
+    var n1 = n.toString();
+    if (n < 10) n1 = "0" + n;
+    return n1;
+  }
+
+  var date = new Date();
+  
+  var y = date.getFullYear();
+  var m = date.getMonth() + 1;
+  var d = date.getDate();
+  var hours = date.getHours() + 1;
+  var minutes = date.getMinutes() + 1;
+
+  return y + "-" + leadingZero(m) + "-" + leadingZero(d) + ":" + leadingZero(hours)+ ":" + leadingZero(minutes);
+
+};
 
 
 /**
@@ -1648,7 +1676,7 @@ OpenAjax.a11y.util.initStringUsingURL = function(url) {
 
   var xmlhttp = new XMLHttpRequest();
 
-//  OpenAjax.a11y.logger.debug( "REQUESTING URL: " + url);
+  OpenAjax.a11y.logger.debug( "REQUESTING URL: " + url);
 
   xmlhttp.open("GET", url, false);
   xmlhttp.send(null); 
@@ -7548,6 +7576,9 @@ OpenAjax.a11y.cache.DOMText.prototype.toString = function(option) {
  * @property {Array}      aria_properties     - Arrary of property name and value objects for any attribute 
  *                                              beginning with 'aria-'
  *
+ * @property {String}     calculated_aria_description  - If aria-describedby defined this is a string of the 
+ *                                                       description content 
+ *
  * @property {Boolean}    is_widget           - True if element is a ARIA widget, otherwise false
  * @property {Boolean}    is_landmark         - True if element is a ARIA landmark, otherwise false
  * @property {Boolean}    is_live             - True if element is a ARIA live region, otherwise false
@@ -9164,10 +9195,49 @@ OpenAjax.a11y.cache.DOMCache.prototype.calculateDescriptions = function () {
   for (var i = 0; i < dom_elements_len; i++ ) {
     de = dom_elements[i];
     
-    if (de.aria_describedby) {
+    if (de.aria_describedby === 'string' && !de.calculated_aria_description) {
       de.calculated_aria_description = this.getTextFromIDs(de.aria_describedby);  
     }
   }
+};
+
+/**
+ * @method getNameForLink
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMCache
+ *
+ * @desc Calculates a computed accessible name for a link, using ARIA properties if defined
+ *
+ * @param {LinkElement} link - Link element object
+ */
+
+OpenAjax.a11y.cache.DOMCache.prototype.getNameForLink = function (link) {
+
+  var SOURCE = OpenAjax.a11y.SOURCE;
+
+  var computed_label = "";
+  var computed_label_source = SOURCE.NONE;
+  var de = link.dom_element;
+  
+  if (de.aria_labelledby) {
+    computed_label = this.element_with_id_cache.getTextFromIds(de.aria_labelledby);
+    computed_label_source = SOURCE.ARIA_LABELLEDBY;
+  }
+  else if (de.aria_label) {
+    computed_label = de.aria_label;
+    computed_label_source = SOURCE.ARIA_LABEL;
+  }
+  else {
+    computed_label = de.getText();
+    computed_label_source = SOURCE.TEXT_CONTENT;
+  } 
+
+  link.accessible_name                = computed_label;
+  link.accessible_name_for_comparison = computed_label.toLowerCase().normalizeSpace();
+  link.accessible_name_length         = computed_label.length;
+  link.accessible_name_source         = computed_label_source;
+
+  this.getDescriptionFromARIADescribedby(link);
 };
 
 /**
@@ -9226,13 +9296,16 @@ OpenAjax.a11y.cache.DOMCache.prototype.getNameFromARIALabel = function (control)
 
 OpenAjax.a11y.cache.DOMCache.prototype.getDescriptionFromARIADescribedby = function (element) {
 
-  var de = element.dom_element;
+  var de = element.dom_element;  
+  if (typeof de !== 'object') de = element;
   
-  if (de.aria_describedby) {
+  if (de && de.aria_describedby) {
     element.accessible_description = this.element_with_id_cache.getTextFromIds(de.aria_describedby);
+    element.accessible_description_for_comparison = element.accessible_description.toLowerCase().normalizeSpace();
   }
   else {
     element.accessible_description = "";  
+    element.accessible_description_for_comparison = "";
   }
   
 };
@@ -12484,9 +12557,6 @@ OpenAjax.a11y.cache.LanguageItem.prototype.toString = function () {
  * @property {Array}    links_sorted_by_href  - List of link element object sorted by href values;
  * @property {Array}    links_sorted_by_name  - List of link element object sorted by there accessible name (i.e link text);
  *  
- * @property {Array}    duplicate_name_items  - List of duplicate name object
- * @property {Array}    duplicate_href_items  - List of duplicate href objects
- *
  * @property {ResultRuleSummary}  rule_summary_result  - Rule results associated with this cache
  */
 
@@ -12498,40 +12568,23 @@ OpenAjax.a11y.cache.LinksCache = function (dom_cache) {
   this.area_elements = [];
   this.link_elements = [];
   this.length = 0;
-  
+
   this.links_sorted_by_href = [];
   this.links_sorted_by_name = [];
-  
-  this.duplicate_name_items = [];
-  this.duplicate_href_items = [];
-  
-  this.sort_property = 'document_order';
-  this.sort_ascending = true;
   
 }; 
 
 /**
- * @method checkForDuplicateNAME
+ * @method addToSortedByNameList
  * 
  * @memberOf OpenAjax.a11y.cache.LinksCache
  *
- * @desc Checks for duplicate link names, if a duplicate is founds adds it to the list of duplicate accessible names
+ * @desc Maintains a list of link elements sorted by accessible name property
  *
- * @param {LinkElement} link_element  - link_element object to check 
+ * @param {LinkElement} link_element  - link element object to check 
  */
 
-OpenAjax.a11y.cache.LinksCache.prototype.checkForDuplicateName = function (link_element) {
-
-  if (!link_element.name_for_comparison || link_element.name_for_comparison.length === 0) return;
-
-  var i;
-  var j;
-  var count;
-  var index_bottom;
-  var index_top;
-
-  var le;
-  var dn;
+OpenAjax.a11y.cache.LinksCache.prototype.addToSortedByNameList = function (link_element) {
 
   var links_sorted_by_name     = this.links_sorted_by_name;
   var links_sorted_by_name_len = links_sorted_by_name.length;
@@ -12541,15 +12594,67 @@ OpenAjax.a11y.cache.LinksCache.prototype.checkForDuplicateName = function (link_
     return;
   }
   
-  index_bottom = 0;
-  index_top = links_sorted_by_name_len - 1;
-  j = Math.round(index_top / 2);
-  count = links_sorted_by_name_len;
+  var index_bottom = 0;
+  var index_top = links_sorted_by_name_len - 1;
+  var j = Math.round(index_top / 2);
+  var count = links_sorted_by_name_len;
 
   while (count > 0) {
     le = links_sorted_by_name[j];
     
-    if (link_element.name_for_comparison === le.name_for_comparison) {
+    if (link_element.accessible_name_for_comparison === le.accessible_name_for_comparison) {
+      break;
+    }
+    else {
+      count = count / 2;
+      if (link_element.accessible_name_for_comparison < le.accessible_name_for_comparison) {
+        index_top = j;
+        j = Math.round((index_top + index_bottom)/2);    
+      }
+      else {
+        index_bottom = j;
+        j = Math.round((index_top + index_bottom)/2);    
+      }      
+    }
+  }  
+
+  for (var i = links_sorted_by_name_len; i > j; i--) {  
+    links_sorted_by_name[i] = links_sorted_by_name[i-1];
+  }
+
+  links_sorted_by_name[j] = link_element;
+  
+};
+
+/**
+ * @method addToSortedByHREFList
+ * 
+ * @memberOf OpenAjax.a11y.cache.LinksCache
+ *
+ * @desc Maintains a list of link elements sorted by accessible name property
+ *
+ * @param {LinkElement} link_element  - link element object to check 
+ */
+
+OpenAjax.a11y.cache.LinksCache.prototype.addToSortedByHREFList = function (link_element) {
+
+  var links_sorted_by_href     = this.links_sorted_by_href;
+  var links_sorted_by_href_len = links_sorted_by_href.length;
+
+  if (links_sorted_by_href_len === 0) {
+    this.links_sorted_by_href.push(link_element);
+    return;
+  }
+  
+  var index_bottom = 0;
+  var index_top = links_sorted_by_href_len - 1;
+  var j = Math.round(index_top / 2);
+  var count = links_sorted_by_href_len;
+
+  while (count > 0) {
+    le = links_sorted_by_href[j];
+    
+    if (link_element.href === le.href) {
       break;
     }
     else {
@@ -12565,198 +12670,12 @@ OpenAjax.a11y.cache.LinksCache.prototype.checkForDuplicateName = function (link_
     }
   }  
 
-  le = links_sorted_by_name[j];
-    
-  if (link_element.name_for_comparison === le.name_for_comparison) {
-  
-    dn = this.getDuplicateNameByName(link_element.name_for_comparison);
-
-    if (dn) {
-      dn.addLinkElement(link_element);
-    }
-    else {
-      // Add duplciate HREF object
-      dn = new OpenAjax.a11y.cache.DuplicateNameItem(link_element.name, link_element.name_for_comparison);
-      dn.addLinkElement(links_sorted_by_name[j]);
-      dn.addLinkElement(link_element);
-      this.duplicate_name_items.push(dn);
-    }  
-  }
-  else {
-    if (link_element.name_for_comparison < le.name_for_comparison) {
-      this.links_sorted_by_name.splice(j,0,link_element);
-    }
-    else {
-      this.links_sorted_by_name.splice(j+1,0,link_element);
-    }
-  }
-  
-};
-
-/**
- * @method checkForDuplicateHREF
- * 
- * @memberOf OpenAjax.a11y.cache.LinksCache
- *
- * @desc Checks for duplicate link href, if a duplicate is founds adds it to the list of duplicate hrefs
- *
- * @param {LinkElement}  link_element  - Link element object to check 
- */
-
-OpenAjax.a11y.cache.LinksCache.prototype.checkForDuplicateHREF = function (link_element) {
-
-  if (!link_element.href || link_element.href.length === 0) return;
-
-  var i;
-  var j;
-  var count;
-  var index_bottom;
-  var index_top;
-  
-  var le;
-  var dh;
-
-  var link_elements     = this.link_elements;
-  var link_elements_len = link_elements.length;
-
-  // check duplicate name list first
-  
-  var duplicate_href_items     = this.duplicate_href_items;
-  var duplicate_href_items_len = duplicate_href_items.length;
-
-  for (i = 0; i < duplicate_href_items_len; i++) {
-    dh = duplicate_href_items[i];
-    
-    if (link_element.href.length && 
-        link_element.href == dh.href) {
-        dh.addLinkElement(link_element);
-        return;
-    } 
-  
-  } // end loop
-
-  var links_sorted_by_href     = this.links_sorted_by_href;
-  var links_sorted_by_href_len = links_sorted_by_href.length;
-
-  if (links_sorted_by_href_len === 0) {
-    this.links_sorted_by_href.push(link_element);
-    return;
+  for (var i = links_sorted_by_href_len; i > j; i--) {  
+    links_sorted_by_href[i] = links_sorted_by_href[i-1];
   }
 
-  index_bottom = 0;
-  index_top = links_sorted_by_href_len-1;
-  j = Math.floor(index_top/2);
-  count = links_sorted_by_href_len;
-
-  while (count > 0) {
+  links_sorted_by_href[j] = link_element;
   
-    le = links_sorted_by_href[j];
-
-    if (link_element.href === le.href) {
-      break;
-    }
-    else {
-      count = Math.floor(count / 2);
-      if (link_element.href < le.href) {
-        index_top = j;
-        j = Math.floor((index_top + index_bottom)/2);
-      }
-      else {
-        index_bottom = j;
-        j = Math.round((index_top + index_bottom)/2);    
-      }
-    }
-  }
-
-  le = links_sorted_by_href[j];
-    
-  if (link_element.href === le.href) {
-  
-    dh = this.getDuplicateHREFByHREF(link_element.href);
-    
-    if (dh) {
-      dh.addLinkElement(link_element);
-    }
-    else {
-      // Add duplciate HREF object
-      dh = new OpenAjax.a11y.cache.DuplicateHREFItem(link_element.href);
-      dh.addLinkElement(links_sorted_by_href[j]);
-      dh.addLinkElement(link_element);
-      this.duplicate_href_items.push(dh);
-    }  
-  }
-  else {
-    if (link_element.href < le.href) {
-      this.links_sorted_by_href.splice(j, 0, link_element);
-    }
-    else {
-      this.links_sorted_by_href.splice((j+1), 0, link_element);
-    }
-  }
-  return;
-
-};
-
-/**
- * @method getDuplicateHREFByHREF
- * 
- * @memberOf OpenAjax.a11y.cache.LinksCache
- *
- * @desc Gets a duplicate href item by the href value
- *
- * @param {String}  href   -  href value to be found
- *
- * @return {DuplicateHREFItem}  Returns duplicate href item if found, otherwise null
- */
-
-OpenAjax.a11y.cache.LinksCache.prototype.getDuplicateHREFByHREF = function (href) {
-
-  var i;
-  var dh;
-  
-  var duplicate_href_items     = this.duplicate_href_items;
-  var duplicate_href_items_len = duplicate_href_items.length;
-
-  if (href) {
-    for (i = 0; i < duplicate_href_items_len; i++) {
-      dh = duplicate_href_items[i];
-      if (dh.href === href) return dh;
-    } // end loop
-  } 
-
-  return null;
-
-};
-
-/**
- * @method getDuplicateNameByName
- * 
- * @memberOf OpenAjax.a11y.cache.LinksCache
- *
- * @desc Gets a duplicate accessible name item
- *
- * @param {String}  name   -  accessible name to be found
- *
- * @return {DuplicateNameItem}  Returns duplicate accessible name item if found, otherwise null
- */
-
-OpenAjax.a11y.cache.LinksCache.prototype.getDuplicateNameByName = function (name) {
-
-  var i;
-  var dn;
-  
-  var duplicate_name_items     = this.duplicate_name_items;
-  var duplicate_name_items_len = duplicate_name_items.length;
-
-  if (name) {
-    for (i = 0; i < duplicate_name_items_len; i++) {
-      dh = duplicate_name_items[i];
-      if (dh.name_for_comparison === name) return dh;
-    } // end loop
-  } 
-
-  return null;
-
 };
 
 
@@ -12777,8 +12696,8 @@ OpenAjax.a11y.cache.LinksCache.prototype.addLinkElement = function (link_element
 
   // item must exist and have the position property
   if (link_element) {
-    this.checkForDuplicateHREF(link_element);
-    this.checkForDuplicateName(link_element);
+    this.addToSortedByHREFList(link_element);
+    this.addToSortedByNameList(link_element);
 
     this.length = this.length + 1;
     link_element.cache_id = "link_" + this.length; 
@@ -12871,9 +12790,13 @@ OpenAjax.a11y.cache.LinksCache.prototype.updateCacheItems = function (dom_elemen
   var link_element;
 
   if ((dom_element.tag_name == 'a') ||
-      (dom_element.tag_name == 'area')) {
+      (dom_element.tag_name == 'area') ||
+      (dom_element.role == 'link')) {
 
     link_element = new OpenAjax.a11y.cache.LinkElement(dom_element);    
+    
+    this.dom_cache.getNameForLink(link_element);
+    
     this.dom_cache.links_cache.addLinkElement(link_element);
   }
    
@@ -13007,7 +12930,7 @@ OpenAjax.a11y.cache.LinksCache.prototype.sortLinkElements = function(property, a
  *
  * @desc Creates link element object representing information related to an a or area element on a web page
  *
- * @param  {DOMelement}   dom_element   - The dom element object representing the a or area element 
+ * @param  {DOMElement}   dom_element   - The dom element object representing the a or area element 
  *
  * @property  {DOMElement}  dom_element     - Reference to the dom element representing the a or area element
  * @property  {String}      cache_id        - String that uniquely identifies the cache element object in the cache
@@ -13022,19 +12945,12 @@ OpenAjax.a11y.cache.LinksCache.prototype.sortLinkElements = function(property, a
  *
  * @property  {String}   name                  - Calculated accessible name of the link 
  * @property  {String}   name_for_comparison   - Accessible name for comparison (i.e. lowercase, trimmed and space normalized)
- * @property  {String}   name_from_text_nodes  - Accessible name content from text nodes
- * @property  {String}   name_from_image_alt   - Accessible name content from alt content of images
- * @property  {Number}   image_count           - Number of images that are descendents of the link
- * @property  {Boolean}  text_only_from_image  - true if accessble name is onky from an image, otherwise false 
  *  
  * @property  {Number}   height  - Height of the link in pixels
  * @property  {Number}   width   - Width of the link in pixels
  */
  
 OpenAjax.a11y.cache.LinkElement = function (dom_element) {
-
-  var ano;
-  var href = dom_element.node.href;
 
   function getTypeOfLink(href, name) {
   
@@ -13088,9 +13004,15 @@ OpenAjax.a11y.cache.LinkElement = function (dom_element) {
 
   if (!dom_element.node) return;
 
+  var href = dom_element.node.href;
+
+  if (dom_element.role === 'link' && href !== 'string') href = "javascript:onclick";
+
   this.dom_element    = dom_element;
   this.cache_id       = "";
   this.document_order = 0;
+  
+  this.role = dom_element.role;
  
   this.href  = href;
   this.is_url = testIfHrefIsURL(href);
@@ -13110,17 +13032,10 @@ OpenAjax.a11y.cache.LinkElement = function (dom_element) {
 
   this.target  = dom_element.node.getAttribute("target");
 
-  ano = dom_element.getTextObject();
-  
-  this.name          = ano.name;
-  this.name_for_comparison  = ano.name.toLowerCase();
-  this.name_from_text_nodes  = ano.name_from_text_nodes;
-  this.name_from_image_alt  = ano.name_from_image_alt;
-  this.image_count      = ano.image_count;
-  this.text_only_from_image  = (ano.name_from_text_nodes.length === 0) && (ano.name_from_image_alt.length > 0);
-  
   this.height   = parseInt(dom_element.node.offsetHeight, 10);
   this.width   = parseInt(dom_element.node.offsetWidth, 10);
+  
+  var ano = dom_element.getTextObject();
    
   // If the link is an image, use the image height and width
   if ((this.height === 0) && 
@@ -13209,12 +13124,10 @@ OpenAjax.a11y.cache.LinkElement.prototype.getCacheProperties = function (unsorte
 
   var properties = this.dom_element.getCacheProperties(unsorted);
 
-  cache_nls.addPropertyIfDefined(properties, this, 'name');
-  cache_nls.addPropertyIfDefined(properties, this, 'name_for_comparison');
-  cache_nls.addPropertyIfDefined(properties, this, 'name_from_text_nodes');
-  cache_nls.addPropertyIfDefined(properties, this, 'name_from_image_alt');
-  cache_nls.addPropertyIfDefined(properties, this, 'image_count');
-  cache_nls.addPropertyIfDefined(properties, this, 'text_only_from_image');
+  cache_nls.addPropertyIfDefined(properties, this, 'accessible_name');
+  cache_nls.addPropertyIfDefined(properties, this, 'accessible_name_for_comparison');
+  cache_nls.addPropertyIfDefined(properties, this, 'accessible_description');
+  cache_nls.addPropertyIfDefined(properties, this, 'accessible_description_for_comparison');
 
   cache_nls.addPropertyIfDefined(properties, this, 'is_broken');
   cache_nls.addPropertyIfDefined(properties, this, 'is_url');
@@ -13292,7 +13205,16 @@ OpenAjax.a11y.cache.LinkElement.prototype.getLinkType = function () {
  */
  
  OpenAjax.a11y.cache.LinkElement.prototype.toString = function () {
-   return this.dom_element.tag_name + " : " + this.name;
+  
+   var str = "";
+   
+   if ((this.dom_element.tag_name === 'a') || (this.dom_element.tag_name === 'area')) {
+     str = this.dom_element.tag_name + " : " + this.accessible_name; 
+   }
+   else {
+     str = this.dom_element.tag_name + "[role='link']: " + this.accessible_name;    
+   }
+   return str;
  };
 
 
@@ -13318,8 +13240,8 @@ OpenAjax.a11y.cache.LinkElement.prototype.getLinkType = function () {
 
 OpenAjax.a11y.cache.DuplicateNameItem = function (name, name_for_comparison) {
 
-  this.name                = name;
-  this.name_for_comparison = name_for_comparison;
+  this.accessible_name                = name;
+  this.accessible_name_for_comparison = name_for_comparison;
   this.link_elements = [];
 
 };
@@ -15025,7 +14947,7 @@ OpenAjax.a11y.cache.MediaElement.prototype.getEvents = function () {
  * @property  {String}  visibility  - Computed value of the CSS 'visibility' property
  *
  * @property  {Number}  is_visible_onscreen   - Constant representing the graphical visibility of the element (i.e is it visible to people with sight)
- * @property  {Number}  is_visible_at         - Constant representing the assistive technology visibility of the element (i.e is it visible to people using a screen reader)
+ * @property  {Number}  is_visible_to_at      - Constant representing the assistive technology visibility of the element (i.e is it visible to people using a screen reader)
  * 
  * @property  {String}  color                 - Computed value of the CSS 'color' property
  * @property  {String}  color_hex             - Computed value of the CSS 'color' property in hexidecimal format
@@ -17713,7 +17635,7 @@ OpenAjax.a11y.cache.TableCellElement.prototype.toString = function () {
  * @param {Object}    nls                - NLS information for rules 
  * @param {Object}    rule_item          - Object containing rule information 
  * @param {String}    cache_dependency   - Which cache the rule will use 
- * @param {Array}     cache_properties   - What properties of a cache or dom element the rules uses in the evaluation
+ * @param {Array}     resource_properties   - What properties of a cache or dom element the rules uses in the evaluation
  * @param {String}    language           - The lanaguage code or codes (space separated) if the rule is language specfic, default is empty string
  * @param {function}  validate           - function for evalutinf the rule
  *
@@ -17723,7 +17645,7 @@ OpenAjax.a11y.cache.TableCellElement.prototype.toString = function () {
  * @property {Object}    wcag_primary_id    - id of the primary WCAG 2.0 success criteria 
  * @property {Object}    wcag_related_ids   - id of related WCAG 2.0 success criteria
  * @property {String}    cache_dependency   - Which cache (i.e. element group) the rule will use 
- * @property {Array}     cache_properties   - What properties of a cache or dom element the rules uses in the evaluation
+ * @property {Array}     resource_properties   - What properties of a cache or dom element the rules uses in the evaluation
  * @property {Array}     target_objects     - The html objects the rule evaluates (NOTE: this is informative information)
  * @property {String}    language           - The lanaguage code or codes (space separated) if the rule is language specfic, default is empty string
  * @property {function}  validate           - function for evalutinf the rule
@@ -17739,7 +17661,7 @@ OpenAjax.a11y.Rule = function (nls, rule_item) {
   this.wcag_related_ids    = rule_item.wcag_related_ids;
   this.last_updated        = rule_item.last_updated;
   this.cache_dependency    = rule_item.cache_dependency;
-  this.cache_properties    = rule_item.cache_properties;
+  this.resource_properties    = rule_item.resource_properties;
   this.target_resources    = rule_item.target_resources;
   this.language_dependency = rule_item.language_dependency;
   this.validate            = rule_item.validate;
@@ -18166,6 +18088,22 @@ OpenAjax.a11y.Rule.prototype.getWCAG20SuccessCriteriaIndex = function () {
 };
 
 /**
+ * @method getWCAG20SuccessCriterion
+ *
+ * @memberOf OpenAjax.a11y.Rule
+ *
+ * @desc Returns the WCAG 2.0 Success Criterion number
+ *
+ * @return  {String}  WCAG20Result sucess criterion
+ */
+
+OpenAjax.a11y.Rule.prototype.getWCAG20SuccessCriterion = function () {
+
+   return this.wcag_primary_id;
+
+};
+
+/**
  * @method toJSON
  *
  * @memberOf OpenAjax.a11y.Rule
@@ -18224,12 +18162,12 @@ OpenAjax.a11y.Rule.prototype.toJSON = function (prefix, rule_type) {
   stringItem('last_updated', this.last_updated);
   stringListItem('target_resources', this.target_resources); 
   numberItem('rule_category', this.rule_category);
-  stringItem('language', this.language_dependency);
+  stringItem('language_dependency', this.language_dependency);
   stringItem('cache_dependency', this.cache_dependency);
-  stringListItem('cache_properties', this.cache_properties);
+  stringListItem('resource_properties', this.resource_properties);
   stringItem('validate', this.validate.toString());
     
-  stringItem('human_id', nls_rule['ID']);
+  stringItem('nls_rule_id', nls_rule['ID']);
   
   if (typeof rule_type === 'number') {
     stringItem('definition', this.getNLSDefinition(rule_type));
@@ -18264,17 +18202,23 @@ OpenAjax.a11y.Rule.prototype.toJSON = function (prefix, rule_type) {
   stringItem('manual_check_3_url', null);
   stringItem('manual_check_4', null); 
   stringItem('manual_check_4_url', null);
+  
+  stringItem('rule_result_manual_checks_singular',     nls_rule['RULE_RESULT_MESSAGES']['MANUAL_CHECKS_SINGULAR']);    
+  stringItem('rule_result_manual_checks_plural',       nls_rule['RULE_RESULT_MESSAGES']['MANUAL_CHECKS_PLURAL']);    
+  stringItem('rule_result_all_pass_singular',          nls_rule['RULE_RESULT_MESSAGES']['ALL_PASS_SINGULAR']);      
+  stringItem('rule_result_all_pass_plural',            nls_rule['RULE_RESULT_MESSAGES']['ALL_PASS_PLURAL']);    
+  stringItem('rule_result_some_fail',                  nls_rule['RULE_RESULT_MESSAGES']['SOME_FAIL']);    
+  stringItem('rule_result_corrective_action_singular', nls_rule['RULE_RESULT_MESSAGES']['CORRECTIVE_ACTION_SINGULAR']);    
+  stringItem('rule_result_corrective_action_plural',   nls_rule['RULE_RESULT_MESSAGES']['CORRECTIVE_ACTION_PLURAL']);    
+  stringItem('rule_result_all_fail_singular',          nls_rule['RULE_RESULT_MESSAGES']['ALL_FAIL_SINGULAR']);    
+  stringItem('rule_result_all_fail_plural',            nls_rule['RULE_RESULT_MESSAGES']['ALL_FAIL_PLURAL']);    
+  stringItem('rule_result_not_applicable',             nls_rule['RULE_RESULT_MESSAGES']['NOT_APPLICABLE']);    
 
-  stringItem('rule_result_all_manual_checks', nls_rule['RULE_RESULT_MESSAGES']['ALL_MANUAL_CHECKS']);    
-  stringItem('rule_result_all_pass', nls_rule['RULE_RESULT_MESSAGES']['ALL_PASS']);    
-  stringItem('rule_result_all_pass_with_manual_checks', nls_rule['RULE_RESULT_MESSAGES']['ALL_PASS_WITH_MANUAL_CHECKS']);    
-  stringItem('rule_result_some_fail', nls_rule['RULE_RESULT_MESSAGES']['SOME_FAIL']);    
-  stringItem('rule_result_some_fail_with_manual_checks', nls_rule['RULE_RESULT_MESSAGES']['SOME_FAIL_WITH_MANUAL_CHECKS']);    
-  stringItem('rule_result_all_fail', nls_rule['RULE_RESULT_MESSAGES']['ALL_FAIL']);    
-  stringItem('rule_result_all_fail_with_manual_checks', nls_rule['RULE_RESULT_MESSAGES']['ALL_FAIL_WITH_MANUAL_CHECKS']);    
-  stringItem('rule_result_not_applicable', nls_rule['RULE_RESULT_MESSAGES']['NOT_APPLICABLE']);    
-
-  stringItem('node_result_pass', nls_rule['NODE_RESULT_MESSAGES']['PASS']);    
+  if (nls_rule['NODE_RESULT_MESSAGES']['PASS']) stringItem('node_result_pass_1', nls_rule['NODE_RESULT_MESSAGES']['PASS']);    
+  else stringItem('node_result_pass_1', nls_rule['NODE_RESULT_MESSAGES']['PASS_1']);
+  stringItem('node_result_pass_2', nls_rule['NODE_RESULT_MESSAGES']['PASS_2']);    
+  stringItem('node_result_pass_3', nls_rule['NODE_RESULT_MESSAGES']['PASS_3']);    
+  
   stringItem('node_result_hidden', nls_rule['NODE_RESULT_MESSAGES']['HIDDEN']);
   stringItem('node_result_presentation', nls_rule['NODE_RESULT_MESSAGES']['PRESENTATION']);
     
@@ -18284,7 +18228,9 @@ OpenAjax.a11y.Rule.prototype.toJSON = function (prefix, rule_type) {
     
   stringItem('node_result_corrective_action_1', nls_rule['NODE_RESULT_MESSAGES']['CORRECTIVE_ACTION_1']);
   stringItem('node_result_corrective_action_2', nls_rule['NODE_RESULT_MESSAGES']['CORRECTIVE_ACTION_2']);
-  stringItem('node_result_corrective_action_3', nls_rule['NODE_RESULT_MESSAGES']['CORRECTIVE_ACTION_3'], true);
+  stringItem('node_result_corrective_action_3', nls_rule['NODE_RESULT_MESSAGES']['CORRECTIVE_ACTION_3']);
+
+  stringItem('node_result_other', nls_rule['NODE_RESULT_MESSAGES']['OTHER'], true);
 
   json += prefix + "  }";
  
@@ -18329,6 +18275,11 @@ OpenAjax.a11y.Rules.prototype.addRule = function (rule_item) {
 
   var errors = false;
 
+  if (typeof rule_item.rule_id !== 'string') {
+    OpenAjax.a11y.logger.debug("  ** Rule ID is missing");
+    errors = true;
+  }  
+
   if (this.getRuleByRuleId(rule_item.rule_id)) {
     OpenAjax.a11y.logger.debug("  ** Duplicate Rule ID: " + rule_item.rule_id);
     errors = true;
@@ -18349,8 +18300,8 @@ OpenAjax.a11y.Rules.prototype.addRule = function (rule_item) {
     errors = true;
   }  
 
-  if (typeof rule_item.cache_properties !== 'object') {
-    OpenAjax.a11y.logger.debug("  ** Rule " + rule_item.rule_id + " cache properties is missing or not an array"); 
+  if (typeof rule_item.resource_properties !== 'object') {
+    OpenAjax.a11y.logger.debug("  ** Rule " + rule_item.rule_id + " resource properties is missing or not an array"); 
     errors = true;
   }  
   
@@ -18396,10 +18347,10 @@ OpenAjax.a11y.Rules.prototype.addRulesFromJSON = function (rule_array) {
 
     rule_item = rule_array[i];
     
-//    OpenAjax.a11y.logger.debug("  Rule: " + rule_item.id);
+    OpenAjax.a11y.logger.debug("  RULE LOADING: " + rule_item.rule_id);
 //    OpenAjax.a11y.logger.debug("  last update: " + rule_item.last_updated);
 //    OpenAjax.a11y.logger.debug("   dependency: " + rule_item.cache_dependency);
-//    OpenAjax.a11y.logger.debug("   properties: " + typeof rule_item.cache_properties);
+//    OpenAjax.a11y.logger.debug("   properties: " + typeof rule_item.resource_properties);
 //    OpenAjax.a11y.logger.debug("     language: " + rule_item.language_dependency);
 //    OpenAjax.a11y.logger.debug("     validate: " + typeof rule_item.validate);
 
@@ -18697,6 +18648,37 @@ OpenAjax.a11y.NodeResult.prototype.getRuleSummary = function () {
   
 };
 
+/**
+ * @method getNLSWCAG20Level
+ *
+ * @memberOf OpenAjax.a11y.NodeResult
+ *
+ * @desc Returns the NLS String based on the WCAG 2.0 Success Level of the rule based on the primary id of the rule
+ *
+ * @return  {String}  String representing the WCAG 2.0 success criterion level of the rule
+ */
+
+OpenAjax.a11y.NodeResult.prototype.getNLSWCAG20Level = function () {
+
+  return this.rule_result.getNLSWCAG20Level();
+
+};
+
+/**
+ * @method getWCAG20SuccessCriterion
+ *
+ * @memberOf OpenAjax.a11y.NodeResult
+ *
+ * @desc Returns the WCAG 2.0 Success Criterion number
+ *
+ * @return  {String}  WCAG20Result sucess criterion
+ */
+
+OpenAjax.a11y.NodeResult.prototype.getWCAG20SuccessCriterion = function () {
+
+  return this.rule_result.getWCAG20SuccessCriterion();
+
+};
 
 /**
  * @method getRuleProperties
@@ -18714,7 +18696,7 @@ OpenAjax.a11y.NodeResult.prototype.getRuleProperties = function () {
 
   var nls_prop_list = [];
   
-  var prop_list = this.rule_result.rule.cache_properties;
+  var prop_list = this.rule_result.rule.resource_properties;
   var value;
   var prop_item;
   
@@ -19085,7 +19067,7 @@ OpenAjax.a11y.NodeResult.prototype.toHTML = function (ruleset_nls) {
  * @property  {Number}  implementation_percentage  - Percentage implementation of automated checks
  * @property  {Number}  manual_check_count         - Number of elements that need a manual check
  *
- * @property  {String}  message_id          -  String reference to the message string in the NLS file for rule results
+ * @property  {String}  message          -  String message of rule implementation and correction 
  *
  * @property  {Array}  nodes_passed         - Array of all the node results that passed
  * @property  {Array}  nodes_violations     - Array of all the node results that resulted in violations
@@ -19111,7 +19093,7 @@ OpenAjax.a11y.RuleResult = function (rule_mapping) {
   this.implementation_level_sort = OpenAjax.a11y.IMPLEMENTATION_LEVEL.UNDEFINED;
   this.implementation_percentage = 0;
 
-  this.message_id = '';
+  this.message = '';
 
   this.node_results_passed         = [];
   this.node_results_violations     = [];
@@ -19378,7 +19360,7 @@ OpenAjax.a11y.RuleResult.prototype.getNLSImplementationLevel = function () {
 /**
  * @method getRule
  *
- * @memberOf OpenAjax.a11y.NodeResult
+ * @memberOf OpenAjax.a11y.RuleResult
  *
  * @desc Returns a rule object associated with this result
  * 
@@ -19394,7 +19376,7 @@ OpenAjax.a11y.RuleResult.prototype.getRule = function () {
 /**
  * @method getRuleId
  *
- * @memberOf OpenAjax.a11y.NodeResult
+ * @memberOf OpenAjax.a11y.RuleResult
  *
  * @desc Returns the id of the rule associated with this rule result
  * 
@@ -19410,7 +19392,7 @@ OpenAjax.a11y.RuleResult.prototype.getRuleId = function () {
 /**
  * @method getNLSRuleId
  *
- * @memberOf OpenAjax.a11y.NodeResult
+ * @memberOf OpenAjax.a11y.RuleResult
  *
  * @desc Returns the nls id of the rule associated with this rule result
  * 
@@ -19423,7 +19405,21 @@ OpenAjax.a11y.RuleResult.prototype.getNLSRuleId = function () {
    
 };
 
+/**
+ * @method getRuleScope
+ *
+ * @memberOf OpenAjax.a11y.RuleResult
+ *
+ * @desc Returns the scope of a rule (i.e. Page or Element)
+ * 
+ * @return {Number} Number representing the rule scope
+ */
 
+OpenAjax.a11y.RuleResult.prototype.getRuleScope = function () {
+
+  return this.rule_mapping.rule.rule_scope;
+   
+};
 
 /**
  * @method getRuleType
@@ -19491,6 +19487,37 @@ OpenAjax.a11y.RuleResult.prototype.getRuleSummary = function () {
   
 };
 
+/**
+ * @method getNLSWCAG20Level
+ *
+ * @memberOf OpenAjax.a11y.RuleResult
+ *
+ * @desc Returns the NLS String based on the WCAG 2.0 Success Level of the rule based on the primary id of the rule
+ *
+ * @return  {String}  String representing the WCAG 2.0 success criterion level of the rule
+ */
+
+OpenAjax.a11y.RuleResult.prototype.getNLSWCAG20Level = function () {
+
+  return this.rule.getNLSWCAG20Level();
+
+};
+
+/**
+ * @method getWCAG20SuccessCriterion
+ *
+ * @memberOf OpenAjax.a11y.RuleResult
+ *
+ * @desc Returns the WCAG 2.0 Success Criterion number
+ *
+ * @return  {String}  WCAG20Result sucess criterion
+ */
+
+OpenAjax.a11y.RuleResult.prototype.getWCAG20SuccessCriterion = function () {
+
+  return this.rule.getWCAG20SuccessCriterion();
+
+};
 
 /**
  * @method getResultNodes
@@ -19587,6 +19614,64 @@ OpenAjax.a11y.RuleResult.prototype.getResultNodeByCacheId = function (cache_id) 
  */
 OpenAjax.a11y.RuleResult.prototype.getMessage = function () {
 
+  function pageMessageFromNLS(rule_id, id) {
+
+    var message = "";
+
+    if (id !== 'SOME_FAIL' && id !== 'NOT_APPLICABLE') {
+    
+      id_singular = id + '_SINGULAR';
+      id_plural   = id + '_PLURAL';
+
+      message = nls_rules.rules[rule_id]['RULE_RESULT_MESSAGES'][id_singular];
+
+      if (typeof message !== 'string' || (message.length === 0)) message = nls_rules.rules[rule_id]['RULE_RESULT_MESSAGES'][id_plural];
+
+      if (typeof message !== 'string' || (message.length === 0)) message = nls_rules['DEFAULT_RULE_RESULT_MESSAGES'][id_singular];
+      
+    }
+    else {
+    
+      message = nls_rules.rules[rule_id]['RULE_RESULT_MESSAGES'][id];
+
+      if (typeof message !== 'string' || (message.length === 0)) message = nls_rules['DEFAULT_RULE_RESULT_MESSAGES'][id];
+
+    }
+
+    return message;
+  }
+
+
+  function elementMessageFromNLS(rule_id, count, id) {
+
+    if (id !== 'SOME_FAIL' && id !== 'NOT_APPLICABLE') {
+      if(count > 1) id = id + '_PLURAL';
+      else id = id + '_SINGULAR';
+    }
+
+    var message = nls_rules.rules[rule_id]['RULE_RESULT_MESSAGES'][id];
+
+    if (typeof message !== 'string' || (message.length === 0)) message = nls_rules['DEFAULT_RULE_RESULT_MESSAGES'][id];
+
+    return message;
+  }
+
+  function getAndNLS() {
+
+    var message = nls_rules['AND'];
+
+    return message;
+  }
+
+  function getSoNLS() {
+
+    var message = nls_rules['SO'];
+
+    return message;
+  }
+
+  if (this.message && this.message.length > 0) return this.message;
+
   var nls_rules = OpenAjax.a11y.all_rules.nls[OpenAjax.a11y.locale];
   
   var RULE = OpenAjax.a11y.RULE;
@@ -19594,40 +19679,83 @@ OpenAjax.a11y.RuleResult.prototype.getMessage = function () {
   var failed_count = this.violations_count + this.warnings_count;
   var total_count = failed_count + this.passed_count;
 
-  // If no message id return the empty string
-  if (this.message_id.length === 0) {
-  
-    if ((this.passed_count === 0) && (failed_count === 0) && (this.manual_checks_count  >  0)) this.message_id = 'ALL_MANUAL_CHECKS';  
-    if ((this.passed_count  >  0) && (failed_count === 0) && (this.manual_checks_count === 0)) this.message_id = 'ALL_PASS';  
-    if ((this.passed_count  >  0) && (failed_count === 0) && (this.manual_checks_count  >  0)) this.message_id = 'ALL_PASS_WITH_MANUAL_CHECKS';  
-    if ((this.passed_count  >  0) && (failed_count  >  0) && (this.manual_checks_count === 0)) this.message_id = 'SOME_FAIL';  
-    if ((this.passed_count  >  0) && (failed_count  >  0) && (this.manual_checks_count  >  0)) this.message_id = 'SOME_FAIL_WITH_MANUAL_CHECKS';  
-    if ((this.passed_count === 0) && (failed_count  >  0) && (this.manual_checks_count === 0)) this.message_id = 'ALL_FAIL';  
-    if ((this.passed_count === 0) && (failed_count  >  0) && (this.manual_checks_count  >  0)) this.message_id = 'ALL_FAIL_WITH_MANUAL_CHECKS';  
-    if ((total_count === 0) && (this.manual_checks_count === 0)) this.message_id = 'NOT_APPLICABLE';  
-  
-  }
-  
   var rule_id = this.getRuleId();
 
-//  OpenAjax.a11y.logger.debug(" Passed: " + this.passed_count + " Violations: " + this.violations_count  + " Warnings: " + this.warnings_count + " Failed: " + failed_count  + " Manual Checks: " + this.manual_checks_count + " Message ID: " + this.message_id);
-//  OpenAjax.a11y.logger.debug(" Passed: " + typeof this.passed_count + " Violations: " + typeof this.violations_count  + " Warnings: " + typeof this.warnings_count + " Failed: " + typeof failed_count  + " Manual Checks: " + typeof this.manual_checks_count + " Message ID: " + this.message_id);
-
-  var message       = nls_rules.rules[rule_id]['RULE_RESULT_MESSAGES'][this.message_id];
-  var elem_singular = nls_rules.rules[rule_id]['RULE_RESULT_MESSAGES']['ELEM_SINGULAR'];
-  var elem_plural   = nls_rules.rules[rule_id]['RULE_RESULT_MESSAGES']['ELEM_PLURAL']; 
-
-  OpenAjax.a11y.logger.debug(" Rule ID: " + rule_id + " Message ID: " + this.message_id  + " Message: " + message  + " Length: " + (message ? message.length : 0));
-
-  if (typeof message       !== 'string' || (message.length       === 0)) message       = nls_rules['DEFAULT_RULE_RESULT_MESSAGES'][this.message_id];
-  if (typeof elem_singular !== 'string' || (elem_singular.length === 0)) elem_singular = nls_rules['DEFAULT_RULE_RESULT_MESSAGES']['ELEM_SINGULAR'];
-  if (typeof elem_plural   !== 'string' || (elem_plural.length   === 0)) elem_plural   = nls_rules['DEFAULT_RULE_RESULT_MESSAGES']['ELEM_PLURAL'];
-
-  OpenAjax.a11y.logger.debug(" Rule ID (after deafult): " + rule_id + " Message ID: " + this.message_id  + " Message: " + message  + " Length: " + (message ? message.length : 0));
-
-//  OpenAjax.a11y.logger.debug("String: " + str);
+  if (this.getRuleScope() === OpenAjax.a11y.RULE_SCOPE.ELEMENT) {
+    // Element rule messaging
   
-  if (!message || message.length === 0) return nls_rules.missing_message + this.message_id;
+    if ((this.passed_count === 0) && (failed_count === 0) && (this.manual_checks_count  >  0)) { 
+      this.message = elementMessageFromNLS(rule_id, this.manual_checks_count, 'MANUAL_CHECKS');
+    }
+    
+    if ((this.passed_count  >  0) && (failed_count === 0) && (this.manual_checks_count === 0)) {
+      this.message = elementMessageFromNLS(rule_id, this.passed_count, 'ALL_PASS');
+    }
+    
+    if ((this.passed_count  >  0) && (failed_count === 0) && (this.manual_checks_count  >  0)) {
+      this.message = elementMessageFromNLS(rule_id, this.passed_count, 'ALL_PASS');
+      this.message += getAndNLS();
+      this.message += elementMessageFromNLS(rule_id, this.manual_checks_count, 'MANUAL_CHECKS');
+    }
+    
+    if ((this.passed_count  >  0) && (failed_count  >  0) && (this.manual_checks_count === 0)) {
+      this.message = elementMessageFromNLS(rule_id, total_count, 'SOME_FAIL');
+      this.message += getAndNLS();
+      this.message += elementMessageFromNLS(rule_id, failed_count, 'CORRECTIVE_ACTION');
+    }
+    
+    if ((this.passed_count  >  0) && (failed_count  >  0) && (this.manual_checks_count  >  0)) {
+      this.message = elementMessageFromNLS(rule_id, total_count, 'SOME_FAIL');
+      this.message += getSoNLS();
+      this.message += elementMessageFromNLS(rule_id, failed_count, 'CORRECTIVE_ACTION');
+      this.message += getAndNLS();
+      this.message += elementMessageFromNLS(rule_id, this.manual_checks_count, 'MANUAL_CHECKS');
+    }
+    
+    if ((this.passed_count === 0) && (failed_count  >  0) && (this.manual_checks_count === 0)) {
+      this.message = elementMessageFromNLS(rule_id, total_count, 'ALL_FAIL');
+      this.message += getSoNLS();
+      this.message += elementMessageFromNLS(rule_id, failed_count, 'CORRECTIVE_ACTION');
+    }
+      
+    if ((this.passed_count === 0) && (failed_count  >  0) && (this.manual_checks_count  >  0)) {
+      this.message = elementMessageFromNLS(rule_id, total_count, 'ALL_FAIL');
+      this.message += getSoNLS();
+      this.message += elementMessageFromNLS(rule_id, failed_count, 'CORRECTIVE_ACTION');
+      this.message += getAndNLS();
+      this.message += elementMessageFromNLS(rule_id, this.manual_checks_count, 'MANUAL_CHECKS');
+    }  
+    
+    if ((total_count === 0) && (this.manual_checks_count === 0)) {
+      this.message = elementMessageFromNLS(rule_id, total_count, 'NOT_APPLICABLE');
+    }
+  }
+  else {
+    // Page Rule Messaging
+    
+    if ((this.passed_count === 0) && (failed_count === 0) && (this.manual_checks_count  >  0)) { 
+      this.message = pageMessageFromNLS(rule_id, 'MANUAL_CHECKS');
+    }
+    
+    if ((this.passed_count  >  0) && (failed_count === 0) && (this.manual_checks_count === 0)) {
+      this.message = pageMessageFromNLS(rule_id, 'ALL_PASS');
+    }
+    
+    if ((this.passed_count ===  0) && (failed_count > 0) && (this.manual_checks_count === 0)) {
+      this.message = pageMessageFromNLS(rule_id, 'ALL_FAIL');
+      this.message += getSoNLS();
+      this.message += elementMessageFromNLS(rule_id, failed_count, 'CORRECTIVE_ACTION');
+    }
+
+    if ((total_count === 0) && (this.manual_checks_count === 0)) {
+      this.message = pageMessageFromNLS(rule_id, total_count, 'NOT_APPLICABLE');
+    }
+
+  }
+  
+//  OpenAjax.a11y.logger.debug(" Passed: " + this.passed_count + " Violations: " + this.violations_count  + " Warnings: " + this.warnings_count + " Failed: " + failed_count  + " Manual Checks: " + this.manual_checks_count + " Message ID: " + this.message_id);
+  
+  if (!this.message || this.message.length === 0) return nls_rules.missing_message + this.message_id;
     
   var vstr; // i.e. %1, %2 ....
 
@@ -19635,7 +19763,7 @@ OpenAjax.a11y.RuleResult.prototype.getMessage = function () {
   
   var type;
   
-  if (message.indexOf("%RULE_TYPE") >= 0) {
+  if (this.message.indexOf("%RULE_TYPE") >= 0) {
     
     switch (this.rule_mapping.type) {
     case RULE.REQUIRED:
@@ -19651,35 +19779,26 @@ OpenAjax.a11y.RuleResult.prototype.getMessage = function () {
       break; 
     }
 
-    message = message.replaceAll("%RULE_TYPE", type);  
+    this.message = this.message.replaceAll("%RULE_TYPE", type);  
   }
   
   // Replace tokens with rule values
 
-  var plural = nls_rules.PLURAL;
+  this.message = this.message.replaceAll("%PER", this.implementation_percentage.toString());
+  
+  this.message = this.message.replaceAll("%N_F", failed_count.toString());
+  
+  this.message = this.message.replaceAll("%N_P", this.passed_count.toString());
+  
+  this.message = this.message.replaceAll("%N_T", total_count.toString() );
+  
+  this.message = this.message.replaceAll("%N_MC", this.manual_checks_count.toString());
+  
+  this.message = this.message.replaceAll("%N_H", this.hidden_count.toString());
 
-  message = message.replaceAll("%PER", this.implementation_percentage.toString());
-  
-  message = message.replaceAll("%N_F", failed_count.toString());
-  if (failed_count > 1) message = message.replaceAll("%ELEM_F", elem_plural);
-  else message = message.replaceAll("%ELEM_F", elem_singular);
-  
-  message = message.replaceAll("%N_P", this.passed_count.toString());
-  if (this.passed_count > 1) message = message.replace("%ELEM_P", elem_plural);
-  else message = message.replace("%ELEM_P", elem_singular);
-  
-  message = message.replaceAll("%N_T", total_count.toString() );
-  if (total_count > 1) message = message.replaceAll("%ELEM_T", elem_plural);
-  else message = message.replaceAll("%ELEM_T", elem_singular);
-  
-  message = message.replaceAll("%N_MC", this.manual_checks_count.toString());
-  if (this.manual_checks_count > 1) message = message.replaceAll("%ELEM_MC", elem_plural);
-  else message = message.replaceAll("%ELEM_MC", elem_singular);
-  
-  message = message.replaceAll("%N_H", this.hidden_count.toString());
+  this.message = OpenAjax.a11y.util.transformElementMarkup(this.message);
 
-  return OpenAjax.a11y.util.transformElementMarkup(message);
-  
+  return this.message;
 };
 
 /**
@@ -20047,16 +20166,20 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.toJSON = function(prefix)
   if (typeof prefix !== 'string' || prefix.length === 0) prefix = "";
   else next_prefix = prefix + "    ";  
   
-  var date = new Date();
-    
   var json = "";
+
+  var date = this.ruleset.date;
+  var url = this.ruleset.url;  
+  
+  var page_title = this.ruleset.title;
+  
+  if (page_title.length > 30) page_title = page_title.slice(0,27) + "...";
 
   json += "{";
 
   json += prefix + "  \"url\"    : \"" + OpenAjax.a11y.util.escapeForJSON(this.ruleset.url) + "\",";
   json += prefix + "  \"title\"  : \"" + OpenAjax.a11y.util.escapeForJSON(this.ruleset.title) + "\",";
-  json += prefix + "  \"date\"   : \"" + date.getMonth() + "/" + date.getDay() + "/" + date.getFullYear() + "\",";
-  json += prefix + "  \"time\"   : \"" + date.getHours() + ":" + date.getMinutes() + "\",";
+  json += prefix + "  \"date\"   : \"" + date + "\",";
 
   if (this.is_tree) json += prefix + "  \"is_tree\" : true,";
   else json += prefix + "  \"is_tree\" : false,";
@@ -20122,6 +20245,63 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.toHTML = function(title) 
   html += "</html>\n";
   
   return html;
+};
+
+/**
+ * @method toCSV
+ *
+ * @memberOf OpenAjax.a11y.cache.FilteredCacheItemResults
+ *
+ * @desc Returns an CSV representation of the filtered cache item results 
+ *
+ * @param  {String}  title  -   Title of the report
+ *
+ * @return  {String}  String representing the CSV for the report 
+ */
+
+OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.toCSV = function(title) {
+
+  var date = this.ruleset.date;
+  var url = this.ruleset.url;  
+  
+  var page_title = this.ruleset.title;
+  
+  if (page_title.length > 30) page_title = title.slice(0,27) + "...";
+    
+  var csv = "";
+  
+  var result_items     = this.cache_item_results;
+  var result_items_len = result_items.length;
+
+  for (var i = 0; i < result_items_len; i++) {
+         
+     var position = i+1;
+            
+     var result_item      = result_items[i];
+     var node_results     = result_item.node_results;
+     var node_results_len = node_results.length;
+            
+     for (var j = 0; j < node_results_len; j++) {
+            
+       var node_result = node_results[j];
+               
+       var str = position.toString(); 
+       csv += ",\""   + OpenAjax.a11y.util.escapeForJSON(result_item.cache_item.toString()); 
+       csv += "\",\"" + node_result.getNLSRuleId() + ": " + node_result.getRuleSummary();
+       csv += "\",\"" + node_result.getNLSRuleType();
+       csv += "\",\"" + node_result.getWCAG20SuccessCriterion();
+       csv += "\",\"" + node_result.getNLSWCAG20Level();
+       csv += "\",\"" + node_result.getNLSSeverityLabel();
+       csv += "\",\"" + OpenAjax.a11y.util.escapeForJSON(node_result.getMessage());
+       csv += "\",\"" + date;
+       csv += "\",\"" + OpenAjax.a11y.util.escapeForJSON(page_title);
+       csv += "\",\"" + url;
+       csv += "\"\n";
+               
+    }
+  }   
+
+  return csv;
 };
 
 
@@ -21285,7 +21465,7 @@ OpenAjax.a11y.CacheNLS.prototype.getNLSLabelAndValue = function (property, value
     
     if (nls_cache) {
 
-      var cp = nls_cache.cache_properties[property];
+      var cp = nls_cache.resource_properties[property];
       
       // if null return default
       if (!cp) return info;
@@ -21344,7 +21524,7 @@ OpenAjax.a11y.CacheNLS.prototype.getNLSLabel = function (property) {
     
     if (nls_cache) {
      
-      var cp = nls_cache.cache_properties[property];
+      var cp = nls_cache.resource_properties[property];
       
       // if null return default
       if (!cp) return info;
@@ -21379,7 +21559,7 @@ OpenAjax.a11y.CacheNLS.prototype.getNLSValue = function (property, value) {
     
     if (nls_cache) {
 
-      var cp = nls_cache.cache_properties[property];
+      var cp = nls_cache.resource_properties[property];
       
       // if null return default
       if (!cp) return value;
@@ -22217,6 +22397,7 @@ OpenAjax.a11y.Rulesets.prototype.getAllRulesets = function() {
  *
  * @property {String} title  - The title of the last document evaluated
  * @property {String} url    - The url of the last document evaluated
+ * @property {String} date   - Date of the evaluation
  *
  * @property {Object} doc          - Reference to browser document object model (DOM) that holds the document to be analyzed
  * @property {Object} wcag20_nls   - Reference to WCAG 2.0 NLS object for current language
@@ -22247,10 +22428,6 @@ OpenAjax.a11y.Rulesets.prototype.getAllRulesets = function() {
 OpenAjax.a11y.WCAG20Ruleset = function (ruleset_data) {
 
   var i;
-  var  p_id,  rp_data,  rp_new;  // variables for creating RulesetPrinciple objects
-  var  g_id,  rg_data,  rg_new;  // variables for creating RulesetGuideline objects
-  var sc_id, rsc_data, rsc_new;  // variables for creating RulesetSuccessCriterion objects
-  var  r_id,  rr_data,  rr_new;  // variables for creating RulesetRule objects
  
   this.type = "WCAG20";
   this.ruleset_title = {};
@@ -22397,6 +22574,8 @@ OpenAjax.a11y.WCAG20Ruleset = function (ruleset_data) {
   
   this.title = "";
   this.url   = "";
+  this.date  = "n/a";
+  this.time  = "n/a";
   
   this.doc       = null;
   this.log       = null;
@@ -22496,6 +22675,9 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.evaluate = function (url, title, doc, prog
   this.title = title;
   this.url   = url;
   
+  this.date = OpenAjax.a11y.util.getFormattedDate();
+  OpenAjax.a11y.logger.debug("DATE: " + this.date);
+  
   // OpenAjax.a11y.logger.debug("Starting evaluation: " + this.ruleset_id + " " + this.default_name + " " + this.number_of_rules + " rules" );
   
   this.log = new OpenAjax.a11y.Log(this.ruleset_id, this.default_name, this.number_of_rules, progessCallBackFunction);
@@ -22527,7 +22709,7 @@ OpenAjax.a11y.WCAG20Ruleset.prototype.evaluate = function (url, title, doc, prog
 
       rule_result = new OpenAjax.a11y.RuleResult(rule_mapping); 
 
-      OpenAjax.a11y.logger.debug("Rule: " + rule + "  Enabled: " + rule_mapping.enabled  + "  Mapping: " + rule_mapping.type + "  Recommended: " + this.wcag20_recommended_rules_enabled);
+      OpenAjax.a11y.logger.debug("Rule: " + rule.rule_id + "  Enabled: " + rule_mapping.enabled  + "  Mapping: " + rule_mapping.type + "  Recommended: " + this.wcag20_recommended_rules_enabled);
 
       if (rule_mapping.enabled && 
           (rule_mapping.type === OpenAjax.a11y.RULE.REQUIRED ||
@@ -23767,14 +23949,20 @@ OpenAjax.a11y.all_rulesets   = OpenAjax.a11y.all_rulesets   || new OpenAjax.a11y
  * Initialize css and scripts for report files
  */
  
-OpenAjax.a11y.reportCSS = '  <style type="text/css">\n  <!-- Not initialized --> \n  </style>\n';
-OpenAjax.a11y.reportJS  = '  <script type="text/javascript">\n  <!-- Not initialized --> \n  </script>\n';
+OpenAjax.a11y.reportCSS            = '  <style type="text/css">\n  <!-- Not initialized --> \n  </style>\n';
+OpenAjax.a11y.reportJS             = '  <script type="text/javascript">\n  <!-- Not initialized --> \n  </script>\n';
 OpenAjax.a11y.reportBodyCacheItems = '  <body>\n  <!-- Not initialized --> \n  </body>\n';
+OpenAjax.a11y.ruleExportBody       = '  <body>\n  <!-- Not initialized --> \n  </body>\n';
+OpenAjax.a11y.ruleExportJS         = '  <script type="text/javascript">\n  <!-- Not initialized --> \n  </script>\n';
 
 // This initialized some strings for use by reports
+/*
 OpenAjax.a11y.reportCSS            = OpenAjax.a11y.util.initStringUsingURL('resource://report10/oaa-report.css');
 OpenAjax.a11y.reportJS             = OpenAjax.a11y.util.initStringUsingURL('resource://report10/oaa-report.js');
 OpenAjax.a11y.reportBodyCacheItems = OpenAjax.a11y.util.initStringUsingURL('resource://report10/oaa-report-body-cache-items.inc');
+OpenAjax.a11y.ruleExportBody       = OpenAjax.a11y.util.initStringUsingURL('resource://report10/oaa-rule-export-body.inc');
+OpenAjax.a11y.ruleExportJS         = OpenAjax.a11y.util.initStringUsingURL('resource://report10/oaa-rule-export.js');
+*/
 /**
  * Copyright 2011-2012 OpenAjax Alliance
  *
@@ -23968,7 +24156,7 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
      */
     status: ['Undefined', 'Proposed', 'Accepted', 'Deprecated'],
 
-    cache_properties : {
+    resource_properties : {
 
     /*
      * DOMElement object properties
@@ -24198,9 +24386,17 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
         label       : 'Name',
         description : 'The name of a widget used by assistive technologies to identify the widget.'
       },     
+      'accessible_name_for_comparison' : {
+        label       : 'Name (normalized)',
+        description : 'Normailzed name of a widget for use in comparisons.'
+      },     
       'accessible_description' : {
         label       : 'Description',
         description : 'The description used by assistive technologies to provide additional information about a form control, widget, link, image or other element.'
+      },     
+      'accessible_description_for_comparison' : {
+        label       : 'Description (normalized)',
+        description : 'Normalized description used for comparisons.'
       },     
     /*
      * Link Cache object attributes
@@ -24218,6 +24414,11 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
         description : 'Type of link',
         values      : ['empty', 'other', 'internal link', 'link', 'secure link', 'ftp', 'secure ftps', 'file', 'javascript', 'mail to', 'target only']
       },
+      'accessible_name_source' : {
+        label       : 'Name from',
+        description : 'The technique for defining the accessible name of a link',
+        values      : ['unkown', 'none', 'label by reference', 'label encapsulation', 'title attribute', 'value attribute', 'alt attribute', 'button type', 'child text content', 'aria labelledby', 'aria label']
+      },     
       'is_broken' : {
         label       : 'Link broken',
         description : 'Tests to see if the link is broken, valid or has an error',
@@ -24439,39 +24640,43 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
       '4096': 'widgets',
       '8096': 'content'
     },
-
+    
     DEFAULT_RULE_RESULT_MESSAGES: {
-      ELEM_SINGULAR:       'element',   
-      ELEM_PLURAL:         'elements',   
-      ALL_MANUAL_CHECKS:           '%N_MC %ELEM_MC require manual checking',
-      ALL_PASS:                     '%N_P %ELEM_P passed',
-      ALL_PASS_WITH_MANUAL_CHECKS:  '%N_P %ELEM_P passed and %N_MC %ELEM_MC require manual checking',
-      SOME_FAIL:                    '%N_P out of %N_T %ELEM_T failed',
-      SOME_FAIL_WITH_MANUAL_CHECKS: '%N_F out of %N_T %ELEM_T failed and %N_MC %ELEM_MC require manual checking',
-      ALL_FAIL:                     '%N_F %ELEM_F failed',
-      ALL_FAIL_WITH_MANUAL_CHECKS:  '%N_F %ELEM_F failed and %N_MC %ELEM_MC require manual checking',
+      MANUAL_CHECKS_SINGULAR:       '1 element requires manual checking',
+      MANUAL_CHECKS_PLURAL:         '%N_MC elements require manual checking',
+      ALL_PASS_SINGULAR:            '1 element passed',
+      ALL_PASS_PLURAL:              '%N_P elements passed',
+      SOME_FAIL:                    '%N_F out of %N_T elements failed',
+      CORRECTIVE_ACTION_SINGULAR:   '1 element needs corrective action',
+      CORRECTIVE_ACTION_PLURAL:     '%N_F elements need corrective action',
+      ALL_FAIL_SINGULAR:            '1 element failed',
+      ALL_FAIL_PLURAL:              'All %N_F elements failed',
       NOT_APPLICABLE:               'No applicable elements'
     },
-    
+
+    SO: ', so ',
+
+    AND: ' and ',
+
     //
     //  OAA Rules title and mesage string National Language Support (NLS)
     //
     rules: {
         COLOR_1: {
-            ID:                    'COLOR 1',
+            ID:                    'Color Rule 1',
             DEFINITION:            'Text content %s exceed Color Contrast Ratio (CCR) of 4.5 for any size text or 3.1 for large and/or bolded text',
             SUMMARY:               'Text %s exceed CCR of 4.5',
             TARGET_RESOURCES_DESC: 'All elements with text content',
             RULE_RESULT_MESSAGES: {
-              ELEM_SINGULAR:                'text element',   
-              ELEM_PLURAL:                  'text elements',   
-              ALL_MANUAL_CHECKS:            '%N_MC %ELEM_MC require a manual check for CCR > 4.5',
-              ALL_PASS:                     '%N_P %ELEM_P pass with a CCR > 4.5',
-              ALL_PASS_WITH_MANUAL_CHECKS:  '%N_P %ELEM_P pass and %N_MC %ELEM_MC require a manual check for CCR > 4.5',
-              SOME_FAIL:                    '%N_F out of %N_T %ELEM_T failed to have a CCR > 4.5',
-              SOME_FAIL_WITH_MANUAL_CHECKS: '%N_F out of %N_T %ELEM_T failed and %N_MC %ELEM_MC require a manual check for CCR > 4.5',
-              ALL_FAIL:                     '%N_F out of %N_T %ELEM_T failed to have a CCR > 4.5',
-              ALL_FAIL_WITH_MANUAL_CHECKS:  '%N_F out of %N_T %ELEM_T failed and %N_MC %ELEM_MC require a manual check for CCR > 4.5',
+              MANUAL_CHECKS_SINGULAR:       '1 element requires manual checking for CCR > 4.5 due to the use of background image',
+              MANUAL_CHECKS_PLURAL:         '%N_MC elements require manual checking for CCR > 4.5 due to the use of background images',
+              ALL_PASS_SINGULAR:            'Text element has a CCR > 4.5',
+              ALL_PASS_PLURAL:              '%N_P text elements have a CCR > 4.5',
+              SOME_FAIL:                    '%N_F out of %N_T text elements do NOT have a CCR > 4.5',
+              CORRECTIVE_ACTION_SINGULAR:   'change the foreground and background colors of the text element to meet the CCR > 4.5 requirement',
+              CORRECTIVE_ACTION_PLURAL:     'change the foreground and background colors of the %N_F text elements to meet the CCR > 4.5 requirement',
+              ALL_FAIL_SINGULAR:            '1 text element does NOT have a CCR > 4.5',
+              ALL_FAIL_PLURAL:              '%N_F text elements do NOT have a CCR > 4.5',
               NOT_APPLICABLE:               'No text elements on page'
             },
             NODE_RESULT_MESSAGES: {
@@ -24499,20 +24704,20 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
                             ]
         },
         COLOR_2: {
-            ID:                    'COLOR 2',
+            ID:                    'Color Rule 2',
             DEFINITION:            'Text content %s exceed Color Contrast Ratio (CCR) of 7.0 for any size text or 4.5 for large and/or bolded text',
             SUMMARY:               'Text %s exceed CCR of 7.0',
             TARGET_RESOURCES_DESC: 'All elements with text content',
             RULE_RESULT_MESSAGES: {
-              ELEM_SINGULAR:                'text element',   
-              ELEM_PLURAL:                  'text elements',   
-              ALL_MANUAL_CHECKS:            '%N_MC %ELEM_MC require a manual check for CCR > 7.0',
-              ALL_PASS:                     '%N_P %ELEM_P pass with a CCR > 7.0',
-              ALL_PASS_WITH_MANUAL_CHECKS:  '%N_P %ELEM_P pass and %N_MC %ELEM_MC require a manual check for CCR > 7.0',
-              SOME_FAIL:                    '%N_F out of %N_T %ELEM_T failed to have a CCR > 7.0',
-              SOME_FAIL_WITH_MANUAL_CHECKS: '%N_F out of %N_T %ELEM_T failed and %N_MC %ELEM_MC require a manual check for CCR > 7.0',
-              ALL_FAIL:                     '%N_F out of %N_T %ELEM_T failed to have a CCR > 7.0',
-              ALL_FAIL_WITH_MANUAL_CHECKS:  '%N_F out of %N_T %ELEM_T failed and %N_MC %ELEM_MC require a manual check for CCR > 7.0',
+              MANUAL_CHECKS_SINGULAR:       '1 element requires manual checking for CCR > 7.0 due to the use of background image',
+              MANUAL_CHECKS_PLURAL:         '%N_MC elements require manual checking for CCR > 7.0 due to the use of background images',
+              ALL_PASS_SINGULAR:            'Text element has a CCR > 7.0',
+              ALL_PASS_PLURAL:              '%N_P text elements have a CCR > 7.0',
+              SOME_FAIL:                    '%N_F out of %N_T text elements do NOT have a CCR > 7.0',
+              CORRECTIVE_ACTION_SINGULAR:   'change the foreground and background colors of the text element to meet the CCR > 7.0 requirement',
+              CORRECTIVE_ACTION_PLURAL:     'change the foreground and background colors of the %N_F text elements to meet the CCR > 7.0 requirement',
+              ALL_FAIL_SINGULAR:            '1 text element does NOT have a CCR > 7.0',
+              ALL_FAIL_PLURAL:              '%N_F text elements do NOT have a CCR > 7.0',
               NOT_APPLICABLE:               'No text elements on page'
             },
             NODE_RESULT_MESSAGES: {
@@ -24545,12 +24750,14 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               'Controls %s have labels',
             TARGET_RESOURCES_DESC: 'User interface form controls',
             RULE_RESULT_MESSAGES: {
-              ELEM_SINGULAR:  'form control',   
-              ELEM_PLURAL:    'form controls',   
-              ALL_PASS:       '%N_P %ELEM_P have labels',
-              SOME_FAIL:      '%N_F out of %N_T %ELEM_T do NOT have labels, add labels to %N_F %ELEM_F missing a label',
-              ALL_FAIL:       'No form controls have labels, add labels to %N_F %ELEM_F missing a label',
-              NOT_APPLICABLE: 'No form control elements on this page'
+              ALL_PASS_SINGULAR:            'Form control has label',
+              ALL_PASS_PLURAL:              '%N_P form controls have a label',
+              SOME_FAIL:                    '%N_F out of %N_T form controls do NOT have a label',
+              CORRECTIVE_ACTION_SINGULAR:   'add label to form control missing a label',
+              CORRECTIVE_ACTION_PLURAL:     'add labels to %N_F form controls missing a label',
+              ALL_FAIL_SINGULAR:            'form control does NOT have label',
+              ALL_FAIL_PLURAL:              'All %N_F form controls do NOT have a label',
+              NOT_APPLICABLE:               'No form controls on this page'              
             },
             NODE_RESULT_MESSAGES: {
               PASS:                  '%1 control has label',
@@ -24598,12 +24805,14 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               'Image button %s have alt content',
             TARGET_RESOURCES_DESC: 'input elements of type image',
             RULE_RESULT_MESSAGES: {
-              ELEM_SINGULAR:  '@input[type="image"]@ form control',   
-              ELEM_PLURAL:    '@input[type="image"]@ form controls',   
-              ALL_PASS:       '%N_P @input[type="image"]@ %ELE_P have alt attribute with content',
-              SOME_FAIL:      '%N_F out of %N_T %ELEM_T do NOT have alt text or content, add descriptive alt attribute to %N_F %ELEM_F',
-              ALL_FAIL:       'No @input[type="image"]@ form controls have alt text or content, add descriptive alt attribute to %N_F %ELEM_F',
-              NOT_APPLICABLE: 'No @input[type="image"]@ form controls on this page'
+              ALL_PASS_SINGULAR:            '@input[type="image"]@ form control has @alt@ attribute with content',
+              ALL_PASS_PLURAL:              '%N_P @input[type="image"]@ form controls have @alt@ attribute with content',
+              SOME_FAIL:                    '%N_F out of %N_T @input[type="image"]@ form controls do NOT have an @alt@ attribute with content',
+              CORRECTIVE_ACTION_SINGULAR:   'add @alt@ attribute and/or content to @input[type="image"]@ form control missing a @alt@ attribute with content',
+              CORRECTIVE_ACTION_PLURAL:     'add @alt@ attribute and/or content to %N_F @input[type="image"]@ form controls missing a @alt@ attribute with content',
+              ALL_FAIL_SINGULAR:            '@input[type="image"]@ form control does NOT have an @alt@ attribute with content',
+              ALL_FAIL_PLURAL:              'All %N_F @input[type="image"]@ form controls do NOT have an @alt@ attribute with content',
+              NOT_APPLICABLE:               'No @input[type="image"]@ form controls on this page'
             },
             NODE_RESULT_MESSAGES: {
               PASS:                  'Image button has label',
@@ -24643,12 +24852,14 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               'Radio button %s use FIELDSET/LEGEND',
             TARGET_RESOURCES_DESC: 'input elements of type radio',
             RULE_RESULT_MESSAGES: {
-              ELEM_SINGULAR:  '@input[type="radio"]@ form control',   
-              ELEM_PLURAL:    '@input[type="radio"]@ form controls',   
-              ALL_PASS:       '%N_P %ELE_P are contained in a @fieldset/legend@ labeling elements',
-              SOME_FAIL:      '%N_F out of %N_T %ELEM_T are NOT contained in a @fieldset/legend@ labeling elements, add @fieldset/legend@ labeling elements to %N_F %ELEM_F',
-              ALL_FAIL:       'No @input[type="radio"]@ form controls are contained in a @fieldset/legend@ labeling elements, add @fieldset/legend@ labeling elements to %N_F %ELEM_F',
-              NOT_APPLICABLE: 'No @input[type="radio"]@ form controls on this page'
+              ALL_PASS_SINGULAR:            '@input[type="radio"]@ form control is contained in a @filedset/legend@ labeling container',
+              ALL_PASS_PLURAL:              '%N_P @input[type="radio"]@ form controls are contained in @filedset/legend@ labeling container',
+              SOME_FAIL:                    '%N_F out of %N_T @input[type="radio"]@form controls are NOT contained in @filedset/legend@ labeling container',
+              CORRECTIVE_ACTION_SINGULAR:   'move the @input[type="radio"]@ form control to an existing @filedset/legend@ labeling container or create a new @filedset/legend@ labeling container for the control',
+              CORRECTIVE_ACTION_PLURAL:     'move the %N_F @input[type="radio"]@ form controls to an existing @filedset/legend@ labeling container or add new @filedset/legend@ labeling containers for the %N_F controls',
+              ALL_FAIL_SINGULAR:            '@input[type="radio"]@ form control is NOT a contained in a @filedset/legend@ labeling container',
+              ALL_FAIL_PLURAL:              'All %N_F @input[type="radio"]@ form controls are NOT a contained in @filedset/legend@ labeling containers',
+              NOT_APPLICABLE:               'No @input[type="radio"]@ form controls on this page'
             },
             NODE_RESULT_MESSAGES: {
               PASS:                  'Radio button uses @fieldset@ and @legend@ elements, and the @legend@ element has text content',
@@ -24697,12 +24908,14 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               '@button@s %s have content',
             TARGET_RESOURCES_DESC: '@button@ elements',
             RULE_RESULT_MESSAGES: {
-              ELEM_SINGULAR:  '@button@ element',   
-              ELEM_PLURAL:    '@button@ elements',   
-              ALL_PASS:       '%N_P %ELE_P have text content',
-              SOME_FAIL:      '%N_F out of %N_T %ELEM_T do NOT have text content, add text content that describes the function of the button to the %N_F %ELEM_F',
-              ALL_FAIL:       'No @button@ elements have text content, add text content that describes the function of the button to the %N_F %ELEM_F',
-              NOT_APPLICABLE: 'No @button@ elements on this page'
+              ALL_PASS_SINGULAR:            '@button@ element has text content',
+              ALL_PASS_PLURAL:              '%N_P @button@ elements have text content',
+              SOME_FAIL:                    '%N_F out of %N_T @button@ elements do NOT have text content',
+              CORRECTIVE_ACTION_SINGULAR:   'add text content to @button@ element that describe the purpose of the button',
+              CORRECTIVE_ACTION_PLURAL:     'add text content to %N_F @button@ elements that describe the purpose of the buttons',
+              ALL_FAIL_SINGULAR:            '@button@ element does NOT have text content',
+              ALL_FAIL_PLURAL:              'All %N_F @button@ elements do NOT have text content',
+              NOT_APPLICABLE:               'No @button@ elements on this page'
             },
             NODE_RESULT_MESSAGES: {
               PASS:                  '@button@ element has text content',
@@ -24730,12 +24943,11 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               '@id@ %s be unique',
             TARGET_RESOURCES_DESC: 'Form control elements with @id@ attributes',
             RULE_RESULT_MESSAGES: {
-              ELEM_SINGULAR:  'element',   
-              ELEM_PLURAL:    'elements',   
-              ALL_PASS:       '%N_P %ELEM_P have unique @id@ attribute values',
-              SOME_FAIL:      '%N_F out of %N_T %ELEM_T do NOT have unique @id@ attribute values, update the @id@ attribute values on the page to ensure that all elements have unique @id@ values',
-              ALL_FAIL:       'No elements have unique @id@ attribute values, update the @id@ attribute values on the page to ensure that all %N_T %ELEM_T have unique @id@ values',
-              NOT_APPLICABLE: 'No @id@ attributes on the elements in this page'
+              ALL_PASS_PLURAL:              'The %N_P elements with an @id@ attribute have unique id values on page',
+              SOME_FAIL:                    '%N_F out of %N_T elements with an @id@ attribute do NOT have unique id values on page',
+              CORRECTIVE_ACTION_PLURAL:     'update elements with @id@ attributes so the id values are all unique',
+              ALL_FAIL_PLURAL:              'All %N_F element with an @id@ attribute do NOT have a unique id values on page',
+              NOT_APPLICABLE:               'No elements or only one element with an @id@ attribute on this page'
             },
             NODE_RESULT_MESSAGES: {
               PASS:                  '\'%1\' @id@ attribute value is unique',
@@ -24771,12 +24983,14 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               '@label@ %s reference control',
             TARGET_RESOURCES_DESC: '@label@ elements',
             RULE_RESULT_MESSAGES: {
-              ELEM_SINGULAR:  '@label@ element',   
-              ELEM_PLURAL:    '@label@ elements',   
-              ALL_PASS:       '%N_P %ELEM_P use the @for@ attribute to reference form controls',
-              SOME_FAIL:      '%N_F out of %N_T %ELEM_T do NOT use the @for@ attribute to reference form controls, update the @label@ elements to use the @for@ attribute reference method to label form controls',
-              ALL_FAIL:       'None of the @label@ elements use the @for@ attribute to reference form controls on this page, update the %N_T %ELEM_T to use the @for@ attribute reference method to label form controls',
-              NOT_APPLICABLE: 'No @label@ elements in this page'
+              ALL_PASS_SINGULAR:            '@label@ element uses @for@ attribute to label a form control',
+              ALL_PASS_PLURAL:              '%N_P @label@ elements use the @for@ attribute to label form controls',
+              SOME_FAIL:                    '%N_F out of %N_T @label@ elements do NOT use the @for@ attribute to label form controls',
+              CORRECTIVE_ACTION_SINGULAR:   'change the @label@ element to use the @for@ attribute to label its form control',
+              CORRECTIVE_ACTION_PLURAL:     'change the %N_F @label@ elements to use the @for@ attribute to label their form control',
+              ALL_FAIL_SINGULAR:            '@label@ element does NOT use @for@ attribute to label a form control',
+              ALL_FAIL_PLURAL:              'All %N_F @label@ elements do NOT use @for@ attribute to label a form control',
+              NOT_APPLICABLE:               'No @label@ elements on this page'
             },
             NODE_RESULT_MESSAGES: {
               CORRECTIVE_ACTION_1:   'Change the @label@ element @for@ attribute to reference \'%1\' to reference a form control'
@@ -24810,12 +25024,14 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               '@label@ %s have content',
             TARGET_RESOURCES_DESC: '@label@ and @legend@ elements',
             RULE_RESULT_MESSAGES: {
-              ELEM_SINGULAR:  '@label@ or @legend@ element',   
-              ELEM_PLURAL:    '@label@ or @legend@ elements',   
-              ALL_PASS:       '%N_P %ELEM_P have text content',
-              SOME_FAIL:      '%N_F out of %N_T %ELEM_T do NOT have text content, either add text content to the @label@ or @legend@ elements to help label a form control or if they are not used for labeling remove them from the page',
-              ALL_FAIL:       'None of the @label@ or @legend@ elements have text content, update the %N_T %ELEM_T to either add text content to help label a form control or if they are not used for labeling remove them from the page',
-              NOT_APPLICABLE: 'No @label@ or @legend@ elements in this page'
+              ALL_PASS_SINGULAR:            '@label@ or @legend@ element has text content',
+              ALL_PASS_PLURAL:              '%N_P @label@ or @legend@ elements have text content',
+              SOME_FAIL:                    '%N_F out of %N_T @label@ or @legend@ elements do NOT have text content',
+              CORRECTIVE_ACTION_SINGULAR:   'add content to the @label@ or @legend@ element the describes the purpose of a form control or groupings of form controls',
+              CORRECTIVE_ACTION_PLURAL:     'add content to the %N_F @label@ or @legend@ elements to describes the purpose of each form control or groupings of form controls',
+              ALL_FAIL_SINGULAR:            '@label@ or @legend@ element does NOT have text content',
+              ALL_FAIL_PLURAL:              'All %N_F @label@ or @legend@ elements do NOT have text content',
+              NOT_APPLICABLE:               'No @label@ or @legend@ elements on this page'              
             },
             NODE_RESULT_MESSAGES: {
               PASS:                  '@%1@ has text content',
@@ -24855,12 +25071,14 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               '@fieldset@ %s have one legend',
             TARGET_RESOURCES_DESC: '@fieldset@ and @legend@ elements',
             RULE_RESULT_MESSAGES: {
-              ELEM_SINGULAR:  '@fieldset@ element',   
-              ELEM_PLURAL:    '@fieldset@ elements',   
-              ALL_PASS:       '%N_P %ELEM_P have only one @legend@ element',
-              SOME_FAIL:      '%N_F out of %N_T %ELEM_T have more than one @legend@ element or are missing a @legend@ element, update the %N_F %ELEM_F elements to include a single @legend@ element with text content that provides a grouping label for the form controls it contains',
-              ALL_FAIL:       'None of the @filedset@ elements have only one @legend@ element, update the %N_F %ELEM_F elements to include a single @legend@ element with text content that provides a grouping label for the form controls it contains',
-              NOT_APPLICABLE: 'No @fieldset@ elements in this page'
+              ALL_PASS_SINGULAR:            '@fieldset@ element has only one @legend@ element',
+              ALL_PASS_PLURAL:              '%N_P @fieldset@ elements have only one @legend@ element',
+              SOME_FAIL:                    '%N_F out of %N_T @fieldset@ elements have more than one @legend@ element or no @legend@ element',
+              CORRECTIVE_ACTION_SINGULAR:   'update @fieldset@ element to contain only one @legend@ element',
+              CORRECTIVE_ACTION_PLURAL:     'update %N_F @fieldset@ elements to contain only one @legend@ element',
+              ALL_FAIL_SINGULAR:            '@fieldset@ element has more than one @legend@ element or no @legend@ element',
+              ALL_FAIL_PLURAL:              'All %N_F @fieldset@ elements have more than one @legend@ element or no @legend@ element',
+              NOT_APPLICABLE:               'No @fieldset@ elements on this page'              
             },
             NODE_RESULT_MESSAGES: {
               PASS:                  '@fieldset@ has one @legend@ element',
@@ -24901,12 +25119,14 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               '@title@ %s not be label',
             TARGET_RESOURCES_DESC: '@textarea@, @select@ and @input@ elements',
             RULE_RESULT_MESSAGES: {
-              ELEM_SINGULAR:  'form control',   
-              ELEM_PLURAL:    'form controls',   
-              ALL_PASS:       '%N_P %ELEM_P do not use the @title@ attribute for labeling',
-              SOME_FAIL:      '%N_F out of %N_T %ELEM_T use the @title@ attribute for labeling the form control, change the labeling technique of %N_F %ELEM_F to use @label@ element or aria labeling technique',
-              ALL_FAIL:       'All form controls on this page use the @title@ attribute for labeling the form controls, change the labeling technique of %N_F %ELEM_F to use @label@ element or aria labeling technique',
-              NOT_APPLICABLE: 'No form controls in this page'
+              ALL_PASS_SINGULAR:            'Form control does not use @title@ attribute as label',
+              ALL_PASS_PLURAL:              'All %N_P form controls do not use @title@ attribute as label',
+              SOME_FAIL:                    '%N_F out of %N_T form controls use @title@ attribute as label',
+              CORRECTIVE_ACTION_SINGULAR:   'update form control to use another form labeling technique',
+              CORRECTIVE_ACTION_PLURAL:     'update %N_F form controls to use another form labeling technique',
+              ALL_FAIL_SINGULAR:            'form control uses @title@ attribute as label',
+              ALL_FAIL_PLURAL:              'All %N_F form controls use @title@ attribute as a label',
+              NOT_APPLICABLE:               'No form controls on this page'              
             },
             NODE_RESULT_MESSAGES: {
               PASS:                  '@title@ is not used as label',
@@ -24945,12 +25165,11 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               'Labels %s be unique',
             TARGET_RESOURCES_DESC: '@textarea@, @select@ and @input@ elements of type @text@, @password@, @checkbox@, @radio@ and @file@',
             RULE_RESULT_MESSAGES: {
-              ELEM_SINGULAR:  'form control',   
-              ELEM_PLURAL:    'form controls',   
-              ALL_PASS:       '%N_P %ELEM_P have unique labels',
-              SOME_FAIL:      '%N_F out of %N_T %ELEM_T do NOT have unique labels, change the labeling of %N_F %ELEM_F to uniquely identify the purpose of the form control on the page',
-              ALL_FAIL:       'None of the form controls on this page have unique labels, change the labeling of %N_F %ELEM_F to uniquely identify the purpose of the form control on the page',
-              NOT_APPLICABLE: 'No form controls in this page'
+              ALL_PASS_PLURAL:              '%N_P form controls have unique labels',
+              SOME_FAIL:                    '%N_F out of %N_T form controls do NOT have unique labels',
+              CORRECTIVE_ACTION_PLURAL:     'change the labeling of %N_F form controls to uniquely identify the purpose of each form control on the page',
+              ALL_FAIL_PLURAL:              'All %N_F form controls do NOT have a unique labels',
+              NOT_APPLICABLE:               'No form controls or only one form control on this page'              
             },
             NODE_RESULT_MESSAGES: {
               PASS:                  'Label is unique',
@@ -24993,17 +25212,16 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ]
         },
         CONTROL_11: {
-            ID:                    'CONTROL 11',
-            DEFINITION:            'If there is more than one form on page, input element of type submit and reset %s have unique labels using the value attribute',
+            ID:                    'Control Rule 11',
+            DEFINITION:            'If there is more than one form on a page, input element of type submit and reset %s have unique labels using the value attribute',
             SUMMARY:               'Labels %s be unique',
             TARGET_RESOURCES_DESC: '@submit@ and @reset@ buttons',
             RULE_RESULT_MESSAGES: {
-              ELEM_SINGULAR:  '@submit@ or @reset@ button',   
-              ELEM_PLURAL:    '@submit@ or @reset@ buttons',   
-              ALL_PASS:       '%N_P %ELEM_P have unique labels',
-              SOME_FAIL:      '%N_F out of %N_T %ELEM_T do NOT have unique labels, change the labeling of %N_F %ELEM_F to uniquely identify the purpose of the @submit@ and @reset@ control on the page',
-              ALL_FAIL:       'None of the @submit@ or @reset@ buttons on this page have unique labels, change the labeling of %N_F %ELEM_F to uniquely identify the purpose of the @submit@ or @reset@ buttons on the page',
-              NOT_APPLICABLE: 'No @submit@ or @reset@ buttons in this page'
+              ALL_PASS_PLURAL:              '%N_P @submit@ or @reset@ buttons have unique labels',
+              SOME_FAIL:                    '%N_F out of %N_T @submit@ or @reset@ buttons do NOT have unique labels',
+              CORRECTIVE_ACTION_PLURAL:     'change the labeling of %N_F @submit@ or @reset@ buttons to uniquely identify the purpose of each @submit@ or @reset@ buttons on the page',
+              ALL_FAIL_PLURAL:              'All %N_F @submit@ or @reset@ buttons do NOT have a unique labels',
+              NOT_APPLICABLE:               'No forms or only one form on this page'                            
             },
             NODE_RESULT_MESSAGES: {
               PASS:                  'Label is unique',
@@ -25051,13 +25269,14 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               'Labels %s be descriptive',
             TARGET_RESOURCES_DESC: '@textarea@, @select@ and @input@ elements of type @text@, @password@, @checkbox@, @radio@ and @file@',
             RULE_RESULT_MESSAGES: {
-              ELEM_SINGULAR:  'form control',   
-              ELEM_PLURAL:    'form controls',   
-              ALL_MANUAL_CHECKS:            '%N_MC %ELEM_MC require manual checks to verify they uniquely describe the purpose of each form control',
-              SOME_FAIL_WITH_MANUAL_CHECKS: '%N_F out of %N_T %ELEM_T do NOT have labels, add labels to the %N_F %ELEM_F that uniquely describe their purpose; and %N_MC %ELEM_MC require manual checks to verify they uniquely describe the purpose of each form control',
-              ALL_FAIL:                     '%N_F %ELEM_F do NOT have labels on this page, add labels to the %N_T %ELEM_T that uniquely describe their purpose',
-              ALL_FAIL_WITH_MANUAL_CHECKS:  '%N_F %ELEM_F do NOT have labels on this page, add labels to the %N_F %ELEM_F that uniquely describe their purpose; and %N_MC %ELEM_MC require manual checks to verify they uniquely describe the purpose of each form control',
-              NOT_APPLICABLE:               'No @submit@ or @reset@ buttons in this page'
+              MANUAL_CHECKS_SINGULAR:       'form control requires a manual check to verify it describes the purpose of the form control',
+              MANUAL_CHECKS_PLURAL:         '%N_MC form controls require a manual check to verify they uniquely describe the purpose of each form control',
+              SOME_FAIL:                    '%N_F out of %N_T form controls do NOT have labels',
+              CORRECTIVE_ACTION_SINGULAR:   'add label to the form control that describes the from controls purpose',
+              CORRECTIVE_ACTION_PLURAL:     'add labels to the %N_F form controls that uniquely describe purpose of each from control',
+              ALL_FAIL_SINGULAR:            'form control does NOT have a label',
+              ALL_FAIL_PLURAL:              '%N_F form controls do NOT have labels',
+              NOT_APPLICABLE:               'No form controls on this page'                                          
             },
             NODE_RESULT_MESSAGES: {
               MANUAL_CHECK_1:        'Verify the label describes the purpose and input required for @%1@ form control',
@@ -25104,10 +25323,9 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               'Page %s have @h1@ element',
             TARGET_RESOURCES_DESC: '@h1@ and @body@ elements',
             RULE_RESULT_MESSAGES: {
-              ELEM_SINGULAR:  '@h1@ element',   
-              ELEM_PLURAL:    '@h1@ elements',   
-              ALL_PASS:       'Page contains %N_MC %ELEM_MC',
-              ALL_FAIL:       'No @h1@ elements on the page, add a @h1@ element at the begining of the main content of the page'
+              ALL_PASS_SINGULAR:     'Page contains a least one @h1@ element',
+              CORRECTIVE_ACTION_SINGULAR: 'Add a @h1@ element at the begining of the main content of the page',
+              ALL_FAIL_SINGULAR:     'Page does not contain an @h1@ element'
             },
             NODE_RESULT_MESSAGES: {
               PASS:                  'Page has @h1@ element',
@@ -25150,12 +25368,14 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               '@h1@ %s be in @main@ landmark',
             TARGET_RESOURCES_DESC: '@h1@ elements and elements with ARIA attribute @role="main"@',
             RULE_RESULT_MESSAGES: {
-              ELEM_SINGULAR:  '@h1@ element',   
-              ELEM_PLURAL:    '@h1@ elements',   
-              ALL_PASS:       '%N_P %ELEM_P are children of @main@ landmarks',
-              SOME_FAIL:      '%N_F of %N_T %ELEM_T are NOT children of a @main@ landmark, either move the %N_F %ELEM_F to the begining of a @main@ landmark or change the @h1@ element to another heading level',
-              ALL_FAIL:       'None of the @h1@ elements on the page are a child of @main@ landmarks, either move the %N_T %ELEM_T to the begining of a @main@ landmark or change the @h1@ element to another heading level',
-              NOT_APPLICABLE: 'No @h1@ elements in this page'
+              ALL_PASS_SINGULAR:          '@h1@ element is a child of a @main@ landmark',
+              ALL_PASS_PLURAL:            '%N_P @h1@ elements ara a child of a @main@ landmark',
+              SOME_FAIL:                  '%N_F of %N_T %ELEM_T are NOT child of a @main@ landmark',
+              CORRECTIVE_ACTION_SINGULAR: 'either move the @h1@ element to the begining of a @main@ landmark or change the @h1@ element to another heading level',
+              CORRECTIVE_ACTION_PLURAL:   'either move the %N_F @h1@ elements to the begining of a @main@ landmark or change the @h1@ element to another heading level',              
+              ALL_FAIL_SINGULAR:          '@h1@ element is NOT a child of a @main@ landmark',
+              ALL_FAIL_PLURAL:            'All %N_F @h1@ elements are NOT a child of a @main@ landmark',
+              NOT_APPLICABLE:             'No @h1@ elements in this page'
             },
             NODE_RESULT_MESSAGES: {
               PASS:                  '@h1@ is a child element of a @main@ landmark',
@@ -25189,12 +25409,11 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               'Sibling headings %s be unique',
             TARGET_RESOURCES_DESC: 'Heading elements',
             RULE_RESULT_MESSAGES: {
-              ELEM_SINGULAR:  'heading element',   
-              ELEM_PLURAL:    'heading elements',   
-              ALL_PASS:       '%N_P sibling %ELEM_P text content is unique',
-              SOME_FAIL:      '%N_F of %N_T sibling %ELEM_T text content is NOT unique, update the content of the %N_F sibling %ELEM_F to be unique',
-              ALL_FAIL:       'None of the sibling heading elements on the page have unique text content, update the text content of the %N_T sibling %ELEM_T to be unique',
-              NOT_APPLICABLE: 'No sibling headings on the page'
+              ALL_PASS_PLURAL:            'All %N_P sibling headings elements of the same level have unique text content',
+              SOME_FAIL:                  '%N_F of %N_T sibling heading elements of the same level do NOT have unique text content',
+              CORRECTIVE_ACTION_PLURAL:   'update the text content of the %N_F sibling heading elements of the same level to be unique',              
+              ALL_FAIL_PLURAL:            'All %N_F sibling heading elements do NOT have unique text content',
+              NOT_APPLICABLE:             'No sibling heading elements of the same level in this page'
             },
             NODE_RESULT_MESSAGES: {
               PASS:                  '%1 heading content is unique among sibling headings',
@@ -25238,10 +25457,9 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               'Headings %s be descriptive',
             TARGET_RESOURCES_DESC: 'Heading elements',
             RULE_RESULT_MESSAGES: {
-              ELEM_SINGULAR:  'heading element',   
-              ELEM_PLURAL:    'heading elements',   
-              ALL_MANUAL_CHECKS:            '%N_MC %ELEM_MC require manual checks to verify they describe the content of following section in the page',
-              NOT_APPLICABLE:               'No heading elements on his page in this page'
+              MANUAL_CHECKS_SINGULAR:   'Verify the heading element describes the content following the heading element',
+              MANUAL_CHECKS_PLURAL:     'Verify the %N_MC heading elements describes the content following each heading element',
+              NOT_APPLICABLE:           'No heading elements on this page'
             },
             NODE_RESULT_MESSAGES: {
               MANUAL_CHECK_1:        'Check %1 element to make sure it describes the section it labels',
@@ -25287,12 +25505,14 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               'Image %s have alt',
             TARGET_RESOURCES_DESC: '@img@ and @area@',
             RULE_RESULT_MESSAGES: {
-              ELEM_SINGULAR:  '@img@ or @area@ element',   
-              ELEM_PLURAL:    '@img@ or @area@ elements',   
-              ALL_PASS:       '%N_P %ELEM_P have an @alt@ attribute',
-              SOME_FAIL:      '%N_F of %N_T %ELEM_T do NOT have an @alt@ attribute, add an @alt@ attribute with content that describes the content or purpose for each of the %N_F %ELEM_F',
-              ALL_FAIL:       'None of the @img@ or @area@ elements have an @alt@ attribute, add an @alt@ attribute with content that describes the content or purpose for each of the %N_T %ELEM_T',
-              NOT_APPLICABLE: 'No @img@ or @area@ elements on the page'
+              ALL_PASS_SINGULAR:          '@img@ or @area@ element has an @alt@ attribute',
+              ALL_PASS_PLURAL:            'All %N_P @img@ or @area@ elements have an @alt@ attribute',
+              SOME_FAIL:                  '%N_F out of %N_T @img@ or @area@ elements do NOT have an @alt@ attribute',
+              CORRECTIVE_ACTION_SINGULAR: 'add @alt@ attribute to @img@ or @area@ element that describes the pupose of the image',
+              CORRECTIVE_ACTION_PLURAL:   'add @alt@ attribute to each of the %N_F @img@ or @area@ elements that describes the pupose of each image',
+              ALL_FAIL_SINGULAR:          '@img@ or @area@ element does NOT have an @alt@ attribute',
+              ALL_FAIL_PLURAL:            'All %N_F @img@ or @area@ elements do NOT have an @alt@ attribute',
+              NOT_APPLICABLE:             'No @img@ or @area@ elements on this page'                                          
             },
             NODE_RESULT_MESSAGES: {
               PASS:                  'Image has @alt@ attribute',
@@ -25335,13 +25555,16 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               '@longdesc@ %s be valid',
             TARGET_RESOURCES_DESC: '@img@',
             RULE_RESULT_MESSAGES: {
-              ELEM_SINGULAR:  '@img@ element',   
-              ELEM_PLURAL:    '@img@ elements',   
-              ALL_MANUAL_CHECKS: '%N_MC %ELEM_MC with a @longdesc@ attribute require a manual check to verify the URI reference is valid',
-              ALL_PASS:          'Each of the %N_P %ELEM_P with a @longdesc@ attribute have valid URI reference',
-              SOME_FAIL:         '%N_F of %N_T %ELEM_T do NOT have an @alt@ attribute, add an @alt@ attribute with content that describes the content or purpose for each of the %N_F %ELEM_F',
-              ALL_FAIL:          'None of the @img@ or @area@ elements have an @alt@ attribute, add an @alt@ attribute with content that describes the content or purpose for each of the %N_T %ELEM_T',
-              NOT_APPLICABLE:    'No @img@ elements on the page'
+              MANUAL_CHECKS_SINGULAR:     'Manually verify @img@ element with @longdesc@ attribute is a valid URL',
+              MANUAL_CHECKS_PLURAL:       'Manually verify %N_MC @img@ elements with @longdesc@ attribute have a valid URL',
+              ALL_PASS_SINGULAR:          '@img@ element with @longdesc@ attribute has a valid URL',
+              ALL_PASS_PLURAL:            'All %N_P @img@ elements with @longdesc@ attribute have a valid URL',
+              SOME_FAIL:                  '%N_F out of %N_T @img@ elements with @longdesc@ attribute do NOT have a valid URL',
+              CORRECTIVE_ACTION_SINGULAR: 'update the @img@ element with @longdesc@ attribute to point to a valid URL that describes the image',
+              CORRECTIVE_ACTION_PLURAL:   'update the %N_F @img@ elements with a @longdesc@ attribute to point to a valid URL that describes the image',
+              ALL_FAIL_SINGULAR:          '@img@ element with @longdesc@ attribute does NOT have a valid URL',
+              ALL_FAIL_PLURAL:            'All %N_F @img@ elements with @longdesc@ attribute do NOT have a valid URL',
+              NOT_APPLICABLE:             'No @img@ elements with a @longdesc@ attribute on this page'                                          
             },
             NODE_RESULT_MESSAGES: {
               PASS:                  '@longdesc@ attribute is a valid URI',
@@ -25394,14 +25617,14 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               'Don\'t use filename',
             TARGET_RESOURCES_DESC: '@img@ and @area@',
             RULE_RESULT_MESSAGES: {
-              ALL_MANUAL_CHECKS:           '',
-              ALL_PASS:                     '',
-              ALL_PASS_WITH_MANUAL_CHECKS:  '',
-              SOME_FAIL:                    '',
-              SOME_FAIL_WITH_MANUAL_CHECKS: '',
-              ALL_FAIL:                     '',
-              ALL_FAIL_WITH_MANUAL_CHECKS:  '',
-              NOT_APPLICABLE:                ''
+              ALL_PASS_SINGULAR:          '@img@ or @area@ element does not include the image file name as part of @alt@ attribute content',
+              ALL_PASS_PLURAL:            'All %N_P @img@ or @area@ elements do not include image file name as part of @alt@ attribute content',
+              SOME_FAIL:                  '%N_F out of %N_T @img@ or @area@ elements DO include image file name as part of @alt@ attribute content',
+              CORRECTIVE_ACTION_SINGULAR: 'update the @alt@ attribute of the image to not use the image file name, but still describe the content or purpose of the image',
+              CORRECTIVE_ACTION_PLURAL:   'update the @alt@ attribute of the %N_F images to not use the image file name, but still describe the content or purpose of the image',
+              ALL_FAIL_SINGULAR:          '@img@ or @area@ element DOES include the image file name as part of @alt@ attribute content',
+              ALL_FAIL_PLURAL:            'All %N_F @img@ or @area@ element DO include the image file name as part of @alt@ attribute content',
+              NOT_APPLICABLE:             'No @img@ elements with a @longdesc@ attribute on this page'                                          
             },
             NODE_RESULT_MESSAGES: {
               PASS:                  '@alt@ attribute does not contain the filename',
@@ -25444,14 +25667,14 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               '@alt@ less than 100 characters',
             TARGET_RESOURCES_DESC: '@img@ and @area@',
             RULE_RESULT_MESSAGES: {
-              ALL_MANUAL_CHECKS:           '',
-              ALL_PASS:                     '',
-              ALL_PASS_WITH_MANUAL_CHECKS:  '',
-              SOME_FAIL:                    '',
-              SOME_FAIL_WITH_MANUAL_CHECKS: '',
-              ALL_FAIL:                     '',
-              ALL_FAIL_WITH_MANUAL_CHECKS:  '',
-              NOT_APPLICABLE:                ''
+              ALL_PASS_SINGULAR:          '@img@ or @area@ element has @alt@ attribute text content less than 100 characters',
+              ALL_PASS_PLURAL:            'All %N_P @img@ or @area@ elements have @alt@ attribute text content less than 100 characters',
+              SOME_FAIL:                  '%N_F out of %N_T @img@ or @area@ elements do NOT have @alt@ attribute text content less than 100 characters',
+              CORRECTIVE_ACTION_SINGULAR: 'update the @alt@ attribute text content of the image to be less than 100 characters, but still describe the content or purpose of the image',
+              CORRECTIVE_ACTION_PLURAL:   'update the @alt@ attribute text content of the %N_F images to be less than 100 characters, but still describe the content or purpose of each image',
+              ALL_FAIL_SINGULAR:          '@img@ or @area@ element does NOT have @alt@ attribute text content less than 100 characters',
+              ALL_FAIL_PLURAL:            'All %N_F @img@ or @area@ elements do NOT have @alt@ attribute text content less than 100 characters',
+              NOT_APPLICABLE:             'No @img@ or @area@ elements on this page'                                          
             },
             NODE_RESULT_MESSAGES: {
               PASS:                  '@alt@ attribute is less than 100 characters',
@@ -25494,14 +25717,14 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               '@alt=""@ for small images',
             TARGET_RESOURCES_DESC: '@img@',
             RULE_RESULT_MESSAGES: {
-              ALL_MANUAL_CHECKS:           '',
-              ALL_PASS:                     '',
-              ALL_PASS_WITH_MANUAL_CHECKS:  '',
-              SOME_FAIL:                    '',
-              SOME_FAIL_WITH_MANUAL_CHECKS: '',
-              ALL_FAIL:                     '',
-              ALL_FAIL_WITH_MANUAL_CHECKS:  '',
-              NOT_APPLICABLE:                ''
+              ALL_PASS_SINGULAR:          'Small or decorative @img@ or @area@ element has a @role@ attribute set to a value of @presentation@',
+              ALL_PASS_PLURAL:            'All %N_P small and decorative @img@ or @area@ elements have a @role@ attribute set to a value of @presentation@',
+              SOME_FAIL:                  '%N_F out of %N_T small and decorative @img@ or @area@ elements do NOT have a @role@ attribute set to a value of @presentation@',
+              CORRECTIVE_ACTION_SINGULAR: 'add a @role@ attribute with a value of @presentation@ and remove the @alt@ attribute',
+              CORRECTIVE_ACTION_PLURAL:   'add a @role@ attribute with a value of @presentation@ to the %N_F image and remove the @alt@ attribute',
+              ALL_FAIL_SINGULAR:          'Small or decorative @img@ or @area@ element does NOT have a @role@ attribute set to a value of @presentation@',
+              ALL_FAIL_PLURAL:            'All %N_F small or decorative @img@ or @area@ elements do NOT have a @role@ attribute set to a value of @presentation@',
+              NOT_APPLICABLE:             'No @img@ with @alt@ attribute set to empty or with a height or width of 1 pixel on this page'                                          
             },
             NODE_RESULT_MESSAGES: {
               PASS:                  'Image is not a small image',
@@ -25534,14 +25757,9 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               '@alt=""@ or @role="presentation"@ %s be decorative',
             TARGET_RESOURCES_DESC: '@img@',
             RULE_RESULT_MESSAGES: {
-              ALL_MANUAL_CHECKS:           '',
-              ALL_PASS:                     '',
-              ALL_PASS_WITH_MANUAL_CHECKS:  '',
-              SOME_FAIL:                    '',
-              SOME_FAIL_WITH_MANUAL_CHECKS: '',
-              ALL_FAIL:                     '',
-              ALL_FAIL_WITH_MANUAL_CHECKS:  '',
-              NOT_APPLICABLE:                ''
+              MANUAL_CHECKS_SINGULAR:     'Verify @img@ element with @alt=""@ or @role="presentation"@ is purely decorative',
+              MANUAL_CHECKS_PLURAL:       'Verify %N_MC @img@ elements with @alt=""@ or @role="presentation"@ are purely decorative',
+              NOT_APPLICABLE:             'No @img@ elements with @alt=""@ or @role="presentation"@ on this page'                                          
             },
             NODE_RESULT_MESSAGES: {
               MANUAL_CHECK_1:        'Verify the image is only used for styling or decoration',
@@ -25581,8 +25799,9 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               'Page %s have @main@ landmark',
             TARGET_RESOURCES_DESC: '@main@ landmark',
             RULE_RESULT_MESSAGES: {
-              ALL_PASS:          'Page has @main@ landmark',
-              ALL_FAIL:          'No @main@ landmark on the page, add a @main@ landmark that identifies the main (i.e. primary) content of the page'
+              ALL_PASS_SINGULAR:          'Page has @main@ landmark',
+              CORRECTIVE_ACTION_SINGULAR: 'add a @main@ landmark that identifies the main (i.e. primary) content of the page',
+              ALL_FAIL_SINGULAR:          'Page does NOT contain a @main@ landmark'
             },
             NODE_RESULT_MESSAGES: {
               PASS:                  'Page contains an %1 element with @role=main@',
@@ -25607,19 +25826,20 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
         },
         LANDMARK_2: {
             ID:                    'Landmark Rule 2',
-            DEFINITION:            'All rendered content %s be contained in a landmark',
-            SUMMARY:               'Content %s be in landmark',
+            DEFINITION:            'All rendered content %s be contained within a landmark',
+            SUMMARY:               'Content %s be within landmark',
             TARGET_RESOURCES_DESC: 'all renderable content',
             RULE_RESULT_MESSAGES: {
-              ELEM_SINGULAR:  'element',   
-              ELEM_PLURAL:    'elements',   
-              ALL_PASS:                     '%N_P %ELEM_P are in a landmark',
-              ALL_PASS_WITH_MANUAL_CHECKS:  '%N_P %ELEM_P are in a landmark and there are %N_MC %ELEM_MC that may include renderable content; elements that include renderable content %RULE_TYPE be contained in a landmark',
-              SOME_FAIL:                    '%N_F out of %N_T %ELEM_T are not in a landmark, update the landmark structure of the page and place %N_F %ELEM_F currently outside of landmarks into there proper landmark container',
-              SOME_FAIL_WITH_MANUAL_CHECKS: '%N_F out of %N_T %ELEM_T are not in a landmark, update the landmark structure of the page and place %N_F %ELEM_F currently outside of landmarks into there proper landmark container',
-              ALL_FAIL:                     'No landmarks on the page, create a landmark structure for your page and place %N_F %ELEM_F outside of landmarks into there proper landmark container',
-              ALL_FAIL_WITH_MANUAL_CHECKS:  'No landmarks on the page, create a landmark structure for your page and place %N_F %ELEM_F outside of landmarks into there proper landmark container',
-              NOT_APPLICABLE: 'No elements with content'
+              MANUAL_CHECKS_SINGULAR:       'One element may contain renderable content; elements that include renderable content %RULE_TYPE be contained in a landmark',
+              MANUAL_CHECKS_PLURAL:         '%N_MC elements may contain renderable content; elements that include renderable content %RULE_TYPE be contained in a landmark',
+              ALL_PASS_SINGULAR:            'Renderable element is contained within a landamrk',
+              ALL_PASS_PLURAL:              'All %N_P renderable elements are contained wihin a landamrk',
+              SOME_FAIL:                    '%N_F out of %N_T renderable elements are NOT contained wihin a landamrk',
+              CORRECTIVE_ACTION_SINGULAR:   'update the landmark structure of the page and place the element currently outside of a landmark into its proper landmark container',
+              CORRECTIVE_ACTION_PLURAL:     'update the landmark structure of the page and place the %N_F elements currently outside of landmarks into their proper landmark container',
+              ALL_FAIL_SINGULAR:            'Renderable element is NOT contianed within a landmark',
+              ALL_FAIL_PLURAL:              '%N_F renderable elements are NOT contianed within a landmark',
+              NOT_APPLICABLE:               'No renderable elements on page'              
             },
             NODE_RESULT_MESSAGES: {
               PASS:                  '@%1@ element is in @%2@ landmark',
@@ -25662,33 +25882,177 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             MESSAGE_NO_LABEL:  'The %1 landmark does not have a label, make sure the landmark role is appropriate to the content in the landmark and consider adding a descriptive label to provide more detail on the contents of the landark.'
         },
         LINK_1: {
-            ID:               'LINK 1',
-            TITLE:            'Link %s provide minimum target dimensions.',
-            PURPOSE:          'Small links can be hard for people with physical disabilites to click on and for people with visual imapirments to see.',
-            MESSAGE_PASS:     'The link dimensions of %1 pixels high and %2 pixels wide are larger than the minimum height of %3 pixels and width of %4 pixels.',
-            MESSAGE_TO_SMALL: 'The link dimensions of %1 pixels high and %2 pixels wide do meet the minimum height of %3 pixels and width of %4 pixels requirements.',
-            MESSAGE_MANUAL:   'The link dimensions could not be calculated.',
-            MESSAGE_HIDDEN:   'The link is hidden from the graphical rendering.',
-            MESSAGE_NA:       'The link has no HREF content, so it is either an internal target or may have behaviors defined by javascript.'
+            ID:                    'Link Rule 1',
+            DEFINITION:            'Links with the same HREF %s have the same link text',
+            SUMMARY:               'Link text %s be consistent',
+            TARGET_RESOURCES_DESC: '@a@ and @area@ elements and elements with @role="link"@',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            'Only one @a@, @area@ or @[role=link]@ element on the page so no test to perform on consistent naming of links that share the same @href@ value',
+              ALL_PASS_PLURAL:              'All %N_P @a@, @area@ or @[role=link]@ elements have consistent accessible names for links that share the same @href@ value',
+              SOME_FAIL:                    '%N_F out of %N_T @a@, @area@ or @[role=link]@ elements do NOT have consistent accessible names for links that share the same @href@ value',
+              CORRECTIVE_ACTION_PLURAL:     'add @aria-describedby@ attribute to the %N_F @a@, @area@ or @[role=link]@ elements to provide additional text context to make the accessible names unique',
+              ALL_FAIL_PLURAL:              'All %N_F @a@, @area@ or @[role=link]@ elements do NOT have consistent accessible names for links that share the same @href@ value',
+              NOT_APPLICABLE:               'No @a@, @area@ or @[role=link]@ elements on page share the same accessible name'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@%1@ element has unique @href@ value on the page',
+              PASS_2:                '@%1@ element has the same accessible name as the %2 links it shares the same @href@ with',
+              MANUAL_CHECK_1:        'Verify the @%1@ element has the an accessible name that makes sense to users, since the link shares the same @href@ has a different accessible name',
+              CORRECTIVE_ACTION_1:   'Change the text content of the @%1@ element to make it the same as other %2 links that share the same @href@ value',
+              HIDDEN:                '@%1@ element is hidden from asssistive technologies.'
+            },  
+            PURPOSE: [
+              'Consistency of link text makes interaction with web pages more predictable'                   
+            ],
+            TECHNIQUES: [
+              'Use the same text for links that point to the same URL',
+              'Make sure the link text accurately describes the target of the link'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: 12.2 The A element', 
+                url:   'http://www.w3.org/TR/html4/struct/links.html#edef-A'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H30: Providing link text that describes the purpose of a link for anchor elements', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H30'
+              }  
+            ]   
         },
         LINK_2: {
-            ID:              'LINK 2',
-            TITLE:           'Links with the same HREF %s have the same link text.',
-            PURPOSE:         'Conistency of link naming makes interaction with web pages more predictable.',
-            MESSAGE_PASS:    '%1 links with same URL and use the same link text.',
-            MESSAGE_FAIL:    '%1 links with the same URL do not have the same link text.',
-            MESSAGE_MANUAL:  'It could not be determined if the HREF of this link is shared by other links on the page',
-            MESSAGE_NA:      'This link does not share the same URL with any other links on the page.'
+            ID:                    'Link Rule 2',
+            DEFINITION:            'Links with different HREFs %s have unique accessible names',
+            SUMMARY:               'Link text %s be unique',
+            TARGET_RESOURCES_DESC: '@a@ and @area@ elements and elements with @role="link"@',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            '@a@, @area@ or @[role=link]@ element has unique accessible name on the page ',
+              ALL_PASS_PLURAL:              'All %N_P @a@, @area@ or @[role=link]@ elements have unique accessible name or are unique through additional text context on the page',
+              SOME_FAIL:                    '%N_F out of %N_T @a@, @area@ or @[role=link]@ elements do NOT have unique accessible name or are NOT unique even with additional text context on the page ',
+              CORRECTIVE_ACTION_SINGULAR:   'add @aria-describedby@ attribute to the link to provide additional text to make the accessible name unique',
+              CORRECTIVE_ACTION_PLURAL:     'add @aria-describedby@ attribute to the %N_F@a@, @area@ or @[role=link]@ elements to provide additional text context to make the accessible names unique',
+              ALL_FAIL_PLURAL:              'All %N_F @a@, @area@ or @[role=link]@ elements do NOT have unique accessible names or are NOT unique through additional text context on the page',
+              NOT_APPLICABLE:               'No @a@, @area@ or @[role=link]@ elements on page share the same accessible name'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@%1@ element has unique link text on the page',
+              PASS_2:                '@%1@ element has the same @href@ value as the %2 links it shares a name with',
+              PASS_3:                '@%1@ element has unique link text throught the use of additional text context using @aria-describedby@ attribute',
+              CORRECTIVE_ACTION_1:   'Change the text content of the @%1@ element or provide additional context text to make the link text unique',
+              HIDDEN:                '@%1@ element is hidden from asssistive technologies.'
+            },  
+            PURPOSE: [
+              'Links that point to different URLs should have unique accessible names, when a link shares the same accessible name but have different URLs, users using speech will be confused unless programmatic text context is provided'                   
+            ],
+            TECHNIQUES: [
+              'The link text (i.e. accessible name) should uniquely describe the target of a link,',
+              'Use aria-laeblledby to provide context for links that share the same link text'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: 12.2 The A element', 
+                url:   'http://www.w3.org/TR/html4/struct/links.html#edef-A'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H30: Providing link text that describes the purpose of a link for anchor elements', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H30'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
+                title: 'OAA Example 44 - Using aria-describedby to satisfy WCAG 2.4.4 Link Purpose in Context', 
+                url:   'http://oaa-accessibility.org/example/44/'
+              }  
+            ]   
         },
-
         LINK_3: {
-            ID:              'LINK 3',
-            TITLE:           'Links with different HREFs %s have unique accessible names.',
-            PURPOSE:         'Links with the same name but go to different places can be confusing to people with disabilities.',
-            MESSAGE_PASS:    '%1 links with the same accessible link name have the same HREF.',
-            MESSAGE_FAIL:    '%1 links with the same accessible link name have different HREFs.',
-            MESSAGE_MANUAL:  'It could not be determined if the accessible link name is shared with any other links on the page.',
-            MESSAGE_NA:      'This link does not share the same accessible link name with any other links on the page or the link role has been overridden.'
+            ID:                    'Link Rule 3',
+            DEFINITION:            'Link %s provide minimum target dimensions.',
+            SUMMARY:               'Link %s not be small',
+            TARGET_RESOURCES_DESC: '@a@ and @area@ elements and elements with @role="link"@',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       'Dimension of one @a@, @area@ or @[role=link]@ element could not be calculated, manual check of dimensions need to be done to insure size is greater than 12 pixels high or 12 pixels wide',
+              MANUAL_CHECKS_PLURAL:         'Dimension of %N_MC @a@, @area@ or @[role=link]@ elements could not be calculated, manual check of dimensions need to be done to insure size is greater than 12 pixels high or 12 pixels wide',
+              ALL_PASS_SINGULAR:            '@a@, @area@ or @[role=link]@ element is more than 12 pixels high and 12 pixels wide',
+              ALL_PASS_PLURAL:              'All %N_P @a@, @area@ or @[role=link]@ elements are more than 12 pixels high and 12 pixels wide',
+              SOME_FAIL:                    '%N_F out of %N_T @a@, @area@ or @[role=link]@ elements are NOT more than 12 pixels high and 12 pixels wide',
+              CORRECTIVE_ACTION_SINGULAR:   'increase the dimensions of the @a@, @area@ or @[role=link]@ element to be at least 12 pixels high and 12 pixels wide',
+              CORRECTIVE_ACTION_PLURAL:     'increase the dimensions of the %N_F @a@, @area@ or @[role=link]@ elements to be at least 12 pixels high and 12 pixels wide',
+              ALL_FAIL_SINGULAR:            '@a@, @area@ or @[role=link]@ element is NOT more than 12 pixels high and 12 pixels wide',
+              ALL_FAIL_PLURAL:              'All %N_T @a@, @area@ or @[role=link]@ elements are NOT more than 12 pixels high and 12 pixels wide',
+              NOT_APPLICABLE:               'No @a@, @area@ or @[role=link]@ elements on page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS:                  '@%1@ element is more than 12 pixels high and 12 pixels wide',
+              MANUAL_CHECK_1:        'The rendered dimensions of the @%1@ element could not be determined, check to make sure the image is at least 12 pixels high and 12 pixels wide',
+              CORRECTIVE_ACTION_1:   'The rendered dimensions of the @%1@ element is %2 pixels by %3 pixels, change the dimensions of the image to be at least 12 pixels high and 12 pixels wide',
+              HIDDEN:                '@%1@ element is off screen.'
+            },  
+            PURPOSE: [
+              'Links must be large enough for people to see and select with the mouse'                   
+            ],
+            TECHNIQUES: [
+              'Increase the rendered dimensions of the link'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: 12.2 The A element', 
+                url:   'http://www.w3.org/TR/html4/struct/links.html#edef-A'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'IITAA Implementation Guidelines 1.0: 9.3 - Avoid using small links.', 
+                url:   'http://www.dhs.state.il.us/IITAA/IITAAWebImplementationGuidelines.html'
+              }                            
+            ]
+        },
+        LINK_4: {
+            ID:                    'Link Rule 4',
+            DEFINITION:            'Accessible names for a link %s describe the target of the link',
+            SUMMARY:               'Link text %s be descriptive',
+            TARGET_RESOURCES_DESC: '@a@ and @area@ elements and elements with @role="link"@',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECK_SINGULAR:        'Verify the @a@, @area@ or @[role=link]@ element accessible name describes the target of the link',
+              MANUAL_CHHECK_PLURAL:         'Verify all %N_P @a@, @area@ or @[role=link]@ elements accessible name describes the target of each link',
+              SOME_FAIL:                    '%N_F out of %N_T @a@, @area@ or @[role=link]@ elements do NOT have an accessible name',
+              CORRECTIVE_ACTION_SINGULAR:   'add text content to the link that describes the target of the link',
+              CORRECTIVE_ACTION_PLURAL:     'add text content to the %1 links that describes the target of each link',
+              ALL_FAIL_SINGULAR:            '@a@, @area@ or @[role=link]@ element does NOT have an accessible name',
+              ALL_FAIL_PLURAL:              'All %N_F @a@, @area@ or @[role=link]@ elements do NOT have accessible names',
+              NOT_APPLICABLE:               'No @a@, @area@ or @[role=link]@ elements on page share the same accessible name'              
+            },
+            NODE_RESULT_MESSAGES: {
+              MANUAL_CHECK_1:        '@%1@ element has the accessible name "%2", verify that the name accurately describes the target of the link, if not change the text content or text context of the link to create a more accessible name',
+              MANUAL_CHECK_2:        '@%1@ element has the accessible name "%2" with a text content of "%3", verify that the name and context text accurately describes the target of the link, if not change the text content or context of the link to create a more accessible name',
+              CORRECTIVE_ACTION_1:   'The @%1@ element does NOT have an accessible name, add text content to the link so the the accessible name describes the target of the link',
+              HIDDEN:                '@%1@ element is hidden from asssistive technologies.'
+            },  
+            PURPOSE: [
+              'Link text should describe the target of the link '                   
+            ],
+            TECHNIQUES: [
+              'The text content of the link (i.e. the default accessible name) should uniquely describe the target of each link,',
+              'Use aria-label or aria-labelledby to provide more descriptive accessible names when the text content of the link cannot be changed',
+              'Use aria-describedby to provide context for links that share the same link text but have some type of context to make the link text meaningful'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: 12.2 The A element', 
+                url:   'http://www.w3.org/TR/html4/struct/links.html#edef-A'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H30: Providing link text that describes the purpose of a link for anchor elements', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H30'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
+                title: 'OAA Example 44 - Using aria-describedby to satisfy WCAG 2.4.4 Link Purpose in Context', 
+                url:   'http://oaa-accessibility.org/example/44/'
+              }  
+            ]   
         },
         LIST_1: {
             ID:                       'LIST 1',
@@ -25717,6 +26081,62 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             MESSAGE_MAYBE:      'If %1 element is prerecorded video, verify that a text based alternative or audio description is available for the video',
             MESSAGE_FAIL:       'Text based alternative or audio description is NOT available for pre-recorded video',
             MESSAGE_HIDDEN:     '%1 element is hidden from the visual rendering'
+        },
+        TABLE_1: {
+            ID:                    'Table Rule 1',
+            DEFINITION:            'Data tables %s have header cells in the first row and/or column.',
+            SUMMARY:               'Link text %s be descriptive',
+            TARGET_RESOURCES_DESC: '@a@ and @area@ elements and elements with @role="link"@',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECK_SINGULAR:        'Verify the @a@, @area@ or @[role=link]@ element accessible name describes the target of the link',
+              MANUAL_CHHECK_PLURAL:         'Verify all %N_P @a@, @area@ or @[role=link]@ elements accessible name describes the target of each link',
+              SOME_FAIL:                    '%N_F out of %N_T @a@, @area@ or @[role=link]@ elements do NOT have an accessible name',
+              CORRECTIVE_ACTION_SINGULAR:   'add text content to the link that describes the target of the link',
+              CORRECTIVE_ACTION_PLURAL:     'add text content to the %1 links that describes the target of each link',
+              ALL_FAIL_SINGULAR:            '@a@, @area@ or @[role=link]@ element does NOT have an accessible name',
+              ALL_FAIL_PLURAL:              'All %N_F @a@, @area@ or @[role=link]@ elements do NOT have accessible names',
+              NOT_APPLICABLE:               'No @a@, @area@ or @[role=link]@ elements on page share the same accessible name'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                'The first row contains %1 header cells.',
+              PASS_2:                'The first column contains %1 header cells.',
+              PASS_3:                'The first row contains %1 header cells and the first column contains %2 header cells.',
+              CORRECTIVE_ACTION_1:   'the table %s have all @th@ elements (or optionally the @td@ element with @scope@ attribute) in the first row and/or first column with content',
+              HIDDEN:                'table is hidden from asssistive technologies.',
+              OTHER:                 'table is identified a layout table'
+            },  
+            PURPOSE: [
+              'Header cells provide critical context for meaning of the content in data cells to people using speech, since they cannot see the visual relationships.'                   
+            ],
+            TECHNIQUES: [
+              'Use @th@ elements to identify row and column headers in a data table',
+              'The first row and/or column are typically used as header cells in a data table',
+              'While not recommended, it is valid to use @td@ element with a @scope@ attribute as q header cell'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: 11.2.6 Table cells: The TH and TD elements', 
+                url:   'http://www.w3.org/TR/html4/struct/tables.html#edef-TD'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: scope attribute', 
+                url:   'http://www.w3.org/TR/html4/struct/tables.html#adef-scope'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H51: Using table markup to present tabular information', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H51'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H63: Using the scope attribute to associate header cells and data cells in data tables', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H63'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
+                title: 'OAA Example 44 - Using aria-describedby to satisfy WCAG 2.4.4 Link Purpose in Context', 
+                url:   'http://oaa-accessibility.org/example/44/'
+              }  
+            ]   
         },
         TABLE_1: {
             ID:                      'TABLE 1',
@@ -25763,8 +26183,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             ID:                       'TABLE 3',
             TITLE:                    'The effective caption content and effective summary content of each data table %s not be the same',
             PURPOSE:                  'It is important to provide an unique effective captions to more easily disern a table from other tables on the page.',
-            MESSAGE_UNIQUE:           'The effective caption \'%1\' is unique from the effective summary "%2".',
-            MESSAGE_NOT_UNIQUE:       'The effective caption \'%1\' is the same as the effective summary "%2", the effective caption should be used to describe the purpose of the table and the effective summary information about the data in the table or conclusions the author intended to be understood from viewing the data.',
+            MESSAGE_UNIQUE:           'The effective caption \'%1\' is unique from the effective summary \'%2\'.',
+            MESSAGE_NOT_UNIQUE:       'The effective caption \'%1\' is the same as the effective summary \'%2\', the effective caption should be used to describe the purpose of the table and the effective summary information about the data in the table or conclusions the author intended to be understood from viewing the data.',
             MESSAGE_HIDDEN:           'Table is hidden from users of assistive technologies, so rule was not evaluated.',
             MESSAGE_MISSING:          'Either or both of the effective caption or effective summary are either not defined or are empty, so rule was not evaluated.',
             MESSAGE_NOT_DATA_TABLE:   'Table is not a data table, rule does not apply.'
@@ -25883,8 +26303,9 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               'Page %s have title',
             TARGET_RESOURCES_DESC: '@title@',
             RULE_RESULT_MESSAGES: {
-              ALL_PASS:          'Page has @title@ element with content',
-              ALL_FAIL:          'Page does not have @title@ element or the @title@ element is empty'
+              ALL_PASS_SINGULAR:          'Page has @title@ element with content',
+              CORRECTIVE_ACTION_SINGULAR: 'add @title@ element to the @head@ element section with text content that describes the content or purpose of the page',
+              ALL_FAIL_SINGULAR:          'Page does not have @title@ element or the @title@ element is empty'
             },
             NODE_RESULT_MESSAGES: {
               PASS:                'Page has @title@ element with content',
@@ -25998,14 +26419,14 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               'Widget %s have name',
             TARGET_RESOURCES_DESC: 'Elements with @role@ attribute values that are defined as widgets',
             RULE_RESULT_MESSAGES: {
-              ALL_MANUAL_CHECKS:           '',
-              ALL_PASS:                     '',
-              ALL_PASS_WITH_MANUAL_CHECKS:  '',
-              SOME_FAIL:                    '',
-              SOME_FAIL_WITH_MANUAL_CHECKS: '',
-              ALL_FAIL:                     '',
-              ALL_FAIL_WITH_MANUAL_CHECKS:  '',
-              NOT_APPLICABLE:                ''
+              ALL_PASS_SINGULAR:            'Widget has an accessible name',
+              ALL_PASS_PLURAL:              'All %N_P widgets have an accessible name',
+              SOME_FAIL:                    '%N_F out of %N_T widgets do NOT have an accessible name',
+              CORRECTIVE_ACTION_SINGULAR:   'add accessible name to widget',
+              CORRECTIVE_ACTION_PLURAL:     'add accessible name to each of the %N_F widgets',
+              ALL_FAIL_SINGULAR:            'Widget does NOT has an accessible name',
+              ALL_FAIL_PLURAL:              'All %N_F widgets do NOT have an accessible name',
+              NOT_APPLICABLE:               'No form controls on this page'              
             },
             NODE_RESULT_MESSAGES: {
               PASS:                  '%1 widget has name',
@@ -27000,7 +27421,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.4.1','1.4.6'],
   target_resources    : ['textnodes'],
   cache_dependency    : 'color_contrast_cache',
-  cache_properties    : ['color_hex', 'background_color_hex', 'background_image', 'is_large_font', 'color_contrast_ratio'],
+  resource_properties    : ['color_hex', 'background_color_hex', 'background_image', 'is_large_font', 'color_contrast_ratio'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
   
@@ -27096,7 +27517,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.4.1','1.4.3'],
   target_resources    : ['textnodes'],
   cache_dependency    : 'color_contrast_cache',
-  cache_properties    : ['color_hex', 'background_color_hex', 'background_image', 'is_large_font', 'color_contrast_ratio'],
+  resource_properties    : ['color_hex', 'background_color_hex', 'background_image', 'is_large_font', 'color_contrast_ratio'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
   
@@ -27206,7 +27627,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
    wcag_related_ids    : ['1.3.1', '2.4.6'],
    target_resources    : ['input[type="checkbox"]', 'input[type="radio"]', 'input[type="text"]', 'input[type="password"]', 'input[type="file"]', 'select', 'textarea'],
    cache_dependency    : 'controls_cache',
-   cache_properties    : ['computed_label', 'fieldset_element', 'computed_label_source', 'name_attribute'],
+   resource_properties : ['computed_label', 'fieldset_element', 'computed_label_source', 'name_attribute'],
    language_dependency : "",
    validate            : function (dom_cache, rule_result) {
    
@@ -27266,7 +27687,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
    wcag_related_ids    : ['1.3.1', '2.4.6'],
    target_resources    : ['input[type="image"]'],
    cache_dependency    : 'controls_cache',
-   cache_properties    : ['alt', 'title'],
+   resource_properties    : ['alt', 'title'],
    language_dependency : "",
    validate            : function (dom_cache, rule_result) {
   
@@ -27324,7 +27745,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.3.1', '2.4.6'],
   target_resources    : ['input[type="radio"]'],
   cache_dependency    : 'controls_cache',
-  cache_properties    : ['fieldset_element'],
+  resource_properties    : ['fieldset_element'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
   
@@ -27393,7 +27814,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.3.1', '2.4.6'],
   target_resources    : ['button'],
   cache_dependency    : 'controls_cache',
-  cache_properties    : ['computed_label'],
+  resource_properties    : ['computed_label'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -27449,7 +27870,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['3.3.2', '1.3.1', '2.4.6'],
   target_resources    : ['input[type="checkbox"]', 'input[type="radio"]', 'input[type="text"]', 'input[type="password"]', 'input[type="file"]', 'select', 'textarea'],
   cache_dependency    : 'controls_cache',
-  cache_properties    : ['id'],
+  resource_properties    : ['id'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -27505,7 +27926,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.3.1', '2.4.6'],
   target_resources    : ['label'],
   cache_dependency    : 'controls_cache',
-  cache_properties    : ['for'],
+  resource_properties    : ['for'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -27543,7 +27964,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_primary_id     : '3.3.2',
   wcag_related_ids    : ['1.3.1', '2.4.6'],
   target_resources    : ['label', 'legend'],
-  cache_properties    : ['computed_label'],
+  resource_properties    : ['computed_label'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -27600,7 +28021,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.3.1', '2.4.6', '4.1.1'],
   target_resources    : ['fieldset'],
   cache_dependency    : 'controls_cache',
-  cache_properties    : ['legend_count'],
+  resource_properties    : ['legend_count'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -27654,7 +28075,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['4.1.1'],
   target_resources    : ['input', 'select', 'textarea'],
   cache_dependency    : 'controls_cache',
-  cache_properties    : ['title'],
+  resource_properties    : ['title'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -27706,7 +28127,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.3.1', '3.3.2'],
   target_resources    : ['input[type="checkbox"]', 'input[type="radio"]', 'input[type="text"]', 'input[type="password"]', 'input[type="file"]', 'select', 'textarea'],
   cache_dependency    : 'controls_cache',
-  cache_properties    : ['computed_label', 'fieldset_element', 'computed_label_source', 'name_attribute'],
+  resource_properties    : ['computed_label', 'fieldset_element', 'computed_label_source', 'name_attribute'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -27784,7 +28205,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.3.1', '3.3.2'],
   target_resources    : ['input[type="submit"]', 'input[type="reset"]'],
   cache_dependency    : 'controls_cache',
-  cache_properties    : ['computed_label', 'value'],
+  resource_properties    : ['computed_label', 'value'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -27818,7 +28239,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.3.1', '3.3.2'],
   target_resources    : ['button', 'input[type="checkbox"]', 'input[type="radio"]', 'input[type="text"]', 'input[type="password"]', 'input[type="file"]', 'input[type="submit"]', 'input[type="reset"]', 'select', 'textarea'],
   cache_dependency    : 'controls_cache',
-  cache_properties    : ['computed_label'],
+  resource_properties    : ['computed_label'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -27883,7 +28304,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.3.1', '3.3.2'],
   target_resources    : ['[role="widget"]'],
   cache_dependency    : 'controls_cache',
-  cache_properties    : ['accessible_name', 'accessible_description', 'computed_label_source'],
+  resource_properties    : ['accessible_name', 'accessible_description', 'computed_label_source'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
    
@@ -27946,7 +28367,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : [],
   target_resources    : ['img', 'area'],
   cache_dependency    : 'images_cache',
-  cache_properties    : ['alt', 'role', 'is_visible_to_at'],
+  resource_properties : ['alt', 'role', 'is_visible_to_at'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
  
@@ -27998,7 +28419,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : [],
   target_resources    : ['img'],
   cache_dependency    : 'images_cache',
-  cache_properties    : ['longdesc', 'longdesc_is_broken', 'is_visible_to_at'],
+  resource_properties    : ['longdesc', 'longdesc_is_broken', 'is_visible_to_at'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -28062,7 +28483,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : [],
   target_resources    : ['img'],
   cache_dependency    : 'images_cache',
-  cache_properties    : ['alt', 'file_name', 'role', 'is_visible_to_at'],
+  resource_properties    : ['alt', 'file_name', 'role', 'is_visible_to_at'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -28125,7 +28546,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : [],
   target_resources    : ['img', 'area'],
   cache_dependency    : 'images_cache',
-  cache_properties    : ['alt', 'alt_length', 'role', 'is_visible_to_at'],
+  resource_properties    : ['alt', 'alt_length', 'role', 'is_visible_to_at'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -28179,7 +28600,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : [],
   target_resources    : ['img'],
   cache_dependency    : 'images_cache',
-  cache_properties    : ['alt_length', 'height', 'width', 'role', 'is_visible_to_at'],
+  resource_properties    : ['alt_length', 'height', 'width', 'role', 'is_visible_to_at'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -28234,7 +28655,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : [],
   target_resources    : ['img'],
   cache_dependency    : 'images_cache',
-  cache_properties    : ['has_alt_attribute', 'alt_length', 'role', 'is_visible_to_at'],
+  resource_properties    : ['has_alt_attribute', 'alt_length', 'role', 'is_visible_to_at'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
     
@@ -28289,7 +28710,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.3.1', '2.4.2', '2.4.6', '2.4.10'],
   target_resources    : ['h1'],
   cache_dependency    : 'headings_landmarks_cache',
-  cache_properties    : ['tag_name', 'name', 'name_length'],
+  resource_properties    : ['tag_name', 'name', 'name_length'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
  
@@ -28346,7 +28767,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   target_resources    : ['h1'],
   cache_dependency    : 'headings_landmarks_cache',
   
-  cache_properties    : ['tag_name', 'id', 'name', 'main_landmark'],
+  resource_properties    : ['tag_name', 'id', 'name', 'main_landmark'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -28395,7 +28816,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.3.1', '2.4.10'],
   target_resources    : ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
   cache_dependency    : 'headings_landmarks_cache',
-  cache_properties    : ['tag_name', 'name'],
+  resource_properties    : ['tag_name', 'name'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -28527,7 +28948,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.3.1', '2.4.10'],
   target_resources    : ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
   cache_dependency    : 'headings_landmarks_cache',
-  cache_properties    : ['tag_name', 'name'],
+  resource_properties    : ['tag_name', 'name'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -28583,7 +29004,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.3.1', '2.4.6'],
   target_resources    : ['[role="main"]'],
   cache_dependency    : 'headings_landmarks_cache',
-  cache_properties    : ['tag_name', 'role', 'name'],
+  resource_properties    : ['tag_name', 'role', 'name'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -28631,7 +29052,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['2.4.1', '2.4.6', '2.4.10'],
   target_resources    : ['all'],
   cache_dependency    : 'headings_landmarks_cache',
-  cache_properties    : ['tag_name', 'parent_landmark'],
+  resource_properties    : ['tag_name', 'parent_landmark'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -28693,7 +29114,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.3.1', '2.4.6'],
   target_resources    : ['title'],
   cache_dependency    : 'headings_landmarks_cache',
-  cache_properties    : ['tag_name', 'name', 'name_for_comparison'],
+  resource_properties    : ['tag_name', 'name', 'name_for_comparison'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
   
@@ -28719,6 +29140,421 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     } // end validate function
   }
  ]); 
+
+
+    
+
+/**
+ * Copyright 2011-2012 OpenAjax Alliance
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/* ---------------------------------------------------------------- */
+/*            OpenAjax Alliance Link Rules                         */ 
+/* ---------------------------------------------------------------- */
+
+OpenAjax.a11y.all_rules.addRulesFromJSON([
+      
+/*
+ * @object LINK_1
+ *
+ * @desc Links with the same HREF should have the same link text.
+ */
+	     
+{ rule_id             : 'LINK_1', 
+  last_updated        : '2012-09-22', 
+  rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+  rule_category       : OpenAjax.a11y.RULE_CATEGORIES.LINKS,
+  last_updated        : '2012-09-22', 
+  wcag_primary_id     : '2.4.4',
+  wcag_related_ids    : ['2.4.9'],
+  target_resources    : ['a', 'area', '[role=link]'],
+  cache_dependency    : 'links_cache',
+  resource_properties : ['accessible_name', 'accessible_name_source', 'href'],
+  language_dependency : "",
+  validate            : function (dom_cache, rule_result) {
+  
+    function updateResults(start, end, test_result, message) {
+    
+      for (var i = start; i < end; i++) {
+      
+        var le = visible_links_sorted_by_name[i];
+      
+        OpenAjax.a11y.logger.debug("  Update Item: " + i + " of " + end + " le: " + le.toString());
+
+        var tag_name  = le.dom_element.tag_name;
+              
+        rule_result.addResult(test_result, le,  message, [tag_name, ((end - start) + 1)]);        
+      }
+      
+    }
+
+    var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
+    var VISIBILITY  = OpenAjax.a11y.VISIBILITY;
+    
+    var links_sorted_by_name     = dom_cache.links_cache.links_sorted_by_name;
+    var links_sorted_by_name_len = links_sorted_by_name.length;
+
+    var visible_links_sorted_by_name = [];
+    
+    for (var i = 0; i < links_sorted_by_name_len; i++) {
+      
+      var le = links_sorted_by_name[i];
+      var tag_name = le.dom_element.tag_name;
+      
+      if (le.dom_element.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
+        visible_links_sorted_by_name.push(le);
+      }
+      else {
+        rule_result.addResult(TEST_RESULT.HIDDEN, le, 'HIDDEN', [tag_name]);                  
+      }
+      
+    }
+    
+    var visible_links_sorted_by_name_len = visible_links_sorted_by_name.length - 1;
+
+    OpenAjax.a11y.logger.debug("== LINK RULE 2 ==");
+    OpenAjax.a11y.logger.debug("  Number of visible links: " +  visible_links_sorted_by_name_len );
+
+    for (i = 0; i < visible_links_sorted_by_name_len; i++) {
+
+      var le1 = visible_links_sorted_by_name[i];
+      var de1 = le1.dom_element;
+      
+      var le1_href           = le1.href;
+      var le1_name           = le1.accessible_name_for_comparison;
+      var le1_tag_name       = de1.tag_name;
+
+      var j = i+1;
+     
+      var le2 = visible_links_sorted_by_name[j];
+      var de2 = le2.dom_element;
+      
+      var le2_href           = le2.href;
+      var le2_name           = le2.accessible_name_for_comparison;
+
+      OpenAjax.a11y.logger.debug("  Item " + i + ": " + le1_href + " ('" + le1.accessible_name + "')  Item " + j + ": " + le2_href + " ('" + le2.accessible_name + "')");
+
+      if (le1_href === le2_href) {
+      
+        var same_name_count        = 0;
+        var same_href_count        = 0;
+          
+        while ((j < (visible_links_sorted_by_name_len+1)) && 
+               (le1_name === le2_name)) {
+            
+          same_href_count++;
+            
+          if (le1_name === le2_name) same_name_count++;
+
+          j++;
+          le2 = links_sorted_by_name[j];
+          de2 = le2.dom_element;
+            
+          le2_name           = le2.accessible_name_for_comparison;
+          le2_description    = de2.accessible_description_for_comparison;
+            
+        }
+          
+        if (same_href_count === same_name_count) updateResults(i, j, TEST_RESULT.PASS, 'PASS_2');
+        else if (same_href_count === 2) updateResults(i, j, TEST_RESULT.MANUAL_CHECK, 'MANUAL_CHECK_1');
+          else updateResults(i, j, TEST_RESULT.FAIL, 'CORRECTIVE_ACTION_1');
+          
+        i = j;
+
+      }
+      else {
+        rule_result.addResult(TEST_RESULT.PASS, le1, 'PASS_1', [le1_tag_name]);
+      }
+        
+    }  // end loop  
+    
+    if ((j <= visible_links_sorted_by_name_len) && (le1_href != le2_href)) {
+      rule_result.addResult(TEST_RESULT.PASS, le2, 'PASS_1', [de2.tag_name]);    
+    }
+   
+  } // end validate function
+ },
+
+/**
+ * @object LINK_2
+ *
+ * @desc Links with the different HREFs should have the unique link text.
+ */ 
+	     
+{ rule_id             : 'LINK_2', 
+  last_updated        : '2012-09-22', 
+  rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+  rule_category       : OpenAjax.a11y.RULE_CATEGORIES.LINKS,
+  last_updated        : '2012-09-22', 
+  wcag_primary_id     : '2.4.4',
+  wcag_related_ids    : ['2.4.9'],
+  target_resources    : ['a', 'area', '[role=link]'],
+  cache_dependency    : 'links_cache',
+  resource_properties : ['accessible_name', 'accessible_name_source', 'href', 'accessible_description'],
+  language_dependency : "",
+  validate            : function (dom_cache, rule_result) {
+
+    function updateResults(start, end, test_result, message) {
+    
+      for (var i = start; i < end; i++) {
+      
+        var le = visible_links_sorted_by_name[i];
+      
+        OpenAjax.a11y.logger.debug("  Update Item: " + i + " of " + end + " le: " + le.toString());
+
+        var tag_name  = le.dom_element.tag_name;
+              
+        rule_result.addResult(test_result, le,  message, [tag_name, ((end - start) + 1)]);        
+      }
+      
+    }
+
+    var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
+    var VISIBILITY  = OpenAjax.a11y.VISIBILITY;
+    
+    var links_sorted_by_name     = dom_cache.links_cache.links_sorted_by_name;
+    var links_sorted_by_name_len = links_sorted_by_name.length;
+
+    var visible_links_sorted_by_name = [];
+    
+    for (var i = 0; i < links_sorted_by_name_len; i++) {
+      
+      var le = links_sorted_by_name[i];
+      var tag_name = le.dom_element.tag_name;
+      
+      if (le.dom_element.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
+        visible_links_sorted_by_name.push(le);
+      }
+      else {
+        rule_result.addResult(TEST_RESULT.HIDDEN, le, 'HIDDEN', [tag_name]);                  
+      }
+      
+    }
+    
+    var visible_links_sorted_by_name_len = visible_links_sorted_by_name.length - 1;
+
+//    OpenAjax.a11y.logger.debug("== LINK RULE 2 ==");
+//    OpenAjax.a11y.logger.debug("  Number of visible links: " +  visible_links_sorted_by_name_len );
+
+    for (i = 0; i < visible_links_sorted_by_name_len; i++) {
+
+      var le1 = visible_links_sorted_by_name[i];
+      var de1 = le1.dom_element;
+      
+      var le1_name           = le1.accessible_name_for_comparison;
+      var le1_description    = le1.accessible_description_for_comparison;
+      var le1_tag_name       = de1.tag_name;
+
+      var j = i+1;
+     
+      var le2 = visible_links_sorted_by_name[j];
+      var de2 = le2.dom_element;
+      
+      var le2_name           = le2.accessible_name_for_comparison;
+      var le2_description    = le2.accessible_description_for_comparison;
+
+//      OpenAjax.a11y.logger.debug("  Item " + i + ": " + le1_name + " ('" + le1.accessible_name + "')  Item " + j + ": " + le2_name + " ('" + le2.accessible_name + "')");
+
+      if (le1_name === le2_name) {
+      
+        var same_name_count        = 0;
+        var same_href_count        = 0;
+        var same_description_count = 0;
+          
+        while ((j < (visible_links_sorted_by_name_len+1)) && 
+               (le1_name === le2_name)) {
+            
+          same_name_count++;
+            
+          if (le1.href === le2.href) same_href_count++;
+          if (le1_description === le2_description) same_description_count++;
+
+          OpenAjax.a11y.logger.debug("  Desc " + i + ": " + le1_description + " ('" + le1.name + "')  Desc " + j + ": " + le2_description + " ('" + le2.accessible_name + "') count= " + same_description_count);
+
+          j++;
+          le2 = links_sorted_by_name[j];
+          de2 = le2.dom_element;
+            
+          le2_name           = le2.accessible_name_for_comparison;
+          le2_description    = de2.accessible_description_for_comparison;
+            
+        }
+          
+        if (same_href_count === same_name_count) updateResults(i, j, TEST_RESULT.PASS, 'PASS_2');
+        else if (same_description_count === 0) updateResults(i, j, TEST_RESULT.PASS, 'PASS_3');
+          else updateResults(i, j, TEST_RESULT.FAIL, 'CORRECTIVE_ACTION_1');
+          
+        i = j;
+
+      }
+      else {
+        rule_result.addResult(TEST_RESULT.PASS, le1, 'PASS_1', [le1_tag_name]);
+      }
+        
+    }  // end loop  
+    
+    if ((j <= visible_links_sorted_by_name_len) && (le1_name != le2_name)) {
+      rule_result.addResult(TEST_RESULT.PASS, le2, 'PASS_1', [de2.tag_name]);    
+    }
+
+  } // end validate function
+ },
+ 
+/**
+ * @object LINK_3 
+ * 
+ * @desc Links should have minimum dimensions for selecting and reading
+ */
+ 
+{ rule_id             : 'LINK_3', 
+  last_updated        : '2012-09-22', 
+  rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+  rule_category       : OpenAjax.a11y.RULE_CATEGORIES.LINKS,
+  last_updated        : '2012-04-12', 
+  wcag_primary_id     : '2.4.4',
+  wcag_related_ids    : ['2.4.9'],
+  target_resources    : ['a', 'area', '[role=link]'],
+  cache_dependency    : 'links_cache',
+  resource_properties    : ['height', 'width', 'is_visible_to_at'],
+  language_dependency : "",
+  validate            : function (dom_cache, rule_result) {
+
+    var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
+    var VISIBILITY  = OpenAjax.a11y.VISIBILITY;
+    
+    var MIN_HEIGHT = 12;
+    var MIN_WIDTH = 12;
+
+    var passed = true;
+    var node_result = null;
+   
+    var link_elements_len;
+    var link_element;
+    var computed_style;
+   
+    // Check to see if valid cache reference
+    if (dom_cache.links_cache.link_elements) {
+     
+      link_elements_len = dom_cache.links_cache.link_elements.length;
+    
+      for (var i=0; i < link_elements_len; i++) {
+      
+    
+        link_element = dom_cache.links_cache.link_elements[i];
+        computed_style = link_element.dom_element.computed_style;
+
+        var tag_name = link_element.dom_element.tag_name;
+
+        // test if link is visible in a graphical rendering
+     
+        if (computed_style.is_visible_onscreen == OpenAjax.a11y.VISIBILITY.VISIBLE) {
+     
+          if (link_element.href && link_element.href.length) {       
+       
+            if ((typeof link_element.height === 'number') && 
+                (typeof link_element.width  === 'number')) {
+       
+              if ((link_element.height > MIN_HEIGHT) && 
+                 (link_element.width > MIN_WIDTH)) {
+                rule_result.addResult(TEST_RESULT.PASS, link_element, 'PASS', [tag_name]);
+              }
+              else {
+                rule_result.addResult(TEST_RESULT.FAIL, link_element, 'CORRECTIVE_ACTION_1', [tag_name, link_element.height, link_element.width]);
+              }
+            }
+            else {
+              rule_result.addResult(TEST_RESULT.MANUAL_CHECK, link_element, 'MANUAL_CHECK_1', [tag_name]);
+            }
+          } 
+        } 
+        else {
+          rule_result.addResult(OpenAjax.a11y.SEVERITY.HIDDEN, link_element, 'HIDDEN', [tag_name]);
+        } // endif
+      } // end loop
+    } 
+    
+  } // end valifdation function
+},
+
+/**
+ * @object LINK_4 
+ * 
+ * @desc Link should describe the target of a link
+ */
+ 
+{ rule_id             : 'LINK_4', 
+  last_updated        : '2012-09-22', 
+  rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+  rule_category       : OpenAjax.a11y.RULE_CATEGORIES.LINKS,
+  last_updated        : '2012-04-12', 
+  wcag_primary_id     : '2.4.4',
+  wcag_related_ids    : ['2.4.9'],
+  target_resources    : ['a', 'area', '[role=link]'],
+  cache_dependency    : 'links_cache',
+  resource_properties : ['accessible_name', 'accessible_name_source', 'href', 'accessible_description'],
+  language_dependency : "",
+  validate            : function (dom_cache, rule_result) {
+
+    var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
+    var VISIBILITY  = OpenAjax.a11y.VISIBILITY;
+    
+    var link_elements     = dom_cache.links_cache.link_elements;
+    var link_elements_len = link_elements.length;
+
+    var visible_link_elements = [];
+    
+    for (var i = 0; i < link_elements_len; i++) {
+      
+      var le = link_elements[i];
+      var tag_name = le.dom_element.tag_name;
+      
+      if (le.dom_element.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
+        visible_link_elements.push(le);
+      }
+      else {
+        rule_result.addResult(TEST_RESULT.HIDDEN, le, 'HIDDEN', [tag_name]);                  
+      }
+      
+    }
+    
+    var visible_link_elements_len = visible_link_elements.length;
+
+    for (i = 0; i < visible_link_elements_len; i++) {
+
+      le = visible_link_elements[i];
+      
+      var name        = le.accessible_name_for_comparison;
+      var description = le.accessible_description_for_comparison;
+      tag_name        = le.dom_element.tag_name;
+
+      if (name.length) {
+        if (description.length) rule_result.addResult(TEST_RESULT.MANUAL_CHECK, le, 'MANUAL_CHECK_2', [tag_name, name, description]);
+        else rule_result.addResult(TEST_RESULT.MANUAL_CHECK, le, 'MANUAL_CHECK_1', [tag_name, name]);
+      }  
+      else {
+        rule_result.addResult(TEST_RESULT.FAIL, le, 'CORRECTIVE_ACTION_1', [tag_name]);
+      }
+      
+    }  // end loop  
+    
+    
+  } // end valifdation function
+}
+
+      
+]); 
 
 
     
@@ -28870,6 +29706,26 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
      },
    LANDMARK_2 : {
        type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       enabled  : true
+     },
+   LINK_1 : {
+       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       enabled  : true
+     },
+   LINK_2 : {
+       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       enabled  : true
+     },
+   LINK_3 : {
+       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       enabled  : true
+     },
+   LINK_4 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       enabled  : true
+     },
+   TABLE_1 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
        enabled  : true
      },
    TITLE_1 : {
@@ -29032,6 +29888,26 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        enabled  : true
      },
    LANDMARK_2 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       enabled  : true
+     },
+   LINK_1 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       enabled  : true
+     },
+   LINK_2 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       enabled  : true
+     },
+   LINK_3 : {
+       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       enabled  : true
+     },
+   LINK_4 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       enabled  : true
+     },
+   TABLE_1 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
        enabled  : true
      },

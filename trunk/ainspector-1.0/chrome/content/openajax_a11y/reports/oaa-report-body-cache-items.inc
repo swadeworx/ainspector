@@ -9,7 +9,7 @@
         <ul>
           <li><a href="#ID_A_ELEMENT_SUMMARY">Element Summary</a></li>
           <li>Rule Summary</li>
-          <li><a href="#ID_DIV_CSV">CSV for Spreadsheet Export</a></li>
+          <li><a href="report.csv">CSV for Spreadsheet Export</a></li>
         </ul>
       </div>
       
@@ -37,15 +37,6 @@
         <h2 id="ID_H2_ELEMENT_DETAILS">Evaluation Result Details</h2>
         
 
-        
-      </div>
-
-      <div id="ID_DIV_CSV" role="region" aria-labelledby="ID_H2_CSV">
-        <h2 id="ID_H2_CSV">Evaluation Result CSV Format</h2>
-        
-        <pre id="ID_PRE_CSV">
-          
-        </pre>
         
       </div>
       

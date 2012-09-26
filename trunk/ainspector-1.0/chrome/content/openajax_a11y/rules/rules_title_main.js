@@ -18,7 +18,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.3.1', '2.4.6'],
   target_resources    : ['title'],
   cache_dependency    : 'headings_landmarks_cache',
-  cache_properties    : ['tag_name', 'name', 'name_for_comparison'],
+  resource_properties    : ['tag_name', 'name', 'name_for_comparison'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
   

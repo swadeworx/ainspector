@@ -18,7 +18,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : [],
   target_resources    : ['img', 'area'],
   cache_dependency    : 'images_cache',
-  cache_properties    : ['alt', 'role', 'is_visible_to_at'],
+  resource_properties : ['alt', 'role', 'is_visible_to_at'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
  
@@ -70,7 +70,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : [],
   target_resources    : ['img'],
   cache_dependency    : 'images_cache',
-  cache_properties    : ['longdesc', 'longdesc_is_broken', 'is_visible_to_at'],
+  resource_properties    : ['longdesc', 'longdesc_is_broken', 'is_visible_to_at'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -134,7 +134,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : [],
   target_resources    : ['img'],
   cache_dependency    : 'images_cache',
-  cache_properties    : ['alt', 'file_name', 'role', 'is_visible_to_at'],
+  resource_properties    : ['alt', 'file_name', 'role', 'is_visible_to_at'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -197,7 +197,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : [],
   target_resources    : ['img', 'area'],
   cache_dependency    : 'images_cache',
-  cache_properties    : ['alt', 'alt_length', 'role', 'is_visible_to_at'],
+  resource_properties    : ['alt', 'alt_length', 'role', 'is_visible_to_at'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -251,7 +251,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : [],
   target_resources    : ['img'],
   cache_dependency    : 'images_cache',
-  cache_properties    : ['alt_length', 'height', 'width', 'role', 'is_visible_to_at'],
+  resource_properties    : ['alt_length', 'height', 'width', 'role', 'is_visible_to_at'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -306,7 +306,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : [],
   target_resources    : ['img'],
   cache_dependency    : 'images_cache',
-  cache_properties    : ['has_alt_attribute', 'alt_length', 'role', 'is_visible_to_at'],
+  resource_properties    : ['has_alt_attribute', 'alt_length', 'role', 'is_visible_to_at'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
     

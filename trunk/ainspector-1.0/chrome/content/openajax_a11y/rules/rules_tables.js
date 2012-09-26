@@ -27,14 +27,19 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  *       either a TH element or TD element with scope value of 'col' and/or each row contains at 
  *       at least one TH element or a TD with scope value of 'row'
  */
- { id                : 'TABLE_1', 
-   last_updated      : '2011-09-17', 
-   cache_dependency  : 'tables_cache',
-   cache_properties : ['is_data_table', 'first_row_th_count', 'first_row_cell_count'],
-   language          : "",
+ { rule_id             : 'TABLE_1', 
+   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+   rule_category       : OpenAjax.a11y.RULE_CATEGORIES.CONTROLS,
+   last_updated        : '2011-09-23', 
+   wcag_primary_id     : '3.3.2',
+   wcag_related_ids    : ['1.3.1', '2.4.6'],
+   target_resources    : ['input[type="checkbox"]', 'input[type="radio"]', 'input[type="text"]', 'input[type="password"]', 'input[type="file"]', 'select', 'textarea'],
+   cache_dependency    : 'tables_cache',
+   resource_properties : ['is_data_table', 'first_row_th_count', 'first_row_cell_count'],
+   language_dependency : "",
    validate          : function (dom_cache, rule_result) {
    
-     var SEVERITY = OpenAjax.a11y.SEVERITY;
+     var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
    
      var i;
      var te;
@@ -65,43 +70,43 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
              te.first_column_cell_count = info_column.total;
 
              if (info_row.th_count == info_row.total && info_column.th_count == info_column.total) {
-               rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS_BOTH', [info_row.total, info_column.total]);     
+               rule_result.addResult(TEST_RESULT.PASS, te, 'PASS_1', [info_row.total, info_column.total]);     
              }
              else {
                if (info_row.th_count == info_row.total) {
-                 rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS_ROW', [info_row.total]);     
+                 rule_result.addResult(TEST_RESULT.PASS, te, 'PASS_2', [info_row.total]);     
                }
                else {               
                  if (info_column.th_count == info_column.total) {
-                   rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS_COLUMN', [info_column.total]);     
+                   rule_result.addResult(TEST_RESULT.PASS, te, 'PASS_3', [info_column.total]);     
                  }
                  else {
-                   rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_VIOLATION', [info_row.th_count, info_row.total, info_column.th_count, info_column.total]);
+                   rule_result.addResult(TEST_RESULT.FAIL, te, 'CORRECTIVE_ACTION_1', [info_row.th_count, info_row.total, info_column.th_count, info_column.total]);
                  }  
                }  
              }
            }
            else {
-             rule_result.addResult(SEVERITY.HIDDEN, te, 'MESSAGE_HIDDEN', []);     
+             rule_result.addResult(SEVERITY.HIDDEN, te, 'HIDDEN', []);     
            }
          }   
          else {
-           rule_result.addResult(SEVERITY.NA, te, 'MESSAGE_NOT_DATA_TABLE', []);
+           rule_result.addResult(SEVERITY.NA, te, 'MESSAGE_OTHER', []);
          }
        } // end loop
      }   
    } // end validation function
- },
+ }
  
 /** 
  * @object TABLE_2T 
  *
  * @desc Tests if a table has either an effective caption or an effective summary with content.
- */
+ *
  { id                : 'TABLE_2T', 
    last_updated      : '2011-09-17', 
    cache_dependency  : 'tables_cache',
-   cache_properties : ['is_data_table', 'effective_caption', 'effective_summary'],
+   resource_properties : ['is_data_table', 'effective_caption', 'effective_summary'],
    language          : "",
    validate          : function (dom_cache, rule_result) {
    
@@ -153,11 +158,11 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * @object TABLE_2S 
  *
  * @desc  If there is only one data table on a page, the rule tests the table for an effective caption.
- */
+ *
  { id                : 'TABLE_2S', 
    last_updated      : '2011-09-17', 
    cache_dependency  : 'tables_cache',
-   cache_properties : ['is_data_table', 'effective_caption'],
+   resource_properties : ['is_data_table', 'effective_caption'],
    language          : "",
    enabled           : true,
    validate          : function (dom_cache, rule_result) {
@@ -203,11 +208,11 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * @object TABLE_2M
  *
  * @desc   If there is more than one data table on a page, the rule tests the table for an effective caption.
- */
+ *
  { id                : 'TABLE_2M', 
    last_updated      : '2011-12-14', 
    cache_dependency  : 'tables_cache',
-   cache_properties : ['is_data_table', 'effective_caption'],
+   resource_properties : ['is_data_table', 'effective_caption'],
    language          : "",
    validate          : function (dom_cache, rule_result) {
    
@@ -266,12 +271,12 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * @object TABLE_3
  *
  * @desc  Tests when a table has both and effective caption and effective summary that the two are unique 
- */
+ *
  
  { id                : 'TABLE_3', 
    last_updated      : '2011-09-17', 
    cache_dependency  : 'tables_cache',
-   cache_properties : ['effective_caption', 'effective_summary'],
+   resource_properties : ['effective_caption', 'effective_summary'],
    language          : "",
    validate          : function (dom_cache, rule_result) {
    
@@ -326,12 +331,12 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * @object TABLE_4
  *
  * @desc    Tests if table headers use TH elements instead of TD with SCOPE
- */
+ *
  
  { id                : 'TABLE_4', 
    last_updated      : '2011-09-17', 
    cache_dependency  : 'tables_cache',
-   cache_properties : ['scope'],
+   resource_properties : ['scope'],
    language          : "",
    validate          : function (dom_cache, rule_result) {
    
@@ -401,11 +406,11 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * @object TABLE_5
  *
  * @desc   The rule tests the table for an effective summary.
- */
+ *
  { id                : 'TABLE_5', 
    last_updated      : '2011-12-14', 
    cache_dependency  : 'tables_cache',
-   cache_properties : ['effective_summary'],
+   resource_properties : ['effective_summary'],
    language          : "",
    validate          : function (dom_cache, rule_result) {
    
@@ -457,11 +462,11 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * @desc    Each TH element with content in a complex table 
  *          must have an id attribute, whose id value must be unique 
  *          on the page
- */
+ *
  { id                : 'TABLE_6', 
    last_updated      : '2011-09-17', 
    cache_dependency  : 'tables_cache',
-   cache_properties : ['id'],
+   resource_properties : ['id'],
    language          : "",
    validate          : function (dom_cache, rule_result) {
    
@@ -576,11 +581,11 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * @object TABLE_7
  *
  * @desc  If a table is a complex data table, all the TD elements must have a headers attribute that point to TH elements in the same table
- */
+ *
  { id                : 'TABLE_7', 
    last_updated      : '2011-09-17', 
    cache_dependency  : 'tables_cache',
-   cache_properties : ['headers'],
+   resource_properties : ['headers'],
    language          : "",
    validate          : function (dom_cache, rule_result) {
 
@@ -687,11 +692,11 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * @object TABLE_8
  *
  * @desc     If a table is a complex data table, the rule tests if the table has an effective summary
- */
+ *
  { id                : 'TABLE_8', 
    last_updated      : '2011-12-14', 
    cache_dependency  : 'tables_cache',
-   cache_properties : ['effective_summary'],
+   resource_properties : ['effective_summary'],
    language          : "",
    validate          : function (dom_cache, rule_result) {
    
@@ -742,11 +747,11 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * @desc     Do not use nested tables more than 1 column wide  
  *           for positioning content outside of landmarks.
  *           Fails with one or more one levels of nesting.
- */
+ *
  { id                : 'LAYOUT_1',
    last_updated      : '2011-09-17',
    cache_dependency  : 'tables_cache',
-   cache_properties : ['is_data_table', 'max_row', 'max_column', 'nesting_level'],
+   resource_properties : ['is_data_table', 'max_row', 'max_column', 'nesting_level'],
    language          : "",
    validate          : function (dom_cache, rule_result) {
      
@@ -822,11 +827,11 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  *
  * @desc     Do not use nested tables more than 1 column wide for positioning within a landmark. 
  *           Fails with one or more one levels of nesting.
- */
+ *
  { id                : 'LAYOUT_2', 
    last_updated      : '2011-09-17', 
    cache_dependency  : 'tables_cache',
-   cache_properties : ['is_data_table', 'max_row', 'max_column', 'nesting_level'],
+   resource_properties : ['is_data_table', 'max_row', 'max_column', 'nesting_level'],
    language          : "",
    validate          : function (dom_cache, rule_result) {
    
@@ -878,11 +883,11 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  *
  * @desc  If table is used for layout, the rule tests if the table element and any of its child table 
  *        related elements (i.e. tbody, tr, td) have a role attribute with the value 'presentation' (role="presentation")
- */
+ *
  { id                : 'LAYOUT_3', 
    last_updated      : '2011-09-17', 
    cache_dependency  : 'tables_cache',
-   cache_properties : ['role'],
+   resource_properties : ['role'],
    language          : "",
    validate          : function (dom_cache, rule_result) {
    

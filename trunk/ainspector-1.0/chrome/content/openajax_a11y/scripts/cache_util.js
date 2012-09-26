@@ -65,6 +65,34 @@ OpenAjax.a11y.util.removeEscapesFromJSON = function(str) {
   return str;  
 };
 
+/**
+ * @function getFormattedDate
+ *
+ * @desc Returns a fomratted string (YYYY-MM-DD) represeting the current date
+ *       with leading zeros
+ *
+ * @return {String}  Formatted date string
+ */
+ 
+OpenAjax.a11y.util.getFormattedDate = function(str) {
+
+  function leadingZero(n) {
+    var n1 = n.toString();
+    if (n < 10) n1 = "0" + n;
+    return n1;
+  }
+
+  var date = new Date();
+  
+  var y = date.getFullYear();
+  var m = date.getMonth() + 1;
+  var d = date.getDate();
+  var hours = date.getHours() + 1;
+  var minutes = date.getMinutes() + 1;
+
+  return y + "-" + leadingZero(m) + "-" + leadingZero(d) + ":" + leadingZero(hours)+ ":" + leadingZero(minutes);
+
+};
 
 
 /**
@@ -80,7 +108,7 @@ OpenAjax.a11y.util.initStringUsingURL = function(url) {
 
   var xmlhttp = new XMLHttpRequest();
 
-//  OpenAjax.a11y.logger.debug( "REQUESTING URL: " + url);
+  OpenAjax.a11y.logger.debug( "REQUESTING URL: " + url);
 
   xmlhttp.open("GET", url, false);
   xmlhttp.send(null); 

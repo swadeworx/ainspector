@@ -888,6 +888,9 @@ OpenAjax.a11y.cache.DOMText.prototype.toString = function(option) {
  * @property {Array}      aria_properties     - Arrary of property name and value objects for any attribute 
  *                                              beginning with 'aria-'
  *
+ * @property {String}     calculated_aria_description  - If aria-describedby defined this is a string of the 
+ *                                                       description content 
+ *
  * @property {Boolean}    is_widget           - True if element is a ARIA widget, otherwise false
  * @property {Boolean}    is_landmark         - True if element is a ARIA landmark, otherwise false
  * @property {Boolean}    is_live             - True if element is a ARIA live region, otherwise false

@@ -14,7 +14,7 @@
 
          if (typeof str === 'string' && str.length) {
            var return_str = str.replace("\\'", "'", "gi");
-           return_str = return_str.replace("\\"", "\"", "gi");
+           return_str = return_str.replace("\\\"", "\"", "gi");
            return_str = return_str.replace("\\n", "\n", "gi");
            return return_str;
          }
@@ -427,7 +427,7 @@
        *
        * @desc Adds CSV formatted eveluation results   
        */
-       OAA_REPORT.addNodeResultsDetails = function() {
+       OAA_REPORT.addCSVRusults = function() {
 
          var node_pre = document.getElementById('ID_PRE_CSV');
          
@@ -471,7 +471,7 @@
 
          OAA_REPORT.addNodeResultsDetails();
 
-         OAA_REPORT.addCSVRusults();
+//         OAA_REPORT.addCSVRusults();
 
        }  
     

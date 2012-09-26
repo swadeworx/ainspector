@@ -18,7 +18,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.3.1', '2.4.2', '2.4.6', '2.4.10'],
   target_resources    : ['h1'],
   cache_dependency    : 'headings_landmarks_cache',
-  cache_properties    : ['tag_name', 'name', 'name_length'],
+  resource_properties    : ['tag_name', 'name', 'name_length'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
  
@@ -75,7 +75,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   target_resources    : ['h1'],
   cache_dependency    : 'headings_landmarks_cache',
   
-  cache_properties    : ['tag_name', 'id', 'name', 'main_landmark'],
+  resource_properties    : ['tag_name', 'id', 'name', 'main_landmark'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -124,7 +124,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.3.1', '2.4.10'],
   target_resources    : ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
   cache_dependency    : 'headings_landmarks_cache',
-  cache_properties    : ['tag_name', 'name'],
+  resource_properties    : ['tag_name', 'name'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -256,7 +256,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.3.1', '2.4.10'],
   target_resources    : ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
   cache_dependency    : 'headings_landmarks_cache',
-  cache_properties    : ['tag_name', 'name'],
+  resource_properties    : ['tag_name', 'name'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -312,7 +312,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['1.3.1', '2.4.6'],
   target_resources    : ['[role="main"]'],
   cache_dependency    : 'headings_landmarks_cache',
-  cache_properties    : ['tag_name', 'role', 'name'],
+  resource_properties    : ['tag_name', 'role', 'name'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -360,7 +360,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : ['2.4.1', '2.4.6', '2.4.10'],
   target_resources    : ['all'],
   cache_dependency    : 'headings_landmarks_cache',
-  cache_properties    : ['tag_name', 'parent_landmark'],
+  resource_properties    : ['tag_name', 'parent_landmark'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 

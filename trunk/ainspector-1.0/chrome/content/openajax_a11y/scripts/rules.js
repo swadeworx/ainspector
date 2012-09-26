@@ -29,7 +29,7 @@
  * @param {Object}    nls                - NLS information for rules 
  * @param {Object}    rule_item          - Object containing rule information 
  * @param {String}    cache_dependency   - Which cache the rule will use 
- * @param {Array}     cache_properties   - What properties of a cache or dom element the rules uses in the evaluation
+ * @param {Array}     resource_properties   - What properties of a cache or dom element the rules uses in the evaluation
  * @param {String}    language           - The lanaguage code or codes (space separated) if the rule is language specfic, default is empty string
  * @param {function}  validate           - function for evalutinf the rule
  *
@@ -39,7 +39,7 @@
  * @property {Object}    wcag_primary_id    - id of the primary WCAG 2.0 success criteria 
  * @property {Object}    wcag_related_ids   - id of related WCAG 2.0 success criteria
  * @property {String}    cache_dependency   - Which cache (i.e. element group) the rule will use 
- * @property {Array}     cache_properties   - What properties of a cache or dom element the rules uses in the evaluation
+ * @property {Array}     resource_properties   - What properties of a cache or dom element the rules uses in the evaluation
  * @property {Array}     target_objects     - The html objects the rule evaluates (NOTE: this is informative information)
  * @property {String}    language           - The lanaguage code or codes (space separated) if the rule is language specfic, default is empty string
  * @property {function}  validate           - function for evalutinf the rule
@@ -55,7 +55,7 @@ OpenAjax.a11y.Rule = function (nls, rule_item) {
   this.wcag_related_ids    = rule_item.wcag_related_ids;
   this.last_updated        = rule_item.last_updated;
   this.cache_dependency    = rule_item.cache_dependency;
-  this.cache_properties    = rule_item.cache_properties;
+  this.resource_properties    = rule_item.resource_properties;
   this.target_resources    = rule_item.target_resources;
   this.language_dependency = rule_item.language_dependency;
   this.validate            = rule_item.validate;
@@ -482,6 +482,22 @@ OpenAjax.a11y.Rule.prototype.getWCAG20SuccessCriteriaIndex = function () {
 };
 
 /**
+ * @method getWCAG20SuccessCriterion
+ *
+ * @memberOf OpenAjax.a11y.Rule
+ *
+ * @desc Returns the WCAG 2.0 Success Criterion number
+ *
+ * @return  {String}  WCAG20Result sucess criterion
+ */
+
+OpenAjax.a11y.Rule.prototype.getWCAG20SuccessCriterion = function () {
+
+   return this.wcag_primary_id;
+
+};
+
+/**
  * @method toJSON
  *
  * @memberOf OpenAjax.a11y.Rule
@@ -540,12 +556,12 @@ OpenAjax.a11y.Rule.prototype.toJSON = function (prefix, rule_type) {
   stringItem('last_updated', this.last_updated);
   stringListItem('target_resources', this.target_resources); 
   numberItem('rule_category', this.rule_category);
-  stringItem('language', this.language_dependency);
+  stringItem('language_dependency', this.language_dependency);
   stringItem('cache_dependency', this.cache_dependency);
-  stringListItem('cache_properties', this.cache_properties);
+  stringListItem('resource_properties', this.resource_properties);
   stringItem('validate', this.validate.toString());
     
-  stringItem('human_id', nls_rule['ID']);
+  stringItem('nls_rule_id', nls_rule['ID']);
   
   if (typeof rule_type === 'number') {
     stringItem('definition', this.getNLSDefinition(rule_type));
@@ -580,17 +596,23 @@ OpenAjax.a11y.Rule.prototype.toJSON = function (prefix, rule_type) {
   stringItem('manual_check_3_url', null);
   stringItem('manual_check_4', null); 
   stringItem('manual_check_4_url', null);
+  
+  stringItem('rule_result_manual_checks_singular',     nls_rule['RULE_RESULT_MESSAGES']['MANUAL_CHECKS_SINGULAR']);    
+  stringItem('rule_result_manual_checks_plural',       nls_rule['RULE_RESULT_MESSAGES']['MANUAL_CHECKS_PLURAL']);    
+  stringItem('rule_result_all_pass_singular',          nls_rule['RULE_RESULT_MESSAGES']['ALL_PASS_SINGULAR']);      
+  stringItem('rule_result_all_pass_plural',            nls_rule['RULE_RESULT_MESSAGES']['ALL_PASS_PLURAL']);    
+  stringItem('rule_result_some_fail',                  nls_rule['RULE_RESULT_MESSAGES']['SOME_FAIL']);    
+  stringItem('rule_result_corrective_action_singular', nls_rule['RULE_RESULT_MESSAGES']['CORRECTIVE_ACTION_SINGULAR']);    
+  stringItem('rule_result_corrective_action_plural',   nls_rule['RULE_RESULT_MESSAGES']['CORRECTIVE_ACTION_PLURAL']);    
+  stringItem('rule_result_all_fail_singular',          nls_rule['RULE_RESULT_MESSAGES']['ALL_FAIL_SINGULAR']);    
+  stringItem('rule_result_all_fail_plural',            nls_rule['RULE_RESULT_MESSAGES']['ALL_FAIL_PLURAL']);    
+  stringItem('rule_result_not_applicable',             nls_rule['RULE_RESULT_MESSAGES']['NOT_APPLICABLE']);    
 
-  stringItem('rule_result_all_manual_checks', nls_rule['RULE_RESULT_MESSAGES']['ALL_MANUAL_CHECKS']);    
-  stringItem('rule_result_all_pass', nls_rule['RULE_RESULT_MESSAGES']['ALL_PASS']);    
-  stringItem('rule_result_all_pass_with_manual_checks', nls_rule['RULE_RESULT_MESSAGES']['ALL_PASS_WITH_MANUAL_CHECKS']);    
-  stringItem('rule_result_some_fail', nls_rule['RULE_RESULT_MESSAGES']['SOME_FAIL']);    
-  stringItem('rule_result_some_fail_with_manual_checks', nls_rule['RULE_RESULT_MESSAGES']['SOME_FAIL_WITH_MANUAL_CHECKS']);    
-  stringItem('rule_result_all_fail', nls_rule['RULE_RESULT_MESSAGES']['ALL_FAIL']);    
-  stringItem('rule_result_all_fail_with_manual_checks', nls_rule['RULE_RESULT_MESSAGES']['ALL_FAIL_WITH_MANUAL_CHECKS']);    
-  stringItem('rule_result_not_applicable', nls_rule['RULE_RESULT_MESSAGES']['NOT_APPLICABLE']);    
-
-  stringItem('node_result_pass', nls_rule['NODE_RESULT_MESSAGES']['PASS']);    
+  if (nls_rule['NODE_RESULT_MESSAGES']['PASS']) stringItem('node_result_pass_1', nls_rule['NODE_RESULT_MESSAGES']['PASS']);    
+  else stringItem('node_result_pass_1', nls_rule['NODE_RESULT_MESSAGES']['PASS_1']);
+  stringItem('node_result_pass_2', nls_rule['NODE_RESULT_MESSAGES']['PASS_2']);    
+  stringItem('node_result_pass_3', nls_rule['NODE_RESULT_MESSAGES']['PASS_3']);    
+  
   stringItem('node_result_hidden', nls_rule['NODE_RESULT_MESSAGES']['HIDDEN']);
   stringItem('node_result_presentation', nls_rule['NODE_RESULT_MESSAGES']['PRESENTATION']);
     
@@ -600,7 +622,9 @@ OpenAjax.a11y.Rule.prototype.toJSON = function (prefix, rule_type) {
     
   stringItem('node_result_corrective_action_1', nls_rule['NODE_RESULT_MESSAGES']['CORRECTIVE_ACTION_1']);
   stringItem('node_result_corrective_action_2', nls_rule['NODE_RESULT_MESSAGES']['CORRECTIVE_ACTION_2']);
-  stringItem('node_result_corrective_action_3', nls_rule['NODE_RESULT_MESSAGES']['CORRECTIVE_ACTION_3'], true);
+  stringItem('node_result_corrective_action_3', nls_rule['NODE_RESULT_MESSAGES']['CORRECTIVE_ACTION_3']);
+
+  stringItem('node_result_other', nls_rule['NODE_RESULT_MESSAGES']['OTHER'], true);
 
   json += prefix + "  }";
  
@@ -645,6 +669,11 @@ OpenAjax.a11y.Rules.prototype.addRule = function (rule_item) {
 
   var errors = false;
 
+  if (typeof rule_item.rule_id !== 'string') {
+    OpenAjax.a11y.logger.debug("  ** Rule ID is missing");
+    errors = true;
+  }  
+
   if (this.getRuleByRuleId(rule_item.rule_id)) {
     OpenAjax.a11y.logger.debug("  ** Duplicate Rule ID: " + rule_item.rule_id);
     errors = true;
@@ -665,8 +694,8 @@ OpenAjax.a11y.Rules.prototype.addRule = function (rule_item) {
     errors = true;
   }  
 
-  if (typeof rule_item.cache_properties !== 'object') {
-    OpenAjax.a11y.logger.debug("  ** Rule " + rule_item.rule_id + " cache properties is missing or not an array"); 
+  if (typeof rule_item.resource_properties !== 'object') {
+    OpenAjax.a11y.logger.debug("  ** Rule " + rule_item.rule_id + " resource properties is missing or not an array"); 
     errors = true;
   }  
   
@@ -712,10 +741,10 @@ OpenAjax.a11y.Rules.prototype.addRulesFromJSON = function (rule_array) {
 
     rule_item = rule_array[i];
     
-//    OpenAjax.a11y.logger.debug("  Rule: " + rule_item.id);
+    OpenAjax.a11y.logger.debug("  RULE LOADING: " + rule_item.rule_id);
 //    OpenAjax.a11y.logger.debug("  last update: " + rule_item.last_updated);
 //    OpenAjax.a11y.logger.debug("   dependency: " + rule_item.cache_dependency);
-//    OpenAjax.a11y.logger.debug("   properties: " + typeof rule_item.cache_properties);
+//    OpenAjax.a11y.logger.debug("   properties: " + typeof rule_item.resource_properties);
 //    OpenAjax.a11y.logger.debug("     language: " + rule_item.language_dependency);
 //    OpenAjax.a11y.logger.debug("     validate: " + typeof rule_item.validate);
 

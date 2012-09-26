@@ -147,7 +147,7 @@ OpenAjax.a11y.CacheNLS.prototype.getNLSLabelAndValue = function (property, value
     
     if (nls_cache) {
 
-      var cp = nls_cache.cache_properties[property];
+      var cp = nls_cache.resource_properties[property];
       
       // if null return default
       if (!cp) return info;
@@ -206,7 +206,7 @@ OpenAjax.a11y.CacheNLS.prototype.getNLSLabel = function (property) {
     
     if (nls_cache) {
      
-      var cp = nls_cache.cache_properties[property];
+      var cp = nls_cache.resource_properties[property];
       
       // if null return default
       if (!cp) return info;
@@ -241,7 +241,7 @@ OpenAjax.a11y.CacheNLS.prototype.getNLSValue = function (property, value) {
     
     if (nls_cache) {
 
-      var cp = nls_cache.cache_properties[property];
+      var cp = nls_cache.resource_properties[property];
       
       // if null return default
       if (!cp) return value;
