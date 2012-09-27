@@ -5,18 +5,18 @@
 == Version alpha 0.94 ==
 
 === Features ===
-1. Added Summary Panel that shows nomber of elements failed a particular rule, WCAG level (A, AA and AAA) and % of elements that pass the rule
-2. Added Elements Side panel that is showed when you select the Summary Panel
-3. Summary Panel will be default view
-4. Incorparated the changes made in the OAA Cache libray
-5. 'Rule Informaiton' and 'Element Information' buttons are moved to the side panels Elements, Rule Results and Font Properties side panels
-6. Once a XUL window is opened by clicking on the 'Element Informaiton' and 'Rule Information' buttons, selecting an element or a Rule on the panel and side panel will update the XUL window with particular row selected and will be focussed.
+   * Added Summary Panel that shows nomber of elements failed a particular rule, WCAG level (A, AA and AAA) and % of elements that pass the rule
+   * Added Elements Side panel that is showed when you select the Summary Panel
+   * Summary Panel will be default view
+   * Incorparated the changes made in the OAA Cache libray
+   * 'Rule Informaiton' and 'Element Information' buttons are moved to the side panels Elements, Rule Results and Font Properties side panels
+   * Once a XUL window is opened by clicking on the 'Element Informaiton' and 'Rule Information' buttons, selecting an element or a Rule on the panel and side panel will update the XUL window with particular row selected and will be focussed.
 
 == Version alpha 0.93 ==
 
 === Features ===
-1. modified the user interface design to mimic the Cache Inspector
-2. Implemented the conceptual model in rule categories
+   * modified the user interface design to mimic the Cache Inspector
+   * Implemented the conceptual model in rule categories
 
 
 == Version alpha 0.92 ==
