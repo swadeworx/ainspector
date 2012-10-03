@@ -135,13 +135,14 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
          if (style.visibility == "hidden" || style.display == "none") {
            this.isVisibletoAT(tag_name, style, node);
          } else {
-           node.style.outline = "medium solid red";
+           this.insertDIV(node, tag_name);
+//           node.style.outline = "medium solid red";
 
 //         If true, element is aligned with top of scroll area.
 //         If false, it is aligned with bottom.
-           node.scrollIntoView(true);
+//           node.scrollIntoView(true);
 
-           this.last_highlighted_nodes.push(node);
+//           this.last_highlighted_nodes.push(node);
          }
        }
      } //end for
@@ -161,10 +162,30 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
      if (!this.last_highlighted_nodes || !this.document) return;
   
      var length = this.last_highlighted_nodes.length;
-     var obj = this.document.getElementById("vId");
+     var obj = this.document.getElementById("oaa_web_accessibility_highlight_id");
   
-     if (obj)  this.document.body.removeChild(obj);
+     if (obj)  {
+       
+       if (obj.hasChildNodes()) {
+         console.logStringMessage("obj.parentNode: "+ obj.parentNode);
+         console.logStringMessage("obj.childNode: "+ obj.childNodes[0].id);
 
+         for(var i=0; i < obj.childNodes.length; i++) {
+           
+           if (obj.childNodes[i].text) obj.parentNode.innerHTML(obj.childNodes[i].text);
+           else obj.parentNode.insertBefore(obj.childNodes[i], obj);
+         }
+         console.logStringMessage("obj.id: "+ obj.id);
+         
+         obj.parentNode.removeChild(obj);
+       } else {
+         this.document.removeChild(obj);
+       }
+//       this.document.body.removeChild(obj);
+     } else {
+       obj = this.document.getElementById("vId");
+       if (obj) this.document.body.removeChild(obj);
+     }
      for (var i = 0; i < length; i++) {
        this.last_highlighted_nodes[i].style.outline = ""; 
      }
@@ -191,5 +212,84 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
     new_div_element.innerHTML = 'Element is off-screen or hidden from assistive technologies';
      
     this.document.body.insertBefore(new_div_element,this.document.body.childNodes[0]);
+  },
+  
+  /**
+   * @function insertDIV
+   * 
+   * @memberOf OAA_WEB_ACCESSIBILITY.util.highlightModule
+   * 
+   * @desc position the DIV 
+   *         1. as only child of elements that can have content (e.g., p, h1, h2, li...)
+   *         2. as th eparent of elements that are 
+   *            * defined as empty (e.g., img, input)
+   *            * can only contain element (e.g., ul, dl, ol, object...)
+   *            
+   * @param {Object} node
+   * @param {String} tag_name           
+   */
+  insertDIV : function (node, tag_name) {
+
+    var flag = false;
+    var parent_node = null;
+    var elements_without_content = ['applet', 'area', 'dl', 'frame', 'img', 'input', 'object', 'ol', 'table', 'ul'];
+    var length =  elements_without_content.length;
+    var new_div_element = this.document.createElement('div');
+    
+    new_div_element.id = 'oaa_web_accessibility_highlight_id';
+    new_div_element.setAttribute("style", "outline: medium solid green; ");
+    
+    for (var i=0; i < length; i++) {
+      
+      if (elements_without_content[i] == tag_name) {
+        flag = true;
+        break;
+      }
+    }
+    var child_node = this.document.getElementById(node.id);
+    
+    console.logStringMessage ("child_node: "+ child_node.id);
+  
+    if (flag) {
+      parent_node = child_node.parentNode;
+      console.logStringMessage ("parent_node: "+ parent_node.id);
+
+      parent_node.insertBefore(new_div_element, child_node);
+
+      new_div_element.appendChild(child_node);
+      
+      this.last_highlighted_nodes.push(new_div_element);
+    
+    } else {
+    
+      console.logStringMessage ("child_node.text: "+ child_node.textContent);
+
+      new_div_element.textContent = child_node.textContent;
+//    child_node.insertBefore(new_div_element, child_node);
+      
+      child_node.appendChild(new_div_element);
+      
+      child_node.textContent = '';
+      this.last_highlighted_nodes.push(node, new_div_element);
+    }
+    
+    this.changeStyle(node, new_div_element);
+  },
+  
+  /**
+   * @function changeStyle
+   * 
+   * @desc changes styling of outline on div
+   *       1. manual check (red single line)
+   *       2. pass (green single line)
+   *       3. violation (red double line)
+   *       4. warning (yellow single line)
+   *       5. hidden (gray double line) 
+   *  
+   *  @param {Object} div_element 
+   */
+  changeStyle : function(node, div_element) {
+    
+    
   }
 };
