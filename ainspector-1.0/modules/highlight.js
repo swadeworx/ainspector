@@ -88,8 +88,12 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
      var tag_name;
 
      for (var i = 0; i < items_len; i++) {
-       var item = items[i];
-    
+       
+       var obj = items[i];
+       var item = obj;
+       
+       if (item.cache_item) item = item.cache_item;
+       
        if (item.dom_element) {  // item is a cache element object
     
          if (item.dom_element.image_only) {
@@ -135,7 +139,7 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
          if (style.visibility == "hidden" || style.display == "none") {
            this.isVisibletoAT(tag_name, style, node);
          } else {
-           this.insertDIV(node, tag_name);
+           this.insertDIV(obj, node, tag_name);
 //           node.style.outline = "medium solid red";
 
 //         If true, element is aligned with top of scroll area.
@@ -205,12 +209,13 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
      if (!this.document) return;
 
     var new_div_element = this.document.createElement('div');
-    var style_div = 'width:400px; padding:10px; border:3px solid blue; margin:0px; color:red; font-size:20px; position:fixed; ';
+    var style_div = 'width:400px; padding:10px; border:3px solid grey; margin:0px; color:red; font-size:20px; position:fixed; ';
 
     new_div_element.id = 'vId';
     new_div_element.setAttribute("style", style_div);
     new_div_element.innerHTML = 'Element is off-screen or hidden from assistive technologies';
-     
+    new_div_element.setAttribute("title", this.setTitle(element));
+      
     this.document.body.insertBefore(new_div_element,this.document.body.childNodes[0]);
   },
   
@@ -224,11 +229,12 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
    *         2. as th eparent of elements that are 
    *            * defined as empty (e.g., img, input)
    *            * can only contain element (e.g., ul, dl, ol, object...)
-   *            
+   * 
+   * @param {Object} cache_item
    * @param {Object} node
    * @param {String} tag_name           
    */
-  insertDIV : function (node, tag_name) {
+  insertDIV : function (cache_item, node, tag_name) {
 
     var flag = false;
     var parent_node = null;
@@ -236,44 +242,31 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
     var length =  elements_without_content.length;
     var new_div_element = this.document.createElement('div');
     
-    new_div_element.id = 'oaa_web_accessibility_highlight_id';
-    new_div_element.setAttribute("style", "outline: medium solid green; ");
     
-    for (var i=0; i < length; i++) {
-      
-      if (elements_without_content[i] == tag_name) {
-        flag = true;
-        break;
-      }
-    }
-    var child_node = this.document.getElementById(node.id);
+    var index = elements_without_content.indexOf(tag_name);
     
-    console.logStringMessage ("child_node: "+ child_node.id);
-  
-    if (flag) {
-      parent_node = child_node.parentNode;
-      console.logStringMessage ("parent_node: "+ parent_node.id);
+    if (index != -1) {
+//      this.changeStyle(cache_item, new_div_element);
 
-      parent_node.insertBefore(new_div_element, child_node);
+      new_div_element.id = 'oaa_web_accessibility_highlight_id';
+      new_div_element.setAttribute("style", this.changeStyle(cache_item));
+      new_div_element.setAttribute("title", this.setTitle(cache_item));
+      parent_node = node.parentNode;
 
-      new_div_element.appendChild(child_node);
+      parent_node.insertBefore(new_div_element, node);
+      new_div_element.appendChild(node);
       
       this.last_highlighted_nodes.push(new_div_element);
-    
+      
     } else {
-    
-      console.logStringMessage ("child_node.text: "+ child_node.textContent);
-
-      new_div_element.textContent = child_node.textContent;
-//    child_node.insertBefore(new_div_element, child_node);
-      
-      child_node.appendChild(new_div_element);
-      
-      child_node.textContent = '';
-      this.last_highlighted_nodes.push(node, new_div_element);
+//      this.changeStyle(cache_item, new_div_element);
+      node.style.outline = this.changeStyle(cache_item, new_div_element);
+      this.last_highlighted_nodes.push(cache_item);
     }
+//  If true, element is aligned with top of scroll area.
+//  If false, it is aligned with bottom.
+    node.scrollIntoView(true);
     
-    this.changeStyle(node, new_div_element);
   },
   
   /**
@@ -286,10 +279,35 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
    *       4. warning (yellow single line)
    *       5. hidden (gray double line) 
    *  
-   *  @param {Object} div_element 
+   *  @param {Object} item 
    */
-  changeStyle : function(node, div_element) {
+  changeStyle : function(item) {
+      
+      console.logStringMessage("item.violations_count:  " + item.violations_count);
+      if (item.violations_count > 0) return "outline: medium solid red; borderCollapse: collapse; ";
+      else if (item.manual_checks_count > 0) return "outline: medium double red; borderCollapse: collapse; ";
+      else if (item.warnings_count > 0 ) return "outline: medium solid orange; borderCollapse: collapse; ";
+      else if (item.hidden_count > 0) return "outline: medium double grey; borderCollapse: collapse; ";
+      else return "outline: medium solid green; borderCollapse: collapse;";
+  },
+  
+  /**
+   * @function setTitle
+   * 
+   * @desc 
+   * 
+   * @param {Object} item
+   */
+  setTitle : function(item) {
     
+    var title = '';
     
+    if (item.violations_count > 0) title = item.violations_count + ' Violations, ';
+    if (item.manual_checks_count > 0) title = title + item.manual_checks_count + ' Manual checks, ';
+    if (item.warnings_count > 0) title = title + item.warnings_count + ' Warnings, ';
+    if (item.passed_count > 0) title = title + item.passed_count + ' Passes';
+    if (item.hidden_count > 0) title = title + item.hidden_count + ' Hidden';
+    
+    return title;
   }
 };
