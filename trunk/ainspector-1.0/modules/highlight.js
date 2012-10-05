@@ -173,15 +173,14 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
        if (obj.hasChildNodes()) {
          console.logStringMessage("obj.parentNode: "+ obj.parentNode);
          console.logStringMessage("obj.childNode: "+ obj.childNodes[0].id);
-
+         
+         var parent_node = object.parentNode;
          for(var i=0; i < obj.childNodes.length; i++) {
-           
-           if (obj.childNodes[i].text) obj.parentNode.innerHTML(obj.childNodes[i].text);
-           else obj.parentNode.insertBefore(obj.childNodes[i], obj);
+           parent_node.appendChild(obj.firstChild);
          }
          console.logStringMessage("obj.id: "+ obj.id);
          
-         obj.parentNode.removeChild(obj);
+         parent_node.removeChild(obj);
        } else {
          this.document.removeChild(obj);
        }
@@ -259,8 +258,22 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
       this.last_highlighted_nodes.push(new_div_element);
       
     } else {
+
 //      this.changeStyle(cache_item, new_div_element);
-      node.style.outline = this.changeStyle(cache_item, new_div_element);
+//    node.style.outline = this.changeStyle(cache_item, new_div_element);
+      new_div_element.id = 'oaa_web_accessibility_highlight_id';
+      new_div_element.setAttribute("style", this.changeStyle(cache_item));
+      console.logStringMessage("innerHTMl :" + node.innerHTML);
+//      node.insertBefore(new_div_element, node.childNodes[0]);
+      while (node.firstChild) {   
+        new_div_element.appendChild(node.firstChild);         
+      } 
+   
+      node.appendChild(new_div_element); 
+      console.logStringMessage("childNodes :" + node.childNodes.length);
+      console.logStringMessage("innerHTMl :" + node.innerHTML);
+     
+           
       this.last_highlighted_nodes.push(cache_item);
     }
 //  If true, element is aligned with top of scroll area.
