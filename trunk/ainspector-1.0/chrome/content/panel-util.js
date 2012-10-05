@@ -232,7 +232,7 @@ FBL.ns(function() { with (FBL) {
     }
     
     AINSPECTOR_FB.previous_selected_row = row;
-    
+    FBTrace.sysout("row in html: ", row);
     if (cache_item.dom_element) node = cache_item.dom_element.node;
     else node = cache_item.node;
     
@@ -652,8 +652,10 @@ AINSPECTOR_FB.flatListTemplateUtil = {
       for (var i=0; i< row.children.length; i++) {
         AINSPECTOR_FB.ainspectorUtil.setClass(row.children[i], "gridCellSelected");
       }
-      if (row.repObject.cache_item) OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject.cache_item]);
-      else OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject]);
+      FBTrace.sysout("highlighting node: ", row.repObject);
+//      if (row.repObject.cache_item) OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject.cache_item]);
+//      else OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject]);
+      OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject]);
 
     },
     
