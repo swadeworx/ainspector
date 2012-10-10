@@ -210,8 +210,6 @@ with (FBL) {
           var manual_check_count = 0;
           var rule_definition = rule_result_item.rule_result;
           
-          FBTrace.sysout("rule_result_item: ", rule_result_item.rule_result.getMessage());
-
           if (rule_result_item.rule_result) {
             description               = rule_result_item.rule_result.getMessage();
             required                 = (rule_result_item.rule_result.rule_mapping.type === OpenAjax.a11y.RULE.REQUIRED) ? 'Yes' : 'No';

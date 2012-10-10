@@ -78,7 +78,11 @@ with (FBL) {
         doc  = window.opener.parent.content.document;
         url = window.opener.parent.location.href;
       } // end try
-
+      
+      var Cu = Components.utils;
+      Cu["import"]("resource://firebug-a11y/highlight.js");
+      OAA_WEB_ACCESSIBILITY.util.highlightModule.initHighlight(window.content.document);
+      
       var preferences = OAA_WEB_ACCESSIBILITY_PREF.util.getPreferences();
       FBTrace.sysout("Preferences: ", preferences);
       FBTrace.sysout("OpenAjax: ", OpenAjax);
@@ -154,7 +158,6 @@ with (FBL) {
   
         if (location_href == AINSPECTOR_FB.top_location_href) {
 //          FBTrace.sysout('onStateChange () location_href: ' + location_href + "..." + AINSPECTOR_FB.top_location_href);
-          
           return AINSPECTOR_FB.cacheUtil.updateCache();
         }
       }
@@ -173,7 +176,8 @@ with (FBL) {
       if (request) { // ignore call if request arg is null
       
 //        FBTrace.sysout('onLocationChange () : location_href: ' + webProgress.DOMWindow.top.location.href);
-  
+//      	OAA_WEB_ACCESSIBILITY.util.highlightModule.last_highlighted_nodes = [];
+
         AINSPECTOR_FB.top_location_href = webProgress.DOMWindow.top.location.href;
         
         /* Set previous_selected_row to null whenever there is a new request */
@@ -220,15 +224,15 @@ with (FBL) {
    * @return nothing
    */
 
-  AINSPECTOR_FB.onUnload = function(cache) {
-
+  AINSPECTOR_FB.onUnload = function() {
+	FBTrace.sysout("Inside unload................................");  
     var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
       .getInterface(Components.interfaces.nsIWebNavigation)
       .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
       .rootTreeItem
       .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
       .getInterface(Components.interfaces.nsIDOMWindow);
-
+    
     mainWindow.gBrowser.removeProgressListener(AINSPECTOR_FB.tabProgressListener);
   };
 

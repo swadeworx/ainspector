@@ -324,10 +324,7 @@ FBL.ns(function() { with (FBL) {
     
       this.panelNode.id = "ainspector-side-panel";
       var cache_item = resultObject.cache_item;
-      FBTrace.sysout("rebuild() -cache_item :", cache_item);
       var element = "Element" + cache_item.document_order + ": " + cache_item.toString();
-      
-      FBTrace.sysout("element: ", element);
       
       if (resultObject.rule_result_array.length > 0) {
         rulesPlate.tag.replace({object: resultObject.rule_result_array, element: element}, this.panelNode);
