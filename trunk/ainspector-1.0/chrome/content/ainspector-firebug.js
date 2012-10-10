@@ -143,14 +143,16 @@ FBL.ns(function() { with (FBL) {
       FBTrace.sysout("**********      Begin Firebug.ainspectorModule.showPanel()     ************");
       var is_my_extension = panel && panel.name == panel_name;
       var my_extension_toolbar_buttons = Firebug.chrome.$("fbFirebugExtensionButtons");
-
+      
       /* whether or not we display ainspector we still need to save the selected view */
       var toolbar_button_id = this.getToolbarButtonSelected(Firebug.chrome.$("fbFirebugExtensionButtons").children);
       FBTrace.sysout("Firebug.ainspectorModule.showPanel() - selected toolbarbutton: ", toolbar_button_id);
       FBTrace.sysout("Firebug.ainspectorModule.showPanel() - window.AINSPECTOR_FB: ", window.AINSPECTOR_FB);
       FBTrace.sysout("Firebug.ainspectorModule.showPanel() -  panel_name: " + panel_name);
-      FBTrace.sysout("Firebug.ainspectorModule.showPanel() -  panel_name: " + panel_name);
-
+      
+      /* un highlight the elements when any other panel (e.g., HTML) is selected*/
+      OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight();
+      
       window.AINSPECTOR_FB[toolbar_button_id].viewPanel(Firebug.currentContext, panel_name, AINSPECTOR_FB.cacheUtil.updateCache());
 
       FBTrace.sysout("**********      End Firebug.ainspectorModule.showPanel()     ************");
@@ -169,7 +171,7 @@ FBL.ns(function() { with (FBL) {
      */
     watchWindow : function(context){
       context.window.addEventListener("load", this.ainspectorOnLoad, false);
-      context.window.addEventListener("beforeunload", this.ainspectorOnUnload, false);
+      context.window.addEventListener("beforeunload", this.ainspectorOnUnLoad, false);
     },
     
     /**
@@ -179,7 +181,7 @@ FBL.ns(function() { with (FBL) {
      */
     unWatchWindow : function(context){
       context.window.removeEventListener("load", this.ainspectorOnLoad, false);
-      context.window.removeEventListener("beforeunload", this.ainspectorOnUnload, false);
+      context.window.removeEventListener("beforeunload", this.ainspectorOnUnLoad, false);
     },
     
     /**
@@ -218,9 +220,8 @@ FBL.ns(function() { with (FBL) {
      * @param {Event} event
      */
     ainspectorOnUnLoad : function(event) {
-      
+
       var win = event.currentTarget;
-        
       var fbcontext;
           
       if (win !== Firebug.currentContext.window) {
@@ -232,7 +233,9 @@ FBL.ns(function() { with (FBL) {
       if (fbcontext !== Firebug.currentContext) {
         return;
       }
-      AINSPECTOR_FB.onUnLoad();
+      OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight();
+
+      AINSPECTOR_FB.onUnload();
     },
       
     /**

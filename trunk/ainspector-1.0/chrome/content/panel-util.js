@@ -16,17 +16,18 @@
 
 FBL.ns(function() { with (FBL) {
 
-  if (!AINSPECTOR_FB.highlightModule) {
+ /*if (!AINSPECTOR_FB.highlightModule) {
+	 FBTrace.sysout("initHighlight highlight module: ", AINSPECTOR_FB.highlightModule );
     var Cu = Components.utils; 
-
+    
     try {
       AINSPECTOR_FB.highlightModule = Cu["import"]("resource://firebug-a11y/highlight.js");
       OAA_WEB_ACCESSIBILITY.util.highlightModule.initHighlight(window.content.document);
-
+      FBTrace.sysout("initHighlight highlight module: ", window.content.document);
     } catch (error) {
       FBTrace.sysout("error while creating highlightModule Object ", error);  
     }
-  }
+  }*/
   
  /**
   * @namespace AINSPECTOR_FB.toolbarUtil
@@ -35,8 +36,6 @@ FBL.ns(function() { with (FBL) {
      
    viewPanel : function (context, panel_name, cache_object, rule_category, filter, rule_category_view, toolbar_button_id) {
   
-     FBTrace.sysout("****** Begin Content/Landmarks panel ******");
-   
 //   adds or removes the side panels from the extension depending on the panel we are in 
      AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels(true);
 
@@ -54,14 +53,13 @@ FBL.ns(function() { with (FBL) {
 
      /* Clear the panel before writing anything onto the report*/
      if (panel) {
+//       OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(); 
        clearNode(panel.panelNode);
        clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
      }
 
      /* Get the Image rules results from the ruleset selected in preferences*/
      var cache_elements_results = cache_object.getCacheItemsByRuleCategory(rule_category, filter);
-   
-     FBTrace.sysout("cache_elements_results", cache_elements_results);
    
      var cache_item_results = cache_elements_results.cache_item_results;
    
@@ -215,6 +213,8 @@ FBL.ns(function() { with (FBL) {
    */
   gotoHTML : function(event){
 
+	event.stopPropagation();
+
     var row = getAncestorByClass(event.target, "tableRow");
     
     if (!row) row = getAncestorByClass(event.target, "treeRow");
@@ -238,7 +238,7 @@ FBL.ns(function() { with (FBL) {
     
     var panel = Firebug.chrome.selectPanel("html");
     panel.select(node);
-    
+
   },
   
   /**
@@ -655,7 +655,8 @@ AINSPECTOR_FB.flatListTemplateUtil = {
       FBTrace.sysout("highlighting node: ", row.repObject);
 //      if (row.repObject.cache_item) OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject.cache_item]);
 //      else OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject]);
-      OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject]);
+      
+      if (!row.repObject.rule_result) OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject]);
 
     },
     
@@ -694,7 +695,7 @@ AINSPECTOR_FB.flatListTemplateUtil = {
         table.children[1].children[0].focus();
         AINSPECTOR_FB.ainspectorUtil.setClass(current_row, "gridRowSelected");
           
-        OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([current_row.repObject]);
+//        OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([current_row.repObject]);
           for (var c=0; c< current_row.children.length; c++) {
           AINSPECTOR_FB.ainspectorUtil.setClass(current_row.children[c], "gridCellSelected");
           }
