@@ -76,7 +76,9 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
    */
    highlightCacheItems : function (items) {
    
-     if (this.last_highlighted_nodes && this.last_highlighted_nodes.length) {
+	 console.logStringMessage("this.last_highlighted_nodes.length: " + this.last_highlighted_nodes.length);  
+     
+	 if (this.last_highlighted_nodes && this.last_highlighted_nodes.length) {
        this.removeHighlight(); 
      }
 
@@ -132,21 +134,14 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
 
        if (node) {
 
-//      check if the node is off screen or hidden from assistive technologies
-//      console.logStringMessage("style.visibility;" + style.visibility);
-//      console.logStringMessage("style.display;" + style.display);
+//       check if the node is off screen or hidden from assistive technologies
+//       console.logStringMessage("style.visibility;" + style.visibility);
+//       console.logStringMessage("style.display;" + style.display);
 
          if (style.visibility == "hidden" || style.display == "none") {
-           this.isVisibletoAT(tag_name, style, node);
+           this.isVisibletoAT(obj);
          } else {
            this.insertDIV(obj, node, tag_name);
-//           node.style.outline = "medium solid red";
-
-//         If true, element is aligned with top of scroll area.
-//         If false, it is aligned with bottom.
-//           node.scrollIntoView(true);
-
-//           this.last_highlighted_nodes.push(node);
          }
        }
      } //end for
@@ -159,39 +154,42 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
     * 
     * @desc unhighlights the nodes that are highlighted earlier and 
     *       removes the informational message added to a page if the 
-    *       element is hidden from Assistive technlogies
+    *       element is hidden from Assistive technologies
     */
    removeHighlight : function() {
 
      if (!this.last_highlighted_nodes || !this.document) return;
-  
+     
      var length = this.last_highlighted_nodes.length;
-     var obj = this.document.getElementById("oaa_web_accessibility_highlight_id");
-  
-     if (obj)  {
-       
-       if (obj.hasChildNodes()) {
-         console.logStringMessage("obj.parentNode: "+ obj.parentNode);
-         console.logStringMessage("obj.childNode: "+ obj.childNodes[0].id);
+     
+     for (var i=0; i <length; i++) {
+       	 
+       var obj = this.document.getElementById("oaa_web_accessibility_highlight_id");
+      
+       if (obj && obj.hasChildNodes()) {
          
-         var parent_node = object.parentNode;
-         for(var i=0; i < obj.childNodes.length; i++) {
-           parent_node.appendChild(obj.firstChild);
+         if (obj.innerHTML == 'Element is off-screen or hidden from assistive technologies') {
+           
+           this.document.body.removeChild(obj);
+           
+           continue;
          }
-         console.logStringMessage("obj.id: "+ obj.id);
          
+         var parent_node = obj.parentNode;
+         while(obj.firstChild) {
+           parent_node.insertBefore(obj.firstChild, obj);
+         }
+
          parent_node.removeChild(obj);
        } else {
-         this.document.removeChild(obj);
+         if (obj) this.document.removeChild(obj);
        }
-//       this.document.body.removeChild(obj);
-     } else {
-       obj = this.document.getElementById("vId");
-       if (obj) this.document.body.removeChild(obj);
      }
+   
      for (var i = 0; i < length; i++) {
-       this.last_highlighted_nodes[i].style.outline = ""; 
+	   this.last_highlighted_nodes.splice(i, length);
      }
+
    },
   
   /**
@@ -201,21 +199,24 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
    *
    * @desc Position a div on the left side of the view port 
    * 
-   * @param {Object} element
+   * @param {Object} item
    */
-  isVisibletoAT : function (element, style, node) {
+  isVisibletoAT : function (item) {
 
-     if (!this.document) return;
+    if (!this.document) return;
 
     var new_div_element = this.document.createElement('div');
     var style_div = 'width:400px; padding:10px; border:3px solid grey; margin:0px; color:red; font-size:20px; position:fixed; ';
 
-    new_div_element.id = 'vId';
+    new_div_element.id = 'oaa_web_accessibility_highlight_id';
     new_div_element.setAttribute("style", style_div);
     new_div_element.innerHTML = 'Element is off-screen or hidden from assistive technologies';
-    new_div_element.setAttribute("title", this.setTitle(element));
+    new_div_element.setAttribute("title", this.setTitle(item));
       
     this.document.body.insertBefore(new_div_element,this.document.body.childNodes[0]);
+    
+    this.last_highlighted_nodes.push(new_div_element);
+    
   },
   
   /**
@@ -224,10 +225,10 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
    * @memberOf OAA_WEB_ACCESSIBILITY.util.highlightModule
    * 
    * @desc position the DIV 
-   *         1. as only child of elements that can have content (e.g., p, h1, h2, li...)
-   *         2. as th eparent of elements that are 
-   *            * defined as empty (e.g., img, input)
-   *            * can only contain element (e.g., ul, dl, ol, object...)
+   *   1. as only child of elements that can have content (e.g., p, h1, h2, li...)
+   *   2. as th eparent of elements that are 
+   *      * defined as empty (e.g., img, input)
+   *      * can only contain element (e.g., ul, dl, ol, object...)
    * 
    * @param {Object} cache_item
    * @param {Object} node
@@ -241,85 +242,76 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
     var length =  elements_without_content.length;
     var new_div_element = this.document.createElement('div');
     
+    new_div_element.id = 'oaa_web_accessibility_highlight_id';
+    new_div_element.setAttribute("style", this.changeStyle(cache_item));
+    new_div_element.setAttribute("title", this.setTitle(cache_item));
     
     var index = elements_without_content.indexOf(tag_name);
     
     if (index != -1) {
-//      this.changeStyle(cache_item, new_div_element);
-
-      new_div_element.id = 'oaa_web_accessibility_highlight_id';
-      new_div_element.setAttribute("style", this.changeStyle(cache_item));
-      new_div_element.setAttribute("title", this.setTitle(cache_item));
       parent_node = node.parentNode;
-
       parent_node.insertBefore(new_div_element, node);
       new_div_element.appendChild(node);
-      
-      this.last_highlighted_nodes.push(new_div_element);
-      
     } else {
-
-//      this.changeStyle(cache_item, new_div_element);
-//    node.style.outline = this.changeStyle(cache_item, new_div_element);
-      new_div_element.id = 'oaa_web_accessibility_highlight_id';
-      new_div_element.setAttribute("style", this.changeStyle(cache_item));
-      console.logStringMessage("innerHTMl :" + node.innerHTML);
-//      node.insertBefore(new_div_element, node.childNodes[0]);
-      while (node.firstChild) {   
+      
+      while (node.firstChild) {
         new_div_element.appendChild(node.firstChild);         
       } 
-   
       node.appendChild(new_div_element); 
-      console.logStringMessage("childNodes :" + node.childNodes.length);
-      console.logStringMessage("innerHTMl :" + node.innerHTML);
-     
-           
-      this.last_highlighted_nodes.push(cache_item);
     }
+    
+    this.last_highlighted_nodes.push(new_div_element);
+
 //  If true, element is aligned with top of scroll area.
 //  If false, it is aligned with bottom.
     node.scrollIntoView(true);
-    
   },
   
   /**
    * @function changeStyle
    * 
+   * @memberOf OAA_WEB_ACCESSIBILITY.util.highlightModule
+   * 
    * @desc changes styling of outline on div
-   *       1. manual check (red single line)
-   *       2. pass (green single line)
-   *       3. violation (red double line)
-   *       4. warning (yellow single line)
-   *       5. hidden (gray double line) 
+   *    1. manual check (red single line)
+   *    2. pass (green single line)
+   *    3. violation (red double line)
+   *    4. warning (yellow single line)
+   *    5. hidden (gray double line)
+   *    6. shows blue color outline if there are no rules for an element 
    *  
-   *  @param {Object} item 
+   * @param {Object} item - cache_item to get the severity count
    */
   changeStyle : function(item) {
       
-      console.logStringMessage("item.violations_count:  " + item.violations_count);
-      if (item.violations_count > 0) return "outline: medium solid red; borderCollapse: collapse; ";
-      else if (item.manual_checks_count > 0) return "outline: medium double red; borderCollapse: collapse; ";
-      else if (item.warnings_count > 0 ) return "outline: medium solid orange; borderCollapse: collapse; ";
-      else if (item.hidden_count > 0) return "outline: medium double grey; borderCollapse: collapse; ";
-      else return "outline: medium solid green; borderCollapse: collapse;";
+    if (item.violations_count > 0) return "outline: medium solid red; borderCollapse: collapse; ";
+    else if (item.manual_checks_count > 0) return "outline: medium double red; borderCollapse: collapse; ";
+    else if (item.warnings_count > 0 ) return "outline: medium solid orange; borderCollapse: collapse; ";
+    else if (item.hidden_count > 0) return "outline: medium double grey; borderCollapse: collapse; ";
+    else if (item.passed_count > 0) return "outline: medium solid green; borderCollapse: collapse;";
+    else return "outline: medium solid blue; borderCollapse: collapse;";
   },
   
   /**
    * @function setTitle
    * 
-   * @desc 
+   * @memberOf OAA_WEB_ACCESSIBILITY.util.highlightModule
    * 
-   * @param {Object} item
+   * @desc Creates value for title attribute of the div element to provide a summary of the number of violations, warnings, manual checks and passes 
+   * 
+   * @param {Object} item - cache_item to retrieve the count of severities
    */
   setTitle : function(item) {
     
     var title = '';
     
-    if (item.violations_count > 0) title = item.violations_count + ' Violations, ';
+    if (item.violations_count > 0) title = title + item.violations_count + ' Violations, ';
     if (item.manual_checks_count > 0) title = title + item.manual_checks_count + ' Manual checks, ';
     if (item.warnings_count > 0) title = title + item.warnings_count + ' Warnings, ';
     if (item.passed_count > 0) title = title + item.passed_count + ' Passes';
     if (item.hidden_count > 0) title = title + item.hidden_count + ' Hidden';
+    
+    if (!title) title = 'no rule results';
     
     return title;
   }
