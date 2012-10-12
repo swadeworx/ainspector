@@ -17,4 +17,6 @@ locale      firebug-a11y-item-properties  en-US                         chrome/c
 skin        firebug-a11y-rule-properties  classic/1.0                   chrome/content/rule_properties/skin/
 locale      firebug-a11y-rule-properties  en-US                         chrome/content/rule_properties/locale/en-US/
 
+locale      firebug-a11y-highlighting     en-US                          chrome/content/highlighting/locale/en-US/
+
 overlay     chrome://firebug/content/firebugOverlay.xul chrome://firebug-a11y/content/firebugOverlay.xul
