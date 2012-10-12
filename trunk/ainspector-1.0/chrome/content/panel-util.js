@@ -653,10 +653,11 @@ AINSPECTOR_FB.flatListTemplateUtil = {
         AINSPECTOR_FB.ainspectorUtil.setClass(row.children[i], "gridCellSelected");
       }
       FBTrace.sysout("highlighting node: ", row.repObject);
-//      if (row.repObject.cache_item) OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject.cache_item]);
-//      else OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject]);
+  
+      if (row.repObject.cache_item) OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject.cache_item]);
+      else OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject]);
       
-      if (!row.repObject.rule_result) OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject]);
+//      if (!row.repObject.rule_result) OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject]);
 
     },
     

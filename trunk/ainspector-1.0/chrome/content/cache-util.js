@@ -36,7 +36,7 @@ with (FBL) {
   AINSPECTOR_FB.rule_info_dialog = null;
   AINSPECTOR_FB.element_info_dialog = null;
 
-  Components.utils.import("resource://firebug-a11y/highlight.js");
+  Components.utils.import("chrome://firebug-a11y/content/highlighting/highlight.js");
 
   /**
    * @namespace AINSPECTOR_FB.cacheUtil
@@ -79,8 +79,8 @@ with (FBL) {
         url = window.opener.parent.location.href;
       } // end try
       
-      var Cu = Components.utils;
-      Cu["import"]("resource://firebug-a11y/highlight.js");
+//      var Cu = Components.utils;
+//      Cu["import"]("resource://firebug-a11y/highlight.js");
       OAA_WEB_ACCESSIBILITY.util.highlightModule.initHighlight(window.content.document);
       
       var preferences = OAA_WEB_ACCESSIBILITY_PREF.util.getPreferences();

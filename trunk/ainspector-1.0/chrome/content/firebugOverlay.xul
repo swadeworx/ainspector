@@ -6,6 +6,7 @@
   <stringbundleset id="stringbundleset">
     <stringbundle id="ainspector_stringbundle" src="chrome://firebug-a11y/locale/ainspector.properties"/>
     <stringbundle id="ainspector_stringbundle1" src="chrome://firebug-a11y/locale/all-properties.properties"/>
+    <stringbundle id="ainspector_highlight_stringbundle" src="chrome://firebug-a11y-highlighting/locale/highlight.properties"/>
   </stringbundleset>
   
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/cache-util.js"/>
@@ -30,7 +31,7 @@
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/rule_properties/rule-properties.js"/>
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/item_properties/cache-item-properties.js"/>
   
-  <script type="application/x-javascript" src="chrome://firebug-a11y/modules/highlight.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/highlighting/highlight.js"/>
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/util.js"/>
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-util.js"/>
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/ainspector-firebug.js"/>
