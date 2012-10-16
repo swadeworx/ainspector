@@ -77,11 +77,9 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
    */
    highlightCacheItems : function (items) {
    
-//	 console.logStringMessage("this.last_highlighted_nodes.length: " + this.last_highlighted_nodes.length);  
+	 console.logStringMessage("items.length: " + items.length);  
      
-//	 if (this.last_highlighted_nodes && this.last_highlighted_nodes.length) {
        this.removeHighlight(); 
-//     }
 
      if (!items || typeof items.length == 'undefined') return;
     
@@ -93,8 +91,6 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
      
      for (var i = 0; i < items_len; i++) {
        
-//       var obj = items[i];
-//       var item = obj;
        var item = items[i];
        if (item.cache_item) item = item.cache_item;
        
@@ -137,9 +133,6 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
        if (node) {
 
 //       check if the node is off screen or hidden from assistive technologies
-//       console.logStringMessage("style.visibility;" + style.visibility);
-//       console.logStringMessage("style.display;" + style.display);
-
          if (style.visibility == "hidden" || style.display == "none") {
            off_screen_elements.push(item);
            
@@ -214,43 +207,35 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
   isVisibletoAT : function (offScreen_elements) {
 
     if (!this.document) return;
-//    var title = this.setTitle(item);
-//    new_div_element.innerHTML = 'Elements off-screen or hidden from assistive technologies:';
-    
-//  new_div_element.setAttribute("title", title);
     
     var new_div_element = this.document.createElement('div');
-    var style_div = 'width:400px; padding:10px; border:3px solid grey; margin:0px; color:red; font-size:20px; position:fixed; ';
+    var style_div = 'width:500px; padding:10px; border:3px solid grey; margin:0px; background-color: white; color:red; font-size:15px; position:fixed; ';
     
     new_div_element.id = 'oaa_web_accessibility_off_screen_id';
     new_div_element.setAttribute("class", 'oaa_web_accessibility_off_screen');
     new_div_element.setAttribute("style", style_div);
-	console.logStringMessage("offScreen_elements: " + offScreen_elements.length);
+
     this.document.body.insertBefore(new_div_element,this.document.body.childNodes[0]);
     
     var div_added = this.document.getElementById('oaa_web_accessibility_off_screen_id');
-    var newUL = document.createElement("ol");
-    newUL.innerHTMl = 'Elements off-screen or hidden from assistive technologies:';
+    var newUL = this.document.createElement("ol");
+    var text_node = this.document.createTextNode("Elements that are off-screen or hidden from assistive technologies:");
+    newUL.appendChild(text_node);
     div_added.appendChild(newUL);
-	console.logStringMessage("div_added childnodes: " + div_added.childNodes.length);
-//	var ulTag = newUL.item(0);
 
     for (var i=0; i < offScreen_elements.length; i++) {
       
       var offScreen_element = 	offScreen_elements[i];
-      var data = offScreen_element.tag_name + ' (' + this.setTitle(offScreen_element) + ' )';
-  	  
-      console.logStringMessage("data: " + data.length);
+      var data = offScreen_element.toString() + ' (' + this.setTitle(offScreen_element) + ' )';
 
       var newLI = this.document.createElement("li");  
-      var newText = document.createTextNode(data);
+      var newText = this.document.createTextNode(data);
       
+      newLI.setAttribute("style", "margin-left:15px; padding-left:10px; ");
       newLI.appendChild(newText);
       newUL.appendChild(newLI);
       
     }
-    console.logStringMessage("newUL: " + newUL.childNodes.length);
-//  this.last_highlighted_nodes.push(new_div_element);
     
   },
   
@@ -278,7 +263,6 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
     var title = this.setTitle(item);
     var new_div_element = this.document.createElement('div');
     
-//    new_div_element.id = 'oaa_web_accessibility_highlight_id';
     new_div_element.setAttribute("class", 'oaa_web_accessibility_highlight');
     new_div_element.setAttribute("style", this.changeStyle(item));
     new_div_element.setAttribute("title", title);
@@ -297,8 +281,6 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
       node.appendChild(new_div_element); 
     }
     
-//    this.last_highlighted_nodes.push(new_div_element);
-
 //  If true, element is aligned with top of scroll area.
 //  If false, it is aligned with bottom.
     node.scrollIntoView(true);
@@ -310,7 +292,7 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
    * @memberOf OAA_WEB_ACCESSIBILITY.util.highlightModule
    * 
    * @desc changes styling of outline on div
-   *    1. manual check (red single line)
+   *    1. manual check (red dotted line)
    *    2. pass (green single line)
    *    3. violation (red double line)
    *    4. warning (yellow single line)
@@ -323,12 +305,12 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
     
 	if (item.dom_element) item = item.dom_element;
 	
-    if (item.rules_violations.length > 0) return "outline: medium solid red; borderCollapse: collapse; ";
-    else if (item.rules_manual_checks.length  > 0) return "outline: medium double red; borderCollapse: collapse; ";
-    else if (item.rules_warnings.length  > 0 ) return "outline: medium solid orange; borderCollapse: collapse; ";
-    else if (item.rules_passed.length  > 0) return "outline: medium double grey; borderCollapse: collapse; ";
-    else if (item.rules_hidden.length  > 0) return "outline: medium solid green; borderCollapse: collapse;";
-    else return "outline: medium solid blue; borderCollapse: collapse;";
+    if (item.rules_violations.length > 0) return "border: medium solid red; borderCollapse: collapse; ";
+    else if (item.rules_manual_checks.length  > 0) return "border: medium dotted red; borderCollapse: collapse; ";
+    else if (item.rules_warnings.length  > 0 ) return "border: medium solid orange; borderCollapse: collapse; ";
+    else if (item.rules_passed.length  > 0) return "border: medium solid green; borderCollapse: collapse; ";
+    else if (item.rules_hidden.length  > 0) return "border: medium dotted grey; borderCollapse: collapse;";
+    else return "border: medium solid blue; borderCollapse: collapse;";
   },
   
   /**
@@ -345,7 +327,6 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
 	if (item.dom_element) item = item.dom_element;
 	
 	var doc = window.document;  
-	console.logStringMessage("doc in settitle: "+ window.document);  
 	var getStr = function(string) doc.getElementById("ainspector_highlight_stringbundle").getString(string);
 	var title = '';
 	
@@ -360,8 +341,6 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
 	if (warnings_count > 0)      title = title + warnings_count + ' ' + PluralForm.get(warnings_count, getStr('warnings')) + ' '; 
     if (passed_count > 0)        title = title + passed_count + ' ' + PluralForm.get(passed_count, getStr('passes')) + ' ';
     if (hidden_count > 0)        title = title + hidden_count + ' ' + PluralForm.get(hidden_count, getStr('hidden')) + ' ';
-    
-    console.logStringMessage("title: " + title);
     
     if (!title) title = 'no rule results';
     
