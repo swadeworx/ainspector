@@ -15,20 +15,6 @@
  */
 
 FBL.ns(function() { with (FBL) {
-
- /*if (!AINSPECTOR_FB.highlightModule) {
-	 FBTrace.sysout("initHighlight highlight module: ", AINSPECTOR_FB.highlightModule );
-    var Cu = Components.utils; 
-    
-    try {
-      AINSPECTOR_FB.highlightModule = Cu["import"]("resource://firebug-a11y/highlight.js");
-      OAA_WEB_ACCESSIBILITY.util.highlightModule.initHighlight(window.content.document);
-      FBTrace.sysout("initHighlight highlight module: ", window.content.document);
-    } catch (error) {
-      FBTrace.sysout("error while creating highlightModule Object ", error);  
-    }
-  }*/
-  
  /**
   * @namespace AINSPECTOR_FB.toolbarUtil
   */
@@ -652,13 +638,16 @@ AINSPECTOR_FB.flatListTemplateUtil = {
       for (var i=0; i< row.children.length; i++) {
         AINSPECTOR_FB.ainspectorUtil.setClass(row.children[i], "gridCellSelected");
       }
+
       FBTrace.sysout("highlighting node: ", row.repObject);
   
-      if (row.repObject.cache_item) OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject.cache_item]);
-      else OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject]);
-      
-//      if (!row.repObject.rule_result) OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject]);
-
+      if (row.repObject.cache_item) {
+    	  OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject.cache_item]);
+      } else if (row.repObject.filtered_node_results) {
+    	  OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems(row.repObject.filtered_node_results);
+      } else {
+    	  OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject]);
+      }
     },
     
     /**
@@ -694,6 +683,7 @@ AINSPECTOR_FB.flatListTemplateUtil = {
         table.children[0].children[0].blur();
         current_row = table.children[1].children[0]; 
         table.children[1].children[0].focus();
+          
         AINSPECTOR_FB.ainspectorUtil.setClass(current_row, "gridRowSelected");
           
 //        OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([current_row.repObject]);
@@ -723,6 +713,7 @@ AINSPECTOR_FB.flatListTemplateUtil = {
         }  
         if (count >= no_of_cells) break;
         }
+        
         if (count >= no_of_cells) {
         AINSPECTOR_FB.ainspectorUtil.removeClass(row, "gridRowSelected");
         if (event.keyCode == 38 || event.keyCode == 37) {
