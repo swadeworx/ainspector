@@ -24,7 +24,7 @@
  * @namespace OAA_WEB_ACCESSIBILITY_PREF
  */
 var OAA_WEB_ACCESSIBILITY_PREF    = OAA_WEB_ACCESSIBILITY_PREF        || {};
-var console = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
+
 /** 
  * @namespace OAA_WEB_ACCESSIBILITY_PREF.dialog
  */
@@ -116,6 +116,10 @@ OAA_WEB_ACCESSIBILITY_PREF.dialog.initPreferencesDialog = function () {
     break;
     
   }
+
+  var rg_recommended = document.getElementById("ID_CHECKBOX_RECOMMENDED_RULES_ENABLED");
+  
+  rg_recommended.checked = p.wcag20_recommended_rules_enabled
 
   // Other
 
@@ -215,6 +219,10 @@ OAA_WEB_ACCESSIBILITY_PREF.dialog.setPreferences = function () {
     p.ruleset_id = radio.getAttribute('id');
   }
   
+  var rg_recommended = document.getElementById("ID_CHECKBOX_RECOMMENDED_RULES_ENABLED");
+  
+  p.wcag20_recommended_rules_enabled = rg_recommended.checked;
+
   // Radio group for WCAG 2.0 level
 
   var rg_level   = document.getElementById("ID_RADIOGROUP_LEVEL");
@@ -267,18 +275,9 @@ OAA_WEB_ACCESSIBILITY_PREF.dialog.setPreferences = function () {
   if (cb_accessibility_icon) p.show_accessibility_icon = cb_accessibility_icon.checked;
 
   OAA_WEB_ACCESSIBILITY_PREF.util.setPreferences();
-  console.logStringMessage("Inside setPreferences***********************************");
-  if (typeof OAA_WEB_ACCESSIBILITY_PREF.preferences_call_back == 'function') {
-    
-    console.logStringMessage("flag1.....................................................");
-    var output;
-    for (property in OAA_WEB_ACCESSIBILITY_PREF) {
-      output += property + ': ' + OAA_WEB_ACCESSIBILITY_PREF[property]+'; ';
-    }
-    console.logStringMessage(output);
 
+  if (typeof OAA_WEB_ACCESSIBILITY_PREF.preferences_call_back == 'function') {
     OAA_WEB_ACCESSIBILITY_PREF.preferences_call_back();
-    console.logStringMessage("flag2.....................................................");
   }  
   
 };
