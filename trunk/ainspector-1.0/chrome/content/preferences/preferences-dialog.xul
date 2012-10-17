@@ -40,6 +40,17 @@
         </groupbox>
       </vbox>
 
+      <vbox id="ID_VBOX_RECOMMENDED">
+        <groupbox>
+          <caption label="&pref_dialog.recommendedSelect;"/>
+          <checkbox 
+            id="ID_CHECKBOX_RECOMMENDED_RULES_ENABLED" 
+            label="&pref_dialog.recommendedOption;"
+            tooltiptext="&pref_dialog.recommendedOptionTooltip;"
+          />  
+        </groupbox>
+      </vbox>
+      
       <vbox id="ID_VBOX_LEVEL">
         <groupbox>
         <caption label="&pref_dialog.levelSelect;"/>
@@ -56,28 +67,15 @@
     <vbox id="ID_VBOX_RESULTS">
       <groupbox>
       <caption label="&pref_dialog.sectionResultsFilter;"/>
-      <hbox>
-      <vbox flex="1">
       <checkbox 
         id="ID_CHECKBOX_RESULTS_MANUAL_CHECKS"         
         label="&pref_dialog.resultsManualChecks;"/>
       <checkbox 
-        id="ID_CHECKBOX_RESULTS_WARNINGS"         
-        label="&pref_dialog.resultsWarnings;"/>
-      <checkbox 
-        id="ID_CHECKBOX_RESULTS_HIDDEN"         
-        label="&pref_dialog.resultsHidden;"/>
-      </vbox>
-      <spacer flex="1"/>
-      <vbox flex="1">
-      <checkbox 
         id="ID_CHECKBOX_RESULTS_PASS"           
         label="&pref_dialog.resultsPass;"/>
       <checkbox 
-        id="ID_CHECKBOX_RESULTS_NOT_APPLICABLE" 
-        label="&pref_dialog.resultsNotApplicable;"/>
-      </vbox>
-      </hbox>
+          id="ID_CHECKBOX_RESULTS_HIDDEN"         
+          label="&pref_dialog.resultsHidden;"/>
       </groupbox>
     </vbox>
 

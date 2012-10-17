@@ -41,6 +41,7 @@ OAA_WEB_ACCESSIBILITY_PREF.preferences = {
   // OAA Ruleset options
   ruleset_id   : 'WCAG20_ARIA_TRANS',                             
   wcag20_level : 3, // OpenAjax.a11y.WCAG20_LEVEL.AAA constant   
+  wcag20_recommended_rules_enabled : true,
   layout_tables     : false,    
   broken_links      : false,    
   
@@ -51,7 +52,7 @@ OAA_WEB_ACCESSIBILITY_PREF.preferences = {
   show_results_warnings       : true,
   show_results_hidden         : true,
   show_results_not_applicable : true,
-  show_results_filter_value   : 31, // OpenAjax.a11y.RESULT_FILTER.ALL
+  show_results_filter_value   : 63, // OpenAjax.a11y.RESULT_FILTER.ALL
   
   // Show menu for accessibility features
   show_accessibility_menu    : false,
@@ -125,7 +126,8 @@ OAA_WEB_ACCESSIBILITY_PREF.util.setDefaultPreferences = function () {
 
   // OAA Ruleset options
   p.ruleset_id    = 'WCAG20_ARIA_TRANS';
-  p.wcag20_level  = 3, // OpenAjax.a11y.WCAG20_LEVEL.AAA
+  p.wcag20_level  = 3; // OpenAjax.a11y.WCAG20_LEVEL.AAA
+  p.wcag20_recommended_rules_enabled = true;
   p.layout_tables = false;    
   p.broken_links  = false;    
   
@@ -160,30 +162,18 @@ OAA_WEB_ACCESSIBILITY_PREF.util.setDefaultPreferences = function () {
 
 OAA_WEB_ACCESSIBILITY_PREF.util.getPreferences = function () {
 
-  var console = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
-  
   var PN = OAA_WEB_ACCESSIBILITY_PREF.PREFERENCES_NAMESPACE;
   var p  = OAA_WEB_ACCESSIBILITY_PREF.preferences;
   
-  if (!OAA_WEB_ACCESSIBILITY_PREF.EXTENSION_NAME) {
-    PN = 'extensions.ainspector-firebug-preferences.';
-    OAA_WEB_ACCESSIBILITY_PREF.PREFERENCES_NAMESPACE = PN;
-  }
-  var output;
-  for (property in OAA_WEB_ACCESSIBILITY_PREF) {
-    output += property + ': ' + OAA_WEB_ACCESSIBILITY_PREF[property]+'; ';
-  }
-  console.logStringMessage(output);
-
-  
-  console.logStringMessage("PN_______________________________" + PN);
-  
   var ps = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);            
+
+  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("Preferences Name Space: " + OAA_WEB_ACCESSIBILITY_PREF.PREFERENCES_NAMESPACE);
                                 
   try {
   
     p.ruleset_id   = ps.getCharPref(PN + 'ruleset_id');
     p.wcag20_level = ps.getIntPref( PN + 'wcag20_level');                              
+    p.wcag20_recommended_rules_enabled = ps.getBoolPref(PN + 'wcag20_recommended_rules_enabled'); 
     
     p.layout_tables     = ps.getBoolPref(PN + 'layout_tables');  
     p.broken_links      = ps.getBoolPref(PN + 'broken_links');    
@@ -236,6 +226,8 @@ OAA_WEB_ACCESSIBILITY_PREF.util.setPreferences = function () {
   
   setStringPreference('ruleset_id');                              
   setIntegerPreference('wcag20_level');                              
+  setBooleanPreference('wcag20_recommended_rules_enabled');    
+  
   setBooleanPreference('layout_tables');  
   setBooleanPreference('broken_links');    
 
