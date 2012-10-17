@@ -30,44 +30,50 @@ with (FBL) {
   
   AINSPECTOR_FB.content = AINSPECTOR_FB.content || {};
   AINSPECTOR_FB.content.viewPanel = function(context, panel_name, cache_object) {
-    AINSPECTOR_FB.toolbarUtil.viewPanel(context, panel_name, cache_object, OpenAjax.a11y.RULE_CATEGORIES.CONTENT_IN_LANDMARKS, 
+    AINSPECTOR_FB.toolbarUtil.viewPanel(context, panel_name, cache_object, OpenAjax.a11y.ELEMENT_TYPE.TEXT, 
         OpenAjax.a11y.RESULT_FILTER.ALL, "Content in Landmarks", "content");
   };
   
   AINSPECTOR_FB.headers = AINSPECTOR_FB.headers || {};
   AINSPECTOR_FB.headers.viewPanel = function(context, panel_name, cache_object) {
-    AINSPECTOR_FB.toolbarUtil.viewPanel(context, panel_name, cache_object, OpenAjax.a11y.RULE_CATEGORIES.HEADINGS_LANDMARKS, 
+    AINSPECTOR_FB.toolbarUtil.viewPanel(context, panel_name, cache_object, OpenAjax.a11y.ELEMENT_TYPE.HEADINGS_LANDMARKS, 
         OpenAjax.a11y.RESULT_FILTER.ALL, "Headings and Landmarks", "headers");
   };
   
   AINSPECTOR_FB.images = AINSPECTOR_FB.images || {};
   AINSPECTOR_FB.images.viewPanel = function (context, panel_name, cache_object) {    
-    AINSPECTOR_FB.toolbarUtil.viewPanel(context, panel_name, cache_object, OpenAjax.a11y.RULE_CATEGORIES.IMAGES, 
+    AINSPECTOR_FB.toolbarUtil.viewPanel(context, panel_name, cache_object, OpenAjax.a11y.ELEMENT_TYPE.IMAGES, 
         OpenAjax.a11y.RESULT_FILTER.ALL, "Images", "images");
   };
   
   AINSPECTOR_FB.controls = AINSPECTOR_FB.controls || {};
   AINSPECTOR_FB.controls.viewPanel = function (context, panel_name, cache_object) {    
-    AINSPECTOR_FB.toolbarUtil.viewPanel(context, panel_name, cache_object, OpenAjax.a11y.RULE_CATEGORIES.CONTROLS, 
+    AINSPECTOR_FB.toolbarUtil.viewPanel(context, panel_name, cache_object, OpenAjax.a11y.ELEMENT_TYPE.FORM_CONTROLS, 
         OpenAjax.a11y.RESULT_FILTER.ALL, "Form Controls", "controls");
   };
   
   AINSPECTOR_FB.links = AINSPECTOR_FB.links || {};
   AINSPECTOR_FB.links.viewPanel = function (context, panel_name, cache_object) {    
-    AINSPECTOR_FB.toolbarUtil.viewPanel(context, panel_name, cache_object, OpenAjax.a11y.RULE_CATEGORIES.LINKS, 
+    AINSPECTOR_FB.toolbarUtil.viewPanel(context, panel_name, cache_object, OpenAjax.a11y.ELEMENT_TYPE.LINKS, 
         OpenAjax.a11y.RESULT_FILTER.ALL, "Links", "links");
   };
   
   AINSPECTOR_FB.media = AINSPECTOR_FB.media || {};
   AINSPECTOR_FB.media.viewPanel = function (context, panel_name, cache_object) {    
-    AINSPECTOR_FB.toolbarUtil.viewPanel(context, panel_name, cache_object, OpenAjax.a11y.RULE_CATEGORIES.AUDIO_VIDEO, 
+    AINSPECTOR_FB.toolbarUtil.viewPanel(context, panel_name, cache_object, OpenAjax.a11y.ELEMENT_TYPE.AUDIO_VIDEO, 
         OpenAjax.a11y.RESULT_FILTER.ALL, "Audio and Video", "media");
   };
   
   AINSPECTOR_FB.tables = AINSPECTOR_FB.tables || {};
   AINSPECTOR_FB.tables.viewPanel = function (context, panel_name, cache_object) {    
-    AINSPECTOR_FB.toolbarUtil.viewPanel(context, panel_name, cache_object, OpenAjax.a11y.RULE_CATEGORIES.TABLES, 
+    AINSPECTOR_FB.toolbarUtil.viewPanel(context, panel_name, cache_object, OpenAjax.a11y.ELEMENT_TYPE.TABLES, 
         OpenAjax.a11y.RESULT_FILTER.ALL, "Tables", "tables");
+  };
+  
+  AINSPECTOR_FB.widgets = AINSPECTOR_FB.widgets || {};
+  AINSPECTOR_FB.widgets.viewPanel = function (context, panel_name, cache_object) {    
+    AINSPECTOR_FB.toolbarUtil.viewPanel(context, panel_name, cache_object, OpenAjax.a11y.ELEMENT_TYPE.WIDGETS, 
+        OpenAjax.a11y.RESULT_FILTER.ALL, "Widgets", "widgets");
   };
   
 }
