@@ -88,15 +88,15 @@ with (FBL) {
       FBTrace.sysout("OpenAjax: ", OpenAjax);
 
       var ruleset = OpenAjax.a11y.all_rulesets.getRuleset(preferences.ruleset_id);
-      FBTrace.sysout("ruleset: ", ruleset);
-
+      var ruleset_object = null;
+      
       if (ruleset) {
         ruleset.setEvaluationLevel(preferences.wcag20_level);
+        ruleset.setRecommendedRulesEnabled(preferences.wcag20_recommended_rules_enabled);
         ruleset.setBrokenLinkTesting(preferences.broken_links);
-        ruleset.evaluate(url, doc.title, doc, null, true);
         
-        FBTrace.sysout("ruleset: ", ruleset);
-
+        ruleset_object = ruleset.evaluate(url, doc.title, doc, null, true);
+        
       } else {
         FBTrace.sysout("  ** Ruleset with the id '" + ruleset_id + "' not found!!");
       }
@@ -104,7 +104,7 @@ with (FBL) {
       AINSPECTOR_FB.preferences = preferences;
       AINSPECTOR_FB.selected_level = OpenAjax.a11y.all_wcag20_nls.getNLS().getNLSWCAG20Level(preferences.wcag20_level);
       AINSPECTOR_FB.ruleset_title = ruleset.ruleset_title;
-      AINSPECTOR_FB.ruleset_object = ruleset;
+      AINSPECTOR_FB.ruleset_object = ruleset_object;
       
       FBTrace.sysout("****** End  AINSPECTOR_FB.cacheUtil.updateCache()   *******");
       

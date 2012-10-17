@@ -262,7 +262,7 @@ with (FBL) {
          },
   
   
-          toggleRow: function(row) {
+        toggleRow: function(row) {
   
         if (hasClass(row, "opened")) {
           this.closeRow(row);

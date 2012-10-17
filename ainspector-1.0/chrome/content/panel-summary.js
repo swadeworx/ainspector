@@ -62,9 +62,10 @@ with (FBL) {
       clearNode(Firebug.currentContext.getPanel('elementsSidePanel').panelNode);
     }
     
-    var all_rules = cache_object.getFilteredRuleResultsByRuleCategory(OpenAjax.a11y.RULE_CATEGORIES.ALL_CATEGORIES, "All Categories", AINSPECTOR_FB.preferences.wcag20_level, AINSPECTOR_FB.preferences.show_results_filter_value);
+    FBTrace.sysout("cache_object in summary: ", cache_object);
+    var all_rules = cache_object.getFilteredRuleResultsByRuleCategory(OpenAjax.a11y.RULE_CATEGORIES.ALL, "All Rules", AINSPECTOR_FB.preferences.wcag20_level, AINSPECTOR_FB.preferences.show_results_filter_value);
     all_rules.sortRuleResultsByImplementationLevel();
-    
+    FBTrace.sysout("all_rules in summary: ", all_rules);
     var rule_result_items = all_rules.filtered_rule_results;
 
     AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);

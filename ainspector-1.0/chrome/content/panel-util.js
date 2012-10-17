@@ -45,8 +45,9 @@ FBL.ns(function() { with (FBL) {
      }
 
      /* Get the Image rules results from the ruleset selected in preferences*/
-     var cache_elements_results = cache_object.getCacheItemsByRuleCategory(rule_category, filter);
+     var cache_elements_results = cache_object.getCacheItemsByElementType(rule_category, filter);
    
+     FBTrace.sysout("cache_elements_results: ", cache_elements_results);
      var cache_item_results = cache_elements_results.cache_item_results;
    
      AINSPECTOR_FB.ainspectorUtil.loadCSSToStylePanel(panel.document);
@@ -58,14 +59,17 @@ FBL.ns(function() { with (FBL) {
    
 //     else panel.table = AINSPECTOR_FB.template.grid.header.replace({elements: cache_item_results, view: rule_category_view}, toolbar, AINSPECTOR_FB.template.grid);
      
-     if (!cache_elements_results) {
+     if (cache_item_results.length < 0) {
+       FBTrace.sysout("In if");
        panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.replace({view:rule_category_view}, toolbar, null);
      } else {
+       FBTrace.sysout("In else" + cache_elements_results.is_tree);
        if (cache_elements_results.is_tree == true)
        
-         panel.table = AINSPECTOR_FB.treeTemplate.grid.tag.replace({object: cache_elements_results, view: rule_category_view}, toolbar, AINSPECTOR_FB.treeTemplate.grid);
+         panel.table = AINSPECTOR_FB.treeTemplate.grid.tag.replace({object: cache_item_results, view: rule_category_view}, toolbar, AINSPECTOR_FB.treeTemplate.grid);
        else  
-         panel.table = AINSPECTOR_FB.template.grid.header.replace({elements: cache_item_results, view: rule_category_view}, toolbar, AINSPECTOR_FB.template.grid);        
+         panel.table = AINSPECTOR_FB.template.grid.header.replace({elements: cache_item_results, view: rule_category_view}, toolbar, AINSPECTOR_FB.template.grid);
+       FBTrace.sysout("panel.table: ", panel.table);
      }
      
      var element = panel.document.createElement("div");
