@@ -79,7 +79,7 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
    
 	 console.logStringMessage("items.length: " + items.length);  
      
-       this.removeHighlight(); 
+     this.removeHighlight(); 
 
      if (!items || typeof items.length == 'undefined') return;
     
@@ -156,41 +156,29 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
     */
    removeHighlight : function() {
 
-//     if (!this.last_highlighted_nodes || !this.document) return;
 	   if (!this.document) return;
-//     var length = this.last_highlighted_nodes.length;
-     
-     
        
 	   var elements = this.document.getElementsByClassName('oaa_web_accessibility_highlight');
-//       var obj = this.document.getElementById("oaa_web_accessibility_highlight_id");
-	   for (var i=0; i <elements.length; i++) { 
 
-		 if (elements[i] && elements[i].hasChildNodes()) {
-         
-           /*if (elements[i].innerHTML == 'Element is off-screen or hidden from assistive technologies') {
-            
-             this.document.body.removeChild(elements[i]);
+		 while (elements[0]) {
+	     var element = elements[0]; 
+
+		   if (element) {
+         var parent_node = element.parentNode;
            
-             continue;
-           }*/
-         
-         var parent_node = elements[i].parentNode;
-         while(elements[i].firstChild) {
-           parent_node.insertBefore(elements[i].firstChild, elements[i]);
+         while(element.firstChild) {
+           parent_node.insertBefore(element.firstChild, element);
          }
-
-         parent_node.removeChild(elements[i]);
-       } else {
-         if (elements[i]) this.document.removeChild(elements[i]);
+           
+         parent_node.removeChild(element);
        }
      }
 	   
-	 var off_screen_elements = this.document.getElementsByClassName('oaa_web_accessibility_off_screen');
+	   var off_screen_elements = this.document.getElementsByClassName('oaa_web_accessibility_off_screen');
 
-	 for (var i = 0; i < off_screen_elements.length; i++) {
-//	   this.last_highlighted_nodes.splice(i, length);
-	   if (off_screen_elements[i]) this.document.body.removeChild(off_screen_elements[i]);	   
+	   for (var j = 0; j < off_screen_elements.length; j++) {
+	   
+		   if (off_screen_elements[j]) this.document.body.removeChild(off_screen_elements[j]);	   
      }
 
    },
@@ -208,18 +196,21 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
 
     if (!this.document) return;
     
-    var new_div_element = this.document.createElement('div');
-    var style_div = 'width:500px; padding:10px; border:3px solid grey; margin:0px; background-color: white; color:red; font-size:15px; position:fixed; ';
+    var element_plural = PluralForm.get(offScreen_elements.length, window.document.getElementById("ainspector_highlight_stringbundle").getString('element'));
     
+    var new_div_element = this.document.createElement('div');
+    var style_div = 'width:40%; padding:10px; border:3px solid grey; margin:0px; background-color: white; color:black; font-size:110%; position:fixed; ';
+    var inner_html = offScreen_elements.length + '  ' + element_plural + ' off-screen or hidden from assistive technologies ';
     new_div_element.id = 'oaa_web_accessibility_off_screen_id';
     new_div_element.setAttribute("class", 'oaa_web_accessibility_off_screen');
     new_div_element.setAttribute("style", style_div);
-
+    new_div_element.innerHTML = inner_html;
+    
     this.document.body.insertBefore(new_div_element,this.document.body.childNodes[0]);
     
-    var div_added = this.document.getElementById('oaa_web_accessibility_off_screen_id');
+    /* var div_added = this.document.getElementById('oaa_web_accessibility_off_screen_id');
     var newUL = this.document.createElement("ol");
-    var text_node = this.document.createTextNode("Elements that are off-screen or hidden from assistive technologies:");
+    var text_node = this.document.createTextNode("Elements that are off-screen or hidden from assistive technologies :");
     newUL.appendChild(text_node);
     div_added.appendChild(newUL);
 
@@ -235,7 +226,7 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
       newLI.appendChild(newText);
       newUL.appendChild(newLI);
       
-    }
+    }*/
     
   },
   
@@ -263,7 +254,7 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
     var title = this.setTitle(item);
     var new_div_element = this.document.createElement('div');
     
-    new_div_element.setAttribute("class", 'oaa_web_accessibility_highlight');
+    new_div_element.setAttribute("class", "oaa_web_accessibility_highlight");
     new_div_element.setAttribute("style", this.changeStyle(item));
     new_div_element.setAttribute("title", title);
     
