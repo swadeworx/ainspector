@@ -43,9 +43,9 @@ FBL.ns(function() { with (FBL) {
        clearNode(panel.panelNode);
        clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
      }
-
+     
      /* Get the Image rules results from the ruleset selected in preferences*/
-     var cache_elements_results = cache_object.getCacheItemsByElementType(rule_category, filter);
+     var cache_elements_results = cache_object.getCacheItemsByElementType(rule_category, AINSPECTOR_FB.preferences.show_results_filter_value);
    
      FBTrace.sysout("cache_elements_results: ", cache_elements_results);
      var cache_item_results = cache_elements_results.cache_item_results;
@@ -55,21 +55,14 @@ FBL.ns(function() { with (FBL) {
      var toolbar = panel.document.createElement("div");
      toolbar.id = "toolbarDiv";
    
-//     if (!cache_item_results) panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.replace({view: rule_category_view}, toolbar, null);
-   
-//     else panel.table = AINSPECTOR_FB.template.grid.header.replace({elements: cache_item_results, view: rule_category_view}, toolbar, AINSPECTOR_FB.template.grid);
-     
      if (cache_item_results.length < 0) {
-       FBTrace.sysout("In if");
        panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.replace({view:rule_category_view}, toolbar, null);
      } else {
-       FBTrace.sysout("In else" + cache_elements_results.is_tree);
        if (cache_elements_results.is_tree == true)
        
          panel.table = AINSPECTOR_FB.treeTemplate.grid.tag.replace({object: cache_item_results, view: rule_category_view}, toolbar, AINSPECTOR_FB.treeTemplate.grid);
        else  
          panel.table = AINSPECTOR_FB.template.grid.header.replace({elements: cache_item_results, view: rule_category_view}, toolbar, AINSPECTOR_FB.template.grid);
-       FBTrace.sysout("panel.table: ", panel.table);
      }
      
      var element = panel.document.createElement("div");
@@ -222,7 +215,7 @@ FBL.ns(function() { with (FBL) {
     }
     
     AINSPECTOR_FB.previous_selected_row = row;
-    FBTrace.sysout("row in html: ", row);
+
     if (cache_item.dom_element) node = cache_item.dom_element.node;
     else node = cache_item.node;
     
@@ -449,7 +442,7 @@ AINSPECTOR_FB.flatListTemplateUtil = {
             AINSPECTOR_FB.ainspectorUtil.setClass(next_row, "gridRowSelected");
                 
             for (var i=0; i< next_row.cells.length; i++) AINSPECTOR_FB.ainspectorUtil.setClass(next_row.cells[i], "gridCellSelected");
-              OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([next_row.repObject]);
+              OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([next_row.repObject], AINSPECTOR_FB.preferences);
           }
         }
         event.stopPropagation();
@@ -485,7 +478,7 @@ AINSPECTOR_FB.flatListTemplateUtil = {
       
     var category = getClassValue(event_target, "tableRowView");
     var table_rows = getAncestorByClass(event_target, "gridRow");
-    FBTrace.sysout("table_rows: ", table_rows);  
+
     if (table_rows) {
       var old_row = getElementByClass(table_rows, "selected");
 
@@ -642,15 +635,14 @@ AINSPECTOR_FB.flatListTemplateUtil = {
       for (var i=0; i< row.children.length; i++) {
         AINSPECTOR_FB.ainspectorUtil.setClass(row.children[i], "gridCellSelected");
       }
-
-      FBTrace.sysout("highlighting node: ", row.repObject);
-  
+      
+      FBTrace.sysout("highlight cache item: ", row.repObject);
       if (row.repObject.cache_item) {
-    	  OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject.cache_item]);
+    	  OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject.cache_item], AINSPECTOR_FB.preferences);
       } else if (row.repObject.filtered_node_results) {
-    	  OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems(row.repObject.filtered_node_results);
+    	  OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightRuleResults(row.repObject.filtered_node_results, AINSPECTOR_FB.preferences);
       } else {
-    	  OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject]);
+    	  OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject], AINSPECTOR_FB.preferences);
       }
     },
     
@@ -887,7 +879,6 @@ AINSPECTOR_FB.tabPanelUtil = {
        if (panelType_rules) {
          //nothing
        } else {
-         FBTrace.sysout("AINSPECTOR_FB.rules_registered: ", AINSPECTOR_FB.rules_registered);
          panelType_rules = AINSPECTOR_FB.rules_registered;
          AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_rules);
   

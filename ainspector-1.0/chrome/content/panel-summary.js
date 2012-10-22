@@ -41,7 +41,6 @@ with (FBL) {
      * 
      */
     viewPanel: function(context, panel_name, cache_object) {
-    FBTrace.sysout("inside summary");
 
 //  adds or removes the side panels from the extension depending on the panel we are in 
     AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels("none");
@@ -62,7 +61,6 @@ with (FBL) {
       clearNode(Firebug.currentContext.getPanel('elementsSidePanel').panelNode);
     }
     
-    FBTrace.sysout("cache_object in summary: ", cache_object);
     var all_rules = cache_object.getFilteredRuleResultsByRuleCategory(OpenAjax.a11y.RULE_CATEGORIES.ALL, "All Rules", AINSPECTOR_FB.preferences.wcag20_level, AINSPECTOR_FB.preferences.show_results_filter_value);
     all_rules.sortRuleResultsByImplementationLevel();
     FBTrace.sysout("all_rules in summary: ", all_rules);
@@ -82,7 +80,7 @@ with (FBL) {
     panel.panelNode.appendChild(toolbar);
     panel.panelNode.appendChild(element);
     
-    AINSPECTOR_FB.template.grid.setTableMenuItems(panel.table);
+//    AINSPECTOR_FB.template.grid.setTableMenuItems(panel.table);
 
     var selected_row = AINSPECTOR_FB.toolbarUtil.selectRow(panel, rule_result_items[0], false, "summary");
 
@@ -229,7 +227,7 @@ with (FBL) {
           
           var PEPR = nls_implementation_level.label;
 
-          if (nls_implementation_level.manual_check_count > 0)  manual_check_count = nls_implementation_level.manual_check_count;
+          if (rule_result_item.manual_checks_count > 0)  manual_check_count = rule_result_item.manual_checks_count;
           
           var implementation_percentage_tag = null;
           
