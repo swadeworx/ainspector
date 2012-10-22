@@ -46,8 +46,7 @@
           <checkbox 
             id="ID_CHECKBOX_RECOMMENDED_RULES_ENABLED" 
             label="&pref_dialog.recommendedOption;"
-            tooltiptext="&pref_dialog.recommendedOptionTooltip;"
-          />  
+            tooltiptext="&pref_dialog.recommendedOptionTooltip;"/>  
         </groupbox>
       </vbox>
       
