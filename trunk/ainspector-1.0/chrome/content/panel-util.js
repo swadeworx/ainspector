@@ -442,7 +442,7 @@ AINSPECTOR_FB.flatListTemplateUtil = {
             AINSPECTOR_FB.ainspectorUtil.setClass(next_row, "gridRowSelected");
                 
             for (var i=0; i< next_row.cells.length; i++) AINSPECTOR_FB.ainspectorUtil.setClass(next_row.cells[i], "gridCellSelected");
-              OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([next_row.repObject], AINSPECTOR_FB.preferences);
+              OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItem(next_row.repObject, AINSPECTOR_FB.preferences);
           }
         }
         event.stopPropagation();
@@ -638,11 +638,11 @@ AINSPECTOR_FB.flatListTemplateUtil = {
       
       FBTrace.sysout("highlight cache item: ", row.repObject);
       if (row.repObject.cache_item) {
-    	  OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject.cache_item], AINSPECTOR_FB.preferences);
+    	  OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItem(row.repObject.cache_item, AINSPECTOR_FB.preferences);
       } else if (row.repObject.filtered_node_results) {
-    	  OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightRuleResults(row.repObject.filtered_node_results, AINSPECTOR_FB.preferences);
+    	  OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightNodeResults(row.repObject.filtered_node_results, AINSPECTOR_FB.preferences);
       } else {
-    	  OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems([row.repObject], AINSPECTOR_FB.preferences);
+    	  OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItem(row.repObject, AINSPECTOR_FB.preferences);
       }
     },
     

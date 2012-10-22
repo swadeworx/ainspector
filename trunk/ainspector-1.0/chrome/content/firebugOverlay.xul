@@ -6,7 +6,7 @@
   <stringbundleset id="stringbundleset">
     <stringbundle id="ainspector_stringbundle" src="chrome://firebug-a11y/locale/ainspector.properties"/>
     <stringbundle id="ainspector_stringbundle1" src="chrome://firebug-a11y/locale/all-properties.properties"/>
-    <stringbundle id="ainspector_highlight_stringbundle" src="chrome://firebug-a11y-highlighting/locale/highlight.properties"/>
+    <stringbundle id="ID_STRINGBUNDLE_HIGHLIGHT" src="chrome://firebug-a11y-highlighting/locale/highlight.properties"/>
   </stringbundleset>
   
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/cache-util.js"/>
