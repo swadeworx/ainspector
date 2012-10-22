@@ -48,7 +48,6 @@ OAA_WEB_ACCESSIBILITY.util = OAA_WEB_ACCESSIBILITY.util || {};
 
 OAA_WEB_ACCESSIBILITY.util.highlightModule = {
   
-//  last_highlighted_nodes: [],
   document: null,
 
   /**
@@ -66,78 +65,206 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
   
    }, 
 
+   /**
+   * @function scopePageCount
+    * 
+    * @memberOf OAA_WEB_ACCESSIBILITY.util.highlightModule
+    *
+   * @desc  Returns the number of node results that are from rules with page scope
+   * 
+   * @param {Array}  node_results  -  List of node result objects
+   *
+   * @return {Number}  Number of node results that are from rules with scope of page 
+    */
+
+   scopePageCount  : function(node_results) {
+     
+     var count = 0;  
+     for (var i = 0; i < node_results.length; i++) if (node_results[i].isScopePage()) count++;
+     return count;
+     
+   },
+     
   /**
-   * @function highlightCacheItems
+   * @function scopeElementCount
    *
    * @memberOf OAA_WEB_ACCESSIBILITY.util.highlightModule
    *
-   * @desc highlights set of nodes selected on a page
+   * @desc  Returns the number of node results that are from rules with element scope
+   * 
+   * @param {Array}  node_results  -  List of node result objects
    *
-   * @param {Array}   items     - An array of OAA cache items to highlight
+   * @return {Number}  Number of node results that are from rules with element of page 
    */
-   highlightCacheItems : function (items) {
-   
-	 console.logStringMessage("items.length: " + items.length);  
+
+   scopeElementCount : function (node_results) {
      
+     var count = 0;
+     
+     for (var i = 0; i < node_results.length; i++) if (node_results[i].isScopeElement()) count++;
+     
+     return count;
+     
+   },
+
+  /**
+   * @function highlightCacheItem
+   *
+   * @memberOf OAA_WEB_ACCESSIBILITY.util.highlightModule
+   *
+    * @desc highlights a cache item on a page
+    *
+    * @param {Object}   cache_item   - Is a OAA cache items (NOTE: can be simple dom element) to highlight
+    * @param {Object}  preferences   - preferences set on any extension
+    */
+   highlightCacheItem : function (cache_item, preferences) {
+   
+
      this.removeHighlight(); 
 
-     if (!items || typeof items.length == 'undefined') return;
+     if (typeof cache_item !== 'object') return;
     
-     var node = null;
-     var items_len = items.length;
-     var style;
-     var tag_name;
      var off_screen_elements = [];
      
-     for (var i = 0; i < items_len; i++) {
-       
-       var item = items[i];
-       if (item.cache_item) item = item.cache_item;
-       
-       if (item.dom_element) {  // item is a cache element object
-    
-         if (item.dom_element.image_only) {
-           node = item.dom_element.node.getElementsByTagName("img")[0];
-         }
-         else {
-           node = item.dom_element.node;
-         }
-         style = item.dom_element.computed_style;
-         tag_name = item.dom_element.tag_name;
-       }
-       else { 
-         // If item is a dom element object or text node object
-         switch (item.type) {
-        
-           case Node.ELEMENT_NODE:
-             node = item.node;
-             style = item.computed_style;
-             tag_name = item.tag_name;
-             break;
-          
-           case Node.TEXT_NODE:
-             
-             if (item.parent_element) {
-               node = item.parent_element.node;        
-               style = item.parent_element.computed_style;
-               tag_name = item.parent_element.tag_name;
-             }  
-             break;
-        
-           default: 
-             break;
-         }
+     var de = cache_item;
+
+     if (typeof cache_item.dom_element === 'object') de = cache_item.dom_element;
+
+     var style    = this.getWorstSeverityStyle(de, preferences);
      
-       }
+     var style_de = de;
+     
+     if (de.type === Node.TEXT_NODE) style_de = de.parent_element;         
+
+     var node     = style_de.node;
+     var tag_name = style_de.tag_name;
 
        if (node) {
 
 //       check if the node is off screen or hidden from assistive technologies
          if (style.visibility == "hidden" || style.display == "none") {
-           off_screen_elements.push(item);
+       
+         if (de.rules_violations.length ||
+             de.rules_warnings.length ||
+             (preferences.show_results_page_manual_checks    && this.scopePageCount(de.rules_manual_checks)) ||
+             (preferences.show_results_element_manual_checks && this.scopeElementCount(de.rules_manual_checks)) ||
+             (preferences.show_results_page_pass   && de.rules_pass.length) ||
+             (preferences.show_results_page_hidden && de.rules_hidden.length)) {
+           off_screen_elements.push(cache_item);
+           this.isVisibletoAT(off_screen_elements);
+         }
            
          } else {
-           this.insertDIV(item, node, tag_name);
+         
+         var mc = 0;
+         var p = 0;
+         var h = 0;
+         
+         if (preferences.show_results_page_manual_checks)    mc += this.scopePageCount(de.rules_manual_checks);
+         if (preferences.show_results_element_manual_checks) mc += this.scopeElementCount(de.rules_manual_checks);
+         if (preferences.show_results_page_pass) p = de.rules_pass;
+         if (preferences.show_results_page_hidden) h = de.rules_hidden;
+           
+         this.insertDIV(node, tag_name, style, de.rules_violations, de.rules_warnings, mc, p, h);  
+       }
+     }
+
+   },
+   
+  /**
+   * @function highlightNodeResults
+   *
+   * @memberOf OAA_WEB_ACCESSIBILITY.util.highlightModule
+   *
+   * @desc Highlights a set of nodes on a page, uses the node severity for highlighting style
+   *
+   * @param {Array}   node_results  - An array of OAA node results to highlight (i.e. from rule results of filtered rule results)
+   * @param {Object}  preferences - preferences set on any extension
+   */
+   highlightNodeResults : function (node_results, preferences) {
+   
+     var SEVERITY    = OpenAjax.a11y.SEVERITY;
+     
+     this.removeHighlight(); 
+
+     if (!node_results || typeof node_results.length == 'undefined') return;
+    
+     var node_results_len = node_results.length;
+     var de;
+     var off_screen_elements = [];
+     
+     for (var i = 0; i < node_results_len; i++) {
+     
+       var node_result = node_results[i];
+       var cache_item = node_result.cache_item;
+       var node  = null;
+
+       if (typeof cache_item !== 'object') continue;
+
+       // find dom element object based on the type of cache_item property
+
+       if (typeof cache_item.dom_element === 'object') {
+         de = cache_item.dom_element;
+         }
+         else {
+         de = cache_item;       
+       }
+
+       var style_de = de;
+
+       if (de.type === Node.TEXT_NODE) style_de = de.parent_element;         
+
+       var style    = style_de.computed_style;
+       var node     = style_de.node;
+       var tag_name = style_de.tag_name;
+
+       if (node) {
+
+//       check if the node is off screen or hidden from assistive technologies
+         if (style.visibility == "hidden" || style.display == "none") {
+           switch (node_result.getSeverityResult()) {
+           
+           case SEVERITY.MANUAL_CHECK: 
+             if (preferences.show_results_page_manual_checks) off_screen_elements.push(node_result);
+             break;
+          
+           case SEVERITY.PASS: 
+             if (preferences.show_results_page_pass) off_screen_elements.push(node_result);
+             break;
+        
+           case SEVERITY.HIDDEN: 
+             if (preferences.show_results_page_hidden) off_screen_elements.push(node_result);
+             break;
+             
+           default:
+             off_screen_elements.push(node_result);
+             break;
+           }  
+           
+         } else {
+           switch (node_result.getSeverityResult()) {
+           
+           case SEVERITY.VIOLATION:
+             this.insertDIV(node, tag_name, this.getStringBundle('styleViolations'), 1, 0, 0, 0, 0);
+             break;
+
+           case SEVERITY.WARNING: 
+             this.insertDIV(node, tag_name, this.getStringBundle('styleWarnings'), 0, 1, 0, 0, 0);
+             break;
+
+           case SEVERITY.MANUAL_CHECK: 
+             if (preferences.show_results_page_manual_checks && node_result.isScopePage()) this.insertDIV(node, tag_name, this.getStringBundle('styleManualChecks'), 0, 0, 1, 0, 0);
+             if (preferences.show_results_element_manual_checks && node_result.isScopeElement()) this.insertDIV(node, tag_name, this.getStringBundle('styleManualChecks'), 0, 0, 1, 0, 0);
+             break;
+             
+           case SEVERITY.PASS: 
+             if (preferences.show_results_pass) this.insertDIV(node, tag_name, this.getStringBundle('stylePassed'), 0, 0, 0, 1, 0);
+             break;
+
+           default:
+             if (preferences.show_results_hidden) this.insertDIV(node, tag_name, this.getStringBundle('styleHidden'), 0, 0, 0, 0, 1);
+             break;
+           }  
          }
        }
      } //end for
@@ -199,7 +326,7 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
     var element_plural = PluralForm.get(offScreen_elements.length, window.document.getElementById("ainspector_highlight_stringbundle").getString('element'));
     
     var new_div_element = this.document.createElement('div');
-    var style_div = 'width:40%; padding:10px; border:3px solid grey; margin:0px; background-color: white; color:black; font-size:110%; position:fixed; ';
+    var style_div = 'width:40%; padding:10px; border:3px solid grey; margin:0px; background-color: white; color:black; font-size:120%; position:fixed; ';
     var inner_html = offScreen_elements.length + '  ' + element_plural + ' off-screen or hidden from assistive technologies ';
     new_div_element.id = 'oaa_web_accessibility_off_screen_id';
     new_div_element.setAttribute("class", 'oaa_web_accessibility_off_screen');
@@ -245,17 +372,19 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
    * @param {Object} node
    * @param {String} tag_name           
    */
-  insertDIV : function (item, node, tag_name) {
+  insertDIV : function (node, tag_name, style, violations, warnings, manual_checks, pass, hidden) {
 
     var flag = false;
     var parent_node = null;
     var elements_without_content = ['applet', 'area', 'dl', 'frame', 'img', 'input', 'object', 'ol', 'table', 'ul'];
     var length =  elements_without_content.length;
-    var title = this.setTitle(item);
+    
+    var title = this.getSeverityMessage(violations, warnings, manual_checks, pass, hidden);
+    
     var new_div_element = this.document.createElement('div');
     
     new_div_element.setAttribute("class", "oaa_web_accessibility_highlight");
-    new_div_element.setAttribute("style", this.changeStyle(item));
+    new_div_element.setAttribute("style", style);
     new_div_element.setAttribute("title", title);
     
     var index = elements_without_content.indexOf(tag_name);
@@ -278,7 +407,7 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
   },
   
   /**
-   * @function changeStyle
+   * @function getWorstSeverityStyle
    * 
    * @memberOf OAA_WEB_ACCESSIBILITY.util.highlightModule
    * 
@@ -290,51 +419,74 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
    *    5. hidden (gray double line)
    *    6. shows blue color outline if there are no rules for an element 
    *  
-   * @param {Object} item - node to get the severity count
+   * @param {Object} object
+   * @param {Object} item         - node to get the severity count
+   * @param {Object} preferences  -
+   * @param {String} view         - elements view or rules view
+   * 
+   * @return {property} styleResult
    */
-  changeStyle : function(item) {
+  getWorstSeverityStyle : function(dom_element, preferences) {
+      
+    if (dom_element.rules_violations.length > 0) return this.getStringBundle('styleViolations');
     
-	if (item.dom_element) item = item.dom_element;
-	
-    if (item.rules_violations.length > 0) return "border: medium solid red; borderCollapse: collapse; ";
-    else if (item.rules_manual_checks.length  > 0) return "border: medium dotted red; borderCollapse: collapse; ";
-    else if (item.rules_warnings.length  > 0 ) return "border: medium solid orange; borderCollapse: collapse; ";
-    else if (item.rules_passed.length  > 0) return "border: medium solid green; borderCollapse: collapse; ";
-    else if (item.rules_hidden.length  > 0) return "border: medium dotted grey; borderCollapse: collapse;";
-    else return "border: medium solid blue; borderCollapse: collapse;";
+    else if (dom_element.rules_warnings.length  > 0 ) return this.getStringBundle('styleWarnings');
+    
+    else if (preferences.show_results_page_manual_checks    && (this.scopePageCount(dom_element.rules_manual_checks)    > 0)) return this.getStringBundle('styleManualChecks');
+    
+    else if (preferences.show_results_element_manual_checks && (this.scopeElementCount(dom_element.rules_manual_checks) > 0)) return this.getStringBundle('styleManualChecks');
+    
+    else if (preferences.show_results_pass &&  (dom_element.rules_passed.length  > 0)) return this.getStringBundle('stylePassed');
+  
+    else if (preferences.show_results_hidden &&  (dom_element.rules_hidden.length  > 0)) return this.getStringBundle('styleHidden');
+      
+	    else return this.getStringBundle('styleResult');
+	    
   },
   
   /**
-   * @function setTitle
+   * @function getSeverityMessage
    * 
    * @memberOf OAA_WEB_ACCESSIBILITY.util.highlightModule
    * 
    * @desc Creates value for title attribute of the div element to provide a summary of the number of violations, warnings, manual checks and passes 
    * 
    * @param {Object} item - cache_item to retrieve the count of severities
+   * 
+   * @return {String} title
    */
-  setTitle : function(item) {
+  getSeverityMessage : function(v_count, w_count, mc_count, p_count, h_count) {
 	
-	if (item.dom_element) item = item.dom_element;
-	
-	var doc = window.document;  
-	var getStr = function(string) doc.getElementById("ainspector_highlight_stringbundle").getString(string);
-	var title = '';
-	
-	var violations_count = item.rules_violations.length;
-	var manual_checks_count = item.rules_manual_checks.length;
-	var warnings_count = item.rules_warnings.length;
-	var passed_count = item.rules_passed.length;
-	var hidden_count = item.rules_hidden.length;
-	
-	if (violations_count > 0)    title = title + violations_count + ' ' + PluralForm.get(violations_count, getStr('violations')) + ' ';
-	if (manual_checks_count > 0) title = title + manual_checks_count + ' ' + PluralForm.get(manual_checks_count, getStr('manualChecks')) + ' ';
-	if (warnings_count > 0)      title = title + warnings_count + ' ' + PluralForm.get(warnings_count, getStr('warnings')) + ' '; 
-    if (passed_count > 0)        title = title + passed_count + ' ' + PluralForm.get(passed_count, getStr('passes')) + ' ';
-    if (hidden_count > 0)        title = title + hidden_count + ' ' + PluralForm.get(hidden_count, getStr('hidden')) + ' ';
+  	var title = '';
+  	
+  	if (v_count > 0)  title += v_count + ' ' + PluralForm.get(v_count, this.getStringBundle('violations')) + ' ';
+  	
+  	if (mc_count > 0) title += mc_count + ' ' + PluralForm.get(mc_count, this.getStringBundle('manualChecks')) + ' ';
+  	
+  	if (w_count > 0)  title += w_count + ' ' + PluralForm.get(w_count, this.getStringBundle('warnings')) + ' '; 
     
-    if (!title) title = 'no rule results';
+  	if (p_count > 0)  title += p_count + ' ' + PluralForm.get(p_count, this.getStringBundle('passes')) + ' ';
     
+  	if (h_count > 0)  title += h_count + ' ' + PluralForm.get(h_count, this.getStringBundle('hidden')) + ' ';
+    
+    if (title.length === 0) title = 'no rule results';
+      
     return title;
+  },
+  
+  /**
+   * @function getStringBundle
+   * 
+   * @memberOf OAA_WEB_ACCESSIBILITY.util.highlightModule
+   * 
+   * @desc returns the string from the locale/en-US/highlight.properties
+   * 
+   * @param {String} string - key to the highlight.properties file
+   * 
+   * @return {String} 
+   */
+  getStringBundle : function(string) {
+    
+    return window.document.getElementById("ID_STRINGBUNDLE_HIGHLIGHT").getString(string);
   }
 };
