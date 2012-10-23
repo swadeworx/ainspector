@@ -386,31 +386,28 @@ AINSPECTOR_FB.flatListTemplateUtil = {
       case KeyEvent.DOM_VK_LEFT: //  
    
       case KeyEvent.DOM_VK_UP: //up
-    var row = findPrevious(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow);
+        var row = findPrevious(event.target, AINSPECTOR_FB.ainspectorUtil.isGridRow);
     
-    if (row) {
-      row.focus();
-      AINSPECTOR_FB.flatListTemplateUtil.highlightRow(event, row);
-    }
-    break;
+        if (row) {
+          row.focus();
+          AINSPECTOR_FB.flatListTemplateUtil.highlightRow(event, row);
+        }
+        break;
     
       case KeyEvent.DOM_VK_RIGHT: //right
-      //var cell = AINSPECTOR_FB.ainspectorUtil.getChildByClass(event.target, "gridCell");
-      //if (cell) cell.focus();
-      //break;
-    case KeyEvent.DOM_VK_DOWN: //down
+      case KeyEvent.DOM_VK_DOWN: //down
 
-      if (table.tabIndex == '0') {
-        table.setAttribute('tabindex', '-1');
-        table.rows[0].setAttribute('tabindex', '0');
-        setClass(table.rows[0], "headerRowSelected");
-        table.rows[0].focus();
-        var side_panel = Firebug.currentContext.getPanel('rulesSidePanel');
-        AINSPECTOR_FB.emptySidePanelTemplate.tag.replace({messg: "please select an element row in the left panel", desc: "Evaluation Results By Rule"}, side_panel.panelNode);
-        break;
-      }  
-      var all_rows = table.getElementsByClassName("gridRow");
-      var current_index = Array.indexOf(all_rows, event.target);
+        if (table.tabIndex == '0') {
+          table.setAttribute('tabindex', '-1');
+          table.rows[0].setAttribute('tabindex', '0');
+          setClass(table.rows[0], "headerRowSelected");
+          table.rows[0].focus();
+          var side_panel = Firebug.currentContext.getPanel('rulesSidePanel');
+          AINSPECTOR_FB.emptySidePanelTemplate.tag.replace({messg: "please select an element row in the left panel", desc: "Evaluation Results By Rule"}, side_panel.panelNode);
+          break;
+        }  
+        var all_rows = table.getElementsByClassName("gridRow");
+        var current_index = Array.indexOf(all_rows, event.target);
       
         var index = Array.indexOf(all_rows, event.target);
         var key = event.keyCode;
@@ -423,14 +420,12 @@ AINSPECTOR_FB.flatListTemplateUtil = {
              
           if (all_rows[new_index]) { 
             var next_row = all_rows[new_index];
+
 //          unhighlighting from rows in panel
             var current_row = all_rows[index];
             var header_row = all_rows[index];
+
             if (current_index != 0) {
-              
-//              if (current_index == 1) {
-//                if(hasClass(header_row, "headerRowSelected")) AINSPECTOR_FB.ainspectorUtil.removeClass(header_row, "headerRowSelected");
-//              }
               
               AINSPECTOR_FB.ainspectorUtil.removeClass(current_row, "gridRowSelected");
                 
@@ -442,7 +437,9 @@ AINSPECTOR_FB.flatListTemplateUtil = {
             AINSPECTOR_FB.ainspectorUtil.setClass(next_row, "gridRowSelected");
                 
             for (var i=0; i< next_row.cells.length; i++) AINSPECTOR_FB.ainspectorUtil.setClass(next_row.cells[i], "gridCellSelected");
-              OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItem(next_row.repObject, AINSPECTOR_FB.preferences);
+            
+            if (next_row.repObject.filtered_node_results) OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightNodeResults(next_row.repObject.filtered_node_results, AINSPECTOR_FB.preferences);
+            else OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItem(next_row.repObject, AINSPECTOR_FB.preferences);
           }
         }
         event.stopPropagation();
@@ -450,15 +447,15 @@ AINSPECTOR_FB.flatListTemplateUtil = {
           
         break;
           
-      case KeyEvent.DOM_VK_TAB:
+      /*case KeyEvent.DOM_VK_TAB:
          //var panel = Firebug.chrome.getSelectedPanel();
         var sidePanel = Firebug.chrome.getSelectedSidePanel();
-//      if (sidePanel) {
-//        sidePanel.panelNode.setAttribute("tabindex", "0");
-//        sidePanel.panelNode.focus();
-//        setClass(sidePanel.panelNode, "focusRow");
-//      }
-        break;
+      if (sidePanel) {
+        sidePanel.panelNode.setAttribute("tabindex", "0");
+        sidePanel.panelNode.focus();
+        setClass(sidePanel.panelNode, "focusRow");
+      }
+        break;*/
     }
   },
     
