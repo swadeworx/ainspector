@@ -131,8 +131,16 @@ OAA_WEB_ACCESSIBILITY_PREF.dialog.initPreferencesDialog = function () {
 
   // Evaluation Results Filter
 
-  var cb_manual_checks  = document.getElementById("ID_CHECKBOX_RESULTS_MANUAL_CHECKS");
-  if (cb_manual_checks) cb_manual_checks.checked = p.show_results_manual_checks;
+  var cb_element_manual_checks  = document.getElementById("ID_CHECKBOX_RESULTS_ELEMENT_MANUAL_CHECKS");
+  if (cb_element_manual_checks) cb_element_manual_checks.checked = p.show_results_element_manual_checks;
+  
+  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("ELEMENT MC PREF: " + p.show_results_element_manual_checks+ " (" + cb_element_manual_checks + ")");
+
+
+  var cb_page_manual_checks  = document.getElementById("ID_CHECKBOX_RESULTS_PAGE_MANUAL_CHECKS");
+  if (cb_page_manual_checks) cb_page_manual_checks.checked = p.show_results_page_manual_checks;
+
+  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("PAGE MC PREF: " + p.show_results_page_manual_checks + " (" + cb_page_manual_checks + ")");
 
   var cb_warnings  = document.getElementById("ID_CHECKBOX_RESULTS_WARNINGS");
   if (cb_warnings) cb_warnings.checked = p.show_results_warnings;
@@ -251,8 +259,15 @@ OAA_WEB_ACCESSIBILITY_PREF.dialog.setPreferences = function () {
 
   // Evaluation Results Filter
 
-  var cb_manual_checks = document.getElementById("ID_CHECKBOX_RESULTS_MANUAL_CHECKS");
-  if (cb_manual_checks) p.show_results_manual_checks = cb_manual_checks.checked;
+  var cb_element_manual_checks  = document.getElementById("ID_CHECKBOX_RESULTS_ELEMENT_MANUAL_CHECKS");
+  if (cb_element_manual_checks) p.show_results_element_manual_checks = cb_element_manual_checks.checked;
+
+  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("ELEMENT MC PREF (SET): " + p.show_results_element_manual_checks+ " (" + cb_element_manual_checks + ")");
+
+  var cb_page_manual_checks  = document.getElementById("ID_CHECKBOX_RESULTS_PAGE_MANUAL_CHECKS");
+  if (cb_page_manual_checks) p.show_results_page_manual_checks = cb_page_manual_checks.checked;
+
+  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("PAGE MC PREF (SET): " + p.show_results_page_manual_checks+ " (" + cb_page_manual_checks + ")");
 
   var cb_warnings = document.getElementById("ID_CHECKBOX_RESULTS_WARNINGS");
   if (cb_warnings) p.show_results_warnings = cb_warnings.checked;

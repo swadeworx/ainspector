@@ -24,10 +24,11 @@
 <!ENTITY pref_dialog.brokenLinks              "Check for broken links">
 <!ENTITY pref_dialog.brokenLinksTooltip       "Checking for broken links will significantly increase the time to evaluate a document">
 
-<!ENTITY pref_dialog.sectionResultsFilter   "Element Result Filters">
-<!ENTITY pref_dialog.resultsManualChecks    "Show elements with Manual Checks">
-<!ENTITY pref_dialog.resultsPass            "Show elements that Pass">
-<!ENTITY pref_dialog.resultsHidden          "Show elements that are Hidden">
+<!ENTITY pref_dialog.sectionResultsFilter   "Evaluation Result Filters">
+<!ENTITY pref_dialog.resultsElementManualChecks    "Show Element Level Manual Checks">
+<!ENTITY pref_dialog.resultsPageManualChecks    "Show Page Level Manual Checks">
+<!ENTITY pref_dialog.resultsPass            "Show Pass">
+<!ENTITY pref_dialog.resultsHidden          "Show Hidden">
 
 <!ENTITY pref_dialog.resultsWarnings        "Warnings">
 <!ENTITY pref_dialog.resultsNotApplicable   "Not Applicable">

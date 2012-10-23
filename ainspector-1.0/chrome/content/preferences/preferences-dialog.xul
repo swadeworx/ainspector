@@ -67,8 +67,11 @@
       <groupbox>
       <caption label="&pref_dialog.sectionResultsFilter;"/>
       <checkbox 
-        id="ID_CHECKBOX_RESULTS_MANUAL_CHECKS"         
-        label="&pref_dialog.resultsManualChecks;"/>
+          id="ID_CHECKBOX_RESULTS_ELEMENT_MANUAL_CHECKS"         
+          label="&pref_dialog.resultsElementManualChecks;"/>
+        <checkbox 
+        id="ID_CHECKBOX_RESULTS_PAGE_MANUAL_CHECKS"         
+        label="&pref_dialog.resultsPageManualChecks;"/>
       <checkbox 
         id="ID_CHECKBOX_RESULTS_PASS"           
         label="&pref_dialog.resultsPass;"/>
