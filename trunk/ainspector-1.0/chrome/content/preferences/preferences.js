@@ -48,7 +48,8 @@ OAA_WEB_ACCESSIBILITY_PREF.preferences = {
   // Extension options for showing evaluation results
   show_results_pass           : true,
   show_results_violations     : true,
-  show_results_manual_checks  : true,
+  show_results_page_manual_checks  : true,
+  show_results_element_manual_checks  : true,
   show_results_warnings       : true,
   show_results_hidden         : true,
   show_results_not_applicable : true,
@@ -87,26 +88,28 @@ OAA_WEB_ACCESSIBILITY_PREF.util.calculateResultsFilterValue = function () {
   
   // This is copied from OpenAjax file: openajax_a11y_constants.js
   
-  var rfc = {
-    ALL            : 63,
+  var RFC = {
+    ALL                  : 127,
     PASS           : 1,
     VIOLATION      : 2,
     WARNING        : 4,
-    MANUAL_CHECK   : 8,
-    HIDDEN         : 16, // hidden only applies to node results 
-    NOT_APPLICABLE : 32  // not applicable only applies to rule results
+    PAGE_MANUAL_CHECK    : 8,
+    ELEMENT_MANUAL_CHECK : 16,
+    HIDDEN               : 32, // hidden only applies to node results 
+    NOT_APPLICABLE       : 64  // not applicable only applies to rule results
   }
   
   var filter = 0;
 
   var p = OAA_WEB_ACCESSIBILITY_PREF.preferences;
   
-  if (p.show_results_pass)           filter += rfc.PASS;
-  if (p.show_results_violations)     filter += rfc.VIOLATION;
-  if (p.show_results_manual_checks)  filter += rfc.MANUAL_CHECK;
-  if (p.show_results_warnings)       filter += rfc.WARNING;
-  if (p.show_results_hidden)         filter += rfc.HIDDEN;
-  if (p.show_results_not_applicable) filter += rfc.NOT_APPLICABLE;
+  if (p.show_results_pass)                  filter += RFC.PASS;
+  if (p.show_results_violations)            filter += RFC.VIOLATION;
+  if (p.show_results_page_manual_checks)    filter += RFC.PAGE_MANUAL_CHECK;
+  if (p.show_results_element_manual_checks) filter += RFC.ELEMENT_MANUAL_CHECK;
+  if (p.show_results_warnings)              filter += RFC.WARNING;
+  if (p.show_results_hidden)                filter += RFC.HIDDEN;
+  if (p.show_results_not_applicable)        filter += RFC.NOT_APPLICABLE;
   
   return filter;
   
@@ -134,7 +137,8 @@ OAA_WEB_ACCESSIBILITY_PREF.util.setDefaultPreferences = function () {
   // Extension options for showing evaluation results
   p.show_results_pass           = true;
   p.show_results_violations     = true;
-  p.show_results_manual_checks  = true;
+  p.show_results_page_manual_checks  = true;
+  p.show_results_element_manual_checks  = true;
   p.show_results_warnings       = true;
   p.show_results_hidden         = true;
   p.show_results_not_applicable = true;
@@ -180,7 +184,8 @@ OAA_WEB_ACCESSIBILITY_PREF.util.getPreferences = function () {
 
     p.show_results_pass           = ps.getBoolPref(PN + 'show_results_pass');    
     p.show_results_violations     = ps.getBoolPref(PN + 'show_results_violations');    
-    p.show_results_manual_checks  = ps.getBoolPref(PN + 'show_results_manual_checks');    
+    p.show_results_page_manual_checks    = ps.getBoolPref(PN + 'show_results_page_manual_checks');    
+    p.show_results_element_manual_checks = ps.getBoolPref(PN + 'show_results_element_manual_checks');    
     p.show_results_warnings       = ps.getBoolPref(PN + 'show_results_warnings');    
     p.show_results_hidden         = ps.getBoolPref(PN + 'show_results_hidden');    
     p.show_results_not_applicable = ps.getBoolPref(PN + 'show_results_not_applicable');    
@@ -231,9 +236,13 @@ OAA_WEB_ACCESSIBILITY_PREF.util.setPreferences = function () {
   setBooleanPreference('layout_tables');  
   setBooleanPreference('broken_links');    
 
+  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("ELEMENT MANUAL CHECK: " + p['show_results_element_manual_checks']);
+  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("PAGE MANUAL CHECK: " + p['show_results_page_manual_checks']);
+
   setBooleanPreference('show_results_pass');
   setBooleanPreference('show_results_violations');    
-  setBooleanPreference('show_results_manual_checks');    
+  setBooleanPreference('show_results_page_manual_checks');    
+  setBooleanPreference('show_results_element_manual_checks');    
   setBooleanPreference('show_results_warnings');    
   setBooleanPreference('show_results_hidden');    
   setBooleanPreference('show_results_not_applicable');    

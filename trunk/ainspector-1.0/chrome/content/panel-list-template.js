@@ -369,7 +369,7 @@ with (FBL) {
 
                if (AINSPECTOR_FB.preferences.show_results_violations == false) hiddenCols = hiddenCols  + " " + "gridViolationCol";
 
-               if (AINSPECTOR_FB.preferences.show_results_manual_checks == false) hiddenCols = hiddenCols  + " " + "gridManualCheckCol";
+               if (AINSPECTOR_FB.preferences.show_results_element_manual_checks == false) hiddenCols = hiddenCols  + " " + "gridManualCheckCol";
 
                if (AINSPECTOR_FB.preferences.show_results_warnings == false) hiddenCols = hiddenCols  + " " + "gridWarningCol";
 
