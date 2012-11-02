@@ -16,8 +16,8 @@
 
 var EXPORTED_SYMBOLS = ["OAA_WEB_ACCESSIBILITY"]; //Export items from module and inject them into the import scope
 
-var console = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
 Components.utils.import("resource://gre/modules/PluralForm.jsm");
+var console = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
 
 var Node = Node || {
   ELEMENT_NODE    :  1,
@@ -49,6 +49,11 @@ OAA_WEB_ACCESSIBILITY.util = OAA_WEB_ACCESSIBILITY.util || {};
 OAA_WEB_ACCESSIBILITY.util.highlightModule = {
   
   document: null,
+  show_pass: null, 
+  show_element_manual_check: null,
+  show_page_manual_check: null,
+  show_hidden: null,
+  
 
   /**
    * @function initHighlight
@@ -57,24 +62,32 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
    *
    * @desc Initialize highlight module
    *
-   * @param {Object}  document  - Document object model of the browser view to highlight
+   * @param {Object}  document                  - Document object model of the browser view to highlight
+   * @param {Boolean} show_element_manual_check - a boolean to highlight the element level manual checks. default is true 
+   * @param {Boolean} show_page_manual_check    - a boolean to highlight the page level manual checks. default is true
+   * @param {Boolean} show_pass                 - a boolean to highlight the passed elements. default is true
+   * @param {Boolean} show_hidden               - a boolean to highlight the hidden elements. default is true
    */
-   initHighlight : function (document) {
+   initHighlight : function (document, show_element_manual_check, show_page_manual_check, show_pass, show_hidden) {
   
      this.document = document;
-  
+     
+     this.show_pass = (typeof show_pass === 'boolean') ? show_pass : true;
+     this.show_element_manual_check = (typeof show_element_manual_check === 'boolean') ? show_element_manual_check : true;
+     this.show_page_manual_check = (typeof show_page_manual_check === 'true')? show_page_manual_check : true;
+     this.show_hidden = (typeof show_hidden === 'true') ? show_hidden : true;
    }, 
 
    /**
-   * @function scopePageCount
+    * @function scopePageCount
     * 
     * @memberOf OAA_WEB_ACCESSIBILITY.util.highlightModule
     *
-   * @desc  Returns the number of node results that are from rules with page scope
-   * 
-   * @param {Array}  node_results  -  List of node result objects
-   *
-   * @return {Number}  Number of node results that are from rules with scope of page 
+    * @desc  Returns the number of node results in the list that are from rules with a scope property set to page
+    * 
+    * @param {Array}  node_results  -  List of node result objects
+    *
+    * @return {Number}  Number of node results that are from rules with scope of page 
     */
 
    scopePageCount  : function(node_results) {
@@ -90,7 +103,7 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
    *
    * @memberOf OAA_WEB_ACCESSIBILITY.util.highlightModule
    *
-   * @desc  Returns the number of node results that are from rules with element scope
+   * @desc  Returns the number of node results in the list that are from rules with a scope property set to element
    * 
    * @param {Array}  node_results  -  List of node result objects
    *
@@ -108,67 +121,98 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
    },
 
   /**
-   * @function highlightCacheItem
+   * @function highlightCacheItems
    *
    * @memberOf OAA_WEB_ACCESSIBILITY.util.highlightModule
    *
-    * @desc highlights a cache item on a page
+    * @desc highlights 
+    *     1. a single cache item 
+    *     2. a list of cache items 
+    *     3. uses worst node result of each cache item to style highlight  
     *
-    * @param {Object}   cache_item   - Is a OAA cache items (NOTE: can be simple dom element) to highlight
-    * @param {Object}  preferences   - preferences set on any extension
+    * @param {Object}  cache_items   - cache item object or a list of cache item objects (NOTE: can be simple or set of dom element) to highlight
     */
-   highlightCacheItem : function (cache_item, preferences) {
+   highlightCacheItems : function (cache_items) {
    
+     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
 
      this.removeHighlight(); 
 
-     if (typeof cache_item !== 'object') return;
-    
+     if (typeof cache_items !== 'object') return;
+     
+     if (typeof cache_items.length !== 'number') cache_items = [cache_items];
+     
+     var cache_items_len = cache_items.length;
      var off_screen_elements = [];
      
-     var de = cache_item;
-
-     if (typeof cache_item.dom_element === 'object') de = cache_item.dom_element;
-
-     var style    = this.getWorstSeverityStyle(de, preferences);
+     var v = 0;
+     var w = 0;
+     var pp = 0;
+     var m = 0;
+     var hh = 0;
      
-     var style_de = de;
-     
-     if (de.type === Node.TEXT_NODE) style_de = de.parent_element;         
+     for (var i = 0; i < cache_items_len; i++) {
+       
+       var cache_item = cache_items[i].cache_item;
 
-     var node     = style_de.node;
-     var tag_name = style_de.tag_name;
+       if (typeof cache_item !== 'object') {
+         continue;
+       }
+
+       var de = cache_item;
+       
+       if (typeof cache_item.dom_element === 'object') de = cache_item.dom_element;
+
+       var style    = this.getWorstSeverityStyle(de);
+     
+       var style_de = de;
+     
+       if (de.type === Node.TEXT_NODE) style_de = de.parent_element;         
+
+       var node     = style_de.node;
+       var tag_name = style_de.tag_name;
+
+//     OpenAjax.a11y.logger.debug("CACHE ITEM: " + cache_item + " onscreen: " + style.is_visible_onscreen + " style: " + style);
 
        if (node) {
 
 //       check if the node is off screen or hidden from assistive technologies
-         if (style.visibility == "hidden" || style.display == "none") {
+         if (style_de.computed_style.is_visible_onscreen === VISIBILITY.HIDDEN) {
        
-         if (de.rules_violations.length ||
-             de.rules_warnings.length ||
-             (preferences.show_results_page_manual_checks    && this.scopePageCount(de.rules_manual_checks)) ||
-             (preferences.show_results_element_manual_checks && this.scopeElementCount(de.rules_manual_checks)) ||
-             (preferences.show_results_page_pass   && de.rules_pass.length) ||
-             (preferences.show_results_page_hidden && de.rules_hidden.length)) {
-           off_screen_elements.push(cache_item);
-           this.isVisibletoAT(off_screen_elements);
-         }
+           if (de.rules_violations.length ||
+               de.rules_warnings.length ||
+               (this.show_page_manual_check && this.scopePageCount(de.rules_manual_checks)) ||
+               (this.show_element_manual_check && this.scopeElementCount(de.rules_manual_checks)) ||
+             (this.show_pass && de.rules_passed.length) ||
+             (this.show_hidden && de.rules_hidden.length)) {
+             
+             off_screen_elements.push(cache_item);
+             
+              v += (de.rules_violations.length > 0) ? de.rules_violations.length : 0;
+              w += (de.rules_warnings.length > 0)   ? de.rules_warnings.length   : 0;
+              p += (this.show_pass && de.rules_passed.length > 0) ? de.rules_passed.length : 0;
+              m += (this.show_page_manual_check && de.rules_manual_checks.length > 0) ? de.rules_manual_checks.length : 0;
+              h += (this.show_hidden && de.rules_hidden.length) ? de.rules_hidden.length : 0;
+           }
            
          } else {
          
-         var mc = 0;
-         var p = 0;
-         var h = 0;
+           var mc = 0;
+           var p = 0;
+           var h = 0;
          
-         if (preferences.show_results_page_manual_checks)    mc += this.scopePageCount(de.rules_manual_checks);
-         if (preferences.show_results_element_manual_checks) mc += this.scopeElementCount(de.rules_manual_checks);
-         if (preferences.show_results_page_pass) p = de.rules_pass;
-         if (preferences.show_results_page_hidden) h = de.rules_hidden;
+           if (this.show_page_manual_check)    mc += this.scopePageCount(de.rules_manual_checks);
+           if (this.show_element_manual_check) mc += this.scopeElementCount(de.rules_manual_checks);
+           if (this.show_pass)               p = de.rules_pass;
+           if (this.show_hidden)             h = de.rules_hidden;
            
-         this.insertDIV(node, tag_name, style, de.rules_violations, de.rules_warnings, mc, p, h);  
+           this.insertDIV(node, tag_name, style, de.rules_violations, de.rules_warnings, mc, p, h);
+         }
        }
-     }
-
+     } //end for
+     
+//     if (off_screen_elements.length > 0) this.showOffScreenCacheItems(off_screen_elements);
+     if (off_screen_elements.length > 0) this.showOffScreenCacheItems(off_screen_elements, v, w, m, pp, hh );
    },
    
   /**
@@ -181,13 +225,22 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
    * @param {Array}   node_results  - An array of OAA node results to highlight (i.e. from rule results of filtered rule results)
    * @param {Object}  preferences - preferences set on any extension
    */
-   highlightNodeResults : function (node_results, preferences) {
+   highlightNodeResults : function (node_results) {
    
      var SEVERITY    = OpenAjax.a11y.SEVERITY;
+     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
+     var v = 0;
+     var p = 0;
+     var m = 0;
+     var w = 0;
+     var h = 0;
      
      this.removeHighlight(); 
 
-     if (!node_results || typeof node_results.length == 'undefined') return;
+     if (typeof node_results !== 'object') return;
+     
+     // if not an array assume it is a node result object
+     if (typeof node_results.length !== 'number') node_results = [node_results];
     
      var node_results_len = node_results.length;
      var de;
@@ -214,31 +267,49 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
 
        if (de.type === Node.TEXT_NODE) style_de = de.parent_element;         
 
-       var style    = style_de.computed_style;
+       var computed_style    = style_de.computed_style;
        var node     = style_de.node;
        var tag_name = style_de.tag_name;
+
+//       OpenAjax.a11y.logger.debug("NODE RESULT - " + node_result + " severity: " + node_result.getSeverityResult() + " onscreen: " + style.is_visible_onscreen);
 
        if (node) {
 
 //       check if the node is off screen or hidden from assistive technologies
-         if (style.visibility == "hidden" || style.display == "none") {
+         if (computed_style.is_visible_onscreen === VISIBILITY.HIDDEN) {
+         
            switch (node_result.getSeverityResult()) {
            
-           case SEVERITY.MANUAL_CHECK: 
-             if (preferences.show_results_page_manual_checks) off_screen_elements.push(node_result);
-             break;
+             case SEVERITY.MANUAL_CHECK: 
+               if (this.show_page_manual_check) {
+                 off_screen_elements.push(node_result);
+                 m += 1;
+               }
+               break;
           
-           case SEVERITY.PASS: 
-             if (preferences.show_results_page_pass) off_screen_elements.push(node_result);
-             break;
+             case SEVERITY.PASS: 
+               if (this.show_pass) {
+                 off_screen_elements.push(node_result);
+                 p += 1;
+               }
+               break;
         
-           case SEVERITY.HIDDEN: 
-             if (preferences.show_results_page_hidden) off_screen_elements.push(node_result);
-             break;
+             case SEVERITY.HIDDEN: 
+               if (this.show_hidden) {
+                 off_screen_elements.push(node_result);
+                 h += 1;
+               }
+               break;
+           
+             case SEVERITY.VIOLATION:
+               off_screen_elements.push(node_result);
+               v += 1;
+               break;
              
-           default:
-             off_screen_elements.push(node_result);
-             break;
+             default:
+               off_screen_elements.push(node_result);
+               w += 1;
+               break;
            }  
            
          } else {
@@ -253,23 +324,23 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
              break;
 
            case SEVERITY.MANUAL_CHECK: 
-             if (preferences.show_results_page_manual_checks && node_result.isScopePage()) this.insertDIV(node, tag_name, this.getStringBundle('styleManualChecks'), 0, 0, 1, 0, 0);
-             if (preferences.show_results_element_manual_checks && node_result.isScopeElement()) this.insertDIV(node, tag_name, this.getStringBundle('styleManualChecks'), 0, 0, 1, 0, 0);
+             if (this.show_page_manual_check && node_result.isScopePage()) this.insertDIV(node, tag_name, this.getStringBundle('styleManualChecks'), 0, 0, 1, 0, 0);
+             if (this.show_element_manual_check && node_result.isScopeElement()) this.insertDIV(node, tag_name, this.getStringBundle('styleManualChecks'), 0, 0, 1, 0, 0);
+             
              break;
              
            case SEVERITY.PASS: 
-             if (preferences.show_results_pass) this.insertDIV(node, tag_name, this.getStringBundle('stylePassed'), 0, 0, 0, 1, 0);
+             if (this.show_pass) this.insertDIV(node, tag_name, this.getStringBundle('stylePassed'), 0, 0, 0, 1, 0);
              break;
 
            default:
-             if (preferences.show_results_hidden) this.insertDIV(node, tag_name, this.getStringBundle('styleHidden'), 0, 0, 0, 0, 1);
+             if (this.show_hidden) this.insertDIV(node, tag_name, this.getStringBundle('styleHidden'), 0, 0, 0, 0, 1);
              break;
-           }  
+           }
          }
        }
      } //end for
-     
-     if (off_screen_elements.length > 0) this.isVisibletoAT(off_screen_elements);
+     if (off_screen_elements.length > 0) this.showOffScreenNodeResults(off_screen_elements, v, w, m, p, h);
    },
   
    /**
@@ -282,25 +353,57 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
     *       element is hidden from Assistive technologies
     */
    removeHighlight : function() {
-
-	   if (!this.document) return;
+     
+     if (!this.document) return;
+     
+     function removeFromDocument(document) {
+       var elements = document.getElementsByClassName('oaa_web_accessibility_highlight');
        
-	   var elements = this.document.getElementsByClassName('oaa_web_accessibility_highlight');
-
-		 while (elements[0]) {
-	     var element = elements[0]; 
-
-		   if (element) {
-         var parent_node = element.parentNode;
-           
-         while(element.firstChild) {
-           parent_node.insertBefore(element.firstChild, element);
+       while (elements[0]) {
+         var element = elements[0]; 
+    
+         if (element) {
+           var parent_node = element.parentNode;
+             
+           while(element.firstChild) {
+             parent_node.insertBefore(element.firstChild, element);
+           }
+            
+           parent_node.removeChild(element);
          }
-           
-         parent_node.removeChild(element);
        }
+
+       var iframes = document.getElementsByTagName( "iframe" );
+     
+       /* remove the highlighting inside iframes */
+       for (var i = 0; i < iframes.length; i++) {
+         var doc = iframes[i].contentDocument;
+//         OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("REMOVE HIGHLIGHT FRAME: " + iframes[i] + " " + doc.location.href);
+         if (doc) removeFromDocument(doc); 
+       }  
+       
      }
-	   
+
+     function removeFromFrames(frames) {
+       
+       if (typeof frames !== 'object' || typeof frames.length !== 'number') return;
+
+       for (var i=0; i < frames.length; i++) {
+         
+         var frame = frames[i];
+         
+         if (frame.document) removeFromDocument(frame.document);
+         
+         removeFromFrames(frame.frames);
+         
+       }//end for
+     }
+     
+     removeFromDocument(this.document);  //unhighlighting in the actual document     
+
+     var frames = window.frames;
+     removeFromFrames(frames);
+
 	   var off_screen_elements = this.document.getElementsByClassName('oaa_web_accessibility_off_screen');
 
 	   for (var j = 0; j < off_screen_elements.length; j++) {
@@ -311,50 +414,123 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
    },
   
   /**
-   * @function isVisibletoAT
+   * @function showOffScreenItems
    * 
    * @memberOf OAA_WEB_ACCESSIBILITY.util.highlightModule
    *
-   * @desc Position a div on the left side of the view port 
+   * @desc Display information about a list of cache item results using the worst severity result of each cache item's node results 
+   *               Designed to provide information about cache items that are not visible on screen 
    * 
-   * @param {Object} item
+   * @param {Array}  cache_items - list of cache items or dom element objects 
+   * @param {Number} v - number of total violations in all the rules associated with all the cache_items 
+   * @param {Number} w - number of total warnings in all the rules associated with all the cache_items
+   * @param {Number} m - number of total manual checks in all the rules associated with all the cache_items
+   * @param {Number} p - number of total pass in all the rules associated with all the cache_items
+   * @param {Number} h - number of total hidden in all the rules associated with all the cache_items
    */
-  isVisibletoAT : function (offScreen_elements) {
-
+  showOffScreenCacheItems : function (cache_items, v, w, m, p, h) {
+  
     if (!this.document) return;
     
-    var element_plural = PluralForm.get(offScreen_elements.length, window.document.getElementById("ainspector_highlight_stringbundle").getString('element'));
-    
-    var new_div_element = this.document.createElement('div');
-    var style_div = 'width:40%; padding:10px; border:3px solid grey; margin:0px; background-color: white; color:black; font-size:120%; position:fixed; ';
-    var inner_html = offScreen_elements.length + '  ' + element_plural + ' off-screen or hidden from assistive technologies ';
-    new_div_element.id = 'oaa_web_accessibility_off_screen_id';
-    new_div_element.setAttribute("class", 'oaa_web_accessibility_off_screen');
-    new_div_element.setAttribute("style", style_div);
-    new_div_element.innerHTML = inner_html;
-    
-    this.document.body.insertBefore(new_div_element,this.document.body.childNodes[0]);
-    
-    /* var div_added = this.document.getElementById('oaa_web_accessibility_off_screen_id');
-    var newUL = this.document.createElement("ol");
-    var text_node = this.document.createTextNode("Elements that are off-screen or hidden from assistive technologies :");
-    newUL.appendChild(text_node);
-    div_added.appendChild(newUL);
+    var cache_items_plural;
+    var str;
+    var tag_name;
+    var style = this.getStringBundle('styleOffScreen') + ' ';
+    var eval_result;
 
-    for (var i=0; i < offScreen_elements.length; i++) {
-      
-      var offScreen_element = 	offScreen_elements[i];
-      var data = offScreen_element.toString() + ' (' + this.setTitle(offScreen_element) + ' )';
-
-      var newLI = this.document.createElement("li");  
-      var newText = this.document.createTextNode(data);
-      
-      newLI.setAttribute("style", "margin-left:15px; padding-left:10px; ");
-      newLI.appendChild(newText);
-      newUL.appendChild(newLI);
-      
-    }*/
+    if (v > 0) {
+      style += this.getStringBundle('styleViolations');
+      eval_result = 'violation';
+    } else if (w > 0) {
+      style += this.getStringBundle('styleWarnings');
+      eval_result = 'warning';
+    } else if (m > 0) {
+      style += this.getStringBundle('styleManualChecks');
+      eval_result = 'manual check';
+    } else if (p > 0) {
+      style += this.getStringBundle('stylePassed');
+      eval_result = 'passed';
+    } else {
+      style += this.getStringBundle('styleHidden');
+      eval_result = 'hidden';
+    }
     
+    if (cache_items.length == 1) {
+      
+      if (cache_items[0].dom_element) tag_name = cache_items[0].dom_element.tag_name;
+      
+      else tag_name = cache_items[0].tag_name;
+      
+      str = tag_name + ' ' + this.getStringBundle('offScreenMessage') + ' ( ' + eval_result + ' )';
+    
+    } else {
+      cache_items_plural = PluralForm.get(cache_items.length, this.getStringBundle('element'));
+      str = cache_items.length + ' ' + cache_items_plural;
+    }
+    
+    this.positionDIV(style, str);
+  },
+  
+  /**
+   * @function showOffScreenNodeResults
+   * 
+   * @memberOf OAA_WEB_ACCESSIBILITY.util.highlightModule
+   *
+   * @desc Display information about a list of node results of a rule 
+   *       Designed to provide information about node results that are not visible on screen 
+   * 
+   * @param {Array} offScreen_node_results  -  List of node result objects
+   * @param {Number} v - number of violations in th list of node results 
+   * @param {Number} w - number of warnings in the list of node results
+   * @param {Number} m - number of manual checks in the list of node results
+   * @param {Number} p - number of passes in the list of node results
+   * @param {Number} h - number of hidden in the list of node results
+   */
+  showOffScreenNodeResults : function (offScreen_node_results, v, w, m, p, h) {
+    
+    if (!this.document) return;
+    
+    var node_results_plural = PluralForm.get(offScreen_node_results.length, this.getStringBundle('element'));
+    
+    var str = offScreen_node_results.length + ' ' + node_results_plural ;
+    
+    var style = this.getStringBundle('styleOffScreen') + ' ';
+    
+    if (v > 0) style += this.getStringBundle('styleViolations');
+    else if (w > 0) style += this.getStringBundle('styleWarnings');
+    else if (m > 0) style += this.getStringBundle('styleManualChecks');
+    else if (p > 0) style += this.getStringBundle('stylePassed');
+    else style += this.getStringBundle('styleHidden');
+    
+    console.logStringMessage(v + ' ' +w + ' '+ m + ' ' + p);
+    if (v > 0) str +=  ' ' + v + PluralForm.get(v, this.getStringBundle('violations'));
+    if (w > 0) str +=  ' ' + w + PluralForm.get(w, this.getStringBundle('warnings'));
+    if (m > 0) str +=  ' ' + m + PluralForm.get(m, this.getStringBundle('manualChecks'));
+    if (p > 0) str +=  ' ' + p + PluralForm.get(p, this.getStringBundle('passes'));
+    
+    this.positionDIV(style, str);
+  },
+  
+  /**
+   * @function positionDIV
+   * 
+   * @desc creates a div to position on top of the web page to show the off screen elements and its severities outlined with the worst severity
+   * 
+   * @param {String} style - styles the DIV with a border 
+   * @param {String} severity_message - message to show inside the DIV
+   */
+  positionDIV : function (style, severity_message) {
+    
+    var div_element = this.document.createElement('div');
+    div_element.id = 'oaa_web_accessibility_off_screen_id';
+    
+    div_element.setAttribute("class", 'oaa_web_accessibility_off_screen');
+    div_element.setAttribute("style", style);
+    
+    var text_node = this.document.createTextNode(severity_message);
+    div_element.appendChild(text_node);
+    
+    this.document.body.insertBefore(div_element,this.document.body.childNodes[0]);
   },
   
   /**
@@ -376,7 +552,7 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
 
     var flag = false;
     var parent_node = null;
-    var elements_without_content = ['applet', 'area', 'dl', 'frame', 'img', 'input', 'object', 'ol', 'table', 'ul'];
+    var elements_without_content = ['applet', 'area',  'dl', 'frame', 'img', 'input', 'object', 'ol', 'select', 'textarea', 'table', 'ul'];
     var length =  elements_without_content.length;
     
     var title = this.getSeverityMessage(violations, warnings, manual_checks, pass, hidden);
@@ -401,6 +577,7 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
       node.appendChild(new_div_element); 
     }
     
+    
 //  If true, element is aligned with top of scroll area.
 //  If false, it is aligned with bottom.
     node.scrollIntoView(true);
@@ -411,36 +588,36 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
    * 
    * @memberOf OAA_WEB_ACCESSIBILITY.util.highlightModule
    * 
-   * @desc changes styling of outline on div
-   *    1. manual check (red dotted line)
-   *    2. pass (green single line)
-   *    3. violation (red double line)
-   *    4. warning (yellow single line)
-   *    5. hidden (gray double line)
-   *    6. shows blue color outline if there are no rules for an element 
+   * @desc Returns a CSS formatted string to be used with the style property of a DOM node
+   *       Result is based on the worst node result severity associated with a cache item
+   *
+   *       manual check (red dotted border)
+   *       pass (green single border)
+   *       violation (red double border)
+   *       warning (yellow single border)
+   *       hidden (gray double border)
+   *       no results (black border) 
    *  
-   * @param {Object} object
-   * @param {Object} item         - node to get the severity count
-   * @param {Object} preferences  -
-   * @param {String} view         - elements view or rules view
+   * @param {Object} dom_element  -  OAA DOM element object 
+   * @param {Object} preferences  -  Preferences object from preferences module
    * 
-   * @return {property} styleResult
+   * @return {String} Returns a CSS string that can be used with a style property of a DOM node
    */
-  getWorstSeverityStyle : function(dom_element, preferences) {
+  getWorstSeverityStyle : function(dom_element) {
       
     if (dom_element.rules_violations.length > 0) return this.getStringBundle('styleViolations');
     
     else if (dom_element.rules_warnings.length  > 0 ) return this.getStringBundle('styleWarnings');
     
-    else if (preferences.show_results_page_manual_checks    && (this.scopePageCount(dom_element.rules_manual_checks)    > 0)) return this.getStringBundle('styleManualChecks');
+    else if (this.show_page_manual_check  && (this.scopePageCount(dom_element.rules_manual_checks)    > 0)) return this.getStringBundle('styleManualChecks');
     
-    else if (preferences.show_results_element_manual_checks && (this.scopeElementCount(dom_element.rules_manual_checks) > 0)) return this.getStringBundle('styleManualChecks');
+    else if (this.show_element_manual_check && (this.scopeElementCount(dom_element.rules_manual_checks) > 0)) return this.getStringBundle('styleManualChecks');
     
-    else if (preferences.show_results_pass &&  (dom_element.rules_passed.length  > 0)) return this.getStringBundle('stylePassed');
+    else if (this.show_pass &&  (dom_element.rules_passed.length  > 0)) return this.getStringBundle('stylePassed');
   
-    else if (preferences.show_results_hidden &&  (dom_element.rules_hidden.length  > 0)) return this.getStringBundle('styleHidden');
+    else if (this.show_hidden &&  (dom_element.rules_hidden.length  > 0)) return this.getStringBundle('styleHidden');
       
-	    else return this.getStringBundle('styleResult');
+	  else return this.getStringBundle('styleResult');
 	    
   },
   
@@ -451,7 +628,11 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
    * 
    * @desc Creates value for title attribute of the div element to provide a summary of the number of violations, warnings, manual checks and passes 
    * 
-   * @param {Object} item - cache_item to retrieve the count of severities
+   * @param {Number} v_count  - Number of violations
+   * @param {Number} w_count  - Number of warnings
+   * @param {Number} mc_count - Number of manual checks
+   * @param {Number} p_count  - Number of pass
+   * @param {Number} h_count  - Number of hidden
    * 
    * @return {String} title
    */
@@ -489,4 +670,6 @@ OAA_WEB_ACCESSIBILITY.util.highlightModule = {
     
     return window.document.getElementById("ID_STRINGBUNDLE_HIGHLIGHT").getString(string);
   }
+
+
 };
