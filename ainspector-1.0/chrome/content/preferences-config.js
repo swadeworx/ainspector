@@ -75,7 +75,6 @@ OAA_WEB_ACCESSIBILITY_PREF.ENABLE_ACCESSIBILITY_ICON_PREF = false;
  
 OAA_WEB_ACCESSIBILITY_PREF.preferences_call_back = function () {
 
-  console.logStringMessage("flag 3:::::::::::::::::::::::::::::::::: " );
   var toolbarbuttons = window.opener.document.getElementById("fbFirebugExtensionButtons").children;
   var selected_toolbar_button_id = null;
   

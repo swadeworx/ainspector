@@ -12,6 +12,7 @@ with (FBL) {
                  SPAN({class: "ruleset-level"}, " Level:  "),
                  SPAN({class: "ruleset-level-value"}, "$AINSPECTOR_FB.selected_level"),
                  BUTTON({onclick: "$Firebug.preferenceModule.viewPanel", style: "margin-left: 0.5em;"}, "preferences"),
+                 BUTTON({onclick: "$AINSPECTOR_FB.flatListTemplateUtil.highlightAll", style: "margin-left: 0.5em;", _repObject: "$elements"}, "show all"),
                  SPAN({class: "view-panel"}, "$view")
                ),
                DIV({class: "table-scrollable"},

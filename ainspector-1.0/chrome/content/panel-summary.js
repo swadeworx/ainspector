@@ -119,8 +119,7 @@ with (FBL) {
                   
                   TR({class: "tableRow gridRow", role: "row", "aria-selected" : "$object|$AINSPECTOR_FB.toolbarUtil.getSelectedState", 
                    tabindex: "$object.object|$AINSPECTOR_FB.toolbarUtil.getTabIndex", _repObject:"$object.rule_result_item", 
-                    onfocus: "$AINSPECTOR_FB.flatListTemplateUtil.onFocus", onclick: "$highlightRule", 
-                   ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},//gridRow              
+                    onfocus: "$AINSPECTOR_FB.flatListTemplateUtil.onFocus", onclick: "$highlightRule"},//gridRow              
                   
                     TD({class: "gridCol gridOrderCol", id: "gridOrderCol", role: "gridcell"},
                       DIV({class: "gridContent gridAlign", title : "$object.description"}, "$object.description|AINSPECTOR_FB.ainspectorUtil.truncateText")

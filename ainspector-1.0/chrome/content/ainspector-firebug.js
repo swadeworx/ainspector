@@ -150,9 +150,6 @@ FBL.ns(function() { with (FBL) {
       FBTrace.sysout("Firebug.ainspectorModule.showPanel() - window.AINSPECTOR_FB: ", window.AINSPECTOR_FB);
       FBTrace.sysout("Firebug.ainspectorModule.showPanel() -  panel_name: " + panel_name);
       
-      /* un highlight the elements when any other panel (e.g., HTML) is selected*/
-      OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight();
-      
       window.AINSPECTOR_FB[toolbar_button_id].viewPanel(Firebug.currentContext, panel_name, AINSPECTOR_FB.cacheUtil.updateCache());
 
       FBTrace.sysout("**********      End Firebug.ainspectorModule.showPanel()     ************");

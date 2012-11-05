@@ -28,7 +28,6 @@ with (FBL) {
   AINSPECTOR_FB.last_node_highlighted = null;
   
   AINSPECTOR_FB.rules_registered = null;
-  AINSPECTOR_FB.font_properties_registered = null;
   AINSPECTOR_FB.elements_registered = null;
   
   AINSPECTOR_FB.preferences = null;
@@ -78,18 +77,16 @@ with (FBL) {
         doc  = window.opener.parent.content.document;
         url = window.opener.parent.location.href;
       } // end try
-      
-//      var Cu = Components.utils;
-//      Cu["import"]("resource://firebug-a11y/highlight.js");
-      OAA_WEB_ACCESSIBILITY.util.highlightModule.initHighlight(window.content.document);
-      
-      var preferences = OAA_WEB_ACCESSIBILITY_PREF.util.getPreferences();
-      FBTrace.sysout("Preferences: ", preferences);
-      FBTrace.sysout("OpenAjax: ", OpenAjax);
 
+      var preferences = OAA_WEB_ACCESSIBILITY_PREF.util.getPreferences();
+      
+      OAA_WEB_ACCESSIBILITY.util.highlightModule.initHighlight(window.content.document, preferences.show_results_element_manual_checks,
+                                                               preferences.show_results_page_manual_checks, preferences.show_results_pass,
+                                                               preferences.show_results_hidden);
+      
       var ruleset = OpenAjax.a11y.all_rulesets.getRuleset(preferences.ruleset_id);
       var ruleset_object = null;
-      
+
       if (ruleset) {
         ruleset.setEvaluationLevel(preferences.wcag20_level);
         ruleset.setRecommendedRulesEnabled(preferences.wcag20_recommended_rules_enabled);
@@ -107,7 +104,7 @@ with (FBL) {
       AINSPECTOR_FB.ruleset_object = ruleset_object;
       
       FBTrace.sysout("****** End  AINSPECTOR_FB.cacheUtil.updateCache()   *******");
-      
+
       return ruleset;
     },
     
@@ -157,7 +154,7 @@ with (FBL) {
         var location_href = webProgress.DOMWindow.location.href;
   
         if (location_href == AINSPECTOR_FB.top_location_href) {
-//          FBTrace.sysout('onStateChange () location_href: ' + location_href + "..." + AINSPECTOR_FB.top_location_href);
+          FBTrace.sysout('onStateChange () location_href: ' + location_href + "..." + AINSPECTOR_FB.top_location_href);
           return AINSPECTOR_FB.cacheUtil.updateCache();
         }
       }
@@ -175,8 +172,7 @@ with (FBL) {
     
       if (request) { // ignore call if request arg is null
       
-//        FBTrace.sysout('onLocationChange () : location_href: ' + webProgress.DOMWindow.top.location.href);
-//      	OAA_WEB_ACCESSIBILITY.util.highlightModule.last_highlighted_nodes = [];
+        FBTrace.sysout('onLocationChange () : location_href: ' + webProgress.DOMWindow.top.location.href);
 
         AINSPECTOR_FB.top_location_href = webProgress.DOMWindow.top.location.href;
         
