@@ -42,6 +42,7 @@
   
   <commandset id="mainCommandSet"> 
   	<command id="ainspector_summary_view_button" oncommand="AINSPECTOR_FB.summary.viewPanel(Firebug.currentContext)"/>
+  	<command id="ainspector_wcag_view_button" oncommand="AINSPECTOR_FB.summary.viewPanel(Firebug.currentContext)"/>
     <command id="ainspector_content_view_button" oncommand="AINSPECTOR_FB.content.viewPanel(Firebug.currentContext)"/>
     <command id="ainspector_headers_view_button" oncommand="AINSPECTOR_FB.headers.viewPanel(Firebug.currentContext)"/>
     <command id="ainspector_images_view_button" oncommand="AINSPECTOR_FB.images.viewPanel(Firebug.currentContext)"/>
@@ -56,23 +57,105 @@
     <hbox id="fbToolbarInner" insertbefore="fbDetachButton" flex="1" align="center"> 
       <hbox id="fbFirebugExtensionButtons" insertafter="fbNetButtons"> 
         <toolbarseparator/>
-        	<toolbarbutton id="summary" label="&ainspector.toolbarbutton.summary.label;" class="toolbar-text-button fbInternational" checked="true" command="ainspector_summary_view_button" type="radio" group="RadioGroup"/>
+        	<toolbarbutton 
+        	  id="summary" 
+        	  label="&ainspector.toolbarbutton.summary.label;" 
+        	  class="toolbar-text-button fbInternational" 
+        	  checked="true" 
+        	  command="ainspector_summary_view_button" 
+        	  type="radio" 
+        	  group="RadioGroup"/>
+        	  
+          <toolbarspacer/>
+        	
+        	<toolbarbutton 
+        	  id="wcag" 
+        	  label="&ainspector.toolbarbutton.wcag.label;" 
+        	  class="toolbar-text-button fbInternational" 
+        	  command="ainspector_wcag_view_button" 
+        	  type="radio"
+        	  group="RadioGroup"/>
+          
           <toolbarseparator/>
-          <toolbarbutton id="content" label="&ainspector.toolbarbutton.content.label;" class="toolbar-text-button fbInternational" command="ainspector_content_view_button" type="radio" group="RadioGroup"/>
+          
+          <toolbarbutton 
+            id="content" 
+            label="&ainspector.toolbarbutton.content.label;" 
+            class="toolbar-text-button fbInternational" 
+            command="ainspector_content_view_button" 
+            type="radio" 
+            group="RadioGroup"/>
+          
           <toolbarseparator/>
-          <toolbarbutton id="headers" label="&ainspector.toolbarbutton.headers.label;" class="toolbar-text-button fbInternational" command="ainspector_headers_view_button" type="radio" group="RadioGroup"/>
+          
+          <toolbarbutton 
+            id="headers" 
+            label="&ainspector.toolbarbutton.headers.label;" 
+            class="toolbar-text-button fbInternational" 
+            command="ainspector_headers_view_button" 
+            type="radio" 
+            group="RadioGroup"/>
+          
           <toolbarseparator/>
-          <toolbarbutton id="images" label="&ainspector.toolbarbutton.images.label;" class="toolbar-text-button fbInternational" command="ainspector_images_view_button" type="radio" group="RadioGroup"/>
+          
+          <toolbarbutton 
+            id="images" 
+            label="&ainspector.toolbarbutton.images.label;" 
+            class="toolbar-text-button fbInternational" 
+            command="ainspector_images_view_button" 
+            type="radio" 
+            group="RadioGroup"/>
+          
           <toolbarseparator/>
-          <toolbarbutton id="controls" label="&ainspector.toolbarbutton.controls.label;" class="toolbar-text-button fbInternational" command="ainspector_controls_view_button" type="radio" group="RadioGroup"/>
+          
+          <toolbarbutton 
+            id="controls" 
+            label="&ainspector.toolbarbutton.controls.label;" 
+            class="toolbar-text-button fbInternational" 
+            command="ainspector_controls_view_button" 
+            type="radio" 
+            group="RadioGroup"/>
+          
           <toolbarseparator/>
-          <toolbarbutton id="links" label="&ainspector.toolbarbutton.links.label;" class="toolbar-text-button fbInternational" command="ainspector_links_view_button" type="radio" group="RadioGroup"/>
+          
+          <toolbarbutton 
+            id="links" 
+            label="&ainspector.toolbarbutton.links.label;" 
+            class="toolbar-text-button fbInternational" 
+            command="ainspector_links_view_button" 
+            type="radio" 
+            group="RadioGroup"/>
+          
           <toolbarseparator/>
-          <toolbarbutton id="media" label="&ainspector.toolbarbutton.audio.label;" class="toolbar-text-button fbInternational" command="ainspector_audio_view_button" type="radio" group="RadioGroup"/>
+          
+          <toolbarbutton 
+            id="media" 
+            label="&ainspector.toolbarbutton.audio.label;" 
+            class="toolbar-text-button fbInternational" 
+            command="ainspector_audio_view_button" 
+            type="radio" 
+            group="RadioGroup"/>
+          
           <toolbarseparator/>
-          <toolbarbutton id="tables" label="&ainspector.toolbarbutton.tables.label;" class="toolbar-text-button fbInternational" command="ainspector_tables_view_button" type="radio" group="RadioGroup"/>
+          
+          <toolbarbutton 
+            id="tables" 
+            label="&ainspector.toolbarbutton.tables.label;" 
+            class="toolbar-text-button fbInternational" 
+            command="ainspector_tables_view_button" 
+            type="radio" 
+            group="RadioGroup"/>
+          
           <toolbarseparator/>
-          <toolbarbutton id="widgets" label="&ainspector.toolbarbutton.widgets.label;" class="toolbar-text-button fbInternational" command="ainspector_widgets_view_button" type="radio" group="RadioGroup"/> 
+          
+          <toolbarbutton 
+            id="widgets" 
+            label="&ainspector.toolbarbutton.widgets.label;" 
+            class="toolbar-text-button fbInternational" 
+            command="ainspector_widgets_view_button" 
+            type="radio" 
+            group="RadioGroup"/> 
+          
           <toolbarseparator/>
       </hbox> 
     </hbox>   
