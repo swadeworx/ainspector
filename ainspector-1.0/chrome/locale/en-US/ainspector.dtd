@@ -1,5 +1,6 @@
 <!ENTITY  ainspector.toolbarbutton.report.label         "Report">
 <!ENTITY  ainspector.toolbarbutton.summary.label        "Summary">
+<!ENTITY  ainspector.toolbarbutton.wcag.label           "WCAG 2 0">
 <!ENTITY  ainspector.toolbarbutton.all.label            "All">
 <!ENTITY  ainspector.toolbarbutton.images.label         "Images">
 <!ENTITY  ainspector.toolbarbutton.media.label          "Media">
@@ -10,7 +11,7 @@
 <!ENTITY  ainspector.toolbarbutton.links.label          "Links">
 <!ENTITY  ainspector.toolbarbutton.lists.label          "Lists">
 <!ENTITY  ainspector.toolbarbutton.tables.label         "Tables">
-<!ENTITY  ainspector.toolbarbutton.widgets.label         "Widgets">
+<!ENTITY  ainspector.toolbarbutton.widgets.label        "Widgets">
 <!ENTITY  ainspector.toolbarbutton.audio.label          "Audio/Video">
 <!ENTITY  ainspector.toolbarbutton.abbr.label           "Abbrev/Lang">
 <!ENTITY  ainspector.toolbarbutton.elements.label       "All Elements">
