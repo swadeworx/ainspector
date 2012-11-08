@@ -160,13 +160,20 @@ with (FBL) {
 
         strTagManual : DIV({class: "manualMsgTxt resultAlign"}, "$member.manual_check_count"),
         zeroTag: DIV({class: "resultAlign"}, "0"),
+        strTagViolation : DIV({class: "violationMsgTxt resultAlign"}, "$member.PEPR"), 
+        strTagPass : DIV({class: "passMsgTxt resultAlign"}, "$member.PEPR"), 
+        strTagWarn : DIV({class: "warnMsgTxt resultAlign"}, "$member.PEPR"), 
         
         loop:
           FOR("member", "$members", TAG("$row", {member: "$member"})),
       
-        getClassName : function(children) {
+        /**
+         * @function getClassName
+         */  
+        getClassName : function(hasChildren) {
           
-          if (children == true) return 'treeLabel';
+          if (hasChildren) return 'treeLabel';
+          
         },
           
         /**
@@ -429,8 +436,6 @@ with (FBL) {
         var rule_description = '';
         var manual_check_count = 0;
         
-        FBTrace.sysout("rule_result_groups: ", rule_result_groups);
-
         if (rule_result_groups.rule_result){
 
           var rule_result           = rule_result_groups.rule_result;
@@ -448,20 +453,22 @@ with (FBL) {
         }
         
         var PEPR = nls_impl_level.label;
+        var num = PEPR.substring(0, PEPR.indexOf('%'));
         var impl_percentage_tag = null;
-        
+
         if (rule_result_groups.manual_checks_count > 0)  manual_check_count = rule_result_groups.manual_checks_count;
         
-        if (PEPR == '100%') impl_percentage_tag = this.strTagPass;
+        if (num == '100') impl_percentage_tag = this.strTagPass;
         
-        else if (PEPR == '0%') impl_percentage_tag = this.strTagViolation;
+        else if (num == '0') impl_percentage_tag = this.strTagViolation;
         
-        else if (implementation_percentage > '50' && implementation_percentage < '100') impl_percentage_tag = this.strTagWarn;
+        else if (num > '50' && num < '100') impl_percentage_tag = this.strTagWarn;
         
-        else if (implementation_percentage <= '50' && implementation_percentage > '0') impl_percentage_tag = this.strTagViolation;
+        else if (num <= '50' && num > '0') impl_percentage_tag = this.strTagViolation;
         
         else impl_percentage_tag = this.strTagStyle;
-        
+        FBTrace.sysout("implementation_percentage: "+ implementation_percentage);
+        FBTrace.sysout("PEPR: "+ PEPR);
         return {
           
           PEPR               : PEPR,
@@ -473,11 +480,27 @@ with (FBL) {
           manual_check_count : manual_check_count,
           manual_check       : (manual_check_count >= 1) ? this.strTagManual : this.zeroTag,
           filtered_results   : this.getFilteredWCAGResults(rule_result_groups), //children
-          hasChildren        : (rule_result_groups.filtered_rule_results_groups || rule_result_groups.filtered_rule_results) ? true : false,
+          hasChildren        : this.hasChildren(rule_result_groups),
           value              : (rule_result_groups != null) ? rule_result_groups : "",
           impl_percentage_tag : impl_percentage_tag,
         };
         
+      },
+      
+      /**
+       * @function hasChildren
+       */
+      hasChildren : function(filtered_rule_results) {
+        
+        if (filtered_rule_results.filtered_rule_results_groups &&
+            filtered_rule_results.filtered_rule_results_groups.length > 0 ) {
+          return true;
+        } else if (filtered_rule_results.filtered_rule_results &&
+              filtered_rule_results.filtered_rule_results.length > 0) {
+          return true;
+        } else {
+          return false;
+        }
       },
       
       /**
