@@ -14,6 +14,7 @@
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-tree-template.js"/>
   
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-summary.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-WCAG2.0-summary.js"/>
   
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-rule-categories.js"/>
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-colorContrast.js"/>
@@ -42,7 +43,7 @@
   
   <commandset id="mainCommandSet"> 
   	<command id="ainspector_summary_view_button" oncommand="AINSPECTOR_FB.summary.viewPanel(Firebug.currentContext)"/>
-  	<command id="ainspector_wcag_view_button" oncommand="AINSPECTOR_FB.summary.viewPanel(Firebug.currentContext)"/>
+  	<command id="ainspector_wcag_view_button" oncommand="AINSPECTOR_FB.WCAGView.viewPanel(Firebug.currentContext)"/>
     <command id="ainspector_content_view_button" oncommand="AINSPECTOR_FB.content.viewPanel(Firebug.currentContext)"/>
     <command id="ainspector_headers_view_button" oncommand="AINSPECTOR_FB.headers.viewPanel(Firebug.currentContext)"/>
     <command id="ainspector_images_view_button" oncommand="AINSPECTOR_FB.images.viewPanel(Firebug.currentContext)"/>
@@ -69,7 +70,7 @@
           <toolbarspacer/>
         	
         	<toolbarbutton 
-        	  id="wcag" 
+        	  id="WCAGView" 
         	  label="&ainspector.toolbarbutton.wcag.label;" 
         	  class="toolbar-text-button fbInternational" 
         	  command="ainspector_wcag_view_button" 

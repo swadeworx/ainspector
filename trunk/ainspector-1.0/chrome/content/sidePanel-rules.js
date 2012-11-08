@@ -584,12 +584,12 @@ FBL.ns(function() { with (FBL) {
         label: value.getNLSSeverityLabel(),  
         action: value.getMessage(),
           
-          hasChildren: this.hasChildren(value),
-          children: value.getRuleProperties(),
-          value: (value != null) ? value : "",
-          level: level,
-          indent: level * 16,
-          tag: this.getAccessibility(value)
+        hasChildren: this.hasChildren(value),
+        children: value.getRuleProperties(),
+        value: (value != null) ? value : "",
+        level: level,
+        indent: level * 16,
+        tag: this.getAccessibility(value)
       };
     },
     

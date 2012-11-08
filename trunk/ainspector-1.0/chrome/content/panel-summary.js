@@ -206,7 +206,6 @@ with (FBL) {
           var nls_implementation_level = null;
           var implementation_percentage = null;
           var manual_check_count = 0;
-          var rule_definition = rule_result_item.rule_result;
           
           if (rule_result_item.rule_result) {
             description               = rule_result_item.rule_result.getMessage();
