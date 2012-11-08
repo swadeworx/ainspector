@@ -477,35 +477,42 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
      * Media Cache object properties
      */
 
+      'is_live'  : {
+        label       : 'Live',
+        description :  'Is the media live video or audio',
+        values      :  ['undefined', 'No', 'Maybe, manual verification required', 'Yes']
+        
+      },
+
       'is_video'  : {
         label       : 'Video',
         description :  'Does the media object contain video',
-        values      :  ['undefined', 'No', ' ? ', 'Yes']
+        values      :  ['undefined', 'No', 'Maybe, manual verification required', 'Yes']
         
       },
 
       'is_audio'  : {
         label       : 'Audio',
         description :  'Does the media object contain audio',
-        values      :  ['undefined', 'No', ' ? ', 'Yes']
+        values      :  ['undefined', 'No', 'Maybe, manual verification required', 'Yes']
       },
 
       'has_caption'  : {
         label       : 'Caption',
         description :  'Does the media object have captions',
-        values      :  ['undefined', 'No', ' ? ', 'Yes']
+        values      :  ['undefined', 'No', 'Maybe, manual verification required', 'Yes']
       },
 
       'has_text_alternative' : {
         label       : 'Text Equivalent',
         description :  'Does the media object have a text equivalent',
-        values      :  ['undefined', 'No', ' ? ', 'Yes']
+        values      :  ['undefined', 'No', 'Maybe, manual verification required', 'Yes']
       },
       
       'has_audio_description' : {
         label       : 'Audio Equivalent',
         description :  'Does the media object have a audio equivalent',
-        values      :  ['undefined', 'No', ' ? ', 'Yes']
+        values      :  ['undefined', 'No', 'Maybe, manual verification required', 'Yes']
       },
       
     /*

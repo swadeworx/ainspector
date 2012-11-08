@@ -1036,7 +1036,7 @@ OpenAjax.a11y.Ruleset.prototype.isSameDocument = function (document) {
  *
  * @memberOf OpenAjax.a11y.Ruleset
  *
- * @desc Creates a JSON representation of the ruleset 
+ * @desc Creates a JSON representation of the rules in the ruleset 
  *
  * @param  {String}  prefix         - A prefix string typically spaces for formatting output
  * @param  {Number}  rule_category  - Number representing the rule categories to include 
@@ -1149,6 +1149,72 @@ OpenAjax.a11y.Ruleset.prototype.toJSON = function (prefix, rule_category) {
   json += prefix + "}";
  
   return json;
+    
+};
+ 
+
+/**
+ * @method exportEvaluationResultsToPython
+ *
+ * @memberOf OpenAjax.a11y.Ruleset
+ *
+ * @desc Creates a string representing Python (Django) functions to populate a database with rule results for an evaluation
+ *
+ * @return {String} Returns a string (with line breaks) that include Python (Django) functions to populate a database
+ */
+ 
+OpenAjax.a11y.Ruleset.prototype.exportEvaluationResultsToPython = function () {
+  
+  function formatWidth(str, width) {
+  
+
+    for(var i = str.length; i < width; i++) str += " ";
+
+    return str;
+  
+  }
+
+  function formatNumber(number, width) {
+  
+    var str = number.toString();
+
+    for(var i = str.length; i < width; i++) str = " " + str;
+
+    return str;
+  
+  }
+
+  var python_code = "from local import conf, inst, ws\n";
+  python_code += "# Conference, Institution, Website, URL, Title, Rule Category, Rule ID, PEPR, Violations, Warnings, Passed, Manual Checks, Hidden\n";
+  
+  var rule_results     = this.rule_results;
+  var rule_results_len = rule_results.length;
+     
+  for (var i = 0; i < rule_results_len; i++) {
+    
+    var rule_result = rule_results[i];
+    
+    python_code += "addResult(conf, inst, ws";
+
+    python_code += ", \"" + OpenAjax.a11y.util.escapeForJSON(this.eval_url)   + "\"";
+    python_code += ", \"" + OpenAjax.a11y.util.escapeForJSON(this.eval_title) + "\"";
+
+    python_code += ", " + formatWidth("\"" + OpenAjax.a11y.all_rules.nls[OpenAjax.a11y.locale].rule_categories[rule_result.getRuleCategory()] + "\"", 12) ;
+    python_code += ", " + formatWidth("\"" + rule_result.getRuleId() + "\"", 14);
+    
+    python_code += ", " + formatNumber(rule_result.implementation_percentage, 4);
+    python_code += ", " + formatNumber(rule_result.violations_count, 4);
+    python_code += ", " + formatNumber(rule_result.warnings_count, 4);
+    python_code += ", " + formatNumber(rule_result.passed_count, 4);
+    python_code += ", " + formatNumber(rule_result.manual_checks_count, 4);
+    python_code += ", " + formatNumber(rule_result.hidden_count, 4);
+    python_code += ", \"" + OpenAjax.a11y.util.escapeForJSON(rule_result.getMessage()) + "\"";
+
+    python_code += ")\n";
+
+  }
+  
+  return python_code;
     
 };
  

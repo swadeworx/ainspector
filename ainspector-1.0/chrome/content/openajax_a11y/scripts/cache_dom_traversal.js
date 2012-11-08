@@ -178,7 +178,8 @@ OpenAjax.a11y.cache.DOMCache.prototype.traverseDOMElementsForAllCaches = functio
                                           landmark_info,
                                           table_info,
                                           control_info,
-                                          list_info) {
+                                          list_info,
+                                          media_info) {
 
  if (!dom_element) return;
  // if an element for through all the children elements looking for text
@@ -189,8 +190,8 @@ OpenAjax.a11y.cache.DOMCache.prototype.traverseDOMElementsForAllCaches = functio
   this.images_cache.updateCacheItems(dom_element);
   this.languages_cache.updateCacheItems(dom_element);
   this.links_cache.updateCacheItems(dom_element);
-  this.media_cache.updateCacheItems(dom_element);
-
+  
+  var mi = this.media_cache.updateCacheItems(dom_element, media_info);
   var ci = this.controls_cache.updateCacheItems(dom_element, control_info);
   var hi = this.headings_landmarks_cache.updateCacheItems(dom_element, landmark_info);
   var li = this.lists_cache.updateCacheItems(dom_element, list_info);
@@ -198,7 +199,7 @@ OpenAjax.a11y.cache.DOMCache.prototype.traverseDOMElementsForAllCaches = functio
 
   var children_length = dom_element.child_dom_elements.length;
   for (var i = 0; i<children_length; i++ ) {
-   this.traverseDOMElementsForAllCaches(dom_element.child_dom_elements[i], hi, ti, ci, li);
+   this.traverseDOMElementsForAllCaches(dom_element.child_dom_elements[i], hi, ti, ci, li, mi);
   } // end loop
  } else {
 //   this.color_contrast_cache.updateCacheItems(dom_element);
@@ -227,10 +228,12 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateAllCaches = function () {
  var ti = new OpenAjax.a11y.cache.TableInfo(null);
  var ci = new OpenAjax.a11y.cache.ControlInfo(null);
  var li = new OpenAjax.a11y.cache.ListInfo(null);
+ var mi = new OpenAjax.a11y.cache.MediaInfo();
+ 
 
  this.log.update(OpenAjax.a11y.PROGRESS.CACHE_START, "Updating all caches");
  for (i=0; i < children_len; i++) {
-  this.traverseDOMElementsForAllCaches(children[i], hi, ti, ci, li);
+  this.traverseDOMElementsForAllCaches(children[i], hi, ti, ci, li, mi);
  }
 
  this.controls_cache.calculateControlLabels();

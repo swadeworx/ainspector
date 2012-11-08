@@ -305,7 +305,7 @@
 
            OAA_REPORT.addElement(node_tr, 'th', '', 'result',      'Result');
            OAA_REPORT.addElement(node_tr, 'th', '', 'required',    'Required');
-           OAA_REPORT.addElement(node_tr, 'th', '', 'wcag20',      'WCAG 2.0');
+           OAA_REPORT.addElement(node_tr, 'th', '', 'wcag20_level','WCAG 2.0');
            OAA_REPORT.addElement(node_tr, 'th', '', 'message', 'Message/Properties');
 
            var node_tbody = OAA_REPORT.addElement(node_table, 'tbody', '', '', '');
@@ -323,7 +323,7 @@
              if (node_result['rule_type'] === 1) OAA_REPORT.addElement(node_tr, 'td', '', 'required yes', 'Yes');
              else  OAA_REPORT.addElement(node_tr, 'td', '', 'required no', 'no');
 
-             OAA_REPORT.addElement(node_tr, 'td', '', '', ' ');
+             OAA_REPORT.addElement(node_tr, 'td', '', 'wcag20', node_result['wcag_primary_id'] + " (" + node_result['wcag_level'] + ")");
 
              var node_td = OAA_REPORT.addElement(node_tr, 'td', '', '', '');
 

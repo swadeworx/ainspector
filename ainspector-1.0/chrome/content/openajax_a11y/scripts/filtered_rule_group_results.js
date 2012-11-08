@@ -387,7 +387,7 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.toJSON = function(prefix
 
   json += prefix + "{";
   
-  json += prefix + "  \"group_title\"   : \"" + OpenAjax.a11y.util.escapeForJSON(group_title) + "\",";
+  json += prefix + "  \"group_title\"   : \" Rule Category: " + OpenAjax.a11y.util.escapeForJSON(group_title) + "\",";
   json += prefix + "  \"group_id\"      : \"" + group_id + "\",";
   
   json += prefix + "  \"ruleset_title\"   : \"" + OpenAjax.a11y.util.escapeForJSON(ruleset_title) + "\",";
@@ -416,7 +416,7 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.toJSON = function(prefix
   json += prefix + "  \"manual_checks_count\" : \"" + this.manual_checks_count + "\",";
   json += prefix + "  \"hidden_count\"        : \"" + this.hidden_count + "\",";
   
-  json += prefix + "  \"results\" : [";
+  json += prefix + "  \"rule_results\" : [";
   
   var results = this.filtered_rule_results_groups;
   var results_len = results.length;
@@ -490,9 +490,9 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.toCSV = function(title) 
   var date = this.ruleset.date;
   var url = this.ruleset.url;  
   
-  var page_title = this.ruleset.title;
+  var eval_title = this.ruleset.eval_title;
   
-  if (page_title.length > 30) page_title = title.slice(0,27) + "...";
+  if (eval_title.length > 30) eval_title = title.slice(0,27) + "...";
     
   var csv = "";
   
@@ -520,7 +520,7 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.toCSV = function(title) 
        csv += "\",\"" + node_result.getNLSSeverityLabel();
        csv += "\",\"" + OpenAjax.a11y.util.escapeForJSON(node_result.getMessage());
        csv += "\",\"" + date;
-       csv += "\",\"" + OpenAjax.a11y.util.escapeForJSON(page_title);
+       csv += "\",\"" + OpenAjax.a11y.util.escapeForJSON(eval_title);
        csv += "\",\"" + url;
        csv += "\"\n";
                
@@ -876,7 +876,7 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.toJSON = function(prefix,
 
   json += prefix + "{";
   
-  json += prefix + "  \"group_title\"   : \"" + OpenAjax.a11y.util.escapeForJSON(group_title) + "\",";
+  json += prefix + "  \"group_title\"   : \" Rule Category: " + OpenAjax.a11y.util.escapeForJSON(group_title) + "\",";
   json += prefix + "  \"group_id\"      : \"" + group_id + "\",";
   
   json += prefix + "  \"ruleset_title\"   : \"" + OpenAjax.a11y.util.escapeForJSON(ruleset_title) + "\",";
@@ -905,7 +905,7 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.toJSON = function(prefix,
   json += prefix + "  \"manual_checks_count\" : \"" + this.manual_checks_count + "\",";
   json += prefix + "  \"hidden_count\"        : \"" + this.hidden_count + "\",";
   
-  json += prefix + "  \"results\" : [";
+  json += prefix + "  \"rule_results\" : [";
   
   if (flag) {
      var results     = this.filtered_rule_results;
@@ -980,9 +980,9 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.toCSV = function(title) {
   var date = this.ruleset.date;
   var url = this.ruleset.url;  
   
-  var page_title = this.ruleset.title;
+  var eval_title = this.ruleset.eval_title;
   
-  if (page_title.length > 30) page_title = title.slice(0,27) + "...";
+  if (eval_title.length > 30) eval_title = eval_title.slice(0,27) + "...";
     
   var csv = "";
   
@@ -1010,7 +1010,7 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.toCSV = function(title) {
        csv += "\",\"" + node_result.getNLSSeverityLabel();
        csv += "\",\"" + OpenAjax.a11y.util.escapeForJSON(node_result.getMessage());
        csv += "\",\"" + date;
-       csv += "\",\"" + OpenAjax.a11y.util.escapeForJSON(page_title);
+       csv += "\",\"" + OpenAjax.a11y.util.escapeForJSON(eval_title);
        csv += "\",\"" + url;
        csv += "\"\n";
                
@@ -1206,8 +1206,8 @@ OpenAjax.a11y.cache.FilteredRuleResult.prototype.toJSON = function(prefix) {
   json += prefix + "  \"nls_rule_id\"     : \"" + this.rule_result.getNLSRuleId() + "\",";
   json += prefix + "  \"rule_type\"       : "   + this.rule_result.getRuleType() + ",";
   json += prefix + "  \"nls_rule_type\"   : \"" + this.rule_result.getNLSRuleType() + "\",";
-  json += prefix + "  \"wcag20_level\"    : \"" + this.rule_result.getNLSWCAG20Level() + "\",";
-  json += prefix + "  \"wcag20_primary\"  : \"" + OpenAjax.a11y.util.escapeForJSON(this.rule_result.getWCAG20SuccessCriterion()) + "\",";
+  json += prefix + "  \"wcag_level\"      : \"" + this.rule_result.getNLSWCAG20Level() + "\",";
+  json += prefix + "  \"wcag_primary_id\" : \"" + OpenAjax.a11y.util.escapeForJSON(this.rule_result.getWCAG20SuccessCriterion()) + "\",";
 
   json += prefix + "  \"implementation\" : {";
   json += prefix + "    \"abbrev\" : \"" + nls_level.abbrev + "\",";
@@ -1217,7 +1217,6 @@ OpenAjax.a11y.cache.FilteredRuleResult.prototype.toJSON = function(prefix) {
   json += prefix + "    \"pepr\"   : \"" + this.rule_result.implementation_percentage  + "\"";
   json += prefix + "  },";
 
-  json += prefix + "  \"violations\"    : "  + this.violations_count  + ",";
   json += prefix + "  \"violations\"    : "  + this.violations_count  + ",";
   json += prefix + "  \"manual_checks\" : "  + this.manual_checks_count  + ",";
   json += prefix + "  \"warnings\"      : "  + this.warnings_count  + ",";

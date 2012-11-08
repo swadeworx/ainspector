@@ -51,6 +51,8 @@ OpenAjax.a11y.NodeResult = function (rule_result, evaluation_result_value, cache
   this.message_id        = message_id;
   this.message_arguments = message_arguments;
   this.cache_id          = rule_result.cache_id;
+  this.is_scope_page     = rule_result.isScopePage();
+  this.is_scope_element  = rule_result.isScopeElement();
 
 };
 
@@ -115,7 +117,7 @@ OpenAjax.a11y.NodeResult.prototype.getSeverityResult = function () {
 
 OpenAjax.a11y.NodeResult.prototype.getRuleCategory = function () {
 
-  return this.rule_result.rule.rule_category;
+  return this.rule_result.getRuleCategory();
   
 };
 
@@ -149,6 +151,22 @@ OpenAjax.a11y.NodeResult.prototype.getRule = function () {
 OpenAjax.a11y.NodeResult.prototype.getRuleId = function () {
 
   return this.rule_result.getRuleId();
+   
+};
+
+/**
+ * @method getWCAG20PrimaryId
+ *
+ * @memberOf OpenAjax.a11y.NodeResult
+ *
+ * @desc Returns the id of the wcag 2.0 primary id
+ * 
+ * @return {String} String representing the wcag 2.0 primary id
+ */
+
+OpenAjax.a11y.NodeResult.prototype.getWCAG20PrimaryId = function () {
+
+  return this.rule_result.getWCAG20PrimaryId();
    
 };
 
@@ -299,7 +317,7 @@ OpenAjax.a11y.NodeResult.prototype.getNLSRuleType = function () {
  
 OpenAjax.a11y.NodeResult.prototype.isScopePage = function () {
 
-  return this.rule_result.isScopePage();
+  return this.is_scope_page;
   
 };
 
@@ -315,7 +333,7 @@ OpenAjax.a11y.NodeResult.prototype.isScopePage = function () {
  
 OpenAjax.a11y.NodeResult.prototype.isScopeElement = function () {
 
-  return this.rule_result.isScopeElement();
+  return this.is_scope_element;
   
 };
 
@@ -583,8 +601,10 @@ OpenAjax.a11y.NodeResult.prototype.toJSON = function (prefix) {
   json += prefix + "  \"result_abbrev\"   : \"" + severity.abbrev + "\",";
   json += prefix + "  \"rule_id\"         : \"" + this.getRuleId() + "\",";
   json += prefix + "  \"nls_rule_id\"     : \"" + this.getNLSRuleId() + "\",";
-  json += prefix + "  \"rule_type\"       : "  + this.getRuleType() + ",";
+  json += prefix + "  \"rule_type\"       : "   + this.getRuleType() + ",";
   json += prefix + "  \"nls_rule_type\"   : \"" + this.getNLSRuleType() + "\",";
+  json += prefix + "  \"wcag_primary_id\" : \""  + this.getWCAG20PrimaryId() + "\",";
+  json += prefix + "  \"wcag_level\"      : \""  + this.getNLSWCAG20Level() + "\",";
   json += prefix + "  \"message\"         : \"" + OpenAjax.a11y.util.escapeForJSON(this.getMessage()) + "\",";
 
   var max = result_props.length;
@@ -992,6 +1012,22 @@ OpenAjax.a11y.RuleResult.prototype.getNLSRuleId = function () {
 };
 
 /**
+ * @method getWCAG20PrimaryId
+ *
+ * @memberOf OpenAjax.a11y.RuleResult
+ *
+ * @desc Returns the id of the wcag 2.0 primary id of the rule
+ * 
+ * @return {String} String representing the wcag 2.0 primary id
+ */
+
+OpenAjax.a11y.RuleResult.prototype.getWCAG20PrimaryId = function () {
+
+  return this.rule_mapping.rule.wcag_primary_id;
+   
+};
+
+/**
  * @method getRuleScope
  *
  * @memberOf OpenAjax.a11y.RuleResult
@@ -1020,6 +1056,22 @@ OpenAjax.a11y.RuleResult.prototype.getRuleScope = function () {
 OpenAjax.a11y.RuleResult.prototype.isScopePage = function () {
 
   return this.rule_mapping.rule.isScopePage();
+  
+};
+
+/**
+ * @method getRulecategory
+ *
+ * @memberOf OpenAjax.a11y.RuleResult
+ *
+ * @desc Returns the numeric value for the rule category
+ * 
+ * @return {Number}  Numeric value of the rule category
+ */
+
+OpenAjax.a11y.RuleResult.prototype.getRuleCategory = function () {
+
+  return this.rule.rule_category;
   
 };
 

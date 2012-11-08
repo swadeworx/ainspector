@@ -22,13 +22,13 @@
 OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
 
   title : {
-    'default' : "WCAG 2.0 ARIA Strict",
-    'en-us'   : "WCAG 2.0 ARIA Strict"
+    'default' : "Organization Websites",
+    'en-us'   : "Organization Websites"
   },   
   
   description : {
-    'default' : "WCAG 2.0 ARIA strict ruleset is based on best practice design patterns to improve accessibility and usability with the features available in HTML and ARIA specifications to meet WCAG 2.0 success criteria.",
-    'en-us'   : "WCAG 2.0 ARIA strict ruleset is based on best practice design patterns to improve accessibility and usability with the features available in HTML and ARIA specifications to meet WCAG 2.0 success criteria."  
+    'default' : "WCAG 2.0 ARIA strict ruleset ",
+    'en-us'   : "WCAG 2.0 ARIA strict ruleset "  
   },
   
   author : {
@@ -36,9 +36,9 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
     url  : "http://www.openajax.org/member/wiki/Accessibility"
   }, 
   
-  ruleset_id    : "WCAG20_ARIA_STRICT",  
+  ruleset_id    : "HIGHER_ED_ADMIN",  
   version       : "0.6 Beta",
-  last_updated  : "2012-06-18",
+  last_updated  : "2012-10-31",
 
   // Assignement of rules to WCAG 2.0 requirements
 
@@ -82,10 +82,6 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        enabled  : true
      },
    CONTROL_8 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
-       enabled  : true
-     },
-   CONTROL_9 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
        enabled  : true
      },
@@ -153,6 +149,18 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        type     : OpenAjax.a11y.RULE.REQUIRED,
        enabled  : true
      },
+   LANDMARK_2N : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       enabled  : true
+     },
+   LANDMARK_2B : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       enabled  : true
+     },
+   LANDMARK_2CI : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       enabled  : true
+     },
    LINK_1 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
        enabled  : true
@@ -194,6 +202,14 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        enabled  : true
      },
    TITLE_2 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       enabled  : true
+     },
+   VIDEO_1 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       enabled  : true
+     },
+   VIDEO_2 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
        enabled  : true
      },

@@ -3,21 +3,24 @@
           font-family: arial, helvetica, sans-serif;
       }
 
-      .passed {
+      .passed,
+      .complete {
           color: green;
       }
       
-      .warning {
+      .warning,
+      .almost_complete {
           color: white;
           background-color: #DAA520;
       }
       
-      .manual_check {
+      .manual_check,
+      .partial_implementation {
           color: #b22222;
-          background-color: white;
       }
       
-      .violation {
+      .violation,
+      .not_implemented {
           color: white;
           background-color: #b22222;
       }
@@ -72,17 +75,20 @@
           border-top: solid 1px white;
       }
 
-      th.order,
+      th.description,
       th.element,
-      th.hidden,
-      th.passed,
-      th.warning,
-      th.manual_check,
-      th.violation,
-      th.result,
+      th.h,
+      th.mc,
+      th.order,
+      th.p,
+      th.pepr,
       th.required,
-      th.wcag20,
-      th.message
+      th.result,
+      th.rule,
+      th.message,
+      th.v,
+      th.w,
+      th.wcag20_level
       {
           width: 5%;
           padding-left: 0.25em;
@@ -92,8 +98,12 @@
           vertical-align: bottom;
       }
 
+      th.wcag20_level {
+          width: 8%;
+      }
 
       th.element,
+      th.description,
       th.message {
           min-width: 40%;
       }
@@ -103,6 +113,7 @@
       }
 
       th.wcag20,
+      td.wcag20,
       td.order,
       td.required {
         text-align: center;  
@@ -127,11 +138,22 @@
          font-size: 90%;
       }
       
-      td.no {
+      td.no,
+      td.not_applicable {
          color: gray;
          font-size: 90%;
       }
 
+      td.not_applicable,
+      td.complete,
+      td.almost_complete,
+      td.partial_implementation,
+      td.not_implemented {
+        text-align: center;    
+      }
+      
+      
+      
       th.total,
       td.total {
         border-top: black thin solid;
@@ -247,4 +269,25 @@ ul.severities li span{
     padding-left: 0.125em;
     padding-right: 0.125em;
     }
-    </style>
+    
+div.info {
+    padding: 0;
+    margin: 0;
+    padding-top: 0.125em;
+    padding-bottom: 0.125em;
+    clear: both;
+}    
+
+div.info span.label {
+    display: block;
+    text-align: right;
+    padding-right: 0.25em;
+    width: 5em;    
+    float: left;
+    font-weight: bold;
+}    
+
+div.info span.item {
+    display: block;
+}    
+</style>

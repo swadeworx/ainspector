@@ -264,24 +264,6 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     var VISIBILITY  = OpenAjax.a11y.VISIBILITY;
     var SOURCE      = OpenAjax.a11y.SOURCE;
   
-    var h1_elements     = dom_cache.headings_landmarks_cache.h1_elements;
-    var h1_elements_len = h1_elements.length;
-
-    var i;
-    var he;
-    var de;
-
-    for (i = 0; i < h1_elements_len; i++ ) {
-      he = h1_elements[i];
-      de = he.dom_element;
-      if (de.computed_style.is_visible_to_at === VISIBILITY.INVISIBLE) {
-        rule_result.addResult(TEST_RESULT.HIDDEN, he, 'HIDDEN', [de.tag_name]);                      
-      }
-      else {
-        rule_result.addResult(TEST_RESULT.MANUAL_CHECK, he, 'MANUAL_CHECK_1', [de.tag_name]);
-      }  
-    }
-
     var heading_elements     = dom_cache.headings_landmarks_cache.heading_elements;
     var heading_elements_len = heading_elements.length;
 
@@ -292,11 +274,101 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         rule_result.addResult(TEST_RESULT.HIDDEN, he, 'HIDDEN', [de.tag_name]);                      
       }
       else {
-        rule_result.addResult(TEST_RESULT.MANUAL_CHECK, he, 'MANUAL_CHECK_1', [de.tag_name]);
+        if (he.name.length) rule_result.addResult(TEST_RESULT.MANUAL_CHECK, he, 'MANUAL_CHECK_1', [de.tag_name]);
+        else rule_result.addResult(TEST_RESULT.FAIL, he, 'CORRECTIVE_ACTION_1', [de.tag_name]);
       }  
     }
   } // end validate function
+},
+
+/**
+ * @object HEADING_5
+ *
+ * @desc Headings must be properly nested
+ *
+ */	     	     	     
+{ rule_id             : 'HEADING_5', 
+  rule_scope          : OpenAjax.a11y.RULE_SCOPE.PAGE,
+  rule_category       : OpenAjax.a11y.RULE_CATEGORIES.HEADINGS,
+  last_updated        : '2012-11-01', 
+  wcag_primary_id     : '2.4.6',
+  wcag_related_ids    : ['1.3.1', '2.4.10'],
+  target_resources    : ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+  cache_dependency    : 'headings_landmarks_cache',
+  resource_properties : ['tag_name', 'name'],
+  language_dependency : "",
+  validate            : function (dom_cache, rule_result) {
+  
+     function getNextVisibleHeadingWithContent() {
+     
+       while (heading_index < heading_elements_len) {
+       
+         var he = heading_elements[heading_index];
+         var de = he.dom_element;
+         var is_visible_to_at = he.dom_element.computed_style.is_visible_to_at;
+         
+         if ((is_visible_to_at === VISIBILITY.VISIBLE) && (he.name.length > 0)) {
+           heading_index++;
+           return he;
+         }
+         
+         if (is_visible_to_at === VISIBILITY.HIDDEN) {
+           rule_result.addResult(TEST_RESULT.HIDDEN, he, 'HIDDEN', [de.tag_name]); 
+         }
+         else {
+           rule_result.addResult(TEST_RESULT.FAIL, he, 'CORRECTIVE_ACTION_2', [de.tag_name]);          
+         }
+         
+         heading_index++;          
+         
+       }
+       
+       return null;
+     }
+
+    var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
+    var VISIBILITY  = OpenAjax.a11y.VISIBILITY;
+    var SOURCE      = OpenAjax.a11y.SOURCE;
+  
+    var heading_elements     = dom_cache.headings_landmarks_cache.heading_elements;
+    var heading_elements_len = heading_elements.length;
+    var heading_index = 0;
+    var heading_fail = 0;
+
+    var pe = dom_cache.headings_landmarks_cache.page_element;  
+
+    var he_last = getNextVisibleHeadingWithContent();
+    
+    if (he_last && pe) {
+
+      var de = he_last.dom_element;
+      rule_result.addResult(TEST_RESULT.PASS, he_last, 'PASS_1', [de.tag_name]);
+
+      var he = getNextVisibleHeadingWithContent();
+      
+      while (he) {
+      
+        de = he.dom_element;
+        
+        if (he.level <= (he_last.level + 1) ) {
+          rule_result.addResult(TEST_RESULT.PASS, he, 'PASS_1', [de.tag_name]);
+        }
+        else {
+          rule_result.addResult(TEST_RESULT.FAIL, he, 'CORRECTIVE_ACTION_1', [de.tag_name]); 
+          heading_fail++;
+        }
+        
+        he_last = he;
+        he = getNextVisibleHeadingWithContent();
+      }
+
+      if (heading_fail === 0) rule_result.addResult(TEST_RESULT.PASS, pe, 'PASS_2', []);
+      else if (heading_fail === 1) rule_result.addResult(TEST_RESULT.FAIL, pe, 'CORRECTIVE_ACTION_3', []);
+      else rule_result.addResult(TEST_RESULT.FAIL, pe, 'CORRECTIVE_ACTION_4', [heading_fail]);
+    }
+  } // end validate function
 }
+
 ]); 
 
 
