@@ -232,13 +232,19 @@ FBL.ns(function() { with (FBL) {
     */
     sView: function(state, first_element){
     
+      var rule = '';
       if (state) {
       
         try {
           if (!first_element) return;
-          var rule = first_element.rule_result.rule.getNLSRuleId() + ': ' + first_element.rule_result.getRuleSummary();
-
-          this.rebuild(rule, first_element.filtered_node_results);
+          
+          if (first_element.rule_result) {
+            rule = first_element.rule_result.rule.getNLSRuleId() + ': ' + first_element.rule_result.getRuleSummary();
+            this.rebuild(rule, first_element.filtered_node_results);
+          } else {
+            AINSPECTOR_FB.emptySidePanelTemplate.tag.replace({headers: ["Result", "Element"], messg: "select a rule", desc: 'Evaluation Results By Rule'}, this.panelNode);
+          }
+          
         } catch (er) {
         }
       } else {
@@ -261,9 +267,15 @@ FBL.ns(function() { with (FBL) {
       this.node_results_array = [];
       
       if (!rule_result_item) return;
+      FBTrace.sysout("rule_result_item: ", rule_result_item);
+      var rule = '';
       
-      var rule = rule_result_item.rule_result.rule.getNLSRuleId() + ': ' + rule_result_item.rule_result.getRuleSummary();
-      this.rebuild(rule, rule_result_item.filtered_node_results);
+      if (rule_result_item.filtered_node_results) {
+        rule = rule_result_item.rule_result.rule.getNLSRuleId() + ': ' + rule_result_item.rule_result.getRuleSummary();
+        this.rebuild(rule, rule_result_item.filtered_node_results);
+      } else {
+        AINSPECTOR_FB.emptySidePanelTemplate.tag.replace({headers: ["Result", "Element"], messg: "no rule selected", desc: 'Evaluation Results By Rule'}, this.panelNode);
+      }
     },
     
     /**
@@ -275,6 +287,8 @@ FBL.ns(function() { with (FBL) {
      */
     rebuild: function(rule_summary, filtered_node_results){
       this.panelNode.id = "ainspector-side-panel";
+      
+      FBTrace.sysout("filtered node results: ", filtered_node_results);
       
       if (filtered_node_results.length > 0) {
         elementsPlate.tag.replace({object: filtered_node_results, rule_summary: rule_summary}, this.panelNode);
@@ -309,46 +323,78 @@ FBL.ns(function() { with (FBL) {
   var elementsPlate = domplate(AINSPECTOR_FB.BaseRep, {
     
     tag:
-      
       DIV({class: "side-panel"},
-        DIV({class: "eval-results"}, "$rule_summary"),
-        TABLE({class: "ai-sidepanel-table", cellpadding: 0, cellspacing: 0, "aria-selected" : "true", tabindex: "0"},
-         THEAD(
-          TR({class: "gridHeaderRow", id: "tableTableHeader", "role": "row", tabindex: "-1", "aria-selected" : "false"},
-            TH({class: "gridHeaderCell"}, DIV({class: "gridHeaderCellBox"}, "Result")),
-            TH({class: "gridHeaderCell"}, DIV({class: "gridHeaderCellBox"}, "Element")),
-            TH({class: "gridHeaderCell"}, DIV({class: "gridHeaderCellBox"}, "goto"))
-          ) //end TR
-        ), //end THEAD
-        TBODY(
-          FOR("obj", "$object|getMembers",
-              TR({class: "tableRow gridRow", role: "row", _repObject: "$obj.cache", onclick: "$highlightRow", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
-                TD({class: "gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridContent"},
-                  TAG("$obj.severity_label_style", {'member' : '$obj'}))),
-                TD({class: "gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridContent"},"$obj.tag_name")),
-                TD({class: "gridCol", role: "gridcell"},
-                  DIV({class: "gridContent resultAlign"}, 
-                    BUTTON({onclick: "$gotoHTML", id: "html_panel_button", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.htmlButtonPress"}, "HTML"))
-                )
-              ) //end TR
-            )
-        ) //end TBODY
+        DIV({class: "element-select"}, "$rule_summary"),
+        TABLE({class: "domTree domTable ai-sidepanel-table", cellpadding: 0, cellspacing: 0, onclick: "$onClick", "aria-selected" : "true",
+         tabindex: "0"},
+          THEAD(
+            TR({class: "gridHeaderRow", id: "tableTableHeader", "role": "row", tabindex: "-1", "aria-selected" : "false"},
+              TH({class: "gridHeaderCell"}, DIV({class: "gridHeaderCellBox"}, "Result")),
+              TH({class: "gridHeaderCell"}, DIV({class: "gridHeaderCellBox"}, "Element")),
+              TH({class: "gridHeaderCell"}, DIV({class: "gridHeaderCellBox"}, "goto"))
+            ) //end TR
+          ), //end THEAD
+          TBODY(
+            FOR("member", "$object|memberIterator", TAG("$row", {member: "$member"}))
+          ) //end TBODY
+        ),
+        DIV({class: "notificationButton-rule"},
+          BUTTON({onclick: "$showMoreProperties"}, "Rule Information"),
+          BUTTON({onclick: "$getElementInformation", style: "margin: 0.5em;"}, "Element Information")
+        )
       ),
-      DIV({class: "notificationButton-rule"},
-        BUTTON({onclick: "$showMoreProperties"}, "Rule Information"),
-        BUTTON({onclick: "$getElementInformation", style: "margin: 0.5em;"}, "Element Information")
-      )
-    ),
     
-    strTagPass : DIV({class: "resultAlign passMsgTxt"}, "$member.severityLabel"),
-    strTagViolation : DIV({class: "resultAlign violationMsgTxt"}, "$member.severityLabel"),
-    strTagManual : DIV({class: "resultAlign manualMsgTxt"}, "$member.severityLabel"),
-    strTagHidden : DIV({class: "resultAlign hiddenMsgTxt"}, "$member.severityLabel"),
-    strTagWarn : DIV({class: "resultAlign warnMsgTxt"}, "$member.severityLabel"),
+      row:
+      
+        TR({class: "treeRow gridRow", $hasChildren: "$member.hasChildren", _newObject: "$member", _repObject: "$member.value", level: "$member.level", 
+         "aria-selected" : "$member|$AINSPECTOR_FB.toolbarUtil.getSelectedState", tabindex: "$member|$AINSPECTOR_FB.toolbarUtil.getTabIndex", onclick: "$highlightRow"},
+          
+          TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
+            TAG("$member.severity_label_style", {'member' :"$member", 'object': "$member"}) 
+          ),
+          TD({class: "memberLabelCell styleAction"}, "$member.tag_name"),
+          TD({class: "gridCol", role: "gridcell"},
+            DIV({class: "gridContent resultAlign"}, 
+              BUTTON({onclick: "$gotoHTML", id: "html_panel_button", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.htmlButtonPress"}, "HTML"))
+          )
+      ),
+      
+    childrow :
+      
+      TR({class: "treeRow gridRow", _newObject: "$member", _repObject: "$member.value", level: "$member.level",
+        "aria-selected" : "$member|$AINSPECTOR_FB.toolbarUtil.getSelectedState", tabindex: "$member|$AINSPECTOR_FB.toolbarUtil.getTabIndex", onclick: "$highlightRow"},
+        TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
+        "$member.propertyLabel"
+        ),
+        TD({class: "memberLabelCell", _repObject: "$member.value"}, "$member.propertyValue")
+      ),
+    
+    strTagPass : DIV({class: "treeLabel passMsgTxt"}, "$member.severityLabel"),
+    strTagViolation : DIV({class: "treeLabel violationMsgTxt"}, "$member.severityLabel"),
+    strTagManual : DIV({class: "treeLabel manualMsgTxt"}, "$member.severityLabel"),
+    strTagHidden : DIV({class: "treeLabel hiddenMsgTxt"}, "$member.severityLabel"),
+    strTagWarn : DIV({class: "treeLabel warnMsgTxt"}, "$member.severityLabel"),
+    stylePropTag: DIV({class: "styleLabel"}, "none"),
+    
+    loop:
+      FOR("member", "$members", TAG("$childrow", {member: "$member"})),
+      
+    /**
+     * @function onClick
+     */
+    onClick: function(event) {
+          
+      if (!isLeftClick(event)) return;
+
+      var row = getAncestorByClass(event.target, "treeRow");
+      var label = getAncestorByClass(event.target, "treeLabel");
+    
+      if (label && hasClass(row, "hasChildren")) this.toggleRow(row);
+    },
     
     gotoHTML : function(event){
 
-      var row = getAncestorByClass(event.target, "tableRow");
+      var row = getAncestorByClass(event.target, "treeRow");
       
       var object = Firebug.getRepObject(event.target);
       FBTrace.sysout("AINSPECTOR_FB.elementsSidePanel.gotoHTML() - ", object);
@@ -372,16 +418,27 @@ FBL.ns(function() { with (FBL) {
     },
     
     /**
+     * @function memberIterator
+     * 
+     * @desc invokes getMembers function to iterate through the rule results
+     * 
+     * @param {Object} object -
+     */
+    memberIterator: function(object) {
+      return this.getMembers(object);
+    },
+    
+    /**
      * @function getMembers
      * 
      * @desc
      * 
      * @param elements - 
      */
-    getMembers : function(object) {
+    getMembers : function(object, level) {
       var members = [];
-      
-      for (var p in object) members.push(this.createMembers(p, object[p]));
+      if (!level) level = 0;
+      for (var p in object) members.push(this.createMembers(p, object[p], level));
       
       return members;
     },
@@ -394,14 +451,30 @@ FBL.ns(function() { with (FBL) {
      * @param key -
      * @param object
      */
-    createMembers : function(key, object){
+    createMembers : function(key, object, level){
+      
+      FBTrace.sysout("createMembers: ", object);
+      if (level !=0) { //if it is child
+                
+        return {
+          propertyLabel:object.label,
+          propertyValue:object.value,
+          value: (object != null) ? object : "",
+          level: level,
+          indent: level * 16
 
-      return {
-        cache: object,
-        tag_name: this.getElement(object),
-        severity_label_style : this.getSeverityLabel(object),
-        severityLabel : object.getNLSSeverityLabel()
-      };
+        };
+      } else {
+        return {
+          tag_name: this.getElement(object),
+          severity_label_style : this.getSeverityLabel(object),
+          severityLabel : object.getNLSSeverityLabel(),
+          hasChildren: this.hasChildren(object),
+          children: object.getRuleProperties(),
+          level: level,
+          indent: level * 16
+        };
+      }
     },
     
     getSeverityLabel : function(object){
@@ -429,6 +502,69 @@ FBL.ns(function() { with (FBL) {
       
     },
     
+    hasChildren : function(object){
+      
+      var properties = object.getRuleProperties();
+      
+      var length = properties.length;
+      
+      if (length > 0) return true;
+      
+      else return false;
+    
+    },
+    
+    /**
+     * @function closeRow
+     */
+    closeRow: function(row) {
+  
+      if (hasClass(row, "opened")) {
+        var level = parseInt(row.getAttribute("level"));
+        
+        removeClass(row, "opened");
+        
+        var tbody = row.parentNode;
+      
+        for (var firstRow = row.nextSibling; firstRow; firstRow = row.nextSibling) {
+        
+          if (parseInt(firstRow.getAttribute("level")) <= level) break;
+          tbody.removeChild(firstRow);
+        }
+      }
+    },
+
+    /**
+     * @function openRow
+     */
+    openRow: function(row) {
+  
+      if (!hasClass(row, "opened")) {
+        var level = parseInt(row.getAttribute("level"));
+        setClass(row, "opened");
+        var repObject = row.newObject;
+        FBTrace.sysout("repobject: ", repObject);
+        FBTrace.sysout("level: "+ level);
+
+        if (repObject) {
+          var members = this.getMembers(repObject.children, level+1);
+      
+          if (members) this.loop.insertRows({members: members}, row);
+      }
+    }
+  },
+  
+  /**
+   * @function toggleRow
+   */
+  toggleRow: function(row) {
+    
+    if (hasClass(row, "opened")) {
+      this.closeRow(row);
+    } else {
+      this.openRow(row);
+    }
+  },
 
     /**
      * @function showMoreProperties
@@ -542,7 +678,7 @@ FBL.ns(function() { with (FBL) {
 
       FBTrace.sysout("highlightRow: ", event);
       var table = getAncestorByClass(event.target, "ai-sidepanel-table");
-      var row = getAncestorByClass(event.target, "tableRow");
+      var row = getAncestorByClass(event.target, "treeRow");
       FBTrace.sysout("table: ", table);
       FBTrace.sysout("row: ", row);
       AINSPECTOR_FB.flatListTemplateUtil.unHighlight(table);
