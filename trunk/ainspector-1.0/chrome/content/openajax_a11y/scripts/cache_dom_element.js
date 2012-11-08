@@ -690,6 +690,9 @@ OpenAjax.a11y.cache.DOMText.prototype.getStyle = function () {
  
   var properties  = [];
 
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'is_visible_onscreen');
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'is_visible_to_at');
+
   cache_nls.addPropertyIfDefined(properties, this.computed_style, 'display');
   cache_nls.addPropertyIfDefined(properties, this.computed_style, 'visibility');
   
@@ -1450,6 +1453,9 @@ OpenAjax.a11y.cache.DOMElement.prototype.getStyle = function () {
   var cache_nls = OpenAjax.a11y.cache_nls;
  
   var properties  = [];
+
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'is_visible_onscreen');
+  cache_nls.addPropertyIfDefined(properties, this.computed_style, 'is_visible_to_at');
 
   cache_nls.addPropertyIfDefined(properties, this.computed_style, 'display');
   cache_nls.addPropertyIfDefined(properties, this.computed_style, 'visibility');

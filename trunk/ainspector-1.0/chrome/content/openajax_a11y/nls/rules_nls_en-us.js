@@ -30,12 +30,12 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
     
     missing_message : "The following message id is not defined: ",
 
-    rule_catories: {
+    rule_categories: {
            '1': 'Abbrevitations',
            '2': 'Audio',  
            '4': 'Color',
-           '8': 'Form Controls',
-          '16': 'Embedded Objects',
+           '8': 'Controls',
+          '16': 'Objects',
           '32': 'Headings',
           '64': 'Images',
          '128': 'Landmarks',
@@ -526,32 +526,31 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
         },
         CONTROL_9: {
             ID:                    'Form Control 9',
-            DEFINITION:            '@title@ attribute %s not be used to label form controls',
-            SUMMARY:               '@title@ %s not be label',
+            DEFINITION:            '@title@ attribute may not be good a label for form control',
+            SUMMARY:               '@title@ may not be good label',
             TARGET_RESOURCES_DESC: '@textarea@, @select@ and @input@ elements',
             RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:            'Form control does not use @title@ attribute as label',
-              ALL_PASS_PLURAL:              'All %N_P form controls do not use @title@ attribute as label',
-              SOME_FAIL:                    '%N_F out of %N_T form controls use @title@ attribute as label',
-              CORRECTIVE_ACTION_SINGULAR:   'update form control to use another form labeling technique',
-              CORRECTIVE_ACTION_PLURAL:     'update %N_F form controls to use another form labeling technique',
-              ALL_FAIL_SINGULAR:            'form control uses @title@ attribute as label',
-              ALL_FAIL_PLURAL:              'All %N_F form controls use @title@ attribute as a label',
-              NOT_APPLICABLE:               'No form controls on this page'              
+              ALL_PASS_SINGULAR:       'Form control does not use @title@ attribute as label',
+              ALL_PASS_PLURAL:         'All %N_P form controls do not use @title@ attribute as label',
+              MANUAL_CHECK_SINGULAR:   'verify the @title@ attribute being used as a tooltip is also good label for the form control',
+              MANUAL_CHECK_PLURAL:     'verify each of the %N_MC form controls that use @title@ attribute as a tooltip is also good label for the form control',
+              NOT_APPLICABLE:          'No form controls on this page'              
             },
             NODE_RESULT_MESSAGES: {
-              PASS_1:                '@title@ is not used as label',
-              CORRECTIVE_ACTION_1:   'Use @label@ element or ARIA technique to label %1 form control',
-              HIDDEN:                '%1 control is hidden from asssistive technologies.'
+              PASS_1:         '@title@ is not used as label',
+              MANUAL_CHECK_1: 'Verify @label@ element or ARIA technique to label %1 form control',
+              HIDDEN:         '%1 control is hidden from asssistive technologies.'
             },  
             PURPOSE: [
-              '@title@ attribute is defined in HTML specifications as a way to label form controls'                   
+              'When the @title@ attribute is used for tooltips it is often uses more words than needed to label a form control for users of assistive technologies',                   
+              'use @aria-label@ to provide a shorter label to users of assistive technologies if the @title@ attribute content is determined to not be an optimal label' 
             ],
             TECHNIQUES: [
               'The preferered technique for labeling for controls is using the @label@ element and referencing the @id@ attribute value of the form control element',
               'Use the @label@ element to encapsulate the form control element',
               'In special cases, use @aria-labelledby@ attributes to reference the id(s) of the elements on the page that describe the purpose of the form control element',
-              'In special cases, use @aria-label@ attributes to provide a explicit text description of the purpose of the form control element'
+              'In special cases, use @aria-label@ attributes to provide a explicit text description of the purpose of the form control element',
+              'In special cases, use @title@ attribute to provide a optimal label and a tooltip for a form control'
             ],
             MANUAL_CHECKS: [
             ],
@@ -624,8 +623,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
         },
         CONTROL_11: {
             ID:                    'Form Control 11',
-            DEFINITION:            'If there is more than one form on a page, input element of type submit and reset %s have unique labels using the value attribute',
-            SUMMARY:               'Labels %s be unique',
+            DEFINITION:            'If there is more than one form on a page, @input@ element of type @submit@ and @reset@ %s have unique labels using the value attribute',
+            SUMMARY:               '@submit@ and @reset@ buttons %s be unique',
             TARGET_RESOURCES_DESC: '@submit@ and @reset@ buttons',
             RULE_RESULT_MESSAGES: {
               ALL_PASS_PLURAL:              '%N_P @submit@ or @reset@ buttons have unique labels',
@@ -786,7 +785,7 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
               CORRECTIVE_ACTION_PLURAL:   'either move the %N_F @h1@ elements to the begining of a @main@ landmark or change the @h1@ element to another heading level',              
               ALL_FAIL_SINGULAR:          '@h1@ element is NOT a child of a @main@ landmark',
               ALL_FAIL_PLURAL:            'All %N_F @h1@ elements are NOT a child of a @main@ landmark',
-              NOT_APPLICABLE:             'No @h1@ elements in this page'
+              NOT_APPLICABLE:             'No @main@ landmark and/or @h1@ elements in this page'
             },
             NODE_RESULT_MESSAGES: {
               PASS_1:                '@h1@ is a child element of a @main@ landmark',
@@ -868,16 +867,73 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               'Headings %s be descriptive',
             TARGET_RESOURCES_DESC: 'Heading elements',
             RULE_RESULT_MESSAGES: {
-              MANUAL_CHECKS_SINGULAR:   'Verify the heading element describes the content following the heading element',
-              MANUAL_CHECKS_PLURAL:     'Verify the %N_MC heading elements describes the content following each heading element',
-              NOT_APPLICABLE:           'No heading elements on this page'
+              MANUAL_CHECKS_SINGULAR: 'Verify the heading element describes the content following the heading element',
+              MANUAL_CHECKS_PLURAL:   'Verify the %N_MC heading elements describes the content following each heading element',
+              ALL_FAIL_SINGULAR:      'Add text content to heading',
+              ALL_FAIL_PLURAL:        'Add text content to %N_F heading elements with no text content',
+              NOT_APPLICABLE:         'No heading elements on this page'
             },
             NODE_RESULT_MESSAGES: {
               MANUAL_CHECK_1:        'Check %1 element to make sure it describes the section it labels',
+              CORRECTIVE_ACTION_1:   'Add text content to %1 element that describes the section it labels or remove it from the page if it is not needed',
               HIDDEN:                '%1 element is hidden from asssistive technologies.'
             },  
             PURPOSE: [
               'If headings are NOT descriptive or unique they will confuse users of assistive technology'
+            ],
+            TECHNIQUES: [
+              'Include headings elements at the proper level for each section of a web page',
+              'Use headings as labels for ARIA landmarks to provide redundent page navigation capabilities for users of assistive technologies',
+              'Check headings against other headings in the document to make sure the headings uniquely describe content of each section of the web page',
+              'If headings are too similar to each other users of assistive technology will not be able to use them to understand the differences between different sections of the web page'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: Headings: The H1, H2, H3, H4, H5, H6 elements', 
+                url:   'http://www.w3.org/TR/html4/struct/global.html#edef-H1'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G130: Providing descriptive headings', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G130'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G141: Organizing a page using headings', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G141'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Unique Title', 
+                url:   'http://html.cita.illinois.edu/nav/title/'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Sub Headings', 
+                url:   'http://html.cita.illinois.edu/nav/heading/'
+              }                            
+            ]
+        },    
+        HEADING_5: {
+            ID:                    'Heading Rule 5',
+            DEFINITION:            'Heading elements %s be properly nested',
+            SUMMARY:               'Headings %s be properly nested',
+            TARGET_RESOURCES_DESC: 'Heading elements',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_PLURAL:      'All %N_P heading elements are properly nested',
+              SOME_FAIL:            '%N_F out of %N_T heading elements are NOT properly nested',
+              ALL_FAIL_PLURAL:      'None of the %N_F heading elements are properly nested',
+              NOT_APPLICABLE:       'No or only one heading elements on this page, so nesting rule does not apply'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:              '%1 element is properly nested',
+              PASS_2:              'All heading elements are properly nested',
+              CORRECTIVE_ACTION_1: 'Change %1 element or other heading elements ',
+              CORRECTIVE_ACTION_2: 'Add text content to %1 element that describes the section it labels or remove it from the page if it is not needed',
+              CORRECTIVE_ACTION_3: 'One heading element is not prperly nexted, check all heading elements to make sure they are properly nested, and describe the structure and the sections of the web pag',
+              CORRECTIVE_ACTION_4: '%1 heading elements are not properly nexted, check all heading elements to make sure they are properly nested, and describe the structure and the sections of the web page',
+              HIDDEN:              '%1 element is hidden from asssistive technologies and is not included in nesting.'
+            },  
+            PURPOSE: [
+              'Head elements that are properly nested help users of assistive technology understand the structure of the information on the web page'
             ],
             TECHNIQUES: [
               'Include headings elements at the proper level for each section of a web page',
@@ -1271,6 +1327,100 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
               { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
                 title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Landmark Roles', 
                 url:   'http://www.w3.org/TR/wai-aria/roles#landmark_roles'
+              }                            
+            ]
+        },    
+        LANDMARK_2N: {
+            ID:                    'Landmark Rule 2: navigation',
+            DEFINITION:            'Each page %s contain at least one @navigation@ landmark',
+            SUMMARY:               'Page %s have @navigation@ landmark',
+            TARGET_RESOURCES_DESC: '@navigation@ landmark',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:          'Page has @navigation@ landmark',
+              CORRECTIVE_ACTION_SINGULAR: 'add a @navigation@ landmark that identifies the main (i.e. primary) content of the page',
+              ALL_FAIL_SINGULAR:          'Page does NOT contain a @navigation@ landmark'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                'Page contains an %1 element with @role=navigation@',
+              CORRECTIVE_ACTION_1:   'Add a @navigation@ landmark to the page, the navigation landmark must identify the sets navigation lists on the page',
+              HIDDEN:                '@navigation@ landmark is hidden from asssistive technologies.'
+            },  
+            PURPOSE: [
+              'Navigation landmarks provide a way to identify groups of links with in a web page'                   
+            ],
+            TECHNIQUES: [
+              'Include an @role="navigation"@ attribute on a element that contains @ol@ and @ul@ elements that contain li elements with links',
+              'Use the aria-labelledby or aria-label to describe the purpose of the links (i.e. table on contents of a page, site map...)'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: navigation role', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#navigation'
+              }                            
+            ]
+        },    
+        LANDMARK_2B: {
+            ID:                    'Landmark Rule 2: banner',
+            DEFINITION:            'Each page %s contain at least one @banner@ landmark',
+            SUMMARY:               'Page %s have @banner@ landmark',
+            TARGET_RESOURCES_DESC: '@banner@ landmark',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:          'Page has @banner@ landmark',
+              CORRECTIVE_ACTION_SINGULAR: 'add a @banner@ landmark that identifies the repetitive banner content at the top of the page',
+              ALL_FAIL_SINGULAR:          'Page does NOT contain a @banner@ landmark'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                'Page contains an %1 element with @role=banner@',
+              CORRECTIVE_ACTION_1:   'Add a @banner@ landmark to the page, the banner landmark is used to identify the repetitive banner content at the top of the page',
+              HIDDEN:                '%1 element with @banner@ landmark is hidden from asssistive technologies.'
+            },  
+            PURPOSE: [
+              'banner landmarks provide a way to identify branding content usually ar the top of a web page'                   
+            ],
+            TECHNIQUES: [
+              'Include an @role="banner"@ attribute on a element that contains the branding content at the top of a page',
+              'Pages typically one have one @banner@ landmark'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: banner role', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#banner'
+              }                            
+            ]
+        },    
+        LANDMARK_2CI: {
+            ID:                    'Landmark Rule 2: contentinfo or complementary',
+            DEFINITION:            'Each page %s contain at least one @contentinfo@ or @complementary@ landmark',
+            SUMMARY:               'Page %s have @contentinfo@ or @complementary@ landmark',
+            TARGET_RESOURCES_DESC: '@contentinfo@ landmark',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:          'Page has @contentinfo@ or @complementary@ landmark',
+              CORRECTIVE_ACTION_SINGULAR: 'add a @contentinfo@ or @complementary@ landmark that identifies the typically repetitive content (i.e. on each page in the website) on the bottom of a page',
+              ALL_FAIL_SINGULAR:          'Page does NOT contain a @contentinfo@ or @complementary@ landmark'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                'Page contains an %1 element with @role=%2@',
+              CORRECTIVE_ACTION_1:   'Add a @contentinfo@ or or @complementary@ landmark to the page, the contentinfo landmark must identify the sets contentinfo lists on the page',
+              HIDDEN:                '%1 element with @role=%2@ is hidden from asssistive technologies.'
+            },  
+            PURPOSE: [
+              'contentinfo landmarks provide a way to identify content found typically on the bottom of each page in a website',
+              'The contentinfo usually includes links like copyright information, privacy, and other general links support all pages in the website.'
+            ],
+            TECHNIQUES: [
+              'Include an @role="contentinfo"@ attribute on a element that contains @ol@ and @ul@ elements that contain li elements with links',
+              'Use the aria-labelledby or aria-label to describe the purpose of the links (i.e. table on contents of a page, site map...)'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: contentinfo role', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#contentinfo'
               }                            
             ]
         },
@@ -2058,6 +2208,86 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
                 title: 'H25: Providing a title using the title element', 
                 url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H25'
               }
+            ]
+        },    
+        VIDEO_1: {
+            ID:                    'Video Rule 1',
+            DEFINITION:            'Video  %s have synchronized caption',
+            SUMMARY:               'Video %s have caption',
+            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       'Verify the element is used for video and if it is a video make sure it has a caption',
+              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are videos, if they any are a video make sure they have captions',
+              ALL_PASS_SINGULAR:            'Video has caption',
+              ALL_PASS_PLURAL:              'All %N_P videos have captions',
+              SOME_FAIL:                    '%N_F out of %N_T videos do NOT have captions',
+              CORRECTIVE_ACTION_SINGULAR:   'add caption to video',
+              CORRECTIVE_ACTION_PLURAL:     'add captions to each of the %N_F videos',
+              ALL_FAIL_SINGULAR:            'Video does not have a caption',
+              ALL_FAIL_PLURAL:              'All %N_F videos do NOT have captions',
+              NOT_APPLICABLE:               'No video elements found on this page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '%1 element has caption',
+              CORRECTIVE_ACTION_1:   'Add caption to @%1@ video element',
+              MANUAL_CHECK_1:        'Verify the @%1@ video element has open or closed captions',
+              MANUAL_CHECK_2:        'Verify the @%1@ element is being used for video, if it is verify that it has open or closed captions',
+              HIDDEN:                '@%1@ element is not visible on screen'
+            },  
+            PURPOSE: [
+              'Captions provide a means for people whoa re deaf or hearing impaired to get the speech and sound content of a video with audio'                   
+            ],
+            TECHNIQUES: [
+              'Various techniques based on the video formats and media players you are supporting, please see your technology specific requirements for captions',
+              'The HTML5 video element is attempting to make it easier to support captions through the use of the text track'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HMTL 5: The track element', 
+                url:   'http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#the-track-element'
+              }                            
+            ]
+        },    
+        VIDEO_2: {
+            ID:                    'Video Rule 2',
+            DEFINITION:            'Video  %s have synchronized caption',
+            SUMMARY:               'Video %s have caption',
+            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       'Verify the element is used for video and if it is a video make sure it has a caption',
+              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are videos, if they any are a video make sure they have captions',
+              ALL_PASS_SINGULAR:            'Video has caption',
+              ALL_PASS_PLURAL:              'All %N_P videos have captions',
+              SOME_FAIL:                    '%N_F out of %N_T videos do NOT have captions',
+              CORRECTIVE_ACTION_SINGULAR:   'add caption to video',
+              CORRECTIVE_ACTION_PLURAL:     'add captions to each of the %N_F videos',
+              ALL_FAIL_SINGULAR:            'Video does not have a caption',
+              ALL_FAIL_PLURAL:              'All %N_F videos do NOT have captions',
+              NOT_APPLICABLE:               'No video elements found on this page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '%1 element has caption',
+              CORRECTIVE_ACTION_1:   'Add caption to @%1@ video element',
+              MANUAL_CHECK_1:        'Verify the @%1@ video element has open or closed captions',
+              MANUAL_CHECK_2:        'Verify the @%1@ element is being used for video, if it is verify that it has open or closed captions',
+              HIDDEN:                '@%1@ element is not visible on screen'
+            },  
+            PURPOSE: [
+              'Audio descriptions provide a means for people who deaf or hearing impaired to understand the visual content of the video'                   
+            ],
+            TECHNIQUES: [
+              'Various techniques based on the video formats and media players you are supporting, please see your technology specific requirements for audio descriptions',
+              'The HTML5 video element is attempting to make it easier to support audio descriptions through the use of the text track'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HMTL 5: The track element', 
+                url:   'http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#the-track-element'
+              }                            
             ]
         },
         WIDGET_1: {

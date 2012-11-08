@@ -489,7 +489,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         if (de.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
 
           if (ce.computed_label_source === OpenAjax.a11y.SOURCE.TITLE_ATTRIBUTE) {
-            rule_result.addResult(TEST_RESULT.FAIL, ce, 'CORRECTIVE_ACTION_1', [de.tag_name]);        
+            rule_result.addResult(TEST_RESULT.MANUAL_CHECK, ce, 'MANUAL_CHECK_1', [de.tag_name]);        
           }
           else {
             rule_result.addResult(TEST_RESULT.PASS, ce, 'PASS_1', []);                  

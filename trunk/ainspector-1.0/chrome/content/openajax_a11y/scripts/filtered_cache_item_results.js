@@ -201,7 +201,7 @@ OpenAjax.a11y.cache.getFilteredCacheItemResult = function(cache_item, rule_categ
     break;
 
   case ELEMENT_TYPE.AUDIO_VIDEO:
-    this.number_of_cache_items_filtered = this.filterCacheItemsByNodeResultsFromList(this.dom_cache.media_cache.media_elements);
+    this.number_of_cache_items_filtered = this.filterCacheItemsByNodeResultsFromTree(this.dom_cache.media_cache.media_elements);
     break;
 
   case ELEMENT_TYPE.FORM_CONTROLS:
@@ -422,9 +422,10 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.toJSON = function(prefix)
   var date = this.ruleset.date;
   var url = this.ruleset.url;  
   
-  var page_title = this.ruleset.title;
+  var eval_title = this.ruleset.eval_title;
   
-  if (page_title.length > 30) page_title = page_title.slice(0,27) + "...";
+  if (eval_title && eval_title.length > 30) eval_title = eval_title.slice(0,27) + "...";
+  else eval_title = "No Title";
 
   json += "{";
 
@@ -515,9 +516,9 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.toCSV = function(title) {
   var date = this.ruleset.date;
   var url = this.ruleset.url;  
   
-  var page_title = this.ruleset.title;
+  var eval_title = this.ruleset.title;
   
-  if (page_title.length > 30) page_title = title.slice(0,27) + "...";
+  if (eval_title.length > 30) eval_title = title.slice(0,27) + "...";
     
   var csv = "";
   
@@ -545,7 +546,7 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.toCSV = function(title) {
        csv += "\",\"" + node_result.getNLSSeverityLabel();
        csv += "\",\"" + OpenAjax.a11y.util.escapeForJSON(node_result.getMessage());
        csv += "\",\"" + date;
-       csv += "\",\"" + OpenAjax.a11y.util.escapeForJSON(page_title);
+       csv += "\",\"" + OpenAjax.a11y.util.escapeForJSON(eval_title);
        csv += "\",\"" + url;
        csv += "\"\n";
                
@@ -605,7 +606,7 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.toCSV = function(title) {
   this.passed_count        = 0;
   this.hidden_count        = 0;
   
-  this.children = [];
+  this.filtered_children = [];
 
 };
 
@@ -622,7 +623,7 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.toCSV = function(title) {
 OpenAjax.a11y.cache.CacheItemResult.prototype.addChildCacheItemResult = function(cache_item) {
 
   if (cache_item) { 
-    this.children.push(cache_item);
+    this.filtered_children.push(cache_item);
     this.total_count += 1;
     this.has_results = true;
   }  
@@ -683,15 +684,15 @@ OpenAjax.a11y.cache.CacheItemResult.prototype.toJSON = function(prefix) {
     json += prefix + "  \"node_results\" : [],";
   }
 
-  if (this.children.length > 0) {
+  if (this.filtered_children.length > 0) {
     json += prefix + "  \"children\" : [";
     
-    var children      = this.children;
+    var children      = this.filtered_children;
     var children_len  = children.length;
     var children_last = children_len - 1;
     
     for (i = 0; i < children_len; i++) {
-      json += this.children[i].toJSON(next_prefix_2);
+      json += this.filtered_children[i].toJSON(next_prefix_2);
       if (i !== children_last) json += ','; 
     }  
     json += prefix + "  ]";

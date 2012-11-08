@@ -462,10 +462,11 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.updateCacheItems = function
     if (tag_name == 'h1') {
   
       this.has_h1_elements = true;
-  
+
       he = new OpenAjax.a11y.cache.H1Element(dom_element, landmark_info.landmark_element, landmark_info.main_element);    
 
       this.addH1Element(he);
+      this.addHeadingElement(he);
 
       if (landmark_info.main_element) { 
         landmark_info.main_element.addH1Element(he);
@@ -1447,11 +1448,14 @@ OpenAjax.a11y.cache.H1Element = function (dom_element, parent_landmark, main_lan
   this.parent_landmark  = parent_landmark; // restricted to main landmarks
   this.main_landmark    = main_landmark;   // restricted to main landmarks
   this.child_cache_elements = [];   // The child array is always empty for an H1Element
+  this.level = 1;
 
   
   this.main_type            = OpenAjax.a11y.MAIN.H1_ELEMENT;
   this.is_label_for_main    = false;
-  this.is_child_of_main     = false;
+  
+  if (main_landmark) this.is_child_of_main = true;
+  else this.is_child_of_main     = false;
 
   this.name                 = dom_element.getText();
   this.name_length          = this.name.length;
@@ -1474,7 +1478,6 @@ OpenAjax.a11y.cache.H1Element.prototype.isH1UsedAsLabelForMainRole = function ()
   if (this.dom_element.id.length === 0 ||
       this.main_landmark === null) {
     this.is_label_for_main = false;  
-    this.is_child_of_main  = false;  
     return;
   }  
 
@@ -1484,22 +1487,7 @@ OpenAjax.a11y.cache.H1Element.prototype.isH1UsedAsLabelForMainRole = function ()
   if (de.aria_labelledby && de.aria_labelledby.indexOf(this.dom_element.id) >= 0) {
     this.is_label_for_main = true;   
   }
-  
-  if (me) {
-    var h1_elements = me.h1_elements;
-    
-    // OpenAjax.a11y.logger.debug("Number of H1 elements: " + h1_elements.length + " (" + me + ")");
-    
-    for (var i = 0; i < h1_elements.length; i++) {
-      // OpenAjax.a11y.logger.debug("  H1 elements: " + this + " " + h1_elements[i]);
-      if (this === h1_elements[i] ) {
-        this.is_child_of_main = true;
-        break;
-      }
-    }
-    
-  }
-    
+      
 };
 
 /**

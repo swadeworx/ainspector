@@ -18,6 +18,30 @@
 /*                      OpenAjax Media Cache                        */ 
 /* ---------------------------------------------------------------- */
 
+/**
+ * @constructor MediaInfo
+ *
+ * @memberOf OpenAjax.a11y.cache
+ *
+ * @desc Creates a MediaInfo object for preserving the current media information 
+ *        when traversing the DOM for audio and video information
+ *
+ * @param {MediaInfo} media_info - Current MediaInfo object
+ *
+ * @property {MediaElement}   media_element  - Parent MediaElement (if any)
+ */
+
+OpenAjax.a11y.cache.MediaInfo = function (media_info) {
+ 
+ if (media_info) {
+  this.media_element  = media_info.media_element;
+ }
+ else {
+  this.media_element  = null;
+ } 
+}; 
+
+
 
 /**
  * @constructor MediaCache
@@ -49,6 +73,9 @@ OpenAjax.a11y.cache.MediaCache = function (dom_cache) {
   this.up_to_date = false;
   
   this.media_elements = [];
+  this.object_elements = [];
+  this.video_elements = [];
+  this.audo_elements = [];
   this.length = 0;
  
   this.sort_property = 'document_order';
@@ -76,7 +103,12 @@ OpenAjax.a11y.cache.MediaCache.prototype.addMediaElement = function ( media_elem
     media_element.cache_id = "media_" + this.length; 
     media_element.document_order = this.length;
     this.media_elements.push( media_element );
-  } 
+    
+    if (media_element.dom_element.tag_name === 'video')  this.video_elements.push(media_element);
+    if (media_element.dom_element.tag_name === 'audio')  this.audio_elements.push(media_element);
+    if (media_element.dom_element.tag_name === 'object') this.object_elements.push(media_element);
+
+ } 
 
  return this.length;
 
@@ -135,7 +167,11 @@ OpenAjax.a11y.cache.MediaCache.prototype.getItemByCacheId = function (cache_id) 
 
 OpenAjax.a11y.cache.MediaCache.prototype.emptyCache = function () {
 
-  this.media_elements.length = 0;
+  this.media_elements  = [];
+  this.audio_elements  = [];
+  this.video_elements  = [];
+  this.object_elements = [];
+  
   this.sort_property = 'document_order';
   this.sort_ascending = false;
   this.up_to_date = false;
@@ -151,22 +187,47 @@ OpenAjax.a11y.cache.MediaCache.prototype.emptyCache = function () {
  *          should be added to the cache
  *  
  * @param  {DOMElement}   dom_element   - dom element object to check for inclusion in media cache
+ * @param  {MediaInfo}    media_info  - Information about the current media element relationships in the DOM
+ *
  */
  
-OpenAjax.a11y.cache.MediaCache.prototype.updateCacheItems = function (dom_element) {
+OpenAjax.a11y.cache.MediaCache.prototype.updateCacheItems = function (dom_element, media_info) {
 
+  var mi = new OpenAjax.a11y.cache.MediaInfo(media_info);
   var media_element;
 
-  if ((dom_element.tag_name == 'object') ||
-      (dom_element.tag_name == 'applet') ||
-      (dom_element.tag_name == 'embed') ||
-      (dom_element.tag_name == 'audio') ||
-      (dom_element.tag_name == 'video')) {
+  if ((dom_element.tag_name === 'object') ||
+      (dom_element.tag_name === 'applet') ||
+      (dom_element.tag_name === 'embed') ||
+      (dom_element.tag_name === 'audio') ||
+      (dom_element.tag_name === 'video')) {
 
     media_element = new OpenAjax.a11y.cache.MediaElement(dom_element);    
     this.dom_cache.media_cache.addMediaElement(media_element);
+    
+    mi.media_element = media_element;
+    
   }
-   
+  else {
+  
+    if ((dom_element.tag_name === 'param') &&
+        (media_info.media_element && media_info.media_element.dom_element.tag_name === 'object')) {
+       media_element = new OpenAjax.a11y.cache.MediaChildElement(dom_element);    
+       media_info.media_element.addMediaElement(media_element);          
+    }    
+    
+    if ((dom_element.tag_name === 'track') &&
+        (media_info.media_element && 
+         (media_info.media_element.dom_element.tag_name === 'video') || 
+         (media_info.media_element.dom_element.tag_name === 'audio'))) {
+       media_element = new OpenAjax.a11y.cache.MediaChildElement(dom_element);    
+       media_info.media_element.addMediaElement(media_element);          
+    }    
+
+  }
+  
+  return mi;
+    
 };
 
 /**
@@ -177,9 +238,10 @@ OpenAjax.a11y.cache.MediaCache.prototype.updateCacheItems = function (dom_elemen
  * @desc Traverses DOMElement objects in the tree to update the media cache 
  *
  * @param  {DOMElement}  dom_element - dom element object to check for inclusion in media cache
+ * @param  {MediaInfo}   media_info  - information about a media elements
  */
  
-OpenAjax.a11y.cache.MediaCache.prototype.traverseDOMElementsForMediaElements = function (dom_element) {
+OpenAjax.a11y.cache.MediaCache.prototype.traverseDOMElementsForMediaElements = function (dom_element, media_info) {
 
   var i;
 
@@ -187,10 +249,10 @@ OpenAjax.a11y.cache.MediaCache.prototype.traverseDOMElementsForMediaElements = f
 
   if (dom_element.type == Node.ELEMENT_NODE) {
 
-    this.updateCacheItems(dom_element);
+    var mi = this.updateCacheItems(dom_element, media_info);
   
     for (i=0; i<dom_element.child_dom_elements.length; i++) {
-      this.traverseDOMElementsForMediaElements(dom_element.child_dom_elements[i]);
+      this.traverseDOMElementsForMediaElements(dom_element.child_dom_elements[i], mi);
     } // end loop
   }  
   
@@ -214,9 +276,11 @@ OpenAjax.a11y.cache.MediaCache.prototype.updateCache = function () {
   var children = this.dom_cache.element_cache.child_dom_elements;
   var children_len = children.length;
  
+  var media_info = new OpenAjax.a11y.cache.MediaInfo();
+ 
   this.dom_cache.log.update(OpenAjax.a11y.PROGRESS.CACHE_START, "Updating media elements cache.");
   for (i=0; i < children_len; i++) {
-    this.traverseDOMElementsForMediaElements(children[i]);
+    this.traverseDOMElementsForMediaElements(children[i], media_info);
   }  
   this.dom_cache.log.update(OpenAjax.a11y.PROGRESS.CACHE_END, "Completed media elements cache update, number of cache items is " + this.length);
 
@@ -316,6 +380,20 @@ OpenAjax.a11y.cache.MediaElement = function (dom_element) {
  
   this.dom_element = dom_element;
   
+  this.child_cache_elements = [];
+  
+  this.length = 0;
+  
+  this.type       = dom_element.node.getAttribute('type');
+  this.src        = dom_element.node.getAttribute('src');
+  this.data       = dom_element.node.getAttribute('data');
+  this.alt        = dom_element.node.getAttribute('alt');
+  this.longdesc   = dom_element.node.getAttribute('longdesc');
+  this.name       = dom_element.node.getAttribute('name');
+  this.height     = dom_element.node.getAttribute('height');
+  this.width      = dom_element.node.getAttribute('width');
+  
+  this.is_live               = OpenAjax.a11y.MEDIA.MAYBE;
   this.is_video              = OpenAjax.a11y.MEDIA.MAYBE;
   this.is_audio              = OpenAjax.a11y.MEDIA.MAYBE;
   this.has_caption           = OpenAjax.a11y.MEDIA.MAYBE; 
@@ -337,6 +415,27 @@ OpenAjax.a11y.cache.MediaElement = function (dom_element) {
     break;
   }
   
+};
+
+/**
+ * @method addMediaElement
+ *
+ * @memberOf OpenAjax.a11y.cache.MediaElement
+ * 
+ * @desc Adds a cache media element to the tree representation of media elements
+ *
+ * @param  {MediaElement } media_element   - Cache media element object to add 
+ */
+
+OpenAjax.a11y.cache.MediaElement.prototype.addMediaElement = function (media_element) {
+
+ if (media_element) {
+    this.length = this.length + 1;
+    media_element.cache_id = this.cache_id + "_child_" + this.length; 
+    media_element.document_order = this.length;    
+    this.child_cache_elements.push(media_element); 
+ }  
+
 };
 
 /**
@@ -387,7 +486,14 @@ OpenAjax.a11y.cache.MediaElement.prototype.getAttributes = function (unsorted) {
   
   var attributes = this.dom_element.getAttributes(unsorted);
   
-//  cache_nls.addPropertyIfDefined(attributes, this, 'alt');
+  cache_nls.addPropertyIfDefined(attributes, this, 'name');
+  cache_nls.addPropertyIfDefined(attributes, this, 'type');
+  cache_nls.addPropertyIfDefined(attributes, this, 'src');
+  cache_nls.addPropertyIfDefined(attributes, this, 'data');
+  cache_nls.addPropertyIfDefined(attributes, this, 'alt');
+  cache_nls.addPropertyIfDefined(attributes, this, 'longdesc');
+  cache_nls.addPropertyIfDefined(attributes, this, 'height');
+  cache_nls.addPropertyIfDefined(attributes, this, 'width');
 
   return attributes;
   
@@ -411,6 +517,7 @@ OpenAjax.a11y.cache.MediaElement.prototype.getCacheProperties = function (unsort
   
   var properties = [];
   
+  cache_nls.addPropertyIfDefined(properties, this, 'is_live');
   cache_nls.addPropertyIfDefined(properties, this, 'is_video');
   cache_nls.addPropertyIfDefined(properties, this, 'is_audio');
   cache_nls.addPropertyIfDefined(properties, this, 'has_caption');
@@ -474,4 +581,175 @@ OpenAjax.a11y.cache.MediaElement.prototype.getEvents = function () {
  OpenAjax.a11y.cache.MediaElement.prototype.toString = function () {
    return this.dom_element.tag_name;
  };
+
+
+/* ---------------------------------------------------------------- */
+/*                            MediaChildElement                          */
+/* ---------------------------------------------------------------- */
+
+/**
+ * @constructor MediaChildElement
+ *
+ * @memberOf OpenAjax.a11y.cache
+ *
+ * @desc Creates media child element object representing possible caption and audio description information related to an object, video, audio on a web page
+ *
+ * @param  {DOMelement}   dom_element   - The dom element object representing the media element 
+ *
+ * @property  {DOMElement}  dom_element     - Reference to the dom element representing the media element
+ * @property  {String}      cache_id        - String that uniquely identifies the media element object in the cache
+ * @property  {Number}      document_order  - Ordinal position of the media element in the document in relationship to other media elements
+ */
+
+OpenAjax.a11y.cache.MediaChildElement = function (dom_element) {
+
+  this.document_order = 0;
+  this.cache_id = "";
+ 
+  this.dom_element = dom_element;
+
+  this.name         = dom_element.node.getAttribute('name');
+  this.value        = dom_element.node.getAttribute('value');
+  this.src          = dom_element.node.getAttribute('src');
+  this.kind         = dom_element.node.getAttribute('kind');
+  this.srclang      = dom_element.node.getAttribute('srclang');
+  this.label        = dom_element.node.getAttribute('label');
+  this.default_attr = dom_element.node.getAttribute('default');
+
+};
+
+/**
+ * @method getNodeResults
+ *
+ * @memberOf OpenAjax.a11y.cache.MediaChildElement
+ *
+ * @desc Returns an array of node results in severity order 
+ *
+ * @return {Array} Returns a array of node results
+ */
+
+OpenAjax.a11y.cache.MediaChildElement.prototype.getNodeResults = function () {
+  return this.dom_element.getNodeResults();
+};
+
+/**
+ * @method getStyle
+ *
+ * @memberOf OpenAjax.a11y.cache.MediaChildElement
+ *
+ * @desc Returns an array of style items 
+ *
+ * @return {Array} Returns a array of style display objects
+ */
+
+OpenAjax.a11y.cache.MediaChildElement.prototype.getStyle = function () {
+
+  return  this.dom_element.getStyle();
+  
+};
+
+/**
+ * @method getAttributes
+ *
+ * @memberOf OpenAjax.a11y.cache.MediaChildElement
+ *
+ * @desc Returns an array of attributes for the element, sorted in alphabetical order 
+ *
+ * @param {Boolean}  unsorted  - If defined and true the results will NOT be sorted alphabetically
+ *
+ * @return {Array} Returns a array of attribute display object
+ */
+
+OpenAjax.a11y.cache.MediaChildElement.prototype.getAttributes = function (unsorted) {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  var attributes = [];
+  
+  cache_nls.addPropertyIfDefined(attributes, this, 'name');
+  cache_nls.addPropertyIfDefined(attributes, this, 'value');
+  cache_nls.addPropertyIfDefined(attributes, this, 'src');
+  cache_nls.addPropertyIfDefined(attributes, this, 'kind');
+  cache_nls.addPropertyIfDefined(attributes, this, 'srclang');
+  cache_nls.addPropertyIfDefined(attributes, this, 'label');
+  cache_nls.addPropertyIfDefined(attributes, this, 'default_attr');
+   
+  return attributes;
+   
+};
+
+/**
+ * @method getCacheProperties
+ *
+ * @memberOf OpenAjax.a11y.cache.MediaChildElement
+ *
+ * @desc Returns an array of cache properties sorted by property name 
+ *
+ * @param {Boolean}  unsorted  - If defined and true the results will NOT be sorted alphabetically
+ *
+ * @return {Array} Returns a array of cache property display object
+ */
+
+OpenAjax.a11y.cache.MediaChildElement.prototype.getCacheProperties = function (unsorted) {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  var properties = [];
+    
+  return properties;
+  
+};
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.MediaChildElement
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.MediaChildElement.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
+
+/**
+ * @method getEvents
+ *
+ * @memberOf OpenAjax.a11y.cache.MediaChildElement
+ *
+ * @desc Returns an array of events for the element, sorted in alphabetical order 
+ *
+ * @return {Array} Returns a array of event item display objects
+ */
+
+OpenAjax.a11y.cache.MediaChildElement.prototype.getEvents = function () {
+   
+  return this.dom_element.getEvents();
+  
+};
+
+/**
+ * @method toString
+ *
+ * @memberOf OpenAjax.a11y.cache.MediaChildElement
+ *
+ * @desc Creates a text string representation of the media element object 
+ *
+ * @return {String} Returns a text string representation of the media element object
+ */
+ 
+ OpenAjax.a11y.cache.MediaChildElement.prototype.toString = function () {
+   return this.dom_element.tag_name;
+ };
+
 

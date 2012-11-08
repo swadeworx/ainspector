@@ -76,107 +76,45 @@
 
 
       /**
-       * @function OAA_REPORT.addTitle
+       * @function OAA_REPORT.addTitleAndEvalInfo
        *
        * @desc Adds title to HTML OAA report using the H1 element 
        */
-       OAA_REPORT.addTitle = function() {
+       OAA_REPORT.addTitleAndEvalInfo = function() {
 
-         var node      = document.getElementById('ID_H1_TITLE');
-         var title     = OAA_REPORT.removeEscapesFromJSON(OAA_REPORT.title);
-         var text_node = document.createTextNode(title);
-         node.appendChild(text_node);
+         function updateInfoItem(id, item, link_flag) {
+         
+           var node      = document.getElementById(id);
+           var text     = OAA_REPORT.removeEscapesFromJSON(OAA_REPORT.rule_category_data[item]);
+           var text_node = document.createTextNode(text);
+           node.appendChild(text_node);
+           
+           if (typeof link_flag === 'boolean' && link_flag) {
+             node.setAttribute('href', text);
+             node.setAttribute('target', '_eval_page');
+           }
+           
+           return node;
+         }  
+
+         updateInfoItem('ID_H1_TITLE', 'group_title');
+         
+         updateInfoItem('ID_SPAN_EVAL_TITLE', 'eval_title');
+         updateInfoItem('ID_A_EVAL_URL', 'eval_url', true);
+         updateInfoItem('ID_SPAN_EVAL_DATE', 'eval_date');
+
+         updateInfoItem('ID_SPAN_RULESET_TITLE', 'ruleset_title');
+         updateInfoItem('ID_SPAN_RULESET_VERSION', 'ruleset_version');
          
        }
        
-      /**
-       * @function initResultItemsArray
-       *
-       * @desc Creates an array of result items that can be sorted and easily rendered as HTML
-       */
-       OAA_REPORT.initResultItemsArray = function() {
-       
-         function addResults(indent, parent_result_item, result_items) {
-
-           var result_items_len = result_items.length;
-           var indent_style ="";
-  
-           for (var i = 0; i < result_items_len; i++) {
-         
-              var result_item = result_items[i];
-         
-              var result_row = [];
-
-              var result_cell_1 = new Object();
-                        
-              result_cell_1.content = position + 1;
-              result_cell_1.style   = 'order';
-              result_cell_1.id     = '';
-              result_row.push(result_cell_1);
-
-              if (indent) indent_style = ' level_' + indent;
-
-              result_cell_2 = new Object();
-              result_cell_2.content = result_item['cache_item'];
-              result_cell_2.style   = 'element' + indent_style;
-              result_cell_2.id     = result_item['cache_id'];
-              result_row.push(result_cell_2);
-
-              result_cell_3 = new Object();
-              result_cell_3.content = result_item['hidden'];
-              result_cell_3.style   = 'hidden';
-              result_cell_3.id     = '';
-              result_row.push(result_cell_3);
-
-              result_cell_4 = new Object();
-              result_cell_4.content = result_item['passed'];
-              result_cell_4.style   = 'passed';
-              result_cell_4.id     = '';
-              result_row.push(result_cell_4);
-
-              result_cell_5 = new Object();
-              result_cell_5.content = result_item['warnings'];
-              result_cell_5.style   = 'warning';
-              result_cell_5.id     = '';
-              result_row.push(result_cell_5);
-
-              result_cell = new Object();
-              result_cell.content = result_item['manual_checks'];
-              result_cell.style   = 'manual_check';
-              result_cell.id     = '';
-              result_row.push(result_cell);
-
-              result_cell = new Object();
-              result_cell.content = result_item['violations'];
-              result_cell.style   = 'violation';
-              result_cell.id     = '';
-              result_row.push(result_cell);
-
-              OAA_REPORT.result_items.push(result_row);
-              position++;
-              
-              var next_indent = indent + 1;
-              
-              if (result_item.children.length) addResults(next_indent, result_item, result_item.children);
-              
-           }
-         
-         }
-
-         var results     = OAA_REPORT.result_data.results;
-
-         OAA_REPORT.result_items = [];
-         position = 0;
-         
-         addResults(0, null, OAA_REPORT.result_data.results);
-      };       
 
       /**
-       * @function addNodeResultsSummary
+       * @function addRuleCategorySummary
        *
-       * @desc Adds summary of rule eveluation results to HTML OAA report  
+       * @desc Adds summary of rule results for rules in the category to HTML OAA report  
        */
-       OAA_REPORT.addNodeResultsSummary = function() {
+       OAA_REPORT.addRuleCategorySummary = function() {
 
          function addTableHeaderCell(content, style, id) {
            
@@ -206,31 +144,56 @@
            
          }
            
-         function addTableCells(result_row) {
-           
-           for (var i = 0; i < result_row.length; i++) {
-             var result_cell = result_row[i];
-             if (typeof result_cell.content === 'number' && result_cell.content == 0) addTableDataCell(result_cell.content, 'zero', result_cell.id); 
-             else addTableDataCell(result_cell.content, result_cell.style, result_cell.id); 
-           }
+         function addTableRow(n, rule_result) {
 
-           total_hidden        += result_row[2].content;
-           total_passed        += result_row[3].content;
-           total_warnings      += result_row[4].content;
-           total_manual_checks += result_row[5].content;
-           total_violations    += result_row[6].content;
+           addTableHeaderCell("Rule " + (n+1), "rule_num", "");
+           
+           addTableDataCell(rule_result['definition'], "definition", "");
+           
+           if (rule_result['rule_type'] === 1) addTableDataCell('Yes', 'required yes', '');
+           else addTableDataCell('no', 'required no', '');
+
+           addTableDataCell(rule_result['wcag_primary_id'] + " (" + rule_result['wcag_level'] + ")", 'wcag20', '');
+
+           addTableDataCell(rule_result['implementation']['label'], rule_result['implementation']['style'], "");
+
+           var mc = rule_result['manual_checks'];
+           total_manual_checks += mc;
+           if (mc > 0) addTableDataCell(mc.toString(), "manual_check", "");
+           else addTableDataCell('0', "zero", "");
+
+           var v = rule_result['violations'];
+           total_violations += v;
+           if (v > 0) addTableDataCell(v.toString(), "violation", "");
+           else addTableDataCell('0', "zero", "");
+
+           var w = rule_result['warnings'];
+           total_warnings += w;
+           if (w > 0) addTableDataCell(w.toString(), "warning", "");
+           else addTableDataCell('0', "zero", "");
+
+           var p = rule_result['passed'];
+           total_passed += p;
+           if (p > 0) addTableDataCell(p.toString(), "passed", "");
+           else addTableDataCell('0', "zero", "");
+
+           var h = rule_result['hidden'];
+           total_hidden += h;
+           if (h > 0) addTableDataCell(h.toString(), "hidden", "");
+           else addTableDataCell('0', "zero", "");
 
          }
 
          var doc = document;
          var node_td;
-
-         var node_tbody  = doc.getElementById('ID_TBODY_ELEMENT_SUMMARY');
-         
          var node_tr;
          
-         var result_items     = OAA_REPORT.result_items;
-         var result_items_len = result_items.length;
+         var node_tbody  = doc.getElementById('ID_TBODY_SUMMARY');
+         
+         var rule_results     = OAA_REPORT.rule_category_data.rule_results;
+         var rule_results_len = rule_results.length;
+
+         var pepr_summ  = 0;
 
          var total_hidden = 0;
          var total_passed = 0;
@@ -238,13 +201,13 @@
          var total_manual_checks = 0;
          var total_violations = 0;
 
-         for (i = 0; i < result_items_len; i++) {
+         for (i = 0; i < rule_results_len; i++) {
             node_tr = doc.createElement('tr');
             
             if (i % 2) node_tr.setAttribute('class', 'odd');
             else node_tr.setAttribute('class', 'even');
          
-            addTableCells(result_items[i]); 
+            addTableRow(i, rule_results[i]); 
             
             node_tbody.appendChild(node_tr);
          }
@@ -255,14 +218,9 @@
          
          addTableHeaderCell('Total Rule Evaluation Results', 'total right', ''); 
 
-         if (total_hidden == 0) addTableDataCell(total_hidden, 'total zero', ''); 
-         else addTableDataCell(total_hidden, 'total', ''); 
-
-         if (total_passed == 0) addTableDataCell(total_passed, 'total zero', ''); 
-         else addTableDataCell(total_passed, 'total', ''); 
-
-         if (total_warnings == 0) addTableDataCell(total_warnings, 'total zero', ''); 
-         else addTableDataCell(total_warnings, 'total', ''); 
+         addTableHeaderCell('', 'total', ''); 
+         addTableHeaderCell('', 'total', ''); 
+         addTableHeaderCell('', 'total', ''); 
 
          if (total_manual_checks == 0) addTableDataCell(total_manual_checks, 'total zero', ''); 
          else addTableDataCell(total_manual_checks, 'total', ''); 
@@ -270,16 +228,24 @@
          if (total_violations == 0) addTableDataCell(total_violations, 'total zero', ''); 
          else addTableDataCell(total_violations, 'total', ''); 
 
+         if (total_warnings == 0) addTableDataCell(total_warnings, 'total zero', ''); 
+         else addTableDataCell(total_warnings, 'total', ''); 
+         if (total_passed == 0) addTableDataCell(total_passed, 'total zero', ''); 
+         else addTableDataCell(total_passed, 'total', ''); 
+
+         if (total_hidden == 0) addTableDataCell(total_hidden, 'total zero', ''); 
+         else addTableDataCell(total_hidden, 'total', ''); 
+
          node_tbody.appendChild(node_tr);
 
        }
 
       /**
-       * @function addNodeResultsDetails
+       * @function addRuleCategoryDetails
        *
-       * @desc Adds rule eveluation results details to HTML OAA report  
+       * @desc Adds node results of each rule result in the category to HTML OAA report  
        */
-       OAA_REPORT.addNodeResultsDetails = function() {
+       OAA_REPORT.addRuleCategoryDetails = function() {
 
          function addNodeResults(node_results) {
 
@@ -425,13 +391,11 @@
 
        OAA_REPORT.onLoad = function() {
        
-         OAA_REPORT.addTitle();
+         OAA_REPORT.addTitleAndEvalInfo();
 
-//         OAA_REPORT.initResultItemsArray();
-
-//         OAA_REPORT.addNodeResultsSummary();
+         OAA_REPORT.addRuleCategorySummary();
 //
-//         OAA_REPORT.addNodeResultsDetails();
+//         OAA_REPORT.addRuleCategoryDetails();
 
 
        }  

@@ -39,7 +39,9 @@ rules/rules_landmarks.js \
 rules/rules_links.js \
 rules/rules_tables.js \
 rules/rules_title.js \
+rules/rules_video.js \
 rules/rules_widgets.js \
+rulesets/wcag20_he_admin_ruleset.js \
 rulesets/wcag20_aria_transitional_ruleset.js \
 rulesets/wcag20_aria_strict_ruleset.js > openajax_a11y_all.js
 
