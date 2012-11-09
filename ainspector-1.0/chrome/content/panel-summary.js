@@ -42,26 +42,28 @@ with (FBL) {
      */
     viewPanel: function(context, panel_name, cache_object) {
 
-//  adds or removes the side panels from the extension depending on the panel we are in 
-    AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels("none");
-    if (!context) context = Firebug.currentContext;
-    if (!panel_name) panel_name = "AInspector";
-    panel = context.getPanel(panel_name, true);
+//    adds or removes the side panels from the extension depending on the panel we are in 
+      AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels(false);
+      
+      if (!context) context = Firebug.currentContext;
+      
+      if (!panel_name) panel_name = "AInspector";
+      panel = context.getPanel(panel_name, true);
 
-    if (!cache_object) {
-      if (AINSPECTOR_FB.ruleset_object)
-        cache_object = AINSPECTOR_FB.ruleset_object;
-      else
-        cache_object = AINSPECTOR_FB.cacheUtil.updateCache();
-    }
+      if (!cache_object) {
+        if (AINSPECTOR_FB.ruleset_object)
+          cache_object = AINSPECTOR_FB.ruleset_object;
+        else
+          cache_object = AINSPECTOR_FB.cacheUtil.updateCache();
+      }
 
-    /* Clear the panel before writing anything onto the report*/
-    if (panel) {
-      clearNode(panel.panelNode);
-      clearNode(Firebug.currentContext.getPanel('elementsSidePanel').panelNode);
-    }
+      /* Clear the panel before writing anything onto the report*/
+      if (panel) {
+        clearNode(panel.panelNode);
+        clearNode(Firebug.currentContext.getPanel('elementsSidePanel').panelNode);
+      }
     
-    var all_rules = cache_object.getFilteredRuleResultsByRuleCategory(OpenAjax.a11y.RULE_CATEGORIES.ALL, "All Rules", AINSPECTOR_FB.preferences.wcag20_level, AINSPECTOR_FB.preferences.show_results_filter_value);
+      var all_rules = cache_object.getFilteredRuleResultsByRuleCategory(OpenAjax.a11y.RULE_CATEGORIES.ALL, "All Rules", AINSPECTOR_FB.preferences.wcag20_level, AINSPECTOR_FB.preferences.show_results_filter_value);
     all_rules.sortRuleResultsByImplementationLevel();
     FBTrace.sysout("all_rules in summary: ", all_rules);
     var rule_result_items = all_rules.filtered_rule_results;

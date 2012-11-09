@@ -903,11 +903,10 @@ AINSPECTOR_FB.tabPanelUtil = {
    addAndRemoveSidePanels : function(flag) {
       
      var panelType_rules = Firebug.getPanelType("rulesSidePanel");
-     var panelType_colorContrast = Firebug.getPanelType("colorContrastSidePanel");
      var panelType_elements = Firebug.getPanelType("elementsSidePanel");
   
      /* flag == true if it is other than color contrast toolbar button*/
-     if (flag == true) {
+     if (flag) {
      
        if (panelType_elements) {
          AINSPECTOR_FB.elements_registered = panelType_elements;
@@ -921,19 +920,7 @@ AINSPECTOR_FB.tabPanelUtil = {
          AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_rules);
   
        }
-     } else if (flag == false){ //if it is only color contrast panel
-      
-       if (panelType_elements) {
-         AINSPECTOR_FB.elements_registered = panelType_elements;
-         AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_elements);
-       }
-        
-       if (panelType_rules) {
-         AINSPECTOR_FB.rules_registered = panelType_rules;
-         AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_rules);     
-       }
-        
-     } else { //for summary view
+     } else { //for summary or wcag view
      
        if (panelType_rules) {
          AINSPECTOR_FB.rules_registered = panelType_rules;
