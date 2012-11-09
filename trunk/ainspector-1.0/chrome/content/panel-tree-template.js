@@ -333,8 +333,8 @@ with (FBL) {
         
         var hasChildren = false;
         
-        if (value.children){
-          if (value.children.length > 0) hasChildren = true;
+        if (value.filtered_children){
+          if (value.filtered_children.length > 0) hasChildren = true;
         } else {
           if (value.child_cache_elements && value.child_cache_elements.length > 0) hasChildren = true; 
         }
@@ -343,7 +343,7 @@ with (FBL) {
         return {
           name: name, //name,
           hasChildren: hasChildren, 
-          children: (value.children) ? value.children : value.child_cache_elements,
+          children: (value.filtered_children) ? value.filtered_children : value.child_cache_elements,
           value: (value != null) ? value : "",
           level: level,
           indent: level * 16,
@@ -495,7 +495,7 @@ with (FBL) {
           var row = rows[i];
 
           if (hasClass(row, "hasChildren")) this.openRow(row);
-          if (row.repObject) length += row.repObject.children.length;
+          if (row.repObject) length += row.repObject.filtered_children.length;
           
         }
       }

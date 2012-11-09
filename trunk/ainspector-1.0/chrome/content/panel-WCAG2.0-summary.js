@@ -43,7 +43,7 @@ with (FBL) {
     viewPanel: function(context, panel_name, cache_object) {
 
 //      adds or removes the side panels from the extension depending on the panel we are in 
-      AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels("none");
+      AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels(false);
     
       if (!context) context = Firebug.currentContext;
     
