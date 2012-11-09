@@ -117,16 +117,16 @@ with (FBL) {
                   DIV({class: "gridHeaderCellBox"}, "Rule")
                 ),
                 TH({class: "gridHeaderCell gridCell", id: "headLabelCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, 
-                  DIV({class: "gridHeaderCellBox", title: "Rules Hidden"}, "Required")
+                  DIV({class: "gridHeaderCellBox", title: "Rule is required by WCAG ruleset"}, "Required")
                 ),
                 TH({class: "gridHeaderCell gridCell", id: "headDescCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, 
-                  DIV({class: "gridHeaderCellBox", title: "Rules Passed"}, "Level")
+                  DIV({class: "gridHeaderCellBox", title: "WCAG 2.0 Success Criterion Level"}, "Level")
                 ),
                 TH({class: "gridHeaderCell gridCell", id: "headAccCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, 
-                  DIV({class: "gridHeaderCellBox", title: "Rules Warning"}, "PEPR")
+                  DIV({class: "gridHeaderCellBox", title: "Percentage of Elements that Pass the Rule"}, "PEPR")
                 ),
                 TH({class: "gridHeaderCell gridCell", id: "headAccCol", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.onKeyPressHeadingCell"}, 
-                  DIV({class: "gridHeaderCellBox", title: "Rules Manual Check"}, "MC")
+                  DIV({class: "gridHeaderCellBox", title: "Number of Elements on the Page needing manual checking for conforming to a Rule"}, "MC")
                 )
               ) //end TR
             ), //end THEAD
@@ -145,10 +145,10 @@ with (FBL) {
             DIV({class: "$member.hasChildren|getClassName", title : "$member.rule_description"}, "$member.rule_description|AINSPECTOR_FB.ainspectorUtil.truncateText")
           ),
           TD({class: "memberLabelCell", _repObject: "$member.value"}, 
-            DIV({class: ""}, "$member.required")
+            DIV({class: "resultAlign"}, "$member.required")
           ),
           TD({class: "memberLabelCell", _repObject: "$member.value"},
-            DIV({class: ""}, "$member.wcag20_level")
+            DIV({class: "resultAlign"}, "$member.wcag20_level")
           ),
           TD({class: "memberLabelCell", _repObject: "$member.value"},
             TAG("$member.impl_percentage_tag", {'member' :"$member", 'object': "$member.value"})
