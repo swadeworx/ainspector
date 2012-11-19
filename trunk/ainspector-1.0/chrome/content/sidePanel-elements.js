@@ -97,8 +97,7 @@ FBL.ns(function() { with (FBL) {
       var next_cell;
       
       var table_rows = event.target.offsetParent.rows;
-      FBTrace.sysout("AINSPECTOR_FB.RulesSidePanel.onkeyPress- event: ", event);
-      FBTrace.sysout("table_rows: ", table_rows);
+
       if (!table_rows) return;
       
       var no_of_rows = table_rows.length;
@@ -331,16 +330,13 @@ FBL.ns(function() { with (FBL) {
             TR({class: "gridHeaderRow", id: "tableTableHeader", "role": "row", tabindex: "-1", "aria-selected" : "false"},
               TH({class: "gridHeaderCell"}, DIV({class: "gridHeaderCellBox"}, "Result")),
               TH({class: "gridHeaderCell"}, DIV({class: "gridHeaderCellBox"}, "Element")),
-              TH({class: "gridHeaderCell"}, DIV({class: "gridHeaderCellBox"}, "goto"))
+              TH({class: "gridHeaderCell"}, DIV({class: "gridHeaderCellBox"}, "Goto")),
+              TH({class: "gridHeaderCell"}, DIV({class: "gridHeaderCellBox"}, "More Info"))
             ) //end TR
           ), //end THEAD
           TBODY(
             FOR("member", "$object|memberIterator", TAG("$row", {member: "$member"}))
           ) //end TBODY
-        ),
-        DIV({class: "notificationButton-rule"},
-          BUTTON({onclick: "$showMoreProperties"}, "Rule Information"),
-          BUTTON({onclick: "$getElementInformation", style: "margin: 0.5em;"}, "Element Information")
         )
       ),
     
@@ -356,6 +352,10 @@ FBL.ns(function() { with (FBL) {
           TD({class: "gridCol", role: "gridcell"},
             DIV({class: "gridContent resultAlign"}, 
               BUTTON({onclick: "$gotoHTML", id: "html_panel_button", onkeypress: "$AINSPECTOR_FB.flatListTemplateUtil.htmlButtonPress"}, "HTML"))
+          ),
+          TD({class: "gridCol", role: "gridcell"},
+            DIV({class: "gridContent resultAlign"}, 
+              BUTTON({onclick: "$getElementInformation"}, "more info"))
           )
       ),
       
@@ -453,24 +453,25 @@ FBL.ns(function() { with (FBL) {
      */
     createMembers : function(key, object, level){
       
-      FBTrace.sysout("createMembers: ", object);
+      var ct = parseInt(key) + 1;
       if (level !=0) { //if it is child
                 
         return {
           propertyLabel:object.label,
           propertyValue:object.value,
-          value: (object != null) ? object : "",
+          value: object,
           level: level,
           indent: level * 16
 
         };
       } else {
         return {
-          tag_name: this.getElement(object),
+          tag_name: 'element ' + ct + ': '+ this.getElement(object),
           severity_label_style : this.getSeverityLabel(object),
           severityLabel : object.getNLSSeverityLabel(),
           hasChildren: this.hasChildren(object),
           children: object.getRuleProperties(),
+          value: object,
           level: level,
           indent: level * 16
         };
@@ -625,16 +626,10 @@ FBL.ns(function() { with (FBL) {
      * @param {Object} event - event triggered when clicked on Element Information button
      */
     getElementInformation : function(event) {
-      FBTrace.sysout("event.target: ", event.target);
-      var tree = getAncestorByClass(event.target, "side-panel");
+      FBTrace.sysout("event.target ccccccc: ", event.target);
+      /*var tree = getAncestorByClass(event.target, "side-panel");
       var table = getChildByClass(tree, "ai-sidepanel-table");
       
-//      var main_panel = Firebug.currentContext.getPanel("AInspector");
-      
-//      var table_container = getChildByClass(main_panel.table, "table-scrollable"); 
-//      var table = getChildByClass(table_container, "ai-table-list-items");
-      
-//      var table = tree.children[1];
       var tbody = table.children[1];
       
       var rows = tbody.children;
@@ -661,10 +656,10 @@ FBL.ns(function() { with (FBL) {
         } else {
           
         }
-      }
-
-      FBTrace.sysout("row: ", row);
-      AINSPECTOR_FB.element_info_dialog = window.openDialog("chrome://firebug-a11y/content/item_properties/cache-item-properties.xul", "cache_item_properties_dialog", "chrome,contentscreen,resizable=yes", row.repObject.cache_item);
+      }*/
+      row = Firebug.getRepObject(event.target);
+      FBTrace.sysout("row in sidepanel: ", row);
+      AINSPECTOR_FB.element_info_dialog = window.openDialog("chrome://firebug-a11y/content/item_properties/cache-item-properties.xul", "cache_item_properties_dialog", "chrome,contentscreen,resizable=yes", row.cache_item);
     },
       
     /**

@@ -13,7 +13,7 @@
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-list-template.js"/>
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-tree-template.js"/>
   
-  <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-summary.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-all-rules.js"/>
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-WCAG2.0-summary.js"/>
   
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-rule-categories.js"/>
@@ -37,12 +37,13 @@
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-util.js"/>
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/ainspector-firebug.js"/>
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/sidePanel-rules.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/sidePanel-rules-results.js"/>
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/sidePanel-colorContrast.js"/>  
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/sidePanel-elements.js"/>
   
   
   <commandset id="mainCommandSet"> 
-  	<command id="ainspector_summary_view_button" oncommand="AINSPECTOR_FB.summary.viewPanel(Firebug.currentContext)"/>
+  	<command id="ainspector_allRules_view_button" oncommand="AINSPECTOR_FB.allRules.viewPanel(Firebug.currentContext)"/>
   	<command id="ainspector_wcag_view_button" oncommand="AINSPECTOR_FB.WCAGView.viewPanel(Firebug.currentContext)"/>
     <command id="ainspector_content_view_button" oncommand="AINSPECTOR_FB.content.viewPanel(Firebug.currentContext)"/>
     <command id="ainspector_headers_view_button" oncommand="AINSPECTOR_FB.headers.viewPanel(Firebug.currentContext)"/>
@@ -59,11 +60,11 @@
       <hbox id="fbFirebugExtensionButtons" insertafter="fbNetButtons"> 
         <toolbarseparator/>
         	<toolbarbutton 
-        	  id="summary" 
-        	  label="&ainspector.toolbarbutton.summary.label;" 
+        	  id="allRules" 
+        	  label="&ainspector.toolbarbutton.allRules.label;" 
         	  class="toolbar-text-button fbInternational" 
         	  checked="true" 
-        	  command="ainspector_summary_view_button" 
+        	  command="ainspector_allRules_view_button" 
         	  type="radio" 
         	  group="RadioGroup"/>
         	  

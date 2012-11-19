@@ -31,7 +31,7 @@
  * @namespace AINSPECTOR_FB
  */
 var AINSPECTOR_FB = AINSPECTOR_FB || {};
-AINSPECTOR_FB.DEFAULT_TOOLBAR_BUTTON_ID = "summary";
+AINSPECTOR_FB.DEFAULT_TOOLBAR_BUTTON_ID = "allRules";
 
 FBL.ns(function() { with (FBL) { 
   

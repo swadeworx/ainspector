@@ -54,7 +54,7 @@ with (FBL) {
     /* Clear the panel before writing anything onto the report*/
     if (panel) {
       clearNode(panel.panelNode);
-      clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
+      clearNode(Firebug.currentContext.getPanel('rulesResultsSidePanel').panelNode);
     }
 
     /* Get the Link rules results from the ruleset selected in preferences*/
@@ -100,10 +100,10 @@ with (FBL) {
         previous_selected_row =  AINSPECTOR_FB.toolbarUtil.selectRow(panel, link_elements[0], false, "links");
         message = "no rule results";
       }
-      Firebug.currentContext.getPanel('rulesSidePanel').showEmptySidePanel(message);
+      Firebug.currentContext.getPanel('rulesResultsSidePanel').showEmptySidePanel(message);
     } else {
       previous_selected_row = AINSPECTOR_FB.toolbarUtil.selectRow(panel, cache_item_results[0], false, "links");
-      Firebug.currentContext.getPanel('rulesSidePanel').sView(true, cache_item_results[0]);
+      Firebug.currentContext.getPanel('rulesResultsSidePanel').sView(true, cache_item_results[0]);
     }
   };
   
@@ -129,7 +129,7 @@ with (FBL) {
     /* Clear the panel before writing anything onto the report*/
     if (panel) {
       clearNode(panel.panelNode);
-      clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
+      clearNode(Firebug.currentContext.getPanel('rulesResultsSidePanel').panelNode);
     }
 
     /* Get the Link rules results from the ruleset selected in preferences*/
@@ -180,10 +180,10 @@ with (FBL) {
         previous_selected_row =  AINSPECTOR_FB.toolbarUtil.selectRow(panel, table_elements[0], false, "tables");
         message = "no rule results";
       }
-      Firebug.currentContext.getPanel('rulesSidePanel').showEmptySidePanel(message);
+      Firebug.currentContext.getPanel('rulesResultsSidePanel').showEmptySidePanel(message);
     } else {
       AINSPECTOR_FB.toolbarUtil.selectRow(panel, cache_item_results[0], tables_cache_elements_results.is_tree);
-      Firebug.currentContext.getPanel('rulesSidePanel').sView(true, cache_item_results[0]);
+      Firebug.currentContext.getPanel('rulesResultsSidePanel').sView(true, cache_item_results[0]);
     }
   };
   
@@ -209,7 +209,7 @@ with (FBL) {
     /* Clear the panel before writing anything onto the report*/
     if (panel) {
       clearNode(panel.panelNode);
-      clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
+      clearNode(Firebug.currentContext.getPanel('rulesResultsSidePanel').panelNode);
     }
 
     /* Get the Link rules results from the ruleset selected in preferences*/
@@ -260,10 +260,10 @@ with (FBL) {
         previous_selected_row =  AINSPECTOR_FB.toolbarUtil.selectRow(panel, audio_video_elements[0], false, "audio");
         message = "no rule results";
       }
-      Firebug.currentContext.getPanel('rulesSidePanel').showEmptySidePanel(message);
+      Firebug.currentContext.getPanel('rulesResultsSidePanel').showEmptySidePanel(message);
     } else {
       AINSPECTOR_FB.toolbarUtil.selectRow(panel, cache_item_results[0], audio_video_cache_elements_results.is_tree);
-      Firebug.currentContext.getPanel('rulesSidePanel').sView(true, cache_item_results[0]);
+      Firebug.currentContext.getPanel('rulesResultsSidePanel').sView(true, cache_item_results[0]);
     }
   };
 }

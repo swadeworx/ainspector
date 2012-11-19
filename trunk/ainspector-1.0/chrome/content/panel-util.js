@@ -41,7 +41,7 @@ FBL.ns(function() { with (FBL) {
      if (panel) {
 //       OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(); 
        clearNode(panel.panelNode);
-       clearNode(Firebug.currentContext.getPanel('rulesSidePanel').panelNode);
+       clearNode(Firebug.currentContext.getPanel('rulesResultsSidePanel').panelNode);
      }
      
      /* Get the Image rules results from the ruleset selected in preferences*/
@@ -78,8 +78,8 @@ FBL.ns(function() { with (FBL) {
    
      var selected_row =  AINSPECTOR_FB.toolbarUtil.selectRow(panel, cache_item_results[0], false, toolbar_button_id);
    
-     if (AINSPECTOR_FB.previous_selected_row != null && selected_row) Firebug.currentContext.getPanel('rulesSidePanel').sView(true, cache_item_results[selected_row]);
-     else Firebug.currentContext.getPanel('rulesSidePanel').sView(true, cache_item_results[0]);
+     if (AINSPECTOR_FB.previous_selected_row != null && selected_row) Firebug.currentContext.getPanel('rulesResultsSidePanel').sView(true, cache_item_results[selected_row]);
+     else Firebug.currentContext.getPanel('rulesResultsSidePanel').sView(true, cache_item_results[0]);
    
   },
      
@@ -238,6 +238,7 @@ FBL.ns(function() { with (FBL) {
 
     if  (AINSPECTOR_FB.previous_selected_row != null &&
         AINSPECTOR_FB.selected_toolbar_button == toolbar_button) {
+      
       var selected_row = AINSPECTOR_FB.previous_selected_row;
       panel.selection = AINSPECTOR_FB.previous_selected_row;
 //      var rows = panel.table.children[6].children[1].children;
@@ -404,7 +405,7 @@ AINSPECTOR_FB.flatListTemplateUtil = {
           table.rows[0].setAttribute('tabindex', '0');
           setClass(table.rows[0], "headerRowSelected");
           table.rows[0].focus();
-          var side_panel = Firebug.currentContext.getPanel('rulesSidePanel');
+          var side_panel = Firebug.currentContext.getPanel('rulesResultsSidePanel');
           AINSPECTOR_FB.emptySidePanelTemplate.tag.replace({messg: "please select an element row in the left panel", desc: "Evaluation Results By Rule"}, side_panel.panelNode);
           break;
         }  
@@ -902,10 +903,11 @@ AINSPECTOR_FB.tabPanelUtil = {
    */
    addAndRemoveSidePanels : function(flag) {
       
-     var panelType_rules = Firebug.getPanelType("rulesSidePanel");
+     var panelType_rules_results = Firebug.getPanelType("rulesResultsSidePanel");
      var panelType_elements = Firebug.getPanelType("elementsSidePanel");
-  
-     /* flag == true if it is other than color contrast toolbar button*/
+     var panelType_rules = Firebug.getPanelType("rulesSidePanel");
+     
+     /* flag == true for rule categories*/
      if (flag) {
      
        if (panelType_elements) {
@@ -914,17 +916,22 @@ AINSPECTOR_FB.tabPanelUtil = {
        }
        
        if (panelType_rules) {
+         AINSPECTOR_FB.rules_registered = panelType_rules;
+         AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_rules);
+       }
+       
+       if (panelType_rules_results) {
          //nothing
        } else {
-         panelType_rules = AINSPECTOR_FB.rules_registered;
-         AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_rules);
+         panelType_rules_results = AINSPECTOR_FB.rules_results_registered;
+         AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_rules_results);
   
        }
      } else { //for summary or wcag view
      
-       if (panelType_rules) {
-         AINSPECTOR_FB.rules_registered = panelType_rules;
-         AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_rules);     
+       if (panelType_rules_results) {
+         AINSPECTOR_FB.rules_results_registered = panelType_rules_results;
+         AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_rules_results);     
        }
        
        if (panelType_elements) {
@@ -932,6 +939,13 @@ AINSPECTOR_FB.tabPanelUtil = {
        } else {
          panelType_elements = AINSPECTOR_FB.elements_registered;
          AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_elements);
+       }
+       
+       if (panelType_rules) {
+         
+       } else {
+         panelType_rules = AINSPECTOR_FB.rules_registered;
+         AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_rules);
        }
      } 
    }
