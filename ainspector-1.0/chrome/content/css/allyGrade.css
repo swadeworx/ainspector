@@ -80,6 +80,11 @@
    color: #ffffff;
    font-weight: bold;
 }
+.boldMsgTxt {
+  font-weight: bold;
+  color: grey;
+  display: block;
+}
 table:focus, .treeLabelxx:focus, .treeRow:focus {
 }
 
