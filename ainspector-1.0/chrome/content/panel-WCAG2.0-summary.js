@@ -145,7 +145,7 @@ with (FBL) {
             DIV({class: "$member.hasChildren|getClassName", title : "$member.rule_description"}, "$member.rule_description|AINSPECTOR_FB.ainspectorUtil.truncateText")
           ),
           TD({class: "memberLabelCell", _repObject: "$member.value"}, 
-            DIV({class: "resultAlign"}, "$member.required")
+            TAG("$member.makeBold", {'member' :"$member", 'object': "$member.value"})
           ),
           TD({class: "memberLabelCell", _repObject: "$member.value"},
             DIV({class: "resultAlign"}, "$member.wcag20_level")
@@ -161,8 +161,11 @@ with (FBL) {
         strTagManual : DIV({class: "manualMsgTxt resultAlign"}, "$member.manual_check_count"),
         zeroTag: DIV({class: "resultAlign"}, "0"),
         strTagViolation : DIV({class: "violationMsgTxt resultAlign"}, "$member.PEPR"), 
-        strTagPass : DIV({class: "passMsgTxt resultAlign"}, "$member.PEPR"), 
-        strTagWarn : DIV({class: "warnMsgTxt resultAlign"}, "$member.PEPR"), 
+        strTagPass  : DIV({class: "passMsgTxt resultAlign"}, "$member.PEPR"), 
+        strTagWarn  : DIV({class: "warnMsgTxt resultAlign"}, "$member.PEPR"),
+        strTagStyle : DIV({class: "resultAlign"}, "$member.PEPR"),
+        boldString  : DIV({class: "boldMsgTxt resultAlign"}, "$member.required"),
+        normalString : DIV({class: "resultAlign"}, "$member.required"),
         
         loop:
           FOR("member", "$members", TAG("$row", {member: "$member"})),
@@ -453,28 +456,31 @@ with (FBL) {
         }
         
         var PEPR = nls_impl_level.label;
+        FBTrace.sysout("PEPR: " + PEPR);
         var num = PEPR.substring(0, PEPR.indexOf('%'));
         var impl_percentage_tag = null;
-
+        
         if (rule_result_groups.manual_checks_count > 0)  manual_check_count = rule_result_groups.manual_checks_count;
         
-        if (num == '100') impl_percentage_tag = this.strTagPass;
+        if (PEPR == 'na')      impl_percentage_tag = this.strTagStyle;
         
-        else if (num == '0') impl_percentage_tag = this.strTagViolation;
+        else if (num == '100') impl_percentage_tag = this.strTagPass;
         
-        else if (num > '50' && num < '100') impl_percentage_tag = this.strTagWarn;
+        else if (num == '0')   impl_percentage_tag = this.strTagViolation;
         
-        else if (num <= '50' && num > '0') impl_percentage_tag = this.strTagViolation;
+        else if (num >= '50' || num < '100') impl_percentage_tag = this.strTagWarn;
+        
+        else if (num < '50' || num > '0') impl_percentage_tag = this.strTagViolation;
         
         else impl_percentage_tag = this.strTagStyle;
-        FBTrace.sysout("implementation_percentage: "+ implementation_percentage);
-        FBTrace.sysout("PEPR: "+ PEPR);
+
         return {
           
           PEPR               : PEPR,
           level              : level,
           indent             : level * 16,
-          required           : required,
+          makeBold           : (required == 'Yes') ? this.boldString : this.normalString,
+          required           : required,    
           wcag20_level       : wcag20_level,
           rule_description   : rule_description,
           manual_check_count : manual_check_count,
@@ -482,7 +488,7 @@ with (FBL) {
           filtered_results   : this.getFilteredWCAGResults(rule_result_groups), //children
           hasChildren        : this.hasChildren(rule_result_groups),
           value              : (rule_result_groups != null) ? rule_result_groups : "",
-          impl_percentage_tag : impl_percentage_tag,
+          impl_percentage_tag: impl_percentage_tag,
         };
         
       },

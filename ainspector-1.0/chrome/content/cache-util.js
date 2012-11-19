@@ -26,8 +26,9 @@ with (FBL) {
   AINSPECTOR_FB.ruleset_object = null;
   
   AINSPECTOR_FB.last_node_highlighted = null;
-  
+
   AINSPECTOR_FB.rules_registered = null;
+  AINSPECTOR_FB.rules_results_registered = null;
   AINSPECTOR_FB.elements_registered = null;
   
   AINSPECTOR_FB.preferences = null;
