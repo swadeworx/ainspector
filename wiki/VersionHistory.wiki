@@ -20,6 +20,8 @@
 
 ===Features ===
 
+ * Major changes to Highlighting Module - highlighting the elements on webpage
+
 == Version alpha 0.94 ==
 
 === Features ===
