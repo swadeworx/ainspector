@@ -2,6 +2,24 @@
 
 = Version History =
 
+== Version alpha 0.96 ==
+
+===Features ===
+ * Adding WCAG report to the AInspector for Firebug  
+ ** Adding average PEPR score to the principle and Guide lines
+ ** Make the required column in bold if it’s value is yes
+ ** For  the column ‘Element’, append with a string ‘element’ and the number of the element as part of every element. (for ex., a: can be element 1: a:) 
+ ** Remove ‘element info’ button from the ‘Elements’ Side Panel and add it as a column ‘more info ’ to the table 
+ ** Removed ‘Rule Information’ button from the ‘Elements’ Side Panel.
+ ** Added ‘Rule information’ as another side panel to the main  panel ‘WCAG ’.  The content of this side panel will be in the order of
+ *** ID of the element 
+ *** Basic rule information  
+ *** Additional information of the rule if there is any  
+
+== Version alpha 0.95 ==
+
+===Features ===
+
 == Version alpha 0.94 ==
 
 === Features ===
