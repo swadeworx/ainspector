@@ -220,8 +220,15 @@ FBL.ns(function() { with (FBL) {
     
       var selection = this.mainPanel.selection;
       FBTrace.sysout("inside update selection: ", selection);
-
-       this.rebuild(this.showOnRuleTabSelect(selection.rule_result));
+      
+      if (selection.filtered_rule_results_groups) { 
+        
+        AINSPECTOR_FB.tabPanelUtil.disableSidePanel();
+      
+      } else {
+        AINSPECTOR_FB.tabPanelUtil.enableSidePanel();
+        this.rebuild(this.showOnRuleTabSelect(selection.rule_result));
+      }
     },
      
     /**
@@ -235,21 +242,23 @@ FBL.ns(function() { with (FBL) {
    
       var result_object = Firebug.getRepObject(event.target);
       
+      FBTrace.sysout("event.target in sidePanel-rules...", event.target);
+      
       if (!result_object) return;
       
-//      this.disableSidePanel(side_panel_name);
-      this.rebuild(this.showOnRuleTabSelect(result_object.rule_result));
+      if (result_object.rule_result) {
+        
+//        AINSPECTOR_FB.tabPanelUtil.enableSidePanel();
+        this.rebuild(this.showOnRuleTabSelect(result_object.rule_result));
+      
+//      } else if (result_object.filtered_rule_results_groups){
+//        AINSPECTOR_FB.tabPanelUtil.disableSidePanel();
+      }
+      else{
+        this.showEmptySidePanel("no rule selected");
+      } 
     },
     
-    disableSidePanel : function(side_panel) {
-      FBTrace.sysout("side_panel: ", side_panel);
-
-      var side_panel = Firebug.getPanelType(side_panel_name);
-      FBTrace.sysout("side_panel: ", side_panel);
-      side_panel.setAttribute("disabled", true);
-      
-    },
-     
     /**
      * @function showOnRuleTabSelect
      * 
@@ -262,9 +271,6 @@ FBL.ns(function() { with (FBL) {
       var rule;
       var rule_summary;
       var rule_definition;
-//      var wcag20_nls = OpenAjax.a11y.all_wcag20_nls.getNLS();
-
-      FBTrace.sysout("show_rules: ", rule_result);
       
       if (rule_result) {
         
@@ -277,11 +283,7 @@ FBL.ns(function() { with (FBL) {
         rule_summary =  rule_result.getRuleSummary();
         rule_definition = rule_result.getRuleDefinition();
         
-        FBTrace.sysout("rule_summary: ", rule_summary);
-        FBTrace.sysout("rule_definition: ", rule_definition);
-        
         var purpose = rule.getNLSPurpose();
-        FBTrace.sysout("pupose: ", purpose);
         
         var wcag_nls_req = rule.getNLSRequirements();
         var techniques   = rule.getNLSTechniques();
@@ -289,15 +291,11 @@ FBL.ns(function() { with (FBL) {
         var requirements = [];
 
         requirements.push(wcag_nls_req.primary);
-        FBTrace.sysout("info_links: ", info_links);
 
         for (var j = 0; j < wcag_nls_req.related.length; j++) {
           requirements.push(wcag_nls_req.related[j]);
         }
         var target_res = rule.getTargetResources();
-        FBTrace.sysout("rule_result.getRule:"+ rule_result.getRule());
-        FBTrace.sysout("rule_result.getRuleSummary:"+ rule_result.getRuleSummary());
-        FBTrace.sysout("rule_result.getMessage:"+ rule_result.getMessage());
 
         var rule_result_object = {
           rule_id         : rule_result.getNLSRuleId(),
@@ -395,7 +393,7 @@ FBL.ns(function() { with (FBL) {
       ),
     
     insertList : 
-      UL({class: "element-select", style: "margin-left: 1.6em;"}, "$member.title")
+      LI({class: "element-select", style: "margin-left: 1.6em;"}, "$member.title")
   });
 
   Firebug.registerPanel(rulesSidePanel);
