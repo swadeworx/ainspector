@@ -36,7 +36,7 @@ FBL.ns(function() { with (FBL) {
     parentPanel: main_panel,
     
     title: side_panel_title,
-    order: 1,
+    order: 3,
     editable: true,
 
     /**
@@ -383,8 +383,7 @@ FBL.ns(function() { with (FBL) {
         ) //end TBODY
       ),
       DIV({class: "notificationButton-rule"},
-        BUTTON({onclick: "$showMoreProperties"}, "Rule Information"),
-        BUTTON({onclick: "$getElementInformation", style: "margin: 0.5em;"}, "Element Information")
+        BUTTON({onclick: "$showMoreProperties"}, "Rule Information")
       )
     ),
     

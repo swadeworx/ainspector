@@ -541,8 +541,7 @@ with (FBL) {
           ), //end TABLE
           //BUTTON({class: "more-info", disabled:"disabled", id: "rule_info_button"}, "More Information on Rule")
           DIV({class: "notificationButton-rule"},
-            BUTTON({disabled:"disabled", id: "rule_info_button"}, "More Information on Rule"),
-            BUTTON({disabled:"disabled", id: "element_info_button"}, "Element Information")
+            BUTTON({disabled:"disabled", id: "rule_info_button"}, "More Information on Rule")
           )
         )
     });

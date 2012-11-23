@@ -22,14 +22,15 @@ FBL.ns(function() { with (FBL) {
      
    viewPanel : function (context, panel_name, cache_object, rule_category, filter, rule_category_view, toolbar_button_id) {
   
+     FBTrace.sysout("Before Calling addAndRemoveSidePanels");
 //   adds or removes the side panels from the extension depending on the panel we are in 
      AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels(true);
-
+     FBTrace.sysout("After Calling addAndRemoveSidePanels");
      if (!context) context = Firebug.currentContext;
      if (!panel_name) panel_name = "AInspector";
-
+     FBTrace.sysout("Before getPanel");
      panel = context.getPanel(panel_name, true);
-
+     FBTrace.sysout("After getPanel- cache_object: ", cache_object);
      if (!cache_object) {
        if (AINSPECTOR_FB.ruleset_object)
          cache_object = AINSPECTOR_FB.ruleset_object;
@@ -241,10 +242,11 @@ FBL.ns(function() { with (FBL) {
       
       var selected_row = AINSPECTOR_FB.previous_selected_row;
       panel.selection = AINSPECTOR_FB.previous_selected_row;
+      panel.selection.toolbar_button_id = toolbar_button;
 //      var rows = panel.table.children[6].children[1].children;
       var rows = null;
       rows = panel.table.children[1].children[0].children[1].children;
-      
+      FBTrace.sysout("rows: ", rows);
       var row = null;
       var i = 0;
       
@@ -496,8 +498,13 @@ AINSPECTOR_FB.flatListTemplateUtil = {
       var resutlt = rule + 'with WCAG level' + repObject.rule_result.rule.getNLSWCAG20Level() + 'and' + repObject.getImplementationLevel() + '% of elements are passed the rule';
       event_target.setAttribute("aria-label", rule);
     } else {
-      var element = 'element' + repObject.cache_item.toString()+ repObject.violations_count + 'violations and'+ repObject.warnings_count + 'warnings'; 
-      event_target.setAttribute("aria-label", element);
+      var element;
+      
+      if (repObject.cache_item) {
+        element = 'element' + repObject.cache_item.toString()+ repObject.violations_count + 'violations and'+ repObject.warnings_count + 'warnings';
+        event_target.setAttribute("aria-label", element);
+      }
+      
     }
     
     event_target.setAttribute("aria-selected", "true");
@@ -852,6 +859,21 @@ AINSPECTOR_FB.flatListTemplateUtil = {
  */
 AINSPECTOR_FB.tabPanelUtil = {
   
+  disableSidePanel : function(id) {
+    var sp = Firebug.chrome.getSelectedSidePanel();
+//    var registered = Firebug.getPanelType("rulesSidePanel");
+
+    FBTrace.sysout("sp in disableSidePanel: ", Firebug.chrome.getSelectedSidePanel());
+    sp.setAttribute("disabled", true);
+  },
+  
+  enableSidePanel : function (id) {
+//    var panelType_rules = Firebug.getPanelType("rulesSidePanel");
+    var sp = Firebug.chrome.$("rulesSidePanel");
+    FBTrace.sysout("sp in enableSidePanel: ", sp);
+    sp.setAttribute("disabled", false);
+  },
+  
   /**
    * @function updateToolbar
    * 
@@ -906,6 +928,10 @@ AINSPECTOR_FB.tabPanelUtil = {
      var panelType_rules_results = Firebug.getPanelType("rulesResultsSidePanel");
      var panelType_elements = Firebug.getPanelType("elementsSidePanel");
      var panelType_rules = Firebug.getPanelType("rulesSidePanel");
+     var panelType_attributes = Firebug.getPanelType("attributesSidePanel");
+     var panelType_events = Firebug.getPanelType("eventsSidePanel");
+     var panelType_style = Firebug.getPanelType("styleSidePanel");
+     var panelType_cache_properties = Firebug.getPanelType("propertiesSidePanel");
      
      /* flag == true for rule categories*/
      if (flag) {
@@ -927,11 +953,61 @@ AINSPECTOR_FB.tabPanelUtil = {
          AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_rules_results);
   
        }
+       
+       if (panelType_attributes) {
+         //nothing
+       } else {
+         panelType_attributes = AINSPECTOR_FB.attributes_registered;
+         AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_attributes);
+  
+       }
+       
+       if (panelType_style) {
+         //nothing
+       } else {
+         panelType_style = AINSPECTOR_FB.style_registered;
+         AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_style);
+  
+       }
+       
+       if (panelType_cache_properties) {
+         //nothing
+       } else {
+         panelType_cache_properties = AINSPECTOR_FB.cacheProperties_registered;
+         AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_cache_properties);
+  
+       }
+       
+       if (panelType_events) {
+         //nothing
+       } else {
+         panelType_events = AINSPECTOR_FB.events_registered;
+         AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_events);
+  
+       }
      } else { //for summary or wcag view
      
        if (panelType_rules_results) {
          AINSPECTOR_FB.rules_results_registered = panelType_rules_results;
          AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_rules_results);     
+       }
+       
+       if (panelType_attributes) {
+         AINSPECTOR_FB.attributes_registered = panelType_attributes;
+         AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_attributes);     
+       }
+       
+       if (panelType_events) {
+         AINSPECTOR_FB.events_registered = panelType_events;
+         AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_events);     
+       }
+       if (panelType_cache_properties) {
+         AINSPECTOR_FB.cacheProperties_registered = panelType_cache_properties;
+         AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_cache_properties);     
+       }
+       if (panelType_style) {
+         AINSPECTOR_FB.style_registered = panelType_style;
+         AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_style);     
        }
        
        if (panelType_elements) {
@@ -950,5 +1026,26 @@ AINSPECTOR_FB.tabPanelUtil = {
      } 
    }
  };
+
+AINSPECTOR_FB.emptyTemplate = domplate(AINSPECTOR_FB.BaseRep, {
+  
+  tag:
+    DIV({class: "side-panel"},
+      TABLE({class: "ai-sidepanel-table", cellpadding: 0, cellspacing: 0, role: "treegrid"},
+        THEAD(
+          TR({class: "gridHeaderRow gridRow", id: "rulesTableHeader", "role": "row", tabindex: "0"},
+            FOR('header', '$header_elements',
+              TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, DIV({class: "gridHeaderCellBox"}, "$header"))
+            )//end FOR
+          ) //end TR
+        ), //end THEAD
+        TBODY(
+          TR({class: "tableRow gridRow", role: "row"},
+            TD(DIV({class: "gridCol gridCell gridContent"},"$messg"))
+          ) //end TR
+        ) //end TBODY  
+      ) //end TABLE
+    )
+  });
 
 }});

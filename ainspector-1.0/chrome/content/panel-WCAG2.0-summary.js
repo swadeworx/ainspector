@@ -456,7 +456,6 @@ with (FBL) {
         }
         
         var PEPR = nls_impl_level.label;
-        FBTrace.sysout("PEPR: " + PEPR);
         var num = PEPR.substring(0, PEPR.indexOf('%'));
         var impl_percentage_tag = null;
         
