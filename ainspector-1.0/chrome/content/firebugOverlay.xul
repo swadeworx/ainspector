@@ -13,7 +13,7 @@
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-list-template.js"/>
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-tree-template.js"/>
   
-  <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-all-rules.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-all-Rules.js"/>
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-WCAG2.0-summary.js"/>
   
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-rule-categories.js"/>
@@ -40,7 +40,10 @@
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/sidePanel-rules-results.js"/>
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/sidePanel-colorContrast.js"/>  
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/sidePanel-elements.js"/>
-  
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/sidePanel-attributes.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/sidePanel-cache.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/sidePanel-events.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/sidePanel-style.js"/>
   
   <commandset id="mainCommandSet"> 
   	<command id="ainspector_allRules_view_button" oncommand="AINSPECTOR_FB.allRules.viewPanel(Firebug.currentContext)"/>
