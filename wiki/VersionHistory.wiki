@@ -2,6 +2,13 @@
 
 = Version History =
 
+== Version alpha 0.97 ==
+
+===Features ===
+  *  Added Attributes, Properties, Events and Style & Position side panels to the rule categories. 
+  * Removed Element Info Button from the Rule Results side Panel
+  * Fixed issue on changing between toolbar buttons to the side panels
+
 == Version alpha 0.96 ==
 
 ===Features ===
