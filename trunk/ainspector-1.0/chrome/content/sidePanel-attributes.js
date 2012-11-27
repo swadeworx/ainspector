@@ -82,10 +82,15 @@ FBL.ns(function() { with (FBL) {
       * 
       * @param element - 
       */
-     updateSelection : function() {
+     updateSelection : function(object) {
        var selection = this.mainPanel.selection;
        
-       this.rebuild(this.showOnAttributeTabSelect(selection.cache_item));
+       if (selection) {
+         this.rebuild(this.showOnAttributeTabSelect(selection.cache_item));
+       } else {
+         this.rebuild(this.showOnAttributeTabSelect(object));
+       }
+       
      },
      
      /**
@@ -112,7 +117,6 @@ FBL.ns(function() { with (FBL) {
      setSelection: function(event) {
    
        var object = Firebug.getRepObject(event.target);
-       FBTrace.sysout("updateSelection in setSelection: ", object);
        this.rebuild(this.showOnAttributeTabSelect(object.cache_item));
 
      },
@@ -128,9 +132,6 @@ FBL.ns(function() { with (FBL) {
        
        var properties = cache_item.getAttributes();
        var rule_result_array = new Array();
-       FBTrace.sysout("cache_item: ", cache_item);
-
-       FBTrace.sysout("properties: ", properties);
        
        for(var i=0; i<properties.length; i++){
          rule_result_array.push({"label": properties[i].label, "value": properties[i].value});
@@ -155,8 +156,7 @@ FBL.ns(function() { with (FBL) {
        } else {
          
          var header_elements = ["Attribute", "Value"];
-         FBTrace.sysout("header elements: ", header_elements);
-         //clearNode(this.panelNode.offsetParent.children[1]);
+
          AINSPECTOR_FB.emptyTemplate.tag.replace({header_elements: header_elements, messg: "odd man out"}, this.panelNode);
        }
      }

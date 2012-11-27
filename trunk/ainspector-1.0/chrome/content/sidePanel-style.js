@@ -82,10 +82,16 @@ FBL.ns(function() { with (FBL) {
       * 
       * @param element - 
       */
-     updateSelection : function() {
+     updateSelection : function(object) {
        
        var selection = this.mainPanel.selection;
-       this.rebuild(this.showOnStyleTabSelect(selection.cache_item));
+       
+       if (selection) {
+         this.rebuild(this.showOnStyleTabSelect(selection.cache_item));  
+       } else {
+         this.rebuild(this.showOnStyleTabSelect(object));
+       }
+       
      },
      
      /**

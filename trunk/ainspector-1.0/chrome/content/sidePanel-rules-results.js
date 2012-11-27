@@ -96,8 +96,7 @@ FBL.ns(function() { with (FBL) {
       var next_cell;
       
       var table_rows = event.target.offsetParent.rows;
-      FBTrace.sysout("AINSPECTOR_FB.rulesResultsSidePanel.onkeyPress- event: ", event);
-      FBTrace.sysout("table_rows: ", table_rows);
+
       if (!table_rows) return;
       
       var no_of_rows = table_rows.length;
@@ -119,7 +118,7 @@ FBL.ns(function() { with (FBL) {
         
         if (flag == true){
           current_row = table_rows[row];
-          FBTrace.sysout();
+
           if (row < no_of_rows) {
            
 //            if (row == 1) previous_row = table_rows[no_of_rows-1];
@@ -158,9 +157,7 @@ FBL.ns(function() { with (FBL) {
       
       } else if (event.keyCode == KeyEvent.DOM_VK_DOWN) {
         
-        FBTrace.sysout("next_row: ", next_row);
         result = next_row.repObject;
-        FBTrace.sysout("cache_item: ", result);
         
         if (result.dom_element) rule_result_objet = this.showOnRuleResultsTabSelect(result.dom_element);
         else rule_result_objet = this.showOnRuleResultsTabSelect(result);
@@ -215,15 +212,16 @@ FBL.ns(function() { with (FBL) {
      * 
      * @desc
      */
-    updateSelection : function() {
+    updateSelection : function(object) {
     
       var selection = this.mainPanel.selection;
-      var dom_element = selection.dom_element; 
+
+      if (selection) {
+        this.rebuild(this.showOnRuleResultsTabSelect(selection));
+      } else {
+        this.rebuild(this.showOnRuleResultsTabSelect(object));
+      }
       
-      if (dom_element)
-       this.rebuild(this.showOnRuleResultsTabSelect(dom_element));
-      else 
-       this.rebuild(this.showOnRuleResultsTabSelect(selection.value));
     },
      
      /**
@@ -290,15 +288,12 @@ FBL.ns(function() { with (FBL) {
      * @param {Object} cache_item
      */
     showOnRuleResultsTabSelect : function(cache_item) {
-       
-      var cache_item = cache_item;
-      var rule_results = cache_item.node_results;
-      
+      var node_results = cache_item.node_results;
       var rule_result_array = new Array();
 
-      for (var i=0; i<rule_results.length; i++) {
-        rule_result_array.push(rule_results[i]);
-        var nResult = rule_results[i];
+      for (var i=0; i<node_results.length; i++) {
+        rule_result_array.push(node_results[i]);
+        var nResult = node_results[i];
 //        FBTrace.sysout("sev label: ", nResult.getNLSSeverityLabel());
 //        FBTrace.sysout("sev style: ", nResult.getSeverityStyle());
 //        FBTrace.sysout("rule is: ", nResult.getRule());
@@ -473,16 +468,12 @@ FBL.ns(function() { with (FBL) {
      * @param {Object} event - event triggered when clicked on Element Information button
      */
     getElementInformation : function(event) {
-      FBTrace.sysout("event.target: ", event.target);
-//      var tree = getAncestorByClass(event.target, "side-panel");
-//      var table = getChildByClass(tree, "ai-sidepanel-table");
       
       var main_panel = Firebug.currentContext.getPanel("AInspector");
       
       var table_container = getChildByClass(main_panel.table, "table-scrollable"); 
       var table = getChildByClass(table_container, "ai-table-list-items");
       
-//      var table = tree.children[1];
       var tbody = table.children[1];
       
       var rows = tbody.children;
@@ -511,7 +502,6 @@ FBL.ns(function() { with (FBL) {
         }
       }
 
-      FBTrace.sysout("row: ", row);
       AINSPECTOR_FB.element_info_dialog = window.openDialog("chrome://firebug-a11y/content/item_properties/cache-item-properties.xul", "cache_item_properties_dialog", "chrome,contentscreen,resizable=yes", row.repObject.cache_item);
     },
       
@@ -669,7 +659,6 @@ FBL.ns(function() { with (FBL) {
     onKeyPressedRow: function(event) {
         
       event.stopPropagation();
-      FBTrace.sysout("event.target: ", event.target);
 
       switch(event.keyCode) {
           case KeyEvent.DOM_VK_LEFT: //left
@@ -688,13 +677,12 @@ FBL.ns(function() { with (FBL) {
             event.preventDefault();
             var table = getAncestorByClass(event.target, "domTable");
 
-            FBTrace.sysout("table in tree up direction..................: ", table);
-
             var row = findPrevious(event.target, this.isTreeRow, false);
-            FBTrace.sysout("row: ", row);
+
             if (row) {
               AINSPECTOR_FB.flatListTemplateUtil.highlightTreeRow(event, row);
             } else {  
+             
               if (event.target.rowIndex == '1') row = table.rows[0];
             }
             row.focus();
@@ -711,9 +699,7 @@ FBL.ns(function() { with (FBL) {
             event.preventDefault();
             var table = getAncestorByClass(event.target, "domTable");
 
-            FBTrace.sysout("table in tree: ", table);
             var row = findNext(event.target, this.isTreeRow, false);
-            FBTrace.sysout("row: ", row);
 
             if (row) row.focus();
 
@@ -759,8 +745,6 @@ FBL.ns(function() { with (FBL) {
           var level = parseInt(row.getAttribute("level"));
           setClass(row, "opened");
           var repObject = row.newObject;
-          FBTrace.sysout("repobject: ", repObject);
-          FBTrace.sysout("level: "+ level);
 
           if (repObject) {
             var members = this.getMembers(repObject.children, level+1);
@@ -774,8 +758,6 @@ FBL.ns(function() { with (FBL) {
      * @function toggleRow
      */
     toggleRow: function(row) {
-      
-      FBTrace.sysout("inside toggle row: ", row);
       
       if (hasClass(row, "opened")) {
         this.closeRow(row);
@@ -803,21 +785,17 @@ FBL.ns(function() { with (FBL) {
      */
     highlightRow : function(event) {
 
-      FBTrace.sysout("highlightRow: ", event);
       var table = getAncestorByClass(event.target, "ai-sidepanel-table");
       var row = getAncestorByClass(event.target, "treeRow");
-      FBTrace.sysout("table: ", table);
-      FBTrace.sysout("row: ", row);
+
       AINSPECTOR_FB.flatListTemplateUtil.unHighlight(table);
       AINSPECTOR_FB.flatListTemplateUtil.highlight(row);
       
       if (AINSPECTOR_FB.rule_info_dialog) {
-        FBTrace.sysout("AINSPECTOR_FB.rule_info_dialog: ", AINSPECTOR_FB.rule_info_dialog);
         AINSPECTOR_FB.rule_info_dialog.rule_properties.update(row.repObject.rule_result);
         AINSPECTOR_FB.rule_info_dialog.focus();
       }
       if (AINSPECTOR_FB.element_info_dialog) {
-        FBTrace.sysout("AINSPECTOR_FB.rule_info_dialog: ", AINSPECTOR_FB.element_info_dialog);
         AINSPECTOR_FB.element_info_dialog.cache_item_properties.update(row.repObject.cache_item);
         AINSPECTOR_FB.element_info_dialog.focus();
       }

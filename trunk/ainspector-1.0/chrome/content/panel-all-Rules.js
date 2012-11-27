@@ -82,12 +82,12 @@ with (FBL) {
     panel.panelNode.appendChild(toolbar);
     panel.panelNode.appendChild(element);
     
-//    AINSPECTOR_FB.template.grid.setTableMenuItems(panel.table);
-
     var selected_row = AINSPECTOR_FB.toolbarUtil.selectRow(panel, rule_result_items[0], false, "allRules");
 
     if (AINSPECTOR_FB.previous_selected_row != null && selected_row) Firebug.currentContext.getPanel('elementsSidePanel').sView(true, rule_result_items[selected_row]);
     else Firebug.currentContext.getPanel('elementsSidePanel').sView(true, rule_result_items[0]);
+//    if (AINSPECTOR_FB.previous_selected_row != null && selected_row) Firebug.chrome.getSelectedSidePanel().updateSelection(rule_result_items[selected_row]);
+//    else Firebug.chrome.getSelectedSidePanel().updateSelection(rule_result_items[0]);
     }
   };
   
