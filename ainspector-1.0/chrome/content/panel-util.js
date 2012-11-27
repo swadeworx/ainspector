@@ -22,15 +22,15 @@ FBL.ns(function() { with (FBL) {
      
    viewPanel : function (context, panel_name, cache_object, rule_category, filter, rule_category_view, toolbar_button_id) {
   
-     FBTrace.sysout("Before Calling addAndRemoveSidePanels");
 //   adds or removes the side panels from the extension depending on the panel we are in 
      AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels(true);
-     FBTrace.sysout("After Calling addAndRemoveSidePanels");
+    
      if (!context) context = Firebug.currentContext;
+     
      if (!panel_name) panel_name = "AInspector";
-     FBTrace.sysout("Before getPanel");
+     
      panel = context.getPanel(panel_name, true);
-     FBTrace.sysout("After getPanel- cache_object: ", cache_object);
+
      if (!cache_object) {
        if (AINSPECTOR_FB.ruleset_object)
          cache_object = AINSPECTOR_FB.ruleset_object;
@@ -55,9 +55,9 @@ FBL.ns(function() { with (FBL) {
    
      var toolbar = panel.document.createElement("div");
      toolbar.id = "toolbarDiv";
-   
-     if (cache_item_results.length < 0) {
-       panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.replace({view:rule_category_view}, toolbar, null);
+     var selected_row;
+     if (cache_item_results.length <= 0) {
+       panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.replace({view:rule_category_view}, toolbar, AINSPECTOR_FB.emptyPanelTemplate);
      } else {
        if (cache_elements_results.is_tree == true) {
        
@@ -66,6 +66,10 @@ FBL.ns(function() { with (FBL) {
        } else {  
          panel.table = AINSPECTOR_FB.template.grid.header.replace({elements: cache_item_results, view: rule_category_view}, toolbar, AINSPECTOR_FB.template.grid);
        }
+       AINSPECTOR_FB.template.grid.setTableMenuItems(panel.table);
+       
+       selected_row =  AINSPECTOR_FB.toolbarUtil.selectRow(panel, cache_item_results[0], false, toolbar_button_id);
+     
      }
      
      var element = panel.document.createElement("div");
@@ -77,10 +81,23 @@ FBL.ns(function() { with (FBL) {
    
      AINSPECTOR_FB.template.grid.setTableMenuItems(panel.table);
    
-     var selected_row =  AINSPECTOR_FB.toolbarUtil.selectRow(panel, cache_item_results[0], false, toolbar_button_id);
-   
+     selected_row =  AINSPECTOR_FB.toolbarUtil.selectRow(panel, cache_item_results[0], false, toolbar_button_id);
+     var selected_side_panel = Firebug.chrome.getSelectedSidePanel();
      if (AINSPECTOR_FB.previous_selected_row != null && selected_row) Firebug.currentContext.getPanel('rulesResultsSidePanel').sView(true, cache_item_results[selected_row]);
      else Firebug.currentContext.getPanel('rulesResultsSidePanel').sView(true, cache_item_results[0]);
+   
+     /*    if (AINSPECTOR_FB.previous_selected_row != null && selected_row) {
+       Firebug.chrome.getSelectedSidePanel().updateSelection(cache_item_results[selected_row]);
+     
+     } else {
+       if (AINSPECTOR_FB.ainspectorUtil.hasProperty(selected_side_panel)) {
+
+         selected_side_panel.updateSelection(cache_item_results[0]);
+       } else {
+
+         Firebug.currentContext.getPanel('rulesResultsSidePanel').updateSelection(cache_item_results[0]);
+       }
+     }*/
    
   },
      
@@ -246,7 +263,6 @@ FBL.ns(function() { with (FBL) {
 //      var rows = panel.table.children[6].children[1].children;
       var rows = null;
       rows = panel.table.children[1].children[0].children[1].children;
-      FBTrace.sysout("rows: ", rows);
       var row = null;
       var i = 0;
       
@@ -643,8 +659,6 @@ AINSPECTOR_FB.flatListTemplateUtil = {
         AINSPECTOR_FB.ainspectorUtil.setClass(row.children[i], "gridCellSelected");
       }
       
-      FBTrace.sysout("highlight cache item: ", row.repObject);
-     
       if (row.repObject.filtered_node_results) {
     	  OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightNodeResults(row.repObject.filtered_node_results);
       } else {
@@ -809,8 +823,6 @@ AINSPECTOR_FB.flatListTemplateUtil = {
       
       if (!table) table = getChildByClass(sub_div, 'domTable');
       
-      FBTrace.sysout("table: ", table);
-      
       var rows = table.rows; //nomber of rows in a table
       var flag = false;
       for (var i=0; i< rows.length; i++) {
@@ -863,14 +875,12 @@ AINSPECTOR_FB.tabPanelUtil = {
     var sp = Firebug.chrome.getSelectedSidePanel();
 //    var registered = Firebug.getPanelType("rulesSidePanel");
 
-    FBTrace.sysout("sp in disableSidePanel: ", Firebug.chrome.getSelectedSidePanel());
     sp.setAttribute("disabled", true);
   },
   
   enableSidePanel : function (id) {
 //    var panelType_rules = Firebug.getPanelType("rulesSidePanel");
     var sp = Firebug.chrome.$("rulesSidePanel");
-    FBTrace.sysout("sp in enableSidePanel: ", sp);
     sp.setAttribute("disabled", false);
   },
   

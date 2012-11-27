@@ -11,8 +11,7 @@ with (FBL) {
                  SPAN({class: "ruleset-value"}, "$AINSPECTOR_FB.ruleset_title"),
                  SPAN({class: "ruleset-level"}, " Level:  "),
                  SPAN({class: "ruleset-level-value"}, "$AINSPECTOR_FB.selected_level"),
-                 BUTTON({onclick: "$Firebug.preferenceModule.viewPanel", style: "margin-left: 0.5em;"}, "preferences"),
-                 BUTTON({onclick: "$AINSPECTOR_FB.flatListTemplateUtil.highlightAll", style: "margin-left: 0.5em;", _repObject: "$elements"}, "show all"),
+                 BUTTON({onclick: "$Firebug.preferenceModule.viewPanel", style: "margin-left: 0.5em;"}, "preferences"),     
                  SPAN({class: "view-panel"}, "$view")
                ),
                DIV({class: "table-scrollable"},
@@ -437,6 +436,7 @@ with (FBL) {
             SPAN({class: "ruleset-level"}, " Level:  "),
             SPAN({class: "ruleset-level-value"}, "$AINSPECTOR_FB.selected_level"),
             BUTTON({onclick: "$Firebug.preferenceModule.viewPanel"}, "preferences"),
+            BUTTON({onclick: "$AINSPECTOR_FB.flatListTemplateUtil.highlightAll", style: "margin-left: 0.5em;"}, "show all"),
             SPAN({class: "view-panel"}, "$view")
           ),
           DIV({class: "table-scrollable"},
@@ -452,9 +452,9 @@ with (FBL) {
                   TH({class: "gridHeaderCell", id: "gridViolationCol", role: "columnheader"}, DIV({class: "gridHeaderCellBox"}, "V"))
                 )//end TR
               ),//end THEAD
-              TBODY(
+              TBODY({class: "tbody-scroll"},
                 TR({class: "tableRow gridRow", role: "row"},
-                  TD(DIV({class: "gridCell gridCol gridContent"},"no elements"))
+                  TD(DIV({class: "gridAlign gridCol gridContent"},"no elements"))
                 ) //end TR
               ) //end TBODY  
             )//end TABLE

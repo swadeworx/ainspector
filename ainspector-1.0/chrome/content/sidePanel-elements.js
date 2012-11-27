@@ -213,14 +213,25 @@ FBL.ns(function() { with (FBL) {
      * 
      * @desc
      */
-    updateSelection : function() {
-    
+    updateSelection : function(object) {
+      var rule;
       var selected_summary_row = this.mainPanel.selected_summary_row;
+
+      if (selected_summary_row) {
+        rule = selected_summary_row.rule_result.rule.getNLSRuleId() + ': ' + selected_summary_row.rule_result.getRuleSummary();
+        this.rebuild(rule, selected_summary_row.filtered_node_results); 
+      } else {
+        if (!object) return;
+        
+        if (object.rule_result) {
+          rule = object.rule_result.rule.getNLSRuleId() + ': ' + object.rule_result.getRuleSummary();
+          this.rebuild(rule, object.filtered_node_results);
+        } else {
+          AINSPECTOR_FB.emptySidePanelTemplate.tag.replace({headers: ["Result", "Element"], messg: "select a rule", desc: 'Evaluation Results By Rule'}, this.panelNode);
+        }
+      }
       
-      if (!selected_summary_row) return;
-      FBTrace.sysout("selected_summary_row: ", selected_summary_row);
-       var rule = selected_summary_row.rule_result.rule.getNLSRuleId() + ': ' + selected_summary_row.rule_result.getRuleSummary();
-       this.rebuild(rule, selected_summary_row.filtered_node_results);
+       
     },
     
    /**
@@ -287,11 +298,8 @@ FBL.ns(function() { with (FBL) {
     rebuild: function(rule_summary, filtered_node_results){
       this.panelNode.id = "ainspector-side-panel";
       
-      FBTrace.sysout("filtered node results: ", filtered_node_results);
-      
       if (filtered_node_results.length > 0) {
         elementsPlate.tag.replace({object: filtered_node_results, rule_summary: rule_summary}, this.panelNode);
-        FBTrace.sysout("this.panelNode: ", this.panelNode);
       } else {
         var headers = ["Result", "Element"];
         AINSPECTOR_FB.emptySidePanelTemplate.tag.replace({headers: headers, messg: "no node results", desc: rule_summary}, this.panelNode);

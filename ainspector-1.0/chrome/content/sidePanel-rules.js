@@ -97,8 +97,7 @@ FBL.ns(function() { with (FBL) {
       var next_cell;
       
       var table_rows = event.target.offsetParent.rows;
-      FBTrace.sysout("AINSPECTOR_FB.RulesSidePanel.onkeyPress- event: ", event);
-      FBTrace.sysout("table_rows: ", table_rows);
+
       if (!table_rows) return;
       
       var no_of_rows = table_rows.length;
@@ -120,12 +119,9 @@ FBL.ns(function() { with (FBL) {
         
         if (flag == true){
           current_row = table_rows[row];
-          FBTrace.sysout();
+
           if (row < no_of_rows) {
            
-//            if (row == 1) previous_row = table_rows[no_of_rows-1];
-           
-//            else
               previous_row = table_rows[row-1];
            
             next_row = table_rows[row+1];
@@ -159,9 +155,7 @@ FBL.ns(function() { with (FBL) {
       
       } else if (event.keyCode == KeyEvent.DOM_VK_DOWN) {
         
-        FBTrace.sysout("next_row: ", next_row);
         result = next_row.repObject;
-        FBTrace.sysout("cache_item: ", result);
         
         if (result.dom_element) rule_result_objet = this.showOnRuleTabSelect(result.dom_element);
         else rule_result_objet = this.showOnRuleTabSelect(result);
@@ -216,18 +210,18 @@ FBL.ns(function() { with (FBL) {
      * 
      * @desc
      */
-    updateSelection : function() {
+    updateSelection : function(object) {
     
       var selection = this.mainPanel.selection;
-      FBTrace.sysout("inside update selection: ", selection);
-      
-      if (selection.filtered_rule_results_groups) { 
-        
-        AINSPECTOR_FB.tabPanelUtil.disableSidePanel();
-      
+
+      if (selection) {
+        if (selection.filtered_rule_results_groups) { 
+          this.showEmptySidePanel("no rule selected");
+        } else {
+          this.rebuild(this.showOnRuleTabSelect(selection.rule_result));
+        }
       } else {
-        AINSPECTOR_FB.tabPanelUtil.enableSidePanel();
-        this.rebuild(this.showOnRuleTabSelect(selection.rule_result));
+        
       }
     },
      
@@ -241,8 +235,6 @@ FBL.ns(function() { with (FBL) {
     setSelection : function(event) {
    
       var result_object = Firebug.getRepObject(event.target);
-      
-      FBTrace.sysout("event.target in sidePanel-rules...", event.target);
       
       if (!result_object) return;
       

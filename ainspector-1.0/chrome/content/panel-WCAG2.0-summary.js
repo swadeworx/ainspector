@@ -42,7 +42,7 @@ with (FBL) {
      */
     viewPanel: function(context, panel_name, cache_object) {
 
-//      adds or removes the side panels from the extension depending on the panel we are in 
+//    adds or removes the side panels from the extension depending on the panel we are in 
       AINSPECTOR_FB.tabPanelUtil.addAndRemoveSidePanels(false);
     
       if (!context) context = Firebug.currentContext;
@@ -86,10 +86,17 @@ with (FBL) {
       panel.panelNode.appendChild(element);
       
       var selected_row = AINSPECTOR_FB.toolbarUtil.selectRow(panel, filtered_summary[0], true, "WCAGView");
-
+      
+      FBTrace.sysout("panel in wcag view: ", Firebug.chrome.getSelectedSidePanel());
+      
       if (AINSPECTOR_FB.previous_selected_row != null && selected_row) Firebug.currentContext.getPanel('elementsSidePanel').sView(true, filtered_summary[selected_row]);
-    
+//    
       else Firebug.currentContext.getPanel('elementsSidePanel').sView(true, filtered_summary[0]);
+      
+//      if (AINSPECTOR_FB.previous_selected_row != null && selected_row) Firebug.chrome.getSelectedSidePanel().updateSelection(filtered_summary[selected_row]);
+      
+//      else Firebug.chrome.getSelectedSidePanel().updateSelection(filtered_summary[0]);
+
 
     }
   };
@@ -200,7 +207,7 @@ with (FBL) {
          */
         highlightTreeRow : function(event){
     
-          panel.selection = Firebug.getRep(event.target);
+          panel.selected_summary_row = Firebug.getRep(event.target);
           AINSPECTOR_FB.flatListTemplateUtil.highlightTreeRow(event);
         },
 

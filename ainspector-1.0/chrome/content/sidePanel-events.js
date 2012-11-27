@@ -82,9 +82,15 @@ FBL.ns(function() { with (FBL) {
       * 
       * @param element - 
       */
-     updateSelection : function() {
+     updateSelection : function(object) {
        var selection = this.mainPanel.selection;
-    	 this.rebuild(this.showOneventsTabSelect(selection.cache_item));
+       
+       if (selection) {
+         this.rebuild(this.showOneventsTabSelect(selection.cache_item));  
+       } else {
+         this.rebuild(this.showOneventsTabSelect(object));
+       }
+    	 
      },
      
      /**
@@ -153,7 +159,7 @@ FBL.ns(function() { with (FBL) {
    	     
          if (flag) {
            var header_elements = ["Events", "On Element", "On Ancestor"];
-           FBTrace.sysout("header_elements: ", header_elements);
+
            AINSPECTOR_FB.emptyTemplate.tag.replace({header_elements: header_elements, messg: "odd"}, this.panelNode);
          } else {
            eventsTemplate.tag.replace({object: resultArray}, this.panelNode);    	    
