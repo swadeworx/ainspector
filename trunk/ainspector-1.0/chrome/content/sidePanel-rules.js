@@ -281,7 +281,9 @@ FBL.ns(function() { with (FBL) {
         var techniques   = rule.getNLSTechniques();
         var info_links   =  rule.getNLSInformationalLinks('text'); 
         var requirements = [];
-
+        
+        FBTrace.sysout("info_links: ", info_links[0].url);
+        
         requirements.push(wcag_nls_req.primary);
 
         for (var j = 0; j < wcag_nls_req.related.length; j++) {
@@ -363,7 +365,7 @@ FBL.ns(function() { with (FBL) {
         UL({class: "eval-results", style: "color: black; font-weight: bold;"}, "WCAG 2.0 Requirements"),
         FOR("rule", "$resultObject.requirements", 
           LI({class: "element-select", style: "margin-left: 1.7em;"}, 
-           A({href: "$rule.url_spec", target: "_blank"}, "$rule.title"))),
+            A({onclick: "$onClickURL", _repObject: "$rule.url_spec"}, "$rule.title"))),
         
         UL({class: "eval-results", style: "color: black; font-weight: bold;"}, "Purpose"),
         FOR("rule_purpose", "$resultObject.purpose", 
@@ -374,18 +376,22 @@ FBL.ns(function() { with (FBL) {
           LI({class: "element-select", style: "margin-left: 1.7em;"}, "$technique")),
           
         UL({class: "eval-results", style: "color: black; font-weight: bold;"}, "Informational Links"),
-        FOR("info_links", "$resultObject.info_links", 
+        FOR("info_link", "$resultObject.info_links", 
           LI({class: "element-select", style: "margin-left: 1.7em;"}, 
-            A({href: "$info_links.url", target: "_blank"}, "$info_links.title"))),
+            A({onclick: "$onClickURL", _repObject: "$info_link.url"}, "$info_link.title"))
+        ),
         DIV({class: "eval-results", style: "color: black; font-weight: bold;"}, "Target Resources Description"),
         DIV({class: "element-select", style: "margin-left: 0.8em;"}, "$resultObject.target_res_desc"),
         UL({class: "eval-results", style: "color: black; font-weight: bold;"}, "Target Resources"),
         FOR("resource", "$resultObject.target_res", 
           LI({class: "element-select", style: "margin-left: 1.7em;"}, "$resource"))
       ),
-    
-    insertList : 
-      LI({class: "element-select", style: "margin-left: 1.6em;"}, "$member.title")
+
+      onClickURL : function(event) {
+        var url = Firebug.getRepObject(event.target);
+        window.open(url,'mywindow','');
+      }  
+  
   });
 
   Firebug.registerPanel(rulesSidePanel);

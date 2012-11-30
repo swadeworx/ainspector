@@ -26,7 +26,9 @@ var AINSPECTOR_FB = AINSPECTOR_FB || {};
 with (FBL) {
   
   AINSPECTOR_FB.WCAGView = {
-
+    
+    panel : null,
+    
     /**
      * @function viewPanel 
      * 
@@ -48,6 +50,7 @@ with (FBL) {
       if (!context) context = Firebug.currentContext;
     
       if (!panel_name) panel_name = "AInspector";
+      
       panel = context.getPanel(panel_name, true);
 
       if (!cache_object) {
@@ -78,6 +81,8 @@ with (FBL) {
       
       panel.table = AINSPECTOR_FB.wcagSummary.tag.replace({object: filtered_summary, view: 'Rules By WCAG 2.0'}, toolbar, AINSPECTOR_FB.wcagSummary);
       
+      AINSPECTOR_FB.wcagSummary.expandAllRows(panel.table);
+      
       var element = panel.document.createElement("div");
       element.style.display = "block";
       
@@ -85,18 +90,17 @@ with (FBL) {
       panel.panelNode.appendChild(toolbar);
       panel.panelNode.appendChild(element);
       
+      this.panel = panel.table;
+
       var selected_row = AINSPECTOR_FB.toolbarUtil.selectRow(panel, filtered_summary[0], true, "WCAGView");
       
-      FBTrace.sysout("panel in wcag view: ", Firebug.chrome.getSelectedSidePanel());
-      
       if (AINSPECTOR_FB.previous_selected_row != null && selected_row) Firebug.currentContext.getPanel('elementsSidePanel').sView(true, filtered_summary[selected_row]);
-//    
+
       else Firebug.currentContext.getPanel('elementsSidePanel').sView(true, filtered_summary[0]);
       
 //      if (AINSPECTOR_FB.previous_selected_row != null && selected_row) Firebug.chrome.getSelectedSidePanel().updateSelection(filtered_summary[selected_row]);
       
 //      else Firebug.chrome.getSelectedSidePanel().updateSelection(filtered_summary[0]);
-
 
     }
   };
@@ -112,6 +116,8 @@ with (FBL) {
           SPAN({class: "ruleset-level-value"}, "$AINSPECTOR_FB.selected_level"),
           BUTTON({class: "button", onclick: "$Firebug.preferenceModule.viewPanel", style: "margin-left: 0.5em;"}, "preferences"),
           BUTTON({onclick: "$AINSPECTOR_FB.flatListTemplateUtil.highlightAll", style: "margin-left: 0.5em;", _repObject: "$object"}, "show all"),
+          BUTTON({onclick: "$expandAll", style: "margin-left: 0.5em;", _repObject: "$object"}, "Expand All"),
+          BUTTON({onclick: "$collapseAllRows", style: "margin-left: 0.5em;", _repObject: "$object"}, "Collapse All"),
           SPAN({class: "view-panel"}, "$view")
         ),
         DIV({class: "table-scrollable"},
@@ -149,7 +155,7 @@ with (FBL) {
          "aria-selected" : "$member|$AINSPECTOR_FB.toolbarUtil.getSelectedState", tabindex: "$member|$AINSPECTOR_FB.toolbarUtil.getTabIndex",
          onfocus: "$AINSPECTOR_FB.flatListTemplateUtil.onFocus", onclick: "$highlightTreeRow", ondblclick: "$AINSPECTOR_FB.flatListTemplateUtil.doubleClick"},
           TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
-            DIV({class: "$member.hasChildren|getClassName", title : "$member.rule_description"}, "$member.rule_description|AINSPECTOR_FB.ainspectorUtil.truncateText")
+            DIV({class: "$member.hasChildren|getClassName", title : "$member.rule_description"}, "$member.rule_description")
           ),
           TD({class: "memberLabelCell", _repObject: "$member.value"}, 
             TAG("$member.makeBold", {'member' :"$member", 'object': "$member.value"})
@@ -588,6 +594,10 @@ with (FBL) {
         AINSPECTOR_FB.element_info_dialog = window.openDialog("chrome://firebug-a11y/content/item_properties/cache-item-properties.xul", "cache_item_properties_dialog", "chrome,contentscreen,resizable=yes", row.repObject);
       },
       
+      expandAll : function(event) {
+        this.expandAllRows(event.target);
+      },
+      
       /**
        * @function expandAll
        * 
@@ -596,10 +606,11 @@ with (FBL) {
        * @param {Object} panel - panel with the tree structure already created
        */
       expandAllRows : function (panel) {
-        
+
         var main_panel = getAncestorByClass(panel, 'main-panel');
         var sub_div = getChildByClass(main_panel, 'table-scrollable');
         var table = getChildByClass(sub_div, 'domTable');
+
         var rows = table.rows;
         var length = table.rows.length;
         
@@ -607,10 +618,32 @@ with (FBL) {
           var row = rows[i];
 
           if (hasClass(row, "hasChildren")) this.openRow(row);
-          if (row.repObject) length += row.repObject.filtered_results.length;
           
+          if (row.repObject) {
+            var object = row.repObject;
+            
+            if (object.filtered_rule_results) length += object.filtered_rule_results.length;
+            
+            if (object.filtered_rule_results_groups) length += object.filtered_rule_results_groups.length;
+            
+          }
+
         }
+      },
+      
+      collapseAllRows : function (event) {
+        var main_panel = getAncestorByClass(event.target, 'main-panel');
+        var sub_div = getChildByClass(main_panel, 'table-scrollable');
+        var table = getChildByClass(sub_div, 'domTable');
+
+        var rows = table.rows;
+        var length = table.rows.length;
+        
+        for (var i = 0; i < length; i++) {
+          var row = rows[i];
+          if (hasClass(row, "opened")) this.closeRow(row);
       }
+    }
 
   });
 }

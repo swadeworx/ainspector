@@ -19,7 +19,8 @@ FBL.ns(function() { with (FBL) {
   var main_panel = AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.name");
   var side_panel_name = AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.sidepanel.events.name");
   var side_panel_title = AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.sidepanel.events.title");
-
+  var tool_tip =  AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.sidepanel.events.tooltip");
+    
   /**
    * @panel eventsSidePanel displaying Rule results for the current selected 
    * row in the Navigation button,
@@ -31,6 +32,7 @@ FBL.ns(function() { with (FBL) {
     name: side_panel_name,
     parentPanel: main_panel,
     title: side_panel_title,
+    tooltip: tool_tip,
     order: 7,
     editable: true,
     
@@ -47,7 +49,7 @@ FBL.ns(function() { with (FBL) {
      */
      initialize: function(context, doc) {
     
-	   this.onCLick = bind(this.setSelection, this);
+       this.onCLick = bind(this.setSelection, this);
        Firebug.Panel.initialize.apply(this, arguments);
      },
 
@@ -72,6 +74,7 @@ FBL.ns(function() { with (FBL) {
 
        this.setSelection = bind(this.setSelection, this);
        this.mainPanel.panelNode.addEventListener("click", this.setSelection, false);
+       
        Firebug.Panel.initializeNode.apply(this, arguments);
      },
      
