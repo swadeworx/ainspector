@@ -19,7 +19,8 @@ FBL.ns(function() { with (FBL) {
   var main_panel = AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.mainpanel.name");
   var side_panel_name = AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.sidepanel.style.name");
   var side_panel_title = AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.sidepanel.style.title");
-
+  var tool_tip = AINSPECTOR_FB.ainspectorUtil.$AI_STR("ainspector.sidepanel.style.tooltip");
+  
   /**
    * @panel styleSidePanel displaying Rule results for the current selected 
    * row in the Navigation button,
@@ -31,6 +32,7 @@ FBL.ns(function() { with (FBL) {
     name: side_panel_name,
     parentPanel: main_panel,
     title: side_panel_title,
+    tooltip: tool_tip,
     order: 6,
     editable: true,
     

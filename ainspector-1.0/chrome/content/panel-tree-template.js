@@ -323,8 +323,8 @@ with (FBL) {
       },
 
       createMember: function(name, value, level)  {
-//          var acc = value.dom_element.getAccessibility();
-//          var name = value.cache_item.dom_element.tag_name;
+//      var acc = value.dom_element.getAccessibility();
+//      var name = value.cache_item.dom_element.tag_name;
         
         var name = null;
         

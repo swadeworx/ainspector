@@ -29,7 +29,7 @@ FBL.ns(function() { with (FBL) {
      
      if (!panel_name) panel_name = "AInspector";
      
-     panel = context.getPanel(panel_name, true);
+     var panel = context.getPanel(panel_name, true);
 
      if (!cache_object) {
        if (AINSPECTOR_FB.ruleset_object)
@@ -56,6 +56,7 @@ FBL.ns(function() { with (FBL) {
      var toolbar = panel.document.createElement("div");
      toolbar.id = "toolbarDiv";
      var selected_row;
+     
      if (cache_item_results.length <= 0) {
        panel.table = AINSPECTOR_FB.emptyPanelTemplate.tag.replace({view:rule_category_view}, toolbar, AINSPECTOR_FB.emptyPanelTemplate);
      } else {
