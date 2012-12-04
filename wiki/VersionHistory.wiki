@@ -2,6 +2,17 @@
 
 = Version History =
 
+== Version alpha 0.98 ==
+
+===Features ===
+
+ * Added Expand all and collapse all buttons to WCAG View
+ * modified the side panel name from Rules to Rule Info
+ * Fixed a bug in Rule Info Side panel about opening a link in the new window
+ * Fixed a bug in WCAG view to show the rule description
+ * Changed the tooltips for the Properties, style & Positioning,style & Positioning and events side panels to state that these side panels content is calculated through OAA library
+ * updated OAA cache library (includes ARIA rules)
+
 == Version alpha 0.97 ==
 
 ===Features ===
