@@ -25,7 +25,7 @@ FBL.ns(function() { with (FBL) {
    */
   AINSPECTOR_FB.gridHeaderColumnResize = {
       
-    resizing: false,
+    resizing: false,        /*resize the column*/
     currColumn: null,
     startX: 0,
     startWidth: 0,
@@ -42,16 +42,17 @@ FBL.ns(function() { with (FBL) {
      */
     onMouseClick: function(event) {
         
-    if (!isLeftClick(event)) return;
+      if (!isLeftClick(event)) return;
 
       // Avoid click event for sorting, if the resizing has been just finished.
       var rightNow = (new Date()).getTime();
 
-      if ((rightNow - AINSPECTOR_FB.gridHeaderColumnResize.lastMouseUp) < 1000) cancelEvent(event);
+      if ((rightNow - this.lastMouseUp) < 1000) cancelEvent(event);
     },
     
     /**
      * @function onMouseDown
+     *
      * @memberOf AINSPECTOR_FB.gridHeaderColumnResize
      * 
      * @desc resize header columns on mouse down
@@ -59,18 +60,20 @@ FBL.ns(function() { with (FBL) {
      * @param {Event} event - event triggered on mouse down 
      */
     onMouseDown: function(event) {
-        
-       if (!isLeftClick(event)) return;
+      
+      if (!isLeftClick(event)) return;
 
       var target = event.target;
       
       if (!hasClass(target, "gridHeaderCellBox")) return;
 
       var header = getAncestorByClass(target, "gridHeaderRow");
+      FBTrace.sysout("header: ", header);
+      if (!header) return;		  
+      
+      if (!this.isBetweenColumns(event)) return;
 
-      if (!header) return;
-
-      AINSPECTOR_FB.gridHeaderColumnResize.onStartResizing(event);
+      this.onStartResizing(event);
 
       cancelEvent(event);
     },
@@ -85,12 +88,13 @@ FBL.ns(function() { with (FBL) {
      * @param {Event} event - event triggered on mouse down
      */
     onMouseMove: function(event) {
-        
-      if (AINSPECTOR_FB.gridHeaderColumnResize.resizing) {
-            
-      if (hasClass(target, "gridHeaderCellBox")) target.style.cursor = "e-resize";
 
-        AINSPECTOR_FB.gridHeaderColumnResize.onResizing(event);
+      if (this.resizing) {
+            
+        if (hasClass(target, "gridHeaderCellBox")) target.style.cursor = "e-resize";
+
+        this.onResizing(event);
+        
         return;
       }
       var target = event.target;
@@ -99,7 +103,7 @@ FBL.ns(function() { with (FBL) {
 
       if (target) target.style.cursor = "";
 
-      if (!AINSPECTOR_FB.gridHeaderColumnResize.isBetweenColumns(event)) return;
+      if (!this.isBetweenColumns(event)) return;
 
       // Update cursor if the mouse is located between two columns.
       target.style.cursor = "e-resize";
@@ -115,11 +119,11 @@ FBL.ns(function() { with (FBL) {
      * @param {Event} event
      */
     onMouseUp: function(event) {
-        
-      if (!AINSPECTOR_FB.gridHeaderColumnResize.resizing) return;
+//      FBTrace.sysout("inside onMouseup: ", event);  
+      if (!this.resizing) return;
 
-      AINSPECTOR_FB.gridHeaderColumnResize.lastMouseUp = (new Date()).getTime();
-      AINSPECTOR_FB.gridHeaderColumnResize.onEndResizing(event);
+      this.lastMouseUp = (new Date()).getTime();
+      this.onEndResizing(event);
       cancelEvent(event);
     },
 
@@ -131,18 +135,11 @@ FBL.ns(function() { with (FBL) {
      * @param {} event
      */
     onMouseOut: function(event) {
-        
-      if (!AINSPECTOR_FB.gridHeaderColumnResize.resizing) return;
-
-      if (FBTrace.DBG_COOKIES) {
-        FBTrace.sysout("cookies.Mouse out, target: " + event.target.localName +
-                ", " + event.target.className + "\n");
-        FBTrace.sysout("      explicitOriginalTarget: " + event.explicitOriginalTarget.localName +
-                ", " + event.explicitOriginalTarget.className + "\n");
-      }
+//      FBTrace.sysout("inside onMouseout: ", event);
+      if (!this.resizing) return;
       var target = event.target;
 
-      if (target == event.explicitOriginalTarget) AINSPECTOR_FB.gridHeaderColumnResize.onEndResizing(event);
+      if (target == event.explicitOriginalTarget) this.onEndResizing(event);
 
       cancelEvent(event);
     },
@@ -159,20 +156,20 @@ FBL.ns(function() { with (FBL) {
       var target = event.target;
       var x = event.clientX;
       var y = event.clientY;
-
+      
       var column = getAncestorByClass(target, "gridHeaderCell");
       var offset = getClientOffset(column);
       var size = getOffsetSize(column);
 
       if (column.previousSibling) {
 
-      if (x < offset.x + 4)
+        if (x < offset.x + 4)
           return 1;   // Mouse is close to the left side of the column (target).
       }
 
       if (column.nextSibling) {
             
-      if (x > offset.x + size.width - 6)
+        if (x > offset.x + size.width - 6)
           return 2;  // Mouse is close to the right side.
       }
       return 0;
@@ -181,34 +178,34 @@ FBL.ns(function() { with (FBL) {
     /**
      * @function onStartResizing
      * 
-     * @desc
+     * @desc 
      * 
      * @param {} event
      */
     onStartResizing: function(event){
-
-      var location = AINSPECTOR_FB.gridHeaderColumnResize.isBetweenColumns(event);
+      
+      var location = this.isBetweenColumns(event);
       
       if (!location) return;
 
       var target = event.target;
-      AINSPECTOR_FB.gridHeaderColumnResize.resizing = true;
-      AINSPECTOR_FB.gridHeaderColumnResize.startX = event.clientX;
+      this.resizing = true;
+      this.startX = event.clientX;
 
       // Currently resizing column.
       var column = getAncestorByClass(target, "gridHeaderCell");
-      AINSPECTOR_FB.gridHeaderColumnResize.currColumn = (location == 1) ? column.previousSibling : column;
+      FBTrace.sysout("event:", event);
+
+      FBTrace.sysout("column:", column);
+      FBTrace.sysout("location:"+ location);
+      this.currColumn = (location == 1) ? column.previousSibling : column;
 
       // Last column width.
-      var size = getOffsetSize(AINSPECTOR_FB.gridHeaderColumnResize.currColumn);
-      AINSPECTOR_FB.gridHeaderColumnResize.startWidth = size.width;
+      var size = getOffsetSize(this.currColumn);
+      
+      FBTrace.sysout("getOffsetSize: ", size);
+      this.startWidth = size.width;
 
-      if (FBTrace.DBG_COOKIES) {
-            
-      var colId = AINSPECTOR_FB.gridHeaderColumnResize.currColumn.getAttribute("id");
-        FBTrace.sysout("cookies.Start resizing column (id): " + colId +
-                ", start width: " + AINSPECTOR_FB.gridHeaderColumnResize.startWidth + "\n");
-      }
     },
 
     /**
@@ -220,16 +217,13 @@ FBL.ns(function() { with (FBL) {
      */
     onResizing: function(event) {
         
-      if (!AINSPECTOR_FB.gridHeaderColumnResize.resizing) return;
-
-      var newWidth = AINSPECTOR_FB.gridHeaderColumnResize.startWidth + (event.clientX - AINSPECTOR_FB.gridHeaderColumnResize.startX);
-      AINSPECTOR_FB.gridHeaderColumnResize.currColumn.style.width = newWidth + "px";
+      if (!this.resizing) return;
+      FBTrace.sysout("event: ", event);
+      FBTrace.sysout("this.startWidth: "+ this.startWidth);
+      FBTrace.sysout("this.startX: "+ this.startX);
+      var newWidth = this.startWidth + (event.clientX - this.startX);
+      this.currColumn.style.width = newWidth + "px";
         
-      if (FBTrace.DBG_COOKIES) {
-        var colId = AINSPECTOR_FB.gridHeaderColumnResize.currColumn.getAttribute("id");
-        FBTrace.sysout("cookies.Resizing column (id): " + colId +
-                ", new width: " + newWidth + "\n", AINSPECTOR_FB.gridHeaderColumnResize.currColumn);
-      }
     },
 
     /**
@@ -241,27 +235,66 @@ FBL.ns(function() { with (FBL) {
      */
     onEndResizing: function(event) {
 
-      if (!AINSPECTOR_FB.gridHeaderColumnResize.resizing) return;
+      if (!this.resizing) return;
 
-      AINSPECTOR_FB.gridHeaderColumnResize.resizing = false;
+      this.resizing = false;
 
-      var newWidth = AINSPECTOR_FB.gridHeaderColumnResize.startWidth + (event.clientX - AINSPECTOR_FB.gridHeaderColumnResize.startX);
-      AINSPECTOR_FB.gridHeaderColumnResize.currColumn.style.width = newWidth + "px";
+      var newWidth = this.startWidth + (event.clientX - this.startX);
+      
+      this.currColumn.style.width = newWidth + "px";
 
       // Store width into the preferences.
-      var colId = AINSPECTOR_FB.gridHeaderColumnResize.currColumn.getAttribute("id");
+      var colId = this.currColumn.getAttribute("id");
 
       if (colId) {
         var prefName = "ainspector." + colId + ".width";
         AINSPECTOR_FB.Preference.setPref(prefName, newWidth);
       }
+    },
+    updateWidth: function()
+    {
+        
+        FBTrace.sysout("panel: ", panel);
+        
+        if (!panel.table)
+            return;
+        FBTrace.sysout(".....................................inide updateHRefLabelWidth");
+        // Update max-width of the netHrefLabel according to the width of the parent column.
+        // I don't know if there is a way to do this in Css.
+        // See Issue 3633: Truncated URLs in net panel
+        var netHrefCol = panel.table.querySelector("#gridRulesCol");
+        var hrefLabel = panel.table.querySelector(".gridHrefLabel");
 
-      if (FBTrace.DBG_COOKIES) {
-        var colId = AINSPECTOR_FB.gridHeaderColumnResize.currColumn.getAttribute("id");
-        FBTrace.sysout("cookies.End resizing column (id): " + colId +
-                ", new width: " + newWidth + "\n");
-      }
-    }    
+        if (!hrefLabel)
+            return;
+
+        if (!Firebug.currentContext)
+        {
+            if (FBTrace.DBG_ERRORS)
+                FBTrace.sysout("net.updateHRefLabelWidth; Firebug.currentContext == NULL");
+            return;
+        }
+
+        var maxWidth = netHrefCol.clientWidth;
+
+        // This call must precede all getCSSStyleRules calls  FIXME not needed after 3.6
+        Firebug.CSSModule.cleanupSheets(hrefLabel.ownerDocument, this.context);
+        var rules = Dom.domUtils.getCSSStyleRules(hrefLabel);
+        for (var i = 0; i < rules.Count(); ++i)
+        {
+            var rule = Xpcom.QI(rules.GetElementAt(i), Ci.nsIDOMCSSStyleRule);
+            if (rule.selectorText == ".gridHrefLabel")
+            {
+                var style = rule.style;
+                var paddingLeft = parseInt(style.getPropertyValue("padding-left"));
+                if (maxWidth == 0)
+                    style.setProperty("max-width", "15%", "");
+                else
+                    style.setProperty("max-width", (maxWidth - paddingLeft) + "px", "");
+                break;
+            }
+        }
+    }
   };
   
   /**
@@ -357,11 +390,12 @@ FBL.ns(function() { with (FBL) {
      */
     loadCSSToStylePanel : function(document){
 
-    this.loadCSS("chrome://firebug-a11y/content/css/ainspector-panel.css", document);
+      this.loadCSS("chrome://firebug-a11y/content/css/ainspector-panel.css", document);
       this.loadCSS("chrome://firebug-a11y/content/css/fonts-min.css", document);
       this.loadCSS("chrome://firebug-a11y/content/css/tabview.css", document);
       this.loadCSS("chrome://firebug-a11y/content/css/allyGrade.css", document);
       this.loadCSS("chrome://firebug-a11y/content/css/grid.css", document); 
+      this.loadCSS("chrome://firebug/skin/cookies/cookies.css", document);
     },
       
   /**

@@ -30,7 +30,13 @@ FBL.ns(function() { with (FBL) {
   cacheSidePanel.prototype = extend(Firebug.Panel, {
     
     name: side_panel_name,
+    
+    /**
+     * This panel is automatically used as a side-panel when parent panel is set.
+     * In this case we are injecting a side panel into an existing panel.
+     */
     parentPanel: main_panel,
+    
     title: side_panel_title,
     tooltip: tool_tip,
     order: 5,
@@ -65,10 +71,9 @@ FBL.ns(function() { with (FBL) {
        appendStylesheet(this.panelNode.ownerDocument, "chrome://selectbug/skin/selectbug.css");
        appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/ainspector-side-panel.css");
 
-       appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/userinterface.css");
        appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/fonts-min.css");
        appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/tabview.css");
-       appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/ainspector.css");
+//       appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/ainspector.css");
        appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/allyGrade.css");
        appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/grid.css");
 
@@ -80,7 +85,7 @@ FBL.ns(function() { with (FBL) {
      /**
       * @function updateSelection
       * 
-      * @desc
+      * @desc called whenever a toolbar button is selected
       * 
       * @param element - 
       */
@@ -97,9 +102,9 @@ FBL.ns(function() { with (FBL) {
      },
      
      /**
-      * show
+      * @function show
       * 
-      * @desc
+      * @desc called whenever a panel is selected
       * 
       * @param state
       */
@@ -139,7 +144,8 @@ FBL.ns(function() { with (FBL) {
        FBTrace.sysout("properties: ", properties);
        
        for(var i=0; i<properties.length; i++){
-         rule_result_array.push({"label": properties[i].label, "value": properties[i].value, "description": properties[i].description});
+         rule_result_array.push({"label": properties[i].label, "value": properties[i].value});
+       
        }
        return rule_result_array;
        
@@ -189,17 +195,14 @@ FBL.ns(function() { with (FBL) {
 	        THEAD(
 	          TR({class: "gridHeaderRow gridRow", id: "rulesTableHeader", "role": "row", tabindex: "0"},
 	            TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, DIV({class: "gridHeaderCellBox"}, "A11y Property")),
-	            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, DIV({class: "gridHeaderCellBox"}, "Value")),
-	            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, DIV({class: "gridHeaderCellBox"}, "Description"))
+	            TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, DIV({class: "gridHeaderCellBox"}, "Value"))
 	          )
 	        ),  
 	        TBODY(
 	          FOR("obj", "$object",
 	            TR({class: "tableRow a11yFocus", role: "row"},
 	              TD({class: "resultsCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridLabel"},"$obj.label")),
-	              TD({class: "messagesCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridLabel"},"$obj.value")),
-	              TD({class: "messagesCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridLabel"},"$obj.description"))
-
+	              TD({class: "messagesCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridLabel"},"$obj.value"))
 	            ) //end TR
 	          ) 
 	        ) //end TBODY  

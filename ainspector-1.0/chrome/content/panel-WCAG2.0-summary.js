@@ -32,14 +32,11 @@ with (FBL) {
     /**
      * @function viewPanel 
      * 
-     * @desc respond to "Images" button in the AInspector toolbar
+     * @desc respond to "WCAG2.0" button in the AInspector toolbar
      * 
      * @param {Object} context - Firebug current context i.e., DOM
      * @param {String} panel_name - name of the panel to identify in which panel are we
      * @param {Object} cache_object - container for all the element properties
-     * @property {Array} toolbar_buttons - buttons to show on a toolbar
-     * @property {Object} toolbar - dom element created to hold the content of the panel. will append to the panel 
-     * @property {Object} cache_object - container for all the element properties
      * 
      */
     viewPanel: function(context, panel_name, cache_object) {
@@ -116,7 +113,7 @@ with (FBL) {
           SPAN({class: "ruleset-level-value"}, "$AINSPECTOR_FB.selected_level"),
           BUTTON({class: "button", onclick: "$Firebug.preferenceModule.viewPanel", style: "margin-left: 0.5em;"}, "preferences"),
           BUTTON({onclick: "$AINSPECTOR_FB.flatListTemplateUtil.highlightAll", style: "margin-left: 0.5em;", _repObject: "$object"}, "show all"),
-          BUTTON({onclick: "$expandAll", style: "margin-left: 0.5em;", _repObject: "$object"}, "Expand All"),
+          BUTTON({onclick: "$expandAll", style: "margin-left: 25.0em;", _repObject: "$object"}, "Expand All"),
           BUTTON({onclick: "$collapseAllRows", style: "margin-left: 0.5em;", _repObject: "$object"}, "Collapse All"),
           SPAN({class: "view-panel"}, "$view")
         ),
@@ -374,7 +371,7 @@ with (FBL) {
           var level = parseInt(row.getAttribute("level"));
           setClass(row, "opened");
           var repObject = row.newObject;
-          FBTrace.sysout("rep: ", repObject);
+
           if (repObject) {
             var members = this.getMembers(repObject.filtered_results, level+1);
         
@@ -458,7 +455,7 @@ with (FBL) {
           required                  = (rule_result.rule_mapping.type === OpenAjax.a11y.RULE.REQUIRED) ? 'Yes' : 'No';
           wcag20_level              = rule_result.rule.getNLSWCAG20Level();
           nls_impl_level            = rule_result_groups.getNLSImplementationLevel();
-          rule_description          = rule_result.message;
+          rule_description          = rule_result.getMessage();
           implementation_percentage = rule_result_groups.implementation_percentage;
 
         } else {

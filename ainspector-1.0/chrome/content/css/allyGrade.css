@@ -2,6 +2,10 @@
     width: 100%;
 }
 
+.domTable tr:nth-child(even) {
+    background-color: #EFEFEF;
+}
+
 .treeRow .memberLabelCell {
   text-align: left;
 }
@@ -26,6 +30,7 @@
   background-color: #121212;
 }
 
+/* Begin style severities*/
 .styleLabel {
     font-style: italic;
     font-size: 90%;
@@ -85,10 +90,11 @@
   color: grey;
   display: block;
 }
+
+/* End style severities*/
+
 table:focus, .treeLabelxx:focus, .treeRow:focus {
 }
-
-/* END A11y Grade screen */
 
 .treeitem {  margin-right: .6em;}
 .collapsedgroup { display : none; }

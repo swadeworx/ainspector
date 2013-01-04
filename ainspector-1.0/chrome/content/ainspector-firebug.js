@@ -63,13 +63,15 @@ FBL.ns(function() { with (FBL) {
     initialize: function() {
     
       var header_column_resizer = AINSPECTOR_FB.gridHeaderColumnResize;
-    
+      FBTrace.sysout("Firebug: ", FBL);
       this.onMouseClick = bind(header_column_resizer.onMouseClick, header_column_resizer); 
-      this.onMouseDown = bind(header_column_resizer.onMouseDown, header_column_resizer);
-      this.onMouseMove = bind(header_column_resizer.onMouseMove, header_column_resizer);
-      this.onMouseUp = bind(header_column_resizer.onMouseUp, header_column_resizer);
-      this.onMouseOut = bind(header_column_resizer.onMouseOut, header_column_resizer);
-    
+      this.onMouseDown  = bind(header_column_resizer.onMouseDown, header_column_resizer);
+      this.onMouseMove  = bind(header_column_resizer.onMouseMove, header_column_resizer);
+      this.onMouseUp    = bind(header_column_resizer.onMouseUp, header_column_resizer);
+      this.onMouseOut   = bind(header_column_resizer.onMouseOut, header_column_resizer);
+      
+//      this.onResizer    = bind(header_column_resizer.updateWidth, header_column_resizer);
+      
       //this - context , arguments - document
       Firebug.Panel.initialize.apply(this, arguments);
     },
@@ -91,6 +93,10 @@ FBL.ns(function() { with (FBL) {
       this.panelNode.addEventListener("mouseup", this.onMouseUp, true);
       this.panelNode.addEventListener("mouseout", this.onMouseOut, true);
       
+//      this.resizeEventTarget = Firebug.chrome.$('fbContentBox');
+
+//      this.panelNode.addEventListener("resize", this.onResizer, true);
+      
       Firebug.Panel.initializeNode.apply(this, arguments);
       
     },
@@ -108,6 +114,8 @@ FBL.ns(function() { with (FBL) {
       this.panelNode.removeEventListener("mousemove", this.onMouseMove, true);
       this.panelNode.removeEventListener("mouseup", this.onMouseUp, true);
       this.panelNode.removeEventListener("mouseout", this.onMouseOut, true);
+      
+//      this.panelNode.removeEventListener("resize", this.onResizer, true);
       
       Firebug.Panel.destroyNode.apply(this, arguments);
     },

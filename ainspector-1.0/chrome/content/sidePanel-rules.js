@@ -68,7 +68,6 @@ FBL.ns(function() { with (FBL) {
       appendStylesheet(this.panelNode.ownerDocument, "chrome://firebug-a11y/content/css/ainspector-side-panel.css");
       appendStylesheet(this.panelNode.ownerDocument, "chrome://firebug-a11y/content/css/fonts-min.css");
       appendStylesheet(this.panelNode.ownerDocument, "chrome://firebug-a11y/content/css/tabview.css");
-      appendStylesheet(this.panelNode.ownerDocument, "chrome://firebug-a11y/content/css/ainspector.css");
       appendStylesheet(this.panelNode.ownerDocument, "chrome://firebug-a11y/content/css/allyGrade.css");
       appendStylesheet(this.panelNode.ownerDocument, "chrome://firebug-a11y/content/css/grid.css");
 

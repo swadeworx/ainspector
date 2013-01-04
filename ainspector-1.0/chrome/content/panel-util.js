@@ -65,7 +65,7 @@ FBL.ns(function() { with (FBL) {
          panel.table = AINSPECTOR_FB.treeTemplate.grid.tag.replace({object: cache_item_results, view: rule_category_view}, toolbar, AINSPECTOR_FB.treeTemplate.grid);
          AINSPECTOR_FB.treeTemplate.grid.expandAllRows(panel.table);
        } else {  
-         panel.table = AINSPECTOR_FB.template.grid.header.replace({elements: cache_item_results, view: rule_category_view}, toolbar, AINSPECTOR_FB.template.grid);
+         panel.table = AINSPECTOR_FB.template.grid.header.replace({elements: cache_item_results, view: rule_category_view, cache_results: cache_elements_results}, toolbar, AINSPECTOR_FB.template.grid);
        }
        AINSPECTOR_FB.template.grid.setTableMenuItems(panel.table);
        
@@ -996,7 +996,7 @@ AINSPECTOR_FB.tabPanelUtil = {
          AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_events);
   
        }
-     } else { //for summary or wcag view
+     } else if (flag == false){ //for summary or wcag view
      
        if (panelType_rules_results) {
          AINSPECTOR_FB.rules_results_registered = panelType_rules_results;
@@ -1034,7 +1034,39 @@ AINSPECTOR_FB.tabPanelUtil = {
          panelType_rules = AINSPECTOR_FB.rules_registered;
          AINSPECTOR_FB.tabPanelUtil.onAppendSidePanel(panelType_rules);
        }
-     } 
+     } else {
+       if (panelType_elements) {
+         AINSPECTOR_FB.elements_registered = panelType_elements;
+         AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_elements);
+       }
+       
+       if (panelType_rules) {
+         AINSPECTOR_FB.rules_registered = panelType_rules;
+         AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_rules);
+       }
+       if (panelType_rules_results) {
+         AINSPECTOR_FB.rules_results_registered = panelType_rules_results;
+         AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_rules_results);     
+       }
+       
+       if (panelType_attributes) {
+         AINSPECTOR_FB.attributes_registered = panelType_attributes;
+         AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_attributes);     
+       }
+       
+       if (panelType_events) {
+         AINSPECTOR_FB.events_registered = panelType_events;
+         AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_events);     
+       }
+       if (panelType_cache_properties) {
+         AINSPECTOR_FB.cacheProperties_registered = panelType_cache_properties;
+         AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_cache_properties);     
+       }
+       if (panelType_style) {
+         AINSPECTOR_FB.style_registered = panelType_style;
+         AINSPECTOR_FB.tabPanelUtil.onRemoveSidePanel(panelType_style);     
+       }
+     }
    }
  };
 
