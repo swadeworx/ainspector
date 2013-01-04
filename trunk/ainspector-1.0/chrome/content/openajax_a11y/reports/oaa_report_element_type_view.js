@@ -74,18 +74,58 @@
        };
 
 
-
       /**
-       * @function OAA_REPORT.addTitle
+       * @function OAA_REPORT.addTitleAndEvalInfo
        *
        * @desc Adds title to HTML OAA report using the H1 element 
        */
-       OAA_REPORT.addTitle = function() {
+       OAA_REPORT.addTitleAndEvalInfo = function() {
 
-         var node      = document.getElementById('ID_H1_TITLE');
-         var title     = OAA_REPORT.removeEscapesFromJSON(OAA_REPORT.title);
-         var text_node = document.createTextNode(title);
-         node.appendChild(text_node);
+         function updateInfoItems(class_name, item, link_flag) {
+         
+           var nodes      = document.getElementsByClassName(class_name);
+           
+           for (var i = 0; i < nodes.length; i++) {
+             
+             var node = nodes[i];
+             
+             var text     = OAA_REPORT.removeEscapesFromJSON(OAA_REPORT.element_type_data[item]);
+             var text_node = document.createTextNode(text);
+             node.appendChild(text_node);
+           
+             if (typeof link_flag === 'boolean' && link_flag) {
+               node.setAttribute('href', text);
+               node.setAttribute('target', '_eval_page');
+             }
+           }   
+           return node;
+         }  
+
+
+         function updateInfoItem(id, item, link_flag) {
+         
+           var node      = document.getElementById(id);
+           var text     = OAA_REPORT.removeEscapesFromJSON(OAA_REPORT.element_type_data[item]);
+           var text_node = document.createTextNode(text);
+           node.appendChild(text_node);
+           
+           if (typeof link_flag === 'boolean' && link_flag) {
+             node.setAttribute('href', text);
+             node.setAttribute('target', '_eval_page');
+           }
+           
+           return node;
+         }  
+
+         updateInfoItems('title', 'element_type_title');
+         
+         updateInfoItem('ID_SPAN_EVAL_TITLE', 'eval_title');
+         updateInfoItem('ID_A_EVAL_URL', 'eval_url', true);
+         updateInfoItem('ID_SPAN_EVAL_DATE', 'eval_date');
+         updateInfoItem('ID_SPAN_EVAL_TIME', 'eval_time');
+
+         updateInfoItem('ID_SPAN_RULESET_TITLE', 'ruleset_title');
+         updateInfoItem('ID_SPAN_RULESET_VERSION', 'ruleset_version');
          
        }
        
@@ -425,7 +465,7 @@
 
        OAA_REPORT.onLoad = function() {
        
-         OAA_REPORT.addTitle();
+         OAA_REPORT.addTitleAndEvalInfo();
 
          OAA_REPORT.initResultItemsArray();
 

@@ -69,6 +69,18 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
       style : "empty_alt"
     },
     
+    invalid_attribute : {
+      label : "invalid attribute",
+      value : "",
+      style : "invalid"
+    },
+
+    invalid_value : {
+      label : "",
+      value : " (invalid)",
+      style : "invalid"
+    },
+
 
     /**
      * Severity of not passing a rule for a particular requirement set, like WCAG 2.0

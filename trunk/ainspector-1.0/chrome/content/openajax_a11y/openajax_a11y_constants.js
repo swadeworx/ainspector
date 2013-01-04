@@ -247,17 +247,19 @@ OpenAjax.a11y.ELEMENT_TYPE = OpenAjax.a11y.ELEMENT_TYPE || {
   AUDIO_VIDEO        : 4,
   FORM_CONTROLS      : 5,
   HEADINGS           : 6,
-  HEADINGS_LANDMARKS : 7,
-  IMAGES             : 8,
-  LANGUAGE           : 9,
-  LANDMARKS          : 10,
+  IMAGES             : 7,
+  LANGUAGE           : 8,
+  LANDMARKS          : 9,
+  LAYOUT             : 10,
   LINKS              : 11,
   LISTS              : 12,
   TABLES             : 13,
   TEXT               : 14,
   TIMING             : 15,
   VIDEO              : 16,
-  WIDGETS            : 17
+  WIDGETS            : 17,
+  HEADINGS_LANDMARKS : 100,
+  LAYOUT_TABLES      : 101
 };
 
 

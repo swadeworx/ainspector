@@ -72,8 +72,6 @@
  *
  * @property {Array}    table_elements - Array of all the TableElement objects in the cache  
  * @property {Number}   length         - Running length of the table_elements array for use in calculating cache_id values
- * @property {String}   sort_property  - The property a TableElement object the table_elements array is currently sorted by
- * @property {Boolean}  ascending      - Boolean  true if the list is ascending order or false if descending
  * 
  * @property {Array}    rule_results   - Root array of the tree representation of the table elements in the document 
  *
@@ -90,8 +88,9 @@ OpenAjax.a11y.cache.TablesCache = function (dom_cache) {
    
   this.table_elements = [];  
   this.length         = 0;  
-  this.sort_property  = 'document_order';
-  this.ascending      = true;
+
+  this.page_element  = null;  
+
 
 };
 
@@ -384,6 +383,12 @@ OpenAjax.a11y.cache.TablesCache = function (dom_cache) {
        
        break;
        
+     case 'body':
+       if (!this.page_element) {  
+         this.page_element = new OpenAjax.a11y.cache.PageElementLayout(dom_element);
+       } 
+       break;
+           
      default:
        break;
 
@@ -580,7 +585,7 @@ OpenAjax.a11y.cache.TablesCache = function (dom_cache) {
 OpenAjax.a11y.cache.TableElement.prototype.setIsDataTable = function () {
 
   // if role=presentation this is a layout table
-  if (this.dom_element.role && this.dom_element.role === "presentation") {
+  if (this.dom_element.has_role) {
     this.setIsLayoutTable();
     return; 
   }  
@@ -739,7 +744,9 @@ OpenAjax.a11y.cache.TableElement.prototype.getItemByCacheId = function (cache_id
      break;   
 
    case OpenAjax.a11y.TABLE.TD_ELEMENT:  
-   
+
+   OpenAjax.a11y.logger.debug("  Data Table Assumption: " + OpenAjax.a11y.DATA_TABLE_ASSUMPTION);
+
      if (this.is_data_table) {
        if ((table_element.number_of_header_ids > 1) ||
            (table_element.row_span             > 1) ||
@@ -751,6 +758,7 @@ OpenAjax.a11y.cache.TableElement.prototype.getItemByCacheId = function (cache_id
        if ((this.max_row > 1) && 
            (this.max_column > 1) && 
            OpenAjax.a11y.DATA_TABLE_ASSUMPTION) {
+           
          this.setIsDataTable();
        }
      }
@@ -2406,3 +2414,185 @@ OpenAjax.a11y.cache.TableCellElement.prototype.toString = function () {
   }
 };
 
+/* ---------------------------------------------------------------- */
+/*                       PageElementLayout                               */ 
+/* ---------------------------------------------------------------- */
+
+/**
+ * @constructor PageElementLayout
+ *
+ * @memberOf OpenAjax.a11y.cache
+ *
+ * @desc Creates a body element object used to hold information about a title element
+ *
+ * @param  {DOMelement}   dom_element      - The dom element object representing the heading element 
+ * @param  {MainElement}  parent_landmark  - This is always null since this is the root element
+ *
+ * @property  {DOMElement}   dom_element      - Reference to the dom element representing the optgroup element
+ * @property  {String}       cache_id         - String that uniquely identifies the cache element object in the cache
+ * @property  {Number}       document_order   - Ordinal position of the title and main cache items in the document to other title and main cache items
+ *
+ * @property  {Array}  child_cache_elements  - List of child cache title element, main landmarks and h1 heading element objects as part of cache title and main elements tree  
+ *
+ * @property  {Boolean}  is_page_element  -  Boolean indicating the element is a page element 
+ *
+ */
+
+OpenAjax.a11y.cache.PageElementLayout = function (dom_element) {
+
+  this.dom_element     = dom_element;
+  this.cache_id        = "page_layout";
+  this.document_order  = 0;
+  this.is_page_element = true;
+
+  this.child_cache_elements = []; // this is always empty for the body element
+
+}; 
+
+/**
+ * @method addChildMainElement
+ *
+ * @memberOf OpenAjax.a11y.cache.PageElementLayout
+ *
+ * @desc Adds a main landmark  object to the tree of title and main elements  
+ *
+ * @param {MainElement}  main_element  -  Main landmark element object to add 
+ */
+
+OpenAjax.a11y.cache.PageElementLayout.prototype.addChildMainElement = function (main_element) {
+
+  if (main_element) {
+    this.child_cache_elements.push(main_element); 
+  }  
+
+};
+
+/**
+ * @method getNodeResults
+ *
+ * @memberOf OpenAjax.a11y.cache.PageElementLayout
+ *
+ * @desc Returns an array of node results in severity order 
+ *
+ * @return {Array} Returns a array of node results
+ */
+
+OpenAjax.a11y.cache.PageElementLayout.prototype.getNodeResults = function () {
+  return this.dom_element.getNodeResults();
+};
+
+/**
+ * @method getStyle
+ *
+ * @memberOf OpenAjax.a11y.cache.PageElementLayout
+ *
+ * @desc Returns an array of style items 
+ *
+ * @return {Array} Returns a array of style display objects
+ */
+
+OpenAjax.a11y.cache.PageElementLayout.prototype.getStyle = function () {
+
+  return this.dom_element.getStyle();
+  
+};
+
+/**
+ * @method getAttributes
+ *
+ * @memberOf OpenAjax.a11y.cache.PageElementLayout
+ *
+ * @desc Returns an array of attributes for the element, sorted in alphabetical order 
+ *
+ * @param {Boolean}  unsorted  - If defined and true the results will NOT be sorted alphabetically
+ *
+ * @return {Array} Returns a array of attribute display object
+ */
+
+OpenAjax.a11y.cache.PageElementLayout.prototype.getAttributes = function (unsorted) {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  var attributes = this.dom_element.getAttributes();
+  
+//  cache_nls.addPropertyIfDefined(attributes, this, 'tag_name');
+  
+  if (!unsorted) this.dom_element.sortItems(attributes);
+  
+  return attributes;
+};
+
+/**
+ * @method getCacheProperties
+ *
+ * @memberOf OpenAjax.a11y.cache.PageElementLayout
+ *
+ * @desc Returns an array of cache properties sorted by property name 
+ *
+ * @param {Boolean}  unsorted  - If defined and true the results will NOT be sorted alphabetically
+ *
+ * @return {Array} Returns a array of cache property display object
+ */
+
+OpenAjax.a11y.cache.PageElementLayout.prototype.getCacheProperties = function (unsorted) {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+
+  var properties = this.dom_element.getCacheProperties(unsorted);
+ 
+  if (!unsorted) this.dom_element.sortItems(properties);
+
+  return properties;
+};
+
+/**
+ * @method getCachePropertyValue
+ *
+ * @memberOf OpenAjax.a11y.cache.PageElementLayout
+ *
+ * @desc Returns the value of a property 
+ *
+ * @param {String}  property  - The property to retreive the value
+ *
+ * @return {String | Number} Returns the value of the property
+ */
+
+OpenAjax.a11y.cache.PageElementLayout.prototype.getCachePropertyValue = function (property) {
+
+  if (typeof this[property] == 'undefined') {
+    return this.dom_element.getCachePropertyValue(property);
+  }
+  
+  return this[property];
+};
+
+
+
+/**
+ * @method getEvents
+ *
+ * @memberOf OpenAjax.a11y.cache.PageElementLayout
+ *
+ * @desc Returns an array of events for the element, sorted in alphabetical order 
+ *
+ * @return {Array} Returns a array of event item display objects
+ */
+
+OpenAjax.a11y.cache.PageElementLayout.prototype.getEvents = function () {
+   
+  return this.dom_element.getEvents();
+  
+};
+
+/**
+ * @method toString
+ *
+ * @memberOf OpenAjax.a11y.cache.PageElementLayout
+ *
+ * @desc Returns a text string representation of the title element 
+ *
+ * @return {String} Returns string represention the title element object
+ */
+  
+OpenAjax.a11y.cache.PageElementLayout.prototype.toString = function () {
+  return "page";  
+};

@@ -43,56 +43,79 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
   // Assignement of rules to WCAG 2.0 requirements
 
   rule_mappings : {
+   AUDIO_1 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
+       enabled  : true
+     },
+   AUDIO_2 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
+       enabled  : true
+     },
    COLOR_1 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
        enabled  : true
      },
    COLOR_2 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
        enabled  : true
      },
    CONTROL_1 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
        enabled  : true
      },
    CONTROL_2 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
        enabled  : true
      },
    CONTROL_3 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
        enabled  : true
      },
    CONTROL_4 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
        enabled  : true
      },
    CONTROL_5 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
        enabled  : true
      },
    CONTROL_6 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
        enabled  : true
      },
    CONTROL_7 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
        enabled  : true
      },
    CONTROL_8 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
        enabled  : true
      },
    CONTROL_10 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
        enabled  : true
      },
    CONTROL_11 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
        enabled  : true
      },
    CONTROL_12 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
        enabled  : true
      },
    HEADING_1 : {
@@ -105,26 +128,32 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
      },
    HEADING_3 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
        enabled  : true
      },
    HEADING_4 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
        enabled  : true
      },
    HEADING_5 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
        enabled  : true
      },
    IMAGE_1 : {  
        type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
        enabled  : true
      },
    IMAGE_2 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
        enabled  : true
      },
    IMAGE_3 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
        enabled  : true
      },
    IMAGE_4_EN : {
@@ -137,65 +166,195 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
      },
    IMAGE_6 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
+       enabled  : true
+     },
+   KEYBOARD_1 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
+       enabled  : true
+     },
+   KEYBOARD_2 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
        enabled  : true
      },
    LANDMARK_1 : {
        type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       triage   : false,
        enabled  : true
      },
    LANDMARK_2 : {
        type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       triage   : false,
+       enabled  : true
+     },
+   LAYOUT_1 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
+       enabled  : true
+     },
+   LAYOUT_2 : {
+       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       triage   : false,
+       enabled  : true
+     },
+   LAYOUT_3 : {
+       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       triage   : false,
        enabled  : true
      },
    LINK_1 : {
        type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       triage   : false,
        enabled  : true
      },
    LINK_2 : {
        type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       triage   : false,
        enabled  : true
      },
    LINK_3 : {
        type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       triage   : false,
        enabled  : true
      },
    LINK_4 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
        enabled  : true
      },
    TABLE_1 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
        enabled  : true
      },
    TABLE_2T : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
        enabled  : true
      },
    TABLE_3 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
        enabled  : true
      },
    TABLE_4 : {
        type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       triage   : false,
        enabled  : true
      },
    TITLE_1 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
        enabled  : true
      },
    TITLE_2 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
+       enabled  : true
+     },
+   VIDEO_1 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
+       enabled  : true
+     },
+   VIDEO_2 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
+       enabled  : true
+     },
+   VIDEO_3 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
+       enabled  : true
+     },
+   VIDEO_4 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
+       enabled  : true
+     },
+   VIDEO_5 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
+       enabled  : true
+     },
+   VIDEO_6 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
+       enabled  : true
+     },
+   VIDEO_7 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
+       enabled  : true
+     },
+   VIDEO_8 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
        enabled  : true
      },
    WIDGET_1 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
        enabled  : true
      },
    WIDGET_2 : {
        type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
+       enabled  : true
+     },
+   WIDGET_3 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
+       enabled  : true
+     },
+   WIDGET_4 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
+       enabled  : true
+     },
+   WIDGET_5 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
+       enabled  : true
+     },
+   WIDGET_6 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
+       enabled  : true
+     },
+   WIDGET_7 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
+       enabled  : true
+     },
+   WIDGET_8 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
+       enabled  : true
+     },
+   WIDGET_9 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
+       enabled  : true
+     },
+   WIDGET_10 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
+       enabled  : true
+     },
+   WIDGET_11 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
+       enabled  : true
+     },
+   WIDGET_12 : {
+       type     : OpenAjax.a11y.RULE.REQUIRED,
+       triage   : false,
        enabled  : true
      }
-  } 
+  }  
 });
 
 

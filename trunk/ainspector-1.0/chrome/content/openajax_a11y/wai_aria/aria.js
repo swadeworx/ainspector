@@ -52,117 +52,121 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          */
         propertyDataTypes : {
          	"aria-activedescendant" : {
-         		type : "http://www.w3.org/2001/XMLSchema#idref"
+         		type : "idref"
          	},
          	"aria-atomic" : {
-         		type : "http://www.w3.org/2001/XMLSchema#boolean"
+         		type : "boolean"
          	},
          	"aria-autocomplete" : {
-         		type : "http://www.w3.org/2001/XMLSchema#nmtoken",
+         		type : "nmtoken",
          		values : ["inline", "list", "both", "none"]
          	},
          	"aria-busy" : {
-         		type : "http://www.w3.org/2001/XMLSchema#boolean"
+         		type : "boolean"
          	},
          	"aria-checked" : {
-         		type : "http://www.w3.org/2001/XMLSchema#nmtoken",
+         		type : "nmtoken",
          		values : ["true", "false", "mixed", "undefined"]
          	},
          	"aria-controls" : {
-         		type : "http://www.w3.org/2001/XMLSchema#idrefs"
+         		type : "idrefs"
          	},
          	"aria-describedby" : {
-         		type : "http://www.w3.org/2001/XMLSchema#idrefs"
+         		type : "idrefs"
          	},
          	"aria-disabled" : {
-         		type : "http://www.w3.org/2001/XMLSchema#boolean"
+         		type : "boolean"
          	},
          	"aria-dropeffect" : {
-         		type : "http://www.w3.org/2001/XMLSchema#nmtokens",
-         		values : ["copy", "move", "reference", "execute", "popup", "none"]
+         		type : "nmtokens",
+         		values : ["copy", "move", "link", "execute", "popup", "none"]
          	},
          	"aria-expanded" : {
-         		type : "http://www.w3.org/2001/XMLSchema#nmtoken",
+         		type : "nmtoken",
          		values : ["true", "false", "undefined"]
          	},
          	"aria-flowto" : {
-         		type : "http://www.w3.org/2001/XMLSchema#idrefs"
+         		type : "idrefs"
          	},
          	"aria-grabbed" : {
-         		type : "http://www.w3.org/2001/XMLSchema#nmtoken",
+         		type : "nmtoken",
          		values : ["true", "false", "undefined"]
          	},
          	"aria-haspopup" : {
-         		type : "http://www.w3.org/2001/XMLSchema#boolean"
+         		type : "boolean"
          	},
          	"aria-hidden" : {
-         		type : "http://www.w3.org/2001/XMLSchema#boolean"
+         		type : "boolean"
          	},
          	"aria-invalid" : {
-         		type : "http://www.w3.org/2001/XMLSchema#nmtoken",
+         		type : "nmtoken",
          		values : ["true", "false", "spelling", "grammar"]
          	},
          	"aria-label" : {
-         		type : "http://www.w3.org/2001/XMLSchema#string"
+         		type : "string"
          	},
          	"aria-labelledby" : {
-         		type : "http://www.w3.org/2001/XMLSchema#idrefs"
+         		type : "idrefs"
          	},
          	"aria-level" : {
-         		type : "http://www.w3.org/2001/XMLSchema#int"
+         		type : "integer"
          	},
          	"aria-live" : {
-         		type : "http://www.w3.org/2001/XMLSchema#nmtoken",
+         		type : "nmtoken",
          		values : ["off", "polite", "assertive"]
          	},
          	"aria-multiline" : {
-         		type : "http://www.w3.org/2001/XMLSchema#boolean"
+         		type : "boolean"
          	},
          	"aria-multiselectable" : {
-         		type : "http://www.w3.org/2001/XMLSchema#boolean"
+         		type : "boolean"
+         	},
+         	"aria-orientation" : {
+         		type : "nmtoken",
+         		values : ["vertical", "horizontal"]
          	},
          	"aria-owns" : {
-         		type : "http://www.w3.org/2001/XMLSchema#idrefs"
+         		type : "idrefs"
          	},
          	"aria-posinset" : {
-         		type : "http://www.w3.org/2001/XMLSchema#int"
+         		type : "integer"
          	},
          	"aria-pressed" : {
-         		type : "http://www.w3.org/2001/XMLSchema#nmtoken",
+         		type : "nmtoken",
          		values : ["true", "false", "mixed", "undefined"]
          	},
          	"aria-readonly" : {
-         		type : "http://www.w3.org/2001/XMLSchema#boolean"
+         		type : "boolean"
          	},
          	"aria-relevant" : {
-         		type : "http://www.w3.org/2001/XMLSchema#nmtokens",
+         		type : "nmtokens",
          		values : ["additions", "removals", "text", "all"]
          	},
          	"aria-required" : {
-         		type : "http://www.w3.org/2001/XMLSchema#boolean"
+         		type : "boolean"
          	},
          	"aria-selected" : {
-         		type : "http://www.w3.org/2001/XMLSchema#nmtoken",
+         		type : "nmtoken",
          		values : ["true", "false", "undefined"]
          	},
          	"aria-setsize" : {
-         		type : "http://www.w3.org/2001/XMLSchema#int"
+         		type : "integer"
          	},
          	"aria-sort" : {
-         		type : "http://www.w3.org/2001/XMLSchema#nmtoken",
+         		type : "nmtoken",
          		values : ["ascending", "descending", "other", "none"]
          	},
          	"aria-valuemax" : {
-         		type : "http://www.w3.org/2001/XMLSchema#decimal"
+         		type : "decimal"
          	},
          	"aria-valuemin" : {
-         		type : "http://www.w3.org/2001/XMLSchema#decimal"
+         		type : "decimal"
          	},
          	"aria-valuenow" : {
-         		type : "http://www.w3.org/2001/XMLSchema#decimal"
+         		type : "decimal"
          	},
          	"aria-valuetext" : {
-         		type : "http://www.w3.org/2001/XMLSchema#string"
+         		type : "string"
          	}
         },
         
@@ -200,6 +204,7 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
         designPatterns : {
          		
          	"alert" : {
+         		reqName : false,
          		container : null,
          		props : ["aria-expanded"],
          		reqProps : null,
@@ -211,16 +216,19 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},
          	                
          	"alertdialog" : {
+         		reqName : true,
          		container : null,
          		props : ["aria-expanded"],
          		reqProps : null,
          		reqChildren : null,
          		htmlEquiv : null,
          		nameFromContent: false,
+         		supportOnClick: true,
          		roleType : "widget"
          	},
          	
          	"application" : {
+         		reqName : true,
          		container : null,
          		props : ["aria-expanded"],
          		reqProps : null,
@@ -231,6 +239,7 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},
          	
          	"article" : {
+         		reqName : false,
          		container : null,
          		props : ["aria-expanded"],
          		reqProps : null,
@@ -241,6 +250,7 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
         	},
          	
          	"banner" : {
+         		reqName : false,
          		container : null,
          		props : ["aria-expanded"],
          		reqProps : null,
@@ -251,36 +261,42 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},
          	
          	"button" : {
+         		reqName : true,
          		container : null,
          		props : ["aria-expanded", "aria-pressed"],
          		reqProps : null,
          		reqChildren : null,
          		htmlEquiv : "input[@type='button']",
          		nameFromContent: true,
+         		supportOnClick: true,
          		roleType : "widget"
          	},
          	
          	"checkbox" : {
+         		reqName : true,
          		container : null,
          		props : null,
          		reqProps : ["aria-checked"],
          		reqChildren : null,
          		htmlEquiv : "input[@type='checkbox']",
          		nameFromContent: true,
+         		supportOnClick: true,
          		roleType : "widget"
          	},
          	
              "columnheader" : {
+         		reqName : true,
          		container : ["row"],
          		props : ["aria-expanded", "aria-sort", "aria-readonly", "aria-selected", "aria-required"],
          		reqProps : null,
          		reqChildren : null,
          		htmlEquiv : "th",
          		nameFromContent: true,
-         		roleType : "widget"
+         		roleType : "section"
          	},
          	
          	"combobox" : {
+         		reqName : true,
          		container : null,
          		props : ["aria-autocomplete", "aria-required", "aria-activedescendant"],
          		reqProps : ["aria-expanded"],
@@ -291,6 +307,7 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},
          	
          	"complementary" : {
+         		reqName : false,
          		container : null,
          		props : ["aria-expanded"],
          		reqProps : ["aria-labelledby"],
@@ -301,6 +318,7 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},
          	
          	"contentinfo" : {
+         		reqName : false,
          		container : null,
          		props : ["aria-expanded"],
          		reqProps : ["aria-labelledby"],
@@ -311,16 +329,18 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},
          	
          	"definition" : {
+         		reqName : false,
          		container : null,
          		props : ["aria-expanded"],
          		reqProps : null,
          		reqChildren : null,
          		htmlEquiv : null,
          		nameFromContent: false,
-         		roleType : "region"
+         		roleType : "section"
          	},
          	
          	"dialog" : {
+         		reqName : true,
          		container : null,
          		props : ["aria-expanded"],
          		reqProps : null,
@@ -331,26 +351,29 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},
          	
          	"directory" : {
+         		reqName : false,
          		container : null,
          		props : ["aria-expanded"],
          		reqProps : null,
          		reqChildren : null,
          		htmlEquiv : null,
          		nameFromContent: true,
-         		roleType : "list"
+         		roleType : "section"
          	},
          	
          	"document" : {
+         		reqName : true,
          		container : null,
          		props : ["aria-expanded"],
          		reqProps : null,
          		reqChildren : null,
          		htmlEquiv : null,
           		nameFromContent: false,
-         		roleType : "structure"
+         		roleType : "section"
         	},
          	
          	"form" : {
+         		reqName : false,
          		container : null,
          		props : ["aria-expanded"],
          		reqProps : null,
@@ -361,6 +384,7 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},	
          	
          	"grid" : {
+         		reqName : true,
          		container : null,
          		props : ["aria-level", "aria-multiselectable", "aria-readonly", "aria-activedescendant", "aria-expanded"],
          		reqProps : null,
@@ -371,6 +395,7 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},
          	
          	"gridcell" : {
+         		reqName : true,
          		container : ["row"],
          		props : ["aria-readonly", "aria-selected", "aria-expanded", "aria-required"],
          		reqProps : null,
@@ -381,6 +406,7 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},
          	
          	"group" : {
+         		reqName : false,
          		container : null,
          		props : ["aria-activedescendant", "aria-expanded"],
          		reqProps : null,
@@ -391,16 +417,18 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},
          	
          	"heading" : {
+         		reqName : true,
          		container : null,
          		props : ["aria-level", "aria-expanded"],
          		reqProps : null,
          		reqChildren : null,
          		htmlEquiv : "h1 | h2 | h3 | h4 | h5 |h6",
-         		nameFromContent: false,
-         		roleType : "sectionhead"         		
+         		nameFromContent: true,
+         		roleType : "section"         		
          	},
          	
          	"img" : {
+         		reqName : true,
          		container : null,
          		props : ["aria-expanded"],
          		reqProps : null,
@@ -411,16 +439,19 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},
          	
          	"link" : {
+         		reqName : true,
          		container : null,
          		props : null,
          		reqProps : null,
          		reqChildren : null,
          		htmlEquiv : "a",
          		nameFromContent: true,
+         		supportOnClick: true,
          		roleType : "widget"
          	},
          	
          	"list" : {
+         		reqName : false,
          		container : null,
          		props : ["aria-expanded"],
          		reqProps : null,
@@ -431,25 +462,31 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},
          	
          	"listbox" : {
+         		reqName : true,
          		container : null,
          		props : ["aria-expanded", "aria-activedescendant", "aria-multiselectable", "aria-required"],
          		reqProps : null,
          		reqChildren : ["option"],
          		htmlEquiv : "select",
          		nameFromContent: false,
+         		supportOnClick: true,
          		roleType : "widget"
          	},
          	
          	"listitem" : {
+         		reqName : true,
          		container : ["list"],
          		props : ["aria-expanded", "aria-level", "aria-posinset", "aria-setsize"],
          		reqProps : null,
          		reqChildren : null,
          		nameFromContent: true,
-         		htmlEquiv : "section"
+         		htmlEquiv : "section",
+         		supportOnClick: true,
+         		roleType : "widget"
          	},
          	
          	"log" : {
+         		reqName : false,
          		container : null,
          		props : ["aria-expanded"],
          		reqProps : null,
@@ -460,6 +497,7 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},
          	
          	"main" : {
+         		reqName : false,
          		container : null,
          		props : ["aria-expanded"],
          		reqProps : null,
@@ -470,6 +508,7 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},
          	
          	"marquee" : {
+         		reqName : true,
          		container : null,
          		props : ["aria-expanded"],
          		reqProps : null,
@@ -480,6 +519,7 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},
          	
          	"math" : {
+         		reqName : false,
          		container : null,
          		props : ["aria-expanded"],
          		reqProps : null,
@@ -490,56 +530,67 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},
          	
          	"menu" : {
+         		reqName : true,
          		container : null,
          		props : ["aria-expanded", "aria-activedescendant"],
          		reqProps : null,
          		reqChildren : ["menuitem", "menuitemcheckbox", "menuitemradio"],
          		htmlEquiv : null,
          		nameFromContent: false,
+         		supportOnClick: true,
          		roleType : "widget"
          	},
          	
          	"menubar" : {
+         		reqName : false,
          		container : null,
          		props : ["aria-activedescendant", "aria-expanded"],
          		reqProps : null,
          		reqChildren : null,
          		htmlEquiv : null,
          		nameFromContent: false,
+         		supportOnClick: true,
          		roleType : "widget"
          	},
          	
          	"menuitem" : {
+         		reqName : true,
          		container : ["menu", "menubar"],
          		props : null,
          		reqProps : null,
          		reqChildren : null,
          		htmlEquiv : null,
          		nameFromContent: true,
+         		supportOnClick: true,
          		roleType : "widget"
          	},
          	
          	"menuitemcheckbox" : {
+         		reqName : true,
          		container : ["menu", "menubar"],
          		props : null,
          		reqProps : ["aria-checked"],
          		reqChildren : null,
          		htmlEquiv : null,
          		nameFromContent: true,
+         		supportOnClick: true,
          		roleType : "widget"
          	},
          	
          	"menuitemradio" : {
+         		reqName : true,
          		container : ["menu", "menubar"],
          		props : ["aria-selected", "aria-posinset", "aria-setsize"],
          		reqProps : ["aria-checked"],
          		reqChildren : null,
          		htmlEquiv : null,
          		nameFromContent: true,
+         		supportOnClick: true,
          		roleType : "widget"
          	},
          	
          	"navigation" : {
+         		reqName : false,
          		container : null,
          		props : ["aria-expanded"],
          		reqProps : ["aria-labelledby"],
@@ -550,6 +601,7 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},
          	
          	"note" : {
+         		reqName : false,
          		container : null,
          		props : ["aria-expanded"],
          		reqProps : null,
@@ -560,16 +612,19 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},
          	
          	"option" : {
+         		reqName : true,
          		container : ["listbox"],
          		props : ["aria-expanded", "aria-checked", "aria-selected", "aria-posinset", "aria-setsize"],
          		reqProps : null,
          		reqChildren : null,
          		htmlEquiv : null,
          		nameFromContent: true,
+         		supportOnClick: true,
          		roleType : "widget"
          	},
          	
          	"presentation" : {
+         		reqName : false,
          		container : null,
          		props : null,
          		reqProps : null,
@@ -580,36 +635,43 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},
          	
          	"progressbar" : {
+         		reqName : true,
          		container : null,
          		props : ["aria-valuetext", "aria-valuenow", "aria-valuemax", "aria-valuemin"],
          		reqProps : null,
          		reqChildren : null,
          		htmlEquiv : null,
          		nameFromContent: false,
-         		roleType : "widget"
+         		roleType : "widget",
+         		hasRange: true
          	},
          	
          	"radio" : {
+         		reqName : true,
          		container : null,
          		props : ["aria-selected", "aria-posinset", "aria-setsize"],
          		reqProps : ["aria-checked"],
          		reqChildren : null,
          		htmlEquiv : "input[@type='radio']",
          		nameFromContent: true,
+         		supportOnClick: true,
          		roleType : "widget"
          	},
          	
          	"radiogroup" : {
+         		reqName : true,
          		container : null,
          		props : ["aria-activedescendant", "aria-expanded", "aria-required"],
          		reqProps : ["aria-labelledby"],
          		reqChildren : ["radio"],
          		htmlEquiv : null,
          		nameFromContent: false,
+         		supportOnClick: true,
          		roleType : "widget"
          	},
          	
          	"region" : {
+         		reqName : false,
          		container : null,
          		props : ["aria-expanded"],
          		reqProps : null,
@@ -620,46 +682,52 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},
          	
          	"row" : {
+         		reqName : false,
          		container : ["grid", "treegrid", "rowgroup"],
          		props : ["aria-level", "aria-selected", "aria-activedescendant", "aria-expanded"],
          		reqProps : null,
          		reqChildren : ["gridcell", "rowheader", "columnheader"],
          		htmlEquiv : null,
          		nameFromContent: true,
-         		roleType : "widget"
+         		roleType : "section"
          	},
          	
          	"rowgroup" : {
+         		reqName : false,
          		container : ["grid"],
          		props : ["aria-expanded", "aria-activedescendant"],
          		reqProps : null,
          		reqChildren : ["row"],
          		htmlEquiv : null,
          		nameFromContent: true,
-         		roleType : "widget"
+         		roleType : "section"
          	},
          	
          	"rowheader" : {
+         		reqName : true,
          		container : ["row"],
          		props : ["aria-expanded", "aria-sort", "aria-required", "aria-readonly", "aria-selected"],
          		reqProps : null,
          		reqChildren : null,
          		htmlEquiv : "th",
          		nameFromContent: true,
-         		roleType : "widget"
+         		roleType : "section"
          	},
          	
          	"scrollbar" : {
+         		reqName : true,
          		container : null,
          		props : ["aria-valuetext"],
          		reqProps : ["aria-controls", "aria-orientation", "aria-valuenow", "aria-valuemax", "aria-valuemin"],
          		reqChildren : null,
          		htmlEquiv : null,
          		nameFromContent: false,
-         		roleType : "widget"
+         		roleType : "widget",
+         		hasRange: true
          	},
          	
          	"search" : {
+         		reqName : false,
          		container : null,
          		props : ["aria-expanded"],
          		reqProps : ["aria-labelledby"],
@@ -670,36 +738,42 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},
          	
          	"separator" : {
+         		reqName : false,
          		container : null,
          		props : ["aria-expanded", "aria-orientation"],
          		reqProps : null,
          		reqChildren : null,
          		htmlEquiv : null,
          		nameFromContent: false,
-         		roleType : "structure"
+         		roleType : "section"
          	},
          	
          	"slider" : {
+         		reqName : true,
          		container : null,
          		props : ["aria-orientation", "aria-valuetext"],
          		reqProps : ["aria-valuemax", "aria-valuenow", "aria-valuemin"],
          		reqChildren : null,
          		htmlEquiv : null,
          		nameFromContent: false,
-         		roleType : "widget"
+         		roleType : "widget",
+         		hasRange: true
          	},
          	
          	"spinbutton" : {
+         		reqName : true,
          		container : null,
          		props : ["aria-required", "aria-valuetext"],
          		reqProps : ["aria-valuemax", "aria-valuenow", "aria-valuemin"],
          		reqChildren : null,
          		htmlEquiv : null,
          		nameFromContent: false,
-         		roleType : "widget"
+         		roleType : "widget",
+         		hasRange: true
          	},
          	
          	"status" : {
+         		reqName : false,
          		container : null,
          		props : ["aria-expanded"],
          		reqProps : null,
@@ -710,16 +784,18 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},
          	
          	"tab" : {
+         		reqName : true, // bug in authoring spec??
          		container : ["tablist"],
          		props : ["aria-selected", "aria-expanded"],
          		reqProps : null,
          		reqChildren : null,
          		htmlEquiv : null,
-         		nameFromContent: false,
+         		nameFromContent: true,
          		roleType : "widget"
          	},
          	
          	"tablist" : {
+         		reqName : false,
          		container : null,
          		props : ["aria-activedescendant", "aria-expanded", "aria-level"],
          		reqProps : null,
@@ -730,6 +806,7 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},
          	
          	"tabpanel" : {
+         		reqName : true,
          		container : null,
          		props : ["aria-expanded"],
          		reqProps : null,
@@ -740,6 +817,7 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},
          	
          	"textbox" : {
+         		reqName : true,
          		container : null,
          		props : ["aria-activedescendant", "aria-autocomplete", "aria-multiline", "aria-readonly", "aria-required"],
          		reqProps : null,
@@ -750,6 +828,7 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},
          	
          	"timer" : {
+         		reqName : true,
          		container : null,
          		props : ["aria-expanded"],
          		reqProps : null,
@@ -760,16 +839,19 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},
          	
          	"toolbar" : {
+         		reqName : false,
          		container : null,
          		props : ["aria-activedescendant", "aria-expanded"],
          		reqProps : null,
          		reqChildren : null,
          		htmlEquiv : null,
          		nameFromContent: false,
+         		supportOnClick: true,
          		roleType : "widget"
          	},
          	
          	"tooltip" : {
+         		reqName : true,
          		container : null,
          		props : ["aria-expanded"],
          		reqProps : null,
@@ -780,6 +862,7 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},
          	
          	"tree" : {
+         		reqName : true,
          		container : null,
          		props : ["aria-multiselectable", "aria-activedescendant", "aria-expanded", "aria-required"],
          		reqProps : null,
@@ -790,29 +873,32 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
          	},
          	
          	"treegrid" : {
+         		reqName : true,
          		container : null,
          		props : ["aria-activedescendant", "aria-expanded", "aria-level", "aria-multiselectable", "aria-readonly", "aria-required"],
          		reqProps : null,
          		reqChildren : ["row"],
          		htmlEquiv : null,
          		nameFromContent: false,
-         		roleType : "widget"
+         		roleType : "section"
          	},
          	
          	"treeitem" : {
+         		reqName : true,
          		container : ["group", "tree"],
          		props : ["aria-checked", "aria-selected", "aria-expanded", "aria-level", "aria-posinset", "aria-setsize"],
          		reqProps : null,
          		reqChildren : null,
          		htmlEquiv : null,
          		nameFromContent: true,
+         		supportOnClick: true,
          		roleType : "widget"
             }
          	
         }, // end designPatterns
         
         getRoleObject : function(role) {
-        
+
           var dp = this.designPatterns;
 
           for (var r in dp) {
@@ -820,7 +906,16 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
             if (role == r)  return dp[r];
           
           }
-        
+
+          var ar = this.abstractRoles;
+          var ar_len = ar.length;
+          
+          for (var i = 0; i < ar_len; i++) {
+          
+            if (role == r[i])  return 'abstract';
+          
+          }
+
           return null;
         }
         

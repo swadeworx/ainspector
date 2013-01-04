@@ -267,7 +267,7 @@ OpenAjax.a11y.cache.DOMElementComputedStyle = function (dom_element, parent_elem
     this.is_visible_onscreen = OpenAjax.a11y.VISIBILITY.VISIBLE;
    }
    
-   if (dom_element.role == "presentation") {
+   if (dom_element.role == "hidden") {
     this.is_visible_to_at = OpenAjax.a11y.VISIBILITY.HIDDEN;  
    } 
    else {

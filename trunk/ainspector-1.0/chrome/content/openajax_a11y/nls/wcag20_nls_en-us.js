@@ -282,7 +282,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
             // Success Criteria 1.4.5 Images of Text
             //
             '1.4.5': {
-              level       : OpenAjax.a11y.WCAG20_LEVEL.AAA,
+              level       : OpenAjax.a11y.WCAG20_LEVEL.AA,
               title       : '1.4.5 Images of Text',
               description : 'If the technologies being used can achieve the visual presentation, text is used to convey information rather than images of text except for the following: (1) Customizable: The image of text can be visually customized to the user\'s requirements; (2) Essential: A particular presentation of text is essential to the information being conveyed.',
               url_spec    : 'http://www.w3.org/TR/WCAG20/#visual-audio-contrast-text-presentation',

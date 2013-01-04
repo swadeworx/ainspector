@@ -82,7 +82,7 @@ OpenAjax.a11y.cache.DOMElementCache.prototype.addDOMElement = function (dom_elem
  if (dom_element) {
   this.length = this.length + 1;
   dom_element.document_order = this.length;
-  dom_element.cache_id = "dome_" + this.length;
+  dom_element.cache_id = "element_" + this.length;
   this.dom_elements.push( dom_element );
  }
 
@@ -108,7 +108,7 @@ OpenAjax.a11y.cache.DOMElementCache.prototype.addDOMText = function (dom_text) {
  if (dom_text) {
   this.text_length  += 1;
   dom_text.document_order = this.text_length;
-  dom_text.cache_id       = "domt_" + this.text_length;
+  dom_text.cache_id       = "text_" + this.text_length;
   this.dom_text.push(dom_text);
  }
 
@@ -444,6 +444,55 @@ OpenAjax.a11y.cache.DOMText.prototype.addText = function (text) {
 
   this.text_length = text_length;
   
+};
+
+
+/**
+ * @method getId
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMText
+ *
+ * @desc   If defined, return the id of the dom node containing this text
+ *
+ * @return {String} If defined return id value, else empty string
+ */
+
+OpenAjax.a11y.cache.DOMText.prototype.getId = function () {
+
+  return this.parent_element.getId();
+
+};
+
+/**
+ * @method getClassName
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMText
+ *
+ * @desc   If defined, return the class attribute value of the dom node containing this text
+ *
+ * @return {String} If defined return class value value, else empty string
+ */
+
+OpenAjax.a11y.cache.DOMText.prototype.getClassName = function () {
+
+  return this.parent_element.getClassName();
+
+};
+
+/**
+ * @method getParentLandmark
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMText
+ *
+ * @desc   If defined, return the parent landmark element information
+ *
+ * @return {String} If defined return class value value, else empty string
+ */
+
+OpenAjax.a11y.cache.DOMText.prototype.getParentLandmark = function () {
+
+  return this.parent_element.getParentLandmark();
+
 };
 
 /**
@@ -856,6 +905,9 @@ OpenAjax.a11y.cache.DOMText.prototype.toString = function(option) {
  * @memberOf OpenAjax.a11y.cache
  *
  * @desc The DOMElement object represents a dom node of a document
+ *
+ * @param {Object} node                     - DOM node object of the element
+ * @param {Object} parent_element           - DOMElement object that is the parent element of this node
  * 
  * @property  {String}    cache_id            - String that uniquely identifies the cache element in the DOMCache
  * @property  {String}    xpath               - String that identifies the position of the element in the document
@@ -870,7 +922,7 @@ OpenAjax.a11y.cache.DOMText.prototype.toString = function(option) {
  * 
  * @property {Object}     node                - Reference to the 'live' DOM element represented by this object
  * @property {String}     tag_name            - Tag name of the HTML element in lowercase characters (i.e. p, div, h1, span ...)
- * @property {Array}      aria_properties     - Array of ARIA properties and states defined for the node
+ * @property {Array}      aria_attributes     - Array of ARIA properties and states defined for the node
  *
  * @property {String}     id                  - id attribute value of the DOM node (can be empty)
  * @property {Number}     id_unique           - Indicates if id is defined, unique or has a duplicate in the document
@@ -888,17 +940,28 @@ OpenAjax.a11y.cache.DOMText.prototype.toString = function(option) {
  * @property {String}     aria_hidden         - The value of the aria-hidden      attribute of the DOM node
  * @property {String}     aria_label          - The value of the aria-label       attribute of the DOM node
  * @property {String}     aria_labelledby     - The value of the aria-labelledby  attribute of the DOM node
- * @property {Array}      aria_properties     - Arrary of property name and value objects for any attribute 
- *                                              beginning with 'aria-'
+ * 
+ * @property {Boolean}     has_activedescendant     - True if the current element has defined aria-activedescendent attribute, otherwise false
+ * @property {Boolean}     ancestor_has_activedescendant - True if a ancestor element has defined aria-activedescendent attribute, otherwise false
  *
  * @property {String}     calculated_aria_description  - If aria-describedby defined this is a string of the 
  *                                                       description content 
  *
+ * @property {Boolean}    has_role            - True if element has a role value, otherwise false
+ * @property {Boolean}    has_owns            - True if element has a aria-owns property, otherwise false
+ * @property {Boolean}    has_aria-attributes - True if element has a aria attributes, otherwise false
  * @property {Boolean}    is_widget           - True if element is a ARIA widget, otherwise false
  * @property {Boolean}    is_landmark         - True if element is a ARIA landmark, otherwise false
  * @property {Boolean}    is_live             - True if element is a ARIA live region, otherwise false
+ * @property {Boolean}    is_section          - True if element is a section role, otherwise false
+ * @property {Array}      aria_attributes     - Array of ARIA property and state attributes (i.e. attributes 
+ *                                              beginning with 'aria-')
  *
- * @property {Object}     widget_info         - Object containing information about a widget
+ * @property {Array}      invalid_aria_attributes             - Array of attributes that start with aria-, but are not defined by aria
+ * @property {Array}      aria_attributes_with_invlaid_values - Array of attributes who have 
+ *
+ *
+ * @property {Object}     role_info         - Object containing information about a widget
  *
  * @property {Object}     events              - Object that contains information about events associated with the node
  * @property {Object}     computed_style      - Object that contains information about run time styling of the node
@@ -918,13 +981,106 @@ OpenAjax.a11y.cache.DOMElement = function (node, parent_dom_element) {
 
   function addAriaAttribute (name, value) {
   
-     var av = {};
-     av.attribute = attr.name;
-     av.value = attr.value;
+    function getTokens(list) {
+    
+      var str = "";
+      var last = list.length - 1;
+      
+      for (var i = 0; i < list.length; i++) {
+         str += list[i];
+         if (i !== last) str += " | ";
+      }
+    
+      return str;
+    }
+  
+    function validValue(value, type, values) {
      
-     aria_properties.push(av);
+      var i;
+      var j;
      
-   }
+      switch (type) {
+       
+      case 'boolean':
+        if (value === 'true' || value === 'false') return true;
+        break;
+         
+      case 'decimal':
+        if (typeof parseFloat(value) === 'number') return true;
+        return true;
+        break;
+         
+      case 'idref':
+        if (value.length) return true;
+        break;
+         
+      case 'idrefs':
+        if (value.length) return true;
+        break;
+         
+      case 'integer':
+        if (typeof parseInt(value, 10) === 'number') return true;
+        break;
+         
+      case 'nmtoken':
+        for (i = 0; i < values.length; i++) {
+          if (value === values[i]) return true; 
+        }  
+        break;
+         
+      case 'nmtokens':
+        var tokens = [];
+        tokens.push(value);
+        if (value.indexOf(' ') > 0) tokens = value.split(' ');
+        
+        var flag = true;
+         
+        for (i = 0; i < tokens.length && flag; i++) {
+          flag = false;
+          for (j = 0; j < values.length && !flag; j++) {
+            if (tokens[i] === values[j]) flag = true;
+          }  
+        }
+        return flag;
+        break;
+         
+      case 'string':
+        if (value.length) return true;
+        break;
+       
+      default:
+        break;
+       
+      }
+       
+      return false;
+
+    }   // end addAriaAttribute function
+     
+    var property_info = OpenAjax.a11y.aria.propertyDataTypes[name];
+
+    var av = {};
+    av.name = attr.name;
+    av.value = attr.value;
+    av.type = "undefined";
+    av.is_valid_attribute = true;
+    av.is_value_valid     = false;
+    av.tokens = null;
+     
+    if (property_info) {
+      av.type = property_info.type;
+      if (property_info.values) av.tokens = getTokens(property_info.values);
+      if (property_info.type === 'boolean') av.tokens = "true | false";
+      av.is_value_valid = validValue(av.value, av.type, property_info.values);
+    }
+    else {
+      av.is_valid_attribute = false;
+      invalid_aria_attributes.push(av);
+    }
+
+    aria_attributes.push(av);
+
+  }
 
   var i;
   var attr;
@@ -955,8 +1111,10 @@ OpenAjax.a11y.cache.DOMElement = function (node, parent_dom_element) {
   // Save relationships with other elements
   this.parent_element = parent_dom_element;
   this.child_dom_elements = [];
-  var aria_properties = [];
- 
+  
+  var aria_attributes = [];
+  var invalid_aria_attributes = []; 
+  
   this.parent_landmark = null;
 
   // Cache important attributes for accessibility
@@ -969,11 +1127,29 @@ OpenAjax.a11y.cache.DOMElement = function (node, parent_dom_element) {
   this.has_alt_attribute    = false;
   this.has_aria_describedby = false;
 
-  this.tab_index = node.tabIndex;
+//  this.tab_index = node.tabIndex;
+  this.tab_index = node.getAttribute('tabindex');
+  this.has_role = false;  
+  this.is_implied_role = false;
+  this.has_owns = false;  
+  this.has_aria_attributes = false;
+    
+  this.has_activedescendant = false;
+  this.ancestor_has_activedescendant = false;
+  if (parent_dom_element) this.ancestor_has_activedescendant = parent_dom_element.ancestor_has_activedescendant;
+
+  this.is_interactive = false;
+
   this.is_widget = false;
-  this.widget_info = null;
   this.is_landmark = false;
   this.is_live = false;
+  this.is_section = false;
+  this.is_abstract = false;
+  this.is_presentation = false;
+
+  this.role_info = null;
+
+  var role_info;
 
   for (i = 0; i < attributes.length; i++) {
 
@@ -986,19 +1162,24 @@ OpenAjax.a11y.cache.DOMElement = function (node, parent_dom_element) {
       break;
 
     case 'role':
+      
       var role = attr.value.toLowerCase();
-    
+
+      this.has_role = true;
       this.role = role;
     
-      var role_object = OpenAjax.a11y.aria.getRoleObject(role);
+      role_info = OpenAjax.a11y.aria.getRoleObject(role);
       
-      if (!role_object || !role_object.roleType) break;
-      
-      switch (role_object.roleType) {
+      if (!role_info || !role_info.roleType) continue;
+
+      this.role_info = role_info;
+
+      switch (role_info.roleType) {
     
       case 'widget':
+        this.is_interactive = true;
         this.is_widget = true;
-        this.widget_info = role_object;
+        this.has_range = role_info.hasRange;
         break;
       
       case 'landmark':
@@ -1007,6 +1188,18 @@ OpenAjax.a11y.cache.DOMElement = function (node, parent_dom_element) {
       
       case 'live':
         this.is_live = true;
+        break;
+      
+      case 'abstract':
+        this.is_abstract  = true;
+        break;
+      
+      case 'section':
+        this.is_section  = true;
+        break;
+      
+      case 'presentation':
+        this.is_presentation = true;
         break;
       
       default:
@@ -1025,43 +1218,62 @@ OpenAjax.a11y.cache.DOMElement = function (node, parent_dom_element) {
       this.title = attr.value;
       break;
 
+    case 'aria-activedescendant':
+      this.has_activedescendant = true;
+      addAriaAttribute('aria-activedescendant', attr.value);
+      break;
+       
     case 'aria-describedby':
       this.has_aria_describedby = true;
       this.aria_describedby = attr.value;
       addAriaAttribute('aria-describedby', attr.value);
+      this.has_aria_attributes = true;
       break;
 
     case 'aria-hidden':
       this.aria_hidden = attr.value.toLowerCase();
       addAriaAttribute('aria-hidden', attr.value);
+      this.has_aria_attributes = true;
       break;
 
     case 'aria-label':
       this.aria_label = attr.value;
       addAriaAttribute('aria-label', attr.value);
+      this.has_aria_attributes = true;
       break;
 
     case 'aria-labelledby':
       this.aria_labelledby  = attr.value;
       addAriaAttribute('aria-labelledby', attr.value);
+      this.has_aria_attributes = true;
       break;
 
     case 'aria-live':
       this.is_live  = true;
       addAriaAttribute('aria-live', attr.value);
+      this.has_aria_attributes = true;
+      break;
+
+    case 'aria-owns':
+      this.has_owns  = true;
+      this.aria_owns = attr.value;
+      addAriaAttribute('aria-owns', attr.value);
       break;
 
     default:
 
       if (attr.name.indexOf('aria-') === 0 ) {
         addAriaAttribute(attr.name, attr.value);
+        this.has_aria_attributes = true;
       }
       break;
 
     } // end switch
-  } // end loop
-  
- this.aria_properties = aria_properties;
+  } // end loop0
+
+
+ this.aria_attributes                     = aria_attributes;
+ this.invalid_aria_attributes             = invalid_aria_attributes;
 
  this.supports_events = OpenAjax.a11y.SUPPORTS_EVENT_ANALYSIS;
 
@@ -1087,6 +1299,118 @@ OpenAjax.a11y.cache.DOMElement = function (node, parent_dom_element) {
 };
 
 /**
+ * @method setImpliedRole
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMElement
+ *
+ * @desc  Sets an implid role for the DOM element
+ *
+ * @param  {String} role - new role for the element
+ */
+ 
+OpenAjax.a11y.cache.DOMElement.prototype.setImpliedRole = function (role) {
+
+  if (!this.has_role && typeof role === 'string' && (role.length > 0)) {
+
+    role_info = OpenAjax.a11y.aria.getRoleObject(role);
+    
+    if (!role_info) return;
+
+    this.has_role = true;
+    this.role = role;
+    this.is_implied_role = true;
+    
+    this.role_info = role_info;
+
+    if (role_info && role_info.roleType) {
+      
+      switch (role_info.roleType) {
+    
+      case 'widget':
+        this.is_widget = true;
+        break;
+      
+      case 'landmark':
+        this.is_landmark = true;
+        break;
+      
+      case 'live':
+        this.is_live = true;
+        break;
+      
+      case 'abstract':
+        this.is_abstract  = true;
+        break;
+      
+      case 'section':
+        this.is_section  = true;
+        break;
+      
+      default:
+        break;
+   
+      } // end switch
+    }  
+  }
+};
+
+/**
+ * @method getId
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMElement
+ *
+ * @desc   If definded, return the id of the dom node
+ *
+ * @return {String} If defined return id value, else empty string
+ */
+
+OpenAjax.a11y.cache.DOMElement.prototype.getId = function () {
+
+  if (this.id) return this.id;
+  
+  return "";
+
+};
+
+/**
+ * @method getClassName
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMElement
+ *
+ * @desc   If defined, return the class attribute value of the dom node
+ *
+ * @return {String} If defined return class value value, else empty string
+ */
+
+OpenAjax.a11y.cache.DOMElement.prototype.getClassName = function () {
+
+  if (this.class_name) return this.class_name;
+  
+  return "";
+
+};
+
+
+/**
+ * @method getParentLandmark
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMElement
+ *
+ * @desc   If defined, return the parent landmark element information
+ *
+ * @return {String} If defined return class value value, else empty string
+ */
+
+OpenAjax.a11y.cache.DOMElement.prototype.getParentLandmark = function () {
+
+  if (this.parent_landmark) return this.parent_landmark.toString();
+  
+  return "none";
+
+};
+
+
+/**
  * @method hasAttrWithValue
  *
  * @memberOf OpenAjax.a11y.cache.DOMElement
@@ -1107,6 +1431,22 @@ OpenAjax.a11y.cache.DOMElement.prototype.hasAttrWithValue = function (name, valu
   }
 
   return false;
+
+};
+
+/**
+ * @method hasOwns
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMElement
+ *
+ * @desc   Check DOMElement for presence of aria-owns attribute
+ *
+ * @return {boolean} Indicates whether or not DOMElement has aria-owns attribute with values
+ */
+
+OpenAjax.a11y.cache.DOMElement.prototype.hasOwns = function () {
+
+  return this.has_owns;
 
 };
 
@@ -1141,6 +1481,75 @@ OpenAjax.a11y.cache.DOMElement.prototype.getNodeResults = function () {
   addResultNodes(this.rules_hidden);
   
   return result_nodes;
+  
+};
+
+/**
+ * @method containsInteractiveElements
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMElement
+ *
+ * @desc Tests if a DOM element has any descendants that are widgets 
+ *
+ * @return {Boolean}  'True' if at least one descendant dom element is a widget, otherwise 'false'
+ */
+
+OpenAjax.a11y.cache.DOMElement.prototype.containsInteractiveElements = function () {
+
+  function checkChildren(children) {
+  
+     if ((typeof children != 'object') || !children.length ) return false;
+     
+     var flag = false;
+     
+     for (var i = 0; (i < children.length) && !flag; i++) {
+     
+       var child = children[i];
+     
+       if (child.type != Node.ELEMENT_NODE) continue;
+     
+       if (child.is_interactive) flag = true;
+       else if (child.child_dom_elements.length) flag = checkChildren(child.child_dom_elements);
+     
+     }
+     
+     return flag;
+  
+  }
+
+  return checkChildren(this.child_dom_elements);
+
+};
+
+
+/**
+ * @method hasParentRole
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMElement
+ *
+ * @desc Tests if a widget has a parent element with a certain role
+ *
+ * @param {String}  role -  Role to find 
+ *
+ * @return {Boolean} Returns true if widget has child element with role, otherwise false
+ */
+
+OpenAjax.a11y.cache.DOMElement.prototype.hasParentRole = function (role) {
+
+   function checkParentElementForRole(dom_element) {
+
+     if (!dom_element) return false;
+
+     if (dom_element.role === role) {
+       return true;
+     }
+     else {
+       return checkParentElementForRole(dom_element.parent_element);     
+     }
+     
+   }
+
+   return checkParentElementForRole(this.parent_element);
   
 };
 
@@ -1325,9 +1734,9 @@ OpenAjax.a11y.cache.DOMElement.prototype.getAttributes = function (unsorted) {
   cache_nls.addPropertyIfDefined(attributes, this, 'class_name');
   cache_nls.addPropertyIfDefined(attributes, this, 'role');
   
-  for (i = 0; i < this.aria_properties.length; i++) {
-    av = this.aria_properties[i];
-    attributes.push(cache_nls.getNLSLabelAndValue(av.attribute, av.value));
+  for (i = 0; i < this.aria_attributes.length; i++) {
+    av = this.aria_attributes[i];
+    attributes.push(cache_nls.getNLSLabelAndValue(av.name, av.value));
   }
   
   if (!unsorted) this.sortItems(attributes);
@@ -1373,6 +1782,41 @@ OpenAjax.a11y.cache.DOMElement.prototype.hasEvents = function () {
 };
 
 /**
+ * @method hasMouseEvents
+ *
+ * @memberOf OpenAjax.a11y.cache.DOMElement
+ *
+ * @desc Returns true if the element has mouse specfic event handlers (i.e. up, down, move, over, out)
+ *
+ * @param  {Boolean} flag1  - If missing or true the results include mouse over and out events 
+ * @param  {Boolean} flag2  - If missing or true the results include mouse down, move and out events
+ * 
+ * @return {Boolean} Returns "True" element has mouse up, down, move, over and/or out events
+ */
+ 
+OpenAjax.a11y.cache.DOMElement.prototype.hasMouseEvents = function (flag1, flag2) {
+
+  var has_event = false;
+  
+  if (typeof flag2 !== 'boolean' || flag2 === true) {
+    has_event = has_event || this.events.has_mouse_down;
+    has_event = has_event || this.events.has_mouse_up;
+    has_event = has_event || this.events.has_mouse_move;
+  }  
+  
+  if (typeof flag1 !== 'boolean' || flag1 === true) {
+    has_event = has_event || this.events.has_mouse_out;
+    has_event = has_event || this.events.has_mouse_over;
+    has_event = has_event || this.events.has_mouse_enter;
+    has_event = has_event || this.events.has_mouse_leave;
+  }  
+
+  return has_event;
+  
+};
+
+
+/**
  * @method getEvents
  *
  * @memberOf OpenAjax.a11y.cache.DOMElement
@@ -1384,24 +1828,24 @@ OpenAjax.a11y.cache.DOMElement.prototype.hasEvents = function () {
 
 OpenAjax.a11y.cache.DOMElement.prototype.getEvents = function () {
 
-  function addHasEvent(event_type, on_element, on_ancestor) {
+  function addHasEvent(event_type, event_on_element, event_on_ancestor) {
   
     var o = {};
     
     o.label = event_type;
-    o.on_element        = nls_false;
-    o.on_element_style  = "no";
-    o.on_ancestor       = nls_false;
-    o.on_ancestor_style = "no";
+    o.event_on_element        = nls_false;
+    o.event_on_element_style  = "no";
+    o.event_on_ancestor       = nls_false;
+    o.event_on_ancestor_style = "no";
 
-    if (on_element) {
-      o.on_element        = nls_true;
-      o.on_element_style  = "yes";
+    if (event_on_element) {
+      o.event_on_element        = nls_true;
+      o.event_on_element_style  = "yes";
     }
     
-    if (on_ancestor) {
-      o.on_ancestor       = nls_true;
-      o.on_ancestor_style = "yes";
+    if (event_on_ancestor) {
+      o.event_on_ancestor       = nls_true;
+      o.event_on_ancestor_style = "yes";
     }  
 
     events.push(o);
@@ -1428,6 +1872,10 @@ OpenAjax.a11y.cache.DOMElement.prototype.getEvents = function () {
   addHasEvent('mouse down',    this.events.has_mouse_down,    this.events.ancestor_has_mouse_down);
   addHasEvent('mouse up',      this.events.has_mouse_up,      this.events.ancestor_has_mouse_up);
   addHasEvent('mouse move',    this.events.has_mouse_move,    this.events.ancestor_has_mouse_move);
+
+  addHasEvent('mouse leave',    this.events.has_mouse_leave,    this.events.ancestor_has_mouse_leave);
+  addHasEvent('mouse enter',    this.events.has_mouse_enter,    this.events.ancestor_has_mouse_enter);
+  
   addHasEvent('mouse out',     this.events.has_mouse_out,     this.events.ancestor_has_mouse_out);
   addHasEvent('mouse over',    this.events.has_mouse_over,    this.events.ancestor_has_mouse_over);
 
@@ -1493,6 +1941,8 @@ OpenAjax.a11y.cache.DOMElement.prototype.getStyle = function () {
 
 OpenAjax.a11y.cache.DOMElement.prototype.getCacheProperties = function () {
 
+  var i;
+
   var cache_nls = OpenAjax.a11y.cache_nls;
  
   var properties  = [];
@@ -1507,12 +1957,25 @@ OpenAjax.a11y.cache.DOMElement.prototype.getCacheProperties = function () {
 
   cache_nls.addPropertyIfDefined(properties, this, 'parent_landmark');
 
+  cache_nls.addPropertyIfDefined(properties, this, 'is_interactive');
   cache_nls.addPropertyIfDefined(properties, this, 'is_widget');
   cache_nls.addPropertyIfDefined(properties, this, 'is_landmark');
   cache_nls.addPropertyIfDefined(properties, this, 'is_live');
   
   cache_nls.addPropertyIfDefined(properties, this, 'has_rule_results');
+  cache_nls.addPropertyIfDefined(properties, this, 'has_role');
+  cache_nls.addPropertyIfDefined(properties, this, 'is_implied_role');
 
+  cache_nls.addPropertyIfDefined(properties, this, 'has_activedescendant');
+  cache_nls.addPropertyIfDefined(properties, this, 'is_owned');
+
+  var invalid_aria_attributes     = this.invalid_aria_attributes;
+  var invalid_aria_attributes_len = invalid_aria_attributes.length;
+
+  for (i = 0; i < invalid_aria_attributes_len; i++) {
+    cache_nls.addInvalidAttribute(properties, invalid_aria_attributes[i]);
+  }
+  
   return properties;
 
 };
@@ -1533,9 +1996,13 @@ OpenAjax.a11y.cache.DOMElement.prototype.getCachePropertyValue = function (prope
 
 //  OpenAjax.a11y.logger.debug("dom element property: " + property + " value= " + this[property]);
 
-  if (typeof this[property] == 'undefined') {
-     if(typeof this.computed_style[property] == 'undefined') {
-       if(typeof this.events[property] == 'undefined') {
+  if (typeof this[property] === 'undefined') {
+     if(typeof this.computed_style[property] === 'undefined') {
+       if(typeof this.events[property] === 'undefined') {
+         for (var i = 0; i < this.aria_attributes.length; i++) {
+            var attr = this.aria_attributes[i];
+            if (attr.name === property) return attr.value;
+         }
          return null;
        }
        else {
@@ -1603,139 +2070,154 @@ OpenAjax.a11y.cache.DOMElement.prototype.sortItems = function (items) {
 
 OpenAjax.a11y.cache.DOMElement.prototype.EnumerateFirefoxEvents = function (node, parent_dom_element) {
 
- var i;
+  var i;
  
- var events = {};
- events.supports_events = false;
+  var events = {};
+  events.supports_events = false;
 
- var event_listener = Components.classes["@mozilla.org/eventlistenerservice;1"];
+  var event_listener = Components.classes["@mozilla.org/eventlistenerservice;1"];
 
- if (event_listener !== null &&
-   event_listener !== undefined) {
+  if (event_listener !== null &&
+    event_listener !== undefined) {
 
-  events.supports_events = true;
+    events.supports_events = true;
 
-  events.has_blur         = false;
-  events.has_change       = false;
-  events.has_click        = false;
-  events.has_double_click = false;
-  events.has_focus        = false;
-  events.has_key_down     = false;
-  events.has_key_press    = false;
-  events.has_key_up       = false;
-  events.has_load         = false;
-  events.has_mouse_down   = false;
-  events.has_mouse_up     = false;
-  events.has_mouse_move   = false;
-  events.has_mouse_out    = false;
-  events.has_mouse_over   = false;
+    events.has_blur         = false;
+    events.has_change       = false;
+    events.has_click        = false;
+    events.has_double_click = false;
+    events.has_focus        = false;
+    events.has_key_down     = false;
+    events.has_key_press    = false;
+    events.has_key_up       = false;
+    events.has_load         = false;
+    events.has_mouse_down   = false;
+    events.has_mouse_up     = false;
+    events.has_mouse_move   = false;
+    events.has_mouse_out    = false;
+    events.has_mouse_over   = false;
+    events.has_mouse_enter  = false;
+    events.has_mouse_leave  = false;
 
-  if (parent_dom_element && parent_dom_element.events) {
-   events.ancestor_has_blur         = parent_dom_element.events.has_blur;
-   events.ancestor_has_change       = parent_dom_element.events.has_change;
-   events.ancestor_has_click        = parent_dom_element.events.has_click;
-   events.ancestor_has_double_click = parent_dom_element.events.has_double_click;
-   events.ancestor_has_focus        = parent_dom_element.events.has_focus;
-   events.ancestor_has_key_down     = parent_dom_element.events.has_key_down;
-   events.ancestor_has_key_press    = parent_dom_element.events.has_key_press;
-   events.ancestor_has_key_up       = parent_dom_element.events.has_key_up;
-   events.ancestor_has_load         = parent_dom_element.events.has_load;
-   events.ancestor_has_mouse_down   = parent_dom_element.events.has_mouse_down;
-   events.ancestor_has_mouse_up     = parent_dom_element.events.has_mouse_up;
-   events.ancestor_has_mouse_move   = parent_dom_element.events.has_mouse_move;
-   events.ancestor_has_mouse_out    = parent_dom_element.events.has_mouse_out;
-   events.ancestor_has_mouse_over   = parent_dom_element.events.has_mouse_over;
-  }
-  else {
-   events.ancestor_has_blur         = false;
-   events.ancestor_has_change       = false;
-   events.ancestor_has_click        = false;
-   events.ancestor_has_double_click = false;
-   events.ancestor_has_focus        = false;
-   events.ancestor_has_key_down     = false;
-   events.ancestor_has_key_press    = false;
-   events.ancestor_has_key_up       = false;
-   events.ancestor_has_load         = false;
-   events.ancestor_has_mouse_down   = false;
-   events.ancestor_has_mouse_up     = false;
-   events.ancestor_has_mouse_move   = false;
-   events.ancestor_has_mouse_out    = false;
-   events.ancestor_has_mouse_over   = false;
-  }
-
-  var event_listener_service = event_listener.createInstance(Components.interfaces.nsIEventListenerService);
-  var node_event_service     = event_listener_service.getListenerInfoFor(node, {});
-
-  for (i = 0; i < node_event_service.length; i++) {
-   var node_event_information = node_event_service[i].QueryInterface(Components.interfaces.nsIEventListenerInfo);
-
-   if (!node_event_information.inSystemEventGroup &&
-     node_event_information.allowsUntrusted ) {
-
-    switch (node_event_information.type) {
-
-    case "blur":
-     events.has_blur = true;
-     break;
-
-    case "change":
-     events.has_change = true;
-     break;
-
-    case "click":
-     events.has_click = true;
-     break;
-
-    case "dbclick":
-     events.has_double_click = true;
-     break;
-
-    case "focus":
-     events.has_focus   = true;
-     break;
-
-    case "keydown":
-     events.has_key_down  = true;
-     break;
-
-    case "keypress":
-     events.has_key_press = true;
-     break;
-
-    case "keyup":
-     events.has_key_up   = true;
-     break;
-
-    case "load":
-     events.has_load    = true;
-     break;
-
-    case "mousedown":
-     events.has_mouse_down = true;
-     break;
-
-    case "mouseup":
-     events.has_mouse_up  = true;
-     break;
-
-    case "mousemove":
-     events.has_mouse_move = true;
-     break;
-
-    case "mouseout":
-     events.has_mouse_out = true;
-     break;
-
-    case "mouseover":
-     events.has_mouse_over = true;
-     break;
-
-    default:
-     break;
-
-    } // endswitch
+    if (parent_dom_element && parent_dom_element.events) {
+      events.ancestor_has_blur         = parent_dom_element.events.has_blur         || parent_dom_element.events.ancestor_has_blur;
+      events.ancestor_has_change       = parent_dom_element.events.has_change       || parent_dom_element.events.ancestor_has_change;
+      events.ancestor_has_click        = parent_dom_element.events.has_click        || parent_dom_element.events.ancestor_has_click;
+      events.ancestor_has_double_click = parent_dom_element.events.has_double_click || parent_dom_element.events.ancestor_has_double_click;
+      events.ancestor_has_focus        = parent_dom_element.events.has_focus        || parent_dom_element.events.ancestor_has_focus;
+      events.ancestor_has_key_down     = parent_dom_element.events.has_key_down     || parent_dom_element.events.ancestor_has_key_down;
+      events.ancestor_has_key_press    = parent_dom_element.events.has_key_press    || parent_dom_element.events.ancestor_has_key_press;
+      events.ancestor_has_key_up       = parent_dom_element.events.has_key_up       || parent_dom_element.events.ancestor_has_key_up;
+      events.ancestor_has_load         = parent_dom_element.events.has_load         || parent_dom_element.events.ancestor_has_load;
+      events.ancestor_has_mouse_down   = parent_dom_element.events.has_mouse_down   || parent_dom_element.events.ancestor_has_mouse_down;
+      events.ancestor_has_mouse_up     = parent_dom_element.events.has_mouse_up     || parent_dom_element.events.ancestor_has_mouse_up;
+      events.ancestor_has_mouse_move   = parent_dom_element.events.has_mouse_move   || parent_dom_element.events.ancestor_has_mouse_move;
+      events.ancestor_has_mouse_out    = parent_dom_element.events.has_mouse_out    || parent_dom_element.events.ancestor_has_mouse_out;
+      events.ancestor_has_mouse_over   = parent_dom_element.events.has_mouse_over   || parent_dom_element.events.ancestor_has_mouse_over;
+      events.ancestor_has_mouse_enter  = parent_dom_element.events.has_mouse_enter  || parent_dom_element.events.ancestor_has_mouse_enter;
+      events.ancestor_has_mouse_leave  = parent_dom_element.events.has_mouse_leave  || parent_dom_element.events.ancestor_has_mouse_leave;
+    }
+    else {
+      events.ancestor_has_blur         = false;
+      events.ancestor_has_change       = false;
+      events.ancestor_has_click        = false;
+      events.ancestor_has_double_click = false;
+      events.ancestor_has_focus        = false;
+      events.ancestor_has_key_down     = false;
+      events.ancestor_has_key_press    = false;
+      events.ancestor_has_key_up       = false;
+      events.ancestor_has_load         = false;
+      events.ancestor_has_mouse_down   = false;
+      events.ancestor_has_mouse_up     = false;
+      events.ancestor_has_mouse_move   = false;
+      events.ancestor_has_mouse_out    = false;
+      events.ancestor_has_mouse_over   = false;
+      events.ancestor_has_mouse_enter  = false;
+      events.ancestor_has_mouse_leave  = false;
    }
-  } // end loop
+
+   var event_listener_service = event_listener.createInstance(Components.interfaces.nsIEventListenerService);
+   var node_event_service     = event_listener_service.getListenerInfoFor(node, {});
+
+   for (i = 0; i < node_event_service.length; i++) {
+     var node_event_information = node_event_service[i].QueryInterface(Components.interfaces.nsIEventListenerInfo);
+
+     if (!node_event_information.inSystemEventGroup &&
+       node_event_information.allowsUntrusted ) {
+
+       switch (node_event_information.type) {
+
+       case "blur":
+         events.has_blur = true;
+         break;
+
+       case "change":
+         events.has_change = true;
+         break;
+
+       case "click":
+         events.has_click = true;
+         break;
+
+       case "dbclick":
+         events.has_double_click = true;
+         break;
+
+       case "focus":
+         events.has_focus   = true;
+         break;
+
+       case "keydown":
+         events.has_key_down  = true;
+         break;
+
+       case "keypress":
+         events.has_key_press = true;
+         break;
+
+       case "keyup":
+         events.has_key_up   = true;
+         break;
+
+       case "load":
+         events.has_load    = true;
+         break;
+
+       case "mousedown":
+         events.has_mouse_down = true;
+         break;
+
+       case "mouseup":
+         events.has_mouse_up  = true;
+         break;
+
+       case "mousemove":
+         events.has_mouse_move = true;
+         break;
+
+       case "mouseout":
+         events.has_mouse_out = true;
+         break;
+
+       case "mouseover":
+         events.has_mouse_over = true;
+         break;
+
+       case "mouseenter":
+         events.has_mouse_enter = true;
+         break;
+
+       case "mouseleave":
+         events.has_mouse_leave = true;
+         break;
+
+
+       default:
+         break;
+
+       } // endswitch
+     }
+   } // end loop
  }
 
  return events;

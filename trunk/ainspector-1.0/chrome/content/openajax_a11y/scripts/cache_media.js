@@ -393,12 +393,14 @@ OpenAjax.a11y.cache.MediaElement = function (dom_element) {
   this.height     = dom_element.node.getAttribute('height');
   this.width      = dom_element.node.getAttribute('width');
   
-  this.is_live               = OpenAjax.a11y.MEDIA.MAYBE;
-  this.is_video              = OpenAjax.a11y.MEDIA.MAYBE;
-  this.is_audio              = OpenAjax.a11y.MEDIA.MAYBE;
-  this.has_caption           = OpenAjax.a11y.MEDIA.MAYBE; 
-  this.has_text_alternative  = OpenAjax.a11y.MEDIA.MAYBE; 
-  this.has_audio_description = OpenAjax.a11y.MEDIA.MAYBE;
+  this.is_live                        = OpenAjax.a11y.MEDIA.MAYBE;
+  this.is_video                       = OpenAjax.a11y.MEDIA.MAYBE;
+  this.is_audio                       = OpenAjax.a11y.MEDIA.MAYBE;
+  this.has_caption                    = OpenAjax.a11y.MEDIA.MAYBE; 
+  this.has_text_alternative           = OpenAjax.a11y.MEDIA.MAYBE; 
+  this.has_audio_description          = OpenAjax.a11y.MEDIA.MAYBE;
+  this.has_extended_audio_description = OpenAjax.a11y.MEDIA.MAYBE;
+  this.has_sign_language              = OpenAjax.a11y.MEDIA.MAYBE;
 
   switch (dom_element.tag_name) {
   case 'video':

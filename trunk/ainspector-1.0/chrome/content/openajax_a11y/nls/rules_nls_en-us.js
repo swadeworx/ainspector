@@ -73,6 +73,91 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
     //  OAA Rules title and mesage string National Language Support (NLS)
     //
     rules: {
+        AUDIO_1: {
+            ID:                    'Audio Rule 1',
+            DEFINITION:            'Prerecorded audio %s have caption or text trascription of the audio content',
+            SUMMARY:               'Audio %s have alternative',
+            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       'Verify the element contains audio only content and if it is audio only make sure it has either captions or text transcript of the audio content',
+              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are audio only, if any are audio only make sure they have either an captions or text transcripts of the audio',
+              ALL_PASS_SINGULAR:            'Audio element has either a caption or a text transcript',
+              ALL_PASS_PLURAL:              'All %N_P audio elements have either captions or a text transcript',
+              SOME_FAIL:                    '%N_F out of %N_T audio elements do NOT have captions or text transcripts',
+              CORRECTIVE_ACTION_SINGULAR:   'add captions or text transcript to audio element',
+              CORRECTIVE_ACTION_PLURAL:     'add captions or text transcripts to each of the %N_F the audio elements',
+              ALL_FAIL_SINGULAR:            'Audio element does not have captions or text transcripts ',
+              ALL_FAIL_PLURAL:              'All %N_F audio elements do NOT have captions or text transcripts ',
+              NOT_APPLICABLE:               'No visible @object@, @embed@ and @video@ elements only elements found on this page that could be used for audio only'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@%1@ element has caption',
+              PASS_2:                '@%1@ element has a text transcript',
+              CORRECTIVE_ACTION_1:   'Add captions or text transcript to @%1@ element',
+              MANUAL_CHECK_1:        'Verify the @%1@ audio element has captions or text transcript',
+              MANUAL_CHECK_2:        'Verify the @%1@ element is audio only, if it is audio only verify that it has captions or text transcript',
+              HIDDEN:                '@%1@ element is not visible on screen'
+            },  
+            PURPOSE: [
+              'Captions and text transcripts provide a means for people cannot hear the audio to understand the audio content'                   
+            ],
+            TECHNIQUES: [
+              'Various techniques to add captions based on the audio format and media players you are supporting, please see your technology specific requirements for captions',
+              'The HTML5 video element is attempting to make it easier to support audio descriptions through the use of the text track element',
+              'Use aria-describedby attribute to point to a text description of the audio only content'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HMTL 5: The track element', 
+                url:   'http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#the-track-element'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'ARIA: aria-describedby', 
+                url:   ''
+              }                            
+            ]
+        },
+        AUDIO_2: {
+            ID:                    'Audio Rule 2',
+            DEFINITION:            'Prerecorded audio %s have caption or text trascription',
+            SUMMARY:               'Audio %s have alternative',
+            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       'Verify the element contains audio only content and if it is audio only make sure it has text transcript of the audio content',
+              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are audio only, if any are audio only make sure they have text transcripts of the audio',
+              ALL_PASS_SINGULAR:            'Audio element has text transcript',
+              ALL_PASS_PLURAL:              'All %N_P audio elements have text transcript',
+              SOME_FAIL:                    '%N_F out of %N_T audio elements do NOT have text transcripts',
+              CORRECTIVE_ACTION_SINGULAR:   'add text transcript to audio element',
+              CORRECTIVE_ACTION_PLURAL:     'add text transcripts to each of the %N_F the audio elements',
+              ALL_FAIL_SINGULAR:            'Audio element does not have text transcripts ',
+              ALL_FAIL_PLURAL:              'All %N_F audio elements do NOT have text transcripts ',
+              NOT_APPLICABLE:               'No visible @object@, @embed@ and @video@ elements only elements found on this page that could be used for audio only'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@%1@ element has a text transcript',
+              CORRECTIVE_ACTION_1:   'Add text transcript to @%1@ element',
+              MANUAL_CHECK_1:        'Verify the @%1@ audio element has text transcript',
+              MANUAL_CHECK_2:        'Verify the @%1@ element is audio only, if it is audio only verify that it has text transcript',
+              HIDDEN:                '@%1@ element is not visible on screen'
+            },  
+            PURPOSE: [
+              'Text transcripts provide a means for people cannot hear the audio to understand the audio content'                   
+            ],
+            TECHNIQUES: [
+              'Use aria-describedby attribute to point to a text description of the audio only content'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'ARIA: aria-describedby', 
+                url:   ''
+              }                            
+            ]
+        },
         COLOR_1: {
             ID:                    'Color Rule 1',
             DEFINITION:            'Text content %s exceed Color Contrast Ratio (CCR) of 4.5 for any size text or 3.1 for large and/or bolded text',
@@ -928,8 +1013,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
               PASS_2:              'All heading elements are properly nested',
               CORRECTIVE_ACTION_1: 'Change %1 element or other heading elements ',
               CORRECTIVE_ACTION_2: 'Add text content to %1 element that describes the section it labels or remove it from the page if it is not needed',
-              CORRECTIVE_ACTION_3: 'One heading element is not prperly nexted, check all heading elements to make sure they are properly nested, and describe the structure and the sections of the web pag',
-              CORRECTIVE_ACTION_4: '%1 heading elements are not properly nexted, check all heading elements to make sure they are properly nested, and describe the structure and the sections of the web page',
+              CORRECTIVE_ACTION_3: 'One heading element is not prperly nested, check all heading elements to make sure they are properly nested, and describe the structure and the sections of the web pag',
+              CORRECTIVE_ACTION_4: '%1 heading elements are not properly nested, check all heading elements to make sure they are properly nested, and describe the structure and the sections of the web page',
               HIDDEN:              '%1 element is hidden from asssistive technologies and is not included in nesting.'
             },  
             PURPOSE: [
@@ -968,32 +1053,38 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
         },    
         IMAGE_1: {
             ID:                    'Image Rule 1',
-            DEFINITION:            'Each image %s have an alt attribute',
-            SUMMARY:               'Image %s have alt',
-            TARGET_RESOURCES_DESC: '@img@ and @area@',
+            DEFINITION:            'Each image %s have an text alternative',
+            SUMMARY:               'Image %s has alternative',
+            TARGET_RESOURCES_DESC: '@img@, @area@ and [role="img"]',
             RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:          '@img@ or @area@ element has an @alt@ attribute',
-              ALL_PASS_PLURAL:            'All %N_P @img@ or @area@ elements have an @alt@ attribute',
-              SOME_FAIL:                  '%N_F out of %N_T @img@ or @area@ elements do NOT have an @alt@ attribute',
-              CORRECTIVE_ACTION_SINGULAR: 'add @alt@ attribute to @img@ or @area@ element that describes the pupose of the image',
-              CORRECTIVE_ACTION_PLURAL:   'add @alt@ attribute to each of the %N_F @img@ or @area@ elements that describes the pupose of each image',
-              ALL_FAIL_SINGULAR:          '@img@ or @area@ element does NOT have an @alt@ attribute',
-              ALL_FAIL_PLURAL:            'All %N_F @img@ or @area@ elements do NOT have an @alt@ attribute',
-              NOT_APPLICABLE:             'No @img@ or @area@ elements on this page'                                          
+              ALL_PASS_SINGULAR:          'Image element has text alternative',
+              ALL_PASS_PLURAL:            'All %N_P image elements have text alternatives',
+              SOME_FAIL:                  '%N_F out of %N_T image elements do NOT have an text alternatives',
+              CORRECTIVE_ACTION_SINGULAR: 'add @alt@, @aria-labelledby@ or @ria-label@ attribute to image element that describes the purpose of the image',
+              CORRECTIVE_ACTION_PLURAL:   'add @alt@, @aria-labelledby@ or @ria-label@ attribute to each of the %N_F image elements that describes the purpose of each image',
+              ALL_FAIL_SINGULAR:          'image element does NOT have text alternative',
+              ALL_FAIL_PLURAL:            'All %N_F image elements do NOT have text alternatives',
+              NOT_APPLICABLE:             'No image elements found on this page'                                          
             },
             NODE_RESULT_MESSAGES: {
-              PASS_1:                'Image has @alt@ attribute',
-              CORRECTIVE_ACTION_1:   'Add a @alt@ attribute to the @%1@ element',
-              PRESENTATION:          '@%1@ element is hidden from assistive technologies using the ARIA technique @role="presentation"@',
-              HIDDEN:                '@%1@ element is hidden from assistive technologies using CSS'
+              PASS_1:                '@%1@ element has @alt@ attribute',
+              PASS_2:                '@%1@ element has @aria-labelledby@ attribute',
+              PASS_3:                '@%1@ element has @aria-label@ attribute',
+              PASS_4:                '@%1@ element has @title@ attribute',
+              CORRECTIVE_ACTION_1:   'Add a @alt@, @aria-labelledby@ or @aria-label@ attribute to the @%1@ element',
+              HIDDEN:                '@%1@ element is hidden from assistive technologies'
             },  
             PURPOSE: [
-              'Alt text provides a description of the image for people who cannot see the image',                   
-              'Alt text that is an empty string is ignored by assistive technologies and indicates an image is being used for styling rather than meaningful content'                   
+              'Accessible name provides a description of an image for people who cannot see the image, usually the accessible name comes from an alt attribute',                   
+              'Accessible name that is an empty string is ignored by assistive technologies and indicates an image is being used for styling rather than meaningful content'                   
             ],
             TECHNIQUES: [
-              '@alt@ text content should describe the content and/or the purpose of them image as succinctly as possible (less than ~100 characters)',
-              'If an image is purely stylistic or decorative set the @alt@ text conent should be the empty string (i.e. @alt=""@)'
+              'Text alternatives should describe the purpose of images as succinctly as possible (e.g. usually less than ~100 characters)',
+              'The @alt@ attribute is the preferred and most commonly used way to provide a text alternative for @img@ and @area@ elements',
+              'The @aria-labelledby@ attribute can be used to provide a text alterniatve when images can be described using visible captions associated with the image', 
+              'The @aria-label@ attribute should only be used to provide a text alternative in special cases when an element has @role="img"@ attribute', 
+              'The @title@ attribute will be used to provide a text alternative if none of the other techniques is found', 
+              'If an image is purely stylistic or decorative set the text alternative must result in an empty string (i.e. @alt=""@) or use @role="presentation"@'
             ],
             MANUAL_CHECKS: [
             ],
@@ -1080,32 +1171,35 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
         },
         IMAGE_3: {
             ID:                    'Image Rule 3',
-            DEFINITION:            'The file name of the image %s not be part of the alt text content',
+            DEFINITION:            'The file name of the image %s not be part of the accessible name',
             SUMMARY:               'Don\'t use filename',
-            TARGET_RESOURCES_DESC: '@img@ and @area@',
+            TARGET_RESOURCES_DESC: '@img@, @area@ and @[role="img"]@',
             RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:          '@img@ or @area@ element does not include the image file name as part of @alt@ attribute content',
-              ALL_PASS_PLURAL:            'All %N_P @img@ or @area@ elements do not include image file name as part of @alt@ attribute content',
-              SOME_FAIL:                  '%N_F out of %N_T @img@ or @area@ elements DO include image file name as part of @alt@ attribute content',
-              CORRECTIVE_ACTION_SINGULAR: 'update the @alt@ attribute of the image to not use the image file name, but still describe the content or purpose of the image',
-              CORRECTIVE_ACTION_PLURAL:   'update the @alt@ attribute of the %N_F images to not use the image file name, but still describe the content or purpose of the image',
-              ALL_FAIL_SINGULAR:          '@img@ or @area@ element DOES include the image file name as part of @alt@ attribute content',
-              ALL_FAIL_PLURAL:            'All %N_F @img@ or @area@ element DO include the image file name as part of @alt@ attribute content',
+              ALL_PASS_SINGULAR:          'Image element does not include the image file name as part of text alternative',
+              ALL_PASS_PLURAL:            'All %N_P image elements do not include the image file name as part of text alternative',
+              SOME_FAIL:                  '%N_F out of %N_T image elements DO include the image file name as part of text alternative',
+              CORRECTIVE_ACTION_SINGULAR: 'update the text alternaitve (e.g. typically the alt attribute) of the image element to not use the image file name; the text alternative must succinctly describe the content and/or purpose of the image',
+              CORRECTIVE_ACTION_PLURAL:   'update the @alt@ attribute of the %N_F images to not use the image file name; the text alternative must succinctly describe the content and/or purpose of the image',
+              ALL_FAIL_SINGULAR:          'Image element DOES include the image file name as part of text alternative',
+              ALL_FAIL_PLURAL:            'All %N_F image elements DO include the image file name as part of text alternatives',
               NOT_APPLICABLE:             'No @img@ elements with a @longdesc@ attribute on this page'                                          
             },
             NODE_RESULT_MESSAGES: {
-              PASS_1:                '@alt@ attribute does not contain the filename',
-              CORRECTIVE_ACTION_1:   'Change @alt@ attribute to describe the purpose and/or content of the image',
-              PRESENTATION:          '@%1@ control is hidden from asssistive technologies using the ARIA technique @role="presentation"@',
+              PASS_1:                'text alternative does not contain the filename',
+              CORRECTIVE_ACTION_1:   'Change text alternative to succinctly describe the purpose and/or content of the image',
               HIDDEN:                '@%1@ control is hidden from asssistive technologies using CSS'
             },  
             PURPOSE: [
-              'Alt text provides a description of the image for people who cannot see the image and the file name is not useful information',                   
-              'Alt text that is an empty string is ignored by assistive technologies and indicates an image is being used for styling rather than meaningful content'                   
+              'Text alternatives provide a description of images for people who cannot see the image and the file name is not useful information',                   
+              'Empty text alternatives are ignored by assistive technologies and indicates an image is being used for styling rather than meaningful content'                   
             ],
             TECHNIQUES: [
-              '@alt@ text content should describe the content and/or the purpose of them image as succinctly as possible (less than ~100 characters)',
-              'If an image is purely stylistic or decorative set the @alt@ text conent should be the empty string (i.e. @alt=""@)'
+              'Text alternatives should describe the purpose of images as succinctly as possible (e.g. usually less than ~100 characters) and do not include the file name as part of the text alternative',
+              'The @alt@ attribute is the preferred and most commonly used way to provide a text alternative for @img@ and @area@ elements',
+              'The @aria-labelledby@ attribute can be used to provide a text alterniatve when images can be described using visible captions associated with the image', 
+              'The @aria-label@ attribute should only be used to provide a text alternative in special cases when an element has @role="img"@ attribute', 
+              'The @title@ attribute will be used to provide a text alternative if none of the other techniques is found', 
+              'If an image is purely stylistic or decorative set the text alternative must result in an empty string (i.e. @alt=""@) or use @role="presentation"@'
             ],
             MANUAL_CHECKS: [
             ],
@@ -1130,32 +1224,36 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
         },
         IMAGE_4_EN: {
             ID:                    'Image Rule 4 (English)',
-            DEFINITION:            'The length of the @alt@ attribute content %s less than 100 characters',
-            SUMMARY:               '@alt@ less than 100 characters',
-            TARGET_RESOURCES_DESC: '@img@ and @area@',
+            DEFINITION:            'Text alternatives %s less than 100 characters',
+            SUMMARY:               'Text alternative length',
+            TARGET_RESOURCES_DESC: '@img@, @area@ and @[role="img"]@',
             RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:          '@img@ or @area@ element has @alt@ attribute text content less than 100 characters',
-              ALL_PASS_PLURAL:            'All %N_P @img@ or @area@ elements have @alt@ attribute text content less than 100 characters',
-              SOME_FAIL:                  '%N_F out of %N_T @img@ or @area@ elements do NOT have @alt@ attribute text content less than 100 characters',
-              CORRECTIVE_ACTION_SINGULAR: 'update the @alt@ attribute text content of the image to be less than 100 characters, but still describe the content or purpose of the image',
-              CORRECTIVE_ACTION_PLURAL:   'update the @alt@ attribute text content of the %N_F images to be less than 100 characters, but still describe the content or purpose of each image',
-              ALL_FAIL_SINGULAR:          '@img@ or @area@ element does NOT have @alt@ attribute text content less than 100 characters',
-              ALL_FAIL_PLURAL:            'All %N_F @img@ or @area@ elements do NOT have @alt@ attribute text content less than 100 characters',
-              NOT_APPLICABLE:             'No @img@ or @area@ elements on this page'                                          
+              ALL_PASS_SINGULAR:          'Image element has text alternative less than 100 characters',
+              ALL_PASS_PLURAL:            'All %N_P image elements have text alternatives less than 100 characters',
+              SOME_FAIL:                  '%N_F out of %N_T image elements do have text equivalents GREATER than 100 characters',
+              CORRECTIVE_ACTION_SINGULAR: 'update the text alternatives of the image element to be less than 100 characters; succinctly describe the purpose and/or content of the image',
+              CORRECTIVE_ACTION_PLURAL:   'update the text alternatives of the %N_F images to be less than 100 characters; succinctly describe the purpose and/or content of the image',
+              ALL_FAIL_SINGULAR:          'image element text alternative is GREATER than 100 characters',
+              ALL_FAIL_PLURAL:            'All %N_F image elements have text alternatives GREATER than 100 characters',
+              NOT_APPLICABLE:             'No image elements on this page'                                          
             },
             NODE_RESULT_MESSAGES: {
-              PASS_1:                '@alt@ attribute is less than 100 characters',
-              CORRECTIVE_ACTION_1:   'Change @alt@ attribute content to less than 100 characters',
-              PRESENTATION:          '@%1@ control is hidden from asssistive technologies using the ARIA technique @role="presentation"@',
-              HIDDEN:                '@%1@ control is hidden from asssistive technologies using CSS'
+              PASS_1:                'Text alternative is less than 100 characters',
+              CORRECTIVE_ACTION_1:   'Change text alternative to be less than 100 characters',
+              HIDDEN:                'Image element is hidden from asssistive technologies'
             },  
             PURPOSE: [
-              'Alt text provides a description of the image for people who cannot see the image and the file name is not useful information',                   
+              'Text alternatives provides a description of the image for people who cannot see the image',                   
+              'Long text alternatives can reduce usability by increasing the time it takes to read a web page and understand the purpose of an image in the web site',                   
               'Alt text that is an empty string is ignored by assistive technologies and indicates an image is being used for styling rather than meaningful content'                   
             ],
             TECHNIQUES: [
-              '@alt@ text content should describe the content and/or the purpose of them image as succinctly as possible (less than ~100 characters)',
-              'If an image is purely stylistic or decorative set the @alt@ text conent should be the empty string (i.e. @alt=""@)'
+              'Text alternatives should describe the purpose of images as succinctly as possible (e.g. usually less than ~100 characters) and do not include the file name as part of the text alternative',
+              'The @alt@ attribute is the preferred and most commonly used way to provide a text alternative for @img@ and @area@ elements',
+              'The @aria-labelledby@ attribute can be used to provide a text alterniatve when images can be described using visible captions associated with the image', 
+              'The @aria-label@ attribute should only be used to provide a text alternative in special cases when an element has @role="img"@ attribute', 
+              'The @title@ attribute will be used to provide a text alternative if none of the other techniques is found', 
+              'If an image is purely stylistic or decorative set the text alternative must result in an empty string (i.e. @alt=""@) or use @role="presentation"@'
             ],
             MANUAL_CHECKS: [
             ],
@@ -1180,27 +1278,28 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
         },
         IMAGE_5: {
             ID:                    'Image Rule 5',
-            DEFINITION:            'If an image has a height or width of 1 pixel or its alt text set to empty, the image %s set its role attribute to "presentation" or the image %s be removed and CSS %s should be used for positioning.',
-            SUMMARY:               '@alt=""@ for small images',
+            DEFINITION:            'If an image element has a height or width less than 6 pixels or its alt text set to empty, the image %s set its role attribute to "presentation" or the image %s be removed and CSS %s should be used for positioning.',
+            SUMMARY:               'Small/decorative images set to presentation',
             TARGET_RESOURCES_DESC: '@img@',
             RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:          'Small or decorative @img@ or @area@ element has a @role@ attribute set to a value of @presentation@',
-              ALL_PASS_PLURAL:            'All %N_P small and decorative @img@ or @area@ elements have a @role@ attribute set to a value of @presentation@',
-              SOME_FAIL:                  '%N_F out of %N_T small and decorative @img@ or @area@ elements do NOT have a @role@ attribute set to a value of @presentation@',
-              CORRECTIVE_ACTION_SINGULAR: 'add a @role@ attribute with a value of @presentation@ and remove the @alt@ attribute',
-              CORRECTIVE_ACTION_PLURAL:   'add a @role@ attribute with a value of @presentation@ to the %N_F image and remove the @alt@ attribute',
-              ALL_FAIL_SINGULAR:          'Small or decorative @img@ or @area@ element does NOT have a @role@ attribute set to a value of @presentation@',
-              ALL_FAIL_PLURAL:            'All %N_F small or decorative @img@ or @area@ elements do NOT have a @role@ attribute set to a value of @presentation@',
-              NOT_APPLICABLE:             'No @img@ with @alt@ attribute set to empty or with a height or width of 1 pixel on this page'                                          
+              ALL_PASS_SINGULAR:          'Small and decorative image elements (i.e. less than 6 pixels high or wide) have @role="presentation"@ or text alternative to an empty string (e.g. @alt=""@)',
+              ALL_PASS_PLURAL:            'All %N_P small and decorative image elements (i.e. less than 6 pixels high or wide) have @role="presentation"@ or text alternative to an empty string (e.g. @alt=""@)',
+              SOME_FAIL:                  '%N_F out of %N_T small and decorative image elements (i.e. less than 6 pixels high or wide) do NOT have a @role=presentation@ or text alternative to an empty string (e.g. @alt=""@)',
+              CORRECTIVE_ACTION_SINGULAR: 'add a @role=presentation@ or change text alterative to an empty string (e.g. @alt=""@)',
+              CORRECTIVE_ACTION_PLURAL:   'add a @role=presentation@ or change text alterative to an empty string (e.g. @alt=""@)',
+              ALL_FAIL_SINGULAR:          'Small or decorative image element (i.e. less than 6 pixels high or wide) does NOT have @role=presentation@ or text alterative to an empty string (e.g. @alt=""@)',
+              ALL_FAIL_PLURAL:            'All %N_F small or decorative image elements (i.e. less than 6 pixels high or wide)  do NOT have a @role=presentation@ or text alterative to an empty string (e.g. @alt=""@)',
+              NOT_APPLICABLE:             'No small or decorative images (i.e. less than 6 pixels high or wide) on this page'                                          
             },
             NODE_RESULT_MESSAGES: {
-              PASS_1:                'Image is not a small image',
-              CORRECTIVE_ACTION_1:   'Change @alt@ attribute content to empty string',
-              PRESENTATION:          '@%1@ element is hidden from asssistive technologies using the ARIA technique @role="presentation"@',
-              HIDDEN:                '@%1@ element is hidden from asssistive technologies using CSS'
+              PASS_1:                'Image element has @role="presentation"@',
+              PASS_2:                'Image element has @alt=""@',
+              CORRECTIVE_ACTION_1:   'Add @role="presentation"@ or change text alternative to empty string (i.e. @alt=""@)',
+              HIDDEN:                'Image element is hidden from asssistive technologies using CSS'
             },  
             PURPOSE: [
-              'Images that are 1 pixel high or 1 pixel wide are stylistic images and the @alt@ attribute should be set to the empty string'                   
+              'Small and decorative images (i.e. less than 6 pixels high or wide) can be ignored by assistive technologies',
+              'Images with the @alt=""@ attribute should be set to the empty string'                   
             ],
             TECHNIQUES: [
               'Small images are purely stylistic or decorative and the @alt@ text conent should be the empty string (i.e. @alt=""@)'
@@ -1220,17 +1319,17 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
         },
         IMAGE_6: {
             ID:                    'Image Rule 6',
-            DEFINITION:            'If @alt=""@ or @role="presentation"@ the image %s be used just for styling or decoration',
-            SUMMARY:               '@alt=""@ or @role="presentation"@ %s be decorative',
+            DEFINITION:            'Verify image element is be used for styling or decoration',
+            SUMMARY:               'Verify decorative image',
             TARGET_RESOURCES_DESC: '@img@',
             RULE_RESULT_MESSAGES: {
               MANUAL_CHECKS_SINGULAR:     'Verify @img@ element with @alt=""@ or @role="presentation"@ is purely decorative',
               MANUAL_CHECKS_PLURAL:       'Verify %N_MC @img@ elements with @alt=""@ or @role="presentation"@ are purely decorative',
-              NOT_APPLICABLE:             'No @img@ elements with @alt=""@ or @role="presentation"@ on this page'                                          
+              NOT_APPLICABLE:             'No image elements identified as deecorative (i.e. @alt=""@ or @role="presentation"@) on this page'                                          
             },
             NODE_RESULT_MESSAGES: {
               MANUAL_CHECK_1:        'Verify the image is only used for styling or decoration',
-              HIDDEN:                '@%1@ element is hidden from asssistive technologies using CSS'
+              HIDDEN:                'Image element is hidden from asssistive technologies using CSS'
             },  
             PURPOSE: [
               'If an image is purely decoration or used for styling users of screen readers do not need to know the image exists',                   
@@ -1257,6 +1356,101 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
               { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
                 title: 'iCITA Best Practices: Text Equivalents for Images and other Non-Text Objects Best Practices', 
                 url:   'http://html.cita.illinois.edu/text/'
+              }                            
+            ]
+        },
+     KEYBOARD_1: {
+            ID:                    'Keyboard Rule 1',
+            DEFINITION:            'Widget elements %s have keyboard event handlers',
+            SUMMARY:               'Widgets %s support keyboard',
+            TARGET_RESOURCES_DESC: 'Widget elements',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       'Verify the widget element has keyboard event handlers through is parent elements, owner widget (i.e. aria-activedescendant) or required child widgets',
+              MANUAL_CHECKS_PLURAL:         'Verify the %N_MC widgets have keyboard event handlers through is parent elements, owner widget (i.e. aria-activedescendant) or required child widgets',
+              ALL_PASS_SINGULAR:            'The widget element has keyboard event handlers',
+              ALL_PASS_PLURAL:              'All %N_P widget elements have keyboard event handlers',
+              SOME_FAIL:                    '%N_F out of %N_T widget elements do NOT have keyboard event handlers',
+              CORRECTIVE_ACTION_SINGULAR:   'add event handler to the widget to support keyboard operation of the widget',
+              CORRECTIVE_ACTION_PLURAL:     'add event handler to the %N_F widgets to support keyboard operation of each widget',
+              ALL_FAIL_SINGULAR:            'The widget element does NOT have keyboard event handlers',
+              ALL_FAIL_PLURAL:              'All %N_F widget elements do NOT have keyboard event handlers',
+              NOT_APPLICABLE:               'No widgets on the page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:               '@%1@ widget has keyboard support through event handlers on the widget element',
+              MANUAL_CHECK_1:       'Verify the @%1@ widget has keyboard support through keyboard event handlers on a parent widget element',
+              MANUAL_CHECK_2:       'Verify the @%1@ widget has keyboard support through keyboard event handlers through @aria-activedescendant@ support on its @%2@ owner widget',
+              MANUAL_CHECK_3:       'Verify the @%1@ widget has keyboard support through keyboard event handlers on a required child widgets',
+              CORRECTIVE_ACTION_1:  'Add keyboard event handlers to the @%1@ widget to support keyboard interaction with the widget',
+              HIDDEN:               '@%1@ widget is hidden from assistive technologies'
+            },
+            PURPOSE: [
+              'Keyboard support is required by people who cannot use the mouse to interact with a widget'                   
+            ],
+            TECHNIQUES: [
+              'Use the @keyup@, @keydown@ and @keypress@ events to support keyboard interaction with widgets'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G108'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'OAA Web Accessibility ARIA Examples', 
+                url:   'http://oaa-accessibility.org/examples/'
+              }                            
+            ]
+        },
+     KEYBOARD_2: {
+            ID:                    'Keyboard Rule 2',
+            DEFINITION:            'Widget elements %s use tabindex to add keyboard focus support on non-interactive elements',
+            SUMMARY:               'Tabindex for focus',
+            TARGET_RESOURCES_DESC: 'Widget elements',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            'The widget element has tabindex value or is a child of a widget using aria-activedescendant',
+              ALL_PASS_PLURAL:              'All %N_P widget elements have tabindex value or is a child of a widget using aria-activedescendant',
+              SOME_FAIL:                    '%N_F out of %N_T widget elements do NOT have a @tabindex@ value or do NOT a child of a widget using aria-activedescendant',
+              CORRECTIVE_ACTION_SINGULAR:   'add @tabindex2 value to the widget or add @aria-activedescendant@ support to an ancestor widget to provide keyboard focus support to the widget',
+              CORRECTIVE_ACTION_PLURAL:     'add @tabindex@ value to the widget or add @aria-activedescendant@ support to an ancestor widget to provide keyboard focus support to the %N_F widgets',
+              ALL_FAIL_SINGULAR:            'The widget element does NOT have a @tabindex@ value or is a child of a widget using aria-activedescendant',
+              ALL_FAIL_PLURAL:              'All %N_F widget elements do NOT have a @tabindex@ value or are NOT a child of a widget using aria-activedescendant',
+              NOT_APPLICABLE:               'No widgets on the page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:               '@%1@ widget is on a @%2@ element that can receive keyboard focus',
+              PASS_2:               '@%1@ widget has a @tabindex@ value that supports receiving keyboard focus',
+              MANUAL_CHECK_1:       '@%1@ widget is the child of a widget that has an @aria-activedescendant@ attribute, verify the @aria-activedescendant@ supports references to the @id=%2@ of this widget',
+              MANUAL_CHECK_2:       'Verify the child widgets of the @%1@ element with an onClick event of accurately represent the interactive features of this section of the web page',
+              CORRECTIVE_ACTION_1:  'Add @tabindex@ value to the widget or add @aria-activedescendant@ support to an ancestor widget to provide keyboard focus support',
+              HIDDEN:               '@%1@ widget is hidden from assistive technologies'
+            },
+            PURPOSE: [
+              'Keyboard support is required by people who cannot use the mouse to interact with a widget'                   
+            ],
+            TECHNIQUES: [
+              'The @tabindex@ enables non-interactive elements (i.e. @div@, @li@, @span@ ...) to receive and process focus ',
+              'The @tabindex@ enables non-interactive elements (i.e. @div@, @li@, @span@ ...) to receive and process focus '
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G108'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'OAA Web Accessibility ARIA Examples', 
+                url:   'http://oaa-accessibility.org/examples/'
               }                            
             ]
         },    
@@ -1441,6 +1635,173 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             PURPOSE:           'Landmark labels make it easier for people using assistive technologies to understand the content of a landmark',
             MESSAGE_HAS_LABEL: 'Make sure the \'%1\' label described the content of the %2 landmark',
             MESSAGE_NO_LABEL:  'The %1 landmark does not have a label, make sure the landmark role is appropriate to the content in the landmark and consider adding a descriptive label to provide more detail on the contents of the landark.'
+        },
+        LAYOUT_1: {
+            ID:                    'Layout Rule 1',
+            DEFINITION:            'Web pages %s provide content in a meaningful sequence',
+            SUMMARY:               'Page %s have meaningful sequence',
+            TARGET_RESOURCES_DESC: '@table@ elements used for layout',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR: 'Verify document has a meaningful sequence of content when style sheets are disabled',
+              MANUAL_CHECKS_PLURAL:   'Verify document has a meaningful sequence of content when style sheets are disabled and layout table markup is disabled',
+              ALL_PASS_SINGULAR:      'Layout table is one column wide',
+              ALL_PASS_PLURAL:        'All %N_P layout tables are one column wide'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:          'Table is one column wide, and will have the same document sequence when table markup is disabled',
+              MANUAL_CHECK_1:  'Verify document has a meaningful sequence of content when style sheets are disabled and layout table markup is disabled',
+              MANUAL_CHECK_2:  'Verify the content in the %1x%2 layout table has a meaningful sequence of content when table markup is disabled , if the table is actually a data table add data table markup to give the table an effective caption and the data tables headings',
+              MANUAL_CHECK_3:  'Verify the nesting of tables for layout of content maintains a meaningful sequence of content when table markup is disabled',
+              HIDDEN:          'The @table@ is hidden from assistive technologies'
+            },  
+            PURPOSE: [
+              'The sequence of content (i.e. order) in the document code affects its meaning, especilly for users of assistive technology who cannot see the visual cues provided in a graphical that provide information about the relationships between content'                   
+            ],
+            TECHNIQUES: [
+              'Use CSS and web standards techniques for the coding of content, and the graphical styling and positioning of content',
+              'Avoid using table markup for graphical layout, if you do use tables for layout make sure the content still is meaningful when the table markup is disabled',
+              'Avoid using nested tables for layout, the deeper the level of nesting the more chance there of having a confusing sequence of content',
+              'Tables that are used for layout should use only @tr@ and @td@ elements, and the @table@, @tr@ and @td@ elements should have a @role="presentation"@ attribute to clearly indicate the table markup is being used for layout'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Cascading Style Sheets Level 2 Revision 1 (CSS 2.1) Specification: Visual formatting model', 
+                url:   'http://www.w3.org/TR/CSS21/visuren.html'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G57: Ordering the content in a meaningful sequence', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G57'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'C6: Positioning content based on structural markup', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/C6'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'C8: Using CSS letter-spacing to control spacing within a word', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/C8'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'C27: Making the DOM order match the visual order', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/C27'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'F1: Failure of Success Criterion 1.3.2 due to changing the meaning of content by positioning information with CSS', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/F1'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'F33: Failure of Success Criterion 1.3.1 and 1.3.2 due to using white space characters to create multiple columns in plain text content', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/F33'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'F34: Failure of Success Criterion 1.3.1 and 1.3.2 due to using white space characters to format tables in plain text content', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/F34'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'F49: Failure of Success Criterion 1.3.2 due to using an HTML layout table that does not make sense when linearized', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/F49'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.OTHER, 
+                title: 'Web Standards Group', 
+                url:   'http://webstandardsgroup.org/standards/'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.OTHER, 
+                title: 'W3C Standards', 
+                url:   'http://www.w3.org/standards/'
+              }
+            ]   
+        },
+        LAYOUT_2: {
+            ID:                    'Layout Rule 2',
+            DEFINITION:            'Tables %s not be nested for layout of content',
+            SUMMARY:               'Do not nest layout tables',
+            TARGET_RESOURCES_DESC: '@table@ elements used for layout',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:      'Table is not nested with another layout table',
+              ALL_PASS_PLURAL:        '%N_P tables are not nested with other layout tables',
+              SOME_FAIL:                '%N_F out of %N_T tables are nested with other layout tables',
+              CORRECTIVE_ACTION_PLURAL: 'Update the markup and CSS on this page to remove the nesting of layout tables',
+              ALL_FAIL_SINGULAR:        'Layout table is nested with other layout tables',
+              ALL_FAIL_PLURAL:          'All %N_F tables are nested with other layout tables',
+              NOT_APPLICABLE:           'No table elements used for layout'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:               'Table is not nested with another layout table',
+              PASS_2:               'Table is one column wide, and will have the same document sequence when table markup is disabled',
+              CORRECTIVE_ACTION_1:  'Update the markup and CSS on this page to remove the nesting of this layout table',
+              HIDDEN:               'The @table@ is hidden from assistive technologies'
+            },  
+            PURPOSE: [
+              'The sequence of content (i.e. order) in the document code affects its meaning, nesting layout tables often makes the sequence of content less understandable'                   
+            ],
+            TECHNIQUES: [
+              'Use CSS and web standards techniques for the coding of content, and the graphical styling and positioning of content',
+              'Avoid using table markup for graphical layout, if you do use tables for layout make sure the content still is meaningful when the table markup is disabled',
+              'Avoid using nested tables for layout, the deeper the level of nesting the more chance there of having a confusing sequence of content',
+              'Tables that are used for layout should use only @tr@ and @td@ elements, and the @table@, @tr@ and @td@ elements should have a @role="presentation"@ attribute to clearly indicate the table markup is being used for layout'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Cascading Style Sheets Level 2 Revision 1 (CSS 2.1) Specification: Visual formatting model', 
+                url:   'http://www.w3.org/TR/CSS21/visuren.html'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'F33: Failure of Success Criterion 1.3.1 and 1.3.2 due to using white space characters to create multiple columns in plain text content', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/F33'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'F49: Failure of Success Criterion 1.3.2 due to using an HTML layout table that does not make sense when linearized', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/F49'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.OTHER, 
+                title: 'Web Standards Group', 
+                url:   'http://webstandardsgroup.org/standards/'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.OTHER, 
+                title: 'W3C Standards', 
+                url:   'http://www.w3.org/standards/'
+              }
+            ]   
+        },
+        LAYOUT_3: {
+            ID:                    'Layout Rule 3',
+            DEFINITION:            'Layout tables %s use @role="presentation"@ on all table elements',
+            SUMMARY:               'Layout tables use @role="presentation"@',
+            TARGET_RESOURCES_DESC: '@table@ elements used for layout',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:      'Layout table element has @role="presentation"@',
+              ALL_PASS_PLURAL:        '%N_P layout table elements (i.e. @table@, @tr@, @td@ elements) have @role="presentation"@',
+              SOME_FAIL:                '%N_F out of %N_T layout table elements (i.e. @table@, @tr@, @td@ elements) do NOT have @role="presentation"@',
+              CORRECTIVE_ACTION_PLURAL: 'add @role="presentation"@ to all table elements (i.e. @table@, @tr@, @td@ elements) in a layout',
+              ALL_FAIL_PLURAL:          'All %N_F layout table elements (i.e. @table@, @tr@, @td@ elements) do NOT have @role="presentation"@',
+              NOT_APPLICABLE:           'No table elements used for layout'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:               '%1 element has @role="presentation"@',
+              CORRECTIVE_ACTION_1:  'Add @role="presentation"@ to the %1 element, if the table is actually a data table use apporpriate data table markup',
+              HIDDEN:               'The %1 element is hidden from assistive technologies'
+            },  
+            PURPOSE: [
+              'Using @role="presentation"@ communicates assistive technollogies that the table is being used for markup'                   
+            ],
+            TECHNIQUES: [
+              'Use @role="presentation"@ on all table elements in a layout table to help assitive technology understand the table is being used for layout, rather than tabular data'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0: Presentation Role', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#presentation'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.OTHER, 
+                title: 'WAI-ARIA 1.0 Authoring Practices: Presentation Role', 
+                url:   'http://www.w3.org/WAI/PF/aria-practices/#presentation_role'
+              }
+            ]   
         },
         LINK_1: {
             ID:                    'Link Rule 1',
@@ -2089,45 +2450,6 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             MESSAGE_NOT_COMPLEX_DATA_TABLE: 'The table is not complex data table, so the rule was not evaluated.',
             MESSAGE_NOT_DATA_TABLE:         'The table is a layout table, so rule was not evaluated.'
         },
-        LAYOUT_1: {
-            ID:                       'LAYOUT 1',
-            TITLE:                    'Tables used for layout that are more than one column wide, %s not be nested in other layout tables.',
-            PURPOSE:                  'The nesting of layout tables often results in content being read using speech to be read out of the intended reading order of the author.',
-            MESSAGE_PASS_NOT_NESTED:  'Layout table is not nested in another table',
-            MESSAGE_PASS_ONE_COLUMN:  'Layout table is only one column wide',
-            MESSAGE_VIOLATION:        'Layout table is %1 columns wide, and nested %2 level(s), nested data tables must only be one column wide.',
-            MESSAGE_RECOMMENDATION:   'Layout table is %1 columns wide, and nested %2 level(s), nested data tables should only be one column wide.',
-            MESSAGE_MANUAL:           'Layout table is %1 columns wide, and nested %2 level(s), nested data tables may need to only be one column wide.',
-            MESSAGE_NOT_LAYOUT_TABLE: 'The table is a data table, so the rule was not evaluated.',
-            MESSAGE_HIDDEN:           'The table is hidden from people using assistive technologies, so the rule was not evaluated'
-        },
-        LAYOUT_2: {
-            ID:                       'LAYOUT 2',
-            DEFINITION:               'If a table is a layout table that is more than 1 column wide, the content needs to be meaningful when table markup is ignored.',
-            SUMMARY:                  'Layout content must make sense',
-            PURPOSE:                  'The use of layout tables can result in content being read using speech to be read out of the intended reading order of the author.',
-            MESSAGE_PASS_1:           'The layout table is only one column wide.',
-            MESSAGE_VIOLATION:        'The page content must be meaningful when the %1 column by %2 row table markup is disabled.',
-            MESSAGE_RECOMMENDATION:   'The page content should be meaningful when the %1 column by %2 row table markup is disabled.',
-            MESSAGE_NOT_LAYOUT_TABLE: 'The table is a data table, so the rule was not evaluated.',
-            MESSAGE_HIDDEN:           'The table is hidden from people using assistive technologies, so the rule was not evaluated'
-        },
-        LAYOUT_3: {
-            ID:                 'LAYOUT 3',
-            DEFINITION:         'If the table is a layout table, set role="presentation" on TABLE, TR and TD elements in the table',
-            SUMMARY:            'Presentation role on layout tables',
-            ACTION:             'Add role="presentation" attribute.',
-            MESSAGE_HIDDEN:     'The table is hidden from people using assistive technologies, so the rule was not evaluated',
-            TECHNIQUES:         ['Use the role="presentation" attribute on TABLE, TR and TD elements used in layout tables'],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.REQUIREMENT, 
-                title: 'ARIA Presentation Role Value ', 
-                url:   'http://www.w3.org/TR/wai-aria/roles#presentation'
-              }
-            ]
-        },
         TITLE_1: {
             ID:                    'Title Rule 1',
             DEFINITION:            'Page %s have a @title@ element with content.',
@@ -2212,36 +2534,86 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
         },    
         VIDEO_1: {
             ID:                    'Video Rule 1',
-            DEFINITION:            'Video  %s have synchronized caption',
-            SUMMARY:               'Video %s have caption',
+            DEFINITION:            'Video only media (i.e. no audio content) %s have audio description or text description of the video content',
+            SUMMARY:               'Video only %s have alternative',
             TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
             RULE_RESULT_MESSAGES: {
-              MANUAL_CHECKS_SINGULAR:       'Verify the element is used for video and if it is a video make sure it has a caption',
-              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are videos, if they any are a video make sure they have captions',
-              ALL_PASS_SINGULAR:            'Video has caption',
-              ALL_PASS_PLURAL:              'All %N_P videos have captions',
-              SOME_FAIL:                    '%N_F out of %N_T videos do NOT have captions',
-              CORRECTIVE_ACTION_SINGULAR:   'add caption to video',
-              CORRECTIVE_ACTION_PLURAL:     'add captions to each of the %N_F videos',
-              ALL_FAIL_SINGULAR:            'Video does not have a caption',
-              ALL_FAIL_PLURAL:              'All %N_F videos do NOT have captions',
-              NOT_APPLICABLE:               'No video elements found on this page'              
+              MANUAL_CHECKS_SINGULAR:       'Verify the element is video only (i.e. no audio content) and if it is only video make sure it has either an audio description track or text description of the content of the video',
+              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are video only media (i.e. no audio content), if there are any video only media make sure they have either an audio description track or text description of the video',
+              ALL_PASS_SINGULAR:            'Video has either a audio description track or a text description',
+              ALL_PASS_PLURAL:              'All %N_P videos have either an audio description track or text description',
+              SOME_FAIL:                    '%N_F out of %N_T videos do NOT have a audio description track or text description',
+              CORRECTIVE_ACTION_SINGULAR:   'add audio description track or text description to video',
+              CORRECTIVE_ACTION_PLURAL:     'add audio description track or text descriptions to each of the %N_F the video only media elements',
+              ALL_FAIL_SINGULAR:            'Video only element does not have a audio description track or text description',
+              ALL_FAIL_PLURAL:              'All %N_F video only elements do NOT have an audio description track or text description',
+              NOT_APPLICABLE:               'No visible @object@, @embed@ or @video@ elements found on this page that could be used for video only (i.e. no audio content'              
             },
             NODE_RESULT_MESSAGES: {
-              PASS_1:                '%1 element has caption',
-              CORRECTIVE_ACTION_1:   'Add caption to @%1@ video element',
-              MANUAL_CHECK_1:        'Verify the @%1@ video element has open or closed captions',
-              MANUAL_CHECK_2:        'Verify the @%1@ element is being used for video, if it is verify that it has open or closed captions',
+              PASS_1:                '@%1@ video only element has a audio description track',
+              PASS_2:                '@%1@ video only element has a text description',
+              CORRECTIVE_ACTION_1:   'Add audio description track or text description to @%1@ video only element',
+              MANUAL_CHECK_1:        'Verify the @%1@ video element has audio description track or text description',
+              MANUAL_CHECK_2:        'Verify the @%1@ element is being used for video only (i.e. no audio content), if it is video only verify that it has audio description track or text description ',
               HIDDEN:                '@%1@ element is not visible on screen'
             },  
             PURPOSE: [
-              'Captions provide a means for people whoa re deaf or hearing impaired to get the speech and sound content of a video with audio'                   
+              'Audio description track and text descriptions provide a means for people cannot see the video to understand the content or information the video provides'                   
+            ],
+            TECHNIQUES: [
+              'Various techniques to add based on the video formats and media players being supported, see your technology specific requirements for adding audio descriptions',
+              'The HTML5 video element is designed to make it easier to support audio description tracks through the use of the @track@ element of @type=description@',
+              'Use @aria-describedby@ attribute to point to a text description of the video only content'
+            ],
+            MANUAL_CHECKS: [
+              'Audio tracks can be heard when the video is being played, and they will be describing the content of the video',
+              'Text descriptions maybe part of the web page or accessed by a link'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HMTL 5: The track element', 
+                url:   'http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#the-track-element'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'W3C Accessible Rich Internet Applications (WAI-ARIA) 1.0: aria-describedby (property)', 
+                url:   'http://www.w3.org/TR/wai-aria.html#aria-describedby'
+              }                            
+            ]
+        },    
+        VIDEO_2: {
+            ID:                    'Video Rule 2',
+            DEFINITION:            'Prerecorded video (with audio content) %s have synchronized caption',
+            SUMMARY:               'Prerecorded video %s have caption',
+            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       'Verify the element is being used for prerecorded video (with audio content) and if it is prerecorded video make sure it has a caption track',
+              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are prerecorded videos (with audio content), if they any are a prerecorded video make sure they have synchornized caption track',
+              ALL_PASS_SINGULAR:            'Video has synchornized caption track',
+              ALL_PASS_PLURAL:              'All %N_P videos have synchronized caption tracks',
+              SOME_FAIL:                    '%N_F out of %N_T videos do NOT have synchronized caption tracks',
+              CORRECTIVE_ACTION_SINGULAR:   'add caption track to video',
+              CORRECTIVE_ACTION_PLURAL:     'add caption track to each of the %N_F videos',
+              ALL_FAIL_SINGULAR:            'Prerecorded video does not have a synchronized caption track',
+              ALL_FAIL_PLURAL:              'All %N_F prerecorded videos do NOT have synchronized caption tracks',
+              NOT_APPLICABLE:               'No visible @object@, @embed@ and @video@ elements found on the page that could be prerecorded video'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '%1 element has synchronized caption track',
+              CORRECTIVE_ACTION_1:   'Add synchronized caption track to @%1@ video element',
+              MANUAL_CHECK_1:        'Verify the @%1@ video element has synchronized caption track',
+              MANUAL_CHECK_2:        'Verify the @%1@ element is being used for video, if it is verify that it has a synchronized caption track',
+              HIDDEN:                '@%1@ element is not visible on screen'
+            },  
+            PURPOSE: [
+              'Captions provide a means for people who are deaf or hearing impaired to get the speech and sound content of a video'                   
             ],
             TECHNIQUES: [
               'Various techniques based on the video formats and media players you are supporting, please see your technology specific requirements for captions',
-              'The HTML5 video element is attempting to make it easier to support captions through the use of the text track'
+              'The HTML5 video element is designed to make it easier to support caption tracks through the use of the @track@ element',
+              'Make sure the video player is capable of rendering captions by default or through user options'
             ],
             MANUAL_CHECKS: [
+              'Captions should be visible when the video is playing and the text of the captions should be synchronized with the speech'
             ],
             INFORMATIONAL_LINKS: [
               { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
@@ -2250,38 +2622,174 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
               }                            
             ]
         },    
-        VIDEO_2: {
-            ID:                    'Video Rule 2',
-            DEFINITION:            'Video  %s have synchronized caption',
-            SUMMARY:               'Video %s have caption',
+        VIDEO_3: {
+            ID:                    'Video Rule 3',
+            DEFINITION:            'Prerecorded video (with audio content) %s have audio description or text description',
+            SUMMARY:               'Prerecorded video %s have description',
             TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
             RULE_RESULT_MESSAGES: {
-              MANUAL_CHECKS_SINGULAR:       'Verify the element is used for video and if it is a video make sure it has a caption',
-              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are videos, if they any are a video make sure they have captions',
-              ALL_PASS_SINGULAR:            'Video has caption',
-              ALL_PASS_PLURAL:              'All %N_P videos have captions',
-              SOME_FAIL:                    '%N_F out of %N_T videos do NOT have captions',
-              CORRECTIVE_ACTION_SINGULAR:   'add caption to video',
-              CORRECTIVE_ACTION_PLURAL:     'add captions to each of the %N_F videos',
-              ALL_FAIL_SINGULAR:            'Video does not have a caption',
-              ALL_FAIL_PLURAL:              'All %N_F videos do NOT have captions',
-              NOT_APPLICABLE:               'No video elements found on this page'              
+              MANUAL_CHECKS_SINGULAR:       'Verify the element is prerecorded video (with audio content) and if it is prerecorded video make sure it has an audio description track or text description of the content of the video',
+              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are prerecorded video (with audio content), if any are prerecorded video make sure they have either an audio description track or a text description of the video',
+              ALL_PASS_SINGULAR:            'Video has either an audio description track or a text description',
+              ALL_PASS_PLURAL:              'All %N_P videos have either a audio description track or a text description',
+              SOME_FAIL:                    '%N_F out of %N_T prerecorded videos do NOT have a audio description track or text description',
+              CORRECTIVE_ACTION_SINGULAR:   'add audio description track or text description to video',
+              CORRECTIVE_ACTION_PLURAL:     'add audio description tracks or text descriptions to each of the %N_F the videos',
+              ALL_FAIL_SINGULAR:            'Prerecoreded video does not have a audio description track or text description',
+              ALL_FAIL_PLURAL:              'All %N_F prerecorded videos do NOT have an audio description tracks or text descriptions',
+              NOT_APPLICABLE:               'No visible @object@, @embed@ and @video@ elements found on this page that could be prerecorded video'              
             },
             NODE_RESULT_MESSAGES: {
-              PASS_1:                '%1 element has caption',
-              CORRECTIVE_ACTION_1:   'Add caption to @%1@ video element',
-              MANUAL_CHECK_1:        'Verify the @%1@ video element has open or closed captions',
-              MANUAL_CHECK_2:        'Verify the @%1@ element is being used for video, if it is verify that it has open or closed captions',
+              PASS_1:                '@%1@ element has a audio description track',
+              PASS_2:                '@%1@ element has a text description',
+              CORRECTIVE_ACTION_1:   'Add audio description track or text description to @%1@ element',
+              MANUAL_CHECK_1:        'Verify the @%1@ video element has audio description or text description',
+              MANUAL_CHECK_2:        'Verify the @%1@ element is being used for prerecorded video, if it is verify that it has audio description track or text description ',
               HIDDEN:                '@%1@ element is not visible on screen'
             },  
             PURPOSE: [
-              'Audio descriptions provide a means for people who deaf or hearing impaired to understand the visual content of the video'                   
+              'Audio descriptions and text descriptions provide a means for people cannot see the video to understand the video content'                   
             ],
             TECHNIQUES: [
-              'Various techniques based on the video formats and media players you are supporting, please see your technology specific requirements for audio descriptions',
-              'The HTML5 video element is attempting to make it easier to support audio descriptions through the use of the text track'
+              'Various techniques to add based on the video formats and media players being supported, please see your technology specific requirements for captions',
+              'The HTML5 video element is attempting to make it easier to support audio descriptions through the use of the @track@ element',
+              'Use @aria-describedby@ attribute to point to a text description of the video content'
             ],
             MANUAL_CHECKS: [
+              'Audio tracks can be heard when the video is being played, and they will be describing the content of the video',
+              'Text descriptions maybe part of the web page or accessed by a link'            
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HMTL 5: The track element', 
+                url:   'http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#the-track-element'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'W3C Accessible Rich Internet Applications (WAI-ARIA) 1.0: aria-describedby (property)', 
+                url:   'http://www.w3.org/TR/wai-aria.html#aria-describedby'
+              }                            
+            ]
+        },
+        VIDEO_4: {
+            ID:                    'Video Rule 4',
+            DEFINITION:            'Live video %s have synchronized caption',
+            SUMMARY:               'Live video %s have caption',
+            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       'Verify the element is being used for live video (with audio content) and if it is a live video make sure it has a synchronized caption track',
+              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are live videos, if they any are a live video (with audio content) make sure they have synchronized caption tracks',
+              ALL_PASS_SINGULAR:            'Live video has synchronized caption track',
+              ALL_PASS_PLURAL:              'All %N_P live videos have synchronized caption tracks',
+              SOME_FAIL:                    '%N_F out of %N_T live videos do NOT have synchronized caption tracks',
+              CORRECTIVE_ACTION_SINGULAR:   'add synchronized caption track to live video',
+              CORRECTIVE_ACTION_PLURAL:     'add synchronized caption tracks to each of the %N_F live videos',
+              ALL_FAIL_SINGULAR:            'Live video does not have a synchronized caption track',
+              ALL_FAIL_PLURAL:              'All %N_F live videos do NOT have synchronized caption tracks',
+              NOT_APPLICABLE:               'No visible @object@, @embed@ and @video@ elements found on this page that could be live video'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '%1 element has synchronized caption track',
+              CORRECTIVE_ACTION_1:   'Add synchronized caption to @%1@ live video element',
+              MANUAL_CHECK_1:        'Verify the @%1@ live video element has a synchronized caption track',
+              MANUAL_CHECK_2:        'Verify the @%1@ element is being used for live video, if it is verify that it has synchronized caption track',
+              HIDDEN:                '@%1@ element is not visible on screen'
+            },  
+            PURPOSE: [
+              'Captions provide a means for people who are deaf or hearing impaired to get the speech and sound content of a video'                   
+            ],
+            TECHNIQUES: [
+              'Various techniques based on the video formats and media players you are supporting, please see your technology specific requirements for captions',
+              'The HTML5 video element is designed to make it easier to support caption tracks through the use of the @track@ element',
+              'Make sure the video player is capable of rendering captions by default or through user options'
+            ],
+            MANUAL_CHECKS: [
+              'Captions should be visible when the live video is playing and the text of the captions should be synchronized with the speech'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HMTL 5: The track element', 
+                url:   'http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#the-track-element'
+              }                            
+            ]
+        },      
+        VIDEO_5: {
+            ID:                    'Video Rule 5',
+            DEFINITION:            'Video (with audio content) %s have audio description track',
+            SUMMARY:               'Video %s have audio description track',
+            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       'Verify the element is prerecorded video (with audio content) and if it is a video make sure it has an audio description track',
+              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are prerecorded video (with audio content), if any elements are a prerecorded video make sure each has an audio description track',
+              ALL_PASS_SINGULAR:            'Video has an audio description track',
+              ALL_PASS_PLURAL:              'All %N_P videos have an audio description track',
+              SOME_FAIL:                    '%N_F out of %N_T prerecorded videos do NOT have an audio description track',
+              CORRECTIVE_ACTION_SINGULAR:   'add audio description track to video element',
+              CORRECTIVE_ACTION_PLURAL:     'add audio description tracks to each of the %N_F the video elements',
+              ALL_FAIL_SINGULAR:            'Prerecorded video does not have a audio description or text description',
+              ALL_FAIL_PLURAL:              'All %N_F prerecorded videos do NOT have an audio description track',
+              NOT_APPLICABLE:               'No visible @object@, @embed@ and @video@ elements found on this page that could be prerecorded video'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@%1@ element has a audio description track',
+              CORRECTIVE_ACTION_1:   'Add audio description track to @%1@ prerecorded video element',
+              MANUAL_CHECK_1:        'Verify the @%1@ video element has audio description track',
+              MANUAL_CHECK_2:        'Verify the @%1@ element is being used for prerecorded video, if it is verify that it has audio description track',
+              HIDDEN:                '@%1@ element is not visible on screen'
+            },  
+            PURPOSE: [
+              'Audio descriptions and text descriptions provide a means for people cannot see the video to understand the video content'                   
+            ],
+            TECHNIQUES: [
+              'Various techniques to add based on the video formats and media players you are supporting, please see your technology specific requirements for audio descriptions',
+              'The HTML5 video element is attempting to make it easier to support audio descriptions through the use of the text track element',
+              'Use aria-describedby attribute to point to a text description of the video only content'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HMTL 5: The track element', 
+                url:   'http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#the-track-element'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'ARIA: aria-describedby', 
+                url:   ''
+              }                            
+            ]
+        },    
+        VIDEO_6: {
+            ID:                    'Video Rule 6',
+            DEFINITION:            'Prerecorded video (with audio content) %s have sign language interpretation',
+            SUMMARY:               'Prerecorded video %s have sign language',
+            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       'Verify the element is being used for prerecorded video (with audio content) and if it is prerecorded video make sure it includes synchronniized sign language interpretation',
+              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are prerecorded videos (with audio content), if they any are a prerecorded video make sure they have synchronniized sign language interpretation',
+              ALL_PASS_SINGULAR:            'Video has synchornized sign language interpretation',
+              ALL_PASS_PLURAL:              'All %N_P videos have synchornized sign language interpretation',
+              SOME_FAIL:                    '%N_F out of %N_T videos do NOT have sign language interpretation',
+              CORRECTIVE_ACTION_SINGULAR:   'add synchornized sign language interpretation to video',
+              CORRECTIVE_ACTION_PLURAL:     'add synchornized sign language interpretation to each of the %N_F videos',
+              ALL_FAIL_SINGULAR:            'Prerecorded video does not have a sign language interpretation',
+              ALL_FAIL_PLURAL:              'All %N_F prerecorded videos do NOT have sign language interpretation',
+              NOT_APPLICABLE:               'No visible @object@, @embed@ and @video@ elements found on the page that could be prerecorded video'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '%1 element has synchornized sign language interpretation',
+              CORRECTIVE_ACTION_1:   'Add synchornized sign language interpretation to @%1@ video element',
+              MANUAL_CHECK_1:        'Verify the @%1@ video element has synchornized sign language interpretation',
+              MANUAL_CHECK_2:        'Verify the @%1@ element is being used for prerecorded video, if it is verify that it has synchornized sign language interpretation',
+              HIDDEN:                '@%1@ element is not visible on screen'
+            },  
+            PURPOSE: [
+              'Sign language interpretation provide a means for people who are deaf or hearing impaired to get the speech and sound content of a video'                   
+            ],
+            TECHNIQUES: [
+              'Sign language interpretation can be included as part of the video as a picture inside of a picture',
+              'Sign language interpretation can be inlcuded using a synchconized video with the primary video, the technique will be dependent on the video format and media players you want to support'
+            ],
+            MANUAL_CHECKS: [
+              'Sign language interpretation must be visible when the video is playing and the text of the captions should be synchronized with the speech'
             ],
             INFORMATIONAL_LINKS: [
               { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
@@ -2290,14 +2798,100 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
               }                            
             ]
         },
+        VIDEO_7: {
+            ID:                    'Video Rule 5',
+            DEFINITION:            'Video (with audio content) %s have extended audio description track',
+            SUMMARY:               'Video %s have extended audio description track',
+            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       'Verify the element is prerecorded video (with audio content) and if it is a video make sure it has an extended audio description track',
+              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are prerecorded video (with audio content), if any elements are a prerecorded video make sure each has an extended audio description track',
+              ALL_PASS_SINGULAR:            'Video has an extended audio description track',
+              ALL_PASS_PLURAL:              'All %N_P videos have an extended audio description track',
+              SOME_FAIL:                    '%N_F out of %N_T prerecorded videos do NOT have an extended audio description track',
+              CORRECTIVE_ACTION_SINGULAR:   'add extended audio description track to video element',
+              CORRECTIVE_ACTION_PLURAL:     'add extended audio description tracks to each of the %N_F the video elements',
+              ALL_FAIL_SINGULAR:            'Prerecorded video does not have a extended audio description or text description',
+              ALL_FAIL_PLURAL:              'All %N_F prerecorded videos do NOT have an extended audio description track',
+              NOT_APPLICABLE:               'No visible @object@, @embed@ and @video@ elements found on this page that could be prerecorded video'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@%1@ element has a extended audio description track',
+              CORRECTIVE_ACTION_1:   'Add extended audio description track to @%1@ prerecorded video element',
+              MANUAL_CHECK_1:        'Verify the @%1@ video element has extended audio description track',
+              MANUAL_CHECK_2:        'Verify the @%1@ element is being used for prerecorded video, if it is verify that it has an extended audio description track',
+              HIDDEN:                '@%1@ element is not visible on screen'
+            },  
+            PURPOSE: [
+              'Extended audio descriptions provide a means for people cannot see the video to understand the video content when the ausio track of the video does not provide enough time to provide the descriptions'                   
+            ],
+            TECHNIQUES: [
+              'Various techniques to add extended audio descriptions based on the video formats and media players you are supporting, please see your technology specific requirements for including extended audeo descriptions',
+              'The HTML5 video element is attempting to make it easier to support extended audio descriptions through the use of the text track element'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HMTL 5: The track element', 
+                url:   'http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#the-track-element'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'ARIA: aria-describedby', 
+                url:   ''
+              }                            
+            ]
+        },    
+        VIDEO_8: {
+            ID:                    'Video Rule 1',
+            DEFINITION:            'Video only media (i.e. no audio content) %s have text description of the video content',
+            SUMMARY:               'Video only %s have text description',
+            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       'Verify the element is video only (i.e. no audio content) and if it is only video make sure it has a text description of the content of the video',
+              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are video only media (i.e. no audio content), if there are any video only media make sure they have text description of the video',
+              ALL_PASS_SINGULAR:            'Video has either a text description',
+              ALL_PASS_PLURAL:              'All %N_P videos have either a text description',
+              SOME_FAIL:                    '%N_F out of %N_T videos do NOT have a text description',
+              CORRECTIVE_ACTION_SINGULAR:   'add text description to video',
+              CORRECTIVE_ACTION_PLURAL:     'add text descriptions to each of the %N_F the video only media elements',
+              ALL_FAIL_SINGULAR:            'Video only element does not have text description',
+              ALL_FAIL_PLURAL:              'All %N_F video only elements do NOT have text description',
+              NOT_APPLICABLE:               'No visible @object@, @embed@ or @video@ elements found on this page that could be used for video only (i.e. no audio content'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@%1@ video only element has a text description',
+              CORRECTIVE_ACTION_1:   'Add text description to @%1@ video only element',
+              MANUAL_CHECK_1:        'Verify the @%1@ video element has text description',
+              MANUAL_CHECK_2:        'Verify the @%1@ element is being used for video only (i.e. no audio content), if it is video only verify that it has a text description',
+              HIDDEN:                '@%1@ element is not visible on screen'
+            },  
+            PURPOSE: [
+              'Text descriptions provide a means for people cannot see the video to understand the content or information the video provides in a non-time dependent format that can also be converted to other formats including Braille'                   
+            ],
+            TECHNIQUES: [
+              'Use @aria-describedby@ attribute to point to a text description of the video only content'
+            ],
+            MANUAL_CHECKS: [
+              'Text descriptions maybe part of the web page or accessed by a link'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'W3C Accessible Rich Internet Applications (WAI-ARIA) 1.0: aria-describedby (property)', 
+                url:   'http://www.w3.org/TR/wai-aria.html#aria-describedby'
+              }                            
+            ]
+        },    
         WIDGET_1: {
             ID:                    'Widget Rule 1',
             DEFINITION:            'Widgets %s have an accessible name',
             SUMMARY:               'Widget %s have name',
             TARGET_RESOURCES_DESC: 'Elements with @role@ attribute values that are defined as widgets',
             RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       '%N_MC widget may need an accessible name',
+              MANUAL_CHECKS_PLURAL:         '%N_MC widgets may need an accessible name',
               ALL_PASS_SINGULAR:            'Widget has an accessible name',
-              ALL_PASS_PLURAL:              'All %N_P widgets have an accessible name',
+              ALL_PASS_PLURAL:              '%N_P widgets have an accessible name',
               SOME_FAIL:                    '%N_F out of %N_T widgets do NOT have an accessible name',
               CORRECTIVE_ACTION_SINGULAR:   'add accessible name to widget',
               CORRECTIVE_ACTION_PLURAL:     'add accessible name to each of the %N_F widgets',
@@ -2306,9 +2900,10 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
               NOT_APPLICABLE:               'No form controls on this page'              
             },
             NODE_RESULT_MESSAGES: {
-              PASS_1:                '%1 widget has name',
-              CORRECTIVE_ACTION_1:   'Add name to %1 widget',
-              HIDDEN:                '%1 widget is hidden from assistive technologies.'
+              PASS_1:              '%1 widget has accessible name',
+              MANUAL_CHECK_1:      '%1 widget may require an accessible name depending on context (i.e multiple widgets with the same role) in the page, adding an accessible name will improve accessibility',
+              CORRECTIVE_ACTION_1: 'Add accessible name to %1 widget',
+              HIDDEN:              '%1 widget is hidden from assistive technologies.'
             },
             PURPOSE: [
               'A name associated with a widget insures that information about the widget is spoken by screen readers when it receives focus'                   
@@ -2316,7 +2911,8 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             TECHNIQUES: [
               'In some cases the child text nodes and @alt@ from descendant image elements will be used as the name for a widget',
               'Use @aria-labelledby@ attribute to reference the id(s) of the elements on the page that describe the purpose of the widget',
-              'Use @aria-label@ attribute to provide a explicit text description of the purpose of the widget'
+              'Use @aria-label@ attribute to provide a explicit text description of the purpose of the widget',
+              'Elements that have container widget roles typically do not receive keyboard focus, but giving them an accessible name provides assistive technologies a more accurate description of the purpose of the widget'
             ],
             MANUAL_CHECKS: [
             ],
@@ -2375,7 +2971,7 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
               CORRECTIVE_ACTION_1:   'Add a @tabindex@ attribute with a numeric value to make with @%1@ element with @%2@ widget role keyboard accessible',
               CORRECTIVE_ACTION_2:   'Add widget role to the @%1@ element',
               CORRECTIVE_ACTION_3:   'Add widget role to the @%1@ element and a @tabindex@ attribute with a numeric value to make it keyboard accessible',
-              MANUAL_CHECK_1:        'The @%1@ element is a container element (i.e @body@, @frame@, @iframe@, ..) with a @onclick@ event, verify any child elements that can respond to the @onclick@ event are a link, form control or has a widget role, and can be accessd with the keyboard alone',
+              MANUAL_CHECK_1:        'The @%1@ element has an @onclick@ event, verify any child elements that can respond to the @onclick@ event are a link, form control or have a widget role, and can be accessd with the keyboard alone',
               HIDDEN:                '%1 element with @onClick@ event is hidden from assistive technologies and not visible on screen'
             },
             PURPOSE: [
@@ -2410,6 +3006,492 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
                 url:   'http://access.aol.com/aegis/#goto_slider'
               }                            
             ]
+        },
+        WIDGET_3: {
+            ID:                    'Widget Rule 3',
+            DEFINITION:            '@role@ attribute value %s be a widget, section, landmark or live region role',
+            SUMMARY:               '@role@ %s be valid',
+            TARGET_RESOURCES_DESC: 'Elements with @role@ attribute values',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            'Element with a @role@ attribute is a widget, section, landmark or live region role',
+              ALL_PASS_PLURAL:              'All %N_P elements with @role@ attributes have a widget, section, landmark or live region role',
+              SOME_FAIL:                    '%N_F out of %N_T elements with @role@ attributes have a widget, section, landmark or live region role',
+              CORRECTIVE_ACTION_SINGULAR:   'add widget, section, landmark or live region role name to element',
+              CORRECTIVE_ACTION_PLURAL:     'add widget, section, landmark or live region roles to each of the %N_F elements',
+              ALL_FAIL_SINGULAR:            'Element with @role@ attribute does NOT have a widget, section, landmark or live region role',
+              ALL_FAIL_PLURAL:              'All %N_F elements with @role@ attribute does NOT have a widget, section, landmark or live region role',
+              NOT_APPLICABLE:               'No elements with @role@ attribute on this page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@%1@ is a widget role',
+              PASS_2:                '@%1@ is a landmark role',
+              PASS_3:                '@%1@ is a live region role',
+              PASS_4:                '@%1@ is a section role',
+              CORRECTIVE_ACTION_1:   '@%1@ is an abstract ARIA role, change the role attribute to a widget, landmark or live region role',
+              CORRECTIVE_ACTION_2:   'The @role@ attribute is an empty string, change the @role@ attribute value to an appropriate widget, landmark or live region role',
+              CORRECTIVE_ACTION_3:   '@%1@ is not a defined ARIA role, change the @role@ attribute value to an appropriate widget, landmark or live region role',
+              HIDDEN:                '%1 element with @role@ attribute with the value @%2@ is hidden from assistive technologies and not visible on screen'
+            },
+            PURPOSE: [
+              'Elements with @role@ attributes describe the section of a document (i.e landmarks) and the types of interactive elements (i.e. widgets) to users of assistive technologies, especially screen reader users'                   
+            ],
+            TECHNIQUES: [
+              'Use ARIA landmark roles to describe the sections of a web page',
+              'Use ARIA widget roles to describe interactive elements on a web page'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Landmark Roles', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#landmark_roles'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G108'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'OAA Web Accessibility ARIA Examples', 
+                url:   'http://oaa-accessibility.org/examples/'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'Accessible jQuery-ui Components Demonstration', 
+                url:   'http://access.aol.com/aegis/#goto_slider'
+              }                            
+            ]
+        },
+        WIDGET_4: {
+            ID:                    'Widget Rule 4',
+            DEFINITION:            'ARIA property and state values %s be valid types',
+            SUMMARY:               'ARIA values %s be valid',
+            TARGET_RESOURCES_DESC: 'Elements with aria attributes',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            'ARIA attribute has a value that is a valid type',
+              ALL_PASS_PLURAL:              'All %N_P ARIA attributes have values that are valid types',
+              SOME_FAIL:                    '%N_F out of %N_T with ARIA attributes have values that are valid types',
+              CORRECTIVE_ACTION_SINGULAR:   'change ARIA attribute to a vaild type',
+              CORRECTIVE_ACTION_PLURAL:     'change all %N_F ARIA attributes to a vaild types',
+              ALL_FAIL_SINGULAR:            'ARIA attribute does NOT have a value that is a valid type',
+              ALL_FAIL_PLURAL:              'All %N_F ARIA attribute do NOT have a value that is a valid type',
+              NOT_APPLICABLE:               'No ARIA attributes on this page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                'The @%1@ attribute with the value "@%2@" is a valid token',
+              PASS_2:                'The @%1@ attribute with the value "@%2@" is a valid "%3" type',
+              CORRECTIVE_ACTION_1:   'The @%1@ attribute with the value "@%2@" must change to one of the following values: %3',
+              CORRECTIVE_ACTION_2:   'The @%1@ attribute with the value "@%2@" must change to one or more of the following values: %3',
+              CORRECTIVE_ACTION_3:   'The @%1@ attribute with the value "@%2@" must change to a value with type of "%3"',
+              HIDDEN:                '%1 attribute with the value "@%2@" is hidden from assistive technologies and not visible on screen'
+            },
+            PURPOSE: [
+              'ARIA attributes must be a vaild type to accurately describe web content to users of assistive technologies, especially screen reader users'                   
+            ],
+            TECHNIQUES: [
+              'Use valid values for ARIA attributes',
+              'Check W3C WAI Accessible Rich Internet Applications specifications for allowed values for ARIA attributes'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Supported Property and States', 
+                url:   'http://www.w3.org/TR/wai-aria/states_and_properties'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G108'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'OAA Web Accessibility ARIA Examples', 
+                url:   'http://oaa-accessibility.org/examples/'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'Accessible jQuery-ui Components Demonstration', 
+                url:   'http://access.aol.com/aegis/#goto_slider'
+              }                            
+            ]
+      },
+      WIDGET_5: {
+            ID:                    'Widget Rule 5',
+            DEFINITION:            'ARIA property or state %s be defined',
+            SUMMARY:               'ARIA attribute %s be defined',
+            TARGET_RESOURCES_DESC: 'Elements with aria attributes',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            'ARIA attribute is defined property or state in the ARIA specification',
+              ALL_PASS_PLURAL:              'All %N_P ARIA attributes are defined defined properties or states in the ARIA specification',
+              SOME_FAIL:                    '%N_F out of %N_T with ARIA attributes are NOT defined defined properties or states in the ARIA specification',
+              CORRECTIVE_ACTION_SINGULAR:   'change ARIA attribute to a defined property or state',
+              CORRECTIVE_ACTION_PLURAL:     'change all %N_F ARIA attributes to a defined properties or states',
+              ALL_FAIL_SINGULAR:            'ARIA attribute is NOT a defined property or state in the ARIA specification',
+              ALL_FAIL_PLURAL:              'All %N_F ARIA attribute do NOT have a value that is a valid type in the ARIA specification',
+              NOT_APPLICABLE:               'No undefined ARIA attributes on this page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                'The @%1@ attribute is a defined ARIA property or state',
+              CORRECTIVE_ACTION_1:   'The @%1@ attribute must be changed to a defined ARIA property or state',
+              HIDDEN:                '%1 attribute with the value "@%2@" is hidden from assistive technologies and not visible on screen'
+            },
+            PURPOSE: [
+              'ARIA attributes must be defined properties or states to accurately describe web content to users of assistive technologies, especially screen reader users'                   
+            ],
+            TECHNIQUES: [
+              'Use defined ARIA properties and states in the ARIA specfication',
+              'Check W3C WAI Accessible Rich Internet Applications specifications for allowed values for ARIA attributes'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Supported Property and States', 
+                url:   'http://www.w3.org/TR/wai-aria/states_and_properties'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G108'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'OAA Web Accessibility ARIA Examples', 
+                url:   'http://oaa-accessibility.org/examples/'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'Accessible jQuery-ui Components Demonstration', 
+                url:   'http://access.aol.com/aegis/#goto_slider'
+              }                            
+            ]
+      },
+      WIDGET_6: {
+            ID:                    'Widget Rule 6',
+            DEFINITION:            'Widgets %s define required properties and states',
+            SUMMARY:               'Widgets %s have properties',
+            TARGET_RESOURCES_DESC: 'Widgets with required properties and states',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            'Widget has required properties and states',
+              ALL_PASS_PLURAL:              'All %N_P have required properties and states',
+              SOME_FAIL:                    '%N_F out of %N_T widgets do NOT have required properties and states',
+              CORRECTIVE_ACTION_SINGULAR:   'add required properties and states to widget',
+              CORRECTIVE_ACTION_PLURAL:     'add required properties and states to the %N_F widgets',
+              ALL_FAIL_SINGULAR:            'Widget does NOT have required properties and states',
+              ALL_FAIL_PLURAL:              'All %N_F widget do NOT have required properties and states',
+              NOT_APPLICABLE:               'No widgets with required properties and states on this page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@%1@ widget has the following required ARIA properties and states: %2',
+              CORRECTIVE_ACTION_1:   'Add one or more of the required ARIA properties and states (i.e. "%2") to the @%1@ widget',
+              HIDDEN:                '%1 widget is hidden from assistive technologies and not visible on screen'
+            },
+            PURPOSE: [
+              'ARIA roles, properties and states describes the features of interactive widgets to users of assistive technologies, especially screen reader users'                   
+            ],
+            TECHNIQUES: [
+              'Use required ARIA properties to describe the features and options of a widget'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G108'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'OAA Web Accessibility ARIA Examples', 
+                url:   'http://oaa-accessibility.org/examples/'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'Accessible jQuery-ui Components Demonstration', 
+                url:   'http://access.aol.com/aegis/#goto_slider'
+              }                            
+            ]
+        },
+      WIDGET_7: {
+            ID:                    'Widget Rule 7',
+            DEFINITION:            'Widgets %s have required child roles',
+            SUMMARY:               'Widgets %s have child roles',
+            TARGET_RESOURCES_DESC: 'Widgets with required owned elements',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            'Widget has required child roles',
+              ALL_PASS_PLURAL:              'All %N_P have required required child roles',
+              SOME_FAIL:                    '%N_F out of %N_T widgets do NOT have required child roles',
+              CORRECTIVE_ACTION_SINGULAR:   'add required child roles to child elements in the widget',
+              CORRECTIVE_ACTION_PLURAL:     'add required child roles to child elements in the %N_F widgets',
+              ALL_FAIL_SINGULAR:            'Widget does NOT have required child roles',
+              ALL_FAIL_PLURAL:              'All %N_F widgets do NOT have required child roles',
+              NOT_APPLICABLE:               'No widgets with required child ARIA elements on this page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@%1@ widget has at least one required owned elements: %2',
+              CORRECTIVE_ACTION_1:   '@%1@ widget is MISSING one or more of following required owned elements: %2',
+              HIDDEN:                '%1 widget is hidden from assistive technologies and not visible on screen'
+            },
+            PURPOSE: [
+              'ARIA roles, properties and states describes the features of interactive widgets to users of assistive technologies, especially screen reader users'                   
+            ],
+            TECHNIQUES: [
+              'Use required ARIA owned elements to describe the features and options of a widget'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G108'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'OAA Web Accessibility ARIA Examples', 
+                url:   'http://oaa-accessibility.org/examples/'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'Accessible jQuery-ui Components Demonstration', 
+                url:   'http://access.aol.com/aegis/#goto_slider'
+              }                            
+            ]
+        },
+     WIDGET_8: {
+            ID:                    'Widget Rule 8',
+            DEFINITION:            'Widgets %s have required parent role',
+            SUMMARY:               'Widgets %s have parent',
+            TARGET_RESOURCES_DESC: 'Widgets with required parent role',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            'Widget has required parent role',
+              ALL_PASS_PLURAL:              'All %N_P have required required parent role',
+              SOME_FAIL:                    '%N_F out of %N_T widgets do NOT have required role',
+              CORRECTIVE_ACTION_SINGULAR:   'add required parent role to the widget',
+              CORRECTIVE_ACTION_PLURAL:     'add required parent to the %N_F widgets',
+              ALL_FAIL_SINGULAR:            'Widget does NOT have required parent role',
+              ALL_FAIL_PLURAL:              'All %N_F widgets do NOT have required parent role',
+              NOT_APPLICABLE:               'No widgets with required parent role on this page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:               '@%1@ widget is a child of the a @%2@ role',
+              CORRECTIVE_ACTION_1:  'Create a parent widget with the role of @%1@ for this @%2@ widget',
+              CORRECTIVE_ACTION_2:   'Create a parent widget with the one of the required roles (i.e. @%1@) for this @%2@ widget',
+              HIDDEN:                '%1 widget is hidden from assistive technologies and not visible on screen'
+            },
+            PURPOSE: [
+              'ARIA roles, properties and states describes the features of interactive widgets to users of assistive technologies, especially screen reader users'                   
+            ],
+            TECHNIQUES: [
+              'Use required parent roles to describe the features and options of a widget'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G108'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'OAA Web Accessibility ARIA Examples', 
+                url:   'http://oaa-accessibility.org/examples/'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'Accessible jQuery-ui Components Demonstration', 
+                url:   'http://access.aol.com/aegis/#goto_slider'
+              }                            
+            ]
+        },
+     WIDGET_9: {
+            ID:                    'Widget Rule 9',
+            DEFINITION:            'Widgets %s be owned by only one parent widget',
+            SUMMARY:               'Only one owner',
+            TARGET_RESOURCES_DESC: 'Widgets with required parent roles',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            'Child widget is only referenced once by parent widget with aria-owns',
+              ALL_PASS_PLURAL:              'All %N_P child widget are only referenced once by parent widgets with aria-owns',
+              SOME_FAIL:                    '%N_F out of %N_T child widgets are referenced MORE than once by parent widgets with aria-owns',
+              CORRECTIVE_ACTION_SINGULAR:   'update parent widget with aria-owns to make sure it not references a child widget only once',
+              CORRECTIVE_ACTION_PLURAL:     'update %N_F parent widgets with aria-owns to make sure they reference a child widget only once',
+              ALL_FAIL_SINGULAR:            'Child widget is referenced MORE that once by parent widgets with aria-owns',
+              ALL_FAIL_PLURAL:              'All %N_F child widgets are referenced MORE that once by parent widgets with aria-owns',
+              NOT_APPLICABLE:               'No parent widgets using aria-owns on this page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:               '@%1@ child widget is referenced only by @%2@ parent widget with aria-owns',
+              CORRECTIVE_ACTION_1:  'Update references of @%1@ parent widgets with aria-owns to reference @%2@ child widget only once',
+              HIDDEN:               '%1 parent widget with aria-owns is hidden from assistive technologies and not visible on screen'
+            },
+            PURPOSE: [
+              'ARIA roles, properties and states describes the features of interactive widgets to users of assistive technologies, especially screen reader users'                   
+            ],
+            TECHNIQUES: [
+              'Parent widget roles with aira-owns must accurately decribe the parent relationships, a child widget can only have one parent widget'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G108'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'OAA Web Accessibility ARIA Examples', 
+                url:   'http://oaa-accessibility.org/examples/'
+              }                            
+            ]
+        },
+     WIDGET_10: {
+            ID:                    'Widget Rule 10',
+            DEFINITION:            'Range widget %s have value between minimum and maximum values',
+            SUMMARY:               'Value in range',
+            TARGET_RESOURCES_DESC: 'Range widgets ',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            'The value of the @aria-valuenow@ attribute is in the range defined by @aria-valuemin@ and @aria-valuemax@ attributes',
+              ALL_PASS_PLURAL:              'All %N_P values of the @aria-valuenow@ attributes are in their ranges defined by the widget\'s @aria-valuemin@ and @aria-valuemax@ attributes',
+              SOME_FAIL:                    '%N_F out of %N_T values of the @aria-valuenow@ attributes are NOT in their ranges defined by the widget\'s @aria-valuemin@ and @aria-valuemax@ attributes',
+              CORRECTIVE_ACTION_SINGULAR:   'update range attributes of the widget so the @aria-valuenow@ attribute is in the range defined by @aria-valuemin@ and @aria-valuemax@ attributes',
+              CORRECTIVE_ACTION_PLURAL:     'update range attributes of the %N_F widgets so the @aria-valuenow@ attribute of each widget is in the range defined by @aria-valuemin@ and @aria-valuemax@ attributes',
+              ALL_FAIL_SINGULAR:            'The value with the @aria-valuenow@ attribute is NOT in the range defined by @aria-valuemin@ and @aria-valuemax@ attributes',
+              ALL_FAIL_PLURAL:              'All %N_F values of range widgets with the @aria-valuenow@ attribute are NOT in the range defined by @aria-valuemin@ and @aria-valuemax@ attributes',
+              NOT_APPLICABLE:               'No range widgets on the page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:               '@%1@ widget is using @aria-valuetext@ attribute which overrides the @aria-valuenow@ attribute for describing the value of the range',
+              PASS_2:               '@%1@ widget value of %2 is in the range %3 and %4',
+              PASS_3:               '@%1@ widget has the range %3 and %4, and by not including the @aria-valuenow@ attribute the value of the progressbar is considered indeterminate',
+              CORRECTIVE_ACTION_1:  'Update the numeric values of @aria-valuenow@ (%1), @aria-valuemin@ (%2) and @aria-valuemax@ (%3) so the @aria-valuenow@ value is in range',
+              CORRECTIVE_ACTION_2:  'Update the numeric values of @aria-valuemin@ (%1) and @aria-valuemax@ (%2) so the @aria-valuemin@ value is less than the @aria-valuemax@ value',
+              CORRECTIVE_ACTION_3:  'For progresss bar update the numeric values or add @aria-valuemin@ (%2) and @aria-valuemax@ (%3) attributes and when state of progress is known use the @aria-valuenow@ attribute value to communicate the current state of progress',
+              CORRECTIVE_ACTION_4:  'Update or create @%1@ attribute to be a numeric value',
+              CORRECTIVE_ACTION_5:  'Update or create @%1@ attributes to be a numeric values',
+              HIDDEN:               '%1 range widget is hidden from assistive technologies'
+            },
+            PURPOSE: [
+              'ARIA roles, properties and states describes the features of interactive widgets to users of assistive technologies, especially screen reader users'                   
+            ],
+            TECHNIQUES: [
+              'Use the @aria-valuenow@, @aria-valuemin@ and @aria-valuemax@ are accurately defined'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G108'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'OAA Web Accessibility ARIA Examples', 
+                url:   'http://oaa-accessibility.org/examples/'
+              }                            
+            ]
+        },
+     WIDGET_11: {
+            ID:                    'Widget Rule 11',
+            DEFINITION:            'Elements with mouse move events %s have widget roles',
+            SUMMARY:               'Mouse move events have roles',
+            TARGET_RESOURCES_DESC: 'Elements with mouse events',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       'Verify the element with @onmousedown@, @onmousemove@ and/or @onmouseup@ with a child element with a widget role or is an interactive element accurately describes the user options and actions',
+              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements with @onmousedown@, @onmousemove@ and/or @onmouseup@ with a child element with a widget role or is an interactive element accurately describes the user options and actions',
+              ALL_PASS_SINGULAR:            'Element with @onmousedown@, @onmousemove@ and/or @onmouseup@ has a role attribute or is an interactive element',
+              ALL_PASS_PLURAL:              'All %N_P element with @onmousedown@, @onmousemove@ and/or @onmouseup@ have a role attribute or are an interactive elements',
+              SOME_FAIL:                    '%N_F out of %N_T elements with @onmousedown@, @onmousemove@ and/or @onmouseup@ do NOT have a role attribute or are an interactive elements',
+              CORRECTIVE_ACTION_SINGULAR:   'add ARIA roles and attributes to the element or child elements that accurately describe the user options and actions available',
+              CORRECTIVE_ACTION_PLURAL:     'add ARIA roles and attributes to the %N_F elements or their child elements that accurately describe the user options and actions available',
+              ALL_FAIL_SINGULAR:            'Element with @onmousedown@, @onmousemove@ and/or @onmouseup@ does not have a widget role (or any children that have widget roles) and is not part of an interactive element (or has any children that are interactive elements)',
+              ALL_FAIL_PLURAL:              'All %N_F Element with @onmousedown@, @onmousemove@ and/or @onmouseup@ does not have a widget role (or any children that have widget roles) and is not part of an interactive element (or has any children that are interactive elements)',
+              NOT_APPLICABLE:               'No elements with  @onmousedown@, @onmousemove@ and/or @onmouseup@ events found on this page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:               '@%1@ widget has the following mouse events: %2',
+              PASS_2:               '@%1@ interactive element has the following mouse events: %2',
+              MANUAL_CHECK_1:       'Verify the interactive elements and/or widgets accurately describes the user options and actions of the children of the @%1@ element with the following mouse events: %2',
+              CORRECTIVE_ACTION_1:  'Add widget role(s) to the element and/or its children that accurately describe the user options and actions of the @%1@ element with the following mouse events: %2',
+              HIDDEN:               '%1 element is hidden from assistive technologies with following mouse events: %2'
+            },
+            PURPOSE: [
+              'ARIA roles, properties and states describes the features of interactive widgets to users of assistive technologies, especially screen reader users'                   
+            ],
+            TECHNIQUES: [
+              'Use the @role@ attrbute to describe the type of widget associated with the mouse events',
+              'Use ARIA properties and states attributes to describe features of each widget '
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G108'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'OAA Web Accessibility ARIA Examples', 
+                url:   'http://oaa-accessibility.org/examples/'
+              }                            
+            ]
+        },
+     WIDGET_12: {
+            ID:                    'Widget Rule 12',
+            DEFINITION:            'Elements with mouse hover events %s have widget roles',
+            SUMMARY:               'Mouse hover events have roles',
+            TARGET_RESOURCES_DESC: 'Elements with mouse events',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       'Verify the element with @onmouseover@, @onmouseout@, @onmousenter@ and/or @onmouseleave@ with a child element with a widget role or is an interactive element accurately describes the user options and actions',
+              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements with @onmouseover@, @onmouseout@, @onmousenter@ and/or @onmouseleave@ with a child element with a widget role or is an interactive element accurately describes the user options and actions',
+              ALL_PASS_SINGULAR:            'Element with @onmouseover@, @onmouseout@, @onmousenter@ and/or @onmouseleave@ has a role attribute or is an interactive element',
+              ALL_PASS_PLURAL:              'All %N_P element with @onmouseover@, @onmouseout@, @onmousenter@ and/or @onmouseleave@ have a role attribute or are an interactive elements',
+              SOME_FAIL:                    '%N_F out of %N_T elements with@onmouseover@, @onmouseout@, @onmousenter@ and/or @onmouseleave@ do NOT have a role attribute or are an interactive elements',
+              CORRECTIVE_ACTION_SINGULAR:   'add ARIA roles and attributes to the element or child elements that accurately describe the user options and actions available',
+              CORRECTIVE_ACTION_PLURAL:     'add ARIA roles and attributes to the %N_F elements or their child elements that accurately describe the user options and actions available',
+              ALL_FAIL_SINGULAR:            'Element with @onmouseover@, @onmouseout@, @onmousenter@ and/or @onmouseleave@ does not have a widget role (or any children that have widget roles) and is not part of an interactive element (or has any children that are interactive elements)',
+              ALL_FAIL_PLURAL:              'All %N_F Element with @onmouseover@, @onmouseout@, @onmousenter@ and/or @onmouseleave@ does not have a widget role (or any children that have widget roles) and is not part of an interactive element (or has any children that are interactive elements)',
+              NOT_APPLICABLE:               'No elements with @onmouseover@, @onmouseout@, @onmousenter@ and/or @onmouseleave@ events found on this page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:               '@%1@ widget has the following mouse events: %2',
+              PASS_2:               '@%1@ interactive element has the following mouse events: %2',
+              MANUAL_CHECK_1:       'Verify the interactive elements and/or widgets accurately describes the user options and actions of the children of the @%1@ element with the following mouse events: %2',
+              CORRECTIVE_ACTION_1:  'Add widget role(s) to the element and/or its children that accurately describe the user options and actions of the @%1@ element with the following mouse events: %2',
+              HIDDEN:               '%1 element is hidden from assistive technologies with following mouse events: %2'
+            },
+            PURPOSE: [
+              'ARIA roles, properties and states describes the features of interactive widgets to users of assistive technologies, especially screen reader users'                   
+            ],
+            TECHNIQUES: [
+              'Use the @role@ attrbute to describe the type of widget associated with the mouse events',
+              'Use ARIA properties and states attributes to describe features of each widget '
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G108'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'OAA Web Accessibility ARIA Examples', 
+                url:   'http://oaa-accessibility.org/examples/'
+              }                            
+            ]
         }
-   }
+   }     
 });

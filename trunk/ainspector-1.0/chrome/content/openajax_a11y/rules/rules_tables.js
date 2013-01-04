@@ -23,9 +23,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 /** 
  * @object TABLE_1
  * 
- * @desc If a table is a data table, the rule tests if each table cell in the first column is 
- *       either a TH element or TD element with scope value of 'col' and/or each row contains at 
- *       at least one TH element or a TD with scope value of 'row'
+ * @desc If a table is a data table, if each data cell has headers
  */
  { rule_id             : 'TABLE_1', 
    rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
@@ -126,8 +124,8 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
    rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
    rule_category       : OpenAjax.a11y.RULE_CATEGORIES.TABLES,
    last_updated        : '2011-09-23', 
-   wcag_primary_id     : '1.3.1',
-   wcag_related_ids    : ['2.4.6'],
+   wcag_primary_id     : '1.3.2',
+   wcag_related_ids    : ['4.1.2'],
    target_resources    : ['caption', 'table[sumary]'],
    cache_dependency    : 'tables_cache',
    resource_properties : ['is_data_table', 'effective_caption', 'effective_summary'],
@@ -629,7 +627,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  **
  * @object TABLE_7
  *
- * @desc  If a table is a complex data table, all the TD elements must have a headers attribute that point to TH elements in the same table
+ * @desc  If a table is a complex data table, all the TD elements with content must have a headers attribute that point to TH elements in the same table
  *
  { id                : 'TABLE_7', 
    last_updated      : '2011-09-17', 
@@ -789,220 +787,8 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
      }    
   } // end validation function
  },
- 
- **
- * @object LAYOUT_1
- *
- * @desc     Do not use nested tables more than 1 column wide  
- *           for positioning content outside of landmarks.
- *           Fails with one or more one levels of nesting.
- *
- { id                : 'LAYOUT_1',
-   last_updated      : '2011-09-17',
-   cache_dependency  : 'tables_cache',
-   resource_properties : ['is_data_table', 'max_row', 'max_column', 'nesting_level'],
-   language          : "",
-   validate          : function (dom_cache, rule_result) {
-     
-     function getNestingLevel(table_element, level) {
-     
-       var l = level;
-       var pte = table_element.parent_table_element;
-     
-       if (pte) {
-         if (pte.is_data_table || pte.max_column == 1) {
-           l = getNestingLevel(pte, level);           
-         }
-         else {
-           l = getNestingLevel(pte, (level+1));
-         }
-       }
-       return l;
-     }
-     
-     var SEVERITY   = OpenAjax.a11y.SEVERITY;
-     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
-    
-     var i;
-     var te;
-     var nesting_level;
-    
-     var table_elements     = dom_cache.tables_cache.table_elements;
-     var table_elements_len = table_elements.length;
-
-     // Check to see if valid cache reference
-     if (table_elements && table_elements_len) {
-     
-       for (i=0; i < table_elements_len; i++) {
-       
-         te = table_elements[i];
-         
-         if (te.dom_element.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
-         
-           if (!te.is_data_table) {
-
-             nesting_level = getNestingLevel(te, 0);
-
-             te.nesting_level = nesting_level;
-
-             if (te.max_column === 1)  {
-               rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS_ONE_COLUMN', []);          
-             }  
-             else {
-         
-               if (nesting_level === 0) {
-                 rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS_NOT_NESTED', []);               
-               } 
-               else {
-                 rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_VIOLATION', [te.max_column, nesting_level]);
-               }  
-             }
-           }
-           else {
-             rule_result.addResult(SEVERITY.NA, te, 'MESSAGE_NOT_LAYOUT_TABLE', []);                     
-           }
-         }
-         else {
-           rule_result.addResult(SEVERITY.HIDDEN, te, 'MESSAGE_HIDDEN', []);
-         } 
-       } // end loop
-     }  
-     
-   }  // end validation function
- },
- 
- **
- * @object LAYOUT_2
- *
- * @desc     Do not use nested tables more than 1 column wide for positioning within a landmark. 
- *           Fails with one or more one levels of nesting.
- *
- { id                : 'LAYOUT_2', 
-   last_updated      : '2011-09-17', 
-   cache_dependency  : 'tables_cache',
-   resource_properties : ['is_data_table', 'max_row', 'max_column', 'nesting_level'],
-   language          : "",
-   validate          : function (dom_cache, rule_result) {
-   
-     var SEVERITY   = OpenAjax.a11y.SEVERITY;
-     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
-    
-     var i;
-     var te;
-     var nesting_level;
-    
-     var table_elements     = dom_cache.tables_cache.table_elements;
-     var table_elements_len = table_elements.length;
-     
-
-     // Check to see if valid cache reference
-     if (table_elements && table_elements_len) {
-     
-       for (i=0; i < table_elements_len; i++) {
-       
-         te = table_elements[i];
-         
-         if (te.dom_element.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
-         
-           if (!te.is_data_table) {
-                      
-             if (te.max_column > 1)  {
-
-               rule_result.addResult(SEVERITY.FAIL, te, 'MESSAGE_VIOLATION', [te.max_row, te.max_column]);
-               
-             }  
-             else {
-               rule_result.addResult(SEVERITY.PASS, te, 'MESSAGE_PASS', []);          
-             }
-           }
-           else {
-             rule_result.addResult(SEVERITY.NA, te, 'MESSAGE_NOT_LAYOUT_TABLE', []);                     
-           }
-         }
-         else {
-           rule_result.addResult(SEVERITY.HIDDEN, te, 'MESSAGE_HIDDEN', []);
-         } 
-       } // end loop
-     }  
-  } // end validation function        
-},
- 
- **
- * @object LAYOUT_3
- *
- * @desc  If table is used for layout, the rule tests if the table element and any of its child table 
- *        related elements (i.e. tbody, tr, td) have a role attribute with the value 'presentation' (role="presentation")
- *
- { id                : 'LAYOUT_3', 
-   last_updated      : '2011-09-17', 
-   cache_dependency  : 'tables_cache',
-   resource_properties : ['role'],
-   language          : "",
-   validate          : function (dom_cache, rule_result) {
-   
-     function checkLayoutTableForRolePresentation(element) {
-     
-       var j;
-       
-       var de = element.dom_element;
-       
-       if (de.role && de.role == 'presentation') {
-         rule_result.addResult(SEVERITY.PASS, element, 'MESSAGE_PASS', [de.tag_name]);       
-       }
-       else {
-         rule_result.addResult(SEVERITY.FAIL, element, 'MESSAGE_VIOLATION', [de.tag_name]);
-       }
-
-       var cce     = element.child_cache_elements;
-       
-       if (!cce) return;
-       
-       var cce_len = cce.length;     
-       
-       if (!cce_len) return;
-       
-       for (j = 0; j < cce_len; j++) {
-         // do not recursively go into other tables
-         if (cce[j].table_type !== TABLE.TABLE_ELEMENT) checkLayoutTableForRolePresentation(cce[j]);
-       }
-     
-     }
-   
-     var SEVERITY   = OpenAjax.a11y.SEVERITY;
-     var VISIBILITY = OpenAjax.a11y.VISIBILITY;
-     var TABLE      = OpenAjax.a11y.TABLE;
-    
-     var i;
-     var te;
-    
-     var table_elements     = dom_cache.tables_cache.table_elements;
-     var table_elements_len = table_elements.length;
-     
-     // Check to see if valid cache reference
-     if (table_elements && table_elements_len) {
-     
-       for (i=0; i < table_elements_len; i++) {
-       
-         te = table_elements[i];
-         
-         if (te.dom_element.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
-         
-           if (!te.is_data_table) {
-             checkLayoutTableForRolePresentation(te);
-           }
-           else {
-             rule_result.addResult(SEVERITY.NA, te, 'MESSAGE_NOT_LAYOUT_TABLE', []);                     
-           }
-         }
-         else {
-           rule_result.addResult(SEVERITY.HIDDEN, te, 'MESSAGE_HIDDEN', []);
-         } 
-       } // end loop
-     }  
-   } // end validation function
- }  
-*/ 
-]); 
+ */
+ ]); 
 
 
     
