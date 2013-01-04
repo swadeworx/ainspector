@@ -65,10 +65,8 @@ FBL.ns(function() { with (FBL) {
        appendStylesheet(this.panelNode.ownerDocument, "chrome://selectbug/skin/selectbug.css");
        appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/ainspector-side-panel.css");
 
-       appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/userinterface.css");
        appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/fonts-min.css");
        appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/tabview.css");
-       appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/ainspector.css");
        appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/allyGrade.css");
        appendStylesheet(this.panelNode.ownerDocument, "chrome://ainspector/content/css/grid.css");
 
@@ -86,6 +84,7 @@ FBL.ns(function() { with (FBL) {
       * @param element - 
       */
      updateSelection : function(object) {
+       
        var selection = this.mainPanel.selection;
        
        if (selection) {
@@ -136,7 +135,8 @@ FBL.ns(function() { with (FBL) {
        var rule_result_array = new Array();
 
        for(var i=0; i<events.length; i++){
-         rule_result_array.push({"event": events[i].label, "element": events[i].on_element, "ancestor": events[i].on_ancestor});
+         FBTrace.sysout("event: " + i + ": ", events[i]);
+         rule_result_array.push({"event": events[i].label, "element": events[i].event_on_element, "ancestor": events[i].event_on_ancestor});
        }
        return rule_result_array;
        
@@ -180,40 +180,53 @@ FBL.ns(function() { with (FBL) {
         TABLE({class: "ai-sidepanel-table", cellpadding: 0, cellspacing: 0, role: "treegrid"},
           THEAD(
             TR({class: "gridHeaderRow gridRow", id: "rulesTableHeader", "role": "row", tabindex: "0"},
-              TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, DIV({class: "gridHeaderCellBox"}, "Events")),
-              TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, DIV({class: "gridHeaderCellBox"}, "On Element")),
-              TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, DIV({class: "gridHeaderCellBox"}, "On Ancestor"))
-          )
-        ),  
-        TBODY(
-          FOR("obj", "$object",
-            TR({class: "tableRow a11yFocus", role: "row"},
-              TD({class: "resultsCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridLabel"},"$obj.event")),
-              TD({class: "messagesCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridLabel"},"$obj.element")),
-              TD({class: "messagesCol gridCell gridCol", role: "gridcell", tabindex: "-1"}, DIV({class: "gridLabel"},"$obj.ancestor"))
-            ) //end TR
-          ) 
-        ) //end TBODY  
-      )
+              TH({class: "gridHeaderCell gridCell", id: "ruleResultsCol"}, 
+                DIV({class: "gridHeaderCellBox"}, "Events")
+              ),
+              TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, 
+                DIV({class: "gridHeaderCellBox"}, "On Element")
+              ),
+              TH({class: "gridHeaderCell gridCell", id: "ruleMessageCol"}, 
+                DIV({class: "gridHeaderCellBox"}, "On Ancestor")
+              )
+            )
+          ),  
+          TBODY(
+            FOR("obj", "$object",
+              TR({class: "tableRow a11yFocus", role: "row"},
+                TD({class: "resultsCol ", role: "gridcell", tabindex: "-1"}, 
+                  DIV({class: "gridLabel"},"$obj.event")
+                ),
+                TD({class: "messagesCol", role: "gridcell", tabindex: "-1"}, 
+                  DIV({class: "gridLabel resultAlign"},"$obj.element")
+                ),
+                TD({class: "messagesCol", role: "gridcell", tabindex: "-1"}, 
+                  DIV({class: "gridLabel resultAlign"},"$obj.ancestor")
+                )
+              ) //end TR
+            )  
+          ) //end TBODY  
+        )
       )
   });
   
   var BaseRep = domplate(Firebug.Rep, {
 	    
-	    /**
-	     * getNaturalTag
-	     * 
-	     * @desc
-	     * 
-	     * @param value
-	     */
-		  getNaturalTag: function(value) {
+    /**
+     * getNaturalTag
+     * 
+     * @desc
+     * 
+     * @param value
+     */
+	  getNaturalTag: function(value) {
 	    
-		  var rep = Firebug.getRep(value);
-	      var tag = rep.shortTag ? rep.shortTag : rep.tag;
-	      return tag;
-	    }
-	  });
+	    var rep = Firebug.getRep(value);
+      var tag = rep.shortTag ? rep.shortTag : rep.tag;
+	      
+      return tag;
+    }
+  });
  
   Firebug.registerPanel(eventsSidePanel);
 }});

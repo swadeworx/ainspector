@@ -68,7 +68,6 @@ FBL.ns(function() { with (FBL) {
       appendStylesheet(this.panelNode.ownerDocument, "chrome://firebug-a11y/content/css/ainspector-side-panel.css");
       appendStylesheet(this.panelNode.ownerDocument, "chrome://firebug-a11y/content/css/fonts-min.css");
       appendStylesheet(this.panelNode.ownerDocument, "chrome://firebug-a11y/content/css/tabview.css");
-      appendStylesheet(this.panelNode.ownerDocument, "chrome://firebug-a11y/content/css/ainspector.css");
       appendStylesheet(this.panelNode.ownerDocument, "chrome://firebug-a11y/content/css/allyGrade.css");
       appendStylesheet(this.panelNode.ownerDocument, "chrome://firebug-a11y/content/css/grid.css");
 
@@ -119,13 +118,10 @@ FBL.ns(function() { with (FBL) {
         
         if (flag == true){
           current_row = table_rows[row];
-          FBTrace.sysout();
+
           if (row < no_of_rows) {
            
-//            if (row == 1) previous_row = table_rows[no_of_rows-1];
-           
-//            else
-              previous_row = table_rows[row-1];
+            previous_row = table_rows[row-1];
            
             next_row = table_rows[row+1];
           
@@ -158,9 +154,7 @@ FBL.ns(function() { with (FBL) {
         
       } else if (event.keyCode == KeyEvent.DOM_VK_DOWN) {
         
-        FBTrace.sysout("next_row: ", next_row);
         result = next_row.repObject;
-        FBTrace.sysout("cache_item: ", result);
         rule = result.rule_result.rule.getNLSRuleId() + ': ' + result.rule_result.getRuleSummary();
         
         this.rebuild(rule, result.filtered_node_results);
@@ -277,7 +271,6 @@ FBL.ns(function() { with (FBL) {
       this.node_results_array = [];
       
       if (!rule_result_item) return;
-      FBTrace.sysout("rule_result_item: ", rule_result_item);
       var rule = '';
       
       if (rule_result_item.filtered_node_results) {
@@ -405,7 +398,6 @@ FBL.ns(function() { with (FBL) {
       var row = getAncestorByClass(event.target, "treeRow");
       
       var object = Firebug.getRepObject(event.target);
-      FBTrace.sysout("AINSPECTOR_FB.elementsSidePanel.gotoHTML() - ", object);
       var cache_item = null;
       var node = null;
       
@@ -552,8 +544,6 @@ FBL.ns(function() { with (FBL) {
         var level = parseInt(row.getAttribute("level"));
         setClass(row, "opened");
         var repObject = row.newObject;
-        FBTrace.sysout("repobject: ", repObject);
-        FBTrace.sysout("level: "+ level);
 
         if (repObject) {
           var members = this.getMembers(repObject.children, level+1);
@@ -634,7 +624,6 @@ FBL.ns(function() { with (FBL) {
      * @param {Object} event - event triggered when clicked on Element Information button
      */
     getElementInformation : function(event) {
-      FBTrace.sysout("event.target ccccccc: ", event.target);
       /*var tree = getAncestorByClass(event.target, "side-panel");
       var table = getChildByClass(tree, "ai-sidepanel-table");
       
@@ -666,7 +655,6 @@ FBL.ns(function() { with (FBL) {
         }
       }*/
       row = Firebug.getRepObject(event.target);
-      FBTrace.sysout("row in sidepanel: ", row);
       AINSPECTOR_FB.element_info_dialog = window.openDialog("chrome://firebug-a11y/content/item_properties/cache-item-properties.xul", "cache_item_properties_dialog", "chrome,contentscreen,resizable=yes", row.cache_item);
     },
       
@@ -679,11 +667,8 @@ FBL.ns(function() { with (FBL) {
      */
     highlightRow : function(event) {
 
-      FBTrace.sysout("highlightRow: ", event);
       var table = getAncestorByClass(event.target, "ai-sidepanel-table");
       var row = getAncestorByClass(event.target, "treeRow");
-      FBTrace.sysout("table: ", table);
-      FBTrace.sysout("row: ", row);
       AINSPECTOR_FB.flatListTemplateUtil.unHighlight(table);
       AINSPECTOR_FB.flatListTemplateUtil.highlight(row);
       

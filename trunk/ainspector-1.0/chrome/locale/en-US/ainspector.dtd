@@ -17,4 +17,4 @@
 <!ENTITY  ainspector.toolbarbutton.elements.label       "All Elements">
 <!ENTITY  ainspector.toolbarbutton.navigation.label     "Navigation">
 <!ENTITY  ainspector.toolbarbutton.preferences.label    "Preferences">
-
+<!ENTITY  ainspector.toolbarbutton.xxx.label            "xxx">

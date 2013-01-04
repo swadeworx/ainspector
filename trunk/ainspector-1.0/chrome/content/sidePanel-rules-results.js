@@ -51,6 +51,7 @@ FBL.ns(function() { with (FBL) {
       
       this.onKeyPress = bind(this.onKeyPress, this);
       this.onCLick = bind(this.setSelection, this);
+      
       Firebug.Panel.initialize.apply(this, arguments);
     },
 
@@ -67,7 +68,6 @@ FBL.ns(function() { with (FBL) {
       appendStylesheet(this.panelNode.ownerDocument, "chrome://firebug-a11y/content/css/ainspector-side-panel.css");
       appendStylesheet(this.panelNode.ownerDocument, "chrome://firebug-a11y/content/css/fonts-min.css");
       appendStylesheet(this.panelNode.ownerDocument, "chrome://firebug-a11y/content/css/tabview.css");
-      appendStylesheet(this.panelNode.ownerDocument, "chrome://firebug-a11y/content/css/ainspector.css");
       appendStylesheet(this.panelNode.ownerDocument, "chrome://firebug-a11y/content/css/allyGrade.css");
       appendStylesheet(this.panelNode.ownerDocument, "chrome://firebug-a11y/content/css/grid.css");
 
@@ -335,25 +335,6 @@ FBL.ns(function() { with (FBL) {
       this.panelNode.id = "ainspector-side-panel";
       var headers = ["Result/Property", "Message/Value"];
       AINSPECTOR_FB.emptySidePanelTemplate.tag.replace({headers: headers, messg: mesg, desc: "Evaluation Results By Rule"}, this.panelNode);
-    },
-
-    /**
-     * setTrialSelector
-     * 
-     * @desc
-     * 
-     * @param target
-     * @param value
-     */
-    setTrialSelector: function(target, value) {
-        
-      if (this.lockedElement) this.lockedElement.classList.remove("lockedSelectorRule");
-       
-      this.trialSelector = value;
-      this.selection = this.trialSelector;
-      this.lockedElement = target;
-      this.lockedSelection = this.selection;
-      this.rebuild();
     }
     
   });

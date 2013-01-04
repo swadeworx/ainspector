@@ -109,11 +109,16 @@ with (FBL) {
               THEAD({class: "header-fix"},
                 TR({class: "gridHeaderRow firstRow gridRow", id: "tableHeader", "role": "row", "aria-selected" : "false", tabindex: "-1", 
                  onfocus: "$AINSPECTOR_FB.flatListTemplateUtil.onFocus", onclick: "$AINSPECTOR_FB.flatListTemplateUtil.onClickHeader"},
-                  TH({class: "gridHeaderCell", id: "gridOrderCol", role: "columnheader"}, DIV({class: "gridHeaderCellBox"}, "Rules")),
-                  TH({class: "gridHeaderCell", id: "gridElementCol", role: "columnheader"}, DIV({class: "gridHeaderCellBox", title: "Rule is required by a Ruleset"}, "Required")),
-                  TH({class: "gridHeaderCell", id: "gridHiddenCol", role: "columnheader"}, DIV({class: "gridHeaderCellBox", title: "WCAG 2.0 Success Criterion Level"}, "Level")),
-                  TH({class: "gridHeaderCell", id: "gridPassCol", role: "columnheader"}, DIV({class: "gridHeaderCellBox", title: "Percentage of Elements that Pass the Rule"}, "PEPR")),
-                  TH({class: "gridHeaderCell", id: "gridManualCheckCol", role: "columnheader"}, DIV({class: "gridHeaderCellBox", title: "Number of Elements on the Page needing manual checking for conforming to a Rule"}, "MC"))
+                  TH({class: "gridHeaderCell", id: "gridRulesCol", role: "columnheader", width: "35%"}, 
+                    DIV({class: "gridHeaderCellBox"}, "Rules")),
+                  TH({class: "gridHeaderCell", id: "gridRequiredCol", role: "columnheader", width: "12%"}, 
+                    DIV({class: "gridHeaderCellBox", title: "Rule is required by a Ruleset"}, "Required")),
+                  TH({class: "gridHeaderCell", id: "gridLevelCol", role: "columnheader", width: "10%"}, 
+                    DIV({class: "gridHeaderCellBox", title: "WCAG 2.0 Success Criterion Level"}, "Level")),
+                  TH({class: "gridHeaderCell", id: "gridPEPRCol", role: "columnheader", width: "18%"}, 
+                    DIV({class: "gridHeaderCellBox", title: "Percentage of Elements that Pass the Rule"}, "PEPR")),
+                  TH({class: "gridHeaderCell", id: "gridManualCheckCol", role: "columnheader", width: "70%"}, 
+                    DIV({class: "gridHeaderCellBox", title: "Number of Elements on the Page needing manual checking for conforming to a Rule"}, "MC"))
                 ) //end TR
               ), //end THEAD
               TBODY({class: "tbody-scroll"},
@@ -124,7 +129,7 @@ with (FBL) {
                     onfocus: "$AINSPECTOR_FB.flatListTemplateUtil.onFocus", onclick: "$highlightRule"},//gridRow              
                   
                     TD({class: "gridCol gridOrderCol", id: "gridOrderCol", role: "gridcell"},
-                      DIV({class: "gridContent gridAlign", title : "$object.description"}, "$object.description|AINSPECTOR_FB.ainspectorUtil.truncateText")
+                      DIV({class: "gridContent gridAlign", title : "$object.description"}, "$object.description")
                     ),
                     TD({class: "gridCol gridElementCol", id: "gridElementCol", role: "gridcell"},
                       DIV({class: "gridContent resultAlign"}, "$object.required")
