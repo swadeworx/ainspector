@@ -7,7 +7,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 /**
  * @object IMAGE_1
  *
- * @desc Images must have alt attribute
+ * @desc Images must have a source for an accessible name
  */
  
 { rule_id             : 'IMAGE_1', 
@@ -16,14 +16,15 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   last_updated        : '2012-04-12', 
   wcag_primary_id     : '1.1.1',
   wcag_related_ids    : [],
-  target_resources    : ['img', 'area'],
+  target_resources    : ['img', 'area', '[role="img"]'],
   cache_dependency    : 'images_cache',
-  resource_properties : ['alt', 'role', 'is_visible_to_at'],
+  resource_properties : ['accessible_name', 'alt', 'aria_label', 'aria_labelledby', 'title', 'is_visible_to_at'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
  
     var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
     var VISIBILITY  = OpenAjax.a11y.VISIBILITY;
+    var SOURCE      = OpenAjax.a11y.SOURCE;
 
     var image_elements   = dom_cache.images_cache.image_elements;
     var image_elements_len = image_elements.length;
@@ -34,24 +35,22 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
       for (var i = 0; i < image_elements_len; i++) {
         var ie = image_elements[i];
         var de = ie.dom_element;
-     
-        if (de.hasAttrWithValue('role', 'presentation')) {     
-          rule_result.addResult(TEST_RESULT.HIDDEN, ie, 'PRESENTATION', [de.tag_name]);
-        }
-        else {
-          if (de.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
+
+        if (de.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
           
-            if (de.has_alt_attribute) {
-              rule_result.addResult(TEST_RESULT.PASS, ie, 'PASS_1', []);     
-            }
-            else {
-              rule_result.addResult(TEST_RESULT.FAIL, ie, 'CORRECTIVE_ACTION_1', [de.tag_name]);     
-            }
+          if (ie.accessible_name_source !== SOURCE.NONE) {
+            if (ie.accessible_name_source === SOURCE.ALT_ATTRIBUTE)        rule_result.addResult(TEST_RESULT.PASS, ie, 'PASS_1', [de.tag_name]);
+            else if (ie.accessible_name_source === SOURCE.ARIA_LABELLEDBY) rule_result.addResult(TEST_RESULT.PASS, ie, 'PASS_2', [de.tag_name]);
+            else if (ie.accessible_name_source === SOURCE.ARIA_LABEL)      rule_result.addResult(TEST_RESULT.PASS, ie, 'PASS_3', [de.tag_name]);
+            else rule_result.addResult(TEST_RESULT.PASS, ie, 'PASS_4', [de.tag_name]);
           }
           else {
-            rule_result.addResult(TEST_RESULT.HIDDEN, ie, 'HIDDEN', [de.tag_name]);     
+            rule_result.addResult(TEST_RESULT.FAIL, ie, 'CORRECTIVE_ACTION_1', [de.tag_name]);     
           }
-        }      
+        }
+        else {
+          rule_result.addResult(TEST_RESULT.HIDDEN, ie, 'HIDDEN', [de.tag_name]);     
+        }
       } // end loop
     } 
   } // end validation function  
@@ -68,7 +67,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   rule_category       : OpenAjax.a11y.RULE_CATEGORIES.IMAGES,
   wcag_primary_id     : '1.1.1',
   wcag_related_ids    : [],
-  target_resources    : ['img'],
+  target_resources    : ['img', '[role="img"]'],
   cache_dependency    : 'images_cache',
   resource_properties    : ['longdesc', 'longdesc_is_broken', 'is_visible_to_at'],
   language_dependency : "",
@@ -88,7 +87,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
       for (var i = 0; i < image_elements_len; i++) {
         var ie = image_elements[i];
         var de = ie.dom_element;
-     
+        
         if (ie.longdesc) {
         
           if (de.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
@@ -124,7 +123,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 /**
  * @object IMAGE_3
  *
- * @desc The file name of the image should not be part of the alt text content (it must have an image file extension)
+ * @desc The file name of the image should not be part of the accessible name content (it must have an image file extension)
  */
 { rule_id             : 'IMAGE_3', 
   last_updated        : '2011-09-16', 
@@ -132,9 +131,9 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   rule_category       : OpenAjax.a11y.RULE_CATEGORIES.IMAGES,
   wcag_primary_id     : '1.1.1',
   wcag_related_ids    : [],
-  target_resources    : ['img'],
+  target_resources    : ['img', '[role="img"]'],
   cache_dependency    : 'images_cache',
-  resource_properties    : ['alt', 'file_name', 'role', 'is_visible_to_at'],
+  resource_properties    : ['accessible_name', 'file_name', 'is_visible_to_at'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -150,34 +149,28 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
       for (var i = 0; i < image_elements_len; i++) {
         var ie = image_elements[i];
         var de = ie.dom_element;
-     
-        if (de.hasAttrWithValue('role', 'presentation')) {     
-          rule_result.addResult(TEST_RESULT.HIDDEN, ie, 'PRESENTATION', []);
-        }
-        else {
-        
-          if (ie.alt_for_comparison && ie.alt_for_comparison.length) {
+
+        if (ie.accessible_name_for_comparison && ie.accessible_name_for_comparison.length) {
           
-            if (de.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
+          if (de.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
           
-              // make sure it has a file extension, will assume extension is for an image
-              if (ie.file_name.indexOf('.') >= 0) {
+            // make sure it has a file extension, will assume extension is for an image
+            if (ie.file_name.indexOf('.') >= 0) {
          
-                if (ie.alt_for_comparison.indexOf(ie.file_name) >= 0 ) {
-                  rule_result.addResult(TEST_RESULT.FAIL, ie, 'FAIL', []);                 
-                }
-                else {
-                  rule_result.addResult(TEST_RESULT.PASS, ie, 'PASS_1', []);                 
-                }
+              if (ie.accessible_name_for_comparison.indexOf(ie.file_name) >= 0 ) {
+                rule_result.addResult(TEST_RESULT.FAIL, ie, 'FAIL', []);                 
               }
               else {
-                rule_result.addResult(TEST_RESULT.PASS, ie, 'PASS_1', []);                              
+                rule_result.addResult(TEST_RESULT.PASS, ie, 'PASS_1', []);                 
               }
             }
             else {
-              rule_result.addResult(TEST_RESULT.HIDDEN, ie, 'HIDDEN', [de.tag_name]);     
+              rule_result.addResult(TEST_RESULT.PASS, ie, 'PASS_1', []);                              
             }
-          }  
+          }
+          else {
+            rule_result.addResult(TEST_RESULT.HIDDEN, ie, 'HIDDEN', [de.tag_name]);     
+          }
         }      
       } // end loop
     } 
@@ -187,7 +180,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 /**
  * @object IMAGE_4_EN (English)
  *
- * @desc If the ALT attribute contains content, it should be less than 120 characters long, longer descriptions should use long description techniques (English only)
+ * @desc If the accessible name contains content, it should be less than 120 characters long, longer descriptions should use long description techniques (English only)
  */
 { rule_id             : 'IMAGE_4_EN', 
   last_updated        : '2011-09-16', 
@@ -197,11 +190,11 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   wcag_related_ids    : [],
   target_resources    : ['img', 'area'],
   cache_dependency    : 'images_cache',
-  resource_properties    : ['alt', 'alt_length', 'role', 'is_visible_to_at'],
+  resource_properties    : ['accessible_name', 'accessible_name_length', 'is_visible_to_at'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
-    var MAX_ALT_TEXT_LENGTH = 100;
+    var MAX_ACCESSIBLE_NAME_LENGTH = 100;
 
     var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
     var VISIBILITY  = OpenAjax.a11y.VISIBILITY;
@@ -215,24 +208,19 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
       for (var i = 0; i < image_elements_len; i++) {
         var ie = image_elements[i];
         var de = ie.dom_element;
-     
-        if (de.hasAttrWithValue('role', 'presentation')) {     
-          rule_result.addResult(TEST_RESULT.HIDDEN, ie, 'PRESENTATION', []);
+
+        if (de.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
+          
+          if (ie.accessible_name_length > MAX_ACCESSIBLE_NAME_LENGTH) {
+            rule_result.addResult(TEST_RESULT.FAIL, ie, 'CORRECTIVE_ACTION_1', [MAX_ACCESSIBLE_NAME_LENGTH]);     
+          }
+          else {     
+            rule_result.addResult(TEST_RESULT.PASS, ie, 'PASS_1', [MAX_ACCESSIBLE_NAME_LENGTH]);     
+          }
         }
         else {
-          if (de.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
-          
-            if (ie.alt_length > MAX_ALT_TEXT_LENGTH) {
-              rule_result.addResult(TEST_RESULT.FAIL, ie, 'CORRECTIVE_ACTION_1', [MAX_ALT_TEXT_LENGTH]);     
-            }
-            else {      
-              rule_result.addResult(TEST_RESULT.PASS, ie, 'PASS_1', [MAX_ALT_TEXT_LENGTH]);     
-            }
-          }
-          else {
-            rule_result.addResult(TEST_RESULT.HIDDEN, ie, 'HIDDEN', [de.tag_name]);     
-          }
-        }      
+          rule_result.addResult(TEST_RESULT.HIDDEN, ie, 'HIDDEN', [de.tag_name]);     
+        }
       } // end loop
     } 
   } // end validation function
@@ -241,7 +229,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 /**
  * @object IMAGE_5
  *
- * @desc If an image has a height or width of 1 pixel its alt text set to empty, role set to presentation or the image removed and use CSS position
+ * @desc If an image has a height or width of 6 pixels its accessible name set to empty, role set to presentation or the image removed and use CSS position
  */
 { rule_id             : 'IMAGE_5', 
   last_updated        : '2011-09-16', 
@@ -249,9 +237,9 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   rule_category       : OpenAjax.a11y.RULE_CATEGORIES.IMAGES,
   wcag_primary_id     : '1.1.1',
   wcag_related_ids    : [],
-  target_resources    : ['img'],
+  target_resources    : ['img', '[role="img"]'],
   cache_dependency    : 'images_cache',
-  resource_properties    : ['alt_length', 'height', 'width', 'role', 'is_visible_to_at'],
+  resource_properties    : ['accessible_name_length', 'role', 'height', 'width', 'is_visible_to_at'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
 
@@ -261,7 +249,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
     var VISIBILITY  = OpenAjax.a11y.VISIBILITY;
 
-    var image_elements   = dom_cache.images_cache.image_elements;
+    var image_elements   = dom_cache.images_cache.image_elements.concat(dom_cache.images_cache.presentation_elements);
     var image_elements_len = image_elements.length;
        
     // Check to see if valid cache reference
@@ -270,24 +258,18 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
       for (var i = 0; i < image_elements_len; i++) {
         var ie = image_elements[i];
         var de = ie.dom_element;
-     
-        if (de.hasAttrWithValue('role', 'presentation')) {     
-          rule_result.addResult(TEST_RESULT.HIDDEN, ie, 'PRESENTATION', [de.tag_name]);
+
+        if (de.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
+          
+          if ((ie.height <= MAX_IMAGE_HEIGHT || ie.width <= MAX_IMAGE_WIDTH)) {
+            if (de.role === 'presentation') rule_result.addResult(TEST_RESULT.PASS, ie, 'PASS_1', []);
+            else if (ie.accessible_name_length === 0) rule_result.addResult(TEST_RESULT.PASS, ie, 'PASS_2', []);
+            else rule_result.addResult(TEST_RESULT.FAIL, ie, 'CORRECTIVE_ACTION_1', []);
+          } 
         }
         else {
-          if (de.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
-          
-            if ((ie.height <= MAX_IMAGE_HEIGHT || ie.width <= MAX_IMAGE_WIDTH) && ie.alt_length > 0 ) {
-              rule_result.addResult(TEST_RESULT.FAIL, ie, 'CORRECTIVE_ACTION_1', []);     
-            }
-            else {      
-              rule_result.addResult(TEST_RESULT.PASS, ie, 'PASS_1', []);     
-            } 
-          }
-          else {
-            rule_result.addResult(TEST_RESULT.HIDDEN, ie, 'HIDDEN', [de.tag_name]);     
-          }
-        }      
+          rule_result.addResult(TEST_RESULT.HIDDEN, ie, 'HIDDEN', [de.tag_name]);     
+        }
       } // end loop
     } 
   } // end validation function
@@ -304,16 +286,16 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   last_updated        : '2011-09-16', 
   wcag_primary_id     : '1.1.1',
   wcag_related_ids    : [],
-  target_resources    : ['img'],
+  target_resources    : ['img', '[role="img"]'],
   cache_dependency    : 'images_cache',
-  resource_properties    : ['has_alt_attribute', 'alt_length', 'role', 'is_visible_to_at'],
+  resource_properties : ['accessible_name', 'role', 'is_visible_to_at'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
     
     var TEST_RESULT   = OpenAjax.a11y.TEST_RESULT;
     var VISIBILITY    = OpenAjax.a11y.VISIBILITY;
 
-    var image_elements   = dom_cache.images_cache.image_elements;
+    var image_elements   = dom_cache.images_cache.image_elements.concat(dom_cache.images_cache.presentation_elements);
     var image_elements_len = image_elements.length;
 
     // Check to see if valid cache reference
@@ -324,12 +306,12 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         var de = ie.dom_element;
 
         if (de.computed_style.is_visible_to_at == VISIBILITY.VISIBLE) {
-          if (ie.alt_length === 0 || de.role == 'presentation') {     
+          if (ie.accessible_name_length === 0 || ie.is_presentation) {     
             rule_result.addResult(TEST_RESULT.MANUAL_CHECK, ie, 'MANUAL_CHECK_1', []);
           }
         }    
         else {
-          rule_result.addResult(TEST_RESULT.HIDDEN, ie, 'HIDDEN', [de.tag_name]);     
+          rule_result.addResult(TEST_RESULT.HIDDEN, ie, 'HIDDEN', []);     
         }
       } // end loop
     } 

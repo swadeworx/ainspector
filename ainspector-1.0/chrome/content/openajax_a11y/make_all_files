@@ -31,17 +31,20 @@ reports/reports_init.js \
 nls/cache_nls_en-us.js \
 nls/rules_nls_en-us.js \
 nls/wcag20_nls_en-us.js \
+rules/rules_audio.js \
 rules/rules_color.js \
 rules/rules_form_controls.js \
 rules/rules_images.js \
 rules/rules_headings.js \
+rules/rules_keyboard.js \
 rules/rules_landmarks.js \
+rules/rules_layout.js \
 rules/rules_links.js \
 rules/rules_tables.js \
 rules/rules_title.js \
 rules/rules_video.js \
 rules/rules_widgets.js \
-rulesets/wcag20_he_admin_ruleset.js \
 rulesets/wcag20_aria_transitional_ruleset.js \
-rulesets/wcag20_aria_strict_ruleset.js > openajax_a11y_all.js
+rulesets/wcag20_aria_strict_ruleset.js \
+rulesets/wcag20_he_admin_ruleset.js > openajax_a11y_all.js
 

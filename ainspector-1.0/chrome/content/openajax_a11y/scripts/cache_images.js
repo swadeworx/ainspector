@@ -49,7 +49,10 @@ OpenAjax.a11y.cache.ImagesCache = function (dom_cache) {
  
   this.image_elements = [];
   this.length = 0;
- 
+
+  this.presentation_elements = [];
+  this.presentation_length = 0;
+
   this.sort_property  = 'document_order';
   this.sort_ascending = true;
 
@@ -81,6 +84,31 @@ OpenAjax.a11y.cache.ImagesCache.prototype.addImageElement = function (image_elem
 
 };
 
+/**
+ * @method addPresentationElement
+ * 
+ * @memberOf OpenAjax.a11y.cache.ImagesCache
+ *
+ * @desc Adds a image element to the list of image elements that have a role of presentation and generates a cache id for the object.
+ *
+ * @param  {ImageElement}  image_element  - image element object to add 
+ *
+ * @return {Number} Returns the length of the list of image element objects
+ */
+
+OpenAjax.a11y.cache.ImagesCache.prototype.addPresentationElement = function (image_element) {
+
+  // item must exist and have the position property
+  if (image_element) {
+    this.presentation_length = this.presentation_length + 1;
+    image_element.cache_id = "image_pres_" + this.presentation_length; 
+    image_element.document_order = this.presentation_length;
+    this.presentation_elements.push(image_element);
+  } 
+
+  return this.length;
+
+};
 
 /**
  * @deprecated getImageElementByCacheId
@@ -156,11 +184,16 @@ OpenAjax.a11y.cache.ImagesCache.prototype.emptyCache = function () {
  
 OpenAjax.a11y.cache.ImagesCache.prototype.updateCacheItems = function (dom_element) {
 
-  if ((dom_element.tag_name == 'img') ||
-      (dom_element.tag_name == 'area')) {
+  if ((dom_element.tag_name === 'img') ||
+      (dom_element.tag_name === 'area') ||
+      (dom_element.role === 'img')) {
 
-    var image_element = new OpenAjax.a11y.cache.ImageElement(dom_element, this.dom_cache.base_url);    
-    this.dom_cache.images_cache.addImageElement(image_element);
+    var image_element = new OpenAjax.a11y.cache.ImageElement(dom_element, this.dom_cache.base_url);
+
+    this.getNameForImage(image_element);
+    
+    if (image_element.is_image)        this.dom_cache.images_cache.addImageElement(image_element);
+    if (image_element.is_presentation) this.dom_cache.images_cache.addPresentationElement(image_element);
   
   }
   
@@ -218,63 +251,46 @@ OpenAjax.a11y.cache.ImagesCache.prototype.updateCache = function () {
 };
 
 /**
- * @method sortImageElements
+ * @method getNameFromARIALabel
  *
- * @memberOf OpenAjax.a11y.cache.ImagesCache
+ * @memberOf OpenAjax.a11y.cache.DOMCache
  *
- * @desc Sorts image element array by image element object property
+ * @desc Calculates a computed accessible name based on ALT attribute and ARIA label properties
  *
- * @param {String}   property   - Property of image element object to sort the list
- * @param {Boolean}  ascending  - true if sort in ascending order; false in descending order
- *
- * @return {Boolean}  Returns true if list was sorted, false if not
+ * @param {Object} image - Image cache element object
  */
 
-OpenAjax.a11y.cache.ImagesCache.prototype.sortImageElements = function(property, ascending ) {
+OpenAjax.a11y.cache.ImagesCache.prototype.getNameForImage = function (image) {
 
-  var swapped = false;
-  var temp = null;
-  var i;
+  var SOURCE = OpenAjax.a11y.SOURCE;
 
-  if( this.image_elements && this.image_elements.length && !this.image_elements[0][property] ) {
-    return false;
-  } // endif
-
-  var image_elements_len = this.image_elements.length;
-
-  if( ascending ) {
-    do{
-      swapped = false;
-      for (i = 1; i < image_elements_len; i++ ) {
-        if (this.image_elements[i-1][property] > this.image_elements[i][property]) {
-          // swap the values
-          temp = this.image_elements[i-1];
-          this.image_elements[i-1] = this.image_elements[i];
-          this.image_elements[i] = temp;
-          swapped = true;
-        } 
-      } // end loop
-    } while (swapped);
+  var accessible_name = "";
+  var accessible_name_source = SOURCE.NONE;
+  var de = image.dom_element;
+  
+  if (de.aria_labelledby && de.aria_labelledby.length) {
+    accessible_name = this.dom_cache.element_with_id_cache.getTextFromIds(de.aria_labelledby);
+    accessible_name_source = SOURCE.ARIA_LABELLEDBY;
   }
-  else {
-    do {
-      swapped = false;
-      for (i = 1; i < image_elements_len; i++) {
-        if (this.image_elements[i-1][property] < this.image_elements[i][property]) {
-          // swap the values
-          temp = this.image_elements[i-1];
-          this.image_elements[i-1] = this.image_elements[i];
-          this.image_elements[i] = temp;
-          swapped = true;
-        } 
-      } // end loop
-    } while (swapped);
+  else if (de.aria_label && de.aria_label.length) {
+    accessible_name = de.aria_label;
+    accessible_name_source = SOURCE.ARIA_LABEL;
+  }
+  else if (de.has_alt_attribute) {
+    accessible_name = de.alt;
+    accessible_name_source = SOURCE.ALT_ATTRIBUTE;
   } 
+  else if (de.title) {
+    accessible_name = de.title;
+    accessible_name_source = SOURCE.TITLE_ATTRIBUTE;
+  }
 
-  this.sort_property = property;
+  image.accessible_name = accessible_name;
+  image.accessible_name_length = accessible_name.length;
+  image.accessible_name_source = accessible_name_source;
+  image.accessible_name_for_comparison = accessible_name.normalizeSpace().toLowerCase();
 
-  return true;
-}; 
+};
 
 /* ---------------------------------------------------------------- */
 /*                            ImageElement                          */
@@ -292,6 +308,9 @@ OpenAjax.a11y.cache.ImagesCache.prototype.sortImageElements = function(property,
  * @property  {DOMElement}  dom_element     - Reference to the dom element representing the image or area element
  * @property  {String}      cache_id        - String that uniquely identifies the cache element object in the cache
  * @property  {Number}      document_order  - Ordinal position of the image or area element in the document in relationship to other image or area elements
+ *
+ * @property  {Boolean}     is_image        - True if the role of the image is an image, otherwise false (i.e. through use of role attribute) 
+ * @property  {Boolean}     is_presemtation - True if the role of the image has been changed to presentation, otherwise false  
  *
  * @property  {String}   source             - The url in the src property of an image element or href property of an area element 
  * @property  {Boolean}  src_is_a_file_name - The filename is an image file and not a data base or other programatic reference
@@ -321,6 +340,13 @@ OpenAjax.a11y.cache.ImageElement = function (dom_element, base_url) {
   this.source    = "";
   this.href      = "";
   this.file_name = "";
+  this.is_image = true;
+  this.is_presentation = false;
+  
+  if (dom_element.has_role && dom_element.role != 'img') this.is_image = false;
+  if (dom_element.has_role && dom_element.role === 'presentation') this.is_presentation = true;
+
+//  OpenAjax.a11y.logger.debug("Image element: " + dom_element.toString() + " has: " + dom_element.has_role + " role: " + dom_element.role  + " image: " + this.is_image + " presentation: " + this.is_presentation);
 
   if (dom_element.tag_name == 'img') {
   
@@ -347,15 +373,10 @@ OpenAjax.a11y.cache.ImageElement = function (dom_element, base_url) {
     this.href  = node.href;
   }
 
-  this.alt = null;
-  this.alt_length = 0;
-  this.alt_for_comparison = null;
-
-  if (dom_element.has_alt_attribute) {
-    this.alt        = dom_element.alt;
-    this.alt_length = dom_element.alt.length;
-    this.alt_for_comparison = this.alt.normalizeSpace().toLowerCase();
-  }
+  this.accessible_name = null;
+  this.accessible_name_length = null;
+  this.accessible_name_source = OpenAjax.a11y.SOURCE.NONE;
+  this.accessible_name_for_comparison = null;
 
   this.longdesc = node.getAttribute('longdesc');
   

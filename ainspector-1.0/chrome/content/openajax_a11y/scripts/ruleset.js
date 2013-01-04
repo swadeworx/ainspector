@@ -258,8 +258,8 @@ OpenAjax.a11y.Ruleset = function (ruleset_data) {
     this.ruleset_author_name = ruleset_data.author.name;
     if (ruleset_data.author.url) this.ruleset_author_url = ruleset_data.author.url;
     else this.ruleset_author_url = "no author url";    
-    OpenAjax.a11y.logger.debug("  Ruleset Author: " + this.ruleset_author_name);
-    OpenAjax.a11y.logger.debug("  Ruleset URL: " + this.ruleset_author_url);
+//    OpenAjax.a11y.logger.debug("  Ruleset Author: " + this.ruleset_author_name);
+//    OpenAjax.a11y.logger.debug("  Ruleset URL: " + this.ruleset_author_url);
   } 
   else {
     OpenAjax.a11y.logger.debug("  ** Ruleset " + this.ruleset_id + " missing author information");
@@ -449,7 +449,7 @@ OpenAjax.a11y.Ruleset.prototype.evaluate = function (url, title, doc, progessCal
   var rule_mappings = this.rule_mappings;
   var rule_mappings_len = rule_mappings.length;
 
-  OpenAjax.a11y.logger.debug("Number of rules: " + rule_mappings_len);
+//  OpenAjax.a11y.logger.debug("Number of rules: " + rule_mappings_len);
 
   for (var i = 0; i < rule_mappings_len; i++) {
     
@@ -461,7 +461,7 @@ OpenAjax.a11y.Ruleset.prototype.evaluate = function (url, title, doc, progessCal
 
       rule_result = new OpenAjax.a11y.RuleResult(rule_mapping); 
 
-      OpenAjax.a11y.logger.debug("Rule: " + rule.rule_id + "  Enabled: " + rule_mapping.enabled  + "  Mapping: " + rule_mapping.type + "  Recommended: " + this.recommended_rules_enabled);
+//      OpenAjax.a11y.logger.debug("Rule: " + rule.rule_id + "  Enabled: " + rule_mapping.enabled  + "  Mapping: " + rule_mapping.type + "  Recommended Rules Evaluated: " + this.recommended_rules_enabled);
 
       if (rule_mapping.enabled && 
           (rule_mapping.type === OpenAjax.a11y.RULE.REQUIRED ||
@@ -601,83 +601,127 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByWCAG20 = function (wcag2
   
   guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '1.1', nls_wcag20.getNLSItemById('1.1').title, this);
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.1.1', nls_wcag20.getNLSItemById('1.1.1').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.1.1').level <= wcag20_level) {
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.1.1', nls_wcag20.getNLSItemById('1.1.1').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }  
   
   principle.addFilteredRuleResultsGroup(guideline);
 
   guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '1.2', nls_wcag20.getNLSItemById('1.2').title, this);
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.1', nls_wcag20.getNLSItemById('1.2.1').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.2.1').level <= wcag20_level) {
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.1', nls_wcag20.getNLSItemById('1.2.1').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.2', nls_wcag20.getNLSItemById('1.2.2').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.2.2').level <= wcag20_level) {
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.2', nls_wcag20.getNLSItemById('1.2.2').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.3', nls_wcag20.getNLSItemById('1.2.3').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.2.3').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.3', nls_wcag20.getNLSItemById('1.2.3').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.4', nls_wcag20.getNLSItemById('1.2.4').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.2.4').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.4', nls_wcag20.getNLSItemById('1.2.4').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.5', nls_wcag20.getNLSItemById('1.2.5').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.2.5').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.5', nls_wcag20.getNLSItemById('1.2.5').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.6', nls_wcag20.getNLSItemById('1.2.6').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.2.6').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.6', nls_wcag20.getNLSItemById('1.2.6').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.7', nls_wcag20.getNLSItemById('1.2.7').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.2.7').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.7', nls_wcag20.getNLSItemById('1.2.7').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.8', nls_wcag20.getNLSItemById('1.2.8').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.2.8').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.8', nls_wcag20.getNLSItemById('1.2.8').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.9', nls_wcag20.getNLSItemById('1.2.9').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.2.9').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.9', nls_wcag20.getNLSItemById('1.2.9').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }  
   
   principle.addFilteredRuleResultsGroup(guideline);
 
   guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '1.3', nls_wcag20.getNLSItemById('1.3').title, this);
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.3.1', nls_wcag20.getNLSItemById('1.3.1').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.3.1').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.3.1', nls_wcag20.getNLSItemById('1.3.1').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.3.2', nls_wcag20.getNLSItemById('1.3.2').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.3.2').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.3.2', nls_wcag20.getNLSItemById('1.3.2').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.3.3', nls_wcag20.getNLSItemById('1.3.3').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.3.3').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.3.3', nls_wcag20.getNLSItemById('1.3.3').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
   principle.addFilteredRuleResultsGroup(guideline);
 
   guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '1.4', nls_wcag20.getNLSItemById('1.4').title, this);
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.1', nls_wcag20.getNLSItemById('1.4.1').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.4.1').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.1', nls_wcag20.getNLSItemById('1.4.1').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.2', nls_wcag20.getNLSItemById('1.4.2').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.4.2').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.2', nls_wcag20.getNLSItemById('1.4.2').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.3', nls_wcag20.getNLSItemById('1.4.3').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.4.3').level <= wcag20_level) {    
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.3', nls_wcag20.getNLSItemById('1.4.3').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.4', nls_wcag20.getNLSItemById('1.4.4').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.4.4').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.4', nls_wcag20.getNLSItemById('1.4.4').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.5', nls_wcag20.getNLSItemById('1.4.5').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.4.5').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.5', nls_wcag20.getNLSItemById('1.4.5').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.6', nls_wcag20.getNLSItemById('1.4.6').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.4.6').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.6', nls_wcag20.getNLSItemById('1.4.6').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.7', nls_wcag20.getNLSItemById('1.4.7').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.4.7').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.7', nls_wcag20.getNLSItemById('1.4.7').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.8', nls_wcag20.getNLSItemById('1.4.8').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.4.8').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.8', nls_wcag20.getNLSItemById('1.4.8').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.9', nls_wcag20.getNLSItemById('1.4.9').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.4.9').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.9', nls_wcag20.getNLSItemById('1.4.9').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }  
   
   principle.addFilteredRuleResultsGroup(guideline);
 
@@ -687,77 +731,117 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByWCAG20 = function (wcag2
   
   guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '2.1', nls_wcag20.getNLSItemById('2.1').title, this);
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.1.1', nls_wcag20.getNLSItemById('2.1.1').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.1.1').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.1.1', nls_wcag20.getNLSItemById('2.1.1').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }  
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.1.2', nls_wcag20.getNLSItemById('2.1.2').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.1.2').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.1.2', nls_wcag20.getNLSItemById('2.1.2').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }  
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.1.3', nls_wcag20.getNLSItemById('2.1.3').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.1.3').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.1.3', nls_wcag20.getNLSItemById('2.1.3').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
   principle.addFilteredRuleResultsGroup(guideline);
 
   guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '2.2', nls_wcag20.getNLSItemById('2.2').title, this);
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.1', nls_wcag20.getNLSItemById('2.2.1').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.2.1').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.1', nls_wcag20.getNLSItemById('2.2.1').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.2', nls_wcag20.getNLSItemById('2.2.2').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.2.2').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.2', nls_wcag20.getNLSItemById('2.2.2').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.3', nls_wcag20.getNLSItemById('2.2.3').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.2.3').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.3', nls_wcag20.getNLSItemById('2.2.3').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.4', nls_wcag20.getNLSItemById('2.2.4').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.2.4').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.4', nls_wcag20.getNLSItemById('2.2.4').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);    
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.5', nls_wcag20.getNLSItemById('2.2.5').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.2.5').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.5', nls_wcag20.getNLSItemById('2.2.5').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
   principle.addFilteredRuleResultsGroup(guideline);
 
   guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '2.3', nls_wcag20.getNLSItemById('2.3').title, this);
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.3.1', nls_wcag20.getNLSItemById('2.3.1').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.3.1').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.3.1', nls_wcag20.getNLSItemById('2.3.1').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.3.2', nls_wcag20.getNLSItemById('2.3.2').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.3.2').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.3.2', nls_wcag20.getNLSItemById('2.3.2').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
   principle.addFilteredRuleResultsGroup(guideline);
 
   guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '2.4', nls_wcag20.getNLSItemById('2.4').title, this);
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.1', nls_wcag20.getNLSItemById('2.4.1').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.4.1').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.1', nls_wcag20.getNLSItemById('2.4.1').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }  
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.2', nls_wcag20.getNLSItemById('2.4.2').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.4.2').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.2', nls_wcag20.getNLSItemById('2.4.2').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.3', nls_wcag20.getNLSItemById('2.4.3').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.4.3').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.3', nls_wcag20.getNLSItemById('2.4.3').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }  
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.4', nls_wcag20.getNLSItemById('2.4.4').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.4.4').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.4', nls_wcag20.getNLSItemById('2.4.4').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }  
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.5', nls_wcag20.getNLSItemById('2.4.5').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.4.5').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.5', nls_wcag20.getNLSItemById('2.4.5').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }  
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.6', nls_wcag20.getNLSItemById('2.4.6').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.4.6').level <= wcag20_level) {    
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.6', nls_wcag20.getNLSItemById('2.4.6').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }  
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.7', nls_wcag20.getNLSItemById('2.4.7').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.4.7').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.7', nls_wcag20.getNLSItemById('2.4.7').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }  
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.8', nls_wcag20.getNLSItemById('2.4.8').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.4.8').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.8', nls_wcag20.getNLSItemById('2.4.8').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }  
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.9', nls_wcag20.getNLSItemById('2.4.9').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.4.9').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.9', nls_wcag20.getNLSItemById('2.4.9').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }  
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.10', nls_wcag20.getNLSItemById('2.4.10').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.4.10').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.10', nls_wcag20.getNLSItemById('2.4.10').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
   principle.addFilteredRuleResultsGroup(guideline);
 
@@ -767,65 +851,98 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByWCAG20 = function (wcag2
   
   guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '3.1', nls_wcag20.getNLSItemById('3.1').title, this);
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.1', nls_wcag20.getNLSItemById('3.1.1').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.1.1').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.1', nls_wcag20.getNLSItemById('3.1.1').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }  
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.2', nls_wcag20.getNLSItemById('3.1.2').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.1.2').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.2', nls_wcag20.getNLSItemById('3.1.2').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.3', nls_wcag20.getNLSItemById('3.1.3').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.1.3').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.3', nls_wcag20.getNLSItemById('3.1.3').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }  
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.4', nls_wcag20.getNLSItemById('3.1.4').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.1.4').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.4', nls_wcag20.getNLSItemById('3.1.4').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }  
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.5', nls_wcag20.getNLSItemById('3.1.5').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.1.5').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.5', nls_wcag20.getNLSItemById('3.1.5').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);    
+  }  
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.6', nls_wcag20.getNLSItemById('3.1.6').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.1.6').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.6', nls_wcag20.getNLSItemById('3.1.6').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }  
   
   principle.addFilteredRuleResultsGroup(guideline);
 
-
   guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '3.2', nls_wcag20.getNLSItemById('3.2').title, this);
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.1', nls_wcag20.getNLSItemById('3.2.1').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.2.1').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.1', nls_wcag20.getNLSItemById('3.2.1').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.2', nls_wcag20.getNLSItemById('3.2.2').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.2.2').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.2', nls_wcag20.getNLSItemById('3.2.2').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.3', nls_wcag20.getNLSItemById('3.2.3').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.2.3').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.3', nls_wcag20.getNLSItemById('3.2.3').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.4', nls_wcag20.getNLSItemById('3.2.4').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.2.4').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.4', nls_wcag20.getNLSItemById('3.2.4').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.5', nls_wcag20.getNLSItemById('3.2.5').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.2.5').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.5', nls_wcag20.getNLSItemById('3.2.5').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
   principle.addFilteredRuleResultsGroup(guideline);
 
   guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '3.3', nls_wcag20.getNLSItemById('3.3').title, this);
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.1', nls_wcag20.getNLSItemById('3.3.1').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.3.1').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.1', nls_wcag20.getNLSItemById('3.3.1').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.2', nls_wcag20.getNLSItemById('3.3.2').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.3.2').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.2', nls_wcag20.getNLSItemById('3.3.2').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.3', nls_wcag20.getNLSItemById('3.3.3').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.3.3').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.3', nls_wcag20.getNLSItemById('3.3.3').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.4', nls_wcag20.getNLSItemById('3.3.4').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.3.4').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.4', nls_wcag20.getNLSItemById('3.3.4').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.5', nls_wcag20.getNLSItemById('3.3.5').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.3.5').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.5', nls_wcag20.getNLSItemById('3.3.5').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.6', nls_wcag20.getNLSItemById('3.3.6').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.3.6').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.6', nls_wcag20.getNLSItemById('3.3.6').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
   principle.addFilteredRuleResultsGroup(guideline);
 
@@ -835,12 +952,16 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByWCAG20 = function (wcag2
   
   guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '4.1', nls_wcag20.getNLSItemById('4.1').title, this);
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '4.1.1', nls_wcag20.getNLSItemById('4.1.1').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('4.1.1').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '4.1.1', nls_wcag20.getNLSItemById('4.1.1').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
   
-  success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '4.1.2', nls_wcag20.getNLSItemById('4.1.2').title, this);
-  guideline.addFilteredRuleResultsGroup(success_criterion);  
-
+  if (nls_wcag20.getNLSItemById('4.1.2').level <= wcag20_level) {  
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '4.1.2', nls_wcag20.getNLSItemById('4.1.2').title, this);
+    guideline.addFilteredRuleResultsGroup(success_criterion);  
+  }
+  
   principle.addFilteredRuleResultsGroup(guideline);
 
   principles.addFilteredRuleResultsGroup(principle);
@@ -903,6 +1024,9 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByRuleCategories = functio
   group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.LANDMARKS, 'Landmarks', this);
   groups.addFilteredRuleResultsGroup(group);
 
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.LAYOUT, 'Layout', this);
+  groups.addFilteredRuleResultsGroup(group);
+
   group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.LINKS, 'Links', this);
   groups.addFilteredRuleResultsGroup(group);
 
@@ -921,13 +1045,13 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByRuleCategories = functio
   group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.TITLE, 'Title', this);
   groups.addFilteredRuleResultsGroup(group);
 
-  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.TITLE, 'Timing', this);
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.TIMING, 'Timing', this);
   groups.addFilteredRuleResultsGroup(group);
 
   group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.VIDEO, 'Video', this);
   groups.addFilteredRuleResultsGroup(group);
 
-  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.VIDEO, 'Widgets', this);
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.WIDGETS, 'Widgets', this);
   groups.addFilteredRuleResultsGroup(group);
 
 

@@ -274,15 +274,17 @@ OpenAjax.a11y.cache.LinksCache.prototype.updateCacheItems = function (dom_elemen
 
   var link_element;
 
-  if ((dom_element.tag_name == 'a') ||
-      (dom_element.tag_name == 'area') ||
-      (dom_element.role == 'link')) {
-
-    link_element = new OpenAjax.a11y.cache.LinkElement(dom_element);    
+  if ((dom_element.tag_name === 'a' && !dom_element.is_widget) ||
+      (dom_element.tag_name === 'area' && !dom_element.is_widget) ||
+      (dom_element.role === 'link')) {
+      
+        dom_element.is_interactive = true;
+      
+        link_element = new OpenAjax.a11y.cache.LinkElement(dom_element);    
     
-    this.dom_cache.getNameForLink(link_element);
+        this.dom_cache.getNameForLink(link_element);
     
-    this.dom_cache.links_cache.addLinkElement(link_element);
+        this.dom_cache.links_cache.addLinkElement(link_element);
   }
    
 };

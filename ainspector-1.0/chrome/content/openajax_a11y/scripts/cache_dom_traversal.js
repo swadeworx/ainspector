@@ -202,7 +202,6 @@ OpenAjax.a11y.cache.DOMCache.prototype.traverseDOMElementsForAllCaches = functio
    this.traverseDOMElementsForAllCaches(dom_element.child_dom_elements[i], hi, ti, ci, li, mi);
   } // end loop
  } else {
-//   this.color_contrast_cache.updateCacheItems(dom_element);
    this.text_cache.updateCacheItems(dom_element);
    this.headings_landmarks_cache.updateCacheItems(dom_element, landmark_info);
  }
@@ -237,6 +236,7 @@ OpenAjax.a11y.cache.DOMCache.prototype.updateAllCaches = function () {
  }
 
  this.controls_cache.calculateControlLabels();
+ this.controls_cache.applyAriaOwns();
 
  this.log.update(OpenAjax.a11y.PROGRESS.CACHE_END, "Completed updating all caches");
 
@@ -541,7 +541,7 @@ OpenAjax.a11y.cache.DOMCache.prototype.getNameFromARIALabel = function (control)
   var computed_label = "";
   var computed_label_source = SOURCE.NONE;
   var de = control.dom_element;
-  var wi = de.widget_info;
+  var wi = de.role_info;
   
   if (de.aria_labelledby) {
     computed_label = this.element_with_id_cache.getTextFromIds(de.aria_labelledby);

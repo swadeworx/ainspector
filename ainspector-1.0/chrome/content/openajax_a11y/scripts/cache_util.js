@@ -285,23 +285,7 @@ OpenAjax.a11y.util.RGBToHEX = function( rgb_color ) {
  */
 
 // string utilities
-if (typeof String.isInteger == "undefined") {
- String.prototype.isInteger = function() {
-  return this.match(/^\d+$/) !== null;
- };
-}
 	
-/**
- * @function trim
- * @memberOf String
- */
- 
-if (typeof String.trim == "undefined") {
- String.prototype.trim = function() {
-  return this.replace(/^\s+|\s+$/g, '');
- };
-}
-
 /**
  * @function normalizeSpace
  * @memberOf String
@@ -314,16 +298,6 @@ if (typeof String.normalizeSpace == "undefined") {
  }; // end function normalizeSpace
 }
 
-/**
- * @function capitalize
- * @memberOf String
- */
- 
-if (typeof String.capitalize == "undefined") {
- String.prototype.capitalize = function() {
-  return this.charAt(0).toUpperCase() + this.slice(1);
- };
-}
 
 /**
  * @function replaceAll

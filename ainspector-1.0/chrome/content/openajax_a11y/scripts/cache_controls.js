@@ -43,6 +43,7 @@ OpenAjax.a11y.cache.ControlInfo = function (control_info) {
   this.select_element   = control_info.select_element;
   this.label_element    = control_info.label_element; 
   this.form_element     = control_info.form_element; 
+  this.parent_widget    = control_info.parent_widget; 
  }
  else {
   this.control_element  = null;
@@ -50,6 +51,7 @@ OpenAjax.a11y.cache.ControlInfo = function (control_info) {
   this.select_element   = null;
   this.label_element    = null;
   this.form_element     = null;
+  this.parent_widget    = null; 
  } 
 }; 
 
@@ -108,6 +110,11 @@ OpenAjax.a11y.cache.ControlsCache = function (dom_cache) {
   this.widget_elements = [];
   this.widget_length  = 0;
   
+  this.elements_with_role = [];
+  this.elements_with_aria_attributes = [];
+
+  this.elements_with_mouse_events = [];
+
   this.label_elements  = [];
   this.label_length   = 0;
   
@@ -303,13 +310,24 @@ OpenAjax.a11y.cache.ControlsCache.prototype.updateCacheItems = function (dom_ele
   var ci = new OpenAjax.a11y.cache.ControlInfo(control_info);
 
   // check for widget
+  
+  if (dom_element.hasMouseEvents()) this.elements_with_mouse_events.push(dom_element);
+  
+  if (dom_element.has_role) this.elements_with_role.push(dom_element);
+  
+  if (dom_element.has_aria_attributes) {
+
+    // OpenAjax.a11y.logger.debug(dom_element + " has aria attributes");
+    this.elements_with_aria_attributes.push(dom_element);
+  }  
  
-  if (dom_element.is_widget) {
+  if (dom_element.is_widget || dom_element.is_section) {
     
     we = new OpenAjax.a11y.cache.WidgetElement(dom_element, control_info);
     this.addLabel(we, "", OpenAjax.a11y.SOURCE.NONE);
     
     this.addControlElement(we);
+    this.widget_elements.push(we);
     
     if (control_info.control_element) {
       control_info.control_element.addChildControl(we);   
@@ -319,6 +337,8 @@ OpenAjax.a11y.cache.ControlsCache.prototype.updateCacheItems = function (dom_ele
     }
   
     ci.control_element = we;
+    
+    if (!we.has_owns) ci.parent_widget = we;
   
   }
   else {
@@ -426,7 +446,7 @@ OpenAjax.a11y.cache.ControlsCache.prototype.updateCacheItems = function (dom_ele
     case 'button':
       be = new OpenAjax.a11y.cache.ButtonElement(dom_element, control_info);
       this.addLabel(be, "", OpenAjax.a11y.SOURCE.NONE);
-      
+
       this.addControlElement(be); 
 
       if (control_info.control_element) {
@@ -539,6 +559,59 @@ OpenAjax.a11y.cache.ControlsCache.prototype.updateCacheItems = function (dom_ele
 
     } // end switch
     
+    // if we are in a widget there a few HTML elements with implied roles
+    
+    if (control_info.parent_widget) {
+    
+      var implied_role = null;
+      var role = control_info.parent_widget.dom_element.role;
+      var tag_name = dom_element.tag_name;
+    
+      if (tag_name === 'tr' && (" grid rowgroup treegrid".indexOf(role) > 0)) {
+        implied_role = 'row';        
+      }
+
+      if ((tag_name === 'td' || tag_name === 'th') && (" grid rowgroup treegrid".indexOf(role) > 0)) {
+
+        var scope = dom_element.node.getAttribute('scope');
+
+        if (typeof scope === 'string') {
+          scope = scope.toLowerCase();
+          if (scope === 'col') implied_role = 'columnheader';        
+          else if (scope === 'row') implied_role = 'rowheader';   
+        }  
+      }
+
+      if ((tag_name === 'thead' || tag_name === 'tfoot' || tag_name === 'tbody') && role === 'grid') {
+        implied_role = 'rowgroup';              
+      }
+
+      if (implied_role && (implied_role.length > 0)) {
+      
+//        OpenAjax.a11y.logger.debug("  Adding implied role: " + implied_role);
+        
+        dom_element.setImpliedRole(implied_role);
+
+        we = new OpenAjax.a11y.cache.WidgetElement(dom_element, control_info);
+        this.addLabel(we, "", OpenAjax.a11y.SOURCE.NONE);
+    
+        this.addControlElement(we);
+        this.widget_elements.push(we);
+    
+        if (control_info.control_element) {
+          control_info.control_element.addChildControl(we);   
+        }
+        else {
+          this.addChildControl(we);     
+        }
+        
+        ci.control_element = we;
+        if (!we.has_owns) ci.parent_widget = we;
+
+      }
+  
+    }
+    
   }   
 
   return ci;
@@ -557,21 +630,20 @@ OpenAjax.a11y.cache.ControlsCache.prototype.updateCacheItems = function (dom_ele
  
 OpenAjax.a11y.cache.ControlsCache.prototype.traverseDOMElementsForControlElements = function (dom_element, control_info) {
  
- var i;
- var ci;
+  var i;
+  var ci;
 
- if (!dom_element) return;
+  if (!dom_element) return;
+ 
+  if (dom_element.type == Node.ELEMENT_NODE) {
 
- if (dom_element.type == Node.ELEMENT_NODE) {
-
-  ci = this.updateCacheItems(dom_element, control_info);
+    ci = this.updateCacheItems(dom_element, control_info);
   
-  for (i = 0; i < dom_element.child_dom_elements.length; i++ ) {
-   this.traverseDOMElementsForFormElements(dom_element.child_dom_elements[i], ci);
-  } // end loop
+    for (i = 0; i < dom_element.child_dom_elements.length; i++ ) {
+      this.traverseDOMElementsForFormElements(dom_element.child_dom_elements[i], ci);
+    } // end loop
   
- }  
-  
+  }  
 }; 
 
 /**
@@ -599,6 +671,7 @@ OpenAjax.a11y.cache.ControlsCache.prototype.updateCache = function () {
  }  
  
  this.calculateControlLabels();
+ this.applyAriaOwns();
  
  this.dom_cache.log.update(OpenAjax.a11y.PROGRESS.CACHE_END, "Completed control elements cache update.");
 
@@ -717,15 +790,11 @@ OpenAjax.a11y.cache.ControlsCache.prototype.getItemByCacheId = function (cache_i
  
 OpenAjax.a11y.cache.ControlsCache.prototype.getControlElementByCacheId = function (cache_id) {
 
- var i;
-
- for (i=0; i<this.control_elements.length; i++) {
-  if (this.control_elements[i].cache_id == cache_id) {
-   return this.control_elements[i];
+  for (var i = 0; i<this.control_elements.length; i++) {
+    if (this.control_elements[i].cache_id == cache_id) return this.control_elements[i];
   }
- }
 
- return null;
+  return null;
 };
 
 /**
@@ -742,15 +811,13 @@ OpenAjax.a11y.cache.ControlsCache.prototype.getControlElementByCacheId = functio
  
 OpenAjax.a11y.cache.ControlsCache.prototype.getControlElementById = function (id) {
 
- var i;
-
- for (i = 0; i < this.control_elements.length; i++) {
-  if (this.control_elements[i].dom_element.id == id) {
-   return this.control_elements[i];
+  for (var i = 0; i < this.control_elements.length; i++) {
+    if (this.control_elements[i].dom_element.id == id) {
+      return this.control_elements[i];
+    }
   }
- }
 
- return null;
+  return null;
 };
 
 /**
@@ -911,12 +978,12 @@ OpenAjax.a11y.cache.ControlsCache.prototype.calculateLabelsUsingARIA = function 
     
     if ( (de.aria_labelledby && de.aria_labelledby.length) || 
          (de.aria_label && de.aria_label.length) ||
-         (de.widget_info)) {
+         (de.role_info)) {
          
       this.dom_cache.getNameFromARIALabel(ce);
       
       // If title attribute is the result clear label for use of other labeling techniques
-      if (ce.computed_label_source == OpenAjax.a11y.SOURCE.TITLE_ATTRIBUTE && !ce.widget_info) {
+      if (ce.computed_label_source == OpenAjax.a11y.SOURCE.TITLE_ATTRIBUTE && !ce.role_info) {
         ce.computed_label = "";
         this.addLabel(ce, "", OpenAjax.a11y.SOURCE.NONE);
       }
@@ -962,7 +1029,7 @@ OpenAjax.a11y.cache.ControlsCache.prototype.addLabel = function (control, label,
 
   if (source === OpenAjax.a11y.SOURCE.NONE) {
     control.computed_label  = "";
-    if (control.widget_info) control.accessible_name = "";
+    if (control.dom_element.role_info) control.accessible_name = "";
   } else {
     this.addFieldsetLegend(control);
     control.computed_label += label + " ";
@@ -985,6 +1052,8 @@ OpenAjax.a11y.cache.ControlsCache.prototype.addLabel = function (control, label,
  */
  
 OpenAjax.a11y.cache.ControlsCache.prototype.calculateLabelsByReference = function () {
+
+  var SOURCE = OpenAjax.a11y.SOURCE;
 
   var label_elements      = this.label_elements;
   var label_elements_len = label_elements.length;
@@ -1010,7 +1079,8 @@ OpenAjax.a11y.cache.ControlsCache.prototype.calculateLabelsByReference = functio
 
         // check to see if label defined (i.e. an ARIA technique)
 
-        if (ce.computed_label.length === 0) {
+        if ((ce.computed_label_source !== SOURCE.ARIA_LABELLEDBY) && 
+            (ce.computed_label_source !== SOURCE.ARIA_LABEL)) {
           this.addLabel(ce, le.computed_label, OpenAjax.a11y.SOURCE.LABEL_REFERENCE);
           le.unused_label = false;          
           le.control_element = ce;
@@ -1167,6 +1237,82 @@ OpenAjax.a11y.cache.ControlsCache.prototype.calculateControlLabels = function ()
   this.calculateLabelsByEncapsulation();
   this.calculateLabelsByOther();
 };
+
+/**
+ * @method applyAriaOwns
+ *
+ * @memberOf OpenAjax.a11y.cache.ControlsCache
+ *
+ * @desc Applies parent/child widget relationships based on the aria-owns property
+ *       if aria-owns property is defined for any widgets 
+ */
+ 
+OpenAjax.a11y.cache.ControlsCache.prototype.applyAriaOwns = function () {
+
+  var widgets = this.widget_elements;
+  var widgets_len = widgets.length;
+  
+  for (var i = 0; i < widgets_len; i++) {
+  
+    var widget = widgets[i];
+  
+    if (widget.has_owns) {
+    
+      OpenAjax.a11y.logger.debug("  Owned: " + widget.cache_id);
+    
+      var ids = widget.getOwnedIds();
+      var ids_len = ids.length;
+      
+      for (var j = 0; j < ids_len; j++) {
+         
+         var id = ids[j];
+        
+         var ce = this.getControlElementById(id);
+         
+         if (ce) {
+         
+           this.removeFromChildCacheElements(ce);
+           widget.addChildControl(ce, true);
+           ce.addOwnerControl(widget);
+         }
+      }    
+    }
+  
+  }
+
+};
+
+
+/**
+ * @method removeFromChildCacheElements
+ *
+ * @memberOf OpenAjax.a11y.cache.ControlsCache
+ *
+ * @desc Removes a control from the tree view of form controls and widgets 
+ */
+ 
+OpenAjax.a11y.cache.ControlsCache.prototype.removeFromChildCacheElements = function (item) {
+
+  function removeItem(list) {
+  
+    for (var i = 0; i < list.length; i++ ) {
+    
+      if (list[i] === item) {
+        list = list.splice(i, 1);  
+        return true;
+      }
+
+      if (list.child_cach_elements && list.child_cach_elements.lengh) {
+         if (removeItem(item)) return true;
+      }    
+    }
+    return false;
+  }
+  
+  removeItem(this.child_cache_elements);
+
+};
+
 
 /* ---------------------------------------------------------------- */
 /*                       FormElement                                */ 
@@ -1996,16 +2142,20 @@ OpenAjax.a11y.cache.LabelElement.prototype.toString = function () {
  * @property  {String}      disabled   - The value of the disabled attribute
  * @property  {String}      value      - The value of the readonly attribute 
  * @property  {String}      checked    - The value of the disabled attribute
+ *
+ * @property  {Boolean}  is_owned       - True if this control is owned by another widget 
+ * @property  {Array}    owner_controls - Array of all the widgets that own this widget (NOTE: More than one owner is an error)    
  */
 
 OpenAjax.a11y.cache.InputElement = function (dom_element, control_info) {
 
   var node = dom_element.node;
- 
+
+  dom_element.is_interactive = true;
+
   this.dom_element = dom_element;
   this.cache_id    = "";
   this.document_order = 0;
-  
   
   this.value   = node.value; 
   this.checked = node.checked;
@@ -2072,7 +2222,28 @@ OpenAjax.a11y.cache.InputElement = function (dom_element, control_info) {
   this.label_element  = control_info.label_element;
   this.fieldset_element = control_info.fieldset_element;
 
+  this.is_owned = false;
+  this.owner_controls = [];
+  
 };
+
+/**
+ * @method addOwnerControl
+ *
+ * @memberOf OpenAjax.a11y.cache.WidgetElement
+ * 
+ * @desc Adds a ARIA owner control element reference
+ *
+ * @param  {WidegtElement} owner_control   - Cache control element object to add 
+ */
+
+OpenAjax.a11y.cache.InputElement.prototype.addOwnerControl = function (owner_control) {
+
+  if (owner_control) {
+   this.is_owned = true;
+   this.owner_controls.push(owner_control);
+  }  
+}; 
 
 /**
  * @method getNodeResults
@@ -2296,9 +2467,14 @@ OpenAjax.a11y.cache.InputElement.prototype.toString = function () {
  *
  * @property  {String}     readonly              - The value of the readonly attribute 
  * @property  {String}     disabled              - The value of the disabled attribute
+ *
+ * @property  {Boolean}  is_owned       - True if this control is owned by another widget 
+ * @property  {Array}    owner_controls - Array of all the widgets that own this widget (NOTE: More than one owner is an error)    
  */
 
 OpenAjax.a11y.cache.ButtonElement = function (dom_element, control_info) {
+
+  dom_element.is_interactive = true;
 
   this.dom_element = dom_element;
   this.cache_id    = "";
@@ -2316,7 +2492,28 @@ OpenAjax.a11y.cache.ButtonElement = function (dom_element, control_info) {
  
   this.fieldset_element = control_info.fieldset_element;
 
+  this.is_owned = false;
+  this.owner_controls = [];
+  
 };
+
+/**
+ * @method addOwnerControl
+ *
+ * @memberOf OpenAjax.a11y.cache.WidgetElement
+ * 
+ * @desc Adds a ARIA owner control element reference
+ *
+ * @param  {WidegtElement} owner_control   - Cache control element object to add 
+ */
+
+OpenAjax.a11y.cache.ButtonElement.prototype.addOwnerControl = function (owner_control) {
+
+  if (owner_control) {
+   this.is_owned = true;
+   this.owner_controls.push(owner_control);
+  }  
+}; 
 
 
 /**
@@ -2554,11 +2751,16 @@ OpenAjax.a11y.cache.ButtonElement.prototype.toString = function () {
  *
  * @property  {String}      readonly   - The value of the readonly attribute 
  * @property  {String}      disabled   - The value of the disabled attribute
+ *
+ * @property  {Boolean}  is_owned       - True if this control is owned by another widget 
+ * @property  {Array}    owner_controls - Array of all the widgets that own this widget (NOTE: More than one owner is an error)    
  */
 
 OpenAjax.a11y.cache.TextareaElement = function (dom_element, control_info) {
 
   var node = dom_element.node;
+
+  dom_element.is_interactive = true;
 
   this.dom_element    = dom_element;
   this.cache_id       = "";
@@ -2578,7 +2780,28 @@ OpenAjax.a11y.cache.TextareaElement = function (dom_element, control_info) {
   this.readonly  = node.readonly;
   this.disabled  = node.disabled;
 
+  this.is_owned = false;
+  this.owner_controls = [];
+  
 };
+
+/**
+ * @method addOwnerControl
+ *
+ * @memberOf OpenAjax.a11y.cache.WidgetElement
+ * 
+ * @desc Adds a ARIA owner control element reference
+ *
+ * @param  {WidegtElement} owner_control   - Cache control element object to add 
+ */
+
+OpenAjax.a11y.cache.TextareaElement.prototype.addOwnerControl = function (owner_control) {
+
+  if (owner_control) {
+   this.is_owned = true;
+   this.owner_controls.push(owner_control);
+  }  
+}; 
 
 /**
  * @method getNodeResults
@@ -2792,11 +3015,17 @@ OpenAjax.a11y.cache.TextareaElement.prototype.toString = function () {
  * @property  {String}      computed_label_for_comparison  - Label for comparison (lowercase, space normalization and trimmed)
  * @property  {String}      size                  - The value of the size attribute 
  * @property  {String}      multiple              - The value of the multiple attribute
+ *
+ * @property  {Boolean}  is_owned       - True if this control is owned by another widget 
+ * @property  {Array}    owner_controls - Array of all the widgets that own this widget (NOTE: More than one owner is an error)    
  */
 
 OpenAjax.a11y.cache.SelectElement = function (dom_element, control_info) {
 
+  dom_element.is_interactive = true;
+
   this.dom_element    = dom_element;
+  
   this.cache_id       = "";
   this.document_order = 0;
   
@@ -2816,7 +3045,10 @@ OpenAjax.a11y.cache.SelectElement = function (dom_element, control_info) {
  
   this.label_element  = control_info.label_element;
   this.fieldset_element = control_info.fieldset_element;
- 
+  
+  this.is_owned = false;
+  this.owner_controls = [];
+   
 };
 
 /**
@@ -3027,6 +3259,23 @@ OpenAjax.a11y.cache.SelectElement.prototype.getLabelSourceNLS = function () {
   
 };
 
+/**
+ * @method addOwnerControl
+ *
+ * @memberOf OpenAjax.a11y.cache.WidgetElement
+ * 
+ * @desc Adds a ARIA owner control element reference
+ *
+ * @param  {WidegtElement} owner_control   - Cache control element object to add 
+ */
+
+OpenAjax.a11y.cache.SelectElement.prototype.addOwnerControl = function (owner_control) {
+
+  if (owner_control) {
+   this.is_owned = true;
+   this.owner_controls.push(owner_control);
+  }  
+}; 
 
 /**
  * @method toString
@@ -3430,6 +3679,7 @@ OpenAjax.a11y.cache.OptionElement.prototype.toString = function () {
  * @property  {String}      cache_id        - String that uniquely identifies the cache element object in the cache
  * @property  {Number}      document_order  - Ordinal position of the control element in the document in relationship to other control elements
  *
+ * @property  {Boolean}     has_owns              - if the widget has aria-owns, use this to calculate children 
  * @property  {Array}       child_cache_elements  - Array of child cache control elements as part of cache control tree 
  * @property  {String}      type                  - String indicating the type of input element  
  * @property  {Number}      control_type          - Constant indicating the type of cache control object  
@@ -3447,15 +3697,20 @@ OpenAjax.a11y.cache.OptionElement.prototype.toString = function () {
  * @property  {String}  disabled  - The value of the disabled attribute
  * @property  {String}  value     - The value of the readonly attribute 
  * @property  {String}  checked   - The value of the disabled attribute
+ *
+ * @property  {Boolean}  is_owned       - True if this widget is owned by another widget 
+ * @property  {Array}    owner_controls - Array of all the widgets that own this widget (NOTE: More than one owner is an error)    
  */
 
 OpenAjax.a11y.cache.WidgetElement = function (dom_element, control_info) {
 
   var node = dom_element.node;
  
-  this.dom_element = dom_element;
-  this.cache_id    = "";
+  this.dom_element    = dom_element;
+  this.has_owns       = dom_element.hasOwns();
+  this.cache_id       = "";
   this.document_order = 0;
+  this.parent_widget  = control_info.parent_widget;
   
   this.child_cache_elements = [];
   this.type    = node.type; 
@@ -3472,6 +3727,12 @@ OpenAjax.a11y.cache.WidgetElement = function (dom_element, control_info) {
   this.label_element    = control_info.label_element;
   this.fieldset_element = control_info.fieldset_element;
 
+  this.aria_attributes_with_invalid_values  = [];
+  this.aria_attributes_missing              = []; 
+  
+  this.is_owned = false;
+  this.owner_controls = [];
+  
 };
 
 /**
@@ -3482,14 +3743,135 @@ OpenAjax.a11y.cache.WidgetElement = function (dom_element, control_info) {
  * @desc Adds a cache control element to the tree representation of control elements
  *
  * @param  {WidegtElement | ButtonElement | FieldsetElement | FormElement | InputElement | LabelElement| LegendElement | OptgroupElement | OptionElement | SelectElement | TextareaElement } control_element   - Cache control element object to add 
+ * @param  {Boolean} override_owns  - If true, allow child elements to be added if the widget has an owns property
  */
 
-OpenAjax.a11y.cache.WidgetElement.prototype.addChildControl = function (child_control) {
+OpenAjax.a11y.cache.WidgetElement.prototype.addChildControl = function (child_control, override_owns) {
+
+  if (this.has_owns && ((typeof override_owns != 'boolean') || ((typeof override_owns === 'boolean') && !override_owns))) return;
 
   if (child_control) {
-   this.child_cache_elements.push(child_control); 
+   this.child_cache_elements.push(child_control);
   }  
 }; 
+
+/**
+ * @method addOwnerControl
+ *
+ * @memberOf OpenAjax.a11y.cache.WidgetElement
+ * 
+ * @desc Adds a ARIA owner control element reference
+ *
+ * @param  {WidegtElement} owner_control   - Cache control element object to add 
+ */
+
+OpenAjax.a11y.cache.WidgetElement.prototype.addOwnerControl = function (owner_control) {
+
+  if (owner_control) {
+   this.is_owned = true;
+   this.parent_widget = owner_control;
+   this.owner_controls.push(owner_control);
+  }  
+}; 
+
+/**
+ * @method getOwnedIds
+ *
+ * @memberOf OpenAjax.a11y.cache.WidgetElement
+ * 
+ * @desc Returns an array of strings representing the ids in the aria-owns property
+ *
+ * @return {Array} Returns an array of string objects represrenting the ids of the aria-owns property
+ */
+
+OpenAjax.a11y.cache.WidgetElement.prototype.getOwnedIds = function () {
+
+  var aria_owns = this.dom_element.aria_owns;
+  var return_array = [];
+
+  if (typeof aria_owns === 'string' && (aria_owns.length > 0)) {
+  
+    if (aria_owns.indexOf(' ') > 0) {
+      return_array = aria_owns.split(' ');
+    }
+    else {
+      return_array.push(aria_owns);
+    }
+    
+  }
+  
+  return return_array;
+
+}; 
+
+/**
+ * @method hasChildRole
+ *
+ * @memberOf OpenAjax.a11y.cache.WidgetElement
+ *
+ * @desc Tests if a widget has a child ARIA element with a certain role
+ *
+ * @param {String}  role -  Role to find 
+ *
+ * @return {Boolean} Returns true if widget has child element with role, otherwise false
+ */
+
+OpenAjax.a11y.cache.WidgetElement.prototype.hasChildRole = function (role) {
+
+   function checkCacheChildren(list) {
+   
+     var flag = false;
+   
+     for (var i = 0; (i < list.length); i++) {
+     
+       var item = list[i];
+     
+       if (item.dom_element.role === role) {
+         flag = true;
+         break;
+       }
+       else {
+         if (item.child_cache_elements && item.child_cache_elements.length) {
+           flag = checkCacheChildren(item.child_cache_elements);
+         }
+       }  
+     }
+   
+     return flag;
+     
+   }
+
+   return checkCacheChildren(this.child_cache_elements);
+  
+};
+
+/**
+ * @method hasParentRole
+ *
+ * @memberOf OpenAjax.a11y.cache.WidgetElement
+ *
+ * @desc Tests if a widget has a parent element with a certain role
+ *
+ * @param {String}  role -  Role to find 
+ *
+ * @return {Boolean} Returns true if widget has child element with role, otherwise false
+ */
+
+OpenAjax.a11y.cache.WidgetElement.prototype.hasParentRole = function (role) {
+
+   function checkParentRole(widget) {
+   
+     if (!widget) return false;
+     
+     if (widget.dom_element.role === role) return true;
+     
+     return checkParentRole(widget.parent_widget);
+   
+   }
+   
+   return checkParentRole(this.parent_widget);
+
+};
 
 /**
  * @method getNodeResults
@@ -3569,10 +3951,14 @@ OpenAjax.a11y.cache.WidgetElement.prototype.getCacheProperties = function (unsor
 
   var properties = this.dom_element.getCacheProperties(unsorted);
 
-  cache_nls.addPropertyIfDefined(properties, this, 'label');
+  cache_nls.addPropertyIfDefined(properties, this, 'computed_label');
   cache_nls.addPropertyIfDefined(properties, this, 'computed_label_source');
-  cache_nls.addPropertyIfDefined(properties, this, 'label_for_comparison');
-
+  cache_nls.addPropertyIfDefined(properties, this, 'computed_label_for_comparison');
+  cache_nls.addPropertyIfDefined(properties, this, 'is_widget');
+  cache_nls.addPropertyIfDefined(properties, this, 'is_section');
+  cache_nls.addPropertyIfDefined(properties, this, 'is_owned');
+  cache_nls.addPropertyIfDefined(properties, this, 'owner_controls');
+  
   if (!unsorted) this.dom_element.sortItems(properties);
 
   return properties;
@@ -3615,6 +4001,7 @@ OpenAjax.a11y.cache.WidgetElement.prototype.getEvents = function () {
   return this.dom_element.getEvents();
   
 };
+
 
 /**
  * @method getNLSLabel

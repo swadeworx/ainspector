@@ -412,3 +412,41 @@ OpenAjax.a11y.CacheNLS.prototype.addPropertyIfDefined = function (list, item, pr
   } // endif
   
 };
+
+/**
+ * @method addInvalidAttribute
+ *
+ * @memberOf OpenAjax.a11y.CacheNLS
+ *
+ * @desc Identifies an invalid attribute
+ */
+
+OpenAjax.a11y.CacheNLS.prototype.addInvalidAttribute = function (list, attribute) {
+
+  var o = {};
+  o.label = this.nls.invalid_attribute.label;
+  o.value = attribute;
+  o.style = this.nls.invalid_attribute.style;
+
+  list.push(o);
+  
+};
+
+/**
+ * @method addInvalidValue
+ *
+ * @memberOf OpenAjax.a11y.CacheNLS
+ *
+ * @desc Identifies an invalid attribute value
+ */
+
+OpenAjax.a11y.CacheNLS.prototype.addInvalidValue = function (list, attribute, value) {
+
+  var o = {};
+  o.label = attribute;
+  o.value = value + " " + this.nls.invalid_value.value;
+  o.style = this.nls.invalid_value.style;
+
+  list.push(o);
+    
+};

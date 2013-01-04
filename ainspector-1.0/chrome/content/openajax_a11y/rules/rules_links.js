@@ -320,8 +320,8 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
             if ((typeof link_element.height === 'number') && 
                 (typeof link_element.width  === 'number')) {
        
-              if ((link_element.height > MIN_HEIGHT) && 
-                 (link_element.width > MIN_WIDTH)) {
+              if ((link_element.height >= MIN_HEIGHT) && 
+                 (link_element.width >= MIN_WIDTH)) {
                 rule_result.addResult(TEST_RESULT.PASS, link_element, 'PASS_1', [tag_name]);
               }
               else {

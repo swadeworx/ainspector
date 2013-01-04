@@ -82,6 +82,26 @@
        */
        OAA_REPORT.addTitleAndEvalInfo = function() {
 
+         function updateInfoItems(class_name, item, link_flag) {
+         
+           var nodes      = document.getElementsByClassName(class_name);
+           
+           for (var i = 0; i < nodes.length; i++) {
+             
+             var node = nodes[i];
+             
+             var text     = OAA_REPORT.removeEscapesFromJSON(OAA_REPORT.rule_category_data[item]);
+             var text_node = document.createTextNode(text);
+             node.appendChild(text_node);
+           
+             if (typeof link_flag === 'boolean' && link_flag) {
+               node.setAttribute('href', text);
+               node.setAttribute('target', '_eval_page');
+             }
+           }   
+           return node;
+         }  
+
          function updateInfoItem(id, item, link_flag) {
          
            var node      = document.getElementById(id);
@@ -97,11 +117,12 @@
            return node;
          }  
 
-         updateInfoItem('ID_H1_TITLE', 'group_title');
+         updateInfoItems('title', 'group_title');
          
          updateInfoItem('ID_SPAN_EVAL_TITLE', 'eval_title');
          updateInfoItem('ID_A_EVAL_URL', 'eval_url', true);
          updateInfoItem('ID_SPAN_EVAL_DATE', 'eval_date');
+         updateInfoItem('ID_SPAN_EVAL_TIME', 'eval_time');
 
          updateInfoItem('ID_SPAN_RULESET_TITLE', 'ruleset_title');
          updateInfoItem('ID_SPAN_RULESET_VERSION', 'ruleset_version');

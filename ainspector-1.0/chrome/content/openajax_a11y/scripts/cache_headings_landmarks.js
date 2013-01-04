@@ -94,7 +94,7 @@ OpenAjax.a11y.cache.LandmarkInfo = function (landmark_info) {
  * @property {Boolean}  has_title           - Title element is defined in the document 
  *
  * @property {TitleElement} title_element  - The title element is used as a placeholder for title rule results 
- * @property {PageElement}  page_element   - The body element is used as a placeholder rule results for items missing in a document like H1 elements and Main landmarks
+ * @property {PageElementHeadingsLandmarks}  page_element   - The body element is used as a placeholder rule results for items missing in a document like H1 elements and Main landmarks
  *
  * @property {ResultRuleSummary}  rule_summary_result  - Rule results associated with this cache
  */
@@ -245,7 +245,7 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.addH1Element = function (h1
  *
  * @desc    Adds a main, h1 or title element object to the main_elements array and cacluates a cache id value
  *
- * @param  {MainElement | H1Element | TitleElement | PageElement}  main_element  Main, h1 heading or title element object to add 
+ * @param  {MainElement | H1Element | TitleElement | PageElementHeadingsLandmarks}  main_element  Main, h1 heading or title element object to add 
  *
  * @return  {Number}  length is the number of elements in the main_elements list
  */
@@ -518,7 +518,7 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.updateCacheItems = function
 
     if (tag_name == 'body' && !this.page_element) {
   
-      me = new OpenAjax.a11y.cache.PageElement(dom_element, li.main_element);    
+      me = new OpenAjax.a11y.cache.PageElementHeadingsLandmarks(dom_element, li.main_element);    
    
       // There is only one body element for a document, even when there are frames and iframes
       this.page_element = me;
@@ -1814,11 +1814,11 @@ OpenAjax.a11y.cache.TitleElement.prototype.toString = function () {
 
 
 /* ---------------------------------------------------------------- */
-/*                       PageElement                               */ 
+/*                       PageElementHeadingsLandmarks                               */ 
 /* ---------------------------------------------------------------- */
 
 /**
- * @constructor PageElement
+ * @constructor PageElementHeadingsLandmarks
  *
  * @memberOf OpenAjax.a11y.cache
  *
@@ -1839,10 +1839,10 @@ OpenAjax.a11y.cache.TitleElement.prototype.toString = function () {
  *
  */
 
-OpenAjax.a11y.cache.PageElement = function (dom_element, parent_landmark) {
+OpenAjax.a11y.cache.PageElementHeadingsLandmarks = function (dom_element, parent_landmark) {
 
   this.dom_element     = dom_element;
-  this.cache_id        = "page";
+  this.cache_id        = "page_heading";
   this.document_order  = 0;
   this.is_page_element = true;
 
@@ -1860,14 +1860,14 @@ OpenAjax.a11y.cache.PageElement = function (dom_element, parent_landmark) {
 /**
  * @method addChildMainElement
  *
- * @memberOf OpenAjax.a11y.cache.PageElement
+ * @memberOf OpenAjax.a11y.cache.PageElementHeadingsLandmarks
  *
  * @desc Adds a main landmark  object to the tree of title and main elements  
  *
  * @param {MainElement}  main_element  -  Main landmark element object to add 
  */
 
-OpenAjax.a11y.cache.PageElement.prototype.addChildMainElement = function (main_element) {
+OpenAjax.a11y.cache.PageElementHeadingsLandmarks.prototype.addChildMainElement = function (main_element) {
 
   if (main_element) {
     this.child_cache_elements.push(main_element); 
@@ -1878,28 +1878,28 @@ OpenAjax.a11y.cache.PageElement.prototype.addChildMainElement = function (main_e
 /**
  * @method getNodeResults
  *
- * @memberOf OpenAjax.a11y.cache.PageElement
+ * @memberOf OpenAjax.a11y.cache.PageElementHeadingsLandmarks
  *
  * @desc Returns an array of node results in severity order 
  *
  * @return {Array} Returns a array of node results
  */
 
-OpenAjax.a11y.cache.PageElement.prototype.getNodeResults = function () {
+OpenAjax.a11y.cache.PageElementHeadingsLandmarks.prototype.getNodeResults = function () {
   return this.dom_element.getNodeResults();
 };
 
 /**
  * @method getStyle
  *
- * @memberOf OpenAjax.a11y.cache.PageElement
+ * @memberOf OpenAjax.a11y.cache.PageElementHeadingsLandmarks
  *
  * @desc Returns an array of style items 
  *
  * @return {Array} Returns a array of style display objects
  */
 
-OpenAjax.a11y.cache.PageElement.prototype.getStyle = function () {
+OpenAjax.a11y.cache.PageElementHeadingsLandmarks.prototype.getStyle = function () {
 
   return this.dom_element.getStyle();
   
@@ -1908,7 +1908,7 @@ OpenAjax.a11y.cache.PageElement.prototype.getStyle = function () {
 /**
  * @method getAttributes
  *
- * @memberOf OpenAjax.a11y.cache.PageElement
+ * @memberOf OpenAjax.a11y.cache.PageElementHeadingsLandmarks
  *
  * @desc Returns an array of attributes for the element, sorted in alphabetical order 
  *
@@ -1917,7 +1917,7 @@ OpenAjax.a11y.cache.PageElement.prototype.getStyle = function () {
  * @return {Array} Returns a array of attribute display object
  */
 
-OpenAjax.a11y.cache.PageElement.prototype.getAttributes = function (unsorted) {
+OpenAjax.a11y.cache.PageElementHeadingsLandmarks.prototype.getAttributes = function (unsorted) {
 
   var cache_nls = OpenAjax.a11y.cache_nls;
   var attributes = this.dom_element.getAttributes();
@@ -1932,7 +1932,7 @@ OpenAjax.a11y.cache.PageElement.prototype.getAttributes = function (unsorted) {
 /**
  * @method getCacheProperties
  *
- * @memberOf OpenAjax.a11y.cache.PageElement
+ * @memberOf OpenAjax.a11y.cache.PageElementHeadingsLandmarks
  *
  * @desc Returns an array of cache properties sorted by property name 
  *
@@ -1941,7 +1941,7 @@ OpenAjax.a11y.cache.PageElement.prototype.getAttributes = function (unsorted) {
  * @return {Array} Returns a array of cache property display object
  */
 
-OpenAjax.a11y.cache.PageElement.prototype.getCacheProperties = function (unsorted) {
+OpenAjax.a11y.cache.PageElementHeadingsLandmarks.prototype.getCacheProperties = function (unsorted) {
 
   var cache_nls = OpenAjax.a11y.cache_nls;
 
@@ -1955,7 +1955,7 @@ OpenAjax.a11y.cache.PageElement.prototype.getCacheProperties = function (unsorte
 /**
  * @method getCachePropertyValue
  *
- * @memberOf OpenAjax.a11y.cache.PageElement
+ * @memberOf OpenAjax.a11y.cache.PageElementHeadingsLandmarks
  *
  * @desc Returns the value of a property 
  *
@@ -1964,7 +1964,7 @@ OpenAjax.a11y.cache.PageElement.prototype.getCacheProperties = function (unsorte
  * @return {String | Number} Returns the value of the property
  */
 
-OpenAjax.a11y.cache.PageElement.prototype.getCachePropertyValue = function (property) {
+OpenAjax.a11y.cache.PageElementHeadingsLandmarks.prototype.getCachePropertyValue = function (property) {
 
   if (typeof this[property] == 'undefined') {
     return this.dom_element.getCachePropertyValue(property);
@@ -1978,14 +1978,14 @@ OpenAjax.a11y.cache.PageElement.prototype.getCachePropertyValue = function (prop
 /**
  * @method getEvents
  *
- * @memberOf OpenAjax.a11y.cache.PageElement
+ * @memberOf OpenAjax.a11y.cache.PageElementHeadingsLandmarks
  *
  * @desc Returns an array of events for the element, sorted in alphabetical order 
  *
  * @return {Array} Returns a array of event item display objects
  */
 
-OpenAjax.a11y.cache.PageElement.prototype.getEvents = function () {
+OpenAjax.a11y.cache.PageElementHeadingsLandmarks.prototype.getEvents = function () {
    
   return this.dom_element.getEvents();
   
@@ -1994,13 +1994,13 @@ OpenAjax.a11y.cache.PageElement.prototype.getEvents = function () {
 /**
  * @method toString
  *
- * @memberOf OpenAjax.a11y.cache.PageElement
+ * @memberOf OpenAjax.a11y.cache.PageElementHeadingsLandmarks
  *
  * @desc Returns a text string representation of the title element 
  *
  * @return {String} Returns string represention the title element object
  */
   
-OpenAjax.a11y.cache.PageElement.prototype.toString = function () {
+OpenAjax.a11y.cache.PageElementHeadingsLandmarks.prototype.toString = function () {
   return "page";  
 };

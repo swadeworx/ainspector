@@ -379,7 +379,9 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.toJSON = function(prefix
   
   var eval_title = this.ruleset.eval_title;
   var eval_url   = this.ruleset.eval_url;
-  var eval_date  = this.ruleset.eval_date;
+  var date  = this.ruleset.eval_date.split(':');
+  var eval_time  = date[1] + ":" + date[2];
+  var eval_date  = date[0];
 
   var json = "";
   
@@ -387,8 +389,8 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.toJSON = function(prefix
 
   json += prefix + "{";
   
-  json += prefix + "  \"group_title\"   : \" Rule Category: " + OpenAjax.a11y.util.escapeForJSON(group_title) + "\",";
-  json += prefix + "  \"group_id\"      : \"" + group_id + "\",";
+  json += prefix + "  \"group_title\"  : \"" + OpenAjax.a11y.util.escapeForJSON(group_title) + "\",";
+  json += prefix + "  \"group_id\"     : \"" + group_id + "\",";
   
   json += prefix + "  \"ruleset_title\"   : \"" + OpenAjax.a11y.util.escapeForJSON(ruleset_title) + "\",";
   json += prefix + "  \"ruleset_version\" : \"" + OpenAjax.a11y.util.escapeForJSON(ruleset_version) + "\",";
@@ -397,6 +399,7 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.toJSON = function(prefix
   json += prefix + "  \"eval_title\"    : \"" + OpenAjax.a11y.util.escapeForJSON(eval_title) + "\",";
   json += prefix + "  \"eval_url\"      : \"" + OpenAjax.a11y.util.escapeForJSON(eval_url) + "\",";
   json += prefix + "  \"eval_date\"     : \"" + OpenAjax.a11y.util.escapeForJSON(eval_date) + "\",";
+  json += prefix + "  \"eval_time\"     : \"" + OpenAjax.a11y.util.escapeForJSON(eval_time) + "\",";
 
   json += prefix + "  \"implementation\" : {";
   json += prefix + "    \"abbrev\" : \"" + nls_level.abbrev + "\",";
@@ -416,7 +419,7 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.toJSON = function(prefix
   json += prefix + "  \"manual_checks_count\" : \"" + this.manual_checks_count + "\",";
   json += prefix + "  \"hidden_count\"        : \"" + this.hidden_count + "\",";
   
-  json += prefix + "  \"rule_results\" : [";
+  json += prefix + "  \"summary_results\" : [";
   
   var results = this.filtered_rule_results_groups;
   var results_len = results.length;
@@ -480,52 +483,51 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.toHTML = function(title)
  *
  * @desc Returns an CSV representation of summary results 
  *
- * @param  {String}  title  -   Title of the report
+ * @param  {String}   title  -   Title of the report
+ * @param  {Boolean}  header_flag  -  Optional, set to true if do not want headers for children
  *
  * @return  {String}  String representing the CSV for the report 
  */
 
-OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.toCSV = function(title) {
+OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.toCSV = function(title, header_flag) {
 
-  var date = this.ruleset.date;
-  var url = this.ruleset.url;  
-  
   var eval_title = this.ruleset.eval_title;
+  var eval_url   = this.ruleset.eval_url;
+  var date  = this.ruleset.eval_date.split(':');
+  var eval_time  = date[1] + ":" + date[2];
+  var eval_date  = date[0];
   
-  if (eval_title.length > 30) eval_title = title.slice(0,27) + "...";
+  if (eval_title.length > 30) eval_title = eval_title.slice(0,27) + "...";
     
   var csv = "";
   
-  var result_items     = [];
-  var result_items_len = result_items.length;
+  if ((typeof header_flag !== 'boolean') || header_flag) {
+    csv += title + "\n\n";
+    csv += "\"OAA ID\"";  
+    csv += ",\"Element Description\""; 
+    csv += ",\"Element id attribute\""; 
+    csv += ",\"Element class attribute\""; 
+    csv += ",\"Parent Landmark\""; 
+    csv += ",\"Rule ID\"";
+    csv += ",\"Type\"";
+    csv += ",\"WCAG 2.0 Success Criterion\"";
+    csv += ",\"WCAG 2.0 Level\"";
+    csv += ",\"Severity\"";
+    csv += ",\"Evaluation Result Message\"";
+    csv += ",\"Evaluation Date\"";
+    csv += ",\"Evaluation Time\"";
+    csv += "\"URL Evaluated\"";
+    csv += ",\"Title of URL Evaluated\"";
+    csv += "\n";
+  }  
 
-  for (var i = 0; i < result_items_len; i++) {
-         
-     var position = i+1;
-            
-     var result_item      = result_items[i];
-     var node_results     = result_item.node_results;
-     var node_results_len = node_results.length;
-            
-     for (var j = 0; j < node_results_len; j++) {
-            
-       var node_result = node_results[j];
-               
-       csv += "\"" + node_result.cache_item.cache_id; 
-       csv += "\",\""   + OpenAjax.a11y.util.escapeForJSON(result_item.cache_item.toString()); 
-       csv += "\",\"" + node_result.getNLSRuleId() + ": " + node_result.getRuleSummary();
-       csv += "\",\"" + node_result.getNLSRuleType();
-       csv += "\",\"" + node_result.getWCAG20SuccessCriterion();
-       csv += "\",\"" + node_result.getNLSWCAG20Level();
-       csv += "\",\"" + node_result.getNLSSeverityLabel();
-       csv += "\",\"" + OpenAjax.a11y.util.escapeForJSON(node_result.getMessage());
-       csv += "\",\"" + date;
-       csv += "\",\"" + OpenAjax.a11y.util.escapeForJSON(eval_title);
-       csv += "\",\"" + url;
-       csv += "\"\n";
-               
-    }
-  }   
+  var results = this.filtered_rule_results_groups;
+  var results_len = results.length;
+  var results_comma = results_len - 1;
+  
+  for (var i = 0; i < results_len; i++) {
+    csv += results[i].toCSV(title, false); 
+  }  
 
   return csv;  
 };
@@ -868,7 +870,9 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.toJSON = function(prefix,
   
   var eval_title = this.ruleset.eval_title;
   var eval_url   = this.ruleset.eval_url;
-  var eval_date  = this.ruleset.eval_date;
+  var date  = this.ruleset.eval_date.split(':');
+  var eval_time  = date[1] + ":" + date[2];
+  var eval_date  = date[0];
 
   var json = "";
   
@@ -876,7 +880,7 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.toJSON = function(prefix,
 
   json += prefix + "{";
   
-  json += prefix + "  \"group_title\"   : \" Rule Category: " + OpenAjax.a11y.util.escapeForJSON(group_title) + "\",";
+  json += prefix + "  \"group_title\"   : \"" + OpenAjax.a11y.util.escapeForJSON(group_title) + "\",";
   json += prefix + "  \"group_id\"      : \"" + group_id + "\",";
   
   json += prefix + "  \"ruleset_title\"   : \"" + OpenAjax.a11y.util.escapeForJSON(ruleset_title) + "\",";
@@ -886,6 +890,7 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.toJSON = function(prefix,
   json += prefix + "  \"eval_title\"    : \"" + OpenAjax.a11y.util.escapeForJSON(eval_title) + "\",";
   json += prefix + "  \"eval_url\"      : \"" + OpenAjax.a11y.util.escapeForJSON(eval_url) + "\",";
   json += prefix + "  \"eval_date\"     : \"" + OpenAjax.a11y.util.escapeForJSON(eval_date) + "\",";
+  json += prefix + "  \"eval_time\"     : \"" + OpenAjax.a11y.util.escapeForJSON(eval_time) + "\",";
 
   json += prefix + "  \"implementation\" : {";
   json += prefix + "    \"abbrev\" : \"" + nls_level.abbrev + "\",";
@@ -907,15 +912,13 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.toJSON = function(prefix,
   
   json += prefix + "  \"rule_results\" : [";
   
-  if (flag) {
-     var results     = this.filtered_rule_results;
-     var results_len = results.length;
-     var comma_len   = results_len - 1;
+  var results     = this.filtered_rule_results;
+  var results_len = results.length;
+  var comma_len   = results_len - 1;
 
-     for (var i = 0; i < results_len; i++) {
-       json += results[i].toJSON(prefix + "  ", false); 
-       if (i < comma_len) json += ",";
-     }  
+  for (var i = 0; i < results_len; i++) {
+    json += results[i].toJSON(prefix + "  ", flag); 
+    if (i < comma_len) json += ",";
   }  
     
   json += prefix + "  ]\n";
@@ -968,57 +971,91 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.toHTML = function(title) 
  *
  * @memberOf OpenAjax.a11y.cache.FilteredRuleResultsGroup
  *
- * @desc Returns an CSV representation of rule category results 
+ * @desc Returns an CSV representation of the filtered cache item results 
  *
  * @param  {String}  title  -   Title of the report
  *
  * @return  {String}  String representing the CSV for the report 
  */
 
-OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.toCSV = function(title) {
+OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.toCSV = function(title, header_flag) {
 
-  var date = this.ruleset.date;
-  var url = this.ruleset.url;  
-  
   var eval_title = this.ruleset.eval_title;
+  var eval_url   = this.ruleset.eval_url;
+  var date  = this.ruleset.eval_date.split(':');
+  var eval_time  = date[1] + ":" + date[2];
+  var eval_date  = date[0];
   
   if (eval_title.length > 30) eval_title = eval_title.slice(0,27) + "...";
     
+//  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("Title: " + title + " Header Flag: " + header_flag + " typeof: " + ((typeof header_flag !== 'boolean') || header_flag));  
+
   var csv = "";
   
-  var result_items     = [];
-  var result_items_len = result_items.length;
+  if ((typeof header_flag !== 'boolean') || header_flag) {
+    csv += title + "\n\n";
+    csv += "\"OAA ID\"";  
+    csv += ",\"Element Description\""; 
+    csv += ",\"Element id attribute\""; 
+    csv += ",\"Element class attribute\""; 
+    csv += ",\"Parent Landmark\""; 
+    csv += ",\"Rule ID\"";
+    csv += ",\"Type\"";
+    csv += ",\"WCAG 2.0 Success Criterion\"";
+    csv += ",\"WCAG 2.0 Level\"";
+    csv += ",\"Severity\"";
+    csv += ",\"Evaluation Result Message\"";
+    csv += ",\"Evaluation Date\"";
+    csv += ",\"Evaluation Time\"";
+    csv += "\"URL Evaluated\"";
+    csv += ",\"Title of URL Evaluated\"";
+    csv += "\n";
+  }  
 
-  for (var i = 0; i < result_items_len; i++) {
-         
+  var results     = this.filtered_rule_results;
+  var results_len = results.length;
+  var comma_len   = results_len - 1;
+
+  for (var i = 0; i < results_len; i++) {
+                  
      var position = i+1;
             
-     var result_item      = result_items[i];
-     var node_results     = result_item.node_results;
+     var result_item      = results[i];
+     var node_results     = result_item.filtered_node_results;
      var node_results_len = node_results.length;
             
      for (var j = 0; j < node_results_len; j++) {
             
        var node_result = node_results[j];
+       
+       var dom_element = node_result.cache_item;
+       
+       if (typeof node_result.cache_item.dom_element ===  'object') dom_element = node_result.cache_item.dom_element;
+       else dom_element = node_result.cache_item;
                
        csv += "\"" + node_result.cache_item.cache_id; 
-       csv += "\",\""   + OpenAjax.a11y.util.escapeForJSON(result_item.cache_item.toString()); 
+       csv += "\",\"" + OpenAjax.a11y.util.escapeForJSON(node_result.cache_item.toString()); 
+       csv += "\",\"" + dom_element.getId(); 
+       csv += "\",\"" + dom_element.getClassName(); 
+       csv += "\",\"" + dom_element.getParentLandmark(); 
        csv += "\",\"" + node_result.getNLSRuleId() + ": " + node_result.getRuleSummary();
        csv += "\",\"" + node_result.getNLSRuleType();
        csv += "\",\"" + node_result.getWCAG20SuccessCriterion();
        csv += "\",\"" + node_result.getNLSWCAG20Level();
        csv += "\",\"" + node_result.getNLSSeverityLabel();
        csv += "\",\"" + OpenAjax.a11y.util.escapeForJSON(node_result.getMessage());
-       csv += "\",\"" + date;
+       csv += "\",\"" + eval_date;
+       csv += "\",\"" + eval_time;
        csv += "\",\"" + OpenAjax.a11y.util.escapeForJSON(eval_title);
-       csv += "\",\"" + url;
+       csv += "\",\"" + eval_url;
        csv += "\"\n";
                
     }
   }   
 
-  return csv;  
+  return csv;
 };
+
 
 
 /* ---------------------------------------------------------------- */
@@ -1134,7 +1171,7 @@ OpenAjax.a11y.cache.FilteredRuleResult.prototype.getFilteredNodeResults = functi
   
   this.node_results_filtered_out = this.rule_result.total_count - this.total_count + this.rule_result.node_results_hidden.length;
 
-  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("  Rule Result " + this.rule_result.getNLSRuleId() + " Total Manual Results: " + this.manual_checks_count );  
+//  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("  Rule Result " + this.rule_result.getNLSRuleId() + " Total Manual Results: " + this.manual_checks_count );  
 
 };
 
@@ -1184,7 +1221,9 @@ OpenAjax.a11y.cache.FilteredRuleResult.prototype.getNLSImplementationLevel = fun
  * @return  {String}  String representing the cache item result object
  */
 
-OpenAjax.a11y.cache.FilteredRuleResult.prototype.toJSON = function(prefix) {
+OpenAjax.a11y.cache.FilteredRuleResult.prototype.toJSON = function(prefix, flag) {
+
+  if (typeof flag !== 'boolean') flag = true;
 
   var next_prefix = "";
   var next_prefix_2 = "";
@@ -1224,20 +1263,21 @@ OpenAjax.a11y.cache.FilteredRuleResult.prototype.toJSON = function(prefix) {
   json += prefix + "  \"hidden\"        : "  + this.hidden_count  + ",";
   json += prefix + "  \"total\"         : "  + this.total_count  + ",";
   
-  json += prefix + "  \"filtered\"      : "  + this.node_results_filtered_out  + ",";
+  
+  if (flag) {
+    json += prefix + "  \"filtered\"      : "  + this.node_results_filtered_out  + ",";
 
-  if (this.total_count) {
-    var comma_count = this.total_count - 1;
+    var node_results     = this.filtered_node_results;
+    var node_results_len = node_results.length;
+    var comma_count      = node_results_len - 1;
+  
     json += prefix + "  \"node_results\" : [";
     for (i = 0; i < this.total_count; i++) {
       json += this.filtered_node_results[i].toJSON(next_prefix);
       if (i < comma_count) json += ",";
     }  
-    json += prefix + "  ],";
-  }
-  else {
-    json += prefix + "  \"node_results\" : [],";
-  }
+    json += prefix + "  ]";
+  }  
   
   json += prefix + "}";
 

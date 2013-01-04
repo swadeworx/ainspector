@@ -30,19 +30,21 @@
  * @param  {ResultRule} rule_result             - reference to the rule result object
  * @param  {Number}     evaluation_result_value - Constant representing severity of the evaluation result
  * @param  {DOMElement} cache_item              - Object reference to cache item associated with the test
- * @param  {String}     message_id              -  String reference to the message string in the NLS file
- * @param  {Array}      message_arguements      -  Array  array of values used in the message string 
+ * @param  {String}     message_id              - String reference to the message string in the NLS file
+ * @param  {Array}      message_arguements      - Array  array of values used in the message string 
+ * @param  {Array}      props                   - Array of properties that are defined in the validation function (NOTE: typically undefined)
  *
  * @property  {String}     cache_id            - Id identify the node result (uses the same value of the associated cache element id)
  *
  * @property  {RuleResult} rule_result         - reference to the rule result object
  * @property  {Number}     evaluation_result_value - Constant representing severity of the evaluation result
  * @property  {DOMElement} cache_item          - Object reference to cache item associated with the test
- * @property  {String}     message_id          -  String reference to the message string in the NLS file
- * @property  {Array}      message_arguements  -  Array  array of values used in the message string  
+ * @property  {String}     message_id          - String reference to the message string in the NLS file
+ * @property  {Array}      message_arguements  - Array  array of values used in the message string  
+ * @property  {Array}      props               - Array of properties that are defined in the validation function (NOTE: typically undefined)
  */
 
-OpenAjax.a11y.NodeResult = function (rule_result, evaluation_result_value, cache_item, message_id, message_arguments) {
+OpenAjax.a11y.NodeResult = function (rule_result, evaluation_result_value, cache_item, message_id, message_arguments, props) {
 
   this.rule_result = rule_result;
   
@@ -53,6 +55,13 @@ OpenAjax.a11y.NodeResult = function (rule_result, evaluation_result_value, cache
   this.cache_id          = rule_result.cache_id;
   this.is_scope_page     = rule_result.isScopePage();
   this.is_scope_element  = rule_result.isScopeElement();
+  
+//  OpenAjax.a11y.logger.debug("Rule: " + this.getRuleId() + "Prop: " + typeof props);
+  
+  this.props = [];
+  if (typeof props === 'object') this.props = props;
+  
+  
 
 };
 
@@ -270,12 +279,12 @@ OpenAjax.a11y.NodeResult.prototype.getRuleProperties = function () {
   var prop_list = this.rule_result.rule.resource_properties;
   var value;
   var prop_item;
-  
-  for (var i = 0; i < prop_list.length; i++) {
+  var nls_item;
+  var i;
+
+  for (i = 0; i < prop_list.length; i++) {
 
     prop_item = prop_list[i];
-
-    var nls_item = new Object();
 
     value    = this.cache_item.getCachePropertyValue(prop_item);
 
@@ -284,6 +293,13 @@ OpenAjax.a11y.NodeResult.prototype.getRuleProperties = function () {
     nls_prop_list.push(nls_item);
     
   }  
+  
+  for (i = 0; i < this.props.length; i++) {
+
+    nls_prop_list.push(this.props[i]);
+    
+  }  
+  
   
   return nls_prop_list;
    
@@ -479,11 +495,13 @@ OpenAjax.a11y.NodeResult.prototype.getMessage = function () {
   
   var rule_id = this.getRuleId();
   
+//  OpenAjax.a11y.logger.debug("Rule: " + rule_id);
+  
   var str = nls_rules.rules[rule_id]['NODE_RESULT_MESSAGES'][this.message_id];
   
   if (!str) return nls_rules.missing_message + this.message_id;
     
-//    OpenAjax.a11y.logger.debug("Rule: " + this.rule_id + " Message: " + str);
+//    OpenAjax.a11y.logger.debug("Rule: " + rule_id + " Message: " + str);
 
   var vstr; // i.e. %1, %2 ....
   var message_arguments_len = this.message_arguments.length;
@@ -731,7 +749,7 @@ OpenAjax.a11y.RuleResult = function (rule_mapping) {
  * @param  {Array}   message_arguements  - Array of values used in the message string 
  */
 
-OpenAjax.a11y.RuleResult.prototype.addResult = function (test_result, cache_item, message_id, message_arguments) {
+OpenAjax.a11y.RuleResult.prototype.addResult = function (test_result, cache_item, message_id, message_arguments, props) {
 
   var SEVERITY    = OpenAjax.a11y.SEVERITY;
   var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
@@ -779,7 +797,7 @@ OpenAjax.a11y.RuleResult.prototype.addResult = function (test_result, cache_item
     break;  
   }   
   
-  var node_result = new OpenAjax.a11y.NodeResult(this, node_severity, cache_item, message_id, message_arguments);
+  var node_result = new OpenAjax.a11y.NodeResult(this, node_severity, cache_item, message_id, message_arguments, props);
 
 //  OpenAjax.a11y.logger.debug("  ADD RESULT - text result: " + test_result + " cache item: " + cache_item + "  msg ID: " + message_id + " args: " + message_arguments);
 //  OpenAjax.a11y.logger.debug("  Node Result Info: " + this.rule.rule_id + " : " + node_severity +  " (" + test_result + ")  " + cache_item + " Node result: " + node_result);
@@ -873,7 +891,9 @@ OpenAjax.a11y.RuleResult.prototype.calculateImplementationLevel = function () {
     
       var total = this.total_count - this.manual_checks_count;
 
-      var percentage = Math.round((this.passed_count * 100) / total);
+      var percentage = Math.floor((this.passed_count * 100) / total);
+      
+      if (percentage === 100 && this.passed_count != total) percentage = 99;
 
       this.implementation_percentage = percentage;
 
@@ -1405,7 +1425,7 @@ OpenAjax.a11y.RuleResult.prototype.getMessage = function () {
   else {
     // Page Rule Messaging
     
-    if ((this.passed_count === 0) && (failed_count === 0) && (this.manual_checks_count  >  0)) { 
+    if ((failed_count === 0) && (this.manual_checks_count  >  0)) { 
       this.message = pageMessageFromNLS(rule_id, 'MANUAL_CHECKS');
     }
     
