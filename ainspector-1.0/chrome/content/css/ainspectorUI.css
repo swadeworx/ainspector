@@ -30,7 +30,7 @@
  }
 
 #ainspectorDiv #toolbarDiv {
-    width: 1000px;
+    width: 100%;
     text-align: left;
     margin-top: 5px;
 }
