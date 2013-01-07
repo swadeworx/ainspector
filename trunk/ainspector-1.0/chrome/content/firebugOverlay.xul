@@ -15,7 +15,6 @@
   
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-all-Rules.js"/>
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-WCAG2.0-summary.js"/>
-  <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-xxx.js"/>
   
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-rule-categories.js"/>
   <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-colorContrast.js"/>
@@ -57,7 +56,6 @@
     <command id="ainspector_audio_view_button" oncommand="AINSPECTOR_FB.media.viewPanel(Firebug.currentContext)"/>
     <command id="ainspector_tables_view_button" oncommand="AINSPECTOR_FB.tables.viewPanel(Firebug.currentContext)"/>
     <command id="ainspector_widgets_view_button" oncommand="AINSPECTOR_FB.widgets.viewPanel(Firebug.currentContext)"/>
-    <command id="ainspector_xxx_view_button" oncommand="AINSPECTOR_FB.xxx.viewPanel(Firebug.currentContext)"/>
   </commandset> 
   
   <toolbar id="fbToolbar" align="center"> 
@@ -165,15 +163,6 @@
           
           <toolbarseparator/>
           
-          <toolbarbutton 
-            id="widgets" 
-            label="&ainspector.toolbarbutton.xxx.label;" 
-            class="toolbar-text-button fbInternational" 
-            command="ainspector_xxx_view_button" 
-            type="radio" 
-            group="RadioGroup"/> 
-          
-          <toolbarseparator/>
       </hbox> 
     </hbox>   
   </toolbar> 
