@@ -1,0 +1,173 @@
+<?xml version="1.0"?>
+<!DOCTYPE firebug-a11y SYSTEM "chrome://firebug-a11y/locale/ainspector.dtd">
+
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"> 
+  
+  <stringbundleset id="stringbundleset">
+    <stringbundle id="ainspector_stringbundle" src="chrome://firebug-a11y/locale/ainspector.properties"/>
+    <stringbundle id="ainspector_stringbundle1" src="chrome://firebug-a11y/locale/all-properties.properties"/>
+    <stringbundle id="ID_STRINGBUNDLE_HIGHLIGHT" src="chrome://firebug-a11y-highlighting/locale/highlight.properties"/>
+  </stringbundleset>
+  
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/cache-util.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-list-template.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-tree-template.js"/>
+  
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-all-Rules.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-WCAG2.0-summary.js"/>
+  
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-rule-categories.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-colorContrast.js"/>
+  
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/utilities/logging.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/openajax_a11y/openajax_a11y_all.js"/>
+  
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-preferences.js"/>
+  
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/preferences-config.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/preferences/preferences.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/preferences/preferences-dialog.js"/>
+  
+  
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/rule_properties/rule-properties.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/item_properties/cache-item-properties.js"/>
+  
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/highlighting/highlight.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/util.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/panel-util.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/ainspector-firebug.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/sidePanel-rules.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/sidePanel-rules-results.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/sidePanel-colorContrast.js"/>  
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/sidePanel-elements.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/sidePanel-attributes.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/sidePanel-cache.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/sidePanel-events.js"/>
+  <script type="application/x-javascript" src="chrome://firebug-a11y/content/sidePanel-style.js"/>
+  
+  <commandset id="mainCommandSet"> 
+  	<command id="ainspector_allRules_view_button" oncommand="AINSPECTOR_FB.allRules.viewPanel(Firebug.currentContext)"/>
+  	<command id="ainspector_wcag_view_button" oncommand="AINSPECTOR_FB.WCAGView.viewPanel(Firebug.currentContext)"/>
+    <command id="ainspector_content_view_button" oncommand="AINSPECTOR_FB.content.viewPanel(Firebug.currentContext)"/>
+    <command id="ainspector_headers_view_button" oncommand="AINSPECTOR_FB.headers.viewPanel(Firebug.currentContext)"/>
+    <command id="ainspector_images_view_button" oncommand="AINSPECTOR_FB.images.viewPanel(Firebug.currentContext)"/>
+    <command id="ainspector_controls_view_button" oncommand="AINSPECTOR_FB.controls.viewPanel(Firebug.currentContext)"/>
+    <command id="ainspector_links_view_button" oncommand="AINSPECTOR_FB.links.viewPanel(Firebug.currentContext)"/>
+    <command id="ainspector_audio_view_button" oncommand="AINSPECTOR_FB.media.viewPanel(Firebug.currentContext)"/>
+    <command id="ainspector_tables_view_button" oncommand="AINSPECTOR_FB.tables.viewPanel(Firebug.currentContext)"/>
+    <command id="ainspector_widgets_view_button" oncommand="AINSPECTOR_FB.widgets.viewPanel(Firebug.currentContext)"/>
+  </commandset> 
+  
+  <toolbar id="fbToolbar" align="center"> 
+    <hbox id="fbToolbarInner" insertbefore="fbDetachButton" flex="1" align="center"> 
+      <hbox id="fbFirebugExtensionButtons" insertafter="fbNetButtons"> 
+        <toolbarseparator/>
+        	<toolbarbutton 
+        	  id="allRules" 
+        	  label="&ainspector.toolbarbutton.allRules.label;" 
+        	  class="toolbar-text-button fbInternational" 
+        	  checked="true" 
+        	  command="ainspector_allRules_view_button" 
+        	  type="radio" 
+        	  group="RadioGroup"/>
+        	  
+          <toolbarspacer/>
+        	
+        	<toolbarbutton 
+        	  id="WCAGView" 
+        	  label="&ainspector.toolbarbutton.wcag.label;" 
+        	  class="toolbar-text-button fbInternational" 
+        	  command="ainspector_wcag_view_button" 
+        	  type="radio"
+        	  group="RadioGroup"/>
+          
+          <toolbarseparator/>
+          
+          <toolbarbutton 
+            id="content" 
+            label="&ainspector.toolbarbutton.content.label;" 
+            class="toolbar-text-button fbInternational" 
+            command="ainspector_content_view_button" 
+            type="radio" 
+            group="RadioGroup"/>
+          
+          <toolbarseparator/>
+          
+          <toolbarbutton 
+            id="headers" 
+            label="&ainspector.toolbarbutton.headers.label;" 
+            class="toolbar-text-button fbInternational" 
+            command="ainspector_headers_view_button" 
+            type="radio" 
+            group="RadioGroup"/>
+          
+          <toolbarseparator/>
+          
+          <toolbarbutton 
+            id="images" 
+            label="&ainspector.toolbarbutton.images.label;" 
+            class="toolbar-text-button fbInternational" 
+            command="ainspector_images_view_button" 
+            type="radio" 
+            group="RadioGroup"/>
+          
+          <toolbarseparator/>
+          
+          <toolbarbutton 
+            id="controls" 
+            label="&ainspector.toolbarbutton.controls.label;" 
+            class="toolbar-text-button fbInternational" 
+            command="ainspector_controls_view_button" 
+            type="radio" 
+            group="RadioGroup"/>
+          
+          <toolbarseparator/>
+          
+          <toolbarbutton 
+            id="links" 
+            label="&ainspector.toolbarbutton.links.label;" 
+            class="toolbar-text-button fbInternational" 
+            command="ainspector_links_view_button" 
+            type="radio" 
+            group="RadioGroup"/>
+          
+          <toolbarseparator/>
+          
+          <toolbarbutton 
+            id="media" 
+            label="&ainspector.toolbarbutton.audio.label;" 
+            class="toolbar-text-button fbInternational" 
+            command="ainspector_audio_view_button" 
+            type="radio" 
+            group="RadioGroup"/>
+          
+          <toolbarseparator/>
+          
+          <toolbarbutton 
+            id="tables" 
+            label="&ainspector.toolbarbutton.tables.label;" 
+            class="toolbar-text-button fbInternational" 
+            command="ainspector_tables_view_button" 
+            type="radio" 
+            group="RadioGroup"/>
+          
+          <toolbarseparator/>
+          
+          <toolbarbutton 
+            id="widgets" 
+            label="&ainspector.toolbarbutton.widgets.label;" 
+            class="toolbar-text-button fbInternational" 
+            command="ainspector_widgets_view_button" 
+            type="radio" 
+            group="RadioGroup"/> 
+          
+          <toolbarseparator/>
+          
+      </hbox> 
+    </hbox>   
+  </toolbar> 
+   
+</overlay> 
+
+
+    

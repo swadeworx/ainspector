@@ -1,0 +1,45 @@
+<!-- pref_dialog Dialog -->
+
+<!ENTITY pref_dialog.title  "no title">
+
+<!ENTITY pref_dialog.sectionPageEval  "Page Evaluation Options">
+
+<!ENTITY pref_dialog.rulesetSelect       "Ruleset">
+<!ENTITY pref_dialog.rulesetDescription  "Ruleset Description">
+<!ENTITY pref_dialog.rulesetAuthor       "Ruleset Author">
+<!ENTITY pref_dialog.rulesetRecommended      "Evaluate Recommended Rules">
+
+<!ENTITY pref_dialog.recommendedSelect           "Recommended Rules">
+<!ENTITY pref_dialog.recommendedOption           "Enable recommended rules">
+<!ENTITY pref_dialog.recommendedOptionTooltip    "Recommended will be included in the evaluation and failure of a recommended rule will result in a warning">
+
+<!ENTITY pref_dialog.levelSelect   "WCAG 2.0 Success Criteria Level">
+<!ENTITY pref_dialog.levelAAA        "Level A, AA and AAA rules (highest level of accessibility)">
+<!ENTITY pref_dialog.levelAA         "Level A and AA rules only">
+<!ENTITY pref_dialog.levelA          "Level A rules only (lowest level of accessibility)">
+
+<!ENTITY pref_dialog.otherPageEval       "Other Evaluation Options">
+<!ENTITY pref_dialog.layoutTables             "Assume table markup is used for page layout">
+<!ENTITY pref_dialog.layoutTablesTooltip      "When checked, tables without header markup will assumed to be for page layout">
+<!ENTITY pref_dialog.brokenLinks              "Check for broken links">
+<!ENTITY pref_dialog.brokenLinksTooltip       "Checking for broken links will significantly increase the time to evaluate a document">
+
+<!ENTITY pref_dialog.sectionResultsFilter   "Evaluation Result Filters">
+<!ENTITY pref_dialog.resultsElementManualChecks    "Show Element Level Manual Checks">
+<!ENTITY pref_dialog.resultsPageManualChecks    "Show Page Level Manual Checks">
+<!ENTITY pref_dialog.resultsPass            "Show Pass">
+<!ENTITY pref_dialog.resultsHidden          "Show Hidden">
+
+<!ENTITY pref_dialog.resultsWarnings        "Warnings">
+<!ENTITY pref_dialog.resultsNotApplicable   "Not Applicable">
+
+<!ENTITY pref_dialog.sectionOther            "Menu and Toolbar Options">
+<!ENTITY pref_dialog.accessibilityMenu         "Show 'Accessibility' menu in main menu">
+<!ENTITY pref_dialog.accessibilityMenuTooltip  "If enabled the 'Accessibility' menu will be visible in the main menu">
+<!ENTITY pref_dialog.accessibilityIcon         "Show extension icon in main menu">
+<!ENTITY pref_dialog.accessibilityIconTooltip  "If enabled extension icon will be visible in the main menu">
+
+<!ENTITY pref_dialog.okButton       "OK">
+<!ENTITY pref_dialog.cancelButton   "Cancel">
+<!ENTITY pref_dialog.defaultsButton "Restore Defaults">
+

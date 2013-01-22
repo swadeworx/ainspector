@@ -1,0 +1,22 @@
+content     firebug-a11y                  chrome/content/
+locale      firebug-a11y                  en-US                         chrome/locale/en-US/
+skin        firebug-a11y                  classic/1.0                   skin/classic/
+
+resource    firebug-a11y                  modules/
+resource    firebug-a11y-utilities        chrome/content/utilities/
+resource    firebug-a11y-report           chrome/content/openajax_a11y/reports/ 
+resource    firebug-a11y-openajax         chrome/content/openajax_a11y/
+
+resource    firebug-a11y-preferences      chrome/content/preferences/
+skin        firebug-a11y-preferences      classic/1.0                   chrome/content/preferences/skin/
+locale      firebug-a11y-preferences      en-US                         chrome/content/preferences/locale/en-US/
+
+skin        firebug-a11y-item-properties  classic/1.0                   chrome/content/item_properties/skin/
+locale      firebug-a11y-item-properties  en-US                         chrome/content/item_properties/locale/en-US/
+
+skin        firebug-a11y-rule-properties  classic/1.0                   chrome/content/rule_properties/skin/
+locale      firebug-a11y-rule-properties  en-US                         chrome/content/rule_properties/locale/en-US/
+
+locale      firebug-a11y-highlighting     en-US                          chrome/content/highlighting/locale/en-US/
+
+overlay     chrome://firebug/content/firebugOverlay.xul chrome://firebug-a11y/content/firebugOverlay.xul

@@ -1,0 +1,37 @@
+#ainspector-pref-panel {
+  margin-left: 20px;
+  background-color: #F0F0F0;
+  font-family: Lucida Grande, Tahoma, sans-serif;
+  font-weight: normal;
+  font-size: 8pt;
+  
+}
+
+#ainspector-pref-panel .ai-ruleset-table {
+  pading: 50px;
+  width: 25%;
+  background-color: white;
+  
+}
+
+#ainspector-pref-panel .ai-ruleset{
+  font-weight: bold;
+  margin-top: 20px;
+}
+
+#ainspector-pref-panel textarea {
+  border-color: grey;
+  border-style: solid;
+  border-width: thin;
+  padding: 3px;
+  width: 50%;
+}
+
+#ainspector-pref-panel input{
+  max-width: 400%;
+}
+
+.rulesetSelected {
+  background: #33A1DE;
+  color: #ffffff;
+}
