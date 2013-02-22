@@ -1,0 +1,30 @@
+/* See license.txt for terms of usage */
+
+/*************************************************************************************************/
+
+/* Style applied on the panel node.
+   Rule syntax: .panelNode-<ext-id> */
+.panelNode-ainspector {
+    overflow-x:hidden;
+    color: #808080; /* gray */
+    padding: 10px;
+    font-size: 12px;
+    font-weight: bold;
+    margin: 0;
+    padding:1px 0 0; /* gecko: make room for overflow */
+    -moz-user-select : none;
+     display: -moz-inline-stack;
+    display: inline-block;
+    font-weight: 600; /* semi-bold */
+}
+
+/*************************************************************************************************/
+
+/* Firebug Tracing Console customization. All messages from this example use this color.
+   This helps to distinguish logs from those coming from Firebug
+   Rule syntax: .DBG_<ext-id>
+   See: http://getfirebug.com/wiki/index.php/FBTrace for more details */
+.DBG_AINSPECTOR {
+    color: rgb(101, 0, 114);
+}
+
