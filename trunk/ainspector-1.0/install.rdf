@@ -4,25 +4,24 @@
      xmlns:em="http://www.mozilla.org/2004/em-rdf#">
 
   <Description about="urn:mozilla:install-manifest">
-    <em:id>firebug-a11y@cita.illinois.edu</em:id>
-    <em:version>0.98-alpha</em:version>   
-    <em:type>2</em:type>
-    <em:optionsURL>chrome://firebug-a11y/content/preferences/preferences-dialog.xul </em:optionsURL>
-   
-    <!-- Target Application this extension can install into, 
-         with minimum and maximum supported versions. --> 
+    <em:id>ainspector-fb@cita.illinois.edu</em:id>
+    <em:version>0.9.11</em:version>
+    <em:type>2</em:type>    
+    <em:bootstrap>true</em:bootstrap>
+
+    <!-- Firefox -->
     <em:targetApplication>
       <Description>
         <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
-        <em:minVersion>3.5</em:minVersion>
-        <em:maxVersion>20.*</em:maxVersion>
+        <em:minVersion>4.0</em:minVersion>
+        <em:maxVersion>20.0.*</em:maxVersion>
       </Description>
     </em:targetApplication>
-   
-    <!-- Front End MetaData -->
-    <em:name>a11y-fiebug-</em:name>
-    <em:description>Firebug extension</em:description>
-    <em:creator>PRASANNA BALE</em:creator>
-    <em:homepageURL>http://illinois.edu/</em:homepageURL>
-  </Description>      
+
+    <em:name>Accessibility Inspector For Firebug</em:name>
+    <em:description>AInspector - Firebugs Extension</em:description>
+    <em:creator>Prasanna Bale</em:creator>
+    <em:homepageURL>http://illinois.edu</em:homepageURL>
+  </Description>
+
 </RDF>

@@ -1,56 +1,81 @@
-/* See license.txt for terms of usage */
+/*
+ * Copyright 2011 University Of Illinois
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
+ * @file main.js
+ * 
+ * Automatically loaded by the registration process of the extension.
+ */
 
 define([
-    "firebug/lib/trace",
-    "firebug-a11y/AInspector",
-    "firebug-a11y/rulesResultsSidePanel",
-    "firebug-a11y/rulesSidePanel",
-    "firebug-a11y/attributesSidePanel",
-    "firebug-a11y/elementsSidePanel",
-    "firebug-a11y/propertiesSidePanel",
-    "firebug-a11y/styleSidePanel",
-    "firebug-a11y/eventsSidePanel"
-],
-function(FBTrace, AInspectorPanel, attributesSidePanel, cacheSidePanel,
-    elementsSidePanel, eventsSidePanel, rulesSidePanel, rulesResultsSidePanel, styleSidePanel) {
+  "firebug/lib/trace",
+  "ainspector/ainspectorModule",
+  "ainspector/ainspectorListener",
+  "ainspector/ainspectorPanel",
+  "ainspector/elementsSidePanel",
+  "ainspector/ruleInfoSidePanel",
+  "ainspector/ruleResultsSidePanel",
+  "ainspector/attributesSidePanel",
+  "ainspector/propertiesSidePanel",
+  "ainspector/styleSidePanel",
+  "ainspector/eventsSidePanel"
+  ],
+  function(FBTrace, AinspectorModule, AinspectorListener, AinspectorPanel,
+      ElementsSidePanel, RuleInfoSidePanel, RuleResultsSidePanel,
+      AttributesSidePanel, PropertiesSidePanel, StyleSidePanel, EventsSidePanel ) {
 
-// ********************************************************************************************* //
-// The application object
+    var theApp = {
+  
+      initialize: function() {
+        if (FBTrace.DBG_AINSPECTOR)
+            FBTrace.sysout("AInspector; ainspector extension initialize:");
+        Firebug.registerStringBundle("chrome://ainspector/locale/ainspector.properties");
+            // TODO: Extension initialization
+      },
+    
+      /**
+       * @function shutdown
+       * 
+       * @desc Unregister all registered Firebug components 
+       */
+      shutdown: function() {
+            
+        if (FBTrace.DBG_AINSPECTOR)
+          FBTrace.sysout("AInspector; ainspector extension shutdown");
+            
+        Firebug.unregisterPanel(Firebug.AinspectorPanel);        
+        Firebug.unregisterActivableModule(Firebug.AinspectorModule); 
+        Firebug.unregisterUIListener(AinspectorListener);
+        
+        Firebug.unregisterPanel(Firebug.ElementsSidePanel);
+        Firebug.unregisterPanel(Firebug.RuleInfoSidePanel);
+        Firebug.unregisterPanel(Firebug.RuleResultsSidePanel);
+        Firebug.unregisterPanel(Firebug.AttributesSidePanel);
+        Firebug.unregisterPanel(Firebug.PropertiesSidePanel);
+        Firebug.unregisterPanel(Firebug.StyleSidePanel);
+        Firebug.unregisterPanel(Firebug.EventsSidePanel);
 
-var theApp =
-{
-    initialize: function()
-    {
-        Firebug.registerPanel(AInspectorPanel);
-        Firebug.registerPanel(attributesSidePanel);
-        Firebug.registerPanel(cacheSidePanel);
-        Firebug.registerPanel(elementsSidePanel);
-        Firebug.registerPanel(eventsSidePanel);
-        Firebug.registerPanel(rulesSidePanel);
-        Firebug.registerPanel(rulesResultsSidePanel);
-        Firebug.registerPanel(styleSidePanel);
 
-    },
-
-    shutdown: function()
-    {
-        FBTrace.sysout("sidePanel; shutdown");
-
-        Firebug.unregisterPanel(AInspectorPanel);
-        Firebug.unregisterPanel(attributesSidePanel);
-        Firebug.unregisterPanel(cacheSidePanel);
-        Firebug.unregisterPanel(elementsSidePanel);
-        Firebug.unregisterPanel(eventsSidePanel);
-        Firebug.unregisterPanel(rulesSidePanel);
-        Firebug.unregisterPanel(rulesResultsSidePanel);
-        Firebug.unregisterPanel(styleSidePanel);
-
+        Firebug.unregisterStylesheet("chrome://fireaccess/skin/fireaccess.css");
+        Firebug.unregisterStringBundle("chrome://fireaccess/locale/fireaccess.properties");
+        
+        Firebug.unregisterStylesheet("chrome://ainspector/skin/ainspector.css"); 
+        Firebug.unregisterStylesheet("chrome://ainspector/skin/ainspector-list-template.css");
+        Firebug.unregisterStringBundle("chrome://ainspector/locale/ainspector.properties");
+      }
     }
-}
-
-// ********************************************************************************************* //
-
-return theApp;
-
-// ********************************************************************************************* //
-});
+    return theApp;
+  }
+);

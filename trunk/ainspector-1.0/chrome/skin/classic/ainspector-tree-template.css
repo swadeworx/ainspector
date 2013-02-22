@@ -1,0 +1,32 @@
+.domTable{
+	width:100%;
+}
+
+.domTable tr:nth-child(even) {
+    background-color:#EFEFEF;
+}
+
+.treeRow .memberLabelCell {
+  text-align:left;
+}
+
+.treeRow.hasChildren .treeLabel {
+    background-image:url(chrome://firebug/skin/win/twistyClosed.png);
+    background-repeat:no-repeat;
+    background-position:2px 2px;
+}
+
+.treeRow.hasChildren.opened .treeLabel {
+    background-image: url(chrome://firebug/skin/win/twistyOpen.png);
+    background-repeat:no-repeat;
+}
+
+.treeRow .treeLabel {
+    padding-left: 18px;
+    padding-right: 10px;
+}
+
+.treeRow .treeLabel td {
+  padding:25px 50px; 
+  background-color: #121212;
+}
