@@ -173,32 +173,54 @@ define([
         
         var selected_row = AinspectorUtil.selected_row;
         var rows = null;
-        rows = panel.children[1].children[1].children;
+
+        var table = Dom.getChildByClass(panel, "domTable");
+        if (!table) table = Dom.getChildByClass(panel, "ai-table-list-items");
+        
+        FBTrace.sysout("AInspector; AinspectorUtil.selectRow.table: ", table);
+        FBTrace.sysout("AInspector; AinspectorUtil.selectRow: ", AinspectorUtil.selected_row);
+        
+        rows = table.children[1].children;
+          
+        /*if (is_a_tree) rows = panel.children[3].children[1].children;
+        else rows = panel.children[1].children[1].children;*/
         
         var row = null;
         var i = 0;
         
         for (i; i < rows.length; i++) {
           row = rows[i];
-          
-          if (is_a_tree == true) {
-            if (row.repObject.children) {
-              var children = row.repObject.children;
-              
-              for (var j=0; j<children.length; j++) {
-                var child = children[j];
+          FBTrace.sysout("row: ", row);
 
-                if (child.cache_item.toString() == selected_row.repObject.cache_item.toString() &&
-                  child.cache_item.document_order == selected_row.repObject.cache_item.document_order) {
-                  var new_table = Firebug.AinspectorModule.AinspectorTreeTemplate.openRow(row);
-                  j = j+1;
-                  var k = i+j;
-                  this.highlight(new_table.children[1].children[1].children[i+j]);
-                  return k;
-                  break;
+          if (is_a_tree == true) {
+            var children;
+            var obj = row.repObject;
+            
+            if (obj.children) {
+              children = obj.children;
+              if (children) {
+                for (var j=0; j<children.length; j++) {
+                  var child = children[j];
+                  
+                  if (child.cache_item && child.cache_item.toString() == selected_row.repObject.cache_item.toString() &&
+                    child.cache_item.document_order == selected_row.repObject.cache_item.document_order) {
+                    
+                    var new_table = Firebug.AinspectorModule.AinspectorTreeTemplate.openRow(row);
+                    j = j+1;
+                    var k = i+j;
+                    this.highlight(new_table.children[3].children[1].children[i+j]);
+                    return k;
+                  }
                 }
               }
-            }
+            } else {
+              if (row.repObject.rule_result && row.repObject.rule_result.cache_id == selected_row.repObject.rule_result.cache_id){
+                this.highlight(row);
+                break;
+              }
+            } 
+            FBTrace.sysout("children: ", children);
+            
           } else { //flat list
             var citem = null;
             var sitem = null;

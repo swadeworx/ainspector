@@ -23,6 +23,8 @@ define([
         tag:
           DIV({class:"main-panel"},
             SPAN({}, "$view"), 
+            BUTTON({onclick: "$expandAll", style: "float:right;", _repObject: "$results"}, "Expand All"),
+            BUTTON({onclick: "$collapseAllRows", style: "float:right;", _repObject: "$results"}, "Collapse All"),
             TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, hiddenCols: "", onclick:"$toggleRows"},
               THEAD(
                 TR({class: "gridHeaderRow firstRow gridRow", "aria-selected" : "false", tabindex: "-1"},
@@ -133,11 +135,12 @@ define([
             
             if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; AinspectorTreeTemplate.viewTag(cache_results): ", cache_results);
               
-            if (cache_results.cache_item_results.length > 0) 
+            if (cache_results.cache_item_results.length > 0) { 
               panel.table = this.tag.replace({results: cache_item_results, view:view}, panel.panelNode);
-            else 
+              this.expandAllRows(panel.table);
+            } else {
               panel.table = AinspectorUtil.noDataView.tag.replace({view:view}, panel.panelNode);
-                
+            }  
             AinspectorUtil.contextMenu.setTableMenuItems(panel.table);
             
             var side_panel = Firebug.chrome.getSelectedSidePanel();
@@ -307,6 +310,47 @@ define([
           toHTMLPanel : function(event) {
             
             AinspectorUtil.toHTMLPanel(event);
+          },
+          
+          expandAll : function(event) {
+            this.expandAllRows(event.target);
+          },
+          
+          expandAllRows : function(panel){
+            
+            var main_panel = Dom.getAncestorByClass(panel, 'main-panel');
+            var table = Dom.getChildByClass(main_panel, 'domTable');
+
+            var rows = table.rows;
+            var length = table.rows.length;
+            
+            for (var i = 0; i < length; i++) {
+              var row = rows[i];
+
+              if (Css.hasClass(row, "hasChildren")) this.openRow(row);
+              
+              if (row.repObject) {
+                var object = row.repObject;
+                
+                if (object.filtered_rule_results) length += object.filtered_rule_results.length;
+                
+                if (object.filtered_rule_results_groups) length += object.filtered_rule_results_groups.length;
+              }
+            }
+          },
+          
+          collapseAllRows : function (event) {
+            
+            var main_panel = Dom.getAncestorByClass(event.target, 'main-panel');
+            var table = Dom.getChildByClass(main_panel, 'domTable');
+
+            var rows = table.rows;
+            var length = table.rows.length;
+            
+            for (var i = 0; i < length; i++) {
+              var row = rows[i];
+              if (Css.hasClass(row, "opened")) this.closeRow(row);
+            }
           }
       });
     }

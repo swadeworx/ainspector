@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define([], function() {
+define(["firebug/lib/trace"], function(FBTrace) {
 /*
  * Copyright 2011 OpenAjax Alliance
  *
@@ -1884,6 +1884,8 @@ OpenAjax.a11y.util.initStringUsingURL = function(url) {
   var xmlhttp = new XMLHttpRequest();
 
 //  OpenAjax.a11y.logger.debug( "REQUESTING URL: " + url);
+  FBTrace.sysout("url: ", url);
+  FBTrace.sysout("xmlhttp: ", xmlhttp);
 
   xmlhttp.open("GET", url, false);
   xmlhttp.send(null); 
@@ -1891,7 +1893,8 @@ OpenAjax.a11y.util.initStringUsingURL = function(url) {
   var str = xmlhttp.responseText;
   
 //  OpenAjax.a11y.logger.debug( "TEXT: " + str);
-  
+  FBTrace.sysout("TEXT: " , str);
+
   return str;
   
 };
