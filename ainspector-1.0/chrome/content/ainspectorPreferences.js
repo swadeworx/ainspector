@@ -147,7 +147,6 @@ define(
         var p  = this.preferences;
         var ps = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);            
          
-        if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; AinspectorPreferences.getPreferences-PN: " + PN);                             
         try {
         
           p.ruleset_id   = ps.getCharPref(PN + 'ruleset_id');

@@ -55,7 +55,6 @@ Firebug.ElementsSidePanel.prototype = Obj.extend(Firebug.Panel, {
 
   show: function(state) {
     Firebug.Panel.show.apply(this, arguments);
-    FBTrace.sysout("AInspector; ElementsSidePanel.show");
     if (FBTrace.DBG_AINSPECTOR)
         FBTrace.sysout("AInspector; ElementsSidePanel.show");
   },

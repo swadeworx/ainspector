@@ -13,8 +13,6 @@
     margin: 0;
     padding:1px 0 0; /* gecko: make room for overflow */
     -moz-user-select : none;
-     display: -moz-inline-stack;
-    display: inline-block;
     font-weight: 600; /* semi-bold */
 }
 
