@@ -7,8 +7,4 @@ resource ainspector-openajax         chrome/content/openajax_a11y/
 
 resource    ainspector-utilities        chrome/content/utilities/
 
-resource    ainspector-preferences      chrome/content/preferences/
-skin        ainspector-preferences      classic/1.0                   chrome/content/preferences/skin/
-locale      ainspector-preferences      en-US                         chrome/content/preferences/locale/en-US/
-
 #overlay chrome://firebug/content/firebugOverlay.xul         chrome://ainspector/content/firebugOverlay.xul

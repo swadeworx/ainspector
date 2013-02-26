@@ -178,6 +178,12 @@ define([
             label      : "ainspector.menu.filters",
             tooltiptext: "ainspector.menu.filters.tooltip",
             items      : this.getFiltersMenu()
+          },
+          {
+            type       : "menu",
+            id         : "reports",
+            label      : "ainspector.menu.reports",
+            items      : this.getReportsMenu()
           }
         );
         
@@ -447,6 +453,38 @@ define([
         return items;
       },
       
+     /**
+      * @function getReportsMenu
+      * 
+      * @desc Add menu items for Reports menu
+      */
+     getReportsMenu : function() {
+       
+       var items = [];
+       items.push({
+           id     : "wcag",
+           label  : "ainspector.menu.reports.wcag",
+           type   : "radio",
+           command: function() {
+               var id = this.getAttribute("id");
+               Firebug.AinspectorPanel.prototype.showReport(id);
+           }
+             //Obj.bindFixed(this.getEMCFilter, this)
+         },
+         {
+           id     : "category",
+           label  : "ainspector.menu.reports.category",
+           type   : "radio",
+           command:function() {
+              var id = this.getAttribute("id");
+              Firebug.AinspectorPanel.prototype.showReport(id);
+           }  
+         }
+       );
+       
+       return items;
+     },
+      
       refresh : function() {
         ruleset_object = Firebug.AinspectorModule.getRuleResultsObject();
       },
@@ -669,30 +707,22 @@ define([
 
             if (pref_filter) p.show_results_element_manual_checks = true;
             else p.show_results_element_manual_checks = false;
-//            if (filter.selected) p.show_results_element_manual_checks = true;
-//            else p.show_results_element_manual_checks = false;
           }
           if (filter.id == "pmc") {
             pref_filter =  AinspectorUtil.is_pmc;
 
-//            if (filter.selected) p.show_results_page_manual_checks = true;
-//            else  p.show_results_page_manual_checks = false;
             if (pref_filter) p.show_results_page_manual_checks = true;
             else  p.show_results_page_manual_checks = false;
           }
           if (filter.id == "pass") {
             pref_filter =  AinspectorUtil.is_pass;
 
-//            if (filter.selected) p.show_results_pass = true;
-//            else p.show_results_pass = false;
             if (pref_filter) p.show_results_pass = true;
             else p.show_results_pass = false;
           } 
           if (filter.id == "hidden") {
             pref_filter =  AinspectorUtil.is_hidden;
 
-//            if (filter.selected) p.show_results_hidden = true;
-//            else p.show_results_hidden = false;
             if (pref_filter) p.show_results_hidden = true;
             else p.show_results_hidden = false;
           }
@@ -827,6 +857,72 @@ define([
         
         if (view == already_selected_view) return true;
         else return false;
+      },
+      
+      /**
+       * @function showReport
+       * 
+       * @desc writes HTML and CSV report to a file and saves it locally on the disk
+       * 
+       *  @param {String}id - type of report
+       */
+      showReport : function(id) {
+        
+        Components.utils.import("resource://gre/modules/FileUtils.jsm");
+        var rule_category;
+        var name;
+        var preferences = AinspectorPreferences.getPreferences();
+        
+        if (id == "wcag") {
+          rule_category = OpenAjax.a11y.RULE_SUMMARY.WCAG20;
+          name = "WCAG 2.0"; 
+        } else {
+          rule_category = OpenAjax.a11y.RULE_SUMMARY.CATEGORIES;
+          name = "All Rules"; 
+        }
+        
+        var rule_summary = ruleset_object.getFilteredRuleResultsByRuleSummary(rule_category, name, 
+                          preferences.wcag20_level, preferences.show_results_filter_value);
+        
+        OpenAjax.a11y.report_css   = OpenAjax.a11y.util.initStringUsingURL("chrome://ainspector/content/openajax_a11y/reports/oaa_report.css");
+        OpenAjax.a11y.report_rule_summary_view_js   = OpenAjax.a11y.util.initStringUsingURL("chrome://ainspector/content/openajax_a11y/reports/oaa_report_rule_summary_view.js");
+        OpenAjax.a11y.report_rule_summary_view_body = OpenAjax.a11y.util.initStringUsingURL("chrome://ainspector/content/openajax_a11y/reports/oaa_report_rule_summary_view.inc");
+        
+        if (!rule_summary) return;
+
+        var dir = FileUtils.getDir('TmpD', [], true, true);
+
+        var file = FileUtils.getFile('TmpD', ['ai_report_rule_summary.html']);
+        
+        var fileStream = FileUtils.openSafeFileOutputStream(file, 0x02 | 0x08 | 0x20, 0644, 0);  
+        
+        var html = rule_summary.toHTML(name);
+        
+        FBTrace.sysout("html: ", html);
+        fileStream.write(html, html.length);
+        
+        FileUtils.closeSafeFileOutputStream(fileStream);
+          
+        /*var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+          .getInterface(Components.interfaces.nsIWebNavigation)
+          .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+          .rootTreeItem
+          .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+          .getInterface(Components.interfaces.nsIDOMWindow);
+          
+        mainWindow.gBrowser.addTab(file.path);*/
+        
+        window.open("file:\\"+file.path,'mywindow','');
+
+        file = FileUtils.getFile('TmpD', ['report_rule_summary.csv']);
+        
+        fileStream = FileUtils.openSafeFileOutputStream(file, 0x02 | 0x08 | 0x20, 0644, 0);  
+        
+        var csv = rule_summary.toCSV(name);
+        
+        fileStream.write(csv, csv.length);
+        
+        FileUtils.closeSafeFileOutputStream(fileStream);
       }
   });
   

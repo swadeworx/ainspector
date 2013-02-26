@@ -126,63 +126,27 @@ define([
                var preferences = AinspectorPreferences.getPreferences();
                var panel = Firebug.currentContext.getPanel("ainspector", true);
             
-               var filtered_wcag_results = rule_results.getFilteredRuleResultsByRuleSummary(rule_category, 
+               var filtered_results = rule_results.getFilteredRuleResultsByRuleSummary(rule_category, 
                     name, preferences.wcag20_level, preferences.show_results_filter_value);
-                
-               var wcag_rule_results = filtered_wcag_results.filtered_rule_results_groups;
-               
-               if (panel)
-                 Dom.clearNode(panel.panelNode);
-               
-               panel.panelNode.id = "ainspector-panel";
-               
-               if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("filtered_wcag_results: ", filtered_wcag_results);
-               panel.table = this.tag.replace({results: wcag_rule_results, view:view}, panel.panelNode);
-               
-               this.expandAllRows(panel.table);
-               
-               AinspectorUtil.contextMenu.setTableMenuItems(panel.table);
-               
-               var side_panel = Firebug.chrome.getSelectedSidePanel();
-               
-               AinspectorUtil.selectRow(panel.table, false, id);
-               
-               if (side_panel){
-                
-                 if (AinspectorUtil.selected_row != null) side_panel.updateSelection(AinspectorUtil.selected_row.repObject, side_panel.panelNode);
-                 else side_panel.getPanelViewMesg(side_panel.panelNode, "");
-               } else {
-                 side_panel = Firebug.currentContext.getPanel('elements');
-                 side_panel.getPanelViewMesg(side_panel.panelNode, "");
-               }
-             },
-             
-             viewCategories : function(rule_results, rule_category, view, id) {
-               SidePanelUtil.addAndRemoveSidePanels(false);
+               if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; filtered_results: ", filtered_results);
 
-               var preferences = AinspectorPreferences.getPreferences();
-               var panel = Firebug.currentContext.getPanel("ainspector", true);
-               if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("preferencess: ", preferences);
-            
+               var filtered_rule_results_groups = filtered_results.filtered_rule_results_groups;
+               
                if (panel)
                  Dom.clearNode(panel.panelNode);
                
                panel.panelNode.id = "ainspector-panel";
                
-               var filtered_wcag_results = rule_results.getFilteredRuleResultsByRuleSummary(rule_category, 
-                    "summary", preferences.wcag20_level, preferences.show_results_filter_value);
-                
-               var wcag_rule_results = filtered_wcag_results.filtered_rule_results_groups;
-                
-               panel.table = this.tag.replace({results: wcag_rule_results, view:view}, panel.panelNode);
+               if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; filtered_rule_results_groups: ", filtered_rule_results_groups);
+               
+               panel.table = this.tag.replace({results: filtered_rule_results_groups, view:view}, panel.panelNode);
                
                this.expandAllRows(panel.table);
-               
+               AinspectorUtil.selectRow(panel.table, true, id);
+
                AinspectorUtil.contextMenu.setTableMenuItems(panel.table);
                
                var side_panel = Firebug.chrome.getSelectedSidePanel();
-               
-               AinspectorUtil.selectRow(panel.table, false, id);
                
                if (side_panel){
                 
@@ -225,7 +189,6 @@ define([
               var rule_description = '';
               var manual_check_count = 0;
               
-              FBTrace.sysout ("rule_result_groups: ", rule_result_groups);
               if (rule_result_groups.rule_result){
 
                 var rule_result           = rule_result_groups.rule_result;
@@ -357,8 +320,12 @@ define([
                 var repObject = row.newObject;
               
                 if (repObject) {
-                  var members = this.getMembers(repObject.filtered_results, level+1);
-              
+                  var members;
+                  
+                  if (repObject.filtered_results)
+                    members = this.getMembers(repObject.filtered_results, level+1);
+                  else
+                    members = this.getMembers(repObject.filtered_rule_results, level+1);
                   if (members) this.loop.insertRows({members: members}, row);
                 }
     //            return panel.table;
