@@ -22,7 +22,8 @@ define([
       
         tag:
          DIV({class:"main-panel"},
-          SPAN({}, "$view"), 
+          SPAN({}, "$view"),
+          BUTTON({onclick: "$showCategoryReport", style: "float:right;", _repObject: "$rule_results"}, Locale.$STR("ainspector.button.categoryReport")),
           TABLE({class: "ai-table-list-items", id: "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: ""},
              THEAD({},
                TR({class: "gridHeaderRow firstRow gridRow", onclick:"$sortColumn"},
@@ -118,12 +119,10 @@ define([
                  "All Rules", preferences.wcag20_level, preferences.show_results_filter_value);
              
              cache_results.sortRuleResultsByImplementationLevel();
-             /*var toolbar = panel.document.createElement("div");
-             toolbar.id = "toolbarDiv";*/
-             
+            
              var all_rule_results = cache_results.filtered_rule_results;
              
-             panel.table = this.tag.replace({results: all_rule_results, view:view}, panel.panelNode);
+             panel.table = this.tag.replace({results: all_rule_results, view:view, rule_results: rule_results}, panel.panelNode);
              AinspectorUtil.contextMenu.setTableMenuItems(panel.table);
              
              var side_panel = Firebug.chrome.getSelectedSidePanel();
@@ -131,10 +130,7 @@ define([
              AinspectorUtil.selectRow(panel.table, false, id);
              if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; panel.panelNode ***************: ", toolbar);
              
-             /*panel.panelNode.appendChild(toolbar);
-             var element = panel.document.createElement("div");
-             element.style.display="block";
-             panel.panelNode.appendChild(element);*/
+             
              if (side_panel){
               
                if (AinspectorUtil.selected_row != null) side_panel.updateSelection(AinspectorUtil.selected_row.repObject, side_panel.panelNode);
@@ -151,14 +147,14 @@ define([
             * 
             * @desc returns the summary object to display on the summary panel
             * 
-            * @param {Object} summary_object from the cache
+            * @param {Object} rule_results from the cache
             * 
             * @return {Summary Object}
             */
-           getMembers : function(elements){
+           getMembers : function(rule_results){
            
              var members = [];
-             for (var p in elements) members.push(this.createMembers(p, elements[p]));
+             for (var p in rule_results) members.push(this.createMembers(p, rule_results[p]));
   
              return members;
              
@@ -247,6 +243,55 @@ define([
              if (FBTrace.DBG_AINSPECTOR)
                FBTrace.sysout("AInspector; Firebug.AinspectorModule.AinspectorRulesTemplate.sortColumn", AinspectorUtil);  
              AinspectorUtil.sortColumn(table, column);
+           },
+           
+           showCategoryReport : function(event){
+             
+             Components.utils.import("resource://gre/modules/FileUtils.jsm");
+             var rule_results = Firebug.getRepObject(event.target);
+             var preferences = AinspectorPreferences.getPreferences();
+
+             var rule_summary  = rule_results.getFilteredRuleResultsByRuleSummary(OpenAjax.a11y.RULE_SUMMARY.CATEGORIES, 
+                 "All Rules", preferences.wcag20_level, preferences.show_results_filter_value);
+             FBTrace.sysout("rule_summary: ", rule_summary);
+             
+             if (!rule_summary) return;
+
+             var dir = FileUtils.getDir('TmpD', [], true, true);
+
+             var file = FileUtils.getFile('TmpD', ['report_rule_summary.html']);
+             
+             var fileStream = FileUtils.openSafeFileOutputStream(file, 0x02 | 0x08 | 0x20, 0644, 0);  
+             
+             var html = rule_summary.toHTML("All Rules");
+             
+             FBTrace.sysout("rule_summary: ", rule_summary);
+             fileStream.write(html, html.length);
+             
+             FileUtils.closeSafeFileOutputStream(fileStream);
+               
+             FBTrace.sysout("Report Rule Summary URL: " + file.path);
+            
+             /*var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+               .getInterface(Components.interfaces.nsIWebNavigation)
+               .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
+               .rootTreeItem
+               .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
+               .getInterface(Components.interfaces.nsIDOMWindow);
+               
+             mainWindow.gBrowser.addTab(file.path);*/
+             
+             window.open("file:\\"+file.path,'mywindow','');
+
+             file = FileUtils.getFile('TmpD', ['report_rule_summary.csv']);
+             
+             fileStream = FileUtils.openSafeFileOutputStream(file, 0x02 | 0x08 | 0x20, 0644, 0);  
+             
+             var csv = rule_summary.toCSV("All Rules");
+             
+             fileStream.write(csv, csv.length);
+             
+             FileUtils.closeSafeFileOutputStream(fileStream);
            }
            
       });

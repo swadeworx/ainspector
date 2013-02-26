@@ -104,25 +104,14 @@ define([
       showPanel : function(browser, panel){
         
         if (FBTrace.DBG_AINSPECTOR)
-          FBTrace.sysout("AInspector; ainspectorModule.showPanel", panel);
+          FBTrace.sysout("AInspector; ainspectorModule.showPanel", Firebug.currentContext.getPanel("ainspector"));
         var is_my_extension = panel && panel.name =="ainspector";
         var my_extension_toolbar_buttons = Firebug.chrome.$("fbPanelToolbar");
-
+        
         if (is_my_extension) this.updateSelection();
         
         else OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight();
-  //      this.getRuleResultsObject();
-        
-//        var menu_popup = Firebug.chrome.$("fbPanelToolbar");
-//        FBTrace.sysout("menu_item " + i + ": ", menu_items[i]);
-//        var menu_items = menu_popup.children;
-        
-//        for (var i=0; i<menu_items.length; i++) FBTrace.sysout("menu_item " + i + ": ", menu_items[i]);
-//        FBTrace.sysout("AInspector; ainspectorModule.showPanelthis.toolbar_buttons", menu_popup);
-//        if (is_my_extension)
-//        Firebug.AinspectorModule.AinspectorRulesTemplate.viewTag(this.getRuleResultsObject(), panel.panelNode, 
-//            OpenAjax.a11y.RULE_CATEGORIES.ALL, Locale.$STR("ainspector.views.rules"));
-        
+          
         /* call FBL namespace function to hide the toolbar buttons if the selected panel is not my extensions panel*/
         Dom.collapse(my_extension_toolbar_buttons, !is_my_extension);
       },
