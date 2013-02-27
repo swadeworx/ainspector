@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 University Of Illinois
+ * Copyright 2013 University Of Illinois
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,13 +25,14 @@ define([
     "firebug/lib/lib",
     "firebug/lib/trace",
     "firebug/lib/locale",
+    "ainspector/ainspectorWatcher",
     "ainspector/openajax_a11y/oaa_a11y_amd",
     "ainspector/ainspectorUtil",
     "ainspector/ainspectorPreferences",
     "ainspector/highlighting/highlight"
   ],
   
-  function(FBL, FBTrace, Locale, OpenAjax, AinspectorUtil, AinspectorPreferences, OAA_WEB_ACCESSIBILITY) {
+  function(FBL, FBTrace, Locale, AinspectorWatcher, OpenAjax, AinspectorUtil, AinspectorPreferences, OAA_WEB_ACCESSIBILITY) {
   
     var panelName = "ainspector";
   
@@ -116,6 +117,84 @@ define([
         Dom.collapse(my_extension_toolbar_buttons, !is_my_extension);
       },
       
+      /**
+       * @method watchWindow
+       * 
+       * @desc Called by Firebug when attaching to a window (top-level or frame).
+       * 
+       * @param {Object} context - object used to store the data associated with the web page
+       *                           Every page with enabled Firebug has it's own instance of context object
+       */
+      watchWindow : function(context){
+        context.window.addEventListener("load", this.ainspectorOnLoad, false);
+        context.window.addEventListener("beforeunload", this.ainspectorOnUnLoad, false);
+      },
+      
+      /**
+       * @method unWatchWindow
+       * 
+       * @desc Called by Firebug when detaching to a window (top-level or frame).
+       */
+      unWatchWindow : function(context){
+        context.window.removeEventListener("load", this.ainspectorOnLoad, false);
+        context.window.removeEventListener("beforeunload", this.ainspectorOnUnLoad, false);
+      },
+      
+      /**
+       * @method ainspectorOnLoad
+       * 
+       * @desc gets the firebug context, maintains the state to select 
+       * the toolbarbutton that has been selected earlier when the new web page is loaded 
+       * 
+       * @param {Event} event
+       */
+      ainspectorOnLoad : function(event) {
+        
+        var win = event.currentTarget;
+        var firebug_context;
+        
+        if (win != Firebug.currentContext.window) {
+          firebug_context = TabWatcher.getContextByWindow(win);
+        } else {
+          firebug_context = Firebug.currentContext;  
+        }
+        
+        if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; Firebug.AinspectorModule.ainspectorOnLoad");
+        var ruleset_obj = AinspectorWatcher.onLoad();
+        
+        Firebug.AinspectorModule.updateSelection();
+        /*var toolbar_buttons = firebug_context.chrome.$("fbFirebugExtensionButtons").children;
+        
+        var toolbar_button_id = Firebug.ainspectorModule.getToolbarButtonSelected(toolbar_buttons, firebug_context);
+        window.AINSPECTOR_FB[toolbar_button_id].viewPanel(Firebug.currentContext, panel_name, cache_object);*/
+      },
+      
+      /**
+       * @method ainspectorOnUnLoad
+       * 
+       * @desc
+       * 
+       * @param {Event} event
+       */
+      ainspectorOnUnLoad : function(event) {
+
+        var win = event.currentTarget;
+        var fbcontext;
+            
+        if (win !== Firebug.currentContext.window) {
+          fbcontext = TabWatcher.getContextByWindow(win);
+        } else {
+          fbcontext = Firebug.currentContext;
+        }
+          
+        if (fbcontext !== Firebug.currentContext) {
+          return;
+        }
+//        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight();
+
+        AinspectorWatcher.onUnload();
+      },
+      
       updateSelection : function() {
         
         var menu_items = Firebug.chrome.$("fbPanelToolbar").children[0].children[0].children;
@@ -130,61 +209,13 @@ define([
             if (menu_items[i].id == already_selected_view) Firebug.AinspectorPanel.prototype[already_selected_view]();
           }
         } else {
-          Firebug.AinspectorModule.AinspectorRulesTemplate.viewTag(this.getRuleResultsObject(), 
+          var rule_obj = AinspectorWatcher.getRuleResultsObject();
+          Firebug.AinspectorModule.AinspectorRulesTemplate.viewTag(rule_obj, 
             OpenAjax.a11y.RULE_CATEGORIES.ALL, Locale.$STR("ainspector.views.rules"));
         }
-      },
-      
-      /**
-       * @function getRuleResultsObject
-       * 
-       * @desc Gets the prefrences from preferences module
-       *       Evaluates OAA cache library
-       *       Gets the rule results from the OAA cache library
-       */
-      getRuleResultsObject : function(){
-            
-        var doc;
-        var url;
-        var ruleset_object;
-       
-        try { 
-          doc = window.content.document;
-          url = window.content.location.href;
-        } catch(e) {
-          doc  = window.opener.parent.content.document;
-          url = window.opener.parent.location.href;
-        }  // end try
-        
-  //      Components.utils["import"]("chrome://ainspector/content/preferences/preferences-config.js");
-  //      Components.utils["import"]("chrome://ainspector/content/preferences/preferences.js");
-        var preferences = AinspectorPreferences.getPreferences();
-        
-        if (FBTrace.DBG_AINSPECTOR){
-          FBTrace.sysout("AInspector; ainspectorModule.getRuleResultsObject.preferences: ", preferences);
-          FBTrace.sysout("OAA_WEB_ACCESSIBILITY: ", OAA_WEB_ACCESSIBILITY);
-        }
-        
-        OAA_WEB_ACCESSIBILITY.util.highlightModule.initHighlight(window.content.document, 
-            preferences.show_results_element_manual_checks,
-            preferences.show_results_page_manual_checks, 
-            preferences.show_results_pass,
-            preferences.show_results_hidden);
-        var ruleset = OpenAjax.a11y.all_rulesets.getRuleset(preferences.ruleset_id);
-  
-        if (ruleset) {
-          ruleset.setEvaluationLevel(preferences.wcag20_level);
-          ruleset.setRecommendedRulesEnabled(preferences.wcag20_recommended_rules_enabled);
-          ruleset.setBrokenLinkTesting(preferences.broken_links);
-          ruleset_object = ruleset.evaluate(url, doc.title, doc, null, true);
-        } 
-        
-        if (FBTrace.DBG_AINSPECTOR)
-          FBTrace.sysout("AInspector; ainspectorModule.getRuleResultsObject: ", ruleset_object);
-        
-        return ruleset_object;
-  
       }
+      
+      
   });
   
   // ********************************************************************************************* //

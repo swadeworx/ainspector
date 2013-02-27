@@ -1,5 +1,18 @@
-/* See license.txt for terms of usage */
-
+/**
+ * Copyright 2013 University Of Illinois
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 define([
   "firebug/lib/object",
   "firebug/lib/lib",
@@ -10,6 +23,7 @@ define([
   "ainspector/headerResizer",
   "ainspector/highlighting/highlight",
   "ainspector/ainspectorUtil",
+  "ainspector/ainspectorWatcher",
   "ainspector/ainspectorPreferences",
   "ainspector/ainspectorModule",
   "ainspector/ainspectorListTemplate",
@@ -18,7 +32,7 @@ define([
   "ainspector/wcagSummaryTemplate"
   ],
   function(Obj, FBL, FBTrace, Locale, Dom, OpenAjax, HeaderResizer, 
-      OAA_WEB_ACCESSIBILITY, AinspectorUtil, AinspectorPreferences) {
+      OAA_WEB_ACCESSIBILITY, AinspectorUtil, AinspectorWatcher, AinspectorPreferences) {
   
     var panelName = "ainspector";
   
@@ -495,7 +509,7 @@ define([
      },
       
       refresh : function() {
-        ruleset_object = Firebug.AinspectorModule.getRuleResultsObject();
+        ruleset_object = AinspectorWatcher.getRuleResultsObject();
       },
       
       /**
@@ -839,7 +853,6 @@ define([
         
         var pref = AinspectorPreferences.getPreferences();
         
-        FBTrace.sysout("pref in checkFilterPass: ", pref);
         if (pref.show_results_pass) return true; 
         else return false;
       },
@@ -847,7 +860,6 @@ define([
       checkFilterEmc : function() {
         
         var pref = AinspectorPreferences.getPreferences();
-        FBTrace.sysout("pref in checkFilterEmc: ", pref);
 
         if (pref.show_results_element_manual_checks == true) return true; 
         else return false;
@@ -856,7 +868,6 @@ define([
       checkFilterHideden : function() {
         
         var pref = AinspectorPreferences.getPreferences();
-        FBTrace.sysout("pref in checkFilterHideden: ", pref);
 
         if (pref.show_results_hidden == true) return true; 
         else return false;
@@ -865,7 +876,6 @@ define([
       checkFilterPmc : function() {
         
         var pref = AinspectorPreferences.getPreferences();
-        FBTrace.sysout("pref in checkFilterPmc: ", pref);
 
         if (pref.show_results_page_manual_checks) return true;
         else return false;

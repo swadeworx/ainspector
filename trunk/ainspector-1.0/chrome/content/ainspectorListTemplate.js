@@ -1,3 +1,18 @@
+/**
+ * Copyright 2013 University Of Illinois
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 define([
   "firebug/lib/object",
   "firebug/lib/trace",
@@ -36,27 +51,27 @@ define([
                    DIV({class: "gridHeaderCellBox"}, 
                      Locale.$STR("ainspector.header.element"))
                  ),
-                 TH({class: "gridHeaderCell", id: "gridHiddenCol", role: "columnheader", width: "5%"}, 
+                 TH({class: "gridHeaderCell", id: "gridHiddenCol", role: "columnheader"}, 
                    DIV({class: "gridHeaderCellBox", title: Locale.$STR("ainspector.header.title.hidden")}, 
                      Locale.$STR("ainspector.header.hidden"))
                  ),
-                 TH({class: "gridHeaderCell", id: "gridPassCol", role: "columnheader", width: "5%"}, 
+                 TH({class: "gridHeaderCell", id: "gridPassCol", role: "columnheader"}, 
                    DIV({class: "gridHeaderCellBox", title: Locale.$STR("ainspector.header.title.pass")}, 
                      Locale.$STR("ainspector.header.pass"))
                  ),
-                 TH({class: "gridHeaderCell", id: "gridWarningCol", role: "columnheader", width: "5%"}, 
+                 TH({class: "gridHeaderCell", id: "gridWarningCol", role: "columnheader"}, 
                    DIV({class: "gridHeaderCellBox", title: Locale.$STR("ainspector.header.title.warning")}, 
                      Locale.$STR("ainspector.header.warning"))
                  ),
-                 TH({class: "gridHeaderCell", id: "gridManualCheckCol", role: "columnheader", width: "5%"}, 
+                 TH({class: "gridHeaderCell", id: "gridManualCheckCol", role: "columnheader"}, 
                    DIV({class: "gridHeaderCellBox", title: Locale.$STR("ainspector.header.title.manualcheck")}, 
                      Locale.$STR("ainspector.header.manualcheck"))
                  ),
-                 TH({class: "gridHeaderCell", id: "gridViolationCol", role: "columnheader", width: "5%"}, 
+                 TH({class: "gridHeaderCell", id: "gridViolationCol", role: "columnheader"}, 
                    DIV({class: "gridHeaderCellBox", title: Locale.$STR("ainspector.header.title.violation")}, 
                      Locale.$STR("ainspector.header.violation"))
                  ),
-                 TH({class: "gridHeaderCell", id: "gridHTMLCol", role: "columnheader", width: "10%"}, 
+                 TH({class: "gridHeaderCell", id: "gridHTMLCol", role: "columnheader"}, 
                    DIV({class: "gridHeaderCellBox"},
                      Locale.$STR("ainspector.header.goto"))
                  )
@@ -69,7 +84,7 @@ define([
                    TD({class:"gridCol", id: "gridOrderCol"}, 
         				     DIV({class: "gridContent"}, "$object.document_order")),
                    TD({class:"gridCol", id: "gridElementCol"}, 
-        				     DIV({class: "gridContent"}, "$object.tag_name")),
+        				     DIV({class: "gridContent"}, "$object.tag_name|truncateText")),
                    TD({class:"gridCol", id: "gridHiddenCol"}, 
       		  		     DIV({class: "gridContent gridAlign"}, TAG("$object.hidden_count", {'object': '$object'}))),
                    TD({class:"gridCol", id: "gridPassCol"}, 
@@ -94,6 +109,10 @@ define([
            strTagHidden : DIV({class: "hiddenMsgTxt"}, "$object.hc"), //$object.hidden_count
            strTagWarn : DIV({class: "warnMsgTxt"}, "$object.wc"), //$object.warnings_count
            zeroTag : DIV({}, "0"),
+           
+           truncateText : function(text){
+             return AinspectorUtil.truncateText(text, 100);
+           },
            
            /**
             * @function viewTag
