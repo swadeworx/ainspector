@@ -83,7 +83,7 @@ Firebug.ElementsSidePanel.prototype = Obj.extend(Firebug.Panel, {
     
     if (rule_result_item && rule_result_item.rule_result) rule_result_mesg = rule_result_item.rule_result.getMessage();
     else rule_result_mesg = rule_result_item.title;
-    FBTrace.sysout("rule_result_item: ", rule_result_item);
+
     if (rule_result_item.filtered_node_results) this.rebuild(rule_result_mesg, rule_result_item.filtered_node_results, parentNode);
     else Firebug.RuleInfoSidePanel.prototype.rulestemplate.selectTag.replace({}, this.panelNode);
   },
