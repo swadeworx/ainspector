@@ -1,3 +1,18 @@
+/**
+ * Copyright 2013 University Of Illinois
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 define([
   "firebug/lib/trace",
   "firebug/lib/locale",
@@ -114,12 +129,12 @@ define([
              
              panel.panelNode.id = "ainspector-panel"; 
 
-             var cache_results = rule_results.getFilteredRuleResultsByRuleCategory(rule_category, 
+             var category_rule_results = rule_results.getFilteredRuleResultsByRuleCategory(rule_category, 
                  "All Rules", preferences.wcag20_level, preferences.show_results_filter_value);
              
-             cache_results.sortRuleResultsByImplementationLevel();
-            
-             var all_rule_results = cache_results.filtered_rule_results;
+             category_rule_results.sortRuleResultsByImplementationLevel();
+             if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; category_rule_results", category_rule_results);
+             var all_rule_results = category_rule_results.filtered_rule_results;
              
              panel.table = this.tag.replace({results: all_rule_results, view:view, rule_results: rule_results}, panel.panelNode);
              AinspectorUtil.contextMenu.setTableMenuItems(panel.table);
@@ -127,8 +142,6 @@ define([
              var side_panel = Firebug.chrome.getSelectedSidePanel();
              
              AinspectorUtil.selectRow(panel.table, false, id);
-             if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; panel.panelNode ***************: ", toolbar);
-             
              
              if (side_panel){
               

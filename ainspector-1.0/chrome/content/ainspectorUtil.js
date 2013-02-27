@@ -1,3 +1,18 @@
+/**
+ * Copyright 2013 University Of Illinois
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 define([
   "firebug/lib/lib",
   "firebug/lib/trace",
@@ -150,7 +165,7 @@ define([
       for (var i=0; i< row.children.length; i++) {
         Css.setClass(row.children[i], "gridCellSelected");
       }
-      
+//      FBTrace.sysout("row in highlight: ", row);
       if (row.repObject.filtered_node_results) {
         OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightNodeResults(row.repObject.filtered_node_results);
       } else {
@@ -190,8 +205,7 @@ define([
         
         for (i; i < rows.length; i++) {
           row = rows[i];
-          FBTrace.sysout("row: ", row);
-
+          var flag = false;
           if (is_a_tree == true) {
             var children;
             var obj = row.repObject;
@@ -209,7 +223,7 @@ define([
                     j = j+1;
                     var k = i+j;
                     this.highlight(new_table.children[3].children[1].children[i+j]);
-                    return k;
+//                    return k;
                   }
                 }
               }
@@ -219,26 +233,41 @@ define([
                 break;
               }
             } 
-            FBTrace.sysout("children: ", children);
             
           } else { //flat list
             var citem = null;
             var sitem = null;
+            FBTrace.sysout("row: ", row);
+            FBTrace.sysout("selected_row:", selected_row);
             
             if (row.repObject.cache_item) citem = row.repObject.cache_item;
+            else if(row.repObject.rule_result) citem = row.repObject.cache_id;
             else citem = row.repObject;
             
-            if (selected_row.repObject.cache_item) sitem = selected_row.repObject.cache_item;
+            if (row.repObject.cache_item && selected_row.repObject.cache_item) sitem = selected_row.repObject.cache_item;
+            if(row.repObject.rule_result && selected_row.repObject.rule_result) sitem = selected_row.repObject.cache_id;
             else sitem = selected_row.repObject;
             
-            if (row.children[0].textContent == selected_row.children[0].textContent &&
-                citem.document_order == sitem.document_order) {
-              this.highlight(panel.children[1].children[1].children[i]);
-              return i;
-              break;
+            FBTrace.sysout("citem: ", citem);
+            FBTrace.sysout("sitem:", sitem);
+            
+            if (typeof citem === 'object' && typeof sitem === 'object') {
+              if (row.children[0].textContent == selected_row.children[0].textContent &&
+                  (citem.document_order && citem.document_order == sitem.document_order)) {
+               this.highlight(table.children[1].children[i]);
+               flag = true;
+               break; }
+            } else {
+              if(typeof citem === 'string' && typeof sitem === 'string' && citem == sitem) {
+                  this.highlight(table.children[1].children[i]);
+                  flag = true;
+                  break; 
+              }
             }
-          }
-        } 
+          } //end if-else for flat list
+          
+          if (flag) break;
+        } //end FOR
         
       } else {
         if (AinspectorUtil.selectedView != view) {
@@ -255,12 +284,12 @@ define([
      * 
      * @param {String} text - text to truncate
      */
-    AinspectorUtil.truncateText = function(text) {
+    AinspectorUtil.truncateText = function(text, max_text_length) {
       
-      var max_text_length = 60;
+//      var max_text_length = 60;
       var new_text = text.substring(0, max_text_length);
       
-      if (text.length > 60) new_text = new_text + "...";
+      if (text.length > max_text_length) new_text = new_text + "...";
       
       return new_text;
     }
