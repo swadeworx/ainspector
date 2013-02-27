@@ -12,16 +12,16 @@ define([
   ],
   
   function(FBL, FBTrace, Locale, Dom, Domplate, Css, Arr, HeaderResizer, AinspectorPreferences, OAA_WEB_ACCESSIBILITY){
-    
+    var preferences = AinspectorPreferences.getPreferences();
+
     var AinspectorUtil = {
       selectedView : "onClickRulesMenuItem",
       selected_row : null,
-      is_pass      : false,
-      is_hidden    : false,
-      is_emc       : false,
-      is_pmc       : false
+      is_pass      : preferences.show_results_pass,
+      is_hidden    : preferences.show_results_hidden,
+      is_emc       : preferences.show_results_element_manual_checks,
+      is_pmc       : preferences.show_results_page_manual_checks
     };
-    
     /**
      * @function toHTMLPanel
      * 

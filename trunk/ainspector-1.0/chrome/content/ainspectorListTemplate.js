@@ -36,27 +36,27 @@ define([
                    DIV({class: "gridHeaderCellBox"}, 
                      Locale.$STR("ainspector.header.element"))
                  ),
-                 TH({class: "gridHeaderCell", id: "gridHiddenCol", role: "columnheader"}, 
+                 TH({class: "gridHeaderCell", id: "gridHiddenCol", role: "columnheader", width: "5%"}, 
                    DIV({class: "gridHeaderCellBox", title: Locale.$STR("ainspector.header.title.hidden")}, 
                      Locale.$STR("ainspector.header.hidden"))
                  ),
-                 TH({class: "gridHeaderCell", id: "gridPassCol", role: "columnheader"}, 
+                 TH({class: "gridHeaderCell", id: "gridPassCol", role: "columnheader", width: "5%"}, 
                    DIV({class: "gridHeaderCellBox", title: Locale.$STR("ainspector.header.title.pass")}, 
                      Locale.$STR("ainspector.header.pass"))
                  ),
-                 TH({class: "gridHeaderCell", id: "gridWarningCol", role: "columnheader"}, 
+                 TH({class: "gridHeaderCell", id: "gridWarningCol", role: "columnheader", width: "5%"}, 
                    DIV({class: "gridHeaderCellBox", title: Locale.$STR("ainspector.header.title.warning")}, 
                      Locale.$STR("ainspector.header.warning"))
                  ),
-                 TH({class: "gridHeaderCell", id: "gridManualCheckCol", role: "columnheader"}, 
+                 TH({class: "gridHeaderCell", id: "gridManualCheckCol", role: "columnheader", width: "5%"}, 
                    DIV({class: "gridHeaderCellBox", title: Locale.$STR("ainspector.header.title.manualcheck")}, 
                      Locale.$STR("ainspector.header.manualcheck"))
                  ),
-                 TH({class: "gridHeaderCell", id: "gridViolationCol", role: "columnheader"}, 
+                 TH({class: "gridHeaderCell", id: "gridViolationCol", role: "columnheader", width: "5%"}, 
                    DIV({class: "gridHeaderCellBox", title: Locale.$STR("ainspector.header.title.violation")}, 
                      Locale.$STR("ainspector.header.violation"))
                  ),
-                 TH({class: "gridHeaderCell", id: "gridHTMLCol", role: "columnheader"}, 
+                 TH({class: "gridHeaderCell", id: "gridHTMLCol", role: "columnheader", width: "10%"}, 
                    DIV({class: "gridHeaderCellBox"},
                      Locale.$STR("ainspector.header.goto"))
                  )

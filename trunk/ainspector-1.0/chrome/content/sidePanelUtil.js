@@ -367,30 +367,28 @@ define([
            else return property;
          },
          
-        setSelection : function(event, parentNode) {
+        setSelection : function(event, parentNode, sidePanelName) {
          
           var cache_item = Firebug.getRepObject(event.target);
-          
           if (!cache_item) return;
           
           try {
-            if (cache_item.dom_element) this.rebuild(this.showSelection(cache_item.dom_element), parentNode);
-            else this.rebuild(this.showSelection(cache_item), parentNode);
+            if (cache_item.dom_element) this.rebuild(this.showSelection(cache_item.dom_element), parentNode, sidePanelName);
+            else this.rebuild(this.showSelection(cache_item), parentNode, sidePanelName);
           } catch(e){
             
           }
         },
         
-        rebuild : function(results, parentNode){
+        rebuild : function(results, parentNode, sidePanelName){
           
           parentNode.id = "ainspector-side-panel";
           var cache_item = results.cache_item;
           var element = "Element" + cache_item.document_order + ": " + cache_item.toString();
-          
           if (results.rule_result_array.length > 0) {
             this.tag.replace({object: results.rule_result_array, element: element}, parentNode);
           } else {
-            this.commonTemplate.emptyTag.replace({sidePanel: "attrubutes"}, parentNode);
+            SidePanelUtil.commonTemplate.emptyTag.replace({sidePanel: sidePanelName}, parentNode);
           }
         }, 
         
@@ -399,12 +397,10 @@ define([
           var node_results = cache_item.node_results;
           var rule_result_array = new Array();
 
-          for (var i=0; i<node_results.length; i++) {
-            rule_result_array.push(node_results[i]);
-            var nResult = node_results[i];
-//            FBTrace.sysout("sev label: ", nResult.getNLSSeverityLabel());
-//            FBTrace.sysout("sev style: ", nResult.getSeverityStyle());
-//            FBTrace.sysout("rule is: ", nResult.getRule());
+          if (node_results.length >0) {
+            for (var i=0; i<node_results.length; i++) {
+              rule_result_array.push(node_results[i]);
+            }
           }
           
           var result_obj = {
@@ -490,7 +486,7 @@ define([
               
               if (results.length > 0) this.rebuild(results, headers, parentNode, type);
               
-              else this.emptyTag.replace({sidePanel: "attrubutes"}, parentNode);
+              else this.emptyTag.replace({sidePanel: type}, parentNode);
             },
             
             /**

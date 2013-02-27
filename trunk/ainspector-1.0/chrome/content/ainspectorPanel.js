@@ -396,14 +396,17 @@ define([
             checked: this.checkFilterEmc(),
             command: function() {
                 var checked = false;
+                
                 if (this.hasAttribute("checked")) checked = this.getAttribute("checked");
-//                HeaderResizer.Preference.setPref("pass", checked);
+                
+                if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; is_emc_filter_checked:         "+ checked);
+                
+                this.setAttribute("checked", checked);
                 AinspectorUtil.is_emc = checked;
 
                 Firebug.AinspectorPanel.prototype.setPreferences();
                 
             }
-              //Obj.bindFixed(this.getEMCFilter, this)
           },
           {
             id     : "pmc",
@@ -413,11 +416,12 @@ define([
             command: function() {
               var checked = false;
               if (this.hasAttribute("checked")) checked = this.getAttribute("checked");
-//              HeaderResizer.Preference.setPref("pmc", checked);
+              if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; is_pmc_filter_checked:         "+ checked);
+
+              this.setAttribute("checked", checked);
               AinspectorUtil.is_pmc = checked;
               Firebug.AinspectorPanel.prototype.setPreferences();
           } 
-              //Obj.bindFixed(this.getPMCFilter, this),
           },
           {
             id     : "pass",
@@ -426,13 +430,15 @@ define([
             checked: this.checkFilterPass(),
             command:function() {
               var checked = false;
+              
               if (this.hasAttribute("checked")) checked = this.getAttribute("checked");
-//              HeaderResizer.Preference.setPref("emc", checked);
-              AinspectorUtil.is_pass = checked;
+              if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; is_pass_filter_checked :         "+ checked);
 
+              this.setAttribute("checked", checked);
+              AinspectorUtil.is_pass = checked;
+             
               Firebug.AinspectorPanel.prototype.setPreferences();
             }  
-              //Obj.bindFixed(this.getPassFilter, this)
           },
           {
             id     : "hidden",
@@ -441,12 +447,15 @@ define([
             checked: this.checkFilterHideden(),
             command:function() {
               var checked = false;
+
               if (this.hasAttribute("checked")) checked = this.getAttribute("checked");
-//              HeaderResizer.Preference.setPref("hidden", checked);
+              if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; is_hidden_filter_checked :         "+ checked);
+
+              this.setAttribute("checked", checked);
               AinspectorUtil.is_hidden = checked;
+              
               Firebug.AinspectorPanel.prototype.setPreferences();
             }  
-              //Obj.bindFixed(this.getHiddenFilter, this)
           }
         );
         
@@ -695,13 +704,15 @@ define([
           } 
         }
         var filters = Firebug.chrome.$("fbPanelToolbar").children[3].children[0].children;
-        
+        FBTrace.sysout("Filters:::::::::::::::", filters);
         /* update evaluation result filters in to the preferences */
         for (var j=0; j<filters.length; j++) {
           
           var filter = filters[j];
           var pref_filter;
-
+          
+          FBTrace.sysout("AinspectorUtil: ", AinspectorUtil);
+          
           if (filter.id == "emc") {
             pref_filter =  AinspectorUtil.is_emc;
 
@@ -828,28 +839,36 @@ define([
         
         var pref = AinspectorPreferences.getPreferences();
         
+        FBTrace.sysout("pref in checkFilterPass: ", pref);
         if (pref.show_results_pass) return true; 
+        else return false;
       },
       
       checkFilterEmc : function() {
         
         var pref = AinspectorPreferences.getPreferences();
-        
-        if (pref.show_results_element_manual_checks) return true; 
+        FBTrace.sysout("pref in checkFilterEmc: ", pref);
+
+        if (pref.show_results_element_manual_checks == true) return true; 
+        else return false;
       },
      
       checkFilterHideden : function() {
         
         var pref = AinspectorPreferences.getPreferences();
-        
-        if (pref.show_results_hidden) return true; 
+        FBTrace.sysout("pref in checkFilterHideden: ", pref);
+
+        if (pref.show_results_hidden == true) return true; 
+        else return false;
       },
       
       checkFilterPmc : function() {
         
         var pref = AinspectorPreferences.getPreferences();
-        
-        if (pref.show_results_page_manual_checks) return true; 
+        FBTrace.sysout("pref in checkFilterPmc: ", pref);
+
+        if (pref.show_results_page_manual_checks) return true;
+        else return false;
       },
       
       isSelected : function(view) {
@@ -902,16 +921,7 @@ define([
         fileStream.write(html, html.length);
         
         FileUtils.closeSafeFileOutputStream(fileStream);
-          
-        /*var mainWindow = window.QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-          .getInterface(Components.interfaces.nsIWebNavigation)
-          .QueryInterface(Components.interfaces.nsIDocShellTreeItem)
-          .rootTreeItem
-          .QueryInterface(Components.interfaces.nsIInterfaceRequestor)
-          .getInterface(Components.interfaces.nsIDOMWindow);
-          
-        mainWindow.gBrowser.addTab(file.path);*/
-        
+            
         window.open("file:\\"+file.path,'mywindow','');
 
         file = FileUtils.getFile('TmpD', ['report_rule_summary.csv']);
