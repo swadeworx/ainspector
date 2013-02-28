@@ -35,7 +35,8 @@ define([
       OAA_WEB_ACCESSIBILITY, AinspectorUtil, AinspectorWatcher, AinspectorPreferences) {
   
     var panelName = "ainspector";
-  
+    var console = Components.classes["@mozilla.org/consoleservice;1"].
+    getService(Components.interfaces.nsIConsoleService);
     Firebug.AinspectorPanel = function AinspectorPanel() {};
   
     /**
@@ -316,36 +317,26 @@ define([
         
         var items = [];
         var ruleset = null;
-        
-//        for (var i=0; i<all_rulesets.length; i++) {
-//          ruleset=all_rulesets[i];
 
+//        FBTrace.sysout("all_rulesets: ", all_rulesets);
+
+        for (var i=0; i<all_rulesets.length; i++) {
+          ruleset = all_rulesets[i];
           items.push({
-              id     : all_rulesets[0].ruleset_id,
+              id     : ruleset.ruleset_id,
               nol10n : true,
-              label  : all_rulesets[0].ruleset_title + " " + all_rulesets[0].ruleset_version,
+              label  : ruleset.ruleset_title + " " + ruleset.ruleset_version,
               type   : "radio",
-              checked: this.checkRuleset(all_rulesets[0].ruleset_id),
-              command: Obj.bindFixed(this.setPreferences0, this)
-            },
-            {
-              id     : all_rulesets[1].ruleset_id,
-              nol10n : true,
-              label  : all_rulesets[1].ruleset_title + " " + all_rulesets[1].ruleset_version,
-              type   : "radio",
-              checked: this.checkRuleset(all_rulesets[1].ruleset_id),
-              command: Obj.bindFixed(this.setPreferences1, this)
-            },
-            {
-            id     : all_rulesets[2].ruleset_id,
-              nol10n : true,
-              label  : all_rulesets[2].ruleset_title + " " + all_rulesets[2].ruleset_version,
-              type   : "radio",
-              checked: this.checkRuleset(all_rulesets[2].ruleset_id),
-              command: Obj.bindFixed(this.setPreferences2, this)
+              tooltiptext: ruleset.ruleset_id,
+              checked: this.checkRuleset(ruleset.ruleset_id),
+              command: function(){
+            	  Firebug.AinspectorPanel.prototype.setSelectedRuleset(this.getAttribute("id")); 
+            	  Firebug.AinspectorPanel.prototype.setPreferences();
+              }
+            	  //Obj.bindFixed(this.setPreferences0, this)
             }
           );
-//        }
+        }
         
         items.push(
           {
@@ -696,10 +687,11 @@ define([
         var p = AinspectorPreferences.preferences;
         
         var rulesets = toolbar.children[1].children[0].children;
-
+        
         /* set the selected ruleset in preferences*/
         for (var i=0; i< rulesets.length; i++) {
-          if (i < 3 && rulesets[i].selected == true) {
+//         console.logStringMessage("rulesets[i].selected: "+ i + "--"+ rulesets[i].selected); 
+         if (rulesets[i].selected == true) {
             p.ruleset_id = rulesets[i].id;
           
           } else {
@@ -756,6 +748,8 @@ define([
         p.show_results_violations = true;
         p.show_results_not_applicable = true;
         p.show_results_warnings = true;
+        p.broken_links = false;
+        p.layout_tables = false;
         AinspectorPreferences.setPreferences(p);
         
         var views = toolbar.children[0].children[0].children;
@@ -836,8 +830,10 @@ define([
       checkRuleset : function(id) {
         
         var pref = AinspectorPreferences.getPreferences();
+//        console.logStringMessage("id: "+ id + ".... prefs" + pref.ruleset_id);
         
         if (id == pref.ruleset_id) return true; 
+        else return false;
         
       },
       
