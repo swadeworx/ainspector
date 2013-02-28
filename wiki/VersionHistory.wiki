@@ -2,6 +2,35 @@
 
 = Version History =
 
+== Version alpha 0.9.12 ==
+
+ * Stable version
+ * Reports menu is added to the A11y toolbar buttons
+ * Added AInspector Logo to the extension to appear in Add-ons manager
+ * Fixed persistance of state of highlighting a row while toggles between Panels
+ * Updates messages in side panel accordingly when a row is selected in the left panel
+ * style of Manual Checks changed from red color and pink background to Purple color 
+
+== Version alpha 0.9.11 ==
+ 
+ * Bootstrap, restart-less application
+ * Follows AMD syntax
+ * Panel toolbar buttons are created using Firebug's getPanelToolbarButtons()
+ * No use of XUL
+ * A11y Panel has Menu's for Views, Rulesets, Filters and the WCAG Level
+ * Preferences are moved to the main toolbar button 
+ * Fixed disappearance of Vertical scroll in all the views
+ * RuleCategories summary information to the Views menu
+
+== Version alpha 0.9.10 ==
+
+ * Resizes/adjusts the columns/table in the A11y Panel as well the side panels of the A11y Panel 
+ * Side panel Elements shows the rule result message instead of rule description or summary
+ * All Rules Panel shows the description of a rule in the rules column of the table 
+ * Adding some more rules to the rulesets
+ * remove Rule ID information in the Rule Summary, Rule Details or Rule Result Message.
+ * Version number changes from alpha to x.y.z
+
 == Version alpha 0.98 ==
 
 ===Features ===
