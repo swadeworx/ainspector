@@ -33,7 +33,7 @@ define(
        PREFERENCES_NAMESPACE : 'extensions.ainspector-firebug-preferences.',
        preferences : {
         // OAA Ruleset options
-        ruleset_id   : 'WCAG20_ARIA_TRANS',                             
+        ruleset_id   : 'ARIA_TRANS',                             
         wcag20_level : 3, // OpenAjax.a11y.WCAG20_LEVEL.AAA constant   
         wcag20_recommended_rules_enabled : true,
         
@@ -46,6 +46,8 @@ define(
         show_results_hidden         : true,
         show_results_not_applicable : true,
         show_results_filter_value   : 63, // OpenAjax.a11y.RESULT_FILTER.ALL
+        broken_links: false,
+        layout_tables: false
       },
 
       /**
@@ -100,7 +102,7 @@ define(
         var p = this.preferences;
 
         // OAA Ruleset options
-        p.ruleset_id    = 'WCAG20_ARIA_TRANS';
+        p.ruleset_id    = 'ARIA_TRANS';
         p.wcag20_level  = 3; // OpenAjax.a11y.WCAG20_LEVEL.AAA
         p.wcag20_recommended_rules_enabled = true;
         
@@ -113,6 +115,8 @@ define(
         p.show_results_hidden         = true;
         p.show_results_not_applicable = true;
 
+        p.broken_links = false;
+        p.layout_tables = false;
         p.show_results_filter_value = this.calculateResultsFilterValue();
 
         // Show menu for accessibility features
@@ -143,7 +147,8 @@ define(
         setStringPreference('ruleset_id');                              
         setIntegerPreference('wcag20_level');                              
         setBooleanPreference('wcag20_recommended_rules_enabled');    
-        
+        setBooleanPreference('broken_links');
+        setBooleanPreference('layout_tables');
         setBooleanPreference('show_results_pass');
         setBooleanPreference('show_results_violations');    
         setBooleanPreference('show_results_page_manual_checks');    
@@ -161,12 +166,12 @@ define(
         var PN = this.PREFERENCES_NAMESPACE;
         var p  = this.preferences;
         var ps = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch);            
-         
+        var console = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
         try {
         
           p.ruleset_id   = ps.getCharPref(PN + 'ruleset_id');
           p.wcag20_level = ps.getIntPref( PN + 'wcag20_level'); 
-         
+//         console.logStringMessage("p.ruleset_id : "+ p.ruleset_id );
           p.wcag20_recommended_rules_enabled = ps.getBoolPref(PN + 'wcag20_recommended_rules_enabled'); 
          
           p.layout_tables     = ps.getBoolPref(PN + 'layout_tables');  
@@ -182,9 +187,10 @@ define(
 
           p.show_results_filter_value = this.calculateResultsFilterValue();
 
-          p.show_accessibility_menu     = ps.getBoolPref(PN + 'show_accessibility_menu');                              
-          p.show_accessibility_icon     = ps.getBoolPref(PN + 'show_accessibility_icon');    
+//          p.show_accessibility_menu     = ps.getBoolPref(PN + 'show_accessibility_menu');                              
+//          p.show_accessibility_icon     = ps.getBoolPref(PN + 'show_accessibility_icon');    
         } catch(e) {
+//         console.logStringMessage("catch block in getPreferences : "+ e);
           this.setDefaultPreferences();
         }
 
