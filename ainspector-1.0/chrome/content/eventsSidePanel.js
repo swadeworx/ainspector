@@ -92,7 +92,7 @@ Firebug.EventsSidePaenl.prototype = Obj.extend(Firebug.Panel, {
   },
   
   setSelection : function (event){
-    FBTrace.sysout("inside events setSelection: ", event);
+//    FBTrace.sysout("inside events setSelection: ", event);
     SidePanelUtil.commonTemplate.setSelection(event, this.panelNode, ["Events", "On Element", "On Ancestor"], "events");
   },
   

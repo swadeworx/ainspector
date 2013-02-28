@@ -718,14 +718,14 @@ define([
           } 
         }
         var filters = Firebug.chrome.$("fbPanelToolbar").children[3].children[0].children;
-        FBTrace.sysout("Filters:::::::::::::::", filters);
+
         /* update evaluation result filters in to the preferences */
         for (var j=0; j<filters.length; j++) {
           
           var filter = filters[j];
           var pref_filter;
           
-          FBTrace.sysout("AinspectorUtil: ", AinspectorUtil);
+//          FBTrace.sysout("AinspectorUtil: ", AinspectorUtil);
           
           if (filter.id == "emc") {
             pref_filter =  AinspectorUtil.is_emc;

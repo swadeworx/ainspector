@@ -192,8 +192,8 @@ define([
         var table = Dom.getChildByClass(panel, "domTable");
         if (!table) table = Dom.getChildByClass(panel, "ai-table-list-items");
         
-        FBTrace.sysout("AInspector; AinspectorUtil.selectRow.table: ", table);
-        FBTrace.sysout("AInspector; AinspectorUtil.selectRow: ", AinspectorUtil.selected_row);
+//        FBTrace.sysout("AInspector; AinspectorUtil.selectRow.table: ", table);
+//        FBTrace.sysout("AInspector; AinspectorUtil.selectRow: ", AinspectorUtil.selected_row);
         
         rows = table.children[1].children;
           
@@ -237,19 +237,19 @@ define([
           } else { //flat list
             var citem = null;
             var sitem = null;
-            FBTrace.sysout("row: ", row);
-            FBTrace.sysout("selected_row:", selected_row);
+//            FBTrace.sysout("row: ", row);
+//            FBTrace.sysout("selected_row:", selected_row);
             
             if (row.repObject.cache_item) citem = row.repObject.cache_item;
             else if(row.repObject.rule_result) citem = row.repObject.cache_id;
             else citem = row.repObject;
             
             if (row.repObject.cache_item && selected_row.repObject.cache_item) sitem = selected_row.repObject.cache_item;
-            if(row.repObject.rule_result && selected_row.repObject.rule_result) sitem = selected_row.repObject.cache_id;
+            else if(row.repObject.rule_result && selected_row.repObject.rule_result) sitem = selected_row.repObject.cache_id;
             else sitem = selected_row.repObject;
             
-            FBTrace.sysout("citem: ", citem);
-            FBTrace.sysout("sitem:", sitem);
+//            FBTrace.sysout("citem: ", citem);
+//            FBTrace.sysout("sitem:", sitem);
             
             if (typeof citem === 'object' && typeof sitem === 'object') {
               if (row.children[0].textContent == selected_row.children[0].textContent &&

@@ -5,7 +5,7 @@
 
   <Description about="urn:mozilla:install-manifest">
     <em:id>ainspector-fb@cita.illinois.edu</em:id>
-    <em:version>0.9.11</em:version>
+    <em:version>0.9.12</em:version>
     <em:type>2</em:type>    
     <em:bootstrap>true</em:bootstrap>
 
@@ -19,7 +19,7 @@
     </em:targetApplication>
 
     <em:name>Accessibility Inspector For Firebug</em:name>
-    <em:description>AInspector - Firebugs Extension</em:description>
+    <em:description>Accessibility Inspector For Firebug.</em:description>
     <em:creator>Prasanna Bale</em:creator>
     <em:iconURL>chrome://ainspector/skin/logo_32x32.png</em:iconURL>
     <em:homepageURL>http://illinois.edu</em:homepageURL>
