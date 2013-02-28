@@ -66,9 +66,10 @@ Firebug.AttributesSidePanel.prototype = Obj.extend(Firebug.Panel, {
   show: function(state) {
     Firebug.Panel.show.apply(this, arguments);
 
-    if (FBTrace.DBG_AINSPECTOR)
+    if (FBTrace.DBG_AINSPECTOR) {
         FBTrace.sysout("AInspector; AttributesSidePanel.show", AinspectorUtil.selected_row);
-    FBTrace.sysout("AInspector; AttributesSidePanel.show-this.panelNode", this);
+    	FBTrace.sysout("AInspector; AttributesSidePanel.show-this.panelNode", this);
+    }
     
     var row = AinspectorUtil.selected_row;
     if (row)this.updateSelection(row.repObject, this.panelNode, panelName);
@@ -83,11 +84,10 @@ Firebug.AttributesSidePanel.prototype = Obj.extend(Firebug.Panel, {
   },
 
   updateSelection: function(object, parentNode, type) {
-    FBTrace.sysout("AInspector; updateSelection.results");
-
+	  
     var results = SidePanelUtil.commonTemplate.getResults(object.cache_item, type);
-    if (FBTrace.DBG_AINSPECTOR)
-      FBTrace.sysout("AInspector; updateSelection.results", results);
+    if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; updateSelection.results", results);
+    
     if (results.length > 0)
       SidePanelUtil.commonTemplate.rebuild(results, ["Attribute", "Value"], parentNode, "attributes");
     else SidePanelUtil.commonTemplate.emptyTag.replace({sidePanel: panelName}, parentNode);
