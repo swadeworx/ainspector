@@ -6,7 +6,7 @@
    Rule syntax: .panelNode-<ext-id> */
 .panelNode-ainspector {
     overflow-x:hidden;
-    color: #808080; /* gray */
+    color: #000000; /* gray #808080*/
     padding: 10px;
     font-size: 12px;
     font-weight: bold;

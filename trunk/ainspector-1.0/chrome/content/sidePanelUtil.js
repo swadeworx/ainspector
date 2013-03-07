@@ -385,23 +385,32 @@ define([
         setSelection : function(event, parentNode, sidePanelName) {
          
           var cache_item = Firebug.getRepObject(event.target);
+          
+          if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("cache_item: ", cache_item);
+          
           if (!cache_item) return;
           
           try {
-            if (cache_item.dom_element) this.rebuild(this.showSelection(cache_item.dom_element), parentNode, sidePanelName);
-            else this.rebuild(this.showSelection(cache_item), parentNode, sidePanelName);
+//            if (cache_item.dom_element) this.rebuild(this.showSelection(cache_item.dom_element), parentNode, sidePanelName);
+//            else this.rebuild(this.showSelection(cache_item), parentNode, sidePanelName);
+        	  this.rebuild(cache_item.node_results, parentNode, sidePanelName);
           } catch(e){
             
           }
         },
         
-        rebuild : function(results, parentNode, sidePanelName){
+        rebuild : function(node_results, parentNode, sidePanelName){
           
           parentNode.id = "ainspector-side-panel";
-          var cache_item = results.cache_item;
-          var element = "Element" + cache_item.document_order + ": " + cache_item.toString();
-          if (results.rule_result_array.length > 0) {
-            this.tag.replace({object: results.rule_result_array, element: element}, parentNode);
+//          var cache_item = results.cache_item;
+//          var element = "Element" + cache_item.document_order + ": " + cache_item.toString();
+//          if (results.rule_result_array.length > 0) {
+//            this.tag.replace({object: results.rule_result_array, element: element}, parentNode);
+//          } else {
+//            SidePanelUtil.commonTemplate.emptyTag.replace({sidePanel: sidePanelName}, parentNode);
+//          }
+          if (node_results.length > 0) {
+            this.tag.replace({object: node_results, element: ""}, parentNode);
           } else {
             SidePanelUtil.commonTemplate.emptyTag.replace({sidePanel: sidePanelName}, parentNode);
           }
@@ -497,7 +506,8 @@ define([
           
               var object = Firebug.getRepObject(event.target);
               
-              var results = this.getResults(object.cache_item, type); 
+//              if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("cache_object in setSelection: ", object);
+              var results = this.getResults(object.cache_item_result.cache_item, type); 
               
               if (results.length > 0) this.rebuild(results, headers, parentNode, type);
               

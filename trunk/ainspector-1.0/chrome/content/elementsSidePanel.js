@@ -83,7 +83,8 @@ Firebug.ElementsSidePanel.prototype = Obj.extend(Firebug.Panel, {
     
     var rule_result_item = Firebug.getRepObject(event.target);
     this.node_results_array = [];
-    
+    if (FBTrace.DBG_AINSPECTOR)
+        FBTrace.sysout("AInspector; ElementsSidePanel.setSelection-rule_result_item", rule_result_item);
     if (!rule_result_item) return;
     
     this.updateSelection(rule_result_item);
@@ -93,7 +94,7 @@ Firebug.ElementsSidePanel.prototype = Obj.extend(Firebug.Panel, {
   updateSelection : function (rule_result_item, parentNode) {
     
     var rule_result_mesg = '';
-    
+    rule_result_item = rule_result_item.filtered_rule_result;
     if (rule_result_item && rule_result_item.rule_result) rule_result_mesg = rule_result_item.rule_result.getMessage();
     else rule_result_mesg = rule_result_item.title;
 

@@ -81,11 +81,11 @@ Firebug.RuleResultsSidePanel.prototype = Obj.extend(Firebug.Panel, {
     
     var results = null;
     
-    if (object.dom_element) results = SidePanelUtil.ruleResultsTemplate.showSelection(object.dom_element);
+//    if (object.dom_element) results = SidePanelUtil.ruleResultsTemplate.showSelection(object.dom_element);
     
-    else results = SidePanelUtil.ruleResultsTemplate.showSelection(object);
+//    else results = SidePanelUtil.ruleResultsTemplate.showSelection(object);
     
-    if (results.length > 0) SidePanelUtil.ruleResultsTemplate.rebuild(results, parentNode, panelName);
+    if (object.node_results.length > 0) SidePanelUtil.ruleResultsTemplate.rebuild(results, parentNode, panelName);
     else SidePanelUtil.commonTemplate.emptyTag.replace({sidePanel: panelName}, parentNode);
   },
   

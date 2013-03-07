@@ -56,6 +56,9 @@ define([
       if (!row) row = Dom.getAncestorByClass(event.target, "treeRow");
       
       var object = Firebug.getRepObject(event.target);
+      object = object.cache_item_result.cache_item;
+      if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("Dom node to select in HTML panel: ", object);
+    	  
       var cache_item = null;
       var node = null;
       
@@ -165,7 +168,7 @@ define([
       for (var i=0; i< row.children.length; i++) {
         Css.setClass(row.children[i], "gridCellSelected");
       }
-//      FBTrace.sysout("row in highlight: ", row);
+      FBTrace.sysout("row in highlight: ", row);
       if (row.repObject.filtered_node_results) {
         OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightNodeResults(row.repObject.filtered_node_results);
       } else {

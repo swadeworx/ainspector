@@ -52,6 +52,8 @@ define(
       if (FBTrace.DBG_AINSPECTOR){
         FBTrace.sysout("AInspector; ainspectorModule.getRuleResultsObject.preferences: ", preferences);
         FBTrace.sysout("OAA_WEB_ACCESSIBILITY: ", OAA_WEB_ACCESSIBILITY);
+        FBTrace.sysout("OpenAjax: ", OpenAjax);
+
       }
       
       OAA_WEB_ACCESSIBILITY.util.highlightModule.initHighlight(window.content.document, 
