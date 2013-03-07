@@ -46,7 +46,7 @@ define([
              SPAN({style: "margin-left: 1.5em; color: gray;"}, " W"),
              SPAN({style: "margin-left: 0.5em; color: black; background-color: #DAA520;"}, "  " + "$filtered_results.warnings_count" + "  "),
              SPAN({style: "margin-left: 1.5em; color: gray;"}, " MC"),
-             SPAN({style: "margin-left: 0.5em; color: black; background-color: #7D26CD;"}, "  " + "$filtered_results.manual_checks_count" + "   "),
+             SPAN({style: "margin-left: 0.5em; color: black; background-color: #CD96CD;"}, "  " + "$filtered_results.manual_checks_count" + "   "),
              
              BUTTON({onclick: "$expandAll", style: "float:right;", _repObject: "$results"}, "Expand All"),
              BUTTON({onclick: "$collapseAllRows", style: "float:right;", _repObject: "$results"}, "Collapse All"),
@@ -90,27 +90,27 @@ define([
          ), //end DIV
            
            row:
-             TR({class: "treeRow gridRow", $hasChildren: "$member.container", _newObject: "$member", _repObject: "$member", level: "$member.level", 
+             TR({class: "treeRow gridRow", $hasChildren: "$member|checkChildren", _newObject: "$member", _repObject: "$member", level: "$member.level", 
                onclick: "$highlightTreeRow"},
-               TD({class: "memberLabelCell", style: "padding-left: $member.level|getIndented", _repObject: "$member", id: "gridRulesCol"},
-                 DIV({class: "$member.container|getClassName", title : "$member.summary", style: "font-weight: normal;"}, "$member.summary")
+               TD({class: "memberLabelCell", style: "padding-left: $member.level|getIndented", id: "gridRulesCol"},
+                 DIV({class: "$member.container|getClassName", title : "$member.summary", style: "font-weight: normal;margin-left:0.5em;"}, "$member.summary")
                ),
-               TD({class: "memberLabelCell", _repObject: "$member.value", id: "gridRequiredCol"}, 
-            		 DIV({class: "gridContent gridAlign"}, "$member.required|getText")
+               TD({class: "memberLabelCell", id: "gridRequiredCol"}, 
+            		 DIV({class: "gridContent gridAlign $member.required|getStyleOnRequired"}, "$member.required|getText")
                ),
-               TD({class: "memberLabelCell", _repObject: "$member.value", id: "gridLevelCol"},
-                 DIV({class: "resultAlign"}, "$member.wcag20_level_label")
+               TD({class: "memberLabelCell", id: "gridLevelCol"},
+                 DIV({style:"font-weight:normal; text-align: center;" }, "$member.wcag20_level_label")
                ),
-               TD({class: "memberLabelCell", _repObject: "$member.value", id: "gridPassCol"},
+               TD({class: "memberLabelCell", id: "gridPassCol"},
             		 DIV({class: "gridContent gridAlign"}, TAG("$strTagPass", {rule_result: "$member"}))
                ),
-               TD({class: "memberLabelCell", _repObject: "$member.value", id: "gridWarningCol"},
+               TD({class: "memberLabelCell", id: "gridWarningCol"},
             		 DIV({class: "gridContent gridAlign"}, TAG("$strTagWarn", {rule_result: "$member"}))
                ),
-               TD({class: "memberLabelCell", _repObject: "$member.value", id: "gridViolationCol"},
+               TD({class: "memberLabelCell", id: "gridViolationCol"},
             		 DIV({class: "gridContent gridAlign"}, TAG("$strTagViolation", {rule_result: "$member"}))
                ),
-               TD({class: "memberLabelCell", _repObject: "$member.value", id: "gridManualCheckCol"},
+               TD({class: "memberLabelCell", id: "gridManualCheckCol"},
             		 DIV({class: "gridContent gridAlign"}, TAG("$strTagManual", {rule_result: "$member"}))
                )
              ),
@@ -145,6 +145,11 @@ define([
             	 else return "grayStyle";
              },
              
+             getStyleOnRequired : function(required) {
+            	 
+            	 if (required == 'na') return "grayStyle";
+             },
+             
              loop:
                FOR("member", "$members", TAG("$row", {member: "$member"})),
                
@@ -158,7 +163,7 @@ define([
              getText :function(text){
             	
             	 if (typeof text === 'string') return text;
-            	else return " ";
+            	 else return " ";
              },
              
              /**
@@ -219,22 +224,12 @@ define([
                }
              },
              
-            /**
-             * @function getFilteredResults
-             * 
-             * @desc
-             * 
-             * @param 
-             */
-            getFilteredWCAGResults : function (rule_result_groups) {
-              
-              if (rule_result_groups.filtered_rule_results_groups) return rule_result_groups.filtered_rule_results_groups;
-              
-              else if (rule_result_groups.filtered_rule_results) return rule_result_groups.filtered_rule_results;
-              
-              else return '';
-            },
-            
+             checkChildren : function(tree_item) {
+            	 
+            	 if (tree_item.container== true && tree_item.children.length > 0) return true;
+            	 else return false;
+             },
+             
             /**
              * @function toggleRows
              */
@@ -338,8 +333,6 @@ define([
                   var object = row.repObject;
                   
                   if (object.children) length += object.children.length;
-                  
-//                  if (object.children) length += object.children.length;
                 }
               }
             },

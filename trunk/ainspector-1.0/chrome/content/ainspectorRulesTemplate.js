@@ -45,7 +45,7 @@ define([
           SPAN({style: "margin-left: 1.5em; color: gray;"}, " W"),
           SPAN({style: "margin-left: 0.5em; color: black; background-color: #DAA520;"}, "  " + "$category_rule_results.warnings_count" + "  "),
           SPAN({style: "margin-left: 1.5em; color: gray;"}, " MC"),
-          SPAN({style: "margin-left: 0.5em; color: black; background-color: #7D26CD;"}, "  " + "$category_rule_results.manual_checks_count" + "   "),
+          SPAN({style: "margin-left: 0.5em; color: black; background-color: #CD96CD;"}, "  " + "$category_rule_results.manual_checks_count" + "   "),
           
           TABLE({class: "ai-table-list-items", id: "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: ""},
              THEAD({},
@@ -53,13 +53,13 @@ define([
                    TH({class: "gridHeaderCell", id: "gridRulesCol", role: "columnheader"}, 
                      DIV({class: "gridHeaderCellBox"}, Locale.$STR("ainspector.header.summary.Rules"))
                    ),
-                   TH({class: "gridHeaderCell", id: "gridLevelCol", role: "columnheader"}, 
-                       DIV({class: "gridHeaderCellBox", title: Locale.$STR("ainspector.header.summary.title.level")}, 
-                         Locale.$STR("ainspector.header.summary.level"))
-                   ),
                    TH({class: "gridHeaderCell", id: "gridRequiredCol", role: "columnheader"}, 
                        DIV({class: "gridHeaderCellBox", title: Locale.$STR("ainspector.header.summary.title.required")}, 
                          Locale.$STR("ainspector.header.summary.required"))
+                   ),
+                   TH({class: "gridHeaderCell", id: "gridLevelCol", role: "columnheader"}, 
+                       DIV({class: "gridHeaderCellBox", title: Locale.$STR("ainspector.header.summary.title.level")}, 
+                         Locale.$STR("ainspector.header.summary.level"))
                    ),
                    TH({class: "gridHeaderCell", id: "gridPassCol", role: "columnheader"}, 
                      DIV({class: "gridHeaderCellBox", title: Locale.$STR("ainspector.header.title.pass")}, 
@@ -84,13 +84,13 @@ define([
                  
                  TR({class: "tableRow gridRow", _repObject:"$object", onclick: "$highlightRule"},//gridRow              
                    TD({class: "gridCol gridOrderCol", id: "gridOrderCol", role: "gridcell"},
-                     DIV({class: "gridContent ", title : "$object.summary"}, "$object.summary")
+                     DIV({class: "gridContent ", title : "$object.summary", style: "margin-left:1.0em;"}, "$object.summary")
+                   ),
+                   TD({class: "gridCol gridElementCol", id: "gridElementCol", role: "gridcell"},
+                     DIV({class: "gridContent gridAlign $object.required|getStyleOnRequired"}, "$object.required")
                    ),
                    TD({class: "gridCol ", id: "gridLevelCol", role: "gridcell"},
                        DIV({class: "gridContent gridAlign"},  "$object.wcag20_level_label")
-                   ),
-                   TD({class: "gridCol gridElementCol", id: "gridElementCol", role: "gridcell"},
-                     DIV({class: "gridContent gridAlign"}, "$object.required")
                    ),
                    TD({class: "gridCol", id: "gridPassCol", role: "gridcell"},
                      DIV({class: "gridContent gridAlign"}, TAG("$strTagPass", {rule_result: "$object"}))
@@ -116,20 +116,31 @@ define([
            strTagWarn : DIV({class: "$rule_result.warnings_count|getWarningsStyle"}, "$rule_result.warnings_count"), //$object.warnings_count
            
            getManualCheckStyle : function(mck) {
-        	 if (mck > 0 ) return "manualMsgTxt";
-        	 else return "grayStyle";
+        	 
+          	 if (mck > 0 ) return "manualMsgTxt";
+          	 else return "grayStyle";
            },
+           
            getViolationStyle : function(violation) {
-    	     if (violation > 0 ) return "violationMsgTxt";
-    	     else return "grayStyle";
+          	 
+          	 if (violation > 0 ) return "violationMsgTxt";
+          	 else return "grayStyle";
            },
+           
            getPassStyle : function(pass) {
-        	 if (pass > 0 ) return "passMsgTxt";
-        	 else return "grayStyle";
+        	 
+          	 if (pass > 0 ) return "passMsgTxt";
+          	 else return "grayStyle";
            },
            getWarningsStyle : function(warn) {
+          	 
           	 if (warn > 0 ) return "warnMsgTxt";
           	 else return "grayStyle";
+           },
+           
+           getStyleOnRequired : function(required) {
+          	 
+          	 if (required == 'na') return "grayStyle";
            },
            
            /**

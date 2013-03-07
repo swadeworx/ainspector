@@ -544,6 +544,7 @@ define([
     }
     Firebug.registerStringBundle("chrome://ainspector/locale/ainspector.properties");
     Firebug.registerStylesheet("chrome://ainspector/skin/ainspector-list-template.css");
+    
     with (Domplate) {
       
       AinspectorUtil.noDataView = domplate({
@@ -587,7 +588,7 @@ define([
               TBODY(
               )
              ), //end TABLE
-             SPAN({style: "font-weight: bold;"}, "No " + "$view" + " data to present...")
+             SPAN({style: "font-weight: bold;color: gray"}, "No " + "$view" + " data to present...")
             )
       });
     }

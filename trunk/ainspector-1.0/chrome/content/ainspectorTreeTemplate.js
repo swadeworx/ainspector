@@ -38,14 +38,14 @@ define([
         tag:
           DIV({class:"main-panel"},
             SPAN({class: "summaryTitle", style: "margin-left: 0.5em;"}, "$view"),
-            SPAN({style: "margin-left: 3.0em; color: gray;"}, "%P"),
-            SPAN({style: "margin-left: 0.5em; color: black; background-color: #78AB46"}, "  " + "$cache_results.percent_passed" + "  "),
+            SPAN({style: "margin-left: 3.0em; color: gray;"}, "P"),
+            SPAN({style: "margin-left: 0.5em; color: black; background-color: #78AB46"}, "  " + "$cache_results.passed_count" + "  "),
             SPAN({style: "margin-left: 1.5em; color: gray;"}, " V"),
             SPAN({style: "margin-left: 0.5em; color: black; background-color: #b22222;"}, "  " + "$cache_results.violations_count" + "  "),
             SPAN({style: "margin-left: 1.5em; color: gray;"}, " W"),
             SPAN({style: "margin-left: 0.5em; color: black; background-color: #DAA520;"}, "  " + "$cache_results.warnings_count" + "  "),
             SPAN({style: "margin-left: 1.5em; color: gray;"}, " MC"),
-            SPAN({style: "margin-left: 0.5em; color: black; background-color: #7D26CD;"}, "  " + "$cache_results.manual_checks_count" + "   "),
+            SPAN({style: "margin-left: 0.5em; color: black; background-color: #CD96CD;"}, "  " + "$cache_results.manual_checks_count" + "   "),
             
             BUTTON({onclick: "$expandAll", style: "float:right;", _repObject: "$results"}, "Expand All"),
             BUTTON({onclick: "$collapseAllRows", style: "float:right;", _repObject: "$results"}, "Collapse All"),
@@ -92,22 +92,22 @@ define([
             TR({class: "treeRow gridRow", $hasChildren: "$member.container", level: "$member.level",
              onclick: "$highlightTreeRow", ondblclick: "$toHTMLPanel", _repObject: "$member"},
               TD({class: "memberLabelCell", style: "padding-left: $member.level|getIndented", _repObject: "$member.value"},
-                DIV({class: "$member.container|getClassName", title : "$member.element", style: "font-weight: normal;"}, "$member.element")
+                DIV({class: "$member.container|getClassName", title : "$member.element", style: "font-weight: normal;margin-left:0.5em;"}, "$member.element")
               ),
               TD({class: "memberLabelCell"}, 
-    		    DIV({class: "gridContent gridAlign"}, TAG("$strTagHidden", {node_result: "$member"}))
+            		DIV({class: "gridContent gridAlign"}, TAG("$strTagHidden", {node_result: "$member"}))
               ),
               TD({class: "memberLabelCell"},
-    		    DIV({class: "gridContent gridAlign"}, TAG("$strTagPass", {node_result: "$member"}))
+            		DIV({class: "gridContent gridAlign"}, TAG("$strTagPass", {node_result: "$member"}))
               ),
               TD({class: "memberLabelCell"},
-    	   	    DIV({class: "gridContent gridAlign"}, TAG("$strTagWarn", {node_result: "$member"}))
+            		DIV({class: "gridContent gridAlign"}, TAG("$strTagWarn", {node_result: "$member"}))
               ),
               TD({class: "memberLabelCell"},
-    		    DIV({class: "gridContent gridAlign"}, TAG("$strTagManual", {node_result: "$member"}))
+            		DIV({class: "gridContent gridAlign"}, TAG("$strTagManual", {node_result: "$member"}))
               ),
               TD({class: "memberLabelCell"},
-    		    DIV({class: "gridContent gridAlign"}, TAG("$strTagViolation", {node_result: "$member"}))
+            		DIV({class: "gridContent gridAlign"}, TAG("$strTagViolation", {node_result: "$member"}))
               ),
               TD({class: "memberLabelCell gridAlign"},
                 BUTTON({onclick: "$toHTMLPanel", id: "html_panel_button"}, "HTML")
