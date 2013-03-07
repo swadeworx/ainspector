@@ -95,7 +95,10 @@ Firebug.RuleInfoSidePanel.prototype = Obj.extend(Firebug.Panel, {
 
     if (!result_object) return;
     
-    if (result_object.rule_result) {
+    if (FBTrace.DBG_AINSPECTOR)
+        FBTrace.sysout("AInspector; RuleInfoSidePanel.setSelection-result_object", result_object);
+    
+    if (result_object.filtered_rule_result.rule_result) {
       this.updateSelection(result_object);
     } else {
       this.rulestemplate.selectTag.replace({}, this.panelNode);
@@ -114,7 +117,7 @@ Firebug.RuleInfoSidePanel.prototype = Obj.extend(Firebug.Panel, {
     var rule;
     var rule_summary;
     var rule_definition;
-    var rule_result = result_object.rule_result;
+    var rule_result = result_object.filtered_rule_result.rule_result;
 
     if (result_object && rule_result) {
       

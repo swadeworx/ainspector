@@ -37,7 +37,16 @@ define([
       
         tag:
          DIV({class:"main-panel"},
-          SPAN({}, "$view"),
+          SPAN({class: "summaryTitle", style: "margin-left: 0.5em;"}, "$view"),
+          SPAN({style: "margin-left: 3.0em; color: gray;"}, "%P"),
+          SPAN({style: "margin-left: 0.5em; color: black; background-color: #78AB46"}, "  " + "$category_rule_results.percent_passed" + "  "),
+          SPAN({style: "margin-left: 1.5em; color: gray;"}, " V"),
+          SPAN({style: "margin-left: 0.5em; color: black; background-color: #b22222;"}, "  " + "$category_rule_results.violations_count" + "  "),
+          SPAN({style: "margin-left: 1.5em; color: gray;"}, " W"),
+          SPAN({style: "margin-left: 0.5em; color: black; background-color: #DAA520;"}, "  " + "$category_rule_results.warnings_count" + "  "),
+          SPAN({style: "margin-left: 1.5em; color: gray;"}, " MC"),
+          SPAN({style: "margin-left: 0.5em; color: black; background-color: #7D26CD;"}, "  " + "$category_rule_results.manual_checks_count" + "   "),
+          
           TABLE({class: "ai-table-list-items", id: "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: ""},
              THEAD({},
                TR({class: "gridHeaderRow firstRow gridRow", onclick:"$sortColumn"},
@@ -71,29 +80,29 @@ define([
                  )
              ), //end THEAD
              TBODY({class: ""},
-               FOR("object", "$results|getMembers",
+               FOR("object", "$results",
                  
-                 TR({class: "tableRow gridRow", _repObject:"$object.rule_result_item", onclick: "$highlightRule"},//gridRow              
+                 TR({class: "tableRow gridRow", _repObject:"$object", onclick: "$highlightRule"},//gridRow              
                    TD({class: "gridCol gridOrderCol", id: "gridOrderCol", role: "gridcell"},
-                     DIV({class: "gridContent ", title : "$object.description"}, "$object.description")
+                     DIV({class: "gridContent ", title : "$object.summary"}, "$object.summary")
                    ),
                    TD({class: "gridCol ", id: "gridLevelCol", role: "gridcell"},
-                       DIV({class: "gridContent gridAlign"},  "$object.wcag20_sc_level")
+                       DIV({class: "gridContent gridAlign"},  "$object.wcag20_level_label")
                    ),
                    TD({class: "gridCol gridElementCol", id: "gridElementCol", role: "gridcell"},
                      DIV({class: "gridContent gridAlign"}, "$object.required")
                    ),
                    TD({class: "gridCol", id: "gridPassCol", role: "gridcell"},
-                     DIV({class: "gridContent gridAlign"}, TAG("$object.pass_count", {'object': '$object'}))
+                     DIV({class: "gridContent gridAlign"}, TAG("$strTagPass", {rule_result: "$object"}))
                    ),
                    TD({class: "gridCol", id: "gridWarningCol", role: "gridcell"},
-                     DIV({class: "gridContent gridAlign"}, TAG("$object.warning_count", {'object': '$object'}))
+                     DIV({class: "gridContent gridAlign"}, TAG("$strTagWarn", {rule_result: "$object"}))
                    ),
                    TD({class: "gridCol", id: "gridViolationCol", role: "gridcell"},
-                     DIV({class: "gridContent gridAlign"}, TAG("$object.violation_count", {'object': '$object'}))
+                     DIV({class: "gridContent gridAlign"}, TAG("$strTagViolation", {rule_result: "$object"}))
                    ),
                    TD({class: "gridCol", id: "gridManualCheckCol", role: "gridcell"},
-                     DIV({class: "gridContent gridAlign"}, TAG("$object.manual_check", {'object': '$object'}))
+                     DIV({class: "gridContent gridAlign"}, TAG("$strTagManual", {rule_result: "$object"}))
                    )
                  ) //end TR   
                ) //end FOR
@@ -101,12 +110,27 @@ define([
             ) //end TABLE
            ), //end DIV
            
-           strTagManual : DIV({class: "manualMsgTxt"}, "$object.manual_check_count"), //$object.manual_checks_count
-           zeroTag : DIV({}, "0"),
-           strTagViolation : DIV({class: "violationMsgTxt"}, "$object.v_count"), //$object.violations_count
-           strTagStyle : DIV({style: "color: gray"}, "$object.PEPR"), //$object.violations_count
-           strTagPass : DIV({class: "passMsgTxt"}, "$object.p_count"), //$object.passed_count
-           strTagWarn : DIV({class: "warnMsgTxt"}, "$object.w_count"), //$object.warnings_count
+           strTagManual : DIV({class: "$rule_result.manual_checks_count|getManualCheckStyle"}, "$rule_result.manual_checks_count"), //$object.manual_checks_count
+           strTagViolation : DIV({class: "$rule_result.violations_count|getViolationStyle"}, "$rule_result.violations_count"), //$object.violations_count
+           strTagPass : DIV({class: "$rule_result.passed_count|getPassStyle"}, "$rule_result.passed_count"), //$object.passed_count
+           strTagWarn : DIV({class: "$rule_result.warnings_count|getWarningsStyle"}, "$rule_result.warnings_count"), //$object.warnings_count
+           
+           getManualCheckStyle : function(mck) {
+        	 if (mck > 0 ) return "manualMsgTxt";
+        	 else return "grayStyle";
+           },
+           getViolationStyle : function(violation) {
+    	     if (violation > 0 ) return "violationMsgTxt";
+    	     else return "grayStyle";
+           },
+           getPassStyle : function(pass) {
+        	 if (pass > 0 ) return "passMsgTxt";
+        	 else return "grayStyle";
+           },
+           getWarningsStyle : function(warn) {
+          	 if (warn > 0 ) return "warnMsgTxt";
+          	 else return "grayStyle";
+           },
            
            /**
             * @function viewTag
@@ -129,14 +153,20 @@ define([
              
              panel.panelNode.id = "ainspector-panel"; 
 
+             FBTrace.sysout("rule_Results: ", rule_results);
              var category_rule_results = rule_results.getFilteredRuleResultsByRuleCategory(rule_category, 
-                 "All Rules", preferences.wcag20_level, preferences.show_results_filter_value);
+                 "All Rules", preferences.show_results_filter_value);
              
              category_rule_results.sortRuleResultsByImplementationLevel();
              if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; category_rule_results", category_rule_results);
-             var all_rule_results = category_rule_results.filtered_rule_results;
+             var rule_results_list = category_rule_results.createListOfRuleResults();
+//             rule_results_list.sortListOfRuleResults('wcag20_level', 1); 
+
+             FBTrace.sysout("filtered_rule_results: ", rule_results_list);
+
+             var filtered_rule_results = category_rule_results.filtered_rule_results;
              
-             panel.table = this.tag.replace({results: all_rule_results, view:view, rule_results: rule_results}, panel.panelNode);
+             panel.table = this.tag.replace({results: rule_results_list, view:view, category_rule_results: category_rule_results }, panel.panelNode);
              AinspectorUtil.contextMenu.setTableMenuItems(panel.table);
              
              var side_panel = Firebug.chrome.getSelectedSidePanel();
@@ -154,91 +184,6 @@ define([
              
            },
            
-           /**
-            * @function getMembers
-            * 
-            * @desc returns the summary object to display on the summary panel
-            * 
-            * @param {Object} rule_results from the cache
-            * 
-            * @return {Summary Object}
-            */
-           getMembers : function(rule_results){
-           
-             var members = [];
-             for (var p in rule_results) members.push(this.createMembers(p, rule_results[p]));
-  
-             return members;
-             
-           },
-           
-           /**
-            * @function createMember
-            * 
-            * @desc creates a needed object to iterate in the domplate.
-            * 
-            * @param {Number} iterator - incremental number
-            * @param {Object} rule_result_item - a single object with the rule results
-            * 
-            * @returns {Object} - to print on the Summary View
-            */
-           createMembers: function(iterator, rule_result_item) {
-             var description          = "no description";
-             var wcag20_sc_level      = "";
-             var required             = "";
-             var nls_implementation_level = null;
-             var implementation_percentage = null;
-             var manual_check_count = 0;
-             
-             if (rule_result_item.rule_result) {
-               description               = rule_result_item.rule_result.getRuleSummary();
-               required                 = (rule_result_item.rule_result.rule_mapping.type === OpenAjax.a11y.RULE.REQUIRED) ? 'Yes' : 'No';
-               wcag20_sc_level          = rule_result_item.rule_result.rule.getNLSWCAG20Level();
-               implementation_percentage     = rule_result_item.rule_result.implementation_percentage;
-               nls_implementation_level = rule_result_item.rule_result.getNLSImplementationLevel();
-               
-             } else {
-               description          = rule_result_item.title;
-          
-               if (rule_result_item.getNumberOfRules) description += " (" + rule_result_item.getNumberOfRules() + " rules)";
-               implementation_percentage     = rule_result_item.getImplementationLevel();
-               nls_implementation_level = rule_result_item.getNLSImplementationLevel();
-  
-             }
-             
-             var PEPR = nls_implementation_level.label;
-  
-             if (rule_result_item.manual_checks_count > 0)  manual_check_count = rule_result_item.manual_checks_count;
-             
-             var implementation_percentage_tag = null;
-             
-             if (PEPR == '100%') implementation_percentage_tag = this.strTagPass;
-             
-             else if (PEPR == '0%') implementation_percentage_tag = this.strTagViolation;
-             
-             else if (implementation_percentage > '50' && implementation_percentage < '100') implementation_percentage_tag = this.strTagWarn;
-             
-             else if (implementation_percentage <= '50' && implementation_percentage > '0') implementation_percentage_tag = this.strTagViolation;
-             
-             else implementation_percentage_tag = this.strTagStyle;
-             
-             return {
-               description : description,
-               required : required,
-               wcag20_sc_level : wcag20_sc_level,
-               implementation_percentage_tag : implementation_percentage_tag,
-               PEPR : PEPR,
-               manual_check_count : manual_check_count,
-               rule_result_item : rule_result_item,
-               manual_check : (manual_check_count >= 1) ? this.strTagManual : this.zeroTag,
-               p_count      : rule_result_item.passed_count, 
-               w_count      : rule_result_item.warnings_count,
-               v_count      : rule_result_item.violations_count,
-               violation_count : rule_result_item.violations_count>0 ? this.strTagViolation : this.zeroTag,
-               pass_count : rule_result_item.passed_count > 0 ? this.strTagPass : this.zeroTag,
-               warning_count :rule_result_item.warnings_count > 0 ? this.strTagWarn: this.zeroTag,
-             };
-           },
            
            highlightRule : function(event){
              

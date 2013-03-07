@@ -38,7 +38,16 @@ define([
       
         tag:
            DIV({class:"main-panel"},
-             SPAN({}, "$view"), 
+             SPAN({class: "summaryTitle", style: "margin-left: 0.5em;"}, "$view"), 
+             SPAN({style: "margin-left: 3.0em; color: gray;"}, "%P"),
+             SPAN({style: "margin-left: 0.5em; color: black; background-color: #78AB46"}, "  " + "$filtered_results.percent_passed" + "  "),
+             SPAN({style: "margin-left: 1.5em; color: gray;"}, " V"),
+             SPAN({style: "margin-left: 0.5em; color: black; background-color: #b22222;"}, "  " + "$filtered_results.violations_count" + "  "),
+             SPAN({style: "margin-left: 1.5em; color: gray;"}, " W"),
+             SPAN({style: "margin-left: 0.5em; color: black; background-color: #DAA520;"}, "  " + "$filtered_results.warnings_count" + "  "),
+             SPAN({style: "margin-left: 1.5em; color: gray;"}, " MC"),
+             SPAN({style: "margin-left: 0.5em; color: black; background-color: #7D26CD;"}, "  " + "$filtered_results.manual_checks_count" + "   "),
+             
              BUTTON({onclick: "$expandAll", style: "float:right;", _repObject: "$results"}, "Expand All"),
              BUTTON({onclick: "$collapseAllRows", style: "float:right;", _repObject: "$results"}, "Collapse All"),
              
@@ -75,54 +84,89 @@ define([
                    ) //end TR
              ), //end THEAD
              TBODY(
-               FOR("member", "$results|memberIterator", TAG("$row", {member: "$member"}))
+               FOR("member", "$results", TAG("$row", {member: "$member"}))
              )
            )//end TABLE
          ), //end DIV
            
            row:
-             TR({class: "treeRow gridRow", $hasChildren: "$member.hasChildren", _newObject: "$member", _repObject: "$member.value", level: "$member.level", 
+             TR({class: "treeRow gridRow", $hasChildren: "$member.container", _newObject: "$member", _repObject: "$member", level: "$member.level", 
                onclick: "$highlightTreeRow"},
-               TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value", id: "gridRulesCol"},
-                 DIV({class: "$member.hasChildren|getClassName", title : "$member.rule_description"}, "$member.rule_description")
+               TD({class: "memberLabelCell", style: "padding-left: $member.level|getIndented", _repObject: "$member", id: "gridRulesCol"},
+                 DIV({class: "$member.container|getClassName", title : "$member.summary", style: "font-weight: normal;"}, "$member.summary")
                ),
                TD({class: "memberLabelCell", _repObject: "$member.value", id: "gridRequiredCol"}, 
-                 TAG("$member.makeBold", {'member' :"$member", 'object': "$member.value"})
+            		 DIV({class: "gridContent gridAlign"}, "$member.required|getText")
                ),
                TD({class: "memberLabelCell", _repObject: "$member.value", id: "gridLevelCol"},
-                 DIV({class: "resultAlign"}, "$member.wcag20_level")
+                 DIV({class: "resultAlign"}, "$member.wcag20_level_label")
                ),
                TD({class: "memberLabelCell", _repObject: "$member.value", id: "gridPassCol"},
-                 TAG("$member.p_tag", {'member' :"$member", 'object': "$member.value"})
+            		 DIV({class: "gridContent gridAlign"}, TAG("$strTagPass", {rule_result: "$member"}))
                ),
                TD({class: "memberLabelCell", _repObject: "$member.value", id: "gridWarningCol"},
-                 TAG("$member.w_tag", {'member' :"$member", 'object': "$member.value"})
+            		 DIV({class: "gridContent gridAlign"}, TAG("$strTagWarn", {rule_result: "$member"}))
                ),
                TD({class: "memberLabelCell", _repObject: "$member.value", id: "gridViolationCol"},
-                   TAG("$member.v_tag", {'member' :"$member", 'object': "$member.value"})
+            		 DIV({class: "gridContent gridAlign"}, TAG("$strTagViolation", {rule_result: "$member"}))
                ),
                TD({class: "memberLabelCell", _repObject: "$member.value", id: "gridManualCheckCol"},
-                 TAG("$member.manual_check", {'member' :"$member", 'object': "$member.value"})
+            		 DIV({class: "gridContent gridAlign"}, TAG("$strTagManual", {rule_result: "$member"}))
                )
              ),
 
-             strTagManual : DIV({class: "manualMsgTxt gridAlign"}, "$member.manual_check_count"),
-             zeroTag: DIV({class: "gridAlign"}, "0"),
-             strTagViolation : DIV({class: "violationMsgTxt gridAlign"}, "$member.v_count"), 
-             strTagPass  : DIV({class: "passMsgTxt gridAlign"}, "$member.p_count"), 
-             strTagWarn  : DIV({class: "warnMsgTxt gridAlign"}, "$member.w_count"),
              boldString  : DIV({class: "boldMsgTxt gridAlign"}, "$member.required"),
-             normalString : DIV({class: "gridAlign"}, "$member.required"),
+             strTagManual : DIV({class: "$rule_result.manual_checks_count|getManualCheckStyle"}, "$rule_result.manual_checks_count"), //$object.manual_checks_count
+             strTagViolation : DIV({class: "$rule_result.violations_count|getViolationStyle"}, "$rule_result.violations_count"), //$object.violations_count
+             strTagPass : DIV({class: "$rule_result.passed_count|getPassStyle"}, "$rule_result.passed_count"), //$object.passed_count
+             strTagWarn : DIV({class: "$rule_result.warnings_count|getWarningsStyle"}, "$rule_result.warnings_count"), //$object.warnings_count
+             
+             getManualCheckStyle : function(mck) {
+          	   
+               if (mck > 0 ) return "manualMsgTxt";  
+          	   else return "grayStyle"; 
+             },
+             
+             getViolationStyle : function(violation) {
+      	     
+               if (violation > 0 ) return "violationMsgTxt";
+               else return "grayStyle";
+             },
+             
+             getPassStyle : function(pass) {
+            	 
+            	 if (pass > 0 ) return "passMsgTxt";
+            	 else return "grayStyle";
+             },
+             
+             getWarningsStyle : function(warn) {
+            	
+            	 if (warn > 0 ) return "warnMsgTxt";
+            	 else return "grayStyle";
+             },
              
              loop:
                FOR("member", "$members", TAG("$row", {member: "$member"})),
+               
+             getIndented : function(level){
+            	 
+            	 var level = level * 16;
+            	 
+            	 return level+'px';
+             },  
+             
+             getText :function(text){
+            	
+            	 if (typeof text === 'string') return text;
+            	else return " ";
+             },
              
              /**
               * @function getClassName
               */  
-             getClassName : function(hasChildren) {
+             getClassName : function(container) {
                
-               if (hasChildren) return 'treeLabel';
+               if (container) return 'treeLabel';
                
              },
              
@@ -142,19 +186,21 @@ define([
                var panel = Firebug.currentContext.getPanel("ainspector", true);
             
                var filtered_results = rule_results.getFilteredRuleResultsByRuleSummary(rule_category, 
-                    name, preferences.wcag20_level, preferences.show_results_filter_value);
+                    name, preferences.show_results_filter_value);
                if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; filtered_results: ", filtered_results);
-
+               var rule_results_tree = filtered_results.createListOfRuleResults();
+               
                var filtered_rule_results_groups = filtered_results.filtered_rule_results_groups;
                
                if (panel)
                  Dom.clearNode(panel.panelNode);
                
                panel.panelNode.id = "ainspector-panel";
-               
+               if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; rule_results_tree: ", rule_results_tree);
+
                if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; filtered_rule_results_groups: ", filtered_rule_results_groups);
                
-               panel.table = this.tag.replace({results: filtered_rule_results_groups, view:view}, panel.panelNode);
+               panel.table = this.tag.replace({results: rule_results_tree, view:view, filtered_results: filtered_results}, panel.panelNode);
                
                this.expandAllRows(panel.table);
                AinspectorUtil.selectRow(panel.table, true, id);
@@ -173,89 +219,6 @@ define([
                }
              },
              
-             /**
-              * @function memberIterator
-              */
-             memberIterator : function(object){
-            
-               return this.getMembers(object);
-            },
-            
-            /**
-             * @function getMembers
-             * 
-             * @desc 
-             */
-            getMembers: function(object, level) {
-              
-              if (!level) level = 0;
-              var members = [];
-              
-              for (var p in object) members.push(this.createMember(p, object[p], level));
-              return members;
-                
-            },
-            
-            createMember: function(name, rule_result_groups, level)  {
-              
-              var required = '';
-              var wcag20_level = '';
-              var rule_group = false;
-              var rule_description = '';
-              var manual_check_count = 0;
-              
-              if (rule_result_groups.rule_result){
-
-                var rule_result           = rule_result_groups.rule_result;
-                required                  = (rule_result.rule_mapping.type === OpenAjax.a11y.RULE.REQUIRED) ? 'Yes' : 'No';
-                wcag20_level              = rule_result.rule.getNLSWCAG20Level();
-                rule_description          = rule_result.getMessage();
-
-              } else {
-                rule_description          = rule_result_groups.title;
-                rule_group                = true;
-              }
-                
-              if (rule_result_groups.manual_checks_count > 0)  manual_check_count = rule_result_groups.manual_checks_count;
-              
-              return {
-                
-                level              : level,
-                indent             : level * 16,
-                makeBold           : (required == 'Yes') ? this.boldString : this.normalString,
-                required           : required,    
-                wcag20_level       : wcag20_level,
-                rule_description   : rule_description,
-                manual_check_count : manual_check_count,
-                manual_check       : (manual_check_count >= 1) ? this.strTagManual : this.zeroTag,
-                filtered_results   : this.getFilteredWCAGResults(rule_result_groups), //children
-                hasChildren        : this.hasChildren(rule_result_groups),
-                value              : (rule_result_groups != null) ? rule_result_groups : "",
-                p_count            : rule_result_groups.passed_count,
-                v_count            : rule_result_groups.violations_count,
-                w_count            : rule_result_groups.warnings_count,
-                p_tag              : (rule_result_groups.passed_count > 0 ) ? this.strTagPass : this.zeroTag,
-                v_tag              : (rule_result_groups.violations_count > 0) ? this.strTagViolation : this.zeroTag,
-                w_tag              : (rule_result_groups.warnings_count > 0)  ? this.strTagWarn : this.zeroTag
-              };
-            },
-            
-            /**
-             * @function hasChildren
-             */
-            hasChildren : function(filtered_rule_results) {
-              
-              if (filtered_rule_results.filtered_rule_results_groups &&
-                  filtered_rule_results.filtered_rule_results_groups.length > 0 ) {
-                return true;
-              } else if (filtered_rule_results.filtered_rule_results &&
-                    filtered_rule_results.filtered_rule_results.length > 0) {
-                return true;
-              } else {
-                return false;
-              }
-            },
-            
             /**
              * @function getFilteredResults
              * 
@@ -337,11 +300,8 @@ define([
                 if (repObject) {
                   var members;
                   
-                  if (repObject.filtered_results)
-                    members = this.getMembers(repObject.filtered_results, level+1);
-                  else
-                    members = this.getMembers(repObject.filtered_rule_results, level+1);
-                  if (members) this.loop.insertRows({members: members}, row);
+                  if (repObject.children)
+                    this.loop.insertRows({members: repObject.children}, row);
                 }
     //            return panel.table;
               }
@@ -377,9 +337,9 @@ define([
                 if (row.repObject) {
                   var object = row.repObject;
                   
-                  if (object.filtered_rule_results) length += object.filtered_rule_results.length;
+                  if (object.children) length += object.children.length;
                   
-                  if (object.filtered_rule_results_groups) length += object.filtered_rule_results_groups.length;
+//                  if (object.children) length += object.children.length;
                 }
               }
             },

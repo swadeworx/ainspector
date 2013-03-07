@@ -37,7 +37,16 @@ define([
     Firebug.AinspectorModule.AinspectorListTemplate = domplate(Firebug.Rep, new Firebug.Listener(), {
        tag:
          DIV({class:"main-panel"},
-           SPAN({}, "$view"),    
+           SPAN({class: "summaryTitle", style: "margin-left: 0.5em;"}, "$view"),
+           SPAN({style: "margin-left: 3.0em; color: gray;"}, "%P"),
+           SPAN({style: "margin-left: 0.5em; color: black; background-color: #78AB46"}, "  " + "$cache_results.percent_passed" + "  "),
+           SPAN({style: "margin-left: 1.5em; color: gray;"}, " V"),
+           SPAN({style: "margin-left: 0.5em; color: black; background-color: #b22222;"}, "  " + "$cache_results.violations_count" + "  "),
+           SPAN({style: "margin-left: 1.5em; color: gray;"}, " W"),
+           SPAN({style: "margin-left: 0.5em; color: black; background-color: #DAA520;"}, "  " + "$cache_results.warnings_count" + "  "),
+           SPAN({style: "margin-left: 1.5em; color: gray;"}, " MC"),
+           SPAN({style: "margin-left: 0.5em; color: black; background-color: #7D26CD;"}, "  " + "$cache_results.manual_checks_count" + "   "),
+           
            TABLE({class: "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "", role: "grid", 
              "aria-selected" : "true", tabindex: "0"},
              THEAD({class: "header-fix"},
@@ -78,37 +87,72 @@ define([
                ) //end TR
              ), //THEAD
              TBODY(
-               FOR("object", "$results|getMembers",  
-                 TR({class: "tableRow gridRow", _repObject:"$object.object", onclick:"$highlightRow",
+               FOR("object", "$results",  
+                 TR({class: "tableRow gridRow", _repObject:"$object", onclick:"$highlightRow",
                    ondblclick:"$toHTMLPanel"},
                    TD({class:"gridCol", id: "gridOrderCol"}, 
-        				     DIV({class: "gridContent"}, "$object.document_order")),
+        				     DIV({class: "gridContent"}, "$object.position")),
                    TD({class:"gridCol", id: "gridElementCol"}, 
-        				     DIV({class: "gridContent"}, "$object.tag_name|truncateText")),
+        				     DIV({class: "gridContent"}, "$object.element|truncateText")),
                    TD({class:"gridCol", id: "gridHiddenCol"}, 
-      		  		     DIV({class: "gridContent gridAlign"}, TAG("$object.hidden_count", {'object': '$object'}))),
+                		 DIV({class: "gridContent gridAlign"}, TAG("$strTagHidden", {node_result: "$object"}))
+                   ),
                    TD({class:"gridCol", id: "gridPassCol"}, 
-        				     DIV({class: "gridContent gridAlign"},  TAG("$object.pass_count", {'object': '$object'}))),
+                		 DIV({class: "gridContent gridAlign"}, TAG("$strTagPass", {node_result: "$object"}))
+                   ),
                    TD({class:"gridCol", id: "gridWarningCol"}, 
-        				     DIV({class: "gridContent gridAlign"}, TAG("$object.warning_count", {'object': '$object'}))),
+                		 DIV({class: "gridContent gridAlign"}, TAG("$strTagWarn", {node_result: "$object"}))
+                   ),
                    TD({class:"gridCol", id: "gridManualCheckCol"}, 
-        				     DIV({class: "gridContent gridAlign"}, TAG("$object.mc_count", {'object': '$object'}))),
+                		 DIV({class: "gridContent gridAlign"}, TAG("$strTagManual", {node_result: "$object"}))
+                   ),
                    TD({class:"gridCol", id: "gridViolationCol"}, 
-        				     DIV({class: "gridContent gridAlign"}, TAG("$object.violation_count", {'object': '$object'}))),
+                		 DIV({class: "gridContent gridAlign"}, TAG("$strTagViolation", {node_result: "$object"}))
+                   ),
                    TD({class:"gridCol", id: "gridHTMLCol"}, 
-        				     DIV({class: "gridContent gridAlign"}, BUTTON({onclick: "$toHTMLPanel"}, "HTML")))
+                		 DIV({class: "gridContent gridAlign"}, BUTTON({onclick: "$toHTMLPanel"}, "HTML"))
+                   )
                  )//end TR
                )
              ) //end TBODY
             )//end TABLE
            ), //end DIV
            
-           strTagPass : DIV({class: "passMsgTxt"}, "$object.pc"), //$object.passed_count
-           strTagViolation : DIV({class: "violationMsgTxt"}, "$object.vc"), //$object.violations_count
-           strTagManual : DIV({class: "manualMsgTxt"}, "$object.mc"), //$object.manual_checks_count
-           strTagHidden : DIV({class: "hiddenMsgTxt"}, "$object.hc"), //$object.hidden_count
-           strTagWarn : DIV({class: "warnMsgTxt"}, "$object.wc"), //$object.warnings_count
-           zeroTag : DIV({}, "0"),
+           strTagManual : DIV({class: "$node_result.manual_checks_count|getManualCheckStyle"}, "$node_result.manual_checks_count"), //$object.manual_checks_count
+           strTagViolation : DIV({class: "$node_result.violations_count|getViolationStyle"}, "$node_result.violations_count"), //$object.violations_count
+           strTagPass : DIV({class: "$node_result.passed_count|getPassStyle"}, "$node_result.passed_count"), //$object.passed_count
+           strTagWarn : DIV({class: "$node_result.warnings_count|getWarningsStyle"}, "$node_result.warnings_count"), //$object.warnings_count
+           strTagHidden : DIV({class: "$node_result.hidden_count|getHiddenStyle"}, "$node_result.hidden_count"), //$object.hidden_count
+           
+           getManualCheckStyle : function(mck) {
+          	 
+          	 if (mck > 0 ) return "manualMsgTxt";  
+          	 else return "grayStyle";
+           },
+           
+           getViolationStyle : function(violation) {
+      	   
+          	 if (violation > 0 ) return "violationMsgTxt";
+          	 else return "grayStyle";
+           },
+           
+           getPassStyle : function(pass) {
+          	
+          	 if (pass > 0 ) return "passMsgTxt";
+          	 else return "grayStyle";
+           },
+           
+           getWarningsStyle : function(warn) {
+           
+          	 if (warn > 0 ) return "warnMsgTxt";
+          	 else return "grayStyle";
+           },
+           
+           getHiddenStyle : function(hidden) {
+          	 
+          	 if (hidden > 0 ) return "hiddenMsgTxt";
+          	 else return "grayStyle";
+           },
            
            truncateText : function(text){
              return AinspectorUtil.truncateText(text, 100);
@@ -139,11 +183,14 @@ define([
             
              var cache_results = rule_results.getCacheItemsByElementType(rule_category, preferences.show_results_filter_value);
              var cache_item_results = cache_results.cache_item_results;
-             
+             if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("Ainspector; cache_results: ", cache_results);
              if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("Ainspector; cache_item_results: ", cache_item_results);
-             
+
+             var node_results_list = cache_results.createListOfCacheItemResults();
+             if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("Ainspector; node_results_list: ", node_results_list);
+
              if (cache_results.cache_item_results.length > 0)
-              panel.table = this.tag.replace({results: cache_item_results, view:view}, panel.panelNode);
+              panel.table = this.tag.replace({results: node_results_list, view:view, cache_results: cache_results}, panel.panelNode);
              else
                panel.table = AinspectorUtil.noDataView.tag.replace({view:view}, panel.panelNode);
              
@@ -166,47 +213,6 @@ define([
                side_panel.getPanelViewMesg(side_panel.panelNode, "");
              }
 //             AinspectorUtil.selectedView = id;
-           },
-           
-           /**
-            * @function getMembers
-            * 
-            * @desc 
-            */
-           getMembers : function(rule_results) {
-             var members = [];
-             
-             for (var p in rule_results) members.push(this.createMembers(p, rule_results[p]));
-            
-             return members;
-           },
-           
-           /**
-            * @function createMembers
-            * 
-            * @desc creates needed result object for each rule result
-            * 
-            * @param {Number}key   -
-            * @param {Object}object - rule result object 
-            * 
-            * @return 
-            */
-           createMembers : function(key, object) {
-             return {
-               object         : object,
-               document_order : (object.cache_item) ? object.cache_item.document_order : object.document_order,
-               tag_name       : (object.cache_item) ? object.cache_item.toString() : object.toString(),
-               hc             : object.hidden_count,
-               pc             : object.passed_count,
-               wc             : object.warnings_count, 
-               mc             : object.manual_checks_count,
-               vc             : object.violations_count,
-               hidden_count   : object.hidden_count > 0 ? this.strTagHidden : this.zeroTag,
-               pass_count     : object.passed_count > 0 ? this.strTagPass : this.zeroTag,
-               warning_count  : object.warnings_count > 0 ? this.strTagWarn : this.zeroTag,
-               mc_count       : object.manual_checks_count > 0 ? this.strTagManual : this.zeroTag,
-               violation_count: object.violations_count > 0 ? this.strTagViolation : this.zeroTag,
-             };
            },
            
            toHTMLPanel : function(event) {

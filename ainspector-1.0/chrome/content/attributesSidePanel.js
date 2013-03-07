@@ -85,7 +85,7 @@ Firebug.AttributesSidePanel.prototype = Obj.extend(Firebug.Panel, {
 
   updateSelection: function(object, parentNode, type) {
 	  
-    var results = SidePanelUtil.commonTemplate.getResults(object.cache_item, type);
+    var results = SidePanelUtil.commonTemplate.getResults(object.cache_item_result.cache_item, type);
     if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; updateSelection.results", results);
     
     if (results.length > 0)

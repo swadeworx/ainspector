@@ -37,7 +37,16 @@ define([
       
         tag:
           DIV({class:"main-panel"},
-            SPAN({}, "$view"), 
+            SPAN({class: "summaryTitle", style: "margin-left: 0.5em;"}, "$view"),
+            SPAN({style: "margin-left: 3.0em; color: gray;"}, "%P"),
+            SPAN({style: "margin-left: 0.5em; color: black; background-color: #78AB46"}, "  " + "$cache_results.percent_passed" + "  "),
+            SPAN({style: "margin-left: 1.5em; color: gray;"}, " V"),
+            SPAN({style: "margin-left: 0.5em; color: black; background-color: #b22222;"}, "  " + "$cache_results.violations_count" + "  "),
+            SPAN({style: "margin-left: 1.5em; color: gray;"}, " W"),
+            SPAN({style: "margin-left: 0.5em; color: black; background-color: #DAA520;"}, "  " + "$cache_results.warnings_count" + "  "),
+            SPAN({style: "margin-left: 1.5em; color: gray;"}, " MC"),
+            SPAN({style: "margin-left: 0.5em; color: black; background-color: #7D26CD;"}, "  " + "$cache_results.manual_checks_count" + "   "),
+            
             BUTTON({onclick: "$expandAll", style: "float:right;", _repObject: "$results"}, "Expand All"),
             BUTTON({onclick: "$collapseAllRows", style: "float:right;", _repObject: "$results"}, "Collapse All"),
             TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, hiddenCols: "", onclick:"$toggleRows"},
@@ -74,51 +83,95 @@ define([
                 ) //end TR
               ), //end THEAD
             TBODY(
-              FOR("member", "$results|memberIterator", TAG("$row", {member: "$member"}))
+              FOR("member", "$results", TAG("$row", {member: "$member"}))
             )
            ) //end TABLE
           ),
           
           row :
-            TR({class: "treeRow gridRow", $hasChildren: "$member.hasChildren", level: "$member.level",
-             onclick: "$highlightTreeRow", ondblclick: "$toHTMLPanel",
-             _newObject: "$member", _repObject: "$member.value"},
-              TD({class: "memberLabelCell", style: "padding-left: $member.indent\\px", _repObject: "$member.value"},
-                TAG("$member.tag", {'member' :"$member", 'object': "$member.value"})
+            TR({class: "treeRow gridRow", $hasChildren: "$member.container", level: "$member.level",
+             onclick: "$highlightTreeRow", ondblclick: "$toHTMLPanel", _repObject: "$member"},
+              TD({class: "memberLabelCell", style: "padding-left: $member.level|getIndented", _repObject: "$member.value"},
+                DIV({class: "$member.container|getClassName", title : "$member.element", style: "font-weight: normal;"}, "$member.element")
               ),
-              TD({class: "memberLabelCell", _repObject: "$member.value"}, 
-                TAG("$member.hidden_count", {'member' :"$member", 'object': "$member.value"})
+              TD({class: "memberLabelCell"}, 
+    		    DIV({class: "gridContent gridAlign"}, TAG("$strTagHidden", {node_result: "$member"}))
               ),
-              TD({class: "memberLabelCell", _repObject: "$member.value"},
-                TAG("$member.pass_count", {'member' :"$member", 'object': "$member.value"})
+              TD({class: "memberLabelCell"},
+    		    DIV({class: "gridContent gridAlign"}, TAG("$strTagPass", {node_result: "$member"}))
               ),
-              TD({class: "memberLabelCell", _repObject: "$member.value"},
-                TAG("$member.warn_count", {'member' :"$member", 'object': "$member.value"})
+              TD({class: "memberLabelCell"},
+    	   	    DIV({class: "gridContent gridAlign"}, TAG("$strTagWarn", {node_result: "$member"}))
               ),
-              TD({class: "memberLabelCell", _repObject: "$member.value"},
-                TAG("$member.manualCheck_count", {'member' :"$member", 'object': "$member.value"})
+              TD({class: "memberLabelCell"},
+    		    DIV({class: "gridContent gridAlign"}, TAG("$strTagManual", {node_result: "$member"}))
               ),
-              TD({class: "memberLabelCell", _repObject: "$member.value"},
-                TAG("$member.violation_count", {'member' :"$member", 'object': "$member.value"})
+              TD({class: "memberLabelCell"},
+    		    DIV({class: "gridContent gridAlign"}, TAG("$strTagViolation", {node_result: "$member"}))
               ),
-              TD({class: "memberLabelCell gridAlign", _repObject: "$member.value"},
+              TD({class: "memberLabelCell gridAlign"},
                 BUTTON({onclick: "$toHTMLPanel", id: "html_panel_button"}, "HTML")
               )
            ),
            
-           strTag : DIV({class: "treeLabel"},"$member.name"),
            styleTag : DIV({class: "styleLabel"},"no label"),
            normalTag : DIV({class: ""},"lab"),
-           strTagPass : DIV({class: "passMsgTxt gridAlign"}, "$member.pass_ct"),
-           strTagViolation : DIV({class: "violationMsgTxt gridAlign"}, "$member.violation_ct"),
-           strTagManual : DIV({class: "manualMsgTxt gridAlign"}, "$member.manualCheck_ct"),
-           strTagHidden : DIV({class: "hiddenMsgTxt gridAlign"}, "$member.hidden_ct"),
-           strTagWarn : DIV({class: "warnMsgTxt gridAlign"}, "$member.warn_ct"),
            zeroTag: DIV({class: "gridAlign"}, "0"),
+           strTagManual : DIV({class: "$node_result.manual_checks_count|getManualCheckStyle"}, "$node_result.manual_checks_count"), //$object.manual_checks_count
+           strTagViolation : DIV({class: "$node_result.violations_count|getViolationStyle"}, "$node_result.violations_count"), //$object.violations_count
+           strTagPass : DIV({class: "$node_result.passed_count|getPassStyle"}, "$node_result.passed_count"), //$object.passed_count
+           strTagWarn : DIV({class: "$node_result.warnings_count|getWarningsStyle"}, "$node_result.warnings_count"), //$object.warnings_count
+           strTagHidden : DIV({class: "$node_result.hidden_count|getHiddenStyle"}, "$node_result.hidden_count"), //$object.hidden_count
+           
+           /**
+            * @function getClassName
+            */  
+           getClassName : function(container) {
+             
+             if (container) return 'treeLabel';
+             
+           },
+           
+           getManualCheckStyle : function(mck) {
+            	 
+      	     if (mck > 0 ) return "manualMsgTxt";
+      	     else return "grayStyle";
+           },
+             
+           getViolationStyle : function(violation) {
+        	   
+          	 if (violation > 0 ) return "violationMsgTxt";
+          	 else return "grayStyle";
+           },
+             
+           getPassStyle : function(pass) {
+            	
+          	 if (pass > 0 ) return "passMsgTxt";
+          	 else return "grayStyle";
+           },
+             
+           getWarningsStyle : function(warn) {
+             
+          	 if (warn > 0 ) return "warnMsgTxt";
+          	 else return "grayStyle";
+           },
+             
+           getHiddenStyle : function(hidden) {
+          	
+          	 if (hidden > 0 ) return "hiddenMsgTxt";
+          	 else return "grayStyle";
+           },
            
            loop:
              FOR("member", "$members", TAG("$row", {member: "$member"})),
-  
+             
+          getIndented : function(level){
+        
+        	var level = level * 16;
+         	 
+         	return level+'px';  
+          },
+          
           /**
            * @function memberIterator
            */
@@ -147,11 +200,12 @@ define([
             
             panel.panelNode.id = "ainspector-panel";
             var cache_item_results = cache_results.cache_item_results;
+            var node_results = cache_results.createListOfCacheItemResults();
             
             if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; AinspectorTreeTemplate.viewTag(cache_results): ", cache_results);
-              
-            if (cache_results.cache_item_results.length > 0) { 
-              panel.table = this.tag.replace({results: cache_item_results, view:view}, panel.panelNode);
+            if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; AinspectorTreeTemplate.viewTag(node_results): ", node_results);
+            if (node_results.length > 0) { 
+              panel.table = this.tag.replace({results: node_results, view:view, cache_results: cache_results}, panel.panelNode);
               this.expandAllRows(panel.table);
             } else {
               panel.table = AinspectorUtil.noDataView.tag.replace({view:view}, panel.panelNode);
@@ -298,12 +352,12 @@ define([
               
               var level = parseInt(row.getAttribute("level"));
               Css.setClass(row, "opened");
-              var repObject = row.newObject;
-            
-              if (repObject) {
-                var members = this.getMembers(repObject.children, level+1);
-            
-                if (members) this.loop.insertRows({members: members}, row);
+              var repObject = row.repObject;
+              FBTrace.sysout("row: ", row);
+              if (repObject && repObject.children) {
+                            
+				var members;
+                this.loop.insertRows({members: repObject.children}, row);
               }
   //            return panel.table;
             }
@@ -347,9 +401,9 @@ define([
               if (row.repObject) {
                 var object = row.repObject;
                 
-                if (object.filtered_rule_results) length += object.filtered_rule_results.length;
+                if (object.children) length += object.children.length;
                 
-                if (object.filtered_rule_results_groups) length += object.filtered_rule_results_groups.length;
+//                if (object.filtered_rule_results_groups) length += object.filtered_rule_results_groups.length;
               }
             }
           },

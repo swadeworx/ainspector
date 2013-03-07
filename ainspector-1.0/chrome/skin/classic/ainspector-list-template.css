@@ -12,9 +12,12 @@
 
 /* Header for A11y panel table list */
 .gridHeaderRow {
-    height: 16px;
+  height: 16px;
 }
-
+.summaryTitle {
+  font-size: 14px;
+  color: black;
+}
 .gridHeaderCell {
   cursor: pointer;
   -moz-user-select: none;
@@ -101,6 +104,10 @@
   color: #DAA520;
   font-weight: bold;
   display:block;
+}
+
+.grayStyle {
+  color: #808080;
 }
 
 /* Column visibility */
