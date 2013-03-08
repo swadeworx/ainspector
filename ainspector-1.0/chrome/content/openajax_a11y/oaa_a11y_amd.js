@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-define(["firebug/lib/trace"], function(FBTrace) {
+define([], function() {
 /*
  * Copyright 2011 OpenAjax Alliance
  *
@@ -148,6 +148,7 @@ OpenAjax.a11y.RESULT_FILTER = OpenAjax.a11y.RESULT_FILTER || {
   WARNING              : 4,
   PAGE_MANUAL_CHECK    : 8,
   ELEMENT_MANUAL_CHECK : 16,
+  MANUAL_CHECK         : 24,
   HIDDEN               : 32, // hidden only applies to node results 
   NOT_APPLICABLE       : 64  // not applicable only applies to rule results
 };
@@ -160,7 +161,7 @@ OpenAjax.a11y.RESULT_FILTER = OpenAjax.a11y.RESULT_FILTER || {
  */
 
 OpenAjax.a11y.DEFAULT_PREFS = OpenAjax.a11y.DEFAULT_PREFS || {
-  RULESET_ID     : "WCAG20_ARIA_TRANS",
+  RULESET_ID     : "ARIA_TRANS",
   WCAG20_LEVEL   : 3,
   BROKEN_LINKS   : false
 };
@@ -211,9 +212,7 @@ OpenAjax.a11y.RULE_CATEGORIES = OpenAjax.a11y.RULE_CATEGORIES || {
   ALL                : 524287, 
   AUDIO_VIDEO        : 131074,  // 131072 + 2
   STRUCTURE          : 32928,    // 32 + 128 + 32768
-  STYLES             : 4,    
-  // Special
-  TRIAGE             : 1048576
+  STYLES             : 4
 };
 
 /**
@@ -226,13 +225,13 @@ OpenAjax.a11y.RULE_CATEGORIES = OpenAjax.a11y.RULE_CATEGORIES || {
  * OpenAjax.a11y.RULE_SUMMARY.UNKNOWN  
  * OpenAjax.a11y.RULE_SUMMARY.CATEGORIES  
  * OpenAjax.a11y.RULE_SUMMARY.WCAG20  
- * OpenAjax.a11y.RULE_SUMMARY.TRIAGE  
+ * OpenAjax.a11y.RULE_SUMMARY.RULE_TYPE
  */
 OpenAjax.a11y.RULE_SUMMARY = OpenAjax.a11y.RULE_SUMMARY || {
   UNDEFINED     : 0,
   CATEGORIES    : 1,
   WCAG20        : 2,
-  TRIAGE        : 3
+  RULESET_TYPE  : 3
 };
 
 /**
@@ -348,20 +347,26 @@ OpenAjax.a11y.WCAG20_LEVEL = OpenAjax.a11y.WCAG20_LEVEL || {
 
 
 /**
- * @constant RULE
+ * @constant RULE_TYPE
  * @memberOf OpenAjax.a11y
  * @type Number
- * @desc Defines a required or recommended rule 
+ * @desc Defines wether a rule is required or recommended rule and how important a required rule is 
  *
  * @example
- * OpenAjax.a11y.RULE.UNKNOWN               
- * OpenAjax.a11y.RULE.REQUIRED               
- * OpenAjax.a11y.RULE.RECOMMENDED               
+ * OpenAjax.a11y.RULE_TYPE.UNKNOWN               
+ * OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC               
+ * OpenAjax.a11y.RULE_TYPE.REQUIRED               
+ * OpenAjax.a11y.RULE_TYPE.RECOMMENDED_BASIC               
+ * OpenAjax.a11y.RULE_TYPE.RECOMMENDED               
  */
-OpenAjax.a11y.RULE = OpenAjax.a11y.RULE || {
-  UNKNOWN        : 0,
-  REQUIRED       : 1,
-  RECOMMENDED    : 2
+OpenAjax.a11y.RULE_TYPE = OpenAjax.a11y.RULE_TYPE || {
+  UNKNOWN                    : 0,
+  REQUIRED_BASIC             : 1,
+  REQUIRED                   : 2,
+  RECOMMENDED_BASIC          : 4,
+  RECOMMENDED                : 8,
+  ALL                        : 15,
+  MAX_VALUE                  : 16
 };
 
 /**
@@ -517,19 +522,19 @@ OpenAjax.a11y.SEVERITY_STYLE = [
  * @constant PRIORITY
  * @memberOf OpenAjax.a11y
  * @type Number
- * @desc Priority of satisfying a rule within a requirement, maybe usefull to developers when there are a high number of violations
+ * @desc Priority of rule within a ruleset 
  *
  * @example
  * OpenAjax.a11y.PRIORITY.UNDEFINED
- * OpenAjax.a11y.PRIORITY.P1
- * OpenAjax.a11y.PRIORITY.P2  
- * OpenAjax.a11y.PRIORITY.P3  
+ * OpenAjax.a11y.PRIORITY.HIGH
+ * OpenAjax.a11y.PRIORITY.COMMON
+ * OpenAjax.a11y.PRIORITY.UNCOMMON
  */
 OpenAjax.a11y.PRIORITY = OpenAjax.a11y.PRIORITY || {
   UNDEFINED : 0,
-  P1        : 1,
-  P2        : 2,
-  P3        : 3
+  HIGH      : 1,
+  COMMON    : 2,
+  UNCOMMON  : 3
 };
 
 /** 
@@ -850,7 +855,7 @@ OpenAjax.a11y.FILTERED_RULE_RESULT_RETURN_VALUE = OpenAjax.a11y.FILTERED_RULE_RE
   ADDED     : 1,
   NOT_ADDED : 2
 };/*
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1813,7 +1818,7 @@ OpenAjax.a11y.util.escapeForJSON = function(str) {
 
   if (typeof str === 'string' && str.length > 0) {
     var return_str = str.replace("'", "\\'", "gi");
-    return_str = str.replace('"', '\\"', "gi");
+    return_str = str.replace('"', "'", "gi");
     return_str = return_str.replace("\n", "\\n", "gi");
     return return_str;
   }
@@ -1884,8 +1889,6 @@ OpenAjax.a11y.util.initStringUsingURL = function(url) {
   var xmlhttp = new XMLHttpRequest();
 
 //  OpenAjax.a11y.logger.debug( "REQUESTING URL: " + url);
-//  FBTrace.sysout("url: ", url);
-//  FBTrace.sysout("xmlhttp: ", xmlhttp);
 
   xmlhttp.open("GET", url, false);
   xmlhttp.send(null); 
@@ -1893,8 +1896,7 @@ OpenAjax.a11y.util.initStringUsingURL = function(url) {
   var str = xmlhttp.responseText;
   
 //  OpenAjax.a11y.logger.debug( "TEXT: " + str);
-//  FBTrace.sysout("TEXT: " , str);
-
+  
   return str;
   
 };
@@ -2087,7 +2089,7 @@ if (typeof String.replaceAll == "undefined") {
     return this.replace(new RegExp(str1.replace(/([\,\!\\\^\$\{\}\[\]\(\)\.\*\+\?\|\<\>\-\&])/g, function(c){return "\\" + c;}), "g"+(ignore?"i":"")), str2);
   }; 
 }/*
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -2578,7 +2580,7 @@ OpenAjax.a11y.cache.AbbreviationItem.prototype.toString = function () {
 
 
 /*
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -7268,7 +7270,7 @@ OpenAjax.a11y.cache.WidgetElement.prototype.toString = function () {
   
 };
 /*
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -10099,7 +10101,7 @@ OpenAjax.a11y.cache.DOMElement.prototype.toString = function() {
 };
 
 /*
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12797,7 +12799,7 @@ OpenAjax.a11y.cache.PageElementHeadingsLandmarks.prototype.toString = function (
   return "page";  
 };
 /*
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13907,7 +13909,7 @@ OpenAjax.a11y.cache.LanguageItem.prototype.toString = function () {
     
 };
 /*
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15843,7 +15845,7 @@ OpenAjax.a11y.cache.ListInfo = function (list_info) {
 
 };
 /*
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16600,7 +16602,7 @@ OpenAjax.a11y.cache.MediaChildElement.prototype.getEvents = function () {
 
 
 /*
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16958,7 +16960,7 @@ OpenAjax.a11y.cache.DOMElementComputedStyle.prototype.toString = function (color
   return "Computed style " + this.color_hex + " " + this.background_color_hex + " " + this.color_contrast_ratio; 
 };
 /*
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19556,7 +19558,7 @@ OpenAjax.a11y.cache.PageElementLayout.prototype.toString = function () {
   return "page";  
 };
 /*
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19772,7 +19774,7 @@ OpenAjax.a11y.cache.TextCache.prototype.updateCache = function () {
 };
 
 /*
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19810,7 +19812,6 @@ OpenAjax.a11y.cache.TextCache.prototype.updateCache = function () {
  * @property {String}    rule_id            - Unique id of the rule 
  * @property {String}    rule_scope         - Defines the scope of the rule; DOM node, page or website 
  * @property {Number}    rule_category      - Rule category 
- * @property {Boolean}   triage             - Is the rule a triage rule
  * @property {String}    wcag_primary_id    - id of the primary WCAG 2.0 success criteria 
  * @property {Array}     wcag_related_ids   - Array of ids of related WCAG 2.0 success criteria
  * @property {String}    cache_dependency   - Which cache (i.e. element group) the rule will use 
@@ -19826,7 +19827,6 @@ OpenAjax.a11y.Rule = function (nls, rule_item) {
   this.rule_id             = rule_item.rule_id;   
   this.rule_scope          = rule_item.rule_scope;   
   this.rule_category       = rule_item.rule_category;   
-  this.triage              = rule_item.triage;   
   this.wcag_primary_id     = rule_item.wcag_primary_id;   
   this.wcag_related_ids    = rule_item.wcag_related_ids;
   this.last_updated        = rule_item.last_updated;
@@ -19853,8 +19853,6 @@ OpenAjax.a11y.Rule = function (nls, rule_item) {
  
 OpenAjax.a11y.Rule.prototype.getNLSRuleId = function () {
 
-  var RULE = OpenAjax.a11y.RULE;
-  
   var nls_rules = this.nls[OpenAjax.a11y.locale];
 
   return nls_rules.rules[this.rule_id]['ID'];
@@ -19931,7 +19929,7 @@ OpenAjax.a11y.Rule.prototype.getNLSRuleScope = function () {
  */
 OpenAjax.a11y.Rule.prototype.getNLSDefinition = function (rule_type) {
 
-  var RULE = OpenAjax.a11y.RULE;
+  var RULE_TYPE = OpenAjax.a11y.RULE_TYPE;
   
   var nls_rules = this.nls[OpenAjax.a11y.locale];
 
@@ -19950,11 +19948,13 @@ OpenAjax.a11y.Rule.prototype.getNLSDefinition = function (rule_type) {
       if (rule_type) {
     
         switch (rule_type) {
-        case RULE.REQUIRED:
+        case RULE_TYPE.REQUIRED_BASIC:
+        case RULE_TYPE.REQUIRED:
           message = nls_rules.message_severities.MUST;
           break;
 
-        case RULE.RECOMMENDATION:
+        case RULE_TYPE.RECOMMENDATION_BASIC:
+        case RULE_TYPE.RECOMMENDATION:
           message = nls_rules.message_severities.SHOULD;
           break;
 
@@ -19991,7 +19991,7 @@ OpenAjax.a11y.Rule.prototype.getNLSDefinition = function (rule_type) {
  */
 OpenAjax.a11y.Rule.prototype.getNLSSummary = function (rule_type) {
 
-  var RULE = OpenAjax.a11y.RULE;
+  var RULE_TYPE = OpenAjax.a11y.RULE_TYPE;
   
   var nls_rules = this.nls[OpenAjax.a11y.locale];
 
@@ -20009,11 +20009,13 @@ OpenAjax.a11y.Rule.prototype.getNLSSummary = function (rule_type) {
     
       switch (rule_type) {
       
-      case RULE.REQUIRED:
+      case RULE_TYPE.REQUIRED_BASIC:
+      case RULE_TYPE.REQUIRED:
         message = nls_rules.message_severities.MUST;
         break;
 
-      case RULE.RECOMMENDED:
+      case RULE_TYPE.RECOMMENDED_BASIC:
+      case RULE_TYPE.RECOMMENDED:
         message = nls_rules.message_severities.SHOULD;
         break;
 
@@ -20393,7 +20395,6 @@ OpenAjax.a11y.Rule.prototype.toJSON = function (prefix, rule_type) {
   stringItem('last_updated', this.last_updated);
   stringListItem('target_resources', this.target_resources); 
   numberItem('rule_category', this.rule_category);
-  booleanItem('triage', this.triage);
   stringItem('language_dependency', this.language_dependency);
   stringItem('cache_dependency', this.cache_dependency);
   stringListItem('resource_properties', this.resource_properties);
@@ -20694,7 +20695,7 @@ OpenAjax.a11y.Rules.prototype.toJSON = function (prefix) {
 
 };
   /*
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21448,7 +21449,7 @@ OpenAjax.a11y.RuleResult.prototype.addResult = function (test_result, cache_item
 
   var SEVERITY    = OpenAjax.a11y.SEVERITY;
   var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
-  var RULE        = OpenAjax.a11y.RULE;
+  var RULE_TYPE = OpenAjax.a11y.RULE_TYPE;
 
   if (!cache_item) return;
 
@@ -21465,6 +21466,8 @@ OpenAjax.a11y.RuleResult.prototype.addResult = function (test_result, cache_item
   
   var node_severity = SEVERITY.UNKNOWN;
   
+  var rule_type = this.rule_mapping.type;
+  
   switch (test_result) {
   
   case TEST_RESULT.PASS:
@@ -21472,7 +21475,8 @@ OpenAjax.a11y.RuleResult.prototype.addResult = function (test_result, cache_item
     break;
     
   case TEST_RESULT.FAIL:
-    if (this.rule_mapping.type === RULE.REQUIRED) {
+    if ((rule_type === RULE_TYPE.REQUIRED_BASIC) ||
+        (rule_type === RULE_TYPE.REQUIRED)) {
       node_severity = SEVERITY.VIOLATION;
     }
     else {
@@ -21877,22 +21881,6 @@ OpenAjax.a11y.RuleResult.prototype.getRuleSummary = function () {
 };
 
 /**
- * @method getTriage
- *
- * @memberOf OpenAjax.a11y.RuleResult
- *
- * @desc Returns the true if rule is a triage rule or false if not a triage rule
- *
- * @return  {Boolean}  Returns the true if rule is a triage rule or false if not a triage rule
- */
-
-OpenAjax.a11y.RuleResult.prototype.getTriage = function () {
-
-  return this.rule.triage;
-
-};
-
-/**
  * @method getWCAG20Level
  *
  * @memberOf OpenAjax.a11y.RuleResult
@@ -22095,7 +22083,7 @@ OpenAjax.a11y.RuleResult.prototype.getMessage = function () {
 
   var nls_rules = OpenAjax.a11y.all_rules.nls[OpenAjax.a11y.locale];
   
-  var RULE = OpenAjax.a11y.RULE;
+  var RULE_TYPE = OpenAjax.a11y.RULE_TYPE;
   
   var failed_count = this.violations_count + this.warnings_count;
   var total_count = failed_count + this.passed_count;
@@ -22187,11 +22175,13 @@ OpenAjax.a11y.RuleResult.prototype.getMessage = function () {
   if (this.message.indexOf("%RULE_TYPE") >= 0) {
     
     switch (this.rule_mapping.type) {
-    case RULE.REQUIRED:
+    case RULE_TYPE.REQUIRED_BASIC:
+    case RULE_TYPE.REQUIRED:
       type = nls_rules.message_severities.MUST;
       break;
 
-    case RULE.RECOMMENDED:
+    case RULE_TYPE.RECOMMENDED_BASIC:
+    case RULE_TYPE.RECOMMENDED:
       type = nls_rules.message_severities.SHOULD;
       break;
       
@@ -22241,7 +22231,7 @@ OpenAjax.a11y.RuleResult.prototype.toString = function () {
 };
 
 /*
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22268,49 +22258,28 @@ OpenAjax.a11y.RuleResult.prototype.toString = function () {
  * @desc Returns an nested lists of cache item results by node results based on the filter 
  *
  * @param  {Object}  cache_item    - Array of cache element items
- * @param  {Number}  rule_category  - Number representing the rule category
  * @param  {Number}  filter         - Number representing the evaluation results filter
  *
  * @return {CacheItemResult}  New cache item result
  */
  
-OpenAjax.a11y.cache.getFilteredCacheItemResult = function(cache_item, rule_category, filter) {
+OpenAjax.a11y.cache.getFilteredCacheItemResult = function(fci_results, cache_item, filter) {
 
-  function severityLevelFilterManualCheck(result_filter, node_results) {
+  function severityLevelFilterManualCheck(node_results) {
     var node_results_len = node_results.length;
     var count = 0;
+    
+    if (node_results_len === 0) return 0;
+    
+    var node_result = node_results[0];
       
-    for (var i = 0; i < node_results_len; i++) {
-      var node_result = node_results[i];
-           
-      if (node_result.getRuleCategory() & rule_category) {
-
-//        OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("NODE RESULT: " + node_result + " PAGE: " + node_result.isScopePage() + " ELEMENT: " + node_result.isScopeElement() + " FILTER: " + result_filter + " ADD: " + (filter & result_filter));
-
-        if (filter & result_filter) {
-          if (result_filter === RESULT_FILTER.PAGE_MANUAL_CHECK && 
-              node_result.isScopePage()) { 
-            ci_result.node_results.push(node_result);
-            count += 1;
-//            OpenAjax.a11y.cache.FilteredCacheItemResults.add_flag = true;
-          }
-          else {
-            if (result_filter === RESULT_FILTER.ELEMENT_MANUAL_CHECK && 
-                node_result.isScopeElement()) { 
-              ci_result.node_results.push(node_result);
-              count += 1;
-//              OpenAjax.a11y.cache.FilteredCacheItemResults.add_flag = true;
-            }
-            else {
-            
-              ci_result.number_of_node_results_filtered += 1;
-            }
-          }
-        }
-        else {
-          if (node_result.isScopeElement()) ci_result.number_of_node_results_filtered += 1;
-        }
-      }
+    if (((filter & RESULT_FILTER.PAGE_MANUAL_CHECK)    && node_result.isScopePage()    ) ||
+        ((filter & RESULT_FILTER.ELEMENT_MANUAL_CHECK) && node_result.isScopeElement()  )) { 
+      ci_result.node_results = ci_result.node_results.concat(node_results);
+      count = node_results_len;
+    }
+    else {            
+      ci_result.number_of_node_results_filtered += node_results_len;
     }
     
     return count;
@@ -22320,24 +22289,17 @@ OpenAjax.a11y.cache.getFilteredCacheItemResult = function(cache_item, rule_categ
   function severityLevelFilter(result_filter, node_results) {
     var node_results_len = node_results.length;
     var count = 0;
-      
-    for (var i = 0; i < node_results_len; i++) {
-      var node_result = node_results[i];
-           
-      if (node_result.getRuleCategory() & rule_category) {
-        if (filter & result_filter) { 
-          ci_result.node_results.push(node_result);
-          count += 1;
-//          OpenAjax.a11y.cache.FilteredCacheItemResults.add_flag = true;
-        }
-        else {
-          ci_result.number_of_node_results_filtered += 1;
-        }
-      }
+    
+    if (filter & result_filter) { 
+      ci_result.node_results = ci_result.node_results.concat(node_results);
+      count = node_results_len;
+    }
+    else {
+      ci_result.number_of_node_results_filtered += node_results_len;
     }
     
     return count;
-    
+     
   } // end function 
 
   var RESULT_FILTER = OpenAjax.a11y.RESULT_FILTER;
@@ -22353,12 +22315,25 @@ OpenAjax.a11y.cache.getFilteredCacheItemResult = function(cache_item, rule_categ
     
   var ci_result = new OpenAjax.a11y.cache.CacheItemResult(cache_item);
     
-  ci_result.violations_count    += severityLevelFilter(RESULT_FILTER.VIOLATION,            de.rules_violations);
-  ci_result.warnings_count      += severityLevelFilter(RESULT_FILTER.WARNING,              de.rules_warnings);
-  ci_result.manual_checks_count += severityLevelFilterManualCheck(RESULT_FILTER.PAGE_MANUAL_CHECK,    de.rules_manual_checks);
-  ci_result.manual_checks_count += severityLevelFilterManualCheck(RESULT_FILTER.ELEMENT_MANUAL_CHECK, de.rules_manual_checks);
-  ci_result.passed_count        += severityLevelFilter(RESULT_FILTER.PASS,                 de.rules_passed);
-  ci_result.hidden_count        += severityLevelFilter(RESULT_FILTER.HIDDEN,               de.rules_hidden);
+  var count = severityLevelFilter(RESULT_FILTER.VIOLATION, de.rules_violations);
+  ci_result.violations_count   += count;
+  fci_results.violations_count += count;
+  
+  count = severityLevelFilter(RESULT_FILTER.WARNING,   de.rules_warnings);
+  ci_result.warnings_count   += count;
+  fci_results.warnings_count += count;
+ 
+  count = severityLevelFilterManualCheck(de.rules_manual_checks); 
+  ci_result.manual_checks_count += count;
+  fci_results.manual_checks_count += count;
+
+  count = severityLevelFilter(RESULT_FILTER.PASS,      de.rules_passed);
+  ci_result.passed_count += count;
+  fci_results.passed_count += count;
+  
+  count = severityLevelFilter(RESULT_FILTER.HIDDEN,    de.rules_hidden);
+  ci_result.hidden_count += count; 
+  fci_results.hidden_count += count; 
 
   return ci_result;
 };
@@ -22375,14 +22350,16 @@ OpenAjax.a11y.cache.getFilteredCacheItemResult = function(cache_item, rule_categ
  * @desc Constructs a data structure of cache items associated with a rule category 
  *       The cache items returned can be filtered by the tpe of evaluation result 
  *
- * @param  {Object}  ruleset  - ruleset and evaluation results used to generate the filtered results
+ * @param  {Object}  ruleset  - Ruleset object containing the evaluation results
  *
- * @property  {Boolean} is_tree      - At least one of the CacheItemResults contains child items
- * @property  {Object}  dom_cache      - dom cache to use in generating filtered results 
+ * @property  {Boolean} is_tree       - At least one of the CacheItemResults contains child items
+ * @propert   {Object}  ruleset       - Ruleset object containing the evaluation results
+ * @property  {Object}  dom_cache     - dom cache to use in generating filtered results 
+ *
+ * @property  {Number}  element_type  - Element type(s) included in this cache list;
+ * @property  {Number}  filter        - Node result filter used on the list
  * 
  * @property  {Array}   cache_item_results        - list of top level cache item results
- * @property  {Number}  number_of_cache_items_filtered  - number of elements in the rule category that were filtered out
- *                                                - of the elements in the cache item results array
  */
 
  OpenAjax.a11y.cache.FilteredCacheItemResults = function(ruleset) {
@@ -22390,18 +22367,23 @@ OpenAjax.a11y.cache.getFilteredCacheItemResult = function(cache_item, rule_categ
   this.is_tree = false;
   this.ruleset = ruleset;
   this.dom_cache = ruleset.dom_cache;
-  this.number_of_cache_items_filtered = 0;
   
   this.element_type = OpenAjax.a11y.ELEMENT_TYPE.UNDEFINED;
-  this.rule_category = OpenAjax.a11y.RULE_CATEGORIES.ALL;
-  this.filter = OpenAjax.a11y.RESULT_FILTER.ALL;
+  this.filter       = OpenAjax.a11y.RESULT_FILTER.ALL;
   
-  this.filter_count = 0;
+  this.implementation_level      = OpenAjax.a11y.IMPLEMENTATION_LEVEL.UNDEFINED;
+  this.implementation_level_sort = OpenAjax.a11y.IMPLEMENTATION_LEVEL.UNDEFINED;
+  this.implementation_percentage = 0;
+    
+  this.percent_passed      = -1;  
+  this.passed_count        = 0;
+  this.violations_count    = 0;
+  this.warnings_count      = 0;
+  this.manual_checks_count = 0;
+  this.hidden_count        = 0;
   
   this.cache_item_results = [];
   
-  this.all_flag = false;
-
 };
 
 /**
@@ -22413,22 +22395,22 @@ OpenAjax.a11y.cache.getFilteredCacheItemResult = function(cache_item, rule_categ
  *       The cache items returned can be filtered by the tpe of evaluation result 
  *          
  * @param  {Number}  element_type             - Number representing the element types to be included
- * @param  {Number}  filter        (optional) - Number representing the evaluation results filter (deafult all results)
- * @param  {Number}  rule_category (optional) - Number representing the rule category (default all categories)
+ * @param  {Number}  filter        (optional) - Number representing the evaluation results filter (default all results)
  */
 
- OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.getCacheItemResults = function(element_type, filter, rule_category) {
+ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.getCacheItemResults = function(element_type, filter) {
 
-//  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("FILTER: " + filter + " RULE CATEGORY: " + rule_category);
+//  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("FILTER: " + filter );
 
   var total;
 
   var ELEMENT_TYPE = OpenAjax.a11y.ELEMENT_TYPE;
 
-  this.element_type  = rule_category;
+  this.element_type  = element_type;
   
-  if (typeof filter === 'number') this.filter = filter;
-  else this.filter = OpenAjax.a11y.RESULT_FILTER.ALL;
+  if (typeof filter !== 'number') filter = OpenAjax.a11y.RESULT_FILTER.ALL;
+
+  this.filter = filter;
 
   this.cache_item_results = [];
   
@@ -22437,69 +22419,58 @@ OpenAjax.a11y.cache.getFilteredCacheItemResult = function(cache_item, rule_categ
   switch (element_type) {
   
   case ELEMENT_TYPE.ALL:
-    this.number_of_cache_items_filtered = this.filterCacheItemsByNodeResultsFromTree(this.dom_cache.element_cache.child_dom_elements, true);
+    this.filterCacheItemsByNodeResultsFromTree(this.dom_cache.element_cache.child_dom_elements, true);
     break;
 
   case ELEMENT_TYPE.AUDIO_VIDEO:
-    this.number_of_cache_items_filtered = this.filterCacheItemsByNodeResultsFromTree(this.dom_cache.media_cache.media_elements);
+    this.filterCacheItemsByNodeResultsFromTree(this.dom_cache.media_cache.media_elements);
     break;
 
   case ELEMENT_TYPE.FORM_CONTROLS:
-    this.number_of_cache_items_filtered = this.filterCacheItemsByNodeResultsFromTree(this.dom_cache.controls_cache.child_cache_elements, false);    
+    this.filterCacheItemsByNodeResultsFromTree(this.dom_cache.controls_cache.child_cache_elements, false);    
     break;
 
   case ELEMENT_TYPE.HEADINGS_LANDMARKS:
     var cache =  this.dom_cache.headings_landmarks_cache;
 
-    if (typeof rule_category != 'number') {
-      rule_category = OpenAjax.a11y.RULE_CATEGORIES.HEADINGS;      
-      rule_category += OpenAjax.a11y.RULE_CATEGORIES.LANDMARKS;      
-      rule_category += OpenAjax.a11y.RULE_CATEGORIES.TITLE;      
-    }
-
     if (cache.title_element) { 
-      ci_result = OpenAjax.a11y.cache.getFilteredCacheItemResult(cache.title_element, rule_category, this.filter);
+      ci_result = OpenAjax.a11y.cache.getFilteredCacheItemResult(this, cache.title_element, filter);
       if (ci_result) this.cache_item_results.push(ci_result);
     }
 
     if (cache.page_element)  { 
-      ci_result = OpenAjax.a11y.cache.getFilteredCacheItemResult(cache.page_element, rule_category, this.filter);
+      ci_result = OpenAjax.a11y.cache.getFilteredCacheItemResult(this, cache.page_element, filter);
       if (ci_result) this.cache_item_results.push(ci_result);
     }
     
-    this.number_of_cache_items_filtered = this.filterCacheItemsByNodeResultsFromTree(cache.child_cache_elements, false);
+    this.filterCacheItemsByNodeResultsFromTree(cache.child_cache_elements, false);
     
     break;
 
   case ELEMENT_TYPE.IMAGES:
-    this.number_of_cache_items_filtered = this.filterCacheItemsByNodeResultsFromList(this.dom_cache.images_cache.image_elements);    
+    this.filterCacheItemsByNodeResultsFromList(this.dom_cache.images_cache.image_elements);    
     break;
 
   case ELEMENT_TYPE.LINKS:
-    this.number_of_cache_items_filtered = this.filterCacheItemsByNodeResultsFromList(this.dom_cache.links_cache.link_elements);    
+    this.filterCacheItemsByNodeResultsFromList(this.dom_cache.links_cache.link_elements);    
     break;
 
   case ELEMENT_TYPE.LAYOUT_TABLES:
 
-    if (typeof rule_category != 'number') {
-      rule_category = OpenAjax.a11y.RULE_CATEGORIES.LAYOUT;      
-      rule_category += OpenAjax.a11y.RULE_CATEGORIES.TABLES;      
-    }
-
     if (this.dom_cache.tables_cache.page_element)  { 
-      ci_result = OpenAjax.a11y.cache.getFilteredCacheItemResult(this.dom_cache.tables_cache.page_element, rule_category, this.filter);
+      ci_result = OpenAjax.a11y.cache.getFilteredCacheItemResult(this, this.dom_cache.tables_cache.page_element, filter);
       if (ci_result) this.cache_item_results.push(ci_result);
     }
     
-    this.number_of_cache_items_filtered = this.filterCacheItemsByNodeResultsFromTree(this.dom_cache.tables_cache.child_cache_elements, false);
+    this.filterCacheItemsByNodeResultsFromTree(this.dom_cache.tables_cache.child_cache_elements, false);
     break;
 
   case ELEMENT_TYPE.TEXT:
-    this.number_of_cache_items_filtered = this.filterCacheItemsByNodeResultsFromList(this.dom_cache.text_cache.text_nodes);
+    this.filterCacheItemsByNodeResultsFromList(this.dom_cache.text_cache.text_nodes);
     break;
 
   case ELEMENT_TYPE.WIDGETS:
-    this.number_of_cache_items_filtered = this.filterCacheItemsByNodeResultsFromTree(this.dom_cache.controls_cache.child_cache_elements, false);
+    this.filterCacheItemsByNodeResultsFromTree(this.dom_cache.controls_cache.child_cache_elements, false);
     break;
 
 
@@ -22508,6 +22479,8 @@ OpenAjax.a11y.cache.getFilteredCacheItemResult = function(cache_item, rule_categ
     
 
   }
+  
+  this.getNLSImplementationLevel();
   
 };
 
@@ -22533,32 +22506,19 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.filterCacheItemsByNodeRes
 
   var cache_items_len = cache_items.length;
   
-  this.all_flag = (this.filter === RESULT_FILTER.ALL);
-  
-  var filtered_count = 0;
-  
   for (var i = 0; i < cache_items_len; i++) {
   
     var ci = cache_items[i];
     
-//    OpenAjax.a11y.cache.FilteredCacheItemResults.add_flag = (this.filter === RESULT_FILTER.ALL);
-
-    var ci_result = OpenAjax.a11y.cache.getFilteredCacheItemResult(ci, this.rule_category, this.filter);
+    var ci_result = OpenAjax.a11y.cache.getFilteredCacheItemResult(this, ci, this.filter);
 
     if (ci_result) this.cache_item_results.push(ci_result);
 
-//    if (ci_result && OpenAjax.a11y.cache.FilteredCacheItemResults.add_flag || this.all_flag) this.cache_item_results.push(ci_result);
-//    else filtered_count++;
-
-//    OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("  CI item: " + i  + "  cache item result length: " + this.cache_item_results.length);
-
   } 
- 
-  return filtered_count;
+  
 };  
 
-  
-
+ 
 /**
  * @method filterCacheItemsByNodeResultsFromTree
  *
@@ -22574,13 +22534,13 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.filterCacheItemsByNodeRes
  
 OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.filterCacheItemsByNodeResultsFromTree = function(cache_items, as_list) {
 
-   function traverseCacheItems(cache_item_result, cache_item) {
+   function traverseCacheItems(fci_results, cache_item_result, cache_item) {
   
 //    OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("  CI result: " + cache_item_result + "      cache item: " + cache_item );
     
 //    OpenAjax.a11y.cache.FilteredCacheItemResults.add_flag = all_flag;
 
-    var ci_result = OpenAjax.a11y.cache.getFilteredCacheItemResult(cache_item, rule_category, filter);
+    var ci_result = OpenAjax.a11y.cache.getFilteredCacheItemResult(fci_results, cache_item, filter);
 
     if (cache_item_result && !as_list) {
       cache_item_result.addChildCacheItemResult(ci_result);
@@ -22600,11 +22560,10 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.filterCacheItemsByNodeRes
 //    OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("CI Result: " + ci_result + "   flag: " + OpenAjax.a11y.cache.FilteredCacheItemResults.add_flag + "   children: " + child_cache_elements_len);
 
     for (var i = 0; i < child_cache_elements_len; i++) {
+    
       var cces = child_cache_elements[i];
-//      if (all_flag) traverseCacheItems(ci_result, cces);
-//      else traverseCacheItems(null, cces);
-
-      traverseCacheItems(ci_result, cces);
+      traverseCacheItems(fci_results, ci_result, cces);
+      
     }
     
   }
@@ -22616,10 +22575,7 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.filterCacheItemsByNodeRes
   
   if (typeof as_list !== 'boolean') as_list = false;
   
-  var filtered_count = 0;
-
   var filter = this.filter;
-  var rule_category = OpenAjax.a11y.RULE_CATEGORIES.ALL;
   
   var cache_item_results = this.cache_item_results;
 
@@ -22629,15 +22585,388 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.filterCacheItemsByNodeRes
   
   for (var i = 0; i < cache_items_len; i++) {
     var ci = cache_items[i];
-    traverseCacheItems(null, ci);
+    traverseCacheItems(this, null, ci);
   } 
   
   if (is_tree) this.is_tree = true;
 
 //  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("IS TREE: " + this.is_tree);
-
-  return filtered_count;
 };  
+
+
+/**
+ * method createListOfCacheItemResults
+ *
+ * @memberOf OpenAjax.a11y.cache.FilteredCacheItemResults
+ *
+ * @desc Creates an array of cache item result objects with properties optimized for custom tree view display, that can be sorted
+ *
+ * @param  {Integer}  Level in tree 
+ *
+ * @return  {Array} Array of objects optimized for display as a custom tree view
+ */
+
+OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.createListOfCacheItemResults = function() {
+
+  function addCacheItemResults(cache_item_results, level) {
+  
+    var cache_item_results_len = cache_item_results.length;
+    
+    var list = [];
+
+    for (var i = 0; i < cache_item_results_len; i++) {
+
+      var cir =  cache_item_results[i];
+
+//      OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("  Cache Item: " + cir.cache_item.toString());
+
+      var failures_count = cir.violations_count + cir.warnings_count;
+      var failures_label = failures_count.toString();
+      var failures_prop  = "zero";
+    
+      if (cir.warnings_count   > 0)  failures_prop  = "warning";
+      if (cir.violations_count > 0)  failures_prop  = "violation";
+
+      var container = cir.filtered_children.length > 0;
+      var children = [];
+      var position = position_count;
+      position_count++;
+      if (container) children = addCacheItemResults(cir.filtered_children, (level+1));
+      
+      var c_item = {
+        // properties for tree view
+        container : container,
+        open      : container,
+        level     : level,
+        type      : 'CACHE_ITEM_RESULT',
+      
+        // Filtered rule result properties
+    
+        position            : position,
+        cache_item_result   : cir,
+        node_results        : cir.node_results,
+    
+        children     : children,
+            
+        element      : cir.cache_item.toString(),
+        element_prop : "",
+      
+        passed_count : cir.passed_count,
+        passed_label : cir.passed_count.toString(),
+        passed_prop  : (cir.passed_count > 0) ? 'passed' : 'zero',
+
+        violations_count : cir.violations_count,
+        violations_label : cir.violations_count.toString(),
+        violations_prop  : (cir.violations_count > 0) ? 'violation' : 'zero',
+      
+        warnings_count : cir.warnings_count,
+        warnings_label : cir.warnings_count.toString(),
+        warnings_prop  : (cir.warnings_count > 0) ? 'warning' : 'zero',
+
+        failures_count : failures_count,
+        failures_label : failures_label,
+        failures_prop  : (cir.failures_count > 0) ? failures_prop : 'zero', 
+
+        manual_checks_count : cir.manual_checks_count,
+        manual_checks_label : cir.manual_checks_count.toString(),
+        manual_checks_prop  : (cir.manual_checks_count > 0) ? 'manual_check' :' zero',      
+      
+        hidden_count : cir.hidden_count,
+        hidden_label : cir.hidden_count.toString(),
+        hidden_prop  : (cir.hidden_count > 0) ? 'hidden' : 'zero'
+    
+      };
+      
+      list.push(c_item);
+  
+    }
+    
+    return list;
+    
+  } // end addCacheItemResults   
+  
+  var position_count = 1;
+
+//  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("CACHE ITEM LIST: " + this.element_type + " (" + this.cache_item_results + ")");
+
+  this.cache_item_list = addCacheItemResults(this.cache_item_results, 0);
+  
+  return this.cache_item_list;
+  
+};
+
+/**
+ * method setOpenState
+ *
+ * @memberOf OpenAjax.a11y.cache.FilteredCacheItemResults
+ *
+ * @desc Sets open state on all container elements for expanding or collapsing a tree
+ *
+ * @param  {Boolean} flag  -  If true all container elements will be set to open, otherwise container element set to close  
+ */
+
+OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.setOpenState = function (flag) {
+
+   function setContainers(list) {
+   
+     for (var i = 0; i < list.length; i++) {
+   
+        var item = list[i];
+        
+        if (item.container) {
+          item.open = flag;
+          
+          if (item.children && item.children.length) setContainers(item.children);
+        }     
+     }
+   }
+   
+   if (typeof flag !== 'boolean') flag = true;
+   
+   setContainers(this.cache_item_list);
+
+};
+
+/**
+ * method getOpenCacheItemResults
+ *
+ * @memberOf OpenAjax.a11y.cache.FilteredCacheItemResults
+ *
+ * @desc Creates an array of cache item result objects with properties optimized for customized tree view display, that can be sorted
+ *
+ * @param  {Boolean} all_flag  -  If true all elements of the list including children are returned without levels 
+ *
+ * @return  {Array} Array of objects optimized for display as a XUL custom tree
+ */
+
+OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.getOpenCacheItemResults = function(all_flag) {
+
+  function getOpenItems(items) {
+  
+    if (typeof items !== 'object') return;
+  
+    var items_len = items.length;
+
+    for (var i = 0; i < items_len; i++) {
+    
+      var item = items[i];
+    
+      if (all_flag) {
+        item.container = false;
+        item.open      = true;
+        item.level     = 0;
+        
+        list.push(item);      
+        
+        if (item.children && item.children.length) { 
+          getOpenItems(item.children);
+        }
+      }
+      else {
+      
+        list.push(item);      
+        
+        if (item.open && item.children && item.children.length) { 
+          getOpenItems(item.children);
+        }
+      }  
+    }      
+  }
+      
+  if (typeof all_flag !== 'boolean') all_flag = false;     
+      
+  var list = [];
+
+  var ci_list = this.cache_item_list;
+  
+  getOpenItems(ci_list);
+  
+  this.open_cache_item_list = list;
+  
+  return list;
+
+};
+
+/**
+ * method sortListOfCacheItemResults
+ *
+ * @memberOf OpenAjax.a11y.cache.FilteredCacheItemResults
+ *
+ * @desc Creates an array of rule result objects with properties optimized for tree view display, that can be sorted
+ *
+ * @param  {String}  sort_property - Name of property to sort (optional, default is implementation level)
+ *                                 - property names (i.e. "required", "wcag20_level", "pepr", "manual_checks_count") 
+ * @param  {Number}  order         - If 1 sort ascending, else sort descending 
+ *
+ * @return  {Array} Array of objects optimized for display as a tree
+ */
+
+OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.sortListOfCacheItemResults = function(sort_property, order) {
+
+  function sortProperty(a, b) {
+  
+//    OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug(" Group IDs: a=" + a.position  + " b=" + b.position);
+
+    if (a[sort_property] > b[sort_property]) return  -1 * order;
+    if (a[sort_property] < b[sort_property]) return 1 * order;
+    
+    //tie breaker: name ascending is the second level sort
+    
+    if (sort_property != "violations_count") {
+      if (a.violations_count > b.violations_count) return 1;
+      if (a.violations_count < b.violations_count) return -1;
+    }
+
+    if (sort_property != "manual_checks_count") {
+      if (a.manual_checks_count > b.manual_checks_count) return 1;
+      if (a.manual_checks_count < b.manual_checks_count) return -1;
+    }
+
+    if (sort_property != "passed_count") {
+      if (a.passed_count > b.passed_count) return 1;
+      if (a.passed_count < b.passed_count) return -1;
+    }
+    
+    if (sort_property != "hidden_count") {
+      if (a.hidden_count > b.hidden_count) return 1;
+      if (a.hidden_count < b.hidden_count) return -1;
+    }
+
+    if (sort_property != "position") {
+      if (a.position > b.position) return 1;
+      if (a.position < b.position) return -1;
+    }
+    
+
+    return 0;  
+  }
+  
+  if (typeof sort_property !== 'string') sort_property = 'position';
+  if (typeof order !== 'number') order = 1;
+
+//  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("CACHE ITEM RESULTS SORT: prop=" + sort_property  + " order=" + order);
+
+  var open_cache_item_list = this.getOpenCacheItemResults(true);
+
+  open_cache_item_list.sort(sortProperty);
+
+  return open_cache_item_list;
+
+};
+
+/**
+ * @method caclulateImplementationLevel
+ *
+ * @memberOf OpenAjax.a11y.cache.FilteredCacheItemResults
+ *
+ * @desc Calculates the level of implementation based on an average of rule implementation of 
+ *       a set of cache items  
+ *
+ * @return  {Number}  Constant indicating level implementation
+ */
+
+OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.calculateImplementationLevel = function () {
+
+  var IMPLEMENTATION_LEVEL = OpenAjax.a11y.IMPLEMENTATION_LEVEL;
+  
+//  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("  Number of rule results: " + rule_results_len);  
+
+  var level = IMPLEMENTATION_LEVEL.NOT_APPLICABLE; 
+  var level_sort =  0.5;
+  var percentage = 0;
+  
+  var p  = this.passed_count;
+  var v  = this.violations_count;
+  var w  = this.warnings_count;
+  var mc = this.manual_checks_count;
+  
+  var percentage_count = p + v + w;
+
+  if (percentage_count > 0) {
+  
+    percentage = Math.round(100 * p / percentage_count);
+
+    level = IMPLEMENTATION_LEVEL.NOT_IMPLEMENTED; 
+      
+    if (percentage === 100) level = IMPLEMENTATION_LEVEL.COMPLETE;
+    else if (percentage >= 95) level = IMPLEMENTATION_LEVEL.ALMOST_COMPLETE;
+      else if (percentage >= 50) level = IMPLEMENTATION_LEVEL.PARTIAL_IMPLEMENTATION;
+    
+    if (mc >= 1) {
+      level += IMPLEMENTATION_LEVEL.MANUAL_CHECKS;
+      level_sort =  1.5 + Math.round((100 - percentage));
+    } 
+    else {
+      level_sort =  1 + Math.round((100 - percentage));    
+    }
+  }
+  else {
+    if (mc > 0) {
+      level = IMPLEMENTATION_LEVEL.MANUAL_CHECKS;
+      level_sort =  1.5;
+    }
+  }
+  
+  this.implementation_level      = level;
+  this.implementation_level_sort = level_sort;
+  this.implementation_percentage = percentage;
+  
+  this.percent_passed = percentage;
+
+//  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("  GROUP: " + this.title + " LEVEL: " + this.implementation_level + " PERCENTAGE: " + this.implementation_percentage + "  LEVEL SORT: " + this.implementation_level_sort);  
+
+  return this.implementation_level;
+};
+
+/**
+ * @method getImplementationLevel
+ *
+ * @memberOf OpenAjax.a11y.cache.FilteredCacheItemResults
+ *
+ * @desc Returns implementation level of a set of cacge items
+ *
+ * @return  {Number}  Number representing the implementation level of the group 
+ */
+
+OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.getImplementationLevel = function() {
+
+  if (this.implementation_level === OpenAjax.a11y.IMPLEMENTATION_LEVEL.UNDEFINED) this.calculateImplementationLevel();
+
+  return this.implementation_level;
+  
+};
+
+/**
+ * @method getNLSImplementationLevel
+ *
+ * @memberOf OpenAjax.a11y.cache.FilteredCacheItemResults
+ *
+ * @desc Returns nls implementation level object representing the implementation level of the set of cache items
+ *
+ * @return  {Object}  nls object representing the implementation level of the group 
+ */
+
+OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.getNLSImplementationLevel = function() {
+
+  var IMPLEMENTATION_LEVEL = OpenAjax.a11y.IMPLEMENTATION_LEVEL;
+
+  var level = this.getImplementationLevel();
+  
+//  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("  GROUP: " + this.title + " NLS LEVEL: " + level);  
+
+  var nls_level = OpenAjax.a11y.cache_nls.getNLSImplementationLevel(level);
+  
+  if (level !== IMPLEMENTATION_LEVEL.NOT_APPLICABLE && 
+      level !== IMPLEMENTATION_LEVEL.RULE_DISABLED) {
+    
+    if (level !== IMPLEMENTATION_LEVEL.MANUAL_CHECKS) nls_level.label = this.implementation_percentage + "%";
+    else nls_level = OpenAjax.a11y.cache_nls.getNLSImplementationLevel(IMPLEMENTATION_LEVEL.NOT_APPLICABLE);    
+  }  
+  
+  return nls_level;
+
+};
+
 
 /**
  * @method toJSON
@@ -22690,8 +23019,6 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.toJSON = function(prefix,
 
   if (this.is_tree) json += prefix + "  \"is_tree\" : true,";
   else json += prefix + "  \"is_tree\" : false,";
-
-  json += prefix + "  \"filtered\"  : " + this.number_of_cache_items_filtered + ",";
   
   json += prefix + "  \"results\" : [";
   
@@ -22742,7 +23069,7 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.toHTML = function(title) 
   html += "    <script type='text/javascript'>\n";
   html += "      var OAA_REPORT = {};\n";  
   html += "      OAA_REPORT.element_type_data = " + this.toJSON("\n      ", title) + ";\n\n";
-  html += "      OAA_REPORT.ruleset = " + this.ruleset.toJSON("\n      ", this.element_type) + ";\n\n";
+  html += "      OAA_REPORT.ruleset = " + this.ruleset.toJSON("\n      ", this.ruleset.ruleset_title) + ";\n\n";
   html += "      OAA_REPORT.wcag20  = " + this.ruleset.wcag20_nls.toJSON("\n      ") + ";\n\n";
   html += "    </script>\n";
   html += OpenAjax.a11y.report_element_type_view_js;
@@ -22819,7 +23146,7 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.toCSV = function(title) {
        csv += "\",\"" + dom_element.getId(); 
        csv += "\",\"" + dom_element.getClassName(); 
        csv += "\",\"" + dom_element.getParentLandmark(); 
-       csv += "\",\"" + node_result.getNLSRuleId() + ": " + node_result.getRuleSummary();
+       csv += "\",\"" + node_result.getNLSRuleId() + ": " + OpenAjax.a11y.util.escapeForJSON(node_result.getRuleSummary());
        csv += "\",\"" + node_result.getNLSRuleType();
        csv += "\",\"" + node_result.getWCAG20SuccessCriterion();
        csv += "\",\"" + node_result.getNLSWCAG20Level();
@@ -22866,7 +23193,7 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.toCSV = function(title) {
  *
  * @property {Number}  number_of_node_results_filtered  - Number of node results that have been filtered from the list
  *
- * @property {Array}   children             - Array of cache item result objects  
+ * @property {Array}   filtered_children    - Array of cache item result objects  
  */
 
  OpenAjax.a11y.cache.CacheItemResult = function(cache_item) {
@@ -22888,6 +23215,8 @@ OpenAjax.a11y.cache.FilteredCacheItemResults.prototype.toCSV = function(title) {
   this.hidden_count        = 0;
   
   this.filtered_children = [];
+  
+  this.is_tree = false;
 
 };
 
@@ -22910,6 +23239,258 @@ OpenAjax.a11y.cache.CacheItemResult.prototype.addChildCacheItemResult = function
   }  
 
 };
+
+/**
+ * method createListOfNodeResults
+ *
+ * @memberOf OpenAjax.a11y.cache.CacheItemResult
+ *
+ * @desc Creates an array of node result objects with properties optimized for tree view display, that can be sorted
+ *
+ * @return  {Array} Array of objects optimized for display as a tree
+ */
+
+OpenAjax.a11y.cache.CacheItemResult.prototype.createListOfNodeResults = function() {
+
+  function addFilteredElementCount(count) {
+
+    if (typeof count !== 'number' || count === 0) return;
+
+    var str;
+
+    if (count === 1) str = count + " " + cache_nls.filteredRule;
+    else str = count + " "  + cache_nls.filteredRules;
+
+    var row = { level : 0,
+                container : false,
+                open : false,
+                
+                node_result : null,
+                position : -1,
+                
+                message : str,
+                message_prop : "message"
+        };
+
+    nr_items.push(row);
+  }
+
+  function addProperty(nr_item, label, value) {
+  
+    var prop_item = { level     : 1,
+                      container : false,
+                      open      : false,
+
+                      node_result : nr_item.node_result,
+                      rule_number : rule_number,
+                      position    : nr_item.position,
+
+                      property_name      : label,  
+                      property_name_prop : "",
+                      value              : "",
+                      value_prop         : "" 
+                   };
+ 
+    if (value !== null) {
+      // if value is a string test to see if it is empty
+      if (typeof value == "string") {
+        if (value.length) {
+          prop_item.value = value;
+        } 
+        else {
+          prop_item.value      = cache_nls.empty;
+          prop_item.value_prop = 'empty';
+        }
+      }
+      else {
+        prop_item.value = value.toString();
+      }  
+    }  
+    else {
+      prop_item.value = cache_nls.undefined;
+      prop_item.value_prop = 'empty';
+    }
+    
+    nr_item.properties.push(prop_item);    
+        
+  }
+
+  var IMPLEMENTATION_LEVEL = OpenAjax.a11y.IMPLEMENTATION_LEVEL;
+
+  var cache_nls = OpenAjax.a11y.cache_nls.getCacheNLS();
+
+  var boolean_values = cache_nls.boolean_values;
+
+  var node_results     = this.node_results;
+  var node_results_len = node_results.length;
+
+  var nr_items = []; 
+
+  for (var i = 0; i < node_results_len; i++) {
+  
+    var n_result =  node_results[i];
+    
+    var rule_number = (i+1);
+    
+    var nr_item = { level       : 0,
+                    container   : true,
+                    open        : false,
+
+                    properties  : [],
+                    node_result : n_result,
+                    rule_number : rule_number, 
+                   
+                    
+                    severity    : n_result.node_result_value,
+               
+                    result       : n_result.getNLSSeverityLabel(),
+                    result_prop  : n_result.getSeverityStyle(),
+               
+                    rule         : n_result.getRuleSummary(), 
+                    rule_prop    : "rule"
+                 };
+              
+    var message_str = cache_nls.message;
+    
+    // Capitalize
+    message_str = message_str.charAt(0).toUpperCase() + message_str.slice(1);
+    
+    addProperty(nr_item, message_str, n_result.getMessage());
+
+    var properties = n_result.getRuleProperties();
+        
+    if (!n_result.cache_item.is_page_element) {
+      for (var j = 0; j < properties.length; j++) {
+        this.is_tree = true;
+        addProperty(nr_item, properties[j].label, properties[j].value);
+      } // end for  
+    } 
+          
+   nr_items.push(nr_item);
+  
+  }
+  
+  addFilteredElementCount(this.number_of_node_results_filtered);
+  
+  this.node_result_items = nr_items;
+
+  return nr_items;
+  
+};
+
+
+/**
+ * method setOpenState
+ *
+ * @memberOf OpenAjax.a11y.cache.CacheItemResult
+ *
+ * @desc Sets open state on all container elements for expanding or collapsing a tree
+ *
+ * @param  {Boolean} flag  -  If true all container elements will be set to open, otherwise container element set to close  
+ */
+
+OpenAjax.a11y.cache.CacheItemResult.prototype.setOpenState = function (flag) {
+
+   function setContainers(list) {
+   
+     for (var i = 0; i < list.length; i++) {
+   
+        var item = list[i];
+        
+        if (item.container) {
+          item.open = flag;
+          
+          if (item.properties && item.properties.length) setContainers(item.properties);
+        }     
+     }
+   }
+   
+   if (typeof flag !== 'boolean') flag = true;
+   
+   setContainers(this.node_result_items);
+
+};
+
+
+/**
+ * method getOpenNodeResults
+ *
+ * @memberOf OpenAjax.a11y.cache.CacheItemResult
+ *
+ * @desc Returns an array of open node result objects with properties optimized for customized tree view display, that can be sorted
+ *
+ * @return  {Array} Array of objects optimized for display as a XUL custom tree
+ */
+
+OpenAjax.a11y.cache.CacheItemResult.prototype.getOpenNodeResults = function() {
+
+  function getOpenItems(items) {
+  
+    if (typeof items !== 'object') return;
+  
+    var items_len = items.length;
+
+    for (var i = 0; i < items_len; i++) {
+    
+      var item = items[i];
+    
+      list.push(item);
+      
+      if (item.open && item.properties && item.properties.length) { 
+         getOpenItems(item.properties);
+      }
+    }      
+  }
+      
+  var list = [];
+
+  var nr_items = this.node_result_items;
+  
+  getOpenItems(nr_items);
+  
+  return list;
+  
+};
+
+/**
+ * method sortListOfNodeResults
+ *
+ * @memberOf OpenAjax.a11y.cache.CacheItemResult
+ *
+ * @desc Sorts the array of node result objects with properties optimized for tree view display, that can be sorted
+ *
+ * @param  {String}  sort_property - Name of property to sort (optional, default is implementation level)
+ *                                 - property names (i.e. "required", "wcag20_level", "pepr", "manual_checks_count") 
+ * @param  {Number}  order         - If 1 sort ascending, else sort descending 
+ *
+ * @return  {Array} Array of objects optimized for display as a tree
+ */
+
+OpenAjax.a11y.cache.CacheItemResult.prototype.sortListOfNodeResults = function(sort_property, order) {
+
+  var IMPLEMENTATION_LEVEL = OpenAjax.a11y.IMPLEMENTATION_LEVEL;
+
+  function sortProperty(a, b) {
+  
+    if (a[sort_property] > b[sort_property]) return  -1 * order;
+    if (a[sort_property] < b[sort_property]) return 1 * order;
+    
+    //tie breaker: name ascending is the second level sort
+    
+    if (sort_property != "severity") {
+      if (a.result > b.result) return 1;
+      if (a.result < b.result) return -1;
+    }
+    
+    
+    return 0;  
+  }
+
+  return this.node_result_items.sort(sortProperty);
+
+};
+
+
 
 /**
  * @method toJSON
@@ -22988,7 +23569,7 @@ OpenAjax.a11y.cache.CacheItemResult.prototype.toJSON = function(prefix) {
 
 };
 /*
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23034,7 +23615,6 @@ OpenAjax.a11y.cache.CacheItemResult.prototype.toJSON = function(prefix) {
  *
  * @property  {Number} number_of_required_rules     - Number of required rules in the group
  * @property  {Number} number_of_recommended_rules  - Number of recommended rules in the group
- * @property  {Number} number_of_rules_not_included - Number of deisabled rules
  *
  * @property  {Number} pass_count           - number of node results in the groups that pass
  * @property  {Number} violations_count     - number of node results in the groups that are violations
@@ -23069,13 +23649,15 @@ OpenAjax.a11y.cache.CacheItemResult.prototype.toJSON = function(prefix) {
   
   this.number_of_required_rules = 0;
   this.number_of_recommended_rules = 0;
-  this.number_of_rules_not_included = 0;
 
+  this.percent_passed      = -1;
   this.passed_count        = 0;
   this.violations_count    = 0;
   this.warnings_count      = 0;
   this.manual_checks_count = 0;
   this.hidden_count        = 0;
+  
+  this.is_tree = false;
  
 }; 
 
@@ -23098,8 +23680,10 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.createListOfRuleResults 
   if (typeof sort != 'string') sort = 'wcag20_level';
 
   var IMPLEMENTATION_LEVEL = OpenAjax.a11y.IMPLEMENTATION_LEVEL;
+  
+  var cache_nls = OpenAjax.a11y.cache_nls.getCacheNLS();
 
-  var boolean_values = OpenAjax.a11y.cache_nls.getCacheNLS().boolean_values;
+  var boolean_values = cache_nls.boolean_values;
 
   var filtered_rule_results_groups     = this.filtered_rule_results_groups;
   var filtered_rule_results_groups_len = filtered_rule_results_groups.length;
@@ -23118,7 +23702,27 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.createListOfRuleResults 
     if (frrg.implementation_level === IMPLEMENTATION_LEVEL.MANUAL_CHECKS)  implementation_percentage = 101;
     if (frrg.implementation_level === IMPLEMENTATION_LEVEL.NOT_APPLICABLE) implementation_percentage = 102;
     if (frrg.implementation_level === IMPLEMENTATION_LEVEL.RULE_DISABLED)  implementation_percentage = 103;
+
+    var failures_count = frrg.violations_count + frrg.warnings_count;
+    var failures_label = failures_count.toString();
+    var failures_prop  = "zero";
     
+    if (frrg.warnings_count   > 0)  failures_prop  = "warning";
+    if (frrg.violations_count > 0)  failures_prop  = "violation";
+    
+    var number_of_rules = frrg.getNumberOfRules();
+    
+    var summary = frrg.title + " (";
+    
+    if (number_of_rules === 1) summary += "1 " + cache_nls.rule + ")";
+    else summary += number_of_rules + " " + cache_nls.rules + ")";
+
+    var group_id = frrg.group_id;
+    
+    var children = frrg.createListOfRuleResults((level+1));
+    
+    if (children.length) this.is_tree = true;
+
     rrg_item = {
       // properties for tree view
       container : true,
@@ -23130,13 +23734,17 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.createListOfRuleResults 
       
       filtered_rule_group_result : frrg,
       
-      children : frrg.createListOfRuleResults((level+1)),
+      children : children,
+
+      group_id     : group_id,
+
+      summary      : summary,
+      summary_prop : "group" + level,
       
-      summary      : frrg.title,
-      definition   : frrg.title,
+      definition   : summary,
       message      : "",
 
-      triage       : false,
+      rule_type    : 0,
       
       wcag20_level       : 0,
       wcag20_level_label : "",
@@ -23147,8 +23755,9 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.createListOfRuleResults 
       implementation_level      : frrg.implementation_level,
       implementation_percentage : implementation_percentage,      
 
-      implementation_label      : implementation.label,
-      implementation_prop       : implementation.style,
+      percent_passed       : (implementation_percentage <= 100) ? implementation_percentage : 0,
+      percent_passed_label : implementation.label,
+      percent_passed_prop  : (implementation_percentage <= 100) ? 'passed' : 'zero',
 
       passed_count : frrg.passed_count,
       passed_label : frrg.passed_count.toString(),
@@ -23162,6 +23771,10 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.createListOfRuleResults 
       warnings_label : frrg.warnings_count.toString(),
       warnings_prop  : (frrg.warnings_count > 0) ? 'warning' : 'zero',
       
+      failures_count : failures_count,
+      failures_label : failures_label,
+      failures_prop  : failures_prop,
+            
       manual_checks_count : frrg.manual_checks_count,
       manual_checks_label : frrg.manual_checks_count.toString(),
       manual_checks_prop  : 'manual_check',      
@@ -23181,22 +23794,57 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.createListOfRuleResults 
       }
       
       return prop;
-   }
+    }
 
-   rrg_item.passed_prop        = updateProperty(rrg_item.passed_prop,        rrg_item.passed_count);
-   rrg_item.violations_prop    = updateProperty(rrg_item.violations_prop,    rrg_item.violations_count);
-   rrg_item.warnings_prop      = updateProperty(rrg_item.warnings_prop,      rrg_item.warnings_count);
-   rrg_item.manual_checks_prop = updateProperty(rrg_item.manual_checks_prop, rrg_item.manual_checks_count);
-   rrg_item.hidden_prop        = updateProperty(rrg_item.hidden_prop,        rrg_item.hidden_count);
+    rrg_item.passed_prop        = updateProperty(rrg_item.passed_prop,        rrg_item.passed_count);
+    rrg_item.violations_prop    = updateProperty(rrg_item.violations_prop,    rrg_item.violations_count);
+    rrg_item.warnings_prop      = updateProperty(rrg_item.warnings_prop,      rrg_item.warnings_count);
+    rrg_item.failures_prop      = updateProperty(rrg_item.failures_prop,      rrg_item.failures_count);
+    rrg_item.manual_checks_prop = updateProperty(rrg_item.manual_checks_prop, rrg_item.manual_checks_count);
+    rrg_item.hidden_prop        = updateProperty(rrg_item.hidden_prop,        rrg_item.hidden_count);
 
-   rrg_items.push(rrg_item);
-  
+    rrg_items.push(rrg_item);
+   
+//    OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("  PERCENT PASS LABEL: " + rrg_item.percent_passed_label);
   }
 
   this.rule_result_items = rrg_items;
 
-  return this.getOpenRuleResults();
+  return this.rule_result_items;
   
+};
+
+
+/**
+ * method setOpenState
+ *
+ * @memberOf OpenAjax.a11y.cache.FilteredRuleResultsGroups
+ *
+ * @desc Sets open state on all container elements for expanding or collapsing a tree
+ *
+ * @param  {Boolean} flag  -  If true all container elements will be set to open, otherwise container element set to close  
+ */
+
+OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.setOpenState = function (flag) {
+
+   function setContainers(list) {
+   
+     for (var i = 0; i < list.length; i++) {
+   
+        var item = list[i];
+        
+        if (item.container) {
+          item.open = flag;
+          
+          if (item.children && item.children.length) setContainers(item.children);
+        }     
+     }
+   }
+   
+   if (typeof flag !== 'boolean') flag = true;
+   
+   setContainers(this.rule_result_items);
+
 };
 
 
@@ -23210,7 +23858,7 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.createListOfRuleResults 
  * @return  {Array} Array of objects optimized for display as a XUL custom tree
  */
 
-OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.getOpenRuleResults = function(rr_items) {
+OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.getOpenRuleResults = function() {
 
   function getOpenItems(items) {
   
@@ -23232,7 +23880,7 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.getOpenRuleResults = fun
       
   var list = [];
 
-  if (typeof rr_items !== 'object') rr_items = this.rule_result_items;
+  var rr_items = this.rule_result_items;
   
   getOpenItems(rr_items);
   
@@ -23259,12 +23907,16 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.sortListOfRuleResults = 
   var IMPLEMENTATION_LEVEL = OpenAjax.a11y.IMPLEMENTATION_LEVEL;
 
   function sortProperty(a, b) {
+  
+//    OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug(" Group IDs: a=" + a.group_id  + " b=" + b.group_id);
 
-    if (a.implementation_level === IMPLEMENTATION_LEVEL.RULE_DISABLED) return 1;
-    if (b.implementation_level === IMPLEMENTATION_LEVEL.RULE_DISABLED) return -1;
+    if (sort_property !== 'summary') {
+      if (a.implementation_level === IMPLEMENTATION_LEVEL.RULE_DISABLED) return 1;
+      if (b.implementation_level === IMPLEMENTATION_LEVEL.RULE_DISABLED) return -1;
 
-    if (a.implementation_level === IMPLEMENTATION_LEVEL.NOT_APPLICABLE) return 1;
-    if (b.implementation_level === IMPLEMENTATION_LEVEL.NOT_APPLICABLE) return -1;
+      if (a.implementation_level === IMPLEMENTATION_LEVEL.NOT_APPLICABLE) return 1;
+      if (b.implementation_level === IMPLEMENTATION_LEVEL.NOT_APPLICABLE) return -1;
+    }  
 
     if (a[sort_property] > b[sort_property]) return  1 * order;
     if (a[sort_property] < b[sort_property]) return -1 * order;
@@ -23314,7 +23966,7 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.sortListOfRuleResults = 
 
   this.rule_result_items = this.rule_result_items.sort(sortProperty);
 
-  return this.getOpenRuleResults();
+  return this.rule_result_items;
 
 };
 
@@ -23346,14 +23998,13 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.addFilteredRuleResultsGr
  *
  * @param  {String}      group_id      - id used for matching the rule result object with a filtered rule result group
  * @param  {RuleResult}  rule_result   - Filtered rule result object to aggregate
- * @param  {Number}      wcag20_level  - WCAG 2.0 Success Criteria Level 
  * @param  {Number}      filter        - Filter for node results (bit mapped mask)
  *
  * @return  {FilteredRuleResult | object}  Returns a filtered rule result object if rule set was added to this group, 
  *                                         otherwise an return object with an added property   
  */
 
-OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.addRuleResult = function(group_id, rule_result, wcag20_level, filter) {
+OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.addRuleResult = function(group_id, rule_result, filter) {
 
   function checkForNewNodes(old_list, new_list) {
   
@@ -23375,6 +24026,7 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.addRuleResult = function
 
 
   var RETURN_VALUE = OpenAjax.a11y.FILTERED_RULE_RESULT_RETURN_VALUE;
+  var RULE_TYPE    = OpenAjax.a11y.RULE_TYPE;
 
   var groups = this.filtered_rule_results_groups;
   var groups_len = groups.length;
@@ -23383,7 +24035,7 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.addRuleResult = function
   
      var group = groups[i];
   
-     var filtered_rule_result = group.addRuleResult(group_id, rule_result, wcag20_level, filter);
+     var filtered_rule_result = group.addRuleResult(group_id, rule_result, filter);
      
      if (filtered_rule_result.added === RETURN_VALUE.ADDED) {
 
@@ -23391,7 +24043,10 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.addRuleResult = function
        this.node_results_with_warnings      = checkForNewNodes(this.node_results_with_warnings,      rule_result.node_results_warnings);
        this.node_results_with_manual_checks = checkForNewNodes(this.node_results_with_manual_checks, rule_result.node_results_manual_checks);
 
-        if (rule_result.rule_mapping.type === OpenAjax.a11y.RULE.REQUIRED) this.number_of_required_rules += 1;
+       var rule_type = rule_result.rule_mapping.type;
+
+        if ((rule_type === RULE_TYPE.REQUIRED_BASIC) ||
+            (rule_type === RULE_TYPE.REQUIRED)) this.number_of_required_rules += 1;
         else this.number_of_recommended_rules += 1;
 
         this.node_results_filtered_out     += filtered_rule_result.node_results_filtered_out;
@@ -23401,15 +24056,6 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.addRuleResult = function
         this.warnings_count      += filtered_rule_result.warnings_count;
         this.manual_checks_count += filtered_rule_result.manual_checks_count;
         this.hidden_count        += filtered_rule_result.hidden_count;
-
-        this.calculateImplementationLevel();
-    
-        return filtered_rule_result;
-     }
-
-     if (filtered_rule_result.added === RETURN_VALUE.NOT_ADDED) {
-     
-        this.number_of_rules_not_included += 1;    
 
         this.calculateImplementationLevel();
     
@@ -23519,6 +24165,8 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.calculateImplementationL
   this.implementation_level      = level;
   this.implementation_level_sort = level_sort;
   this.implementation_percentage = percentage;
+  
+  this.percent_passed = percentage;
 
 //  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("  GROUP: " + this.title + " LEVEL: " + this.implementation_level + " PERCENTAGE: " + this.implementation_percentage + "  LEVEL SORT: " + this.implementation_level_sort);  
 
@@ -23835,7 +24483,8 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroup = function(ruleset, group_id, title
   
   this.number_of_required_rules = 0;
   this.number_of_recommended_rules = 0;
-  this.number_of_rules_not_included = 0;
+
+  this.percent_passed      = -1;
 
   this.passed_count        = 0;
   this.violations_count    = 0;
@@ -23843,6 +24492,9 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroup = function(ruleset, group_id, title
   this.manual_checks_count = 0;
   this.hidden_count        = 0;
   
+  this.is_tree = false;
+ 
+
 };
 
 
@@ -23861,6 +24513,7 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.createListOfRuleResults =
   if (typeof sort != 'string') sort = 'wcag20_level';
 
   var IMPLEMENTATION_LEVEL = OpenAjax.a11y.IMPLEMENTATION_LEVEL;
+  var RULE_TYPE = OpenAjax.a11y.RULE_TYPE;
 
   var boolean_values = OpenAjax.a11y.cache_nls.getCacheNLS().boolean_values;
 
@@ -23875,25 +24528,42 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.createListOfRuleResults =
     var frr =  filtered_rule_results[i];
 
     var rule_type = frr.rule_result.getRuleType();
-    var required = (rule_type === OpenAjax.a11y.RULE.REQUIRED) ? boolean_values.true_value : boolean_values.false_value;
+    var required = ((rule_type === RULE_TYPE.REQUIRED_BASIC) || (rule_type === RULE_TYPE.REQUIRED) || (rule_type === RULE_TYPE.REQUIRED_ADVANCED)) ? boolean_values.true_value : boolean_values.false_value;
     var required_prop = required.toLowerCase();
 
     var wcag20_level         = frr.rule_result.getWCAG20Level();
     var wcag20_level_label   = frr.rule_result.getNLSWCAG20Level();
-    var implementation       = frr.rule_result.getNLSImplementationLevel();
-    var triage               = frr.rule_result.getTriage();
+    var wcag20_level_prop    = wcag20_level_label.toLowerCase();
+    
+    if ((rule_type === RULE_TYPE.REQUIRED_BASIC) ||
+        (rule_type === RULE_TYPE.RECOMMENDED_BASIC)) {
+      required_prop = 'basic_rule';
+      wcag20_level_prop = 'basic_rule';
+    }
+
+    var implementation = frr.rule_result.getNLSImplementationLevel();
     
     var implementation_percentage = frr.rule_result.implementation_percentage;
+
+    if (frr.rule_result.implementation_level === IMPLEMENTATION_LEVEL.NOT_APPLICABLE ||
+        frr.rule_result.implementation_level === IMPLEMENTATION_LEVEL.RULE_DISABLED) {
+      required          = implementation.label;
+      required_prop     = implementation.style;
+      wcag20_level_prop = implementation.style;
+    }  
     
     if (frr.rule_result.implementation_level === IMPLEMENTATION_LEVEL.MANUAL_CHECKS)  implementation_percentage = 101;
     if (frr.rule_result.implementation_level === IMPLEMENTATION_LEVEL.NOT_APPLICABLE) implementation_percentage = 102;
     if (frr.rule_result.implementation_level === IMPLEMENTATION_LEVEL.RULE_DISABLED)  implementation_percentage = 103;
 
-    if (frr.rule_result.implementation_level === IMPLEMENTATION_LEVEL.NOT_APPLICABLE ||
-        frr.rule_result.implementation_level === IMPLEMENTATION_LEVEL.RULE_DISABLED) {
-      required      = implementation.label;
-      required_prop = implementation.style;
-    }  
+    var failures_count = Math.max(frr.violations_count, frr.warnings_count);
+    var failures_label = failures_count.toString();
+    var failures_prop  = "zero";
+    
+    if (frr.violations_count > 0)  failures_prop  = "violation";
+    if (frr.warnings_count   > 0)  failures_prop  = "warning";
+    
+    var group_id = frr.group_id;
 
     rr_item = {
       // properties for tree view
@@ -23908,28 +24578,31 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.createListOfRuleResults =
       
       filtered_rule_result : frr,
       
+      group_id     : group_id,
+      
       summary      : frr.rule_result.getRuleSummary(),
+      summary_prop : ((frr.rule_result.implementation_level === IMPLEMENTATION_LEVEL.NOT_APPLICABLE) || frr.rule_result.implementation_level === IMPLEMENTATION_LEVEL.RULE_DISABLED) ? "not_applicable": "",
+      
       definition   : frr.rule_result.getRuleDefinition(),
       message      : frr.rule_result.getMessage(),
 
-      triage       : triage,
-      
-      wcag20_level       : (triage) ? (-1 * wcag20_level) + 0.5  : -1 * wcag20_level,
+      wcag20_level       : (wcag20_level - OpenAjax.a11y.WCAG20_LEVEL.A) * RULE_TYPE.MAX_VALUE + rule_type,
       wcag20_level_label : wcag20_level_label,
-      wcag20_level_prop  : wcag20_level_label.toLowerCase(),
+      wcag20_level_prop  : wcag20_level_prop,
       
       has_node_results : frr.has_node_results,
 
       implementation_level      : frr.rule_result.implementation_level,
       implementation_percentage : implementation_percentage,      
-
-      implementation_label      : implementation.label,
-      implementation_prop       : implementation.style,
-
-      rule_type      : -1 * rule_type,
+      
+      rule_type      : rule_type,
 
       required       : required,
       required_prop  : required_prop,
+
+      percent_passed       : (implementation_percentage <= 100) ? implementation_percentage : 0,
+      percent_passed_label : implementation.label,
+      percent_passed_prop  : (implementation_percentage <= 100) ? 'passed' : 'zero',
 
       passed_count : frr.passed_count,
       passed_label : frr.passed_count.toString(),
@@ -23942,7 +24615,12 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.createListOfRuleResults =
       warnings_count : frr.warnings_count,
       warnings_label : frr.warnings_count.toString(),
       warnings_prop  : (frr.warnings_count > 0) ? 'warning' : 'zero',
-      
+
+      failures_count : failures_count,
+      failures_label : failures_label,
+      failures_prop  : failures_prop,
+
+
       manual_checks_count : frr.manual_checks_count,
       manual_checks_label : frr.manual_checks_count.toString(),
       manual_checks_prop  : 'manual_check',      
@@ -24024,11 +24702,13 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.sortListOfRuleResults = f
   
     // OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("  COMPARE RULES A:(" + a.summary + ") B:(" + b.summary + ")");  
 
-    if (a.implementation_level === IMPLEMENTATION_LEVEL.RULE_DISABLED) return 1;
-    if (b.implementation_level === IMPLEMENTATION_LEVEL.RULE_DISABLED) return -1;
+    if (sort_property !== 'summary' || sort_property !== 'percent_passed') {
+      if (a.implementation_level === IMPLEMENTATION_LEVEL.RULE_DISABLED) return 1;
+      if (b.implementation_level === IMPLEMENTATION_LEVEL.RULE_DISABLED) return -1;
 
-    if (a.implementation_level === IMPLEMENTATION_LEVEL.NOT_APPLICABLE) return 1;
-    if (b.implementation_level === IMPLEMENTATION_LEVEL.NOT_APPLICABLE) return -1;
+      if (a.implementation_level === IMPLEMENTATION_LEVEL.NOT_APPLICABLE) return 1;
+      if (b.implementation_level === IMPLEMENTATION_LEVEL.NOT_APPLICABLE) return -1;
+    }  
 
     if (a[sort_property] > b[sort_property]) return  1 * order;
     if (a[sort_property] < b[sort_property]) return -1 * order;
@@ -24036,13 +24716,13 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.sortListOfRuleResults = f
     //tie breaker: name ascending is the second level sort
     
     if (sort_property != "wcag20_level") {
-      if (a.wcag20_level > b.wcag20_level) return -1;
-      if (a.wcag20_level < b.wcag20_level) return 1;
+      if (a.wcag20_level > b.wcag20_level) return 1;
+      if (a.wcag20_level < b.wcag20_level) return -1;
     }
     
     if (sort_property != "rule_type") {
-      if (a.rule_type > b.rule_type) return -1;
-      if (a.rule_type < b.rule_type) return 1;
+      if (a.rule_type > b.rule_type) return 1;
+      if (a.rule_type < b.rule_type) return -1;
     }
 
     if (sort_property != "violations_count") {
@@ -24080,6 +24760,22 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.sortListOfRuleResults = f
 
 };
 
+/**
+ * method getOpenRuleResults
+ *
+ * @memberOf OpenAjax.a11y.cache.FilteredRuleResultsGroup
+ *
+ * @desc Creates an array of rule result objects with properties optimized for customized tree view display, that can be sorted
+ *
+ * @return  {Array} Array of objects optimized for display as a XUL custom tree
+ */
+
+OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.getOpenRuleResults = function() {
+
+  return this.rule_result_items;
+  
+};
+
 
 /**
  * method addRuleResult
@@ -24097,7 +24793,7 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.sortListOfRuleResults = f
  *                                         otherwise an return object with an added property   
  */
 
-OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.addRuleResult = function(group_id, rule_result, wcag20_level, filter) {
+OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.addRuleResult = function(group_id, rule_result, filter) {
 
   function checkForNewNodes(old_list, new_list) {
   
@@ -24120,6 +24816,7 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.addRuleResult = function(
   var ro = {};
   
   var RETURN_VALUE = OpenAjax.a11y.FILTERED_RULE_RESULT_RETURN_VALUE;
+  var RULE_TYPE    = OpenAjax.a11y.RULE_TYPE;
 
   if (this.group_id === group_id || 
       (typeof this.group_id === 'number' && 
@@ -24130,49 +24827,41 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.addRuleResult = function(
 
     var rule = rule_result.getRule();
   
-    if (rule.getWCAG20Level() <= wcag20_level) {
-
-      this.node_results_with_violations    = checkForNewNodes(this.node_results_with_violations,    rule_result.node_results_violations);
-      this.node_results_with_warnings      = checkForNewNodes(this.node_results_with_warnings,      rule_result.node_results_warnings);
-      this.node_results_with_manual_checks = checkForNewNodes(this.node_results_with_manual_checks, rule_result.node_results_manual_checks);
+    this.node_results_with_violations    = checkForNewNodes(this.node_results_with_violations,    rule_result.node_results_violations);
+    this.node_results_with_warnings      = checkForNewNodes(this.node_results_with_warnings,      rule_result.node_results_warnings);
+    this.node_results_with_manual_checks = checkForNewNodes(this.node_results_with_manual_checks, rule_result.node_results_manual_checks);
     
-      var filtered_rule_result = new OpenAjax.a11y.cache.FilteredRuleResult(rule_result);
+    var filtered_rule_result = new OpenAjax.a11y.cache.FilteredRuleResult(rule_result);
       
-      filtered_rule_result.getFilteredNodeResults(filter);
+    filtered_rule_result.getFilteredNodeResults(filter);
 
-      this.filtered_rule_results.push(filtered_rule_result);
+    this.filtered_rule_results.push(filtered_rule_result);
     
-      if (rule_result.rule_mapping.type === OpenAjax.a11y.RULE.REQUIRED) this.number_of_required_rules += 1;
-      else this.number_of_recommended_rules += 1;
+    var rule_type = rule_result.rule_mapping.type;
+   
+    if ((rule_type === RULE_TYPE.REQUIRED_BASIC) || 
+        (rule_type === RULE_TYPE.REQUIRED)) this.number_of_required_rules += 1;
+    else this.number_of_recommended_rules += 1;
 
-      this.node_results_filtered_out     += filtered_rule_result.node_results_filtered_out;
+    this.node_results_filtered_out     += filtered_rule_result.node_results_filtered_out;
 
 //      OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug(" Group: " + this.group_id + "  Rule " + rule_result.getRuleSummary() + " Total manual checks: " + this.manual_checks_count + " New Manual Checks:  " + filtered_rule_result.manual_checks_count + " manual checks");  
 
-      this.passed_count        += filtered_rule_result.passed_count;
-      this.violations_count    += filtered_rule_result.violations_count;
-      this.warnings_count      += filtered_rule_result.warnings_count;
-      this.manual_checks_count += filtered_rule_result.manual_checks_count;
-      this.hidden_count        += filtered_rule_result.hidden_count;
+    this.passed_count        += filtered_rule_result.passed_count;
+    this.violations_count    += filtered_rule_result.violations_count;
+    this.warnings_count      += filtered_rule_result.warnings_count;
+    this.manual_checks_count += filtered_rule_result.manual_checks_count;
+    this.hidden_count        += filtered_rule_result.hidden_count;
     
-      this.calculateImplementationLevel();
-      this.sortRuleResultsByImplementationLevel();
+    this.calculateImplementationLevel();
+    this.sortRuleResultsByImplementationLevel();
           
 //      OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug(" Total manual checks (new): " + this.manual_checks_count);  
 
-      filtered_rule_result.added = RETURN_VALUE.ADDED;
-      return filtered_rule_result;
-    }
-    else {
-      this.number_of_rules_not_included += 1;
-
-//      OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("  NOT Added");  
-
-      ro.added = RETURN_VALUE.NOT_ADDED;
-      return ro;
-    }
+    filtered_rule_result.added = RETURN_VALUE.ADDED;
+    return filtered_rule_result;
+    
   }
-
 
   ro.added = RETURN_VALUE.NO_MATCH; 
 
@@ -24274,7 +24963,9 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.calculateImplementationLe
   this.implementation_level      = level;
   this.implementation_level_sort = level_sort;
   this.implementation_percentage = percentage;
-
+  
+  this.percent_passed = percentage;
+  
 //  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("    LEVEL: " + this.implementation_level + "  level sort: " + this.implementation_level_sort);  
 
   return this.implementation_level;
@@ -24617,6 +25308,8 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.toCSV = function(title, h
   
   this.has_node_results = false;
 
+  this.is_tree = false;
+
 };
 
 /**
@@ -24711,7 +25404,7 @@ OpenAjax.a11y.cache.FilteredRuleResult.prototype.createListOfNodeResults = funct
     
     var nr_item = { level       : 0,
                     container   : true,
-                    open        : false,
+                    open        : true,
 
                     properties  : [],
                     node_result : n_result,
@@ -24736,6 +25429,7 @@ OpenAjax.a11y.cache.FilteredRuleResult.prototype.createListOfNodeResults = funct
         
     if (!n_result.cache_item.is_page_element) {
       for (var j = 0; j < properties.length; j++) {
+        this.is_tree = true;
         addProperty(nr_item, properties[j].label, properties[j].value);
       } // end for  
     } 
@@ -24749,6 +25443,80 @@ OpenAjax.a11y.cache.FilteredRuleResult.prototype.createListOfNodeResults = funct
   this.node_result_items = nr_items;
 
   return nr_items;
+  
+};
+
+
+/**
+ * method setOpenState
+ *
+ * @memberOf OpenAjax.a11y.cache.FilteredRuleResult
+ *
+ * @desc Sets open state on all container elements for expanding or collapsing a tree
+ *
+ * @param  {Boolean} flag  -  If true all container elements will be set to open, otherwise container element set to close  
+ */
+
+OpenAjax.a11y.cache.FilteredRuleResult.prototype.setOpenState = function (flag) {
+
+   function setContainers(list) {
+   
+     for (var i = 0; i < list.length; i++) {
+   
+        var item = list[i];
+        
+        if (item.container) {
+          item.open = flag;
+          
+          if (item.properties && item.properties.length) setContainers(item.properties);
+        }     
+     }
+   }
+   
+   if (typeof flag !== 'boolean') flag = true;
+   
+   setContainers(this.node_result_items);
+
+};
+
+
+/**
+ * method getOpenNodeResults
+ *
+ * @memberOf OpenAjax.a11y.cache.FilteredRuleResult
+ *
+ * @desc Returns an array of open node result objects with properties optimized for customized tree view display, that can be sorted
+ *
+ * @return  {Array} Array of objects optimized for display as a XUL custom tree
+ */
+
+OpenAjax.a11y.cache.FilteredRuleResult.prototype.getOpenNodeResults = function() {
+
+  function getOpenItems(items) {
+  
+    if (typeof items !== 'object') return;
+  
+    var items_len = items.length;
+
+    for (var i = 0; i < items_len; i++) {
+    
+      var item = items[i];
+    
+      list.push(item);
+      
+      if (item.open && item.properties && item.properties.length) { 
+         getOpenItems(item.properties);
+      }
+    }      
+  }
+      
+  var list = [];
+
+  var nr_items = this.node_result_items;
+  
+  getOpenItems(nr_items);
+  
+  return list;
   
 };
 
@@ -24775,7 +25543,6 @@ OpenAjax.a11y.cache.FilteredRuleResult.prototype.sortListOfNodeResults = functio
     if (typeof a.message === 'string') return 1;
     if (typeof b.message === 'string') return -1;
     
-  
     if (a[sort_property] > b[sort_property]) return  -1 * order;
     if (a[sort_property] < b[sort_property]) return 1 * order;
     
@@ -24989,7 +25756,7 @@ OpenAjax.a11y.cache.FilteredRuleResult.prototype.toJSON = function(prefix, flag)
 
 
 /*
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25441,7 +26208,7 @@ OpenAjax.a11y.CacheNLS.prototype.addInvalidValue = function (list, attribute, va
     
 };
 /*
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25962,7 +26729,7 @@ OpenAjax.a11y.WCAG20NLSSuccessCriterion.prototype.toJSON = function(prefix) {
 };
 
 /*
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26442,6 +27209,7 @@ OpenAjax.a11y.Ruleset.prototype.setDataTableAssumption = function (assumption) {
  
 OpenAjax.a11y.Ruleset.prototype.evaluate = function (url, title, doc, progessCallBackFunction, build_cache) {
       
+  var RULE_TYPE = OpenAjax.a11y.RULE_TYPE;    
   
   var PROGRESS = OpenAjax.a11y.PROGRESS;
 
@@ -26486,8 +27254,11 @@ OpenAjax.a11y.Ruleset.prototype.evaluate = function (url, title, doc, progessCal
 
 //      OpenAjax.a11y.logger.debug("Rule: " + rule.rule_id + "  Enabled: " + rule_mapping.enabled  + "  Mapping: " + rule_mapping.type + "  Recommended Rules Evaluated: " + this.recommended_rules_enabled);
 
+      var rule_type = rule_mapping.type;
+
       if (rule_mapping.enabled && 
-          (rule_mapping.type === OpenAjax.a11y.RULE.REQUIRED ||
+          ((rule_type === RULE_TYPE.REQUIRED_BASIC) ||
+           (rule_type === RULE_TYPE.REQUIRED) ||
            this.recommended_rules_enabled) &&
           (rule && rule_mapping.wcag20_level <= this.wcag20_level)) {      
 
@@ -26601,13 +27372,13 @@ OpenAjax.a11y.Ruleset.prototype.getCacheItemsByRuleCategory = function (rule_cat
  *
  * @desc Returns an object containing a set of rules organized in a tree structure by WCAG 2.0 Principles, Guidelines and Success Criteria
  *
- * @param {Number}  wcag20_level  -  WCAG 2.0 Success Criteria Level 
+ * @param {String}  title         -  Title of the rule category 
  * @param {Number}  filter        -  Filter for node results (bit mapped mask)
  * 
  * @return {FilteredRuleResultsGroups}  The object containing the filtered rule results organized by wcag 2.0 requirements
  */
 
-OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByWCAG20 = function (wcag20_level, filter) {
+OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByWCAG20 = function (title, filter) {
 
   var RULE_CATEGORIES = OpenAjax.a11y.RULE_CATEGORIES;
 
@@ -26617,8 +27388,10 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByWCAG20 = function (wcag2
   var principle;
   var guideline;
   var success_criterion;
+  
+  var wcag20_level = this.wcag20_level;
 
-  principles = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, RULE_CATEGORIES.ALL_CATEGORIES, 'WCAG 2.0');
+  principles = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, RULE_CATEGORIES.ALL_CATEGORIES, title);
 
   principle         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '1', nls_wcag20.getNLSItemById('1').title, this);
   
@@ -26993,7 +27766,7 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByWCAG20 = function (wcag2
   
      var rule_result = this.rule_results[i];
   
-     principles.addRuleResult(rule_result.getRule().wcag_primary_id, rule_result, wcag20_level, filter);
+     principles.addRuleResult(rule_result.getRule().wcag_primary_id, rule_result, filter);
      
   }   
   
@@ -27004,45 +27777,45 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByWCAG20 = function (wcag2
 
 
 /**
- * @method getFilteredRuleResultsByTriage
+ * @method getFilteredRuleResultsByRuleType
  *
  * @memberOf OpenAjax.a11y.Ruleset
  *
- * @desc Returns an object containing a set of rules organized in a tree structure by rules identified as triage
- *       rules in the ruleset
+ * @desc Returns an object containing a set of rules organized in a tree structure by rule type, defined in a ruleset
  *
- * @param {Number}  wcag20_level  -  WCAG 2.0 Success Criteria Level 
+ * @param {String}  title         -  Title of the rule category 
  * @param {Number}  filter        -  Filter for node results (bit mapped mask)
  *
  * @return {FilteredRuleResultsGroups}  The object containing the filtered rule results that include tirage rules
  */
 
-OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByTriage = function (wcag20_level, filter) {
+OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByRuleType = function (title, filter) {
 
-  var RULE_CATEGORIES = OpenAjax.a11y.RULE_CATEGORIES;
+  var RULE_TYPE       = OpenAjax.a11y.RULE_TYPE;
   
-  var TRIAGE_RULES = 1;
-  var OTHER_RULES  = 2;
-  var ALL_RULES    = 3; // 1 + 2
+  var groups = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, RULE_TYPE.ALL, title);
   
+  var group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_TYPE.REQUIRED_BASIC, 'Required Basic Rules');
+  groups.addFilteredRuleResultsGroup(group);
 
-  var groups = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, ALL_RULES, 'Triage Rules');
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_TYPE.REQUIRED, 'Required Rules');
+  groups.addFilteredRuleResultsGroup(group);
   
-  var triage_group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, TRIAGE_RULES, 'Triage Rules');
-  groups.addFilteredRuleResultsGroup(triage_group);
-  
-  var other_group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, OTHER_RULES, 'Other Rules');
-  groups.addFilteredRuleResultsGroup(other_group);
-  
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_TYPE.RECOMMENDED_BASIC, 'Recommended Basic Rules');
+  groups.addFilteredRuleResultsGroup(group);
 
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_TYPE.RECOMMENDED, 'Recommended Rules');
+  groups.addFilteredRuleResultsGroup(group);
+  
+  
   for (var i = 0; i < this.rule_results.length; i++) {
   
      var rule_result = this.rule_results[i];
      
-     var triage = rule_result.getRule().triage;
+     var rule_type = rule_result.getRuleType();
 
-     if ((typeof triage === 'boolean') && triage) groups.addRuleResult(TRIAGE_RULES, rule_result, wcag20_level, filter);
-     else groups.addRuleResult(OTHER_RULES, rule_result, wcag20_level, filter);
+     groups.addRuleResult(rule_type, rule_result, filter);
+     
   }   
 
   return groups;
@@ -27057,17 +27830,17 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByTriage = function (wcag2
  *
  * @desc Returns an object containing a set of rules organized in a tree structure by rule category
  *
- * @param {Number}  wcag20_level  -  WCAG 2.0 Success Criteria Level 
+ * @param {String}  title         -  Title of the rule category 
  * @param {Number}  filter        -  Filter for node results (bit mapped mask)
  *
  * @return {FilteredRuleResultsGroups}  The object containing the filtered rule results organized by rule categories
  */
 
-OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByRuleCategories = function (wcag20_level, filter) {
+OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByRuleCategories = function (title, filter) {
 
   var RULE_CATEGORIES = OpenAjax.a11y.RULE_CATEGORIES;
 
-  var groups = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, RULE_CATEGORIES.ALL_CATEGORIES, 'All Rule Categories');
+  var groups = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, RULE_CATEGORIES.ALL_CATEGORIES, title);
   var group;
 
   group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.ABBREVIATIONS, 'Abbrevitations', this);
@@ -27125,12 +27898,11 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByRuleCategories = functio
   groups.addFilteredRuleResultsGroup(group);
 
 
-
   for (var i = 0; i < this.rule_results.length; i++) {
   
      var rule_result = this.rule_results[i];
   
-     groups.addRuleResult(rule_result.getRule().rule_category, rule_result, wcag20_level, filter);
+     groups.addRuleResult(rule_result.getRule().rule_category, rule_result, filter);
      
   }   
   
@@ -27147,13 +27919,12 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByRuleCategories = functio
  *
  * @param {Number}  category      -  Number of bit mask for which rule groups to include in the group 
  * @param {String}  title         -  Title of the rule category 
- * @param {Number}  wcag20_level  -  WCAG 2.0 Success Criteria Level 
  * @param {Number}  filter        -  Filter for node results (bit mapped mask)
  *
  * @return {FilteredRuleResultsGroup}  The object containing the filtered rule results
  */
 
-OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByRuleCategory = function (category, title, wcag20_level, filter) {
+OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByRuleCategory = function (category, title, filter) {
 
   var group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, category, title, this);
   
@@ -27161,7 +27932,7 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByRuleCategory = function 
   
      var rule_result = this.rule_results[i];
      
-     if (rule_result) group.addRuleResult(rule_result.getRule().rule_category, rule_result, wcag20_level, filter);
+     if (rule_result) group.addRuleResult(rule_result.getRule().rule_category, rule_result, filter);
      
   }   
   
@@ -27176,28 +27947,27 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByRuleCategory = function 
  *
  * @desc Returns an object containing a set of all rule results for a set of rule categories
  *
- * @param {Number}  summary       -  Number representing the type of summary 
- * @param {String}  title         -  Title of the rule summary 
- * @param {Number}  wcag20_level  -  WCAG 2.0 Success Criteria Level 
+ * @param {Number}  option        -  Number representing the type of summary 
+ * @param {String}  title         -  Title of the rule category 
  * @param {Number}  filter        -  Filter for node results (bit mapped mask)
  *
  * @return {FilteredRuleResultsGroups}  The object containing the filtered rule results
  */
 
-OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByRuleSummary = function (summary, title, wcag20_level, filter) {
+OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByRuleSummary = function (option, title, filter) {
 
-  switch (summary) {
+  switch (option) {
   
   case OpenAjax.a11y.RULE_SUMMARY.CATEGORIES:
-    return this.getFilteredRuleResultsByRuleCategories(wcag20_level, filter);
+    return this.getFilteredRuleResultsByRuleCategories(title, filter);
     break;
   
   case OpenAjax.a11y.RULE_SUMMARY.WCAG20:
-    return this.getFilteredRuleResultsByWCAG20(wcag20_level, filter);
+    return this.getFilteredRuleResultsByWCAG20(title, filter);
     break;
 
-  case OpenAjax.a11y.RULE_SUMMARY.TRIAGE:
-    return this.getFilteredRuleResultsByTriage(wcag20_level, filter);
+  case OpenAjax.a11y.RULE_SUMMARY.RULESET_TYPE:
+    return this.getFilteredRuleResultsByRuleType(title, filter);
     break;
   
 
@@ -27468,7 +28238,7 @@ OpenAjax.a11y.WCAG20RuleMapping = function (rule_id, type, enabled) {
 
 
 /*
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28033,7 +28803,7 @@ OpenAjax.a11y.all_wcag20_nls = OpenAjax.a11y.all_wcag20_nls || new OpenAjax.a11y
 
 OpenAjax.a11y.all_rulesets   = OpenAjax.a11y.all_rulesets   || new OpenAjax.a11y.Rulesets();
 /*
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28072,7 +28842,7 @@ OpenAjax.a11y.rule_export_js         = '  <script type="text/javascript">\n  <!-
 OpenAjax.a11y.rule_export_css        = '  <style type="text/css">\n  <!-- Rule Export CSS not initialized --> \n  </style>\n';
 
 /**
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28102,13 +28872,19 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
      false_value : 'No'
     }, 
 
-    filteredItem  : "filtered item",
-    filteredItems : "filtered items",
+    filteredItem  : "filtered element",
+    filteredItems : "filtered elements",
+
+    filteredRules : "filtered rule",
+    filteredRules : "filtered rules",
     
     undefined : "undefined",
     empty     : "empty",
     
     message   : "Message",
+    
+    rules     : "rules",
+    rule      : "rule",
 
     /*
      * The types of ways a rule can be included in a ruleset
@@ -28740,3453 +29516,6 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
     }
   }
 );
-/*
- * Copyright 2011, 2012, 2013 OpenAjax Alliance
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-/* --------------------------------------------------------------------------- */
-/*       OpenAjax Alliance Rules National Language Support (NLS): English      */
-/* --------------------------------------------------------------------------- */
-   
-
-OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
-
-    rule_scope: ['unknown', 'Element', 'Page', 'Website'],
-    
-    message_severities: {
-      MUST : 'must', 
-      SHOULD: 'should'
-    },
-    
-    missing_message : "The following message id is not defined: ",
-
-    rule_categories: {
-           '1': 'Abbrevitations',
-           '2': 'Audio',  
-           '4': 'Color',
-           '8': 'Controls',
-          '16': 'Objects',
-          '32': 'Headings',
-          '64': 'Images',
-         '128': 'Landmarks',
-         '256': 'Language',
-         '512': 'Layout',
-        '1024': 'Links',
-        '2048': 'Lists',
-        '4096': 'Navigation',
-        '8192': 'Scripting',
-       '16384': 'Tables',
-       '32768': 'Title',
-       '65536': 'Timing',
-      '131072': 'Video',
-      '262144': 'Widgets'
-    },
-    
-    DEFAULT_RULE_RESULT_MESSAGES: {
-      MANUAL_CHECKS_SINGULAR:       '1 element requires manual checking',
-      MANUAL_CHECKS_PLURAL:         '%N_MC elements require manual checking',
-      ALL_PASS_SINGULAR:            '1 element passed',
-      ALL_PASS_PLURAL:              '%N_P elements passed',
-      SOME_FAIL:                    '%N_F out of %N_T elements failed',
-      CORRECTIVE_ACTION_SINGULAR:   '1 element needs corrective action',
-      CORRECTIVE_ACTION_PLURAL:     '%N_F elements need corrective action',
-      ALL_FAIL_SINGULAR:            '1 element failed',
-      ALL_FAIL_PLURAL:              'All %N_F elements failed',
-      NOT_APPLICABLE:               'No applicable elements'
-    },
-
-    SO: ', so ',
-
-    AND: ' and ',
-
-    //
-    //  OAA Rules title and mesage string National Language Support (NLS)
-    //
-    rules: {
-        AUDIO_1: {
-            ID:                    'Audio Rule 1',
-            DEFINITION:            'Prerecorded audio %s have caption or text trascription of the audio content',
-            SUMMARY:               'Audio %s have alternative',
-            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
-            RULE_RESULT_MESSAGES: {
-              MANUAL_CHECKS_SINGULAR:       'Verify the element contains audio only content and if it is audio only make sure it has either captions or text transcript of the audio content',
-              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are audio only, if any are audio only make sure they have either an captions or text transcripts of the audio',
-              ALL_PASS_SINGULAR:            'Audio element has either a caption or a text transcript',
-              ALL_PASS_PLURAL:              'All %N_P audio elements have either captions or a text transcript',
-              SOME_FAIL:                    '%N_F out of %N_T audio elements do NOT have captions or text transcripts',
-              CORRECTIVE_ACTION_SINGULAR:   'add captions or text transcript to audio element',
-              CORRECTIVE_ACTION_PLURAL:     'add captions or text transcripts to each of the %N_F the audio elements',
-              ALL_FAIL_SINGULAR:            'Audio element does not have captions or text transcripts ',
-              ALL_FAIL_PLURAL:              'All %N_F audio elements do NOT have captions or text transcripts ',
-              NOT_APPLICABLE:               'No visible @object@, @embed@ and @video@ elements only elements found on this page that could be used for audio only'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                '@%1@ element has caption',
-              PASS_2:                '@%1@ element has a text transcript',
-              CORRECTIVE_ACTION_1:   'Add captions or text transcript to @%1@ element',
-              MANUAL_CHECK_1:        'Verify the @%1@ audio element has captions or text transcript',
-              MANUAL_CHECK_2:        'Verify the @%1@ element is audio only, if it is audio only verify that it has captions or text transcript',
-              HIDDEN:                '@%1@ element is not visible on screen'
-            },  
-            PURPOSE: [
-              'Captions and text transcripts provide a means for people cannot hear the audio to understand the audio content'                   
-            ],
-            TECHNIQUES: [
-              'Various techniques to add captions based on the audio format and media players you are supporting, please see your technology specific requirements for captions',
-              'The HTML5 video element is attempting to make it easier to support audio descriptions through the use of the text track element',
-              'Use aria-describedby attribute to point to a text description of the audio only content'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HMTL 5: The track element', 
-                url:   'http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#the-track-element'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'ARIA: aria-describedby', 
-                url:   ''
-              }                            
-            ]
-        },
-        AUDIO_2: {
-            ID:                    'Audio Rule 2',
-            DEFINITION:            'Prerecorded audio %s have caption or text trascription',
-            SUMMARY:               'Audio %s have alternative',
-            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
-            RULE_RESULT_MESSAGES: {
-              MANUAL_CHECKS_SINGULAR:       'Verify the element contains audio only content and if it is audio only make sure it has text transcript of the audio content',
-              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are audio only, if any are audio only make sure they have text transcripts of the audio',
-              ALL_PASS_SINGULAR:            'Audio element has text transcript',
-              ALL_PASS_PLURAL:              'All %N_P audio elements have text transcript',
-              SOME_FAIL:                    '%N_F out of %N_T audio elements do NOT have text transcripts',
-              CORRECTIVE_ACTION_SINGULAR:   'add text transcript to audio element',
-              CORRECTIVE_ACTION_PLURAL:     'add text transcripts to each of the %N_F the audio elements',
-              ALL_FAIL_SINGULAR:            'Audio element does not have text transcripts ',
-              ALL_FAIL_PLURAL:              'All %N_F audio elements do NOT have text transcripts ',
-              NOT_APPLICABLE:               'No visible @object@, @embed@ and @video@ elements only elements found on this page that could be used for audio only'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                '@%1@ element has a text transcript',
-              CORRECTIVE_ACTION_1:   'Add text transcript to @%1@ element',
-              MANUAL_CHECK_1:        'Verify the @%1@ audio element has text transcript',
-              MANUAL_CHECK_2:        'Verify the @%1@ element is audio only, if it is audio only verify that it has text transcript',
-              HIDDEN:                '@%1@ element is not visible on screen'
-            },  
-            PURPOSE: [
-              'Text transcripts provide a means for people cannot hear the audio to understand the audio content'                   
-            ],
-            TECHNIQUES: [
-              'Use aria-describedby attribute to point to a text description of the audio only content'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'ARIA: aria-describedby', 
-                url:   ''
-              }                            
-            ]
-        },
-        COLOR_1: {
-            ID:                    'Color Rule 1',
-            DEFINITION:            'Text content %s exceed Color Contrast Ratio (CCR) of 4.5 for any size text or 3.1 for large and/or bolded text',
-            SUMMARY:               'Text %s exceed CCR of 4.5',
-            TARGET_RESOURCES_DESC: 'All elements with text content',
-            RULE_RESULT_MESSAGES: {
-              MANUAL_CHECKS_SINGULAR:       '1 element requires manual checking for CCR > 4.5 due to the use of background image',
-              MANUAL_CHECKS_PLURAL:         '%N_MC elements require manual checking for CCR > 4.5 due to the use of background images',
-              ALL_PASS_SINGULAR:            'Text element has a CCR > 4.5',
-              ALL_PASS_PLURAL:              '%N_P text elements have a CCR > 4.5',
-              SOME_FAIL:                    '%N_F out of %N_T text elements do NOT have a CCR > 4.5',
-              CORRECTIVE_ACTION_SINGULAR:   'change the foreground and background colors of the text element to meet the CCR > 4.5 requirement',
-              CORRECTIVE_ACTION_PLURAL:     'change the foreground and background colors of the %N_F text elements to meet the CCR > 4.5 requirement',
-              ALL_FAIL_SINGULAR:            '1 text element does NOT have a CCR > 4.5',
-              ALL_FAIL_PLURAL:              '%N_F text elements do NOT have a CCR > 4.5',
-              NOT_APPLICABLE:               'No text elements on page'
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:              'CCR exceeds 4.5',
-              CORRECTIVE_ACTION_1: 'Adjust foreground and background colors to improve color contrast',
-              MANUAL_CHECK_1:      'Background image may reduce color contrast',
-              MANUAL_CHECK_2:      'Background image may improve color contrast',
-              HIDDEN:              'Text is hidden from asssistive technologies.'
-            },  
-            PURPOSE:        ['The higher the color contrast of text the more easy it is to read, especially for people with visual impairments'                   
-                            ],
-            TECHNIQUES:     [ 'Change the foreground color to a more complemtary color to the background color',
-                              'Change the background color to a more complemtary color to the foreground color'
-                            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [{ type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                               title: 'WCAG 2.0 Success Criterion 1.4.3 Contrast (Minimum): The visual presentation of text and images of text has a contrast ratio of at least 4.5:1', 
-                               url:   'http://www.w3.org/TR/WCAG20/#visual-audio-contrast-contrast'
-                             },
-                             { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                               title: 'How to meet Success Criterion 1.4.3 Contrast (Minimum): The visual presentation of text and images of text has a contrast ratio of at least 4.5:1', 
-                               url:   'http://www.w3.org/WAI/WCAG20/quickref/#qr-visual-audio-contrast'
-                             }
-                            ]
-        },
-        COLOR_2: {
-            ID:                    'Color Rule 2',
-            DEFINITION:            'Text content %s exceed Color Contrast Ratio (CCR) of 7.0 for any size text or 4.5 for large and/or bolded text',
-            SUMMARY:               'Text %s exceed CCR of 7.0',
-            TARGET_RESOURCES_DESC: 'All elements with text content',
-            RULE_RESULT_MESSAGES: {
-              MANUAL_CHECKS_SINGULAR:       '1 element requires manual checking for CCR > 7.0 due to the use of background image',
-              MANUAL_CHECKS_PLURAL:         '%N_MC elements require manual checking for CCR > 7.0 due to the use of background images',
-              ALL_PASS_SINGULAR:            'Text element has a CCR > 7.0',
-              ALL_PASS_PLURAL:              '%N_P text elements have a CCR > 7.0',
-              SOME_FAIL:                    '%N_F out of %N_T text elements do NOT have a CCR > 7.0',
-              CORRECTIVE_ACTION_SINGULAR:   'change the foreground and background colors of the text element to meet the CCR > 7.0 requirement',
-              CORRECTIVE_ACTION_PLURAL:     'change the foreground and background colors of the %N_F text elements to meet the CCR > 7.0 requirement',
-              ALL_FAIL_SINGULAR:            '1 text element does NOT have a CCR > 7.0',
-              ALL_FAIL_PLURAL:              '%N_F text elements do NOT have a CCR > 7.0',
-              NOT_APPLICABLE:               'No text elements on page'
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:              'CCR exceeds 7.0',
-              CORRECTIVE_ACTION_1: 'Adjust foreground and background colors to improve color contrast',
-              MANUAL_CHECK_1:      'Background image may reduce color contrast',
-              MANUAL_CHECK_2:      'Background image may improve color contrast',
-              HIDDEN:              'Text is hidden from asssistive technologies.'
-            },  
-            PURPOSE:        ['The higher the color contrast of text the more easy it is to read, especially for people with visual impairments'                   
-                            ],
-            TECHNIQUES:     ['Change the foreground color to a more complemtary color to the background color',
-                             'Change the background color to a more complemtary color to the foreground color'
-                            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS:      [{ type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                               title: 'WCAG 2.0 Success Criterion 1.4.6 Contrast (Enhanced): The visual presentation of text and images of text has a contrast ratio of at least 7:1', 
-                               url:   'http://www.w3.org/TR/WCAG20/#visual-audio-contrast7'
-                             },
-                             { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                               title: 'How to meet Success Criterion 1.4.6 Contrast (Enhanced): The visual presentation of text and images of text has a contrast ratio of at least 7:1', 
-                               url:   'http://www.w3.org/WAI/WCAG20/quickref/#qr-visual-audio-contrast7'
-                             }                            
-                            ]
-        },
-        CONTROL_1: {
-            ID:                    'Form Control 1',
-            DEFINITION:            '@textarea@, @select@ and @input@ elements of type @text@, @password@, @checkbox@, @radio@ and @file@ %s have an accessible label',
-            SUMMARY:               'Controls %s have labels',
-            TARGET_RESOURCES_DESC: 'User interface form controls',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:            'Form control has label',
-              ALL_PASS_PLURAL:              '%N_P form controls have a label',
-              SOME_FAIL:                    '%N_F out of %N_T form controls do NOT have a label',
-              CORRECTIVE_ACTION_SINGULAR:   'add label to form control missing a label',
-              CORRECTIVE_ACTION_PLURAL:     'add labels to %N_F form controls missing a label',
-              ALL_FAIL_SINGULAR:            'form control does NOT have label',
-              ALL_FAIL_PLURAL:              'All %N_F form controls do NOT have a label',
-              NOT_APPLICABLE:               'No form controls on this page'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                '%1 control has label',
-              CORRECTIVE_ACTION_1:   'Add label to %1 control',
-              HIDDEN:                '%1 control is hidden from assistive technologies.',
-              TARGET_RESOURCES_DESC: '@textarea@, @select@ and @input@ elements of type @text@, @password@, @checkbox@, @radio@ and @file@'
-            },  
-            PURPOSE: [
-              'A label associated with a form control insures that information about the form control is spoken by screen readers when it receives focus'                   
-            ],
-            TECHNIQUES: [
-              'The preferred technique for labeling for controls is using the @label@ element and referencing the @id@ attribute value of the form control element',
-              'Use the @label@ element to encapsulate the form control element',
-              'In special cases, use @aria-labelledby@ attribute to reference the id(s) of the elements on the page that describe the purpose of the form control element',
-              'In special cases, use @aria-label@ attribute to provide a explicit text description of the purpose of the form control element'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: The @label@ element', 
-                url:   'http://www.w3.org/TR/html4/interact/forms.html#edef-LABEL'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H44: Using label elements to associate text labels with form controls', 
-                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H44'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H65: Using the title attribute to identify form controls when the label element cannot be used', 
-                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H65'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H71: Providing a description for groups of form controls using fieldset and legend elements', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H71'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
-                title: 'iCITA Best Practices: Labels for Form Controls Overview', 
-                url:   'http://html.cita.illinois.edu/nav/form/'
-              }                            
-            ]
-        },
-        CONTROL_2: {
-            ID:                    'Form Control 2',
-            DEFINITION:            'Every @input@ type @image@ %s have an @alt@ or @title@ attribute with content',
-            SUMMARY:               'Image button %s have alt content',
-            TARGET_RESOURCES_DESC: 'input elements of type image',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:            '@input[type="image"]@ form control has @alt@ attribute with content',
-              ALL_PASS_PLURAL:              '%N_P @input[type="image"]@ form controls have @alt@ attribute with content',
-              SOME_FAIL:                    '%N_F out of %N_T @input[type="image"]@ form controls do NOT have an @alt@ attribute with content',
-              CORRECTIVE_ACTION_SINGULAR:   'add @alt@ attribute and/or content to @input[type="image"]@ form control missing a @alt@ attribute with content',
-              CORRECTIVE_ACTION_PLURAL:     'add @alt@ attribute and/or content to %N_F @input[type="image"]@ form controls missing a @alt@ attribute with content',
-              ALL_FAIL_SINGULAR:            '@input[type="image"]@ form control does NOT have an @alt@ attribute with content',
-              ALL_FAIL_PLURAL:              'All %N_F @input[type="image"]@ form controls do NOT have an @alt@ attribute with content',
-              NOT_APPLICABLE:               'No @input[type="image"]@ form controls on this page'
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                'Image button has label',
-              CORRECTIVE_ACTION_1:   'Add @alt@ attribute with text content',
-              CORRECTIVE_ACTION_2:   'Add text content to the @alt@ attribute',
-              HIDDEN:                'Image button is hidden from asssistive technologies.'
-            },  
-            PURPOSE: [
-              'A label associated with a form control insures that information about the form control is spoken by screen readers when it receives focus'                   
-            ],
-            TECHNIQUES: [
-              'The preferered technique for labeling for controls is using the @label@ element and referencing the @id@ attribute value of the form control element',
-              'Use the @label@ element to encapsulate the form control element',
-              'In special cases, use @aria-labelledby@ attributes to reference the id(s) of the elements on the page that describe the purpose of the form control element',
-              'In special cases, use @aria-label@ attributes to provide a explicit text description of the purpose of the form control element'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: The @label@ element', 
-                url:   'http://www.w3.org/TR/html4/interact/forms.html#edef-LABEL'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H36: Using alt attributes on images used as submit buttons', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H36'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
-                title: 'iCITA Best Practices: Labels for Form Controls Overview', 
-                url:   'http://html.cita.illinois.edu/nav/form/'
-              }                            
-            ]
-        },
-        CONTROL_3: {
-            ID:                    'Form Control 3',
-            DEFINITION:            'Every input type radio %s be contained in a @fieldset@ and @legend@ elements to provide grouping information for radio button groups',
-            SUMMARY:               'Radio button %s use FIELDSET/LEGEND',
-            TARGET_RESOURCES_DESC: 'input elements of type radio',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:            '@input[type="radio"]@ form control is contained in a @filedset/legend@ labeling container',
-              ALL_PASS_PLURAL:              '%N_P @input[type="radio"]@ form controls are contained in @filedset/legend@ labeling container',
-              SOME_FAIL:                    '%N_F out of %N_T @input[type="radio"]@form controls are NOT contained in @filedset/legend@ labeling container',
-              CORRECTIVE_ACTION_SINGULAR:   'move the @input[type="radio"]@ form control to an existing @filedset/legend@ labeling container or create a new @filedset/legend@ labeling container for the control',
-              CORRECTIVE_ACTION_PLURAL:     'move the %N_F @input[type="radio"]@ form controls to an existing @filedset/legend@ labeling container or add new @filedset/legend@ labeling containers for the %N_F controls',
-              ALL_FAIL_SINGULAR:            '@input[type="radio"]@ form control is NOT a contained in a @filedset/legend@ labeling container',
-              ALL_FAIL_PLURAL:              'All %N_F @input[type="radio"]@ form controls are NOT a contained in @filedset/legend@ labeling containers',
-              NOT_APPLICABLE:               'No @input[type="radio"]@ form controls on this page'
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                'Radio button uses @fieldset@ and @legend@ elements, and the @legend@ element has text content',
-              MANUAL_CHECK_1:        'Radio button uses aria-labelledby, verify the label text content includes group information',
-              MANUAL_CHECK_2:        'Radio button uses aria-label, verify the label text content includes group information',
-              CORRECTIVE_ACTION_1:   'Add a @legend@ element to with text content to the @fieldset@ element to provide grouping label information for the radio buttons.',
-              CORRECTIVE_ACTION_2:   'Add a @fieldset@ and @legend@ elements to provide grouping label information for the radio buttons.',
-              HIDDEN:                'Radio button is hidden from asssistive technologies.'
-            },  
-            PURPOSE: [
-              'Radio buttons need a common grouping label to provide a context for each radio button option'                   
-            ],
-            TECHNIQUES: [
-              '@fieldset@/@legend@ element combination is the preferred technique to provide a grouping label for radio buttons',
-              '@aria-labelledby@ attributes can provide a grouping label with references to the grouping text content and the radio button option text content',
-              '@aria-label@ attributes can provide a grouping label that includes both the grouping and radio button option text content'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: The @fieldset@ and @legend@ elements', 
-                url:   'http://www.w3.org/TR/html4/interact/forms.html#edef-FIELDSET'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H71: Providing a description for groups of form controls using fieldset and legend elements', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H71'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H90: Indicating required form controls using label or legend', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H90'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
-                title: 'iCITA: Example 7: Fieldset/Legend for grouping radio buttons', 
-                url:   'http://html.cita.illinois.edu/nav/form/radio/index.php?example=6'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
-                title: 'IBM Web checklist: HTML example 6', 
-                url:   'http://www-03.ibm.com/able/guidelines/web/webstructure.html'
-              }                            
-            ]
-        },
-        CONTROL_4: {
-            ID:                    'Form Control 4',
-            DEFINITION:            '@button@ elements %s have text content',
-            SUMMARY:               '@button@s %s have content',
-            TARGET_RESOURCES_DESC: '@button@ elements',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:            '@button@ element has text content',
-              ALL_PASS_PLURAL:              '%N_P @button@ elements have text content',
-              SOME_FAIL:                    '%N_F out of %N_T @button@ elements do NOT have text content',
-              CORRECTIVE_ACTION_SINGULAR:   'add text content to @button@ element that describe the purpose of the button',
-              CORRECTIVE_ACTION_PLURAL:     'add text content to %N_F @button@ elements that describe the purpose of the buttons',
-              ALL_FAIL_SINGULAR:            '@button@ element does NOT have text content',
-              ALL_FAIL_PLURAL:              'All %N_F @button@ elements do NOT have text content',
-              NOT_APPLICABLE:               'No @button@ elements on this page'
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                '@button@ element has text content',
-              CORRECTIVE_ACTION_1:   'Add text content to @button@ element',
-              HIDDEN:                '@button@ element is hidden from asssistive technologies.'
-            },  
-            PURPOSE: [
-              'The text content of a @button@ element is used as a label to insure that the purpose of the button is spoken by screen readers when the button receives focus'                   
-            ],
-            TECHNIQUES: [
-              'The text content of the @button@ element and the @alt@ attribute content of images inside the button is used as the text content'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: The @button@ elements', 
-                url:   'http://www.w3.org/TR/html4/interact/forms.html#edef-BUTTON'
-              }
-            ]
-        },
-        CONTROL_5: {
-            ID:                    'Form Control 5',
-            DEFINITION:            '@id@ attributes %s have unique values on the web page',
-            SUMMARY:               '@id@ %s be unique',
-            TARGET_RESOURCES_DESC: 'Form control elements with @id@ attributes',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_PLURAL:              'The %N_P elements with an @id@ attribute have unique id values on page',
-              SOME_FAIL:                    '%N_F out of %N_T elements with an @id@ attribute do NOT have unique id values on page',
-              CORRECTIVE_ACTION_PLURAL:     'update elements with @id@ attributes so the id values are all unique',
-              ALL_FAIL_PLURAL:              'All %N_F element with an @id@ attribute do NOT have a unique id values on page',
-              NOT_APPLICABLE:               'No elements or only one element with an @id@ attribute on this page'
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                  '\'%1\' @id@ attribute value is unique',
-              CORRECTIVE_ACTION_1:   'Update elements that share the \'%1\' @id@ value to have unique @id@ values',
-              HIDDEN:                '%1 control is hidden from assistive technologies.'
-            },  
-            PURPOSE: [
-              '@id@ attribute values can be used as references for @label@ elements, if @id@ attribute values are not unique it can result incorrect labeling of form controls'                   
-            ],
-            TECHNIQUES: [
-              'If a form control defines an @id@ attribute, make sure the valeu is unique'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: @id@ attribute', 
-                url:   'http://www.w3.org/TR/html4/struct/global.html#adef-id'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'F77: Failure of Success Criterion 4.1.1 due to duplicate values of type ID', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/F77'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H88: Using HTML according to spec', 
-                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H88'
-              }                             
-            ]
-        },
-        CONTROL_6: {
-            ID:                    'Form Control 6',
-            DEFINITION:            '@label@ element using the @for@ attribute %s reference a form control on the page',
-            SUMMARY:               '@label@ %s reference control',
-            TARGET_RESOURCES_DESC: '@label@ elements',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:            '@label@ element uses @for@ attribute to label a form control',
-              ALL_PASS_PLURAL:              '%N_P @label@ elements use the @for@ attribute to label form controls',
-              SOME_FAIL:                    '%N_F out of %N_T @label@ elements do NOT use the @for@ attribute to label form controls',
-              CORRECTIVE_ACTION_SINGULAR:   'change the @label@ element to use the @for@ attribute to label its form control',
-              CORRECTIVE_ACTION_PLURAL:     'change the %N_F @label@ elements to use the @for@ attribute to label their form control',
-              ALL_FAIL_SINGULAR:            '@label@ element does NOT use @for@ attribute to label a form control',
-              ALL_FAIL_PLURAL:              'All %N_F @label@ elements do NOT use @for@ attribute to label a form control',
-              NOT_APPLICABLE:               'No @label@ elements on this page'
-            },
-            NODE_RESULT_MESSAGES: {
-              CORRECTIVE_ACTION_1:   'Change the @label@ element @for@ attribute to reference \'%1\' to reference a form control'
-            },  
-            PURPOSE: [
-              '@label@ elements only are useful for accessibility when they reference or encapsulate form controls'                   
-            ],
-            TECHNIQUES: [
-              '@label@ elements using the FOR attribute need to reference a form control with the corresponding @id@ attribute value'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: The @label@ element FOR attribute', 
-                url:   'http://www.w3.org/TR/html4/interact/forms.html#adef-for'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H44: Using label elements to associate text labels with form controls', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H44'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
-                title: 'iCITA: Using @label@ Element for Labeling Form Controls', 
-                url:   'http://html.cita.illinois.edu/nav/form/form-label-markup.php'
-              }                             
-            ]
-        },
-        CONTROL_7: {
-            ID:                    'Form Control 7',
-            DEFINITION:            '@label@ element or legend element %s contain text content',
-            SUMMARY:               '@label@ %s have content',
-            TARGET_RESOURCES_DESC: '@label@ and @legend@ elements',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:            '@label@ or @legend@ element has text content',
-              ALL_PASS_PLURAL:              '%N_P @label@ or @legend@ elements have text content',
-              SOME_FAIL:                    '%N_F out of %N_T @label@ or @legend@ elements do NOT have text content',
-              CORRECTIVE_ACTION_SINGULAR:   'add content to the @label@ or @legend@ element the describes the purpose of a form control or groupings of form controls',
-              CORRECTIVE_ACTION_PLURAL:     'add content to the %N_F @label@ or @legend@ elements to describes the purpose of each form control or groupings of form controls',
-              ALL_FAIL_SINGULAR:            '@label@ or @legend@ element does NOT have text content',
-              ALL_FAIL_PLURAL:              'All %N_F @label@ or @legend@ elements do NOT have text content',
-              NOT_APPLICABLE:               'No @label@ or @legend@ elements on this page'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                '@%1@ has text content',
-              CORRECTIVE_ACTION_1:   'Add text content to the @%1@ element',
-              HIDDEN:                '@%1@ control is hidden from asssistive technologies, so @%2@ content is ignored'
-            },
-            PURPOSE: [
-              'For @label@ and @legend@ elements only are useful for accessibility when they contain content'                   
-            ],
-            TECHNIQUES: [
-              'Add text content to @label@ and @legend@ elements that help describe the purpose of the form control'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: The @label@ element @for@ attribute', 
-                url:   'http://www.w3.org/TR/html4/interact/forms.html#adef-for'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H44: Using @label@ elements to associate text labels with form controls', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H44'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H88: Using HTML according to spec', 
-                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H88'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
-                title: 'iCITA: Using @label@ element for Labeling Form Controls', 
-                url:   'http://html.cita.illinois.edu/nav/form/form-label-markup.php'
-              }                             
-            ]
-        },
-        CONTROL_8: {
-            ID:                    'Form Control 8',
-            DEFINITION:            '@fieldset@ element %s contain exactly one legend element',
-            SUMMARY:               '@fieldset@ %s have one legend',
-            TARGET_RESOURCES_DESC: '@fieldset@ and @legend@ elements',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:            '@fieldset@ element has only one @legend@ element',
-              ALL_PASS_PLURAL:              '%N_P @fieldset@ elements have only one @legend@ element',
-              SOME_FAIL:                    '%N_F out of %N_T @fieldset@ elements have more than one @legend@ element or no @legend@ element',
-              CORRECTIVE_ACTION_SINGULAR:   'update @fieldset@ element to contain only one @legend@ element',
-              CORRECTIVE_ACTION_PLURAL:     'update %N_F @fieldset@ elements to contain only one @legend@ element',
-              ALL_FAIL_SINGULAR:            '@fieldset@ element has more than one @legend@ element or no @legend@ element',
-              ALL_FAIL_PLURAL:              'All %N_F @fieldset@ elements have more than one @legend@ element or no @legend@ element',
-              NOT_APPLICABLE:               'No @fieldset@ elements on this page'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                '@fieldset@ has one @legend@ element',
-              CORRECTIVE_ACTION_1:   'Add @legend@ element',
-              CORRECTIVE_ACTION_2:   'Remove %1 @legend@ elements',
-              HIDDEN:                '@fieldset@ element is hidden from asssistive technologies.'
-            },  
-            PURPOSE: [
-              'Multiple legend elements contained in the same fieldset may result in the improper calucation of labels for assistive technologies.'                   
-            ],
-            TECHNIQUES: [
-              '@fieldset@ element should have one and only one @legend@ elements to help describe the purpose of the form controls contained in the @fieldset@ element'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: Adding structure to forms: the @fieldset@ and @legend@ elements', 
-                url:   'http://www.w3.org/TR/html4/interact/forms.html#edef-FIELDSET'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H71: Providing a description for groups of form controls using fieldset and legend elements', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H71'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H88: Using HTML according to spec', 
-                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H88'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
-                title: 'iCITA: Using @label@ element for Labeling Form Controls', 
-                url:   'http://html.cita.illinois.edu/nav/form/form-label-markup.php'
-              }                             
-            ]
-        },
-        CONTROL_9: {
-            ID:                    'Form Control 9',
-            DEFINITION:            '@title@ attribute may not be good a label for form control',
-            SUMMARY:               '@title@ may not be good label',
-            TARGET_RESOURCES_DESC: '@textarea@, @select@ and @input@ elements',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:       'Form control does not use @title@ attribute as label',
-              ALL_PASS_PLURAL:         'All %N_P form controls do not use @title@ attribute as label',
-              MANUAL_CHECK_SINGULAR:   'verify the @title@ attribute being used as a tooltip is also good label for the form control',
-              MANUAL_CHECK_PLURAL:     'verify each of the %N_MC form controls that use @title@ attribute as a tooltip is also good label for the form control',
-              NOT_APPLICABLE:          'No form controls on this page'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:         '@title@ is not used as label',
-              MANUAL_CHECK_1: 'Verify @label@ element or ARIA technique to label %1 form control',
-              HIDDEN:         '%1 control is hidden from asssistive technologies.'
-            },  
-            PURPOSE: [
-              'When the @title@ attribute is used for tooltips it is often uses more words than needed to label a form control for users of assistive technologies',                   
-              'use @aria-label@ to provide a shorter label to users of assistive technologies if the @title@ attribute content is determined to not be an optimal label' 
-            ],
-            TECHNIQUES: [
-              'The preferered technique for labeling for controls is using the @label@ element and referencing the @id@ attribute value of the form control element',
-              'Use the @label@ element to encapsulate the form control element',
-              'In special cases, use @aria-labelledby@ attributes to reference the id(s) of the elements on the page that describe the purpose of the form control element',
-              'In special cases, use @aria-label@ attributes to provide a explicit text description of the purpose of the form control element',
-              'In special cases, use @title@ attribute to provide a optimal label and a tooltip for a form control'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: Adding structure to forms: the @fieldset@ and @legend@ elements', 
-                url:   'http://www.w3.org/TR/html4/interact/forms.html#edef-FIELDSET'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H88: Using HTML according to spec', 
-                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H88'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
-                title: 'iCITA: Using @label@ element for Labeling Form Controls', 
-                url:   'http://html.cita.illinois.edu/nav/form/form-label-markup.php'
-              }                             
-            ]
-        },
-        CONTROL_10: {
-            ID:                    'Form Control 10',
-            DEFINITION:            'Labels %s be unique for every textarea, select and input element of type text, password, radio, and checkbox on a page',
-            SUMMARY:               'Labels %s be unique',
-            TARGET_RESOURCES_DESC: '@textarea@, @select@ and @input@ elements of type @text@, @password@, @checkbox@, @radio@ and @file@',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_PLURAL:              '%N_P form controls have unique labels',
-              SOME_FAIL:                    '%N_F out of %N_T form controls do NOT have unique labels',
-              CORRECTIVE_ACTION_PLURAL:     'change the labeling of %N_F form controls to uniquely identify the purpose of each form control on the page',
-              ALL_FAIL_PLURAL:              'All %N_F form controls do NOT have a unique labels',
-              NOT_APPLICABLE:               'No form controls or only one form control on this page'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                'Label is unique',
-              CORRECTIVE_ACTION_1:   'Add label to %1 control',
-              CORRECTIVE_ACTION_2:   'Change the @label@ element content, use @fieldset@/@legend@ elements or ARIA technique to make label text content unique on the page',
-              HIDDEN:                '%1 control is hidden from asssistive technologies.'
-            },  
-            PURPOSE: [
-              'Labels that are unique make it possible for people to understand the different purposes of form controls on the same page'                   
-            ],
-            TECHNIQUES: [
-              'The preferred technique for labeling for controls is using the @label@ element and referencing the @id@ attribute value of the form control element',
-              'Use the @label@ element to encapsulate the form control element',
-              'In special cases, use @aria-labelledby@ attribute to reference the id(s) of the elements on the page that describe the purpose of the form control element',
-              'In special cases, use @aria-label@ attribute to provide a explicit text description of the purpose of the form control element'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: The @label@ element', 
-                url:   'http://www.w3.org/TR/html4/interact/forms.html#edef-LABEL'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H44: Using label elements to associate text labels with form controls', 
-                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H44'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H65: Using the title attribute to identify form controls when the label element cannot be used', 
-                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H65'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H71: Providing a description for groups of form controls using fieldset and legend elements', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H71'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
-                title: 'iCITA Best Practices: Labels for Form Controls Overview', 
-                url:   'http://html.cita.illinois.edu/nav/form/'
-              }                            
-            ]
-        },
-        CONTROL_11: {
-            ID:                    'Form Control 11',
-            DEFINITION:            'If there is more than one form on a page, @input@ element of type @submit@ and @reset@ %s have unique labels using the value attribute',
-            SUMMARY:               '@submit@ and @reset@ buttons %s be unique',
-            TARGET_RESOURCES_DESC: '@submit@ and @reset@ buttons',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_PLURAL:              '%N_P @submit@ or @reset@ buttons have unique labels',
-              SOME_FAIL:                    '%N_F out of %N_T @submit@ or @reset@ buttons do NOT have unique labels',
-              CORRECTIVE_ACTION_PLURAL:     'change the labeling of %N_F @submit@ or @reset@ buttons to uniquely identify the purpose of each @submit@ or @reset@ buttons on the page',
-              ALL_FAIL_PLURAL:              'All %N_F @submit@ or @reset@ buttons do NOT have a unique labels',
-              NOT_APPLICABLE:               'No forms or only one form on this page'                            
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                'Label is unique',
-              CORRECTIVE_ACTION_1:   'Add label to %1 control',
-              CORRECTIVE_ACTION_2:   'Change the @value@ attribute content, use @fieldset@/@legend@ elements or ARIA technique to make @submit@ and @reset@ labels unique on the page',
-              HIDDEN:                '%1 control is hidden from asssistive technologies.'
-            },  
-            PURPOSE: [
-              'Labels that are unique make it possible for people to understand the different purposes of form controls on the same page',                   
-              '@submit@ and @reset@ form controls have default labels and if there is more than one form on a page the user may not understand which form they are submitting'                   
-            ],
-            TECHNIQUES: [
-              'The preferred technique for changing the default label for @submit@ and @reset@ controls is the @value@ attribute',
-              'In special cases, use @aria-labelledby@ attribute to reference the id(s) of the elements on the page that describe the purpose of the form control element',
-              'In special cases, use @aria-label@ attribute to provide a explicit text description of the purpose of the form control element'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: The @label@ element', 
-                url:   'http://www.w3.org/TR/html4/interact/forms.html#edef-LABEL'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H44: Using label elements to associate text labels with form controls', 
-                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H44'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H65: Using the title attribute to identify form controls when the label element cannot be used', 
-                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H65'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H71: Providing a description for groups of form controls using fieldset and legend elements', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H71'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
-                title: 'iCITA Best Practices: Labels for Form Controls Overview', 
-                url:   'http://html.cita.illinois.edu/nav/form/'
-              }                            
-            ]
-        },
-        CONTROL_12: {
-            ID:                    'Form Control 12',
-            DEFINITION:            'Labels %s be must describe the purpose of every button, textarea, select and input element of type text, password, radio, and checkbox on a page',
-            SUMMARY:               'Labels %s be descriptive',
-            TARGET_RESOURCES_DESC: '@textarea@, @select@ and @input@ elements of type @text@, @password@, @checkbox@, @radio@ and @file@',
-            RULE_RESULT_MESSAGES: {
-              MANUAL_CHECKS_SINGULAR:       'form control requires a manual check to verify it describes the purpose of the form control',
-              MANUAL_CHECKS_PLURAL:         '%N_MC form controls require a manual check to verify they uniquely describe the purpose of each form control',
-              SOME_FAIL:                    '%N_F out of %N_T form controls do NOT have labels',
-              CORRECTIVE_ACTION_SINGULAR:   'add label to the form control that describes the from controls purpose',
-              CORRECTIVE_ACTION_PLURAL:     'add labels to the %N_F form controls that uniquely describe purpose of each from control',
-              ALL_FAIL_SINGULAR:            'form control does NOT have a label',
-              ALL_FAIL_PLURAL:              '%N_F form controls do NOT have labels',
-              NOT_APPLICABLE:               'No form controls on this page'                                          
-            },
-            NODE_RESULT_MESSAGES: {
-              MANUAL_CHECK_1:        'Verify the label describes the purpose and input required for @%1@ form control',
-              CORRECTIVE_ACTION_1:   'Add a @label@ element, use @fieldset@/@legend@ elements or ARIA lechnique to provide a label for @%1@ form control',
-              HIDDEN:                '%1 control is hidden from asssistive technologies.'
-            },  
-            PURPOSE: [
-              'Labels that are unique make it possible for people to understand the different purposes of form controls on the same page'                   
-            ],
-            TECHNIQUES: [
-              'The preferred technique for labeling for controls is using the @label@ element and referencing the @id@ attribute value of the form control element',
-              'Use the @label@ element to encapsulate the form control element',
-              'In special cases, use @aria-labelledby@ attribute to reference the id(s) of the elements on the page that describe the purpose of the form control element',
-              'In special cases, use @aria-label@ attribute to provide a explicit text description of the purpose of the form control element'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: The @label@ element', 
-                url:   'http://www.w3.org/TR/html4/interact/forms.html#edef-LABEL'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H44: Using label elements to associate text labels with form controls', 
-                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H44'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H65: Using the title attribute to identify form controls when the label element cannot be used', 
-                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H65'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H71: Providing a description for groups of form controls using fieldset and legend elements', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H71'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
-                title: 'iCITA Best Practices: Labels for Form Controls Overview', 
-                url:   'http://html.cita.illinois.edu/nav/form/'
-              }                            
-            ]
-        },    
-        HEADING_1: {
-            ID:                    'Heading Rule 1',
-            DEFINITION:            'Each page %s contain at least one @h1@ element and each @h1@ element must have content',
-            SUMMARY:               'Page %s have @h1@ element',
-            TARGET_RESOURCES_DESC: '@h1@ and @body@ elements',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:     'Page contains a least one @h1@ element',
-              CORRECTIVE_ACTION_SINGULAR: 'Add a @h1@ element at the begining of the main content of the page',
-              ALL_FAIL_SINGULAR:     'Page does not contain an @h1@ element'
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                'Page has @h1@ element',
-              CORRECTIVE_ACTION_1:   'Add a @h1@ element at the begining of the main content of the page',
-              CORRECTIVE_ACTION_2:   'Add content to the @h1@ element, the content should describe the content or the purpose of the page or main section',
-              HIDDEN:                '@h1@ element is not available to assistive technologies.'
-            },  
-            PURPOSE: [
-              'Headings provide a navigation point for users of asssitive technologies to the main content and help users understand the main content of the page'                   
-            ],
-            TECHNIQUES: [
-              'Include an @h1@ element at the begining of the main content',
-              'The text content of the @h1@ element should describe the main content of the page',
-              'The @h1@ element should be visible graphically and to assistive technologies, do not hide using CSS techniques'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: The @h1@ element', 
-                url:   'http://www.w3.org/TR/html4/struct/global.html#edef-H1'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G130: Providing descriptive headings', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G130'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G141: Organizing a page using headings', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G141'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
-                title: 'iCITA Best Practices: Unique Title', 
-                url:   'http://html.cita.illinois.edu/nav/title/'
-              }                            
-            ]
-        },    
-        HEADING_2: {
-            ID:                    'Heading Rule 2',
-            DEFINITION:            'If the page contains both a @main@ landmark and an @h1@ element, the @h1@ element %s be a child of the main landmark.',
-            SUMMARY:               '@h1@ %s be in @main@ landmark',
-            TARGET_RESOURCES_DESC: '@h1@ elements and elements with ARIA attribute @role="main"@',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:          '@h1@ element is a child of a @main@ landmark',
-              ALL_PASS_PLURAL:            '%N_P @h1@ elements ara a child of a @main@ landmark',
-              SOME_FAIL:                  '%N_F of %N_T %ELEM_T are NOT child of a @main@ landmark',
-              CORRECTIVE_ACTION_SINGULAR: 'either move the @h1@ element to the begining of a @main@ landmark or change the @h1@ element to another heading level',
-              CORRECTIVE_ACTION_PLURAL:   'either move the %N_F @h1@ elements to the begining of a @main@ landmark or change the @h1@ element to another heading level',              
-              ALL_FAIL_SINGULAR:          '@h1@ element is NOT a child of a @main@ landmark',
-              ALL_FAIL_PLURAL:            'All %N_F @h1@ elements are NOT a child of a @main@ landmark',
-              NOT_APPLICABLE:             'No @main@ landmark and/or @h1@ elements in this page'
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                '@h1@ is a child element of a @main@ landmark',
-              CORRECTIVE_ACTION_1:   'Position the @h1@ element as one of the first descendant elements of a @main@ landmark',
-              HIDDEN:                '@h1@ element is hidden from asssistive technologies.'
-            },  
-            PURPOSE: [
-              'Headings provide a navigation point for users of assistive technologies to the primary content and help users understand understand that content',
-              'Including both @main@ landmarks and @h1@ elements provides a redundent way for users of assistive technology to find the main topics of a web page'
-            ],
-            TECHNIQUES: [
-              'Include an @h1@ element at the beginning of each @main@ landmark',
-              'If there is more than one @main@ landmark, use @aria-labelledby@ on the @main@ landmark to reference the @h1@ element as a name for @main@ landmark'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: The @h1@ element', 
-                url:   'http://www.w3.org/TR/html4/struct/global.html#edef-H1'
-              },                            
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: @main@ role', 
-                url:   'http://www.w3.org/TR/wai-aria/roles#main'
-              }                            
-            ]
-        },    
-        HEADING_3: {
-            ID:                    'Heading Rule 3',
-            DEFINITION:            'Sibling heading elements %s should be unique',
-            SUMMARY:               'Sibling headings %s be unique',
-            TARGET_RESOURCES_DESC: 'Heading elements',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_PLURAL:            'All %N_P sibling headings elements of the same level have unique text content',
-              SOME_FAIL:                  '%N_F of %N_T sibling heading elements of the same level do NOT have unique text content',
-              CORRECTIVE_ACTION_PLURAL:   'update the text content of the %N_F sibling heading elements of the same level to be unique',              
-              ALL_FAIL_PLURAL:            'All %N_F sibling heading elements do NOT have unique text content',
-              NOT_APPLICABLE:             'No sibling heading elements of the same level in this page'
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                '%1 heading content is unique among sibling headings',
-              CORRECTIVE_ACTION_1:   'Change %1 heading content to describe the differences sibling sections',
-              HIDDEN:                '%1 element is hidden from asssistive technologies.'
-            },  
-            PURPOSE: [
-              'If section headings that share the same parent heading are NOT unique users of assistive technology will not be able to descern the differences between sibling secitons of the web resource'
-            ],
-            TECHNIQUES: [
-              'Make sure the content of sibling headings that share the same parent heading help users understand the unique content of each section they describe'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: Headings: The H1, H2, H3, H4, H5, H6 elements', 
-                url:   'http://www.w3.org/TR/html4/struct/global.html#edef-H1'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G130: Providing descriptive headings', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G130'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G141: Organizing a page using headings', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G141'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
-                title: 'iCITA Best Practices: Unique Title', 
-                url:   'http://html.cita.illinois.edu/nav/title/'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
-                title: 'iCITA Best Practices: Sub Headings', 
-                url:   'http://html.cita.illinois.edu/nav/heading/'
-              }                            
-            ]
-        },    
-        HEADING_4: {
-            ID:                    'Heading Rule 4',
-            DEFINITION:            'Heading elements %s describe the sections they label',
-            SUMMARY:               'Headings %s be descriptive',
-            TARGET_RESOURCES_DESC: 'Heading elements',
-            RULE_RESULT_MESSAGES: {
-              MANUAL_CHECKS_SINGULAR: 'Verify the heading element describes the content following the heading element',
-              MANUAL_CHECKS_PLURAL:   'Verify the %N_MC heading elements describes the content following each heading element',
-              ALL_FAIL_SINGULAR:      'Add text content to heading',
-              ALL_FAIL_PLURAL:        'Add text content to %N_F heading elements with no text content',
-              NOT_APPLICABLE:         'No heading elements on this page'
-            },
-            NODE_RESULT_MESSAGES: {
-              MANUAL_CHECK_1:        'Check %1 element to make sure it describes the section it labels',
-              CORRECTIVE_ACTION_1:   'Add text content to %1 element that describes the section it labels or remove it from the page if it is not needed',
-              HIDDEN:                '%1 element is hidden from asssistive technologies.'
-            },  
-            PURPOSE: [
-              'If headings are NOT descriptive or unique they will confuse users of assistive technology'
-            ],
-            TECHNIQUES: [
-              'Include headings elements at the proper level for each section of a web page',
-              'Use headings as labels for ARIA landmarks to provide redundent page navigation capabilities for users of assistive technologies',
-              'Check headings against other headings in the document to make sure the headings uniquely describe content of each section of the web page',
-              'If headings are too similar to each other users of assistive technology will not be able to use them to understand the differences between different sections of the web page'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: Headings: The H1, H2, H3, H4, H5, H6 elements', 
-                url:   'http://www.w3.org/TR/html4/struct/global.html#edef-H1'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G130: Providing descriptive headings', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G130'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G141: Organizing a page using headings', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G141'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
-                title: 'iCITA Best Practices: Unique Title', 
-                url:   'http://html.cita.illinois.edu/nav/title/'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
-                title: 'iCITA Best Practices: Sub Headings', 
-                url:   'http://html.cita.illinois.edu/nav/heading/'
-              }                            
-            ]
-        },    
-        HEADING_5: {
-            ID:                    'Heading Rule 5',
-            DEFINITION:            'Heading elements %s be properly nested',
-            SUMMARY:               'Headings %s be properly nested',
-            TARGET_RESOURCES_DESC: 'Heading elements',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_PLURAL:      'All %N_P heading elements are properly nested',
-              SOME_FAIL:            '%N_F out of %N_T heading elements are NOT properly nested',
-              ALL_FAIL_PLURAL:      'None of the %N_F heading elements are properly nested',
-              NOT_APPLICABLE:       'No or only one heading elements on this page, so nesting rule does not apply'
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:              '%1 element is properly nested',
-              PASS_2:              'All heading elements are properly nested',
-              CORRECTIVE_ACTION_1: 'Change %1 element or other heading elements ',
-              CORRECTIVE_ACTION_2: 'Add text content to %1 element that describes the section it labels or remove it from the page if it is not needed',
-              CORRECTIVE_ACTION_3: 'One heading element is not prperly nested, check all heading elements to make sure they are properly nested, and describe the structure and the sections of the web pag',
-              CORRECTIVE_ACTION_4: '%1 heading elements are not properly nested, check all heading elements to make sure they are properly nested, and describe the structure and the sections of the web page',
-              HIDDEN:              '%1 element is hidden from asssistive technologies and is not included in nesting.'
-            },  
-            PURPOSE: [
-              'Head elements that are properly nested help users of assistive technology understand the structure of the information on the web page'
-            ],
-            TECHNIQUES: [
-              'Include headings elements at the proper level for each section of a web page',
-              'Use headings as labels for ARIA landmarks to provide redundent page navigation capabilities for users of assistive technologies',
-              'Check headings against other headings in the document to make sure the headings uniquely describe content of each section of the web page',
-              'If headings are too similar to each other users of assistive technology will not be able to use them to understand the differences between different sections of the web page'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: Headings: The H1, H2, H3, H4, H5, H6 elements', 
-                url:   'http://www.w3.org/TR/html4/struct/global.html#edef-H1'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G130: Providing descriptive headings', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G130'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G141: Organizing a page using headings', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G141'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
-                title: 'iCITA Best Practices: Unique Title', 
-                url:   'http://html.cita.illinois.edu/nav/title/'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
-                title: 'iCITA Best Practices: Sub Headings', 
-                url:   'http://html.cita.illinois.edu/nav/heading/'
-              }                            
-            ]
-        },    
-        IMAGE_1: {
-            ID:                    'Image Rule 1',
-            DEFINITION:            'Each image %s have an text alternative',
-            SUMMARY:               'Image %s has alternative',
-            TARGET_RESOURCES_DESC: '@img@, @area@ and [role="img"]',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:          'Image element has text alternative',
-              ALL_PASS_PLURAL:            'All %N_P image elements have text alternatives',
-              SOME_FAIL:                  '%N_F out of %N_T image elements do NOT have an text alternatives',
-              CORRECTIVE_ACTION_SINGULAR: 'add @alt@, @aria-labelledby@ or @ria-label@ attribute to image element that describes the purpose of the image',
-              CORRECTIVE_ACTION_PLURAL:   'add @alt@, @aria-labelledby@ or @ria-label@ attribute to each of the %N_F image elements that describes the purpose of each image',
-              ALL_FAIL_SINGULAR:          'image element does NOT have text alternative',
-              ALL_FAIL_PLURAL:            'All %N_F image elements do NOT have text alternatives',
-              NOT_APPLICABLE:             'No image elements found on this page'                                          
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                '@%1@ element has @alt@ attribute',
-              PASS_2:                '@%1@ element has @aria-labelledby@ attribute',
-              PASS_3:                '@%1@ element has @aria-label@ attribute',
-              PASS_4:                '@%1@ element has @title@ attribute',
-              CORRECTIVE_ACTION_1:   'Add a @alt@, @aria-labelledby@ or @aria-label@ attribute to the @%1@ element',
-              HIDDEN:                '@%1@ element is hidden from assistive technologies'
-            },  
-            PURPOSE: [
-              'Accessible name provides a description of an image for people who cannot see the image, usually the accessible name comes from an alt attribute',                   
-              'Accessible name that is an empty string is ignored by assistive technologies and indicates an image is being used for styling rather than meaningful content'                   
-            ],
-            TECHNIQUES: [
-              'Text alternatives should describe the purpose of images as succinctly as possible (e.g. usually less than ~100 characters)',
-              'The @alt@ attribute is the preferred and most commonly used way to provide a text alternative for @img@ and @area@ elements',
-              'The @aria-labelledby@ attribute can be used to provide a text alterniatve when images can be described using visible captions associated with the image', 
-              'The @aria-label@ attribute should only be used to provide a text alternative in special cases when an element has @role="img"@ attribute', 
-              'The @title@ attribute will be used to provide a text alternative if none of the other techniques is found', 
-              'If an image is purely stylistic or decorative set the text alternative must result in an empty string (i.e. @alt=""@) or use @role="presentation"@'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: 13.8 How to specify alternate text', 
-                url:   'http://www.w3.org/TR/html4/struct/objects.html#adef-alt'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G94: Providing short text alternative for non-text content that serves the same purpose and presents the same information as the non-text content', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G94'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G95: Providing short text alternatives that provide a brief description of the non-text content', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G95'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
-                title: 'iCITA Best Practices: Text Equivalents for Images and other Non-Text Objects Best Practices', 
-                url:   'http://html.cita.illinois.edu/text/'
-              }                            
-            ]
-        },
-        IMAGE_2: {
-            ID:                    'Image Rule 2',
-            DEFINITION:            'The @longdesc@ attribute %s have a valid URI',
-            SUMMARY:               '@longdesc@ %s be valid',
-            TARGET_RESOURCES_DESC: '@img@',
-            RULE_RESULT_MESSAGES: {
-              MANUAL_CHECKS_SINGULAR:     'Manually verify @img@ element with @longdesc@ attribute is a valid URL',
-              MANUAL_CHECKS_PLURAL:       'Manually verify %N_MC @img@ elements with @longdesc@ attribute have a valid URL',
-              ALL_PASS_SINGULAR:          '@img@ element with @longdesc@ attribute has a valid URL',
-              ALL_PASS_PLURAL:            'All %N_P @img@ elements with @longdesc@ attribute have a valid URL',
-              SOME_FAIL:                  '%N_F out of %N_T @img@ elements with @longdesc@ attribute do NOT have a valid URL',
-              CORRECTIVE_ACTION_SINGULAR: 'update the @img@ element with @longdesc@ attribute to point to a valid URL that describes the image',
-              CORRECTIVE_ACTION_PLURAL:   'update the %N_F @img@ elements with a @longdesc@ attribute to point to a valid URL that describes the image',
-              ALL_FAIL_SINGULAR:          '@img@ element with @longdesc@ attribute does NOT have a valid URL',
-              ALL_FAIL_PLURAL:            'All %N_F @img@ elements with @longdesc@ attribute do NOT have a valid URL',
-              NOT_APPLICABLE:             'No @img@ elements with a @longdesc@ attribute on this page'                                          
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                '@longdesc@ attribute is a valid URI',
-              CORRECTIVE_ACTION_1:   'Change @longdesc@ attribute to a valid URI',
-              MANUAL_CHECK_1:        'Use a browser to test if the @longdesc@ attribute is a valid URL',
-              HIDDEN:                '@img@ element is hidden from asssistive technologies using CSS'
-            },  
-            PURPOSE: [
-              'Some images (i.e charts, bar graphs, organizational charts, complex pictures and images) need a longer text equivalent than can be provided with the alt text content'
-            ],
-            TECHNIQUES: [
-              '@longdesc@ can be used to provide an internal link or extenal link to information that provides a extended and more detailed text equivalent of the image'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: longdesc attribute', 
-                url:   'http://www.w3.org/TR/html4/struct/objects.html#adef-longdesc-IMG'
-              },
-              { type: OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE,
-                title: 'H45: Using longdesc',
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H45'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G92: Providing long description for non-text content that serves the same purpose and presents ', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G92'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G74: Providing a long description in text near the non-text content, with a reference to the location of the long description in the short description', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G74'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G73: Providing a long description in another location with a link to it that is immediately adjacent to the non-text content', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G73'
-              },
-              { type: OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE,
-                title: 'H45: Using longdesc',
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H45'
-              },  
-              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
-                title: 'iCITA Best Practices: Text Equivalents for Images and other Non-Text Objects Best Practices', 
-                url:   'http://html.cita.illinois.edu/text/'
-              }                            
-            ]
-        },
-        IMAGE_3: {
-            ID:                    'Image Rule 3',
-            DEFINITION:            'The file name of the image %s not be part of the accessible name',
-            SUMMARY:               'Don\'t use filename',
-            TARGET_RESOURCES_DESC: '@img@, @area@ and @[role="img"]@',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:          'Image element does not include the image file name as part of text alternative',
-              ALL_PASS_PLURAL:            'All %N_P image elements do not include the image file name as part of text alternative',
-              SOME_FAIL:                  '%N_F out of %N_T image elements DO include the image file name as part of text alternative',
-              CORRECTIVE_ACTION_SINGULAR: 'update the text alternaitve (e.g. typically the alt attribute) of the image element to not use the image file name; the text alternative must succinctly describe the content and/or purpose of the image',
-              CORRECTIVE_ACTION_PLURAL:   'update the @alt@ attribute of the %N_F images to not use the image file name; the text alternative must succinctly describe the content and/or purpose of the image',
-              ALL_FAIL_SINGULAR:          'Image element DOES include the image file name as part of text alternative',
-              ALL_FAIL_PLURAL:            'All %N_F image elements DO include the image file name as part of text alternatives',
-              NOT_APPLICABLE:             'No @img@ elements with a @longdesc@ attribute on this page'                                          
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                'text alternative does not contain the filename',
-              CORRECTIVE_ACTION_1:   'Change text alternative to succinctly describe the purpose and/or content of the image',
-              HIDDEN:                '@%1@ control is hidden from asssistive technologies using CSS'
-            },  
-            PURPOSE: [
-              'Text alternatives provide a description of images for people who cannot see the image and the file name is not useful information',                   
-              'Empty text alternatives are ignored by assistive technologies and indicates an image is being used for styling rather than meaningful content'                   
-            ],
-            TECHNIQUES: [
-              'Text alternatives should describe the purpose of images as succinctly as possible (e.g. usually less than ~100 characters) and do not include the file name as part of the text alternative',
-              'The @alt@ attribute is the preferred and most commonly used way to provide a text alternative for @img@ and @area@ elements',
-              'The @aria-labelledby@ attribute can be used to provide a text alterniatve when images can be described using visible captions associated with the image', 
-              'The @aria-label@ attribute should only be used to provide a text alternative in special cases when an element has @role="img"@ attribute', 
-              'The @title@ attribute will be used to provide a text alternative if none of the other techniques is found', 
-              'If an image is purely stylistic or decorative set the text alternative must result in an empty string (i.e. @alt=""@) or use @role="presentation"@'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: 13.8 How to specify alternate text', 
-                url:   'http://www.w3.org/TR/html4/struct/objects.html#adef-alt'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G94: Providing short text alternative for non-text content that serves the same purpose and presents the same information as the non-text content', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G94'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G95: Providing short text alternatives that provide a brief description of the non-text content', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G95'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'F30: Failure of Success Criterion 1.1.1 and 1.2.1 due to using text alternatives that are not alternatives (e.g., filenames or placeholder text)', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/F30'
-              }                            
-            ]
-        },
-        IMAGE_4_EN: {
-            ID:                    'Image Rule 4 (English)',
-            DEFINITION:            'Text alternatives %s less than 100 characters',
-            SUMMARY:               'Text alternative length',
-            TARGET_RESOURCES_DESC: '@img@, @area@ and @[role="img"]@',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:          'Image element has text alternative less than 100 characters',
-              ALL_PASS_PLURAL:            'All %N_P image elements have text alternatives less than 100 characters',
-              SOME_FAIL:                  '%N_F out of %N_T image elements do have text equivalents GREATER than 100 characters',
-              CORRECTIVE_ACTION_SINGULAR: 'update the text alternatives of the image element to be less than 100 characters; succinctly describe the purpose and/or content of the image',
-              CORRECTIVE_ACTION_PLURAL:   'update the text alternatives of the %N_F images to be less than 100 characters; succinctly describe the purpose and/or content of the image',
-              ALL_FAIL_SINGULAR:          'image element text alternative is GREATER than 100 characters',
-              ALL_FAIL_PLURAL:            'All %N_F image elements have text alternatives GREATER than 100 characters',
-              NOT_APPLICABLE:             'No image elements on this page'                                          
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                'Text alternative is less than 100 characters',
-              CORRECTIVE_ACTION_1:   'Change text alternative to be less than 100 characters',
-              HIDDEN:                'Image element is hidden from asssistive technologies'
-            },  
-            PURPOSE: [
-              'Text alternatives provides a description of the image for people who cannot see the image',                   
-              'Long text alternatives can reduce usability by increasing the time it takes to read a web page and understand the purpose of an image in the web site',                   
-              'Alt text that is an empty string is ignored by assistive technologies and indicates an image is being used for styling rather than meaningful content'                   
-            ],
-            TECHNIQUES: [
-              'Text alternatives should describe the purpose of images as succinctly as possible (e.g. usually less than ~100 characters) and do not include the file name as part of the text alternative',
-              'The @alt@ attribute is the preferred and most commonly used way to provide a text alternative for @img@ and @area@ elements',
-              'The @aria-labelledby@ attribute can be used to provide a text alterniatve when images can be described using visible captions associated with the image', 
-              'The @aria-label@ attribute should only be used to provide a text alternative in special cases when an element has @role="img"@ attribute', 
-              'The @title@ attribute will be used to provide a text alternative if none of the other techniques is found', 
-              'If an image is purely stylistic or decorative set the text alternative must result in an empty string (i.e. @alt=""@) or use @role="presentation"@'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: 13.8 How to specify alternate text', 
-                url:   'http://www.w3.org/TR/html4/struct/objects.html#adef-alt'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G94: Providing short text alternative for non-text content that serves the same purpose and presents the same information as the non-text content', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G94'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G95: Providing short text alternatives that provide a brief description of the non-text content', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G95'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'F30: Failure of Success Criterion 1.1.1 and 1.2.1 due to using text alternatives that are not alternatives (e.g., filenames or placeholder text)', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/F30'
-              }                            
-            ]
-        },
-        IMAGE_5: {
-            ID:                    'Image Rule 5',
-            DEFINITION:            'If an image element has a height or width less than 6 pixels or its alt text set to empty, the image %s set its role attribute to "presentation" or the image %s be removed and CSS %s should be used for positioning.',
-            SUMMARY:               'Small/decorative images set to presentation',
-            TARGET_RESOURCES_DESC: '@img@',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:          'Small and decorative image elements (i.e. less than 6 pixels high or wide) have @role="presentation"@ or text alternative to an empty string (e.g. @alt=""@)',
-              ALL_PASS_PLURAL:            'All %N_P small and decorative image elements (i.e. less than 6 pixels high or wide) have @role="presentation"@ or text alternative to an empty string (e.g. @alt=""@)',
-              SOME_FAIL:                  '%N_F out of %N_T small and decorative image elements (i.e. less than 6 pixels high or wide) do NOT have a @role=presentation@ or text alternative to an empty string (e.g. @alt=""@)',
-              CORRECTIVE_ACTION_SINGULAR: 'add a @role=presentation@ or change text alterative to an empty string (e.g. @alt=""@)',
-              CORRECTIVE_ACTION_PLURAL:   'add a @role=presentation@ or change text alterative to an empty string (e.g. @alt=""@)',
-              ALL_FAIL_SINGULAR:          'Small or decorative image element (i.e. less than 6 pixels high or wide) does NOT have @role=presentation@ or text alterative to an empty string (e.g. @alt=""@)',
-              ALL_FAIL_PLURAL:            'All %N_F small or decorative image elements (i.e. less than 6 pixels high or wide)  do NOT have a @role=presentation@ or text alterative to an empty string (e.g. @alt=""@)',
-              NOT_APPLICABLE:             'No small or decorative images (i.e. less than 6 pixels high or wide) on this page'                                          
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                'Image element has @role="presentation"@',
-              PASS_2:                'Image element has @alt=""@',
-              CORRECTIVE_ACTION_1:   'Add @role="presentation"@ or change text alternative to empty string (i.e. @alt=""@)',
-              HIDDEN:                'Image element is hidden from asssistive technologies using CSS'
-            },  
-            PURPOSE: [
-              'Small and decorative images (i.e. less than 6 pixels high or wide) can be ignored by assistive technologies',
-              'Images with the @alt=""@ attribute should be set to the empty string'                   
-            ],
-            TECHNIQUES: [
-              'Small images are purely stylistic or decorative and the @alt@ text conent should be the empty string (i.e. @alt=""@)'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: 13.8 How to specify alternate text', 
-                url:   'http://www.w3.org/TR/html4/struct/objects.html#adef-alt'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'F30: Failure of Success Criterion 1.1.1 and 1.2.1 due to using text alternatives that are not alternatives (e.g., filenames or placeholder text)', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/F30'
-              }                            
-            ]
-        },
-        IMAGE_6: {
-            ID:                    'Image Rule 6',
-            DEFINITION:            'Verify image element is be used for styling or decoration',
-            SUMMARY:               'Verify decorative image',
-            TARGET_RESOURCES_DESC: '@img@',
-            RULE_RESULT_MESSAGES: {
-              MANUAL_CHECKS_SINGULAR:     'Verify @img@ element with @alt=""@ or @role="presentation"@ is purely decorative',
-              MANUAL_CHECKS_PLURAL:       'Verify %N_MC @img@ elements with @alt=""@ or @role="presentation"@ are purely decorative',
-              NOT_APPLICABLE:             'No image elements identified as deecorative (i.e. @alt=""@ or @role="presentation"@) on this page'                                          
-            },
-            NODE_RESULT_MESSAGES: {
-              MANUAL_CHECK_1:        'Verify the image is only used for styling or decoration',
-              HIDDEN:                'Image element is hidden from asssistive technologies using CSS'
-            },  
-            PURPOSE: [
-              'If an image is purely decoration or used for styling users of screen readers do not need to know the image exists',                   
-              'If an image does not have alt text content and contains information, users of assistive technology will not have access to the information'                   
-            ],
-            TECHNIQUES: [
-              'Use the attributes @alt=""@ or @role="presentation"@ to indicate an image is used purely for stylistic or decorative purposes'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: 13.8 How to specify alternate text', 
-                url:   'http://www.w3.org/TR/html4/struct/objects.html#adef-alt'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G94: Providing short text alternative for non-text content that serves the same purpose and presents the same information as the non-text content', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G94'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G95: Providing short text alternatives that provide a brief description of the non-text content', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G95'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
-                title: 'iCITA Best Practices: Text Equivalents for Images and other Non-Text Objects Best Practices', 
-                url:   'http://html.cita.illinois.edu/text/'
-              }                            
-            ]
-        },
-     KEYBOARD_1: {
-            ID:                    'Keyboard Rule 1',
-            DEFINITION:            'Widget elements %s have keyboard event handlers',
-            SUMMARY:               'Widgets %s support keyboard',
-            TARGET_RESOURCES_DESC: 'Widget elements',
-            RULE_RESULT_MESSAGES: {
-              MANUAL_CHECKS_SINGULAR:       'Verify the widget element has keyboard event handlers through is parent elements, owner widget (i.e. aria-activedescendant) or required child widgets',
-              MANUAL_CHECKS_PLURAL:         'Verify the %N_MC widgets have keyboard event handlers through is parent elements, owner widget (i.e. aria-activedescendant) or required child widgets',
-              ALL_PASS_SINGULAR:            'The widget element has keyboard event handlers',
-              ALL_PASS_PLURAL:              'All %N_P widget elements have keyboard event handlers',
-              SOME_FAIL:                    '%N_F out of %N_T widget elements do NOT have keyboard event handlers',
-              CORRECTIVE_ACTION_SINGULAR:   'add event handler to the widget to support keyboard operation of the widget',
-              CORRECTIVE_ACTION_PLURAL:     'add event handler to the %N_F widgets to support keyboard operation of each widget',
-              ALL_FAIL_SINGULAR:            'The widget element does NOT have keyboard event handlers',
-              ALL_FAIL_PLURAL:              'All %N_F widget elements do NOT have keyboard event handlers',
-              NOT_APPLICABLE:               'No widgets on the page'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:               '@%1@ widget has keyboard support through event handlers on the widget element',
-              MANUAL_CHECK_1:       'Verify the @%1@ widget has keyboard support through keyboard event handlers on a parent widget element',
-              MANUAL_CHECK_2:       'Verify the @%1@ widget has keyboard support through keyboard event handlers through @aria-activedescendant@ support on its @%2@ owner widget',
-              MANUAL_CHECK_3:       'Verify the @%1@ widget has keyboard support through keyboard event handlers on a required child widgets',
-              CORRECTIVE_ACTION_1:  'Add keyboard event handlers to the @%1@ widget to support keyboard interaction with the widget',
-              HIDDEN:               '@%1@ widget is hidden from assistive technologies'
-            },
-            PURPOSE: [
-              'Keyboard support is required by people who cannot use the mouse to interact with a widget'                   
-            ],
-            TECHNIQUES: [
-              'Use the @keyup@, @keydown@ and @keypress@ events to support keyboard interaction with widgets'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
-                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G108'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
-                title: 'OAA Web Accessibility ARIA Examples', 
-                url:   'http://oaa-accessibility.org/examples/'
-              }                            
-            ]
-        },
-     KEYBOARD_2: {
-            ID:                    'Keyboard Rule 2',
-            DEFINITION:            'Widget elements %s use tabindex to add keyboard focus support on non-interactive elements',
-            SUMMARY:               'Tabindex for focus',
-            TARGET_RESOURCES_DESC: 'Widget elements',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:            'The widget element has tabindex value or is a child of a widget using aria-activedescendant',
-              ALL_PASS_PLURAL:              'All %N_P widget elements have tabindex value or is a child of a widget using aria-activedescendant',
-              SOME_FAIL:                    '%N_F out of %N_T widget elements do NOT have a @tabindex@ value or do NOT a child of a widget using aria-activedescendant',
-              CORRECTIVE_ACTION_SINGULAR:   'add @tabindex2 value to the widget or add @aria-activedescendant@ support to an ancestor widget to provide keyboard focus support to the widget',
-              CORRECTIVE_ACTION_PLURAL:     'add @tabindex@ value to the widget or add @aria-activedescendant@ support to an ancestor widget to provide keyboard focus support to the %N_F widgets',
-              ALL_FAIL_SINGULAR:            'The widget element does NOT have a @tabindex@ value or is a child of a widget using aria-activedescendant',
-              ALL_FAIL_PLURAL:              'All %N_F widget elements do NOT have a @tabindex@ value or are NOT a child of a widget using aria-activedescendant',
-              NOT_APPLICABLE:               'No widgets on the page'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:               '@%1@ widget is on a @%2@ element that can receive keyboard focus',
-              PASS_2:               '@%1@ widget has a @tabindex@ value that supports receiving keyboard focus',
-              MANUAL_CHECK_1:       '@%1@ widget is the child of a widget that has an @aria-activedescendant@ attribute, verify the @aria-activedescendant@ supports references to the @id=%2@ of this widget',
-              MANUAL_CHECK_2:       'Verify the child widgets of the @%1@ element with an onClick event of accurately represent the interactive features of this section of the web page',
-              CORRECTIVE_ACTION_1:  'Add @tabindex@ value to the widget or add @aria-activedescendant@ support to an ancestor widget to provide keyboard focus support',
-              HIDDEN:               '@%1@ widget is hidden from assistive technologies'
-            },
-            PURPOSE: [
-              'Keyboard support is required by people who cannot use the mouse to interact with a widget'                   
-            ],
-            TECHNIQUES: [
-              'The @tabindex@ enables non-interactive elements (i.e. @div@, @li@, @span@ ...) to receive and process focus ',
-              'The @tabindex@ enables non-interactive elements (i.e. @div@, @li@, @span@ ...) to receive and process focus '
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
-                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G108'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
-                title: 'OAA Web Accessibility ARIA Examples', 
-                url:   'http://oaa-accessibility.org/examples/'
-              }                            
-            ]
-        },    
-        LANDMARK_1: {
-            ID:                    'Landmark Rule 1',
-            DEFINITION:            'Each page %s contain at least one @main@ landmark',
-            SUMMARY:               'Page %s have @main@ landmark',
-            TARGET_RESOURCES_DESC: '@main@ landmark',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:          'Page has @main@ landmark',
-              CORRECTIVE_ACTION_SINGULAR: 'add a @main@ landmark that identifies the main (i.e. primary) content of the page',
-              ALL_FAIL_SINGULAR:          'Page does NOT contain a @main@ landmark'
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                'Page contains an %1 element with @role=main@',
-              CORRECTIVE_ACTION_1:   'Add a @main@ landmark to the page, the main landmark must contain the main content of the page',
-              HIDDEN:                '@main@ landmark is hidden from asssistive technologies.'
-            },  
-            PURPOSE: [
-              'Main landmarks provide a navigation point for users of asssitive technologies to the main content of the page'                   
-            ],
-            TECHNIQUES: [
-              'Include an @role="main"@ attribute on the element that contains the main content',
-              'Use the aria-labelledby or aria-label to describe the content of the main landmark'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: main role', 
-                url:   'http://www.w3.org/TR/wai-aria/roles#main'
-              }                            
-            ]
-        },
-        LANDMARK_2: {
-            ID:                    'Landmark Rule 2',
-            DEFINITION:            'All rendered content %s be contained within a landmark',
-            SUMMARY:               'Content %s be within landmark',
-            TARGET_RESOURCES_DESC: 'all renderable content',
-            RULE_RESULT_MESSAGES: {
-              MANUAL_CHECKS_SINGULAR:       'One element may contain renderable content; elements that include renderable content %RULE_TYPE be contained in a landmark',
-              MANUAL_CHECKS_PLURAL:         '%N_MC elements may contain renderable content; elements that include renderable content %RULE_TYPE be contained in a landmark',
-              ALL_PASS_SINGULAR:            'Renderable element is contained within a landamrk',
-              ALL_PASS_PLURAL:              'All %N_P renderable elements are contained wihin a landamrk',
-              SOME_FAIL:                    '%N_F out of %N_T renderable elements are NOT contained wihin a landamrk',
-              CORRECTIVE_ACTION_SINGULAR:   'update the landmark structure of the page and place the element currently outside of a landmark into its proper landmark container',
-              CORRECTIVE_ACTION_PLURAL:     'update the landmark structure of the page and place the %N_F elements currently outside of landmarks into their proper landmark container',
-              ALL_FAIL_SINGULAR:            'Renderable element is NOT contianed within a landmark',
-              ALL_FAIL_PLURAL:              '%N_F renderable elements are NOT contianed within a landmark',
-              NOT_APPLICABLE:               'No renderable elements on page'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                '@%1@ element is in @%2@ landmark',
-              MANUAL_CHECK_1:        '@%1@ element may contain renderable content, if so move it into an appropriate landmark',
-              CORRECTIVE_ACTION_1:   'Move @%1@ element into an appropriate landmark',
-              HIDDEN:                '@%1@ element is hidden from asssistive technologies.'
-            },  
-            PURPOSE: [
-              'Landmarks provide a way to organize content of a page to users of assistive technology, similar to visual and interaction designers organize information for people using a graphical rendering of the content.'                   
-            ],
-            TECHNIQUES: [
-              'Use the appropriate landmarks to identify the different sections of a web page',
-              'The most important landmarks are the @main@ and @navigation@ landmarks since they will be the most used'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Landmark Roles', 
-                url:   'http://www.w3.org/TR/wai-aria/roles#landmark_roles'
-              }                            
-            ]
-        },    
-        LANDMARK_2N: {
-            ID:                    'Landmark Rule 2: navigation',
-            DEFINITION:            'Each page %s contain at least one @navigation@ landmark',
-            SUMMARY:               'Page %s have @navigation@ landmark',
-            TARGET_RESOURCES_DESC: '@navigation@ landmark',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:          'Page has @navigation@ landmark',
-              CORRECTIVE_ACTION_SINGULAR: 'add a @navigation@ landmark that identifies the main (i.e. primary) content of the page',
-              ALL_FAIL_SINGULAR:          'Page does NOT contain a @navigation@ landmark'
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                'Page contains an %1 element with @role=navigation@',
-              CORRECTIVE_ACTION_1:   'Add a @navigation@ landmark to the page, the navigation landmark must identify the sets navigation lists on the page',
-              HIDDEN:                '@navigation@ landmark is hidden from asssistive technologies.'
-            },  
-            PURPOSE: [
-              'Navigation landmarks provide a way to identify groups of links with in a web page'                   
-            ],
-            TECHNIQUES: [
-              'Include an @role="navigation"@ attribute on a element that contains @ol@ and @ul@ elements that contain li elements with links',
-              'Use the aria-labelledby or aria-label to describe the purpose of the links (i.e. table on contents of a page, site map...)'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: navigation role', 
-                url:   'http://www.w3.org/TR/wai-aria/roles#navigation'
-              }                            
-            ]
-        },    
-        LANDMARK_2B: {
-            ID:                    'Landmark Rule 2: banner',
-            DEFINITION:            'Each page %s contain at least one @banner@ landmark',
-            SUMMARY:               'Page %s have @banner@ landmark',
-            TARGET_RESOURCES_DESC: '@banner@ landmark',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:          'Page has @banner@ landmark',
-              CORRECTIVE_ACTION_SINGULAR: 'add a @banner@ landmark that identifies the repetitive banner content at the top of the page',
-              ALL_FAIL_SINGULAR:          'Page does NOT contain a @banner@ landmark'
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                'Page contains an %1 element with @role=banner@',
-              CORRECTIVE_ACTION_1:   'Add a @banner@ landmark to the page, the banner landmark is used to identify the repetitive banner content at the top of the page',
-              HIDDEN:                '%1 element with @banner@ landmark is hidden from asssistive technologies.'
-            },  
-            PURPOSE: [
-              'banner landmarks provide a way to identify branding content usually ar the top of a web page'                   
-            ],
-            TECHNIQUES: [
-              'Include an @role="banner"@ attribute on a element that contains the branding content at the top of a page',
-              'Pages typically one have one @banner@ landmark'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: banner role', 
-                url:   'http://www.w3.org/TR/wai-aria/roles#banner'
-              }                            
-            ]
-        },    
-        LANDMARK_2CI: {
-            ID:                    'Landmark Rule 2: contentinfo or complementary',
-            DEFINITION:            'Each page %s contain at least one @contentinfo@ or @complementary@ landmark',
-            SUMMARY:               'Page %s have @contentinfo@ or @complementary@ landmark',
-            TARGET_RESOURCES_DESC: '@contentinfo@ landmark',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:          'Page has @contentinfo@ or @complementary@ landmark',
-              CORRECTIVE_ACTION_SINGULAR: 'add a @contentinfo@ or @complementary@ landmark that identifies the typically repetitive content (i.e. on each page in the website) on the bottom of a page',
-              ALL_FAIL_SINGULAR:          'Page does NOT contain a @contentinfo@ or @complementary@ landmark'
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                'Page contains an %1 element with @role=%2@',
-              CORRECTIVE_ACTION_1:   'Add a @contentinfo@ or or @complementary@ landmark to the page, the contentinfo landmark must identify the sets contentinfo lists on the page',
-              HIDDEN:                '%1 element with @role=%2@ is hidden from asssistive technologies.'
-            },  
-            PURPOSE: [
-              'contentinfo landmarks provide a way to identify content found typically on the bottom of each page in a website',
-              'The contentinfo usually includes links like copyright information, privacy, and other general links support all pages in the website.'
-            ],
-            TECHNIQUES: [
-              'Include an @role="contentinfo"@ attribute on a element that contains @ol@ and @ul@ elements that contain li elements with links',
-              'Use the aria-labelledby or aria-label to describe the purpose of the links (i.e. table on contents of a page, site map...)'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: contentinfo role', 
-                url:   'http://www.w3.org/TR/wai-aria/roles#contentinfo'
-              }                            
-            ]
-        },
-        LANDMARK_3: {
-            ID:             'LANDMARK 3',
-            DEFINITION:     'If there are two or more landmarks of the same type, they %s have unique labels',
-            SUMMARY:        '',
-            PURPOSE:        'When there are two or more landmarks of the same type labels make it possible for people using assistive technology to identify the differences between the landmarks.',            
-            MESSAGE_PASS_ONLY_ONE:  'There is only one %1 landmark in the page',
-            MESSAGE_PASS_UNIQUE:    'The \'%1\' label is unique for the %2 landmarks',
-            MESSAGE_FAIL_NO_LABEL:  'The %2 landmark does not have a label, when there are more than one of the same type of landmark on the page the landmark needs a label',
-            MESSAGE_FAIL_DUPLICATE: 'The \'%1\' label is NOT unique for the %2 landmarks',
-            MESSAGE_HIDDEN: 'The %1 landmark is hidden, if the landmark content became visible the label would NOT be unique.'
-        },
-        LANDMARK_4: {
-            ID:                'LANDMARK 4',
-            TITLE:             'Each landmark labels %s describe the content in the landark',
-            PURPOSE:           'Landmark labels make it easier for people using assistive technologies to understand the content of a landmark',
-            MESSAGE_HAS_LABEL: 'Make sure the \'%1\' label described the content of the %2 landmark',
-            MESSAGE_NO_LABEL:  'The %1 landmark does not have a label, make sure the landmark role is appropriate to the content in the landmark and consider adding a descriptive label to provide more detail on the contents of the landark.'
-        },
-        LAYOUT_1: {
-            ID:                    'Layout Rule 1',
-            DEFINITION:            'Web pages %s provide content in a meaningful sequence',
-            SUMMARY:               'Page %s have meaningful sequence',
-            TARGET_RESOURCES_DESC: '@table@ elements used for layout',
-            RULE_RESULT_MESSAGES: {
-              MANUAL_CHECKS_SINGULAR: 'Verify document has a meaningful sequence of content when style sheets are disabled',
-              MANUAL_CHECKS_PLURAL:   'Verify document has a meaningful sequence of content when style sheets are disabled and layout table markup is disabled',
-              ALL_PASS_SINGULAR:      'Layout table is one column wide',
-              ALL_PASS_PLURAL:        'All %N_P layout tables are one column wide'
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:          'Table is one column wide, and will have the same document sequence when table markup is disabled',
-              MANUAL_CHECK_1:  'Verify document has a meaningful sequence of content when style sheets are disabled and layout table markup is disabled',
-              MANUAL_CHECK_2:  'Verify the content in the %1x%2 layout table has a meaningful sequence of content when table markup is disabled , if the table is actually a data table add data table markup to give the table an effective caption and the data tables headings',
-              MANUAL_CHECK_3:  'Verify the nesting of tables for layout of content maintains a meaningful sequence of content when table markup is disabled',
-              HIDDEN:          'The @table@ is hidden from assistive technologies'
-            },  
-            PURPOSE: [
-              'The sequence of content (i.e. order) in the document code affects its meaning, especilly for users of assistive technology who cannot see the visual cues provided in a graphical that provide information about the relationships between content'                   
-            ],
-            TECHNIQUES: [
-              'Use CSS and web standards techniques for the coding of content, and the graphical styling and positioning of content',
-              'Avoid using table markup for graphical layout, if you do use tables for layout make sure the content still is meaningful when the table markup is disabled',
-              'Avoid using nested tables for layout, the deeper the level of nesting the more chance there of having a confusing sequence of content',
-              'Tables that are used for layout should use only @tr@ and @td@ elements, and the @table@, @tr@ and @td@ elements should have a @role="presentation"@ attribute to clearly indicate the table markup is being used for layout'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'Cascading Style Sheets Level 2 Revision 1 (CSS 2.1) Specification: Visual formatting model', 
-                url:   'http://www.w3.org/TR/CSS21/visuren.html'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G57: Ordering the content in a meaningful sequence', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G57'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'C6: Positioning content based on structural markup', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/C6'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'C8: Using CSS letter-spacing to control spacing within a word', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/C8'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'C27: Making the DOM order match the visual order', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/C27'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'F1: Failure of Success Criterion 1.3.2 due to changing the meaning of content by positioning information with CSS', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/F1'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'F33: Failure of Success Criterion 1.3.1 and 1.3.2 due to using white space characters to create multiple columns in plain text content', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/F33'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'F34: Failure of Success Criterion 1.3.1 and 1.3.2 due to using white space characters to format tables in plain text content', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/F34'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'F49: Failure of Success Criterion 1.3.2 due to using an HTML layout table that does not make sense when linearized', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/F49'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.OTHER, 
-                title: 'Web Standards Group', 
-                url:   'http://webstandardsgroup.org/standards/'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.OTHER, 
-                title: 'W3C Standards', 
-                url:   'http://www.w3.org/standards/'
-              }
-            ]   
-        },
-        LAYOUT_2: {
-            ID:                    'Layout Rule 2',
-            DEFINITION:            'Tables %s not be nested for layout of content',
-            SUMMARY:               'Do not nest layout tables',
-            TARGET_RESOURCES_DESC: '@table@ elements used for layout',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:      'Table is not nested with another layout table',
-              ALL_PASS_PLURAL:        '%N_P tables are not nested with other layout tables',
-              SOME_FAIL:                '%N_F out of %N_T tables are nested with other layout tables',
-              CORRECTIVE_ACTION_PLURAL: 'Update the markup and CSS on this page to remove the nesting of layout tables',
-              ALL_FAIL_SINGULAR:        'Layout table is nested with other layout tables',
-              ALL_FAIL_PLURAL:          'All %N_F tables are nested with other layout tables',
-              NOT_APPLICABLE:           'No table elements used for layout'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:               'Table is not nested with another layout table',
-              PASS_2:               'Table is one column wide, and will have the same document sequence when table markup is disabled',
-              CORRECTIVE_ACTION_1:  'Update the markup and CSS on this page to remove the nesting of this layout table',
-              HIDDEN:               'The @table@ is hidden from assistive technologies'
-            },  
-            PURPOSE: [
-              'The sequence of content (i.e. order) in the document code affects its meaning, nesting layout tables often makes the sequence of content less understandable'                   
-            ],
-            TECHNIQUES: [
-              'Use CSS and web standards techniques for the coding of content, and the graphical styling and positioning of content',
-              'Avoid using table markup for graphical layout, if you do use tables for layout make sure the content still is meaningful when the table markup is disabled',
-              'Avoid using nested tables for layout, the deeper the level of nesting the more chance there of having a confusing sequence of content',
-              'Tables that are used for layout should use only @tr@ and @td@ elements, and the @table@, @tr@ and @td@ elements should have a @role="presentation"@ attribute to clearly indicate the table markup is being used for layout'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'Cascading Style Sheets Level 2 Revision 1 (CSS 2.1) Specification: Visual formatting model', 
-                url:   'http://www.w3.org/TR/CSS21/visuren.html'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'F33: Failure of Success Criterion 1.3.1 and 1.3.2 due to using white space characters to create multiple columns in plain text content', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/F33'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'F49: Failure of Success Criterion 1.3.2 due to using an HTML layout table that does not make sense when linearized', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/F49'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.OTHER, 
-                title: 'Web Standards Group', 
-                url:   'http://webstandardsgroup.org/standards/'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.OTHER, 
-                title: 'W3C Standards', 
-                url:   'http://www.w3.org/standards/'
-              }
-            ]   
-        },
-        LAYOUT_3: {
-            ID:                    'Layout Rule 3',
-            DEFINITION:            'Layout tables %s use @role="presentation"@ on all table elements',
-            SUMMARY:               'Layout tables use @role="presentation"@',
-            TARGET_RESOURCES_DESC: '@table@ elements used for layout',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:      'Layout table element has @role="presentation"@',
-              ALL_PASS_PLURAL:        '%N_P layout table elements (i.e. @table@, @tr@, @td@ elements) have @role="presentation"@',
-              SOME_FAIL:                '%N_F out of %N_T layout table elements (i.e. @table@, @tr@, @td@ elements) do NOT have @role="presentation"@',
-              CORRECTIVE_ACTION_PLURAL: 'add @role="presentation"@ to all table elements (i.e. @table@, @tr@, @td@ elements) in a layout',
-              ALL_FAIL_PLURAL:          'All %N_F layout table elements (i.e. @table@, @tr@, @td@ elements) do NOT have @role="presentation"@',
-              NOT_APPLICABLE:           'No table elements used for layout'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:               '%1 element has @role="presentation"@',
-              CORRECTIVE_ACTION_1:  'Add @role="presentation"@ to the %1 element, if the table is actually a data table use apporpriate data table markup',
-              HIDDEN:               'The %1 element is hidden from assistive technologies'
-            },  
-            PURPOSE: [
-              'Using @role="presentation"@ communicates assistive technollogies that the table is being used for markup'                   
-            ],
-            TECHNIQUES: [
-              'Use @role="presentation"@ on all table elements in a layout table to help assitive technology understand the table is being used for layout, rather than tabular data'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0: Presentation Role', 
-                url:   'http://www.w3.org/TR/wai-aria/roles#presentation'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.OTHER, 
-                title: 'WAI-ARIA 1.0 Authoring Practices: Presentation Role', 
-                url:   'http://www.w3.org/WAI/PF/aria-practices/#presentation_role'
-              }
-            ]   
-        },
-        LINK_1: {
-            ID:                    'Link Rule 1',
-            DEFINITION:            'Links with the same HREF %s have the same link text',
-            SUMMARY:               'Link text %s be consistent',
-            TARGET_RESOURCES_DESC: '@a@ and @area@ elements and elements with @role="link"@',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:            'Only one @a@, @area@ or @[role=link]@ element on the page so no test to perform on consistent naming of links that share the same @href@ value',
-              ALL_PASS_PLURAL:              'All %N_P @a@, @area@ or @[role=link]@ elements have consistent accessible names for links that share the same @href@ value',
-              SOME_FAIL:                    '%N_F out of %N_T @a@, @area@ or @[role=link]@ elements do NOT have consistent accessible names for links that share the same @href@ value',
-              CORRECTIVE_ACTION_PLURAL:     'add @aria-describedby@ attribute to the %N_F @a@, @area@ or @[role=link]@ elements to provide additional text context to make the accessible names unique',
-              ALL_FAIL_PLURAL:              'All %N_F @a@, @area@ or @[role=link]@ elements do NOT have consistent accessible names for links that share the same @href@ value',
-              NOT_APPLICABLE:               'No @a@, @area@ or @[role=link]@ elements on page share the same accessible name'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                '@%1@ element has unique @href@ value on the page',
-              PASS_2:                '@%1@ element has the same accessible name as the %2 links it shares the same @href@ with',
-              MANUAL_CHECK_1:        'Verify the @%1@ element has the an accessible name that makes sense to users, since the link shares the same @href@ has a different accessible name',
-              CORRECTIVE_ACTION_1:   'Change the text content of the @%1@ element to make it the same as other %2 links that share the same @href@ value',
-              HIDDEN:                '@%1@ element is hidden from asssistive technologies.'
-            },  
-            PURPOSE: [
-              'Consistency of link text makes interaction with web pages more predictable'                   
-            ],
-            TECHNIQUES: [
-              'Use the same text for links that point to the same URL',
-              'Make sure the link text accurately describes the target of the link'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: 12.2 The A element', 
-                url:   'http://www.w3.org/TR/html4/struct/links.html#edef-A'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H30: Providing link text that describes the purpose of a link for anchor elements', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H30'
-              }  
-            ]   
-        },
-        LINK_2: {
-            ID:                    'Link Rule 2',
-            DEFINITION:            'Links with different HREFs %s have unique accessible names',
-            SUMMARY:               'Link text %s be unique',
-            TARGET_RESOURCES_DESC: '@a@ and @area@ elements and elements with @role="link"@',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:            '@a@, @area@ or @[role=link]@ element has unique accessible name on the page ',
-              ALL_PASS_PLURAL:              'All %N_P @a@, @area@ or @[role=link]@ elements have unique accessible name or are unique through additional text context on the page',
-              SOME_FAIL:                    '%N_F out of %N_T @a@, @area@ or @[role=link]@ elements do NOT have unique accessible name or are NOT unique even with additional text context on the page ',
-              CORRECTIVE_ACTION_SINGULAR:   'add @aria-describedby@ attribute to the link to provide additional text to make the accessible name unique',
-              CORRECTIVE_ACTION_PLURAL:     'add @aria-describedby@ attribute to the %N_F@a@, @area@ or @[role=link]@ elements to provide additional text context to make the accessible names unique',
-              ALL_FAIL_PLURAL:              'All %N_F @a@, @area@ or @[role=link]@ elements do NOT have unique accessible names or are NOT unique through additional text context on the page',
-              NOT_APPLICABLE:               'No @a@, @area@ or @[role=link]@ elements on page share the same accessible name'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                '@%1@ element has unique link text on the page',
-              PASS_2:                '@%1@ element has the same @href@ value as the %2 links it shares a name with',
-              PASS_3:                '@%1@ element has unique link text throught the use of additional text context using @aria-describedby@ attribute',
-              CORRECTIVE_ACTION_1:   'Change the text content of the @%1@ element or provide additional context text to make the link text unique',
-              HIDDEN:                '@%1@ element is hidden from asssistive technologies.'
-            },  
-            PURPOSE: [
-              'Links that point to different URLs should have unique accessible names, when a link shares the same accessible name but have different URLs, users using speech will be confused unless programmatic text context is provided'                   
-            ],
-            TECHNIQUES: [
-              'The link text (i.e. accessible name) should uniquely describe the target of a link,',
-              'Use aria-laeblledby to provide context for links that share the same link text'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: 12.2 The A element', 
-                url:   'http://www.w3.org/TR/html4/struct/links.html#edef-A'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H30: Providing link text that describes the purpose of a link for anchor elements', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H30'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
-                title: 'OAA Example 44 - Using aria-describedby to satisfy WCAG 2.4.4 Link Purpose in Context', 
-                url:   'http://oaa-accessibility.org/example/44/'
-              }  
-            ]   
-        },
-        LINK_3: {
-            ID:                    'Link Rule 3',
-            DEFINITION:            'Link %s provide minimum target dimensions.',
-            SUMMARY:               'Link %s not be small',
-            TARGET_RESOURCES_DESC: '@a@ and @area@ elements and elements with @role="link"@',
-            RULE_RESULT_MESSAGES: {
-              MANUAL_CHECKS_SINGULAR:       'Dimension of one @a@, @area@ or @[role=link]@ element could not be calculated, manual check of dimensions need to be done to insure size is greater than 12 pixels high or 12 pixels wide',
-              MANUAL_CHECKS_PLURAL:         'Dimension of %N_MC @a@, @area@ or @[role=link]@ elements could not be calculated, manual check of dimensions need to be done to insure size is greater than 12 pixels high or 12 pixels wide',
-              ALL_PASS_SINGULAR:            '@a@, @area@ or @[role=link]@ element is more than 12 pixels high and 12 pixels wide',
-              ALL_PASS_PLURAL:              'All %N_P @a@, @area@ or @[role=link]@ elements are more than 12 pixels high and 12 pixels wide',
-              SOME_FAIL:                    '%N_F out of %N_T @a@, @area@ or @[role=link]@ elements are NOT more than 12 pixels high and 12 pixels wide',
-              CORRECTIVE_ACTION_SINGULAR:   'increase the dimensions of the @a@, @area@ or @[role=link]@ element to be at least 12 pixels high and 12 pixels wide',
-              CORRECTIVE_ACTION_PLURAL:     'increase the dimensions of the %N_F @a@, @area@ or @[role=link]@ elements to be at least 12 pixels high and 12 pixels wide',
-              ALL_FAIL_SINGULAR:            '@a@, @area@ or @[role=link]@ element is NOT more than 12 pixels high and 12 pixels wide',
-              ALL_FAIL_PLURAL:              'All %N_T @a@, @area@ or @[role=link]@ elements are NOT more than 12 pixels high and 12 pixels wide',
-              NOT_APPLICABLE:               'No @a@, @area@ or @[role=link]@ elements on page'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                '@%1@ element is more than 12 pixels high and 12 pixels wide',
-              MANUAL_CHECK_1:        'The rendered dimensions of the @%1@ element could not be determined, check to make sure the image is at least 12 pixels high and 12 pixels wide',
-              CORRECTIVE_ACTION_1:   'The rendered dimensions of the @%1@ element is %2 pixels by %3 pixels, change the dimensions of the image to be at least 12 pixels high and 12 pixels wide',
-              HIDDEN:                '@%1@ element is off screen.'
-            },  
-            PURPOSE: [
-              'Links must be large enough for people to see and select with the mouse'                   
-            ],
-            TECHNIQUES: [
-              'Increase the rendered dimensions of the link'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: 12.2 The A element', 
-                url:   'http://www.w3.org/TR/html4/struct/links.html#edef-A'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'IITAA Implementation Guidelines 1.0: 9.3 - Avoid using small links.', 
-                url:   'http://www.dhs.state.il.us/IITAA/IITAAWebImplementationGuidelines.html'
-              }                            
-            ]
-        },
-        LINK_4: {
-            ID:                    'Link Rule 4',
-            DEFINITION:            'Accessible names for a link %s describe the target of the link',
-            SUMMARY:               'Link text %s be descriptive',
-            TARGET_RESOURCES_DESC: '@a@ and @area@ elements and elements with @role="link"@',
-            RULE_RESULT_MESSAGES: {
-              MANUAL_CHECK_SINGULAR:        'Verify the @a@, @area@ or @[role=link]@ element accessible name describes the target of the link',
-              MANUAL_CHHECK_PLURAL:         'Verify all %N_P @a@, @area@ or @[role=link]@ elements accessible name describes the target of each link',
-              SOME_FAIL:                    '%N_F out of %N_T @a@, @area@ or @[role=link]@ elements do NOT have an accessible name',
-              CORRECTIVE_ACTION_SINGULAR:   'add text content to the link that describes the target of the link',
-              CORRECTIVE_ACTION_PLURAL:     'add text content to the %1 links that describes the target of each link',
-              ALL_FAIL_SINGULAR:            '@a@, @area@ or @[role=link]@ element does NOT have an accessible name',
-              ALL_FAIL_PLURAL:              'All %N_F @a@, @area@ or @[role=link]@ elements do NOT have accessible names',
-              NOT_APPLICABLE:               'No @a@, @area@ or @[role=link]@ elements on page share the same accessible name'              
-            },
-            NODE_RESULT_MESSAGES: {
-              MANUAL_CHECK_1:        '@%1@ element has the accessible name "%2", verify that the name accurately describes the target of the link, if not change the text content or text context of the link to create a more accessible name',
-              MANUAL_CHECK_2:        '@%1@ element has the accessible name "%2" with a text content of "%3", verify that the name and context text accurately describes the target of the link, if not change the text content or context of the link to create a more accessible name',
-              CORRECTIVE_ACTION_1:   'The @%1@ element does NOT have an accessible name, add text content to the link so the the accessible name describes the target of the link',
-              HIDDEN:                '@%1@ element is hidden from asssistive technologies.'
-            },  
-            PURPOSE: [
-              'Link text should describe the target of the link '                   
-            ],
-            TECHNIQUES: [
-              'The text content of the link (i.e. the default accessible name) should uniquely describe the target of each link,',
-              'Use aria-label or aria-labelledby to provide more descriptive accessible names when the text content of the link cannot be changed',
-              'Use aria-describedby to provide context for links that share the same link text but have some type of context to make the link text meaningful'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: 12.2 The A element', 
-                url:   'http://www.w3.org/TR/html4/struct/links.html#edef-A'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H30: Providing link text that describes the purpose of a link for anchor elements', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H30'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
-                title: 'OAA Example 44 - Using aria-describedby to satisfy WCAG 2.4.4 Link Purpose in Context', 
-                url:   'http://oaa-accessibility.org/example/44/'
-              }  
-            ]   
-        },
-        LIST_1: {
-            ID:                       'LIST 1',
-            TITLE:                    'A list of navigational links %s be contained within an element with role=navigation.',
-            PURPOSE:                  'Role navigation provides makes it easy for users of asssitive technology to find the navigation links on a web page.',
-            MESSAGE_HAS_ROLE_NAV:     'The parent element of this %1 has role=navigation.',
-            MESSAGE_MISSING_ROLE_NAV: 'The parent element of this %1 does not have role=navigation.',
-            MESSAGE_ROLE_NAV_ON_LIST: 'This %1 element should not have role=navigation; it should be placed on its parent element instead.'
-        },
-        MEDIA_1: {
-            ID:             'MEDIA 1',
-            TITLE:          'Pre-recorded audio %s have text based alternatives',
-            PURPOSE:        '',
-            MESSAGE_PASS_1: 'Text based alternative is available for pre-recorded audio',
-            MESSAGE_MAYBE:  'If %1 element is prerecorded audio, verify that a text based alternative to the audio is available',
-            MESSAGE_FAIL:   'Text based alternative is NOT available for pre-recorded audio',
-            MESSAGE_HIDDEN: '%1 element is hidden from the visual rendering'
-        },
-        MEDIA_2: {
-            ID:                 'MEDIA 2',
-            TITLE:              'Pre-recorded video %s have either text based alternative or audio description',
-            PURPOSE:            '',
-            MESSAGE_PASS_TEXT:  'Text based alternative is available for pre-recorded video',
-            MESSAGE_PASS_AUDIO: 'Audio description is available for pre-recorded video',
-            MESSAGE_PASS_BOTH:  'Both an audio description and text based description is available for pre-recorded video',
-            MESSAGE_MAYBE:      'If %1 element is prerecorded video, verify that a text based alternative or audio description is available for the video',
-            MESSAGE_FAIL:       'Text based alternative or audio description is NOT available for pre-recorded video',
-            MESSAGE_HIDDEN:     '%1 element is hidden from the visual rendering'
-        },
-        TABLE_1: {
-            ID:                    'Table Rule 1',
-            DEFINITION:            'Data cells %s have header cells',
-            SUMMARY:               'Data table %s have headers',
-            TARGET_RESOURCES_DESC: '@td@ elements',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:            'The data cell with content has at least one header cells',
-              ALL_PASS_PLURAL:              'All %N_P data cells have header cells',
-              SOME_FAIL:                    '%N_F out of %N_T data cells do NOT have header cells ',
-              CORRECTIVE_ACTION_SINGULAR:   'add @th@ or @td[scope]@ elements to the first row or column of the data table or add a @headers@ attribute to define the headers for the data cell',
-              CORRECTIVE_ACTION_PLURAL:     'add @th@ or @td[scope]@ elements to the first row or column of the table or use the @headers@ attribute to define headers for the data cell',
-              ALL_FAIL_SINGULAR:            'The data cell with content does NOT have any header cells',
-              ALL_FAIL_PLURAL:              'All %N_F data cells with content do NOT have any header cells',
-              NOT_APPLICABLE:               'No data tables in the page'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                'The @td@ element uses the @headers@ attribute with the following is: \'@1\' to define header cells',
-              PASS_2:                'The @td@ element has at least one header cell in the row and/or column that contains the cell',
-              CORRECTIVE_ACTION_1:   'add header cells using the @headers@ attribute, since this table is a complex table',
-              CORRECTIVE_ACTION_2:   'add header cells using row and/or column @th@ elements, or the @headers@ attribute on the @td@ element',
-              MANUAL_CHECK_1:        'The @td@ element does not have any text content and it does not have any header cells, verify that this cell is being used for formatting and does not need headers',
-              HIDDEN:                '@td@ element is hidden from asssistive technologies'
-            },  
-            PURPOSE: [
-              'Data cells need header cells for people using speech to understand the content of the table cell, since they cannot see the visual relationships with header cells'                   
-            ],
-            TECHNIQUES: [
-              'Use @th@ elements in the first row or column to identify row and column headers in a simple data tables',
-              'Use @headers@ attribute on each @td@ element to identify header information in complex data tables',
-              'Use @th@ element for cells used as header cells in the table',
-              'While not recommended, it is valid to use @td@ element with a @scope@ attribute as header cell'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: 11.2.6 Table cells: The TH and TD elements', 
-                url:   'http://www.w3.org/TR/html4/struct/tables.html#edef-TD'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: scope attribute', 
-                url:   'http://www.w3.org/TR/html4/struct/tables.html#adef-scope'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H51: Using table markup to present tabular information', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H51'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H63: Using the scope attribute to associate header cells and data cells in data tables', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H63'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
-                title: 'IBM Web checklist Checkpoint 1.3e: Tables', 
-                url:   'http://www-03.ibm.com/able/guidelines/web/webtableheaders.html'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
-                title: 'iCITA HTML Best Practices: Simple Data Table Example', 
-                url:   'http://html.cita.illinois.edu/nav/dtable/dtable-example-simple.php'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
-                title: 'iCITA HTML Best Practices: Complex Data Table Example', 
-                url:   'http://html.cita.illinois.edu/nav/dtable/dtable-example-complex.php'
-              }  
-            ]   
-        },
-        TABLE_2T: {
-            ID:                    'Table Rule 2T (Transitional)',
-            DEFINITION:            'Each data table %s have a effective caption with content',
-            SUMMARY:               'Data tables %s have caption',
-            TARGET_RESOURCES_DESC: '@caption@ and @table[summary]@ elements',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:            'The data table has has an effective caption',
-              ALL_PASS_PLURAL:              'All %N_P data tables have an effective caption',
-              SOME_FAIL:                    '%N_F out of %N_T data tables do NOT have an effective caption',
-              CORRECTIVE_ACTION_SINGULAR:   'add @caption@ element or @summary@ attribute to provide an effective caption',
-              CORRECTIVE_ACTION_PLURAL:     'add @caption@ element or @summary@ attribute to each of the %N_F tables to provide an effective caption',
-              ALL_FAIL_SINGULAR:            'Data table does NOT have an effective caption',
-              ALL_FAIL_PLURAL:              'All %N_F data tables do NOT have an effective caption',
-              NOT_APPLICABLE:               'No data tables on the page'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                'Data table has an effective caption using the @caption@ with content: \'%1\'',
-              PASS_2:                'Data table has an effective caption using the @summary@ attribute with content: \'%1\'',
-              CORRECTIVE_ACTION_1:   'add @caption@ element or @summary@ attribute to provide an effective caption for the table, or if the table is really being used for layout or positioning add @role="presentation"@ to the @table@ element',
-              HIDDEN:                'table is hidden from asssistive technologies'
-            },  
-            PURPOSE: [
-              'Effective caption of a table is important for people using speech, people with visual impairments and people with learning disabilities to help them understand the purpose of the table'                   
-            ],
-            TECHNIQUES: [
-              'Use @caption@ element to provide an effective label',
-              'Use @summary@ attribute to provide an effective label',
-              'If the table is not used for tabular data, but instead for layout of content, use the @role="presentation"@ on all the table elements'
-            ],
-            MANUAL_CHECKS: [
-              'Make sure the content of the effective lable accurately and succinctly describes the purpose of the data table'
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: 11.2.2 Table Captions: The CAPTION element', 
-                url:   'http://www.w3.org/TR/html4/struct/tables.html#h-11.2.2'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: summary attribute', 
-                url:   'http://www.w3.org/TR/html4/struct/tables.html#adef-summary'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H39: Using caption elements to associate data table captions with data tables', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H39'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H73: Using the summary attribute of the table element to give an overview of data tables', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H73'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'F46: Failure of Success Criterion 1.3.1 due to using th elements, caption elements, or non-empty summary attributes in layout tables', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/F46'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
-                title: 'IBM Web checklist Checkpoint 1.3e: Tables', 
-                url:   'http://www-03.ibm.com/able/guidelines/web/webtableheaders.html'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
-                title: 'iCITA HTML Best Practices: Simple Data Table Example', 
-                url:   'http://html.cita.illinois.edu/nav/dtable/dtable-example-simple.php'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
-                title: 'iCITA HTML Best Practices: Complex Data Table Example', 
-                url:   'http://html.cita.illinois.edu/nav/dtable/dtable-example-complex.php'
-              }  
-            ]   
-        },
-        TABLE_2S: {
-            ID:                    'Table Rule 2S (Single Data Table)',
-            DEFINITION:            'If there is only one data table on a page, it %s have an effective caption with content',
-            SUMMARY:               'Data tables %s have caption',
-            TARGET_RESOURCES_DESC: '@th@ and @td[scope]@ elements',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:            'The data table has has an effective caption',
-              CORRECTIVE_ACTION_SINGULAR:   'add @caption@ element or @summary@ attribute to provide an effective caption',
-              ALL_FAIL_SINGULAR:            'Data table does NOT have an effective caption',
-              NOT_APPLICABLE:               'More than one or no data tables on the page'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                'Data table has an effective caption using the @caption@ with content: \'%1\'',
-              PASS_2:                'Data table has an effective caption using the @summary@ attribute with content: \'%1\'',
-              CORRECTIVE_ACTION_1:   'add @caption@ element or @summary@ attribute to provide an effective caption for the table, or if the table is really being used for layout or positioning add @role="presentation"@ to the @table@ element',
-              HIDDEN:                'table is hidden from asssistive technologies'
-            },  
-            PURPOSE: [
-              'Effective caption of a table is important for people using speech, people with visual impairments and people with learning disabilities to help them understand the purpose of the table'                   
-            ],
-            TECHNIQUES: [
-              'Use @caption@ element to provide an effective label',
-              'Use @summary@ attribute to provide an effective label',
-              'If the table is not used for tabular data, but instead for layout of content, use the @role="presentation"@ on all the table elements'
-            ],
-            MANUAL_CHECKS: [
-              'Make sure the content of the effective lable accurately and succinctly describes the purpose of the data table'
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: 11.2.2 Table Captions: The CAPTION element', 
-                url:   'http://www.w3.org/TR/html4/struct/tables.html#h-11.2.2'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: summary attribute', 
-                url:   'http://www.w3.org/TR/html4/struct/tables.html#adef-summary'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H39: Using caption elements to associate data table captions with data tables', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H39'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H73: Using the summary attribute of the table element to give an overview of data tables', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H73'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'F46: Failure of Success Criterion 1.3.1 due to using th elements, caption elements, or non-empty summary attributes in layout tables', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/F46'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
-                title: 'IBM Web checklist Checkpoint 1.3e: Tables', 
-                url:   'http://www-03.ibm.com/able/guidelines/web/webtableheaders.html'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
-                title: 'iCITA HTML Best Practices: Simple Data Table Example', 
-                url:   'http://html.cita.illinois.edu/nav/dtable/dtable-example-simple.php'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
-                title: 'iCITA HTML Best Practices: Complex Data Table Example', 
-                url:   'http://html.cita.illinois.edu/nav/dtable/dtable-example-complex.php'
-              }  
-            ]   
-        },
-        TABLE_2M: {
-            ID:                    'Table Rule 2M (Multiple Data Tables)',
-            DEFINITION:            'If there is more than one data table on a page, each data table %s have a effective caption with content',
-            SUMMARY:               'Data tables %s have caption',
-            TARGET_RESOURCES_DESC: '@caption@ and @table[summary]@ elements',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:            'The data table has has an effective caption',
-              ALL_PASS_PLURAL:              'All %N_P data tables have an effective caption',
-              SOME_FAIL:                    '%N_F out of %N_T data tables do NOT have an effective caption',
-              CORRECTIVE_ACTION_SINGULAR:   'add @caption@ element or @summary@ attribute to provide an effective caption',
-              CORRECTIVE_ACTION_PLURAL:     'add @caption@ element or @summary@ attribute to each of the %N_F tables to provide an effective caption',
-              ALL_FAIL_SINGULAR:            'Data table does NOT have an effective caption',
-              ALL_FAIL_PLURAL:              'All %N_F data tables do NOT have an effective caption',
-              NOT_APPLICABLE:               'Only one or no data tables on the page'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                'Data table has an effective caption using the @caption@ with content: \'%1\'',
-              PASS_2:                'Data table has an effective caption using the @summary@ attribute with content: \'%1\'',
-              CORRECTIVE_ACTION_1:   'add @caption@ element or @summary@ attribute to provide an effective caption for the table, or if the table is really being used for layout or positioning add @role="presentation"@ to the @table@ element',
-              HIDDEN:                'table is hidden from asssistive technologies'
-            },  
-            PURPOSE: [
-              'Effective caption of a table is important for people using speech, people with visual impairments and people with learning disabilities to help them understand the purpose of the table'                   
-            ],
-            TECHNIQUES: [
-              'Use @caption@ element to provide an effective label',
-              'Use @summary@ attribute to provide an effective label',
-              'If the table is not used for tabular data, but instead for layout of content, use the @role="presentation"@ on all the table elements'
-            ],
-            MANUAL_CHECKS: [
-              'Make sure the content of the effective lable accurately and succinctly describes the purpose of the data table'
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: 11.2.2 Table Captions: The CAPTION element', 
-                url:   'http://www.w3.org/TR/html4/struct/tables.html#h-11.2.2'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: summary attribute', 
-                url:   'http://www.w3.org/TR/html4/struct/tables.html#adef-summary'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H39: Using caption elements to associate data table captions with data tables', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H39'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H73: Using the summary attribute of the table element to give an overview of data tables', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H73'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'F46: Failure of Success Criterion 1.3.1 due to using th elements, caption elements, or non-empty summary attributes in layout tables', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/F46'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
-                title: 'IBM Web checklist Checkpoint 1.3e: Tables', 
-                url:   'http://www-03.ibm.com/able/guidelines/web/webtableheaders.html'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
-                title: 'iCITA HTML Best Practices: Simple Data Table Example', 
-                url:   'http://html.cita.illinois.edu/nav/dtable/dtable-example-simple.php'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
-                title: 'iCITA HTML Best Practices: Complex Data Table Example', 
-                url:   'http://html.cita.illinois.edu/nav/dtable/dtable-example-complex.php'
-              }  
-            ]   
-        },
-        TABLE_3: {
-            ID:                    'Table Rule 3',
-            DEFINITION:            'The effective caption content and effective summary content of each data table %s not be the same',
-            SUMMARY:               '@caption@ %s be different from @summary@',
-            TARGET_RESOURCES_DESC: '@caption@ element and @table[summary]@ attribute',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:            'The data table has @caption@ element content that is different than @summary@ attribute content',
-              ALL_PASS_PLURAL:              'All %N_P data tables have @caption@ element content that is different than @summary@ attribute content',
-              SOME_FAIL:                    '%N_F out of %N_T data tables do NOT have @caption@ element content that is different than @summary@ attribute content',
-              CORRECTIVE_ACTION_SINGULAR:   'update @caption@ element content to give the table a descriptive title and update the @summary@ attribute to provide a summary of the content or conclusions that can be reached by viewing the data in the table',
-              CORRECTIVE_ACTION_PLURAL:     'update @caption@ element content to give the table a descriptive title and update the @summary@ attribute to provide a summary of the content or conclusions that can be reached by viewing the data in each of the %N_F table',
-              ALL_FAIL_SINGULAR:            'Data table does NOT have @caption@ element content that is different than @summary@ attribute content',
-              ALL_FAIL_PLURAL:              'All %N_F data tables do NOT have @caption@ element content that is different than @summary@ attribute content',
-              NOT_APPLICABLE:               'No data tables on the page with both a @caption@ element and @summary@ attribute'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                'The text content of the @caption@ element is different that the text content of the @summary@ content',
-              CORRECTIVE_ACTION_1:   'Update the text content of the @caption@ element and the @summary@ attribute so they are different, use the @caption@ element to provide a title for the table and the @summary@ element to describe the data or a summary of the data',
-              HIDDEN:                'table is hidden from asssistive technologies'
-            },  
-            PURPOSE: [
-              '@caption@ element should be used to provide a title for a table so users of asssitive technology can determine if they would like to explore the data',                   
-              '@summary@ attribute should be used to provide a provide information about the data or a summary of the data in a table so users of asssitive technology can get a summary of the table information'                   
-            ],
-            TECHNIQUES: [
-              'Use @caption@ element to provide a title for the table',
-              'Use the @summary@ attribute to provide a summary of the content or conclusions that can be understood by viewing the data in the table',
-              'If the table is not used for tabular data, but instead for layout of content, use the @role="presentation"@ on all the table elements'
-            ],
-            MANUAL_CHECKS: [
-              'Verify the content of the @caption@ element text content accurately and succinctly describes the purpose of the data table',
-              'Verify the content of the @summary@ attribute text content describes the data or a summary of the data in the table'
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: 11.2.2 Table Captions: The CAPTION element', 
-                url:   'http://www.w3.org/TR/html4/struct/tables.html#h-11.2.2'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: summary attribute', 
-                url:   'http://www.w3.org/TR/html4/struct/tables.html#adef-summary'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H39: Using caption elements to associate data table captions with data tables', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H39'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H73: Using the summary attribute of the table element to give an overview of data tables', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H73'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'F46: Failure of Success Criterion 1.3.1 due to using th elements, caption elements, or non-empty summary attributes in layout tables', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/F46'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
-                title: 'IBM Web checklist Checkpoint 1.3e: Tables', 
-                url:   'http://www-03.ibm.com/able/guidelines/web/webtableheaders.html'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
-                title: 'iCITA HTML Best Practices: Simple Data Table Example', 
-                url:   'http://html.cita.illinois.edu/nav/dtable/dtable-example-simple.php'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
-                title: 'iCITA HTML Best Practices: Complex Data Table Example', 
-                url:   'http://html.cita.illinois.edu/nav/dtable/dtable-example-complex.php'
-              }  
-            ]   
-        },
-        TABLE_4: {
-            ID:                    'Table Rule 4',
-            DEFINITION:            'Each data table header cell %s use th elements rather than td element with a scope attribute',
-            SUMMARY:               '%s @th@ elements for head cells',
-            TARGET_RESOURCES_DESC: '@th@ and @td[scope]@ elements',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:            'The header cell uses @th@ element',
-              ALL_PASS_PLURAL:              'All %N_P header cells use @th@ element',
-              SOME_FAIL:                    '%N_F out of %N_T header cells do NOT use @th@ element',
-              CORRECTIVE_ACTION_SINGULAR:   'change the @td[scope]@ element to a  @th@ element',
-              CORRECTIVE_ACTION_PLURAL:     'change the @td[scope]@ element to a  @th@ element for each of the %N_F header cells using @td[scope]@',
-              ALL_FAIL_SINGULAR:            'The header cell does NOT use @th@ element',
-              ALL_FAIL_PLURAL:              'All %N_F header cell do NOT use @th@ element',
-              NOT_APPLICABLE:               'No header cells identified on this page'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                'The @th@ element is used for header cell',
-              CORRECTIVE_ACTION_1:   'Change the @td[scope]@ element to a  @th@ element',
-              HIDDEN:                'header cell is hidden from asssistive technologies'
-            },  
-            PURPOSE: [
-              '@th@ element is the web standards way to identify header cells in a table, makes the data table source code easier to read and debug for accessibility problems'                   
-            ],
-            TECHNIQUES: [
-              'Use @th@ elements in the first row or column to identify row and column headers in a simple data tables',
-              'Use @headers@ attribute on each @td@ element to identify header information in complex data tables',
-              'Use @th@ element for cells used as header cells in the table'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HTML 4.01 Specification: 11.2.6 Table cells: The TH and TD elements', 
-                url:   'http://www.w3.org/TR/html4/struct/tables.html#edef-TD'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H51: Using table markup to present tabular information', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H51'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H63: Using the scope attribute to associate header cells and data cells in data tables', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H63'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
-                title: 'IBM Web checklist Checkpoint 1.3e: Tables', 
-                url:   'http://www-03.ibm.com/able/guidelines/web/webtableheaders.html'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
-                title: 'iCITA HTML Best Practices: Simple Data Table Example', 
-                url:   'http://html.cita.illinois.edu/nav/dtable/dtable-example-simple.php'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
-                title: 'iCITA HTML Best Practices: Complex Data Table Example', 
-                url:   'http://html.cita.illinois.edu/nav/dtable/dtable-example-complex.php'
-              }  
-            ]   
-        },    
-        TABLE_5: {
-            ID:                      'Table Rule 5',
-            TITLE:                   'Each data tables %s have an effective summary',
-            PURPOSE:                 'It is important to provide a description of the content or point of the data table content so that people using speech do not have to read all the cells.',
-            MESSAGE_PASS_1:          'Table has an effective caption: \'%1\'',
-            MESSAGE_VIOLATION:       'The effective caption is missing or empty, the table must have a summary attribute or an aria-describedby attribute to create effective summary.',
-            MESSAGE_RECOMMENDATION:  'The effective caption is missing or empty, the table should have a summary attribute or an aria-describedby attribute to create effective summary.',
-            MESSAGE_MANUAL:          'The effective caption is missing or empty, the table may need a summary attribute or an aria-describedby attribute to create effective summary.',
-            MESSAGE_MORE_THAN_ONE:   'There is more than one visible data table, so the rule was not evaluated.',
-            MESSAGE_HIDDEN:          'The table is hidden from people using assistive technologies, so the rule was not evaluated.',
-            MESSAGE_NOT_DATA_TABLE:  'The table is not a data table, so the rule was not evaluated.'
-        },
-        TABLE_6: {
-            ID:                                'Table Rule 6',
-            TITLE:                             'Each complex data table %s have ids on all header cells.',
-            PURPOSE:                           'Complex data tables require much more specific definition of header cells for each data cell and using IDs on the header cells is required for identifying the header cells.',
-            MESSAGE_PASS_1:                    'Table header cell has unique ID',
-            MESSAGE_NO_CONTENT:                'Table header cell does not contain content, it is unsual for a header cell to not have content.',
-            MESSAGE_NOT_UNIQUE_VIOLATION:      'Table header cell has duplicate ID: \'%1\', header cells in complex tables must have unique ids.',
-            MESSAGE_NOT_UNIQUE_RECOMMENDATION: 'Table header cell has duplicate ID: \'%1\', header cells in complex tables should have unique ids.',
-            MESSAGE_NOT_UNIQUE_MANUAL:         'Table header cell has duplicate ID: \'%1\', header cells in complex tables may need unique ids.',
-            MESSAGE_NO_ID_VIOLATON:            'Table header cell is missing an @id@ attribute, header cells in complex tables must have an id.',
-            MESSAGE_NO_ID_RECOMMENDATION:      'Table header cell is missing an @id@ attribute, header cells in complex tables should have an id.',
-            MESSAGE_NO_ID_MANUAL:              'Table header cell is missing an @id@ attribute, header cells in complex tables may need an id.',
-            MESSAGE_HIDDEN:                    'Table header cell is hidden hidden from assistive technologies, rule was not evaluated.',
-            MESSAGE_TABLE_PASS_1:              'All %1 header cells have unique ids.',
-            MESSAGE_TABLE_MISSING_HEADERS:     '%1 header cells of %2 header cells in the table have missing or dulicate @id@ values.',
-            MESSAGE_TABLE_DATA_TABLE:          'Simple data table, rule only applies to complex data tables.',
-            MESSAGE_TABLE_LAYOUT_TABLE:        'Layout table, rule only applies to complex data tables.',
-            MESSAGE_TABLE_HIDDEN:              'The table is hidden from people using assistive technologies.'
-        },
-        TABLE_7: {
-            ID:                             'Table Rule 7',
-            TITLE:                          'Each td element in a complex data table with content, %s have a headers attribute with a list of valid ids',
-            PURPOSE:                        'Complex data tables require much more specific definition of header cells for each data cell and using the HEADERS attribute on each data cell is required for identifying the header cells.',
-            MESSAGE_HAS_HEADERS:            'Cell has headers attribute with values.',
-            MESSAGE_MISSING_VIOLATION:      'Headers attribute is missing or empty, data cells in complex data tables must have a headers attribute.',
-            MESSAGE_MISSING_RECOMMENDATION: 'Headers attribute is missing or empty, data cells in complex data tables should have a headers attribute.',
-            MESSAGE_MISSING_MANUAL:         'Headers attribute is missing or empty, data cells in complex data tables may need a headers attribute',
-            MESSAGE_DATA_CELL_IS_EMPTY:     'Table cell is empty, check to see if it needs headers, or if the empty cell could contain data',
-            MESSAGE_HEADER_CELL:            'Cell is a header cell, so rule was not evaluated',
-            MESSAGE_TABLE_PASS_1:           'All %1 data cells with content have headers.',
-            MESSAGE_TABLE_MISSING_HEADERS:  '%1 data cells with content out of %2 are missing headers.',
-            MESSAGE_TABLE_DATA_TABLE:       'Simple data table, rule only applies to complex data tables.',
-            MESSAGE_TABLE_LAYOUT_TABLE:     'Layout table, rule only applies to complex data tables.',
-            MESSAGE_TABLE_HIDDEN:           'The table is hidden from people using assistive technologies.'
-        },
-        TABLE_8: {
-            ID:                             'Table Rule 8',
-            TITLE:                          'Each complex data table %s have an effective summary.',
-            PURPOSE:                        'It is critical to provide a description of the content or point of the data in a complex data table content so that people using speech do not have to read all the cells.',
-            MESSAGE_PASS_1:                 'Complex data table has the effective summary \'%1\'',
-            MESSAGE_VIOLATION:              'Complex data tables must have a summary attribute or an aria-describedby attribute to create effective summary.',
-            MESSAGE_RECOMMENDATION:         'Complex data tables should have a summary attribute or an aria-describedby attribute to create effective summary.',
-            MESSAGE_MANUAL:                 'Complex data tables may need a summary attribute or an aria-describedby attribute to create effective summary.',
-            MESSAGE_HIDDEN:                 'The table is hidden from people using assistive technologies, so the rule was not evaluated.',
-            MESSAGE_NOT_COMPLEX_DATA_TABLE: 'The table is not complex data table, so the rule was not evaluated.',
-            MESSAGE_NOT_DATA_TABLE:         'The table is a layout table, so rule was not evaluated.'
-        },
-        TITLE_1: {
-            ID:                    'Title Rule 1',
-            DEFINITION:            'Page %s have a @title@ element with content.',
-            SUMMARY:               'Page %s have title',
-            TARGET_RESOURCES_DESC: '@title@',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:          'Page has @title@ element with content',
-              CORRECTIVE_ACTION_SINGULAR: 'add @title@ element to the @head@ element section with text content that describes the content or purpose of the page',
-              ALL_FAIL_SINGULAR:          'Page does not have @title@ element or the @title@ element is empty'
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:              'Page has @title@ element with content',
-              CORRECTIVE_ACTION_1: 'Add content to @title@ element',
-              CORRECTIVE_ACTION_2: 'Add @title@ element to page'
-            },  
-            PURPOSE: [
-              'The TITLE element text content can be accessed by asssitive technologies to understand the purpose of the web page.'
-            ],
-            TECHNIQUES: [
-                'Use TITLE element text content to describe the content of a web page'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.REQUIREMENT, 
-                title: 'HTML TITLE Element Specification', 
-                url:   'http://www.w3.org/TR/html4/struct/global.html#edef-TITLE'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G88: Providing descriptive titles for Web pages', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G88'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H25: Providing a title using the title element', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H25'
-              }
-            ]
-        },
-        TITLE_2: {
-            ID:            'Title Rule 2',
-            DEFINITION:    '@title@ element text content %s describe the purpose or content of the page',
-            SUMMARY:       '@title@ %s describe page',
-            TARGET_RESOURCES_DESC: '@title@',
-            RULE_RESULT_MESSAGES: {
-              MANUAL_CHECK_SINGULAR:      'Verify the @title@ element text content describes the purpose or the content of the page',
-              CORRECTIVE_ACTION_SINGULAR: 'add @title@ element to the @head@ element section with text content that describes the content or purpose of the page',
-              ALL_FAIL_SINGULAR:          'Page does not have @title@ element or the @title@ element is empty'
-            },
-            NODE_RESULT_MESSAGES: {
-              MANUAL_CHECK_1:      'Verify the @title@ element text content describes the purpose or the content of the page',
-              CORRECTIVE_ACTION_1: 'Add content to @title@ element',
-              CORRECTIVE_ACTION_2: 'Add @title@ element to page'
-            },  
-            PURPOSE: [
-              'The TITLE element text content can be accessed by asssitive technologies to understand the purpose or content of the web page.'
-            ],
-            TECHNIQUES: [
-              'Use TITLE element text content to describe the content of a web page',
-              'Title should contain information about the website',
-              'Title should contain information about the page in the website',
-              'If the page is part of a sequence of web pages does the title indicate which step in the sequence'              
-            ],
-            MANUAL_CHECKS: [
-              'Read the title of the page and determine if it describes which website it is a part',
-              'Read the title of the page and determine if it describe which page you are in the website',
-              'If the web page is part of a sequence of web pages does it describe which step it is in the sequence'              
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.REQUIREMENT, 
-                title: 'HTML TITLE Element Specification', 
-                url:   'http://www.w3.org/TR/html4/struct/global.html#edef-TITLE'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G88: Providing descriptive titles for Web pages', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G88'
-              }, 
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'H25: Providing a title using the title element', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/H25'
-              }
-            ]
-        },    
-        VIDEO_1: {
-            ID:                    'Video Rule 1',
-            DEFINITION:            'Video only media (i.e. no audio content) %s have audio description or text description of the video content',
-            SUMMARY:               'Video only %s have alternative',
-            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
-            RULE_RESULT_MESSAGES: {
-              MANUAL_CHECKS_SINGULAR:       'Verify the element is video only (i.e. no audio content) and if it is only video make sure it has either an audio description track or text description of the content of the video',
-              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are video only media (i.e. no audio content), if there are any video only media make sure they have either an audio description track or text description of the video',
-              ALL_PASS_SINGULAR:            'Video has either a audio description track or a text description',
-              ALL_PASS_PLURAL:              'All %N_P videos have either an audio description track or text description',
-              SOME_FAIL:                    '%N_F out of %N_T videos do NOT have a audio description track or text description',
-              CORRECTIVE_ACTION_SINGULAR:   'add audio description track or text description to video',
-              CORRECTIVE_ACTION_PLURAL:     'add audio description track or text descriptions to each of the %N_F the video only media elements',
-              ALL_FAIL_SINGULAR:            'Video only element does not have a audio description track or text description',
-              ALL_FAIL_PLURAL:              'All %N_F video only elements do NOT have an audio description track or text description',
-              NOT_APPLICABLE:               'No visible @object@, @embed@ or @video@ elements found on this page that could be used for video only (i.e. no audio content'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                '@%1@ video only element has a audio description track',
-              PASS_2:                '@%1@ video only element has a text description',
-              CORRECTIVE_ACTION_1:   'Add audio description track or text description to @%1@ video only element',
-              MANUAL_CHECK_1:        'Verify the @%1@ video element has audio description track or text description',
-              MANUAL_CHECK_2:        'Verify the @%1@ element is being used for video only (i.e. no audio content), if it is video only verify that it has audio description track or text description ',
-              HIDDEN:                '@%1@ element is not visible on screen'
-            },  
-            PURPOSE: [
-              'Audio description track and text descriptions provide a means for people cannot see the video to understand the content or information the video provides'                   
-            ],
-            TECHNIQUES: [
-              'Various techniques to add based on the video formats and media players being supported, see your technology specific requirements for adding audio descriptions',
-              'The HTML5 video element is designed to make it easier to support audio description tracks through the use of the @track@ element of @type=description@',
-              'Use @aria-describedby@ attribute to point to a text description of the video only content'
-            ],
-            MANUAL_CHECKS: [
-              'Audio tracks can be heard when the video is being played, and they will be describing the content of the video',
-              'Text descriptions maybe part of the web page or accessed by a link'
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HMTL 5: The track element', 
-                url:   'http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#the-track-element'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'W3C Accessible Rich Internet Applications (WAI-ARIA) 1.0: aria-describedby (property)', 
-                url:   'http://www.w3.org/TR/wai-aria.html#aria-describedby'
-              }                            
-            ]
-        },    
-        VIDEO_2: {
-            ID:                    'Video Rule 2',
-            DEFINITION:            'Prerecorded video (with audio content) %s have synchronized caption',
-            SUMMARY:               'Prerecorded video %s have caption',
-            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
-            RULE_RESULT_MESSAGES: {
-              MANUAL_CHECKS_SINGULAR:       'Verify the element is being used for prerecorded video (with audio content) and if it is prerecorded video make sure it has a caption track',
-              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are prerecorded videos (with audio content), if they any are a prerecorded video make sure they have synchornized caption track',
-              ALL_PASS_SINGULAR:            'Video has synchornized caption track',
-              ALL_PASS_PLURAL:              'All %N_P videos have synchronized caption tracks',
-              SOME_FAIL:                    '%N_F out of %N_T videos do NOT have synchronized caption tracks',
-              CORRECTIVE_ACTION_SINGULAR:   'add caption track to video',
-              CORRECTIVE_ACTION_PLURAL:     'add caption track to each of the %N_F videos',
-              ALL_FAIL_SINGULAR:            'Prerecorded video does not have a synchronized caption track',
-              ALL_FAIL_PLURAL:              'All %N_F prerecorded videos do NOT have synchronized caption tracks',
-              NOT_APPLICABLE:               'No visible @object@, @embed@ and @video@ elements found on the page that could be prerecorded video'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                '%1 element has synchronized caption track',
-              CORRECTIVE_ACTION_1:   'Add synchronized caption track to @%1@ video element',
-              MANUAL_CHECK_1:        'Verify the @%1@ video element has synchronized caption track',
-              MANUAL_CHECK_2:        'Verify the @%1@ element is being used for video, if it is verify that it has a synchronized caption track',
-              HIDDEN:                '@%1@ element is not visible on screen'
-            },  
-            PURPOSE: [
-              'Captions provide a means for people who are deaf or hearing impaired to get the speech and sound content of a video'                   
-            ],
-            TECHNIQUES: [
-              'Various techniques based on the video formats and media players you are supporting, please see your technology specific requirements for captions',
-              'The HTML5 video element is designed to make it easier to support caption tracks through the use of the @track@ element',
-              'Make sure the video player is capable of rendering captions by default or through user options'
-            ],
-            MANUAL_CHECKS: [
-              'Captions should be visible when the video is playing and the text of the captions should be synchronized with the speech'
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HMTL 5: The track element', 
-                url:   'http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#the-track-element'
-              }                            
-            ]
-        },    
-        VIDEO_3: {
-            ID:                    'Video Rule 3',
-            DEFINITION:            'Prerecorded video (with audio content) %s have audio description or text description',
-            SUMMARY:               'Prerecorded video %s have description',
-            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
-            RULE_RESULT_MESSAGES: {
-              MANUAL_CHECKS_SINGULAR:       'Verify the element is prerecorded video (with audio content) and if it is prerecorded video make sure it has an audio description track or text description of the content of the video',
-              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are prerecorded video (with audio content), if any are prerecorded video make sure they have either an audio description track or a text description of the video',
-              ALL_PASS_SINGULAR:            'Video has either an audio description track or a text description',
-              ALL_PASS_PLURAL:              'All %N_P videos have either a audio description track or a text description',
-              SOME_FAIL:                    '%N_F out of %N_T prerecorded videos do NOT have a audio description track or text description',
-              CORRECTIVE_ACTION_SINGULAR:   'add audio description track or text description to video',
-              CORRECTIVE_ACTION_PLURAL:     'add audio description tracks or text descriptions to each of the %N_F the videos',
-              ALL_FAIL_SINGULAR:            'Prerecoreded video does not have a audio description track or text description',
-              ALL_FAIL_PLURAL:              'All %N_F prerecorded videos do NOT have an audio description tracks or text descriptions',
-              NOT_APPLICABLE:               'No visible @object@, @embed@ and @video@ elements found on this page that could be prerecorded video'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                '@%1@ element has a audio description track',
-              PASS_2:                '@%1@ element has a text description',
-              CORRECTIVE_ACTION_1:   'Add audio description track or text description to @%1@ element',
-              MANUAL_CHECK_1:        'Verify the @%1@ video element has audio description or text description',
-              MANUAL_CHECK_2:        'Verify the @%1@ element is being used for prerecorded video, if it is verify that it has audio description track or text description ',
-              HIDDEN:                '@%1@ element is not visible on screen'
-            },  
-            PURPOSE: [
-              'Audio descriptions and text descriptions provide a means for people cannot see the video to understand the video content'                   
-            ],
-            TECHNIQUES: [
-              'Various techniques to add based on the video formats and media players being supported, please see your technology specific requirements for captions',
-              'The HTML5 video element is attempting to make it easier to support audio descriptions through the use of the @track@ element',
-              'Use @aria-describedby@ attribute to point to a text description of the video content'
-            ],
-            MANUAL_CHECKS: [
-              'Audio tracks can be heard when the video is being played, and they will be describing the content of the video',
-              'Text descriptions maybe part of the web page or accessed by a link'            
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HMTL 5: The track element', 
-                url:   'http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#the-track-element'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'W3C Accessible Rich Internet Applications (WAI-ARIA) 1.0: aria-describedby (property)', 
-                url:   'http://www.w3.org/TR/wai-aria.html#aria-describedby'
-              }                            
-            ]
-        },
-        VIDEO_4: {
-            ID:                    'Video Rule 4',
-            DEFINITION:            'Live video %s have synchronized caption',
-            SUMMARY:               'Live video %s have caption',
-            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
-            RULE_RESULT_MESSAGES: {
-              MANUAL_CHECKS_SINGULAR:       'Verify the element is being used for live video (with audio content) and if it is a live video make sure it has a synchronized caption track',
-              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are live videos, if they any are a live video (with audio content) make sure they have synchronized caption tracks',
-              ALL_PASS_SINGULAR:            'Live video has synchronized caption track',
-              ALL_PASS_PLURAL:              'All %N_P live videos have synchronized caption tracks',
-              SOME_FAIL:                    '%N_F out of %N_T live videos do NOT have synchronized caption tracks',
-              CORRECTIVE_ACTION_SINGULAR:   'add synchronized caption track to live video',
-              CORRECTIVE_ACTION_PLURAL:     'add synchronized caption tracks to each of the %N_F live videos',
-              ALL_FAIL_SINGULAR:            'Live video does not have a synchronized caption track',
-              ALL_FAIL_PLURAL:              'All %N_F live videos do NOT have synchronized caption tracks',
-              NOT_APPLICABLE:               'No visible @object@, @embed@ and @video@ elements found on this page that could be live video'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                '%1 element has synchronized caption track',
-              CORRECTIVE_ACTION_1:   'Add synchronized caption to @%1@ live video element',
-              MANUAL_CHECK_1:        'Verify the @%1@ live video element has a synchronized caption track',
-              MANUAL_CHECK_2:        'Verify the @%1@ element is being used for live video, if it is verify that it has synchronized caption track',
-              HIDDEN:                '@%1@ element is not visible on screen'
-            },  
-            PURPOSE: [
-              'Captions provide a means for people who are deaf or hearing impaired to get the speech and sound content of a video'                   
-            ],
-            TECHNIQUES: [
-              'Various techniques based on the video formats and media players you are supporting, please see your technology specific requirements for captions',
-              'The HTML5 video element is designed to make it easier to support caption tracks through the use of the @track@ element',
-              'Make sure the video player is capable of rendering captions by default or through user options'
-            ],
-            MANUAL_CHECKS: [
-              'Captions should be visible when the live video is playing and the text of the captions should be synchronized with the speech'
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HMTL 5: The track element', 
-                url:   'http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#the-track-element'
-              }                            
-            ]
-        },      
-        VIDEO_5: {
-            ID:                    'Video Rule 5',
-            DEFINITION:            'Video (with audio content) %s have audio description track',
-            SUMMARY:               'Video %s have audio description track',
-            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
-            RULE_RESULT_MESSAGES: {
-              MANUAL_CHECKS_SINGULAR:       'Verify the element is prerecorded video (with audio content) and if it is a video make sure it has an audio description track',
-              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are prerecorded video (with audio content), if any elements are a prerecorded video make sure each has an audio description track',
-              ALL_PASS_SINGULAR:            'Video has an audio description track',
-              ALL_PASS_PLURAL:              'All %N_P videos have an audio description track',
-              SOME_FAIL:                    '%N_F out of %N_T prerecorded videos do NOT have an audio description track',
-              CORRECTIVE_ACTION_SINGULAR:   'add audio description track to video element',
-              CORRECTIVE_ACTION_PLURAL:     'add audio description tracks to each of the %N_F the video elements',
-              ALL_FAIL_SINGULAR:            'Prerecorded video does not have a audio description or text description',
-              ALL_FAIL_PLURAL:              'All %N_F prerecorded videos do NOT have an audio description track',
-              NOT_APPLICABLE:               'No visible @object@, @embed@ and @video@ elements found on this page that could be prerecorded video'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                '@%1@ element has a audio description track',
-              CORRECTIVE_ACTION_1:   'Add audio description track to @%1@ prerecorded video element',
-              MANUAL_CHECK_1:        'Verify the @%1@ video element has audio description track',
-              MANUAL_CHECK_2:        'Verify the @%1@ element is being used for prerecorded video, if it is verify that it has audio description track',
-              HIDDEN:                '@%1@ element is not visible on screen'
-            },  
-            PURPOSE: [
-              'Audio descriptions and text descriptions provide a means for people cannot see the video to understand the video content'                   
-            ],
-            TECHNIQUES: [
-              'Various techniques to add based on the video formats and media players you are supporting, please see your technology specific requirements for audio descriptions',
-              'The HTML5 video element is attempting to make it easier to support audio descriptions through the use of the text track element',
-              'Use aria-describedby attribute to point to a text description of the video only content'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HMTL 5: The track element', 
-                url:   'http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#the-track-element'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'ARIA: aria-describedby', 
-                url:   ''
-              }                            
-            ]
-        },    
-        VIDEO_6: {
-            ID:                    'Video Rule 6',
-            DEFINITION:            'Prerecorded video (with audio content) %s have sign language interpretation',
-            SUMMARY:               'Prerecorded video %s have sign language',
-            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
-            RULE_RESULT_MESSAGES: {
-              MANUAL_CHECKS_SINGULAR:       'Verify the element is being used for prerecorded video (with audio content) and if it is prerecorded video make sure it includes synchronniized sign language interpretation',
-              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are prerecorded videos (with audio content), if they any are a prerecorded video make sure they have synchronniized sign language interpretation',
-              ALL_PASS_SINGULAR:            'Video has synchornized sign language interpretation',
-              ALL_PASS_PLURAL:              'All %N_P videos have synchornized sign language interpretation',
-              SOME_FAIL:                    '%N_F out of %N_T videos do NOT have sign language interpretation',
-              CORRECTIVE_ACTION_SINGULAR:   'add synchornized sign language interpretation to video',
-              CORRECTIVE_ACTION_PLURAL:     'add synchornized sign language interpretation to each of the %N_F videos',
-              ALL_FAIL_SINGULAR:            'Prerecorded video does not have a sign language interpretation',
-              ALL_FAIL_PLURAL:              'All %N_F prerecorded videos do NOT have sign language interpretation',
-              NOT_APPLICABLE:               'No visible @object@, @embed@ and @video@ elements found on the page that could be prerecorded video'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                '%1 element has synchornized sign language interpretation',
-              CORRECTIVE_ACTION_1:   'Add synchornized sign language interpretation to @%1@ video element',
-              MANUAL_CHECK_1:        'Verify the @%1@ video element has synchornized sign language interpretation',
-              MANUAL_CHECK_2:        'Verify the @%1@ element is being used for prerecorded video, if it is verify that it has synchornized sign language interpretation',
-              HIDDEN:                '@%1@ element is not visible on screen'
-            },  
-            PURPOSE: [
-              'Sign language interpretation provide a means for people who are deaf or hearing impaired to get the speech and sound content of a video'                   
-            ],
-            TECHNIQUES: [
-              'Sign language interpretation can be included as part of the video as a picture inside of a picture',
-              'Sign language interpretation can be inlcuded using a synchconized video with the primary video, the technique will be dependent on the video format and media players you want to support'
-            ],
-            MANUAL_CHECKS: [
-              'Sign language interpretation must be visible when the video is playing and the text of the captions should be synchronized with the speech'
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HMTL 5: The track element', 
-                url:   'http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#the-track-element'
-              }                            
-            ]
-        },
-        VIDEO_7: {
-            ID:                    'Video Rule 5',
-            DEFINITION:            'Video (with audio content) %s have extended audio description track',
-            SUMMARY:               'Video %s have extended audio description track',
-            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
-            RULE_RESULT_MESSAGES: {
-              MANUAL_CHECKS_SINGULAR:       'Verify the element is prerecorded video (with audio content) and if it is a video make sure it has an extended audio description track',
-              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are prerecorded video (with audio content), if any elements are a prerecorded video make sure each has an extended audio description track',
-              ALL_PASS_SINGULAR:            'Video has an extended audio description track',
-              ALL_PASS_PLURAL:              'All %N_P videos have an extended audio description track',
-              SOME_FAIL:                    '%N_F out of %N_T prerecorded videos do NOT have an extended audio description track',
-              CORRECTIVE_ACTION_SINGULAR:   'add extended audio description track to video element',
-              CORRECTIVE_ACTION_PLURAL:     'add extended audio description tracks to each of the %N_F the video elements',
-              ALL_FAIL_SINGULAR:            'Prerecorded video does not have a extended audio description or text description',
-              ALL_FAIL_PLURAL:              'All %N_F prerecorded videos do NOT have an extended audio description track',
-              NOT_APPLICABLE:               'No visible @object@, @embed@ and @video@ elements found on this page that could be prerecorded video'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                '@%1@ element has a extended audio description track',
-              CORRECTIVE_ACTION_1:   'Add extended audio description track to @%1@ prerecorded video element',
-              MANUAL_CHECK_1:        'Verify the @%1@ video element has extended audio description track',
-              MANUAL_CHECK_2:        'Verify the @%1@ element is being used for prerecorded video, if it is verify that it has an extended audio description track',
-              HIDDEN:                '@%1@ element is not visible on screen'
-            },  
-            PURPOSE: [
-              'Extended audio descriptions provide a means for people cannot see the video to understand the video content when the ausio track of the video does not provide enough time to provide the descriptions'                   
-            ],
-            TECHNIQUES: [
-              'Various techniques to add extended audio descriptions based on the video formats and media players you are supporting, please see your technology specific requirements for including extended audeo descriptions',
-              'The HTML5 video element is attempting to make it easier to support extended audio descriptions through the use of the text track element'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'HMTL 5: The track element', 
-                url:   'http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#the-track-element'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'ARIA: aria-describedby', 
-                url:   ''
-              }                            
-            ]
-        },    
-        VIDEO_8: {
-            ID:                    'Video Rule 1',
-            DEFINITION:            'Video only media (i.e. no audio content) %s have text description of the video content',
-            SUMMARY:               'Video only %s have text description',
-            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
-            RULE_RESULT_MESSAGES: {
-              MANUAL_CHECKS_SINGULAR:       'Verify the element is video only (i.e. no audio content) and if it is only video make sure it has a text description of the content of the video',
-              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are video only media (i.e. no audio content), if there are any video only media make sure they have text description of the video',
-              ALL_PASS_SINGULAR:            'Video has either a text description',
-              ALL_PASS_PLURAL:              'All %N_P videos have either a text description',
-              SOME_FAIL:                    '%N_F out of %N_T videos do NOT have a text description',
-              CORRECTIVE_ACTION_SINGULAR:   'add text description to video',
-              CORRECTIVE_ACTION_PLURAL:     'add text descriptions to each of the %N_F the video only media elements',
-              ALL_FAIL_SINGULAR:            'Video only element does not have text description',
-              ALL_FAIL_PLURAL:              'All %N_F video only elements do NOT have text description',
-              NOT_APPLICABLE:               'No visible @object@, @embed@ or @video@ elements found on this page that could be used for video only (i.e. no audio content'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                '@%1@ video only element has a text description',
-              CORRECTIVE_ACTION_1:   'Add text description to @%1@ video only element',
-              MANUAL_CHECK_1:        'Verify the @%1@ video element has text description',
-              MANUAL_CHECK_2:        'Verify the @%1@ element is being used for video only (i.e. no audio content), if it is video only verify that it has a text description',
-              HIDDEN:                '@%1@ element is not visible on screen'
-            },  
-            PURPOSE: [
-              'Text descriptions provide a means for people cannot see the video to understand the content or information the video provides in a non-time dependent format that can also be converted to other formats including Braille'                   
-            ],
-            TECHNIQUES: [
-              'Use @aria-describedby@ attribute to point to a text description of the video only content'
-            ],
-            MANUAL_CHECKS: [
-              'Text descriptions maybe part of the web page or accessed by a link'
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'W3C Accessible Rich Internet Applications (WAI-ARIA) 1.0: aria-describedby (property)', 
-                url:   'http://www.w3.org/TR/wai-aria.html#aria-describedby'
-              }                            
-            ]
-        },    
-        WIDGET_1: {
-            ID:                    'Widget Rule 1',
-            DEFINITION:            'Widgets %s have an accessible name',
-            SUMMARY:               'Widget %s have name',
-            TARGET_RESOURCES_DESC: 'Elements with @role@ attribute values that are defined as widgets',
-            RULE_RESULT_MESSAGES: {
-              MANUAL_CHECKS_SINGULAR:       '%N_MC widget may need an accessible name',
-              MANUAL_CHECKS_PLURAL:         '%N_MC widgets may need an accessible name',
-              ALL_PASS_SINGULAR:            'Widget has an accessible name',
-              ALL_PASS_PLURAL:              '%N_P widgets have an accessible name',
-              SOME_FAIL:                    '%N_F out of %N_T widgets do NOT have an accessible name',
-              CORRECTIVE_ACTION_SINGULAR:   'add accessible name to widget',
-              CORRECTIVE_ACTION_PLURAL:     'add accessible name to each of the %N_F widgets',
-              ALL_FAIL_SINGULAR:            'Widget does NOT has an accessible name',
-              ALL_FAIL_PLURAL:              'All %N_F widgets do NOT have an accessible name',
-              NOT_APPLICABLE:               'No form controls on this page'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:              '%1 widget has accessible name',
-              MANUAL_CHECK_1:      '%1 widget may require an accessible name depending on context (i.e multiple widgets with the same role) in the page, adding an accessible name will improve accessibility',
-              CORRECTIVE_ACTION_1: 'Add accessible name to %1 widget',
-              HIDDEN:              '%1 widget is hidden from assistive technologies.'
-            },
-            PURPOSE: [
-              'A name associated with a widget insures that information about the widget is spoken by screen readers when it receives focus'                   
-            ],
-            TECHNIQUES: [
-              'In some cases the child text nodes and @alt@ from descendant image elements will be used as the name for a widget',
-              'Use @aria-labelledby@ attribute to reference the id(s) of the elements on the page that describe the purpose of the widget',
-              'Use @aria-label@ attribute to provide a explicit text description of the purpose of the widget',
-              'Elements that have container widget roles typically do not receive keyboard focus, but giving them an accessible name provides assistive technologies a more accurate description of the purpose of the widget'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Accessible Name Calculation', 
-                url:   'http://www.w3.org/TR/wai-aria/roles#namecalculation'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: aria-labelledby', 
-                url:   'http://www.w3.org/TR/wai-aria/states_and_properties#aria-labelledby'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: aria-label', 
-                url:   'http://www.w3.org/TR/wai-aria/states_and_properties#aria-label'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G108'
-              },                             
-              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
-                title: 'WAI-ARIA 1.0 Authoring Practices', 
-                url:   'http://www.w3.org/TR/wai-aria-practices/'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
-                title: 'OAA Web Accessibility ARIA Examples', 
-                url:   'http://oaa-accessibility.org/examples/'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
-                title: 'Accessible jQuery-ui Components Demonstration', 
-                url:   'http://access.aol.com/aegis/#goto_slider'
-              }                            
-            ]
-        },
-        WIDGET_2: {
-            ID:                    'Widget Rule 2',
-            DEFINITION:            'Elements with @onClick@ events %s be a link, button or have a widget role',
-            SUMMARY:               '@onClick@ %s have role',
-            TARGET_RESOURCES_DESC: 'Elements with @onClick@ attribute values that are defined as widgets',
-            RULE_RESULT_MESSAGES: {
-              MANUAL_CHECKS_SINGULAR:       '1 container element with an @onclick@ event requires verification that any child elements that can respond to the @onclick@ event are a link, form control or has a widget role, and can be accessd with the keyboard alone',
-              MANUAL_CHECKS_PLURAL:         '%N_MC container elements with an @onclick@ event require verification that any child elements that can respond to the @onclick@ event are a link, form control or has a widget role, and can be accessd with the keyboard alone',
-              ALL_PASS_SINGULAR:            'Element with a @onClick@ event is a link, form control or has a widget role',
-              ALL_PASS_PLURAL:              'All %N_P elements with an @onClick@ event are either a link, form control or have a widget role',
-              SOME_FAIL:                    '%N_F out of %N_T elements with an @onClick@ event are NOT a link, form control or have a widget role',
-              CORRECTIVE_ACTION_SINGULAR:   'add widget role name to element',
-              CORRECTIVE_ACTION_PLURAL:     'add widget roles to each of the %N_F elements',
-              ALL_FAIL_SINGULAR:            'Element with a @onClick@ event is NOT a link, form control or has a widget role',
-              ALL_FAIL_PLURAL:              'All %N_F elements with an @onClick@ event are NOT a link, form control or have a widget role',
-              NOT_APPLICABLE:               'No elements with @onClick@ events on this page'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                '@%1@ element has a widget role',
-              PASS_2:                '@%1@ element is a form control',
-              PASS_3:                '@%1@ element is a link',
-              CORRECTIVE_ACTION_1:   'Add a @tabindex@ attribute with a numeric value to make with @%1@ element with @%2@ widget role keyboard accessible',
-              CORRECTIVE_ACTION_2:   'Add widget role to the @%1@ element',
-              CORRECTIVE_ACTION_3:   'Add widget role to the @%1@ element and a @tabindex@ attribute with a numeric value to make it keyboard accessible',
-              MANUAL_CHECK_1:        'The @%1@ element has an @onclick@ event, verify any child elements that can respond to the @onclick@ event are a link, form control or have a widget role, and can be accessd with the keyboard alone',
-              HIDDEN:                '%1 element with @onClick@ event is hidden from assistive technologies and not visible on screen'
-            },
-            PURPOSE: [
-              'Elements with @onClick@ event handlers must be a link, form control or have a widget role'                   
-            ],
-            TECHNIQUES: [
-              'Use ARIA widget role on non-form controls to describe their function on the page',
-              'Use @tabindex@ attribute of "0" if the role of the element is a button or link',
-              'Use @tabindex@ attribute of "-1" if the role of the element is NOT a buton or link, provide keyboard event handlers to control selection of elements in the widget'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
-                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'WAI-ARIA 1.0 Authoring Practices: Tabindex for managing focus', 
-                url:   'http://www.w3.org/TR/2010/WD-wai-aria-practices-20100916/#kbd_focus'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G108'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
-                title: 'OAA Web Accessibility ARIA Examples', 
-                url:   'http://oaa-accessibility.org/examples/'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
-                title: 'Accessible jQuery-ui Components Demonstration', 
-                url:   'http://access.aol.com/aegis/#goto_slider'
-              }                            
-            ]
-        },
-        WIDGET_3: {
-            ID:                    'Widget Rule 3',
-            DEFINITION:            '@role@ attribute value %s be a widget, section, landmark or live region role',
-            SUMMARY:               '@role@ %s be valid',
-            TARGET_RESOURCES_DESC: 'Elements with @role@ attribute values',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:            'Element with a @role@ attribute is a widget, section, landmark or live region role',
-              ALL_PASS_PLURAL:              'All %N_P elements with @role@ attributes have a widget, section, landmark or live region role',
-              SOME_FAIL:                    '%N_F out of %N_T elements with @role@ attributes have a widget, section, landmark or live region role',
-              CORRECTIVE_ACTION_SINGULAR:   'add widget, section, landmark or live region role name to element',
-              CORRECTIVE_ACTION_PLURAL:     'add widget, section, landmark or live region roles to each of the %N_F elements',
-              ALL_FAIL_SINGULAR:            'Element with @role@ attribute does NOT have a widget, section, landmark or live region role',
-              ALL_FAIL_PLURAL:              'All %N_F elements with @role@ attribute does NOT have a widget, section, landmark or live region role',
-              NOT_APPLICABLE:               'No elements with @role@ attribute on this page'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                '@%1@ is a widget role',
-              PASS_2:                '@%1@ is a landmark role',
-              PASS_3:                '@%1@ is a live region role',
-              PASS_4:                '@%1@ is a section role',
-              CORRECTIVE_ACTION_1:   '@%1@ is an abstract ARIA role, change the role attribute to a widget, landmark or live region role',
-              CORRECTIVE_ACTION_2:   'The @role@ attribute is an empty string, change the @role@ attribute value to an appropriate widget, landmark or live region role',
-              CORRECTIVE_ACTION_3:   '@%1@ is not a defined ARIA role, change the @role@ attribute value to an appropriate widget, landmark or live region role',
-              HIDDEN:                '%1 element with @role@ attribute with the value @%2@ is hidden from assistive technologies and not visible on screen'
-            },
-            PURPOSE: [
-              'Elements with @role@ attributes describe the section of a document (i.e landmarks) and the types of interactive elements (i.e. widgets) to users of assistive technologies, especially screen reader users'                   
-            ],
-            TECHNIQUES: [
-              'Use ARIA landmark roles to describe the sections of a web page',
-              'Use ARIA widget roles to describe interactive elements on a web page'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
-                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Landmark Roles', 
-                url:   'http://www.w3.org/TR/wai-aria/roles#landmark_roles'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G108'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
-                title: 'OAA Web Accessibility ARIA Examples', 
-                url:   'http://oaa-accessibility.org/examples/'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
-                title: 'Accessible jQuery-ui Components Demonstration', 
-                url:   'http://access.aol.com/aegis/#goto_slider'
-              }                            
-            ]
-        },
-        WIDGET_4: {
-            ID:                    'Widget Rule 4',
-            DEFINITION:            'ARIA property and state values %s be valid types',
-            SUMMARY:               'ARIA values %s be valid',
-            TARGET_RESOURCES_DESC: 'Elements with aria attributes',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:            'ARIA attribute has a value that is a valid type',
-              ALL_PASS_PLURAL:              'All %N_P ARIA attributes have values that are valid types',
-              SOME_FAIL:                    '%N_F out of %N_T with ARIA attributes have values that are valid types',
-              CORRECTIVE_ACTION_SINGULAR:   'change ARIA attribute to a vaild type',
-              CORRECTIVE_ACTION_PLURAL:     'change all %N_F ARIA attributes to a vaild types',
-              ALL_FAIL_SINGULAR:            'ARIA attribute does NOT have a value that is a valid type',
-              ALL_FAIL_PLURAL:              'All %N_F ARIA attribute do NOT have a value that is a valid type',
-              NOT_APPLICABLE:               'No ARIA attributes on this page'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                'The @%1@ attribute with the value "@%2@" is a valid token',
-              PASS_2:                'The @%1@ attribute with the value "@%2@" is a valid "%3" type',
-              CORRECTIVE_ACTION_1:   'The @%1@ attribute with the value "@%2@" must change to one of the following values: %3',
-              CORRECTIVE_ACTION_2:   'The @%1@ attribute with the value "@%2@" must change to one or more of the following values: %3',
-              CORRECTIVE_ACTION_3:   'The @%1@ attribute with the value "@%2@" must change to a value with type of "%3"',
-              HIDDEN:                '%1 attribute with the value "@%2@" is hidden from assistive technologies and not visible on screen'
-            },
-            PURPOSE: [
-              'ARIA attributes must be a vaild type to accurately describe web content to users of assistive technologies, especially screen reader users'                   
-            ],
-            TECHNIQUES: [
-              'Use valid values for ARIA attributes',
-              'Check W3C WAI Accessible Rich Internet Applications specifications for allowed values for ARIA attributes'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Supported Property and States', 
-                url:   'http://www.w3.org/TR/wai-aria/states_and_properties'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G108'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
-                title: 'OAA Web Accessibility ARIA Examples', 
-                url:   'http://oaa-accessibility.org/examples/'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
-                title: 'Accessible jQuery-ui Components Demonstration', 
-                url:   'http://access.aol.com/aegis/#goto_slider'
-              }                            
-            ]
-      },
-      WIDGET_5: {
-            ID:                    'Widget Rule 5',
-            DEFINITION:            'ARIA property or state %s be defined',
-            SUMMARY:               'ARIA attribute %s be defined',
-            TARGET_RESOURCES_DESC: 'Elements with aria attributes',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:            'ARIA attribute is defined property or state in the ARIA specification',
-              ALL_PASS_PLURAL:              'All %N_P ARIA attributes are defined defined properties or states in the ARIA specification',
-              SOME_FAIL:                    '%N_F out of %N_T with ARIA attributes are NOT defined defined properties or states in the ARIA specification',
-              CORRECTIVE_ACTION_SINGULAR:   'change ARIA attribute to a defined property or state',
-              CORRECTIVE_ACTION_PLURAL:     'change all %N_F ARIA attributes to a defined properties or states',
-              ALL_FAIL_SINGULAR:            'ARIA attribute is NOT a defined property or state in the ARIA specification',
-              ALL_FAIL_PLURAL:              'All %N_F ARIA attribute do NOT have a value that is a valid type in the ARIA specification',
-              NOT_APPLICABLE:               'No undefined ARIA attributes on this page'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                'The @%1@ attribute is a defined ARIA property or state',
-              CORRECTIVE_ACTION_1:   'The @%1@ attribute must be changed to a defined ARIA property or state',
-              HIDDEN:                '%1 attribute with the value "@%2@" is hidden from assistive technologies and not visible on screen'
-            },
-            PURPOSE: [
-              'ARIA attributes must be defined properties or states to accurately describe web content to users of assistive technologies, especially screen reader users'                   
-            ],
-            TECHNIQUES: [
-              'Use defined ARIA properties and states in the ARIA specfication',
-              'Check W3C WAI Accessible Rich Internet Applications specifications for allowed values for ARIA attributes'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Supported Property and States', 
-                url:   'http://www.w3.org/TR/wai-aria/states_and_properties'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G108'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
-                title: 'OAA Web Accessibility ARIA Examples', 
-                url:   'http://oaa-accessibility.org/examples/'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
-                title: 'Accessible jQuery-ui Components Demonstration', 
-                url:   'http://access.aol.com/aegis/#goto_slider'
-              }                            
-            ]
-      },
-      WIDGET_6: {
-            ID:                    'Widget Rule 6',
-            DEFINITION:            'Widgets %s define required properties and states',
-            SUMMARY:               'Widgets %s have properties',
-            TARGET_RESOURCES_DESC: 'Widgets with required properties and states',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:            'Widget has required properties and states',
-              ALL_PASS_PLURAL:              'All %N_P have required properties and states',
-              SOME_FAIL:                    '%N_F out of %N_T widgets do NOT have required properties and states',
-              CORRECTIVE_ACTION_SINGULAR:   'add required properties and states to widget',
-              CORRECTIVE_ACTION_PLURAL:     'add required properties and states to the %N_F widgets',
-              ALL_FAIL_SINGULAR:            'Widget does NOT have required properties and states',
-              ALL_FAIL_PLURAL:              'All %N_F widget do NOT have required properties and states',
-              NOT_APPLICABLE:               'No widgets with required properties and states on this page'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                '@%1@ widget has the following required ARIA properties and states: %2',
-              CORRECTIVE_ACTION_1:   'Add one or more of the required ARIA properties and states (i.e. "%2") to the @%1@ widget',
-              HIDDEN:                '%1 widget is hidden from assistive technologies and not visible on screen'
-            },
-            PURPOSE: [
-              'ARIA roles, properties and states describes the features of interactive widgets to users of assistive technologies, especially screen reader users'                   
-            ],
-            TECHNIQUES: [
-              'Use required ARIA properties to describe the features and options of a widget'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
-                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G108'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
-                title: 'OAA Web Accessibility ARIA Examples', 
-                url:   'http://oaa-accessibility.org/examples/'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
-                title: 'Accessible jQuery-ui Components Demonstration', 
-                url:   'http://access.aol.com/aegis/#goto_slider'
-              }                            
-            ]
-        },
-      WIDGET_7: {
-            ID:                    'Widget Rule 7',
-            DEFINITION:            'Widgets %s have required child roles',
-            SUMMARY:               'Widgets %s have child roles',
-            TARGET_RESOURCES_DESC: 'Widgets with required owned elements',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:            'Widget has required child roles',
-              ALL_PASS_PLURAL:              'All %N_P have required required child roles',
-              SOME_FAIL:                    '%N_F out of %N_T widgets do NOT have required child roles',
-              CORRECTIVE_ACTION_SINGULAR:   'add required child roles to child elements in the widget',
-              CORRECTIVE_ACTION_PLURAL:     'add required child roles to child elements in the %N_F widgets',
-              ALL_FAIL_SINGULAR:            'Widget does NOT have required child roles',
-              ALL_FAIL_PLURAL:              'All %N_F widgets do NOT have required child roles',
-              NOT_APPLICABLE:               'No widgets with required child ARIA elements on this page'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:                '@%1@ widget has at least one required owned elements: %2',
-              CORRECTIVE_ACTION_1:   '@%1@ widget is MISSING one or more of following required owned elements: %2',
-              HIDDEN:                '%1 widget is hidden from assistive technologies and not visible on screen'
-            },
-            PURPOSE: [
-              'ARIA roles, properties and states describes the features of interactive widgets to users of assistive technologies, especially screen reader users'                   
-            ],
-            TECHNIQUES: [
-              'Use required ARIA owned elements to describe the features and options of a widget'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
-                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G108'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
-                title: 'OAA Web Accessibility ARIA Examples', 
-                url:   'http://oaa-accessibility.org/examples/'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
-                title: 'Accessible jQuery-ui Components Demonstration', 
-                url:   'http://access.aol.com/aegis/#goto_slider'
-              }                            
-            ]
-        },
-     WIDGET_8: {
-            ID:                    'Widget Rule 8',
-            DEFINITION:            'Widgets %s have required parent role',
-            SUMMARY:               'Widgets %s have parent',
-            TARGET_RESOURCES_DESC: 'Widgets with required parent role',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:            'Widget has required parent role',
-              ALL_PASS_PLURAL:              'All %N_P have required required parent role',
-              SOME_FAIL:                    '%N_F out of %N_T widgets do NOT have required role',
-              CORRECTIVE_ACTION_SINGULAR:   'add required parent role to the widget',
-              CORRECTIVE_ACTION_PLURAL:     'add required parent to the %N_F widgets',
-              ALL_FAIL_SINGULAR:            'Widget does NOT have required parent role',
-              ALL_FAIL_PLURAL:              'All %N_F widgets do NOT have required parent role',
-              NOT_APPLICABLE:               'No widgets with required parent role on this page'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:               '@%1@ widget is a child of the a @%2@ role',
-              CORRECTIVE_ACTION_1:  'Create a parent widget with the role of @%1@ for this @%2@ widget',
-              CORRECTIVE_ACTION_2:   'Create a parent widget with the one of the required roles (i.e. @%1@) for this @%2@ widget',
-              HIDDEN:                '%1 widget is hidden from assistive technologies and not visible on screen'
-            },
-            PURPOSE: [
-              'ARIA roles, properties and states describes the features of interactive widgets to users of assistive technologies, especially screen reader users'                   
-            ],
-            TECHNIQUES: [
-              'Use required parent roles to describe the features and options of a widget'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
-                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G108'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
-                title: 'OAA Web Accessibility ARIA Examples', 
-                url:   'http://oaa-accessibility.org/examples/'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
-                title: 'Accessible jQuery-ui Components Demonstration', 
-                url:   'http://access.aol.com/aegis/#goto_slider'
-              }                            
-            ]
-        },
-     WIDGET_9: {
-            ID:                    'Widget Rule 9',
-            DEFINITION:            'Widgets %s be owned by only one parent widget',
-            SUMMARY:               'Only one owner',
-            TARGET_RESOURCES_DESC: 'Widgets with required parent roles',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:            'Child widget is only referenced once by parent widget with aria-owns',
-              ALL_PASS_PLURAL:              'All %N_P child widget are only referenced once by parent widgets with aria-owns',
-              SOME_FAIL:                    '%N_F out of %N_T child widgets are referenced MORE than once by parent widgets with aria-owns',
-              CORRECTIVE_ACTION_SINGULAR:   'update parent widget with aria-owns to make sure it not references a child widget only once',
-              CORRECTIVE_ACTION_PLURAL:     'update %N_F parent widgets with aria-owns to make sure they reference a child widget only once',
-              ALL_FAIL_SINGULAR:            'Child widget is referenced MORE that once by parent widgets with aria-owns',
-              ALL_FAIL_PLURAL:              'All %N_F child widgets are referenced MORE that once by parent widgets with aria-owns',
-              NOT_APPLICABLE:               'No parent widgets using aria-owns on this page'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:               '@%1@ child widget is referenced only by @%2@ parent widget with aria-owns',
-              CORRECTIVE_ACTION_1:  'Update references of @%1@ parent widgets with aria-owns to reference @%2@ child widget only once',
-              HIDDEN:               '%1 parent widget with aria-owns is hidden from assistive technologies and not visible on screen'
-            },
-            PURPOSE: [
-              'ARIA roles, properties and states describes the features of interactive widgets to users of assistive technologies, especially screen reader users'                   
-            ],
-            TECHNIQUES: [
-              'Parent widget roles with aira-owns must accurately decribe the parent relationships, a child widget can only have one parent widget'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
-                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G108'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
-                title: 'OAA Web Accessibility ARIA Examples', 
-                url:   'http://oaa-accessibility.org/examples/'
-              }                            
-            ]
-        },
-     WIDGET_10: {
-            ID:                    'Widget Rule 10',
-            DEFINITION:            'Range widget %s have value between minimum and maximum values',
-            SUMMARY:               'Value in range',
-            TARGET_RESOURCES_DESC: 'Range widgets ',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:            'The value of the @aria-valuenow@ attribute is in the range defined by @aria-valuemin@ and @aria-valuemax@ attributes',
-              ALL_PASS_PLURAL:              'All %N_P values of the @aria-valuenow@ attributes are in their ranges defined by the widget\'s @aria-valuemin@ and @aria-valuemax@ attributes',
-              SOME_FAIL:                    '%N_F out of %N_T values of the @aria-valuenow@ attributes are NOT in their ranges defined by the widget\'s @aria-valuemin@ and @aria-valuemax@ attributes',
-              CORRECTIVE_ACTION_SINGULAR:   'update range attributes of the widget so the @aria-valuenow@ attribute is in the range defined by @aria-valuemin@ and @aria-valuemax@ attributes',
-              CORRECTIVE_ACTION_PLURAL:     'update range attributes of the %N_F widgets so the @aria-valuenow@ attribute of each widget is in the range defined by @aria-valuemin@ and @aria-valuemax@ attributes',
-              ALL_FAIL_SINGULAR:            'The value with the @aria-valuenow@ attribute is NOT in the range defined by @aria-valuemin@ and @aria-valuemax@ attributes',
-              ALL_FAIL_PLURAL:              'All %N_F values of range widgets with the @aria-valuenow@ attribute are NOT in the range defined by @aria-valuemin@ and @aria-valuemax@ attributes',
-              NOT_APPLICABLE:               'No range widgets on the page'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:               '@%1@ widget is using @aria-valuetext@ attribute which overrides the @aria-valuenow@ attribute for describing the value of the range',
-              PASS_2:               '@%1@ widget value of %2 is in the range %3 and %4',
-              PASS_3:               '@%1@ widget has the range %3 and %4, and by not including the @aria-valuenow@ attribute the value of the progressbar is considered indeterminate',
-              CORRECTIVE_ACTION_1:  'Update the numeric values of @aria-valuenow@ (%1), @aria-valuemin@ (%2) and @aria-valuemax@ (%3) so the @aria-valuenow@ value is in range',
-              CORRECTIVE_ACTION_2:  'Update the numeric values of @aria-valuemin@ (%1) and @aria-valuemax@ (%2) so the @aria-valuemin@ value is less than the @aria-valuemax@ value',
-              CORRECTIVE_ACTION_3:  'For progresss bar update the numeric values or add @aria-valuemin@ (%2) and @aria-valuemax@ (%3) attributes and when state of progress is known use the @aria-valuenow@ attribute value to communicate the current state of progress',
-              CORRECTIVE_ACTION_4:  'Update or create @%1@ attribute to be a numeric value',
-              CORRECTIVE_ACTION_5:  'Update or create @%1@ attributes to be a numeric values',
-              HIDDEN:               '%1 range widget is hidden from assistive technologies'
-            },
-            PURPOSE: [
-              'ARIA roles, properties and states describes the features of interactive widgets to users of assistive technologies, especially screen reader users'                   
-            ],
-            TECHNIQUES: [
-              'Use the @aria-valuenow@, @aria-valuemin@ and @aria-valuemax@ are accurately defined'
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
-                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G108'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
-                title: 'OAA Web Accessibility ARIA Examples', 
-                url:   'http://oaa-accessibility.org/examples/'
-              }                            
-            ]
-        },
-     WIDGET_11: {
-            ID:                    'Widget Rule 11',
-            DEFINITION:            'Elements with keyboard, mouse and/or drag events %s have widget roles or interactive elements (i.e. form controls or links)',
-            SUMMARY:               'Keyboard/Mouse/drag events %s have roles',
-            TARGET_RESOURCES_DESC: 'Elements with mouse events',
-            RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:            'Element with keyboard, mouse or drag event or its descendants has a role attribute or is an interactive element',
-              ALL_PASS_PLURAL:              'All %N_P elements with keyboard, mouse or drag events or their descendants have a widget role or are an interactive elements',
-              SOME_FAIL:                    '%N_F out of %N_T elements with keyboard, mouse or drag events or their descendants do NOT have a widget role or are an interactive elements',
-              CORRECTIVE_ACTION_SINGULAR:   'add ARIA widget role to the element or child elements that accurately describe the user options and actions available',
-              CORRECTIVE_ACTION_PLURAL:     'add ARIA widget roles to the %N_F elements or their child elements that accurately describe the user options and actions available',
-              ALL_FAIL_SINGULAR:            'Element with keyboard, mouse or drag event or its descendants does not have a widget role and/or an interactive element',
-              ALL_FAIL_PLURAL:              'All %N_F Element with keyboard, mouse or drag events or their descendants do not have a widget role and/or interactive elements',
-              NOT_APPLICABLE:               'No elements with keyboard, mouse or drag events found on this page'              
-            },
-            NODE_RESULT_MESSAGES: {
-              PASS_1:               '@%1@ widget has the following keyboard, mouse or drag event(s): %2',
-              PASS_2:               '@%1@ interactive element has the following keyboard, mouse or drag event(s): %2',
-              PASS_3:               '@%1@ element with the following keyboard, mouse or drag event(s): %2 ; has descendant elements with widget roles or interactive elements',
-              CORRECTIVE_ACTION_1:  'Add widget role(s) to the element and/or its descendants that accurately describe the user options and actions of the @%1@ element with the following keyboard, mouse or drag events: %2',
-              HIDDEN:               '%1 element is hidden from assistive technologies with following keyboard, mouse or drag events: %2'
-            },
-            PURPOSE: [
-              'ARIA roles, properties and states describes the features of interactive widgets to users of assistive technologies, especially screen reader users'                   
-            ],
-            TECHNIQUES: [
-              'Use the @role@ attrbute to describe the type of widget associated with the mouse events',
-              'Use ARIA properties and states attributes to describe features of each widget '
-            ],
-            MANUAL_CHECKS: [
-            ],
-            INFORMATIONAL_LINKS: [
-              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
-                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
-                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
-                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
-                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20120103/G108'
-              },
-              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
-                title: 'OAA Web Accessibility ARIA Examples', 
-                url:   'http://oaa-accessibility.org/examples/'
-              }                            
-            ]
-        }
-   }     
-});
 /**
  * Copyright 2011 OpenAjax Alliance
  *
@@ -33111,8 +30440,3455 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
     }
   }
 });
+/*
+ * Copyright 2011, 2012, 2013 OpenAjax Alliance
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/* --------------------------------------------------------------------------- */
+/*       OpenAjax Alliance Rules National Language Support (NLS): English      */
+/* --------------------------------------------------------------------------- */
+   
+
+OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
+
+    rule_scope: ['unknown', 'Element', 'Page', 'Website'],
+    
+    message_severities: {
+      MUST : 'must', 
+      SHOULD: 'should'
+    },
+    
+    missing_message : "The following message id is not defined: ",
+
+    rule_categories: {
+           '1': 'Abbrevitations',
+           '2': 'Audio',  
+           '4': 'Color',
+           '8': 'Controls',
+          '16': 'Objects',
+          '32': 'Headings',
+          '64': 'Images',
+         '128': 'Landmarks',
+         '256': 'Language',
+         '512': 'Layout',
+        '1024': 'Links',
+        '2048': 'Lists',
+        '4096': 'Navigation',
+        '8192': 'Scripting',
+       '16384': 'Tables',
+       '32768': 'Title',
+       '65536': 'Timing',
+      '131072': 'Video',
+      '262144': 'Widgets'
+    },
+    
+    DEFAULT_RULE_RESULT_MESSAGES: {
+      MANUAL_CHECKS_SINGULAR:       '1 element requires manual checking',
+      MANUAL_CHECKS_PLURAL:         '%N_MC elements require manual checking',
+      ALL_PASS_SINGULAR:            '1 element passed',
+      ALL_PASS_PLURAL:              '%N_P elements passed',
+      SOME_FAIL:                    '%N_F out of %N_T elements failed',
+      CORRECTIVE_ACTION_SINGULAR:   '1 element needs corrective action',
+      CORRECTIVE_ACTION_PLURAL:     '%N_F elements need corrective action',
+      ALL_FAIL_SINGULAR:            '1 element failed',
+      ALL_FAIL_PLURAL:              'All %N_F elements failed',
+      NOT_APPLICABLE:               'No applicable elements'
+    },
+
+    SO: ', so ',
+
+    AND: ' and ',
+
+    //
+    //  OAA Rules title and mesage string National Language Support (NLS)
+    //
+    rules: {
+        AUDIO_1: {
+            ID:                    'Audio Rule 1',
+            DEFINITION:            'Prerecorded audio %s have caption or text trascription of the audio content',
+            SUMMARY:               'Audio %s have alternative',
+            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       'Verify the element contains audio only content and if it is audio only make sure it has either captions or text transcript of the audio content',
+              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are audio only, if any are audio only make sure they have either an captions or text transcripts of the audio',
+              ALL_PASS_SINGULAR:            'Audio element has either a caption or a text transcript',
+              ALL_PASS_PLURAL:              'All %N_P audio elements have either captions or a text transcript',
+              SOME_FAIL:                    '%N_F out of %N_T audio elements do NOT have captions or text transcripts',
+              CORRECTIVE_ACTION_SINGULAR:   'add captions or text transcript to audio element',
+              CORRECTIVE_ACTION_PLURAL:     'add captions or text transcripts to each of the %N_F the audio elements',
+              ALL_FAIL_SINGULAR:            'Audio element does not have captions or text transcripts ',
+              ALL_FAIL_PLURAL:              'All %N_F audio elements do NOT have captions or text transcripts ',
+              NOT_APPLICABLE:               'No visible @object@, @embed@ and @video@ elements only elements found on this page that could be used for audio only'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@%1@ element has caption',
+              PASS_2:                '@%1@ element has a text transcript',
+              CORRECTIVE_ACTION_1:   'Add captions or text transcript to @%1@ element',
+              MANUAL_CHECK_1:        'Verify the @%1@ audio element has captions or text transcript',
+              MANUAL_CHECK_2:        'Verify the @%1@ element is audio only, if it is audio only verify that it has captions or text transcript',
+              HIDDEN:                '@%1@ element is not visible on screen'
+            },  
+            PURPOSE: [
+              'Captions and text transcripts provide a means for people cannot hear the audio to understand the audio content'                   
+            ],
+            TECHNIQUES: [
+              'Various techniques to add captions based on the audio format and media players you are supporting, please see your technology specific requirements for captions',
+              'The HTML5 video element is attempting to make it easier to support audio descriptions through the use of the text track element',
+              'Use aria-describedby attribute to point to a text description of the audio only content'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HMTL 5: The track element', 
+                url:   'http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#the-track-element'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'ARIA: aria-describedby', 
+                url:   ''
+              }                            
+            ]
+        },
+        AUDIO_2: {
+            ID:                    'Audio Rule 2',
+            DEFINITION:            'Prerecorded audio %s have caption or text trascription',
+            SUMMARY:               'Audio %s have alternative',
+            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       'Verify the element contains audio only content and if it is audio only make sure it has text transcript of the audio content',
+              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are audio only, if any are audio only make sure they have text transcripts of the audio',
+              ALL_PASS_SINGULAR:            'Audio element has text transcript',
+              ALL_PASS_PLURAL:              'All %N_P audio elements have text transcript',
+              SOME_FAIL:                    '%N_F out of %N_T audio elements do NOT have text transcripts',
+              CORRECTIVE_ACTION_SINGULAR:   'add text transcript to audio element',
+              CORRECTIVE_ACTION_PLURAL:     'add text transcripts to each of the %N_F the audio elements',
+              ALL_FAIL_SINGULAR:            'Audio element does not have text transcripts ',
+              ALL_FAIL_PLURAL:              'All %N_F audio elements do NOT have text transcripts ',
+              NOT_APPLICABLE:               'No visible @object@, @embed@ and @video@ elements only elements found on this page that could be used for audio only'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@%1@ element has a text transcript',
+              CORRECTIVE_ACTION_1:   'Add text transcript to @%1@ element',
+              MANUAL_CHECK_1:        'Verify the @%1@ audio element has text transcript',
+              MANUAL_CHECK_2:        'Verify the @%1@ element is audio only, if it is audio only verify that it has text transcript',
+              HIDDEN:                '@%1@ element is not visible on screen'
+            },  
+            PURPOSE: [
+              'Text transcripts provide a means for people cannot hear the audio to understand the audio content'                   
+            ],
+            TECHNIQUES: [
+              'Use aria-describedby attribute to point to a text description of the audio only content'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'ARIA: aria-describedby', 
+                url:   ''
+              }                            
+            ]
+        },
+        COLOR_1: {
+            ID:                    'Color Rule 1',
+            DEFINITION:            'Text content %s exceed Color Contrast Ratio (CCR) of 4.5 for any size text or 3.1 for large and/or bolded text',
+            SUMMARY:               'Text %s exceed CCR of 4.5',
+            TARGET_RESOURCES_DESC: 'All elements with text content',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       '1 element requires manual checking for CCR > 4.5 due to the use of background image',
+              MANUAL_CHECKS_PLURAL:         '%N_MC elements require manual checking for CCR > 4.5 due to the use of background images',
+              ALL_PASS_SINGULAR:            'Text element has a CCR > 4.5',
+              ALL_PASS_PLURAL:              '%N_P text elements have a CCR > 4.5',
+              SOME_FAIL:                    '%N_F out of %N_T text elements do NOT have a CCR > 4.5',
+              CORRECTIVE_ACTION_SINGULAR:   'change the foreground and background colors of the text element to meet the CCR > 4.5 requirement',
+              CORRECTIVE_ACTION_PLURAL:     'change the foreground and background colors of the %N_F text elements to meet the CCR > 4.5 requirement',
+              ALL_FAIL_SINGULAR:            '1 text element does NOT have a CCR > 4.5',
+              ALL_FAIL_PLURAL:              '%N_F text elements do NOT have a CCR > 4.5',
+              NOT_APPLICABLE:               'No text elements on page'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:              'CCR exceeds 4.5',
+              CORRECTIVE_ACTION_1: 'Adjust foreground and background colors to improve color contrast',
+              MANUAL_CHECK_1:      'Background image may reduce color contrast',
+              MANUAL_CHECK_2:      'Background image may improve color contrast',
+              HIDDEN:              'Text is hidden from asssistive technologies.'
+            },  
+            PURPOSE:        ['The higher the color contrast of text the more easy it is to read, especially for people with visual impairments'                   
+                            ],
+            TECHNIQUES:     [ 'Change the foreground color to a more complemtary color to the background color',
+                              'Change the background color to a more complemtary color to the foreground color'
+                            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [{ type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                               title: 'WCAG 2.0 Success Criterion 1.4.3 Contrast (Minimum): The visual presentation of text and images of text has a contrast ratio of at least 4.5:1', 
+                               url:   'http://www.w3.org/TR/WCAG20/#visual-audio-contrast-contrast'
+                             },
+                             { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                               title: 'How to meet Success Criterion 1.4.3 Contrast (Minimum): The visual presentation of text and images of text has a contrast ratio of at least 4.5:1', 
+                               url:   'http://www.w3.org/WAI/WCAG20/quickref/#qr-visual-audio-contrast'
+                             }
+                            ]
+        },
+        COLOR_2: {
+            ID:                    'Color Rule 2',
+            DEFINITION:            'Text content %s exceed Color Contrast Ratio (CCR) of 7.0 for any size text or 4.5 for large and/or bolded text',
+            SUMMARY:               'Text %s exceed CCR of 7.0',
+            TARGET_RESOURCES_DESC: 'All elements with text content',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       '1 element requires manual checking for CCR > 7.0 due to the use of background image',
+              MANUAL_CHECKS_PLURAL:         '%N_MC elements require manual checking for CCR > 7.0 due to the use of background images',
+              ALL_PASS_SINGULAR:            'Text element has a CCR > 7.0',
+              ALL_PASS_PLURAL:              '%N_P text elements have a CCR > 7.0',
+              SOME_FAIL:                    '%N_F out of %N_T text elements do NOT have a CCR > 7.0',
+              CORRECTIVE_ACTION_SINGULAR:   'change the foreground and background colors of the text element to meet the CCR > 7.0 requirement',
+              CORRECTIVE_ACTION_PLURAL:     'change the foreground and background colors of the %N_F text elements to meet the CCR > 7.0 requirement',
+              ALL_FAIL_SINGULAR:            '1 text element does NOT have a CCR > 7.0',
+              ALL_FAIL_PLURAL:              '%N_F text elements do NOT have a CCR > 7.0',
+              NOT_APPLICABLE:               'No text elements on page'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:              'CCR exceeds 7.0',
+              CORRECTIVE_ACTION_1: 'Adjust foreground and background colors to improve color contrast',
+              MANUAL_CHECK_1:      'Background image may reduce color contrast',
+              MANUAL_CHECK_2:      'Background image may improve color contrast',
+              HIDDEN:              'Text is hidden from asssistive technologies.'
+            },  
+            PURPOSE:        ['The higher the color contrast of text the more easy it is to read, especially for people with visual impairments'                   
+                            ],
+            TECHNIQUES:     ['Change the foreground color to a more complemtary color to the background color',
+                             'Change the background color to a more complemtary color to the foreground color'
+                            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS:      [{ type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                               title: 'WCAG 2.0 Success Criterion 1.4.6 Contrast (Enhanced): The visual presentation of text and images of text has a contrast ratio of at least 7:1', 
+                               url:   'http://www.w3.org/TR/WCAG20/#visual-audio-contrast7'
+                             },
+                             { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                               title: 'How to meet Success Criterion 1.4.6 Contrast (Enhanced): The visual presentation of text and images of text has a contrast ratio of at least 7:1', 
+                               url:   'http://www.w3.org/WAI/WCAG20/quickref/#qr-visual-audio-contrast7'
+                             }                            
+                            ]
+        },
+        CONTROL_1: {
+            ID:                    'Form Control 1',
+            DEFINITION:            '@textarea@, @select@ and @input@ elements of type @text@, @password@, @checkbox@, @radio@ and @file@ %s have an accessible label',
+            SUMMARY:               'Controls %s have labels',
+            TARGET_RESOURCES_DESC: 'User interface form controls',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            'Form control has label',
+              ALL_PASS_PLURAL:              '%N_P form controls have a label',
+              SOME_FAIL:                    '%N_F out of %N_T form controls do NOT have a label',
+              CORRECTIVE_ACTION_SINGULAR:   'add label to form control missing a label',
+              CORRECTIVE_ACTION_PLURAL:     'add labels to %N_F form controls missing a label',
+              ALL_FAIL_SINGULAR:            'form control does NOT have label',
+              ALL_FAIL_PLURAL:              'All %N_F form controls do NOT have a label',
+              NOT_APPLICABLE:               'No form controls on this page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '%1 control has label',
+              CORRECTIVE_ACTION_1:   'Add label to %1 control',
+              HIDDEN:                '%1 control is hidden from assistive technologies.',
+              TARGET_RESOURCES_DESC: '@textarea@, @select@ and @input@ elements of type @text@, @password@, @checkbox@, @radio@ and @file@'
+            },  
+            PURPOSE: [
+              'A label associated with a form control insures that information about the form control is spoken by screen readers when it receives focus'                   
+            ],
+            TECHNIQUES: [
+              'The preferred technique for labeling for controls is using the @label@ element and referencing the @id@ attribute value of the form control element',
+              'Use the @label@ element to encapsulate the form control element',
+              'In special cases, use @aria-labelledby@ attribute to reference the id(s) of the elements on the page that describe the purpose of the form control element',
+              'In special cases, use @aria-label@ attribute to provide a explicit text description of the purpose of the form control element'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: The @label@ element', 
+                url:   'http://www.w3.org/TR/html4/interact/forms.html#edef-LABEL'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H44: Using label elements to associate text labels with form controls', 
+                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H44'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H65: Using the title attribute to identify form controls when the label element cannot be used', 
+                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H65'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H71: Providing a description for groups of form controls using fieldset and legend elements', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H71'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Labels for Form Controls Overview', 
+                url:   'http://html.cita.illinois.edu/nav/form/'
+              }                            
+            ]
+        },
+        CONTROL_2: {
+            ID:                    'Form Control 2',
+            DEFINITION:            'Every @input@ type @image@ %s have an @alt@ or @title@ attribute with content',
+            SUMMARY:               'Image button %s have alt content',
+            TARGET_RESOURCES_DESC: 'input elements of type image',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            '@input[type="image"]@ form control has @alt@ attribute with content',
+              ALL_PASS_PLURAL:              '%N_P @input[type="image"]@ form controls have @alt@ attribute with content',
+              SOME_FAIL:                    '%N_F out of %N_T @input[type="image"]@ form controls do NOT have an @alt@ attribute with content',
+              CORRECTIVE_ACTION_SINGULAR:   'add @alt@ attribute and/or content to @input[type="image"]@ form control missing a @alt@ attribute with content',
+              CORRECTIVE_ACTION_PLURAL:     'add @alt@ attribute and/or content to %N_F @input[type="image"]@ form controls missing a @alt@ attribute with content',
+              ALL_FAIL_SINGULAR:            '@input[type="image"]@ form control does NOT have an @alt@ attribute with content',
+              ALL_FAIL_PLURAL:              'All %N_F @input[type="image"]@ form controls do NOT have an @alt@ attribute with content',
+              NOT_APPLICABLE:               'No @input[type="image"]@ form controls on this page'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                'Image button has label',
+              CORRECTIVE_ACTION_1:   'Add @alt@ attribute with text content',
+              CORRECTIVE_ACTION_2:   'Add text content to the @alt@ attribute',
+              HIDDEN:                'Image button is hidden from asssistive technologies.'
+            },  
+            PURPOSE: [
+              'A label associated with a form control insures that information about the form control is spoken by screen readers when it receives focus'                   
+            ],
+            TECHNIQUES: [
+              'The preferered technique for labeling for controls is using the @label@ element and referencing the @id@ attribute value of the form control element',
+              'Use the @label@ element to encapsulate the form control element',
+              'In special cases, use @aria-labelledby@ attributes to reference the id(s) of the elements on the page that describe the purpose of the form control element',
+              'In special cases, use @aria-label@ attributes to provide a explicit text description of the purpose of the form control element'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: The @label@ element', 
+                url:   'http://www.w3.org/TR/html4/interact/forms.html#edef-LABEL'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H36: Using alt attributes on images used as submit buttons', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H36'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Labels for Form Controls Overview', 
+                url:   'http://html.cita.illinois.edu/nav/form/'
+              }                            
+            ]
+        },
+        CONTROL_3: {
+            ID:                    'Form Control 3',
+            DEFINITION:            'Every input type radio %s be contained in a @fieldset@ and @legend@ elements to provide grouping information for radio button groups',
+            SUMMARY:               'Radio button %s use FIELDSET/LEGEND',
+            TARGET_RESOURCES_DESC: 'input elements of type radio',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            '@input[type="radio"]@ form control is contained in a @filedset/legend@ labeling container',
+              ALL_PASS_PLURAL:              '%N_P @input[type="radio"]@ form controls are contained in @filedset/legend@ labeling container',
+              SOME_FAIL:                    '%N_F out of %N_T @input[type="radio"]@form controls are NOT contained in @filedset/legend@ labeling container',
+              CORRECTIVE_ACTION_SINGULAR:   'move the @input[type="radio"]@ form control to an existing @filedset/legend@ labeling container or create a new @filedset/legend@ labeling container for the control',
+              CORRECTIVE_ACTION_PLURAL:     'move the %N_F @input[type="radio"]@ form controls to an existing @filedset/legend@ labeling container or add new @filedset/legend@ labeling containers for the %N_F controls',
+              ALL_FAIL_SINGULAR:            '@input[type="radio"]@ form control is NOT a contained in a @filedset/legend@ labeling container',
+              ALL_FAIL_PLURAL:              'All %N_F @input[type="radio"]@ form controls are NOT a contained in @filedset/legend@ labeling containers',
+              NOT_APPLICABLE:               'No @input[type="radio"]@ form controls on this page'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                'Radio button uses @fieldset@ and @legend@ elements, and the @legend@ element has text content',
+              MANUAL_CHECK_1:        'Radio button uses aria-labelledby, verify the label text content includes group information',
+              MANUAL_CHECK_2:        'Radio button uses aria-label, verify the label text content includes group information',
+              CORRECTIVE_ACTION_1:   'Add a @legend@ element to with text content to the @fieldset@ element to provide grouping label information for the radio buttons.',
+              CORRECTIVE_ACTION_2:   'Add a @fieldset@ and @legend@ elements to provide grouping label information for the radio buttons.',
+              HIDDEN:                'Radio button is hidden from asssistive technologies.'
+            },  
+            PURPOSE: [
+              'Radio buttons need a common grouping label to provide a context for each radio button option'                   
+            ],
+            TECHNIQUES: [
+              '@fieldset@/@legend@ element combination is the preferred technique to provide a grouping label for radio buttons',
+              '@aria-labelledby@ attributes can provide a grouping label with references to the grouping text content and the radio button option text content',
+              '@aria-label@ attributes can provide a grouping label that includes both the grouping and radio button option text content'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: The @fieldset@ and @legend@ elements', 
+                url:   'http://www.w3.org/TR/html4/interact/forms.html#edef-FIELDSET'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H71: Providing a description for groups of form controls using fieldset and legend elements', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H71'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H90: Indicating required form controls using label or legend', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H90'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'iCITA: Example 7: Fieldset/Legend for grouping radio buttons', 
+                url:   'http://html.cita.illinois.edu/nav/form/radio/index.php?example=6'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'IBM Web checklist: HTML example 6', 
+                url:   'http://www-03.ibm.com/able/guidelines/web/webstructure.html'
+              }                            
+            ]
+        },
+        CONTROL_4: {
+            ID:                    'Form Control 4',
+            DEFINITION:            '@button@ elements %s have text content',
+            SUMMARY:               '@button@s %s have content',
+            TARGET_RESOURCES_DESC: '@button@ elements',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            '@button@ element has text content',
+              ALL_PASS_PLURAL:              '%N_P @button@ elements have text content',
+              SOME_FAIL:                    '%N_F out of %N_T @button@ elements do NOT have text content',
+              CORRECTIVE_ACTION_SINGULAR:   'add text content to @button@ element that describe the purpose of the button',
+              CORRECTIVE_ACTION_PLURAL:     'add text content to %N_F @button@ elements that describe the purpose of the buttons',
+              ALL_FAIL_SINGULAR:            '@button@ element does NOT have text content',
+              ALL_FAIL_PLURAL:              'All %N_F @button@ elements do NOT have text content',
+              NOT_APPLICABLE:               'No @button@ elements on this page'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@button@ element has text content',
+              CORRECTIVE_ACTION_1:   'Add text content to @button@ element',
+              HIDDEN:                '@button@ element is hidden from asssistive technologies.'
+            },  
+            PURPOSE: [
+              'The text content of a @button@ element is used as a label to insure that the purpose of the button is spoken by screen readers when the button receives focus'                   
+            ],
+            TECHNIQUES: [
+              'The text content of the @button@ element and the @alt@ attribute content of images inside the button is used as the text content'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: The @button@ elements', 
+                url:   'http://www.w3.org/TR/html4/interact/forms.html#edef-BUTTON'
+              }
+            ]
+        },
+        CONTROL_5: {
+            ID:                    'Form Control 5',
+            DEFINITION:            '@id@ attributes %s have unique values on the web page',
+            SUMMARY:               '@id@ %s be unique',
+            TARGET_RESOURCES_DESC: 'Form control elements with @id@ attributes',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_PLURAL:              'The %N_P elements with an @id@ attribute have unique id values on page',
+              SOME_FAIL:                    '%N_F out of %N_T elements with an @id@ attribute do NOT have unique id values on page',
+              CORRECTIVE_ACTION_PLURAL:     'update elements with @id@ attributes so the id values are all unique',
+              ALL_FAIL_PLURAL:              'All %N_F element with an @id@ attribute do NOT have a unique id values on page',
+              NOT_APPLICABLE:               'No elements or only one element with an @id@ attribute on this page'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                  '\'%1\' @id@ attribute value is unique',
+              CORRECTIVE_ACTION_1:   'Update elements that share the \'%1\' @id@ value to have unique @id@ values',
+              HIDDEN:                '%1 control is hidden from assistive technologies.'
+            },  
+            PURPOSE: [
+              '@id@ attribute values can be used as references for @label@ elements, if @id@ attribute values are not unique it can result incorrect labeling of form controls'                   
+            ],
+            TECHNIQUES: [
+              'If a form control defines an @id@ attribute, make sure the valeu is unique'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: @id@ attribute', 
+                url:   'http://www.w3.org/TR/html4/struct/global.html#adef-id'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'F77: Failure of Success Criterion 4.1.1 due to duplicate values of type ID', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/F77'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H88: Using HTML according to spec', 
+                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H88'
+              }                             
+            ]
+        },
+        CONTROL_6: {
+            ID:                    'Form Control 6',
+            DEFINITION:            '@label@ element using the @for@ attribute %s reference a form control on the page',
+            SUMMARY:               '@label@ %s reference control',
+            TARGET_RESOURCES_DESC: '@label@ elements',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            '@label@ element uses @for@ attribute to label a form control',
+              ALL_PASS_PLURAL:              '%N_P @label@ elements use the @for@ attribute to label form controls',
+              SOME_FAIL:                    '%N_F out of %N_T @label@ elements do NOT use the @for@ attribute to label form controls',
+              CORRECTIVE_ACTION_SINGULAR:   'change the @label@ element to use the @for@ attribute to label its form control',
+              CORRECTIVE_ACTION_PLURAL:     'change the %N_F @label@ elements to use the @for@ attribute to label their form control',
+              ALL_FAIL_SINGULAR:            '@label@ element does NOT use @for@ attribute to label a form control',
+              ALL_FAIL_PLURAL:              'All %N_F @label@ elements do NOT use @for@ attribute to label a form control',
+              NOT_APPLICABLE:               'No @label@ elements on this page'
+            },
+            NODE_RESULT_MESSAGES: {
+              CORRECTIVE_ACTION_1:   'Change the @label@ element @for@ attribute to reference \'%1\' to reference a form control'
+            },  
+            PURPOSE: [
+              '@label@ elements only are useful for accessibility when they reference or encapsulate form controls'                   
+            ],
+            TECHNIQUES: [
+              '@label@ elements using the FOR attribute need to reference a form control with the corresponding @id@ attribute value'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: The @label@ element FOR attribute', 
+                url:   'http://www.w3.org/TR/html4/interact/forms.html#adef-for'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H44: Using label elements to associate text labels with form controls', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H44'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA: Using @label@ Element for Labeling Form Controls', 
+                url:   'http://html.cita.illinois.edu/nav/form/form-label-markup.php'
+              }                             
+            ]
+        },
+        CONTROL_7: {
+            ID:                    'Form Control 7',
+            DEFINITION:            '@label@ element or legend element %s contain text content',
+            SUMMARY:               '@label@ %s have content',
+            TARGET_RESOURCES_DESC: '@label@ and @legend@ elements',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            '@label@ or @legend@ element has text content',
+              ALL_PASS_PLURAL:              '%N_P @label@ or @legend@ elements have text content',
+              SOME_FAIL:                    '%N_F out of %N_T @label@ or @legend@ elements do NOT have text content',
+              CORRECTIVE_ACTION_SINGULAR:   'add content to the @label@ or @legend@ element the describes the purpose of a form control or groupings of form controls',
+              CORRECTIVE_ACTION_PLURAL:     'add content to the %N_F @label@ or @legend@ elements to describes the purpose of each form control or groupings of form controls',
+              ALL_FAIL_SINGULAR:            '@label@ or @legend@ element does NOT have text content',
+              ALL_FAIL_PLURAL:              'All %N_F @label@ or @legend@ elements do NOT have text content',
+              NOT_APPLICABLE:               'No @label@ or @legend@ elements on this page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@%1@ has text content',
+              CORRECTIVE_ACTION_1:   'Add text content to the @%1@ element',
+              HIDDEN:                '@%1@ control is hidden from asssistive technologies, so @%2@ content is ignored'
+            },
+            PURPOSE: [
+              'For @label@ and @legend@ elements only are useful for accessibility when they contain content'                   
+            ],
+            TECHNIQUES: [
+              'Add text content to @label@ and @legend@ elements that help describe the purpose of the form control'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: The @label@ element @for@ attribute', 
+                url:   'http://www.w3.org/TR/html4/interact/forms.html#adef-for'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H44: Using @label@ elements to associate text labels with form controls', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H44'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H88: Using HTML according to spec', 
+                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H88'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA: Using @label@ element for Labeling Form Controls', 
+                url:   'http://html.cita.illinois.edu/nav/form/form-label-markup.php'
+              }                             
+            ]
+        },
+        CONTROL_8: {
+            ID:                    'Form Control 8',
+            DEFINITION:            '@fieldset@ element %s contain exactly one legend element',
+            SUMMARY:               '@fieldset@ %s have one legend',
+            TARGET_RESOURCES_DESC: '@fieldset@ and @legend@ elements',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            '@fieldset@ element has only one @legend@ element',
+              ALL_PASS_PLURAL:              '%N_P @fieldset@ elements have only one @legend@ element',
+              SOME_FAIL:                    '%N_F out of %N_T @fieldset@ elements have more than one @legend@ element or no @legend@ element',
+              CORRECTIVE_ACTION_SINGULAR:   'update @fieldset@ element to contain only one @legend@ element',
+              CORRECTIVE_ACTION_PLURAL:     'update %N_F @fieldset@ elements to contain only one @legend@ element',
+              ALL_FAIL_SINGULAR:            '@fieldset@ element has more than one @legend@ element or no @legend@ element',
+              ALL_FAIL_PLURAL:              'All %N_F @fieldset@ elements have more than one @legend@ element or no @legend@ element',
+              NOT_APPLICABLE:               'No @fieldset@ elements on this page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@fieldset@ has one @legend@ element',
+              CORRECTIVE_ACTION_1:   'Add @legend@ element',
+              CORRECTIVE_ACTION_2:   'Remove %1 @legend@ elements',
+              HIDDEN:                '@fieldset@ element is hidden from asssistive technologies.'
+            },  
+            PURPOSE: [
+              'Multiple legend elements contained in the same fieldset may result in the improper calucation of labels for assistive technologies.'                   
+            ],
+            TECHNIQUES: [
+              '@fieldset@ element should have one and only one @legend@ elements to help describe the purpose of the form controls contained in the @fieldset@ element'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: Adding structure to forms: the @fieldset@ and @legend@ elements', 
+                url:   'http://www.w3.org/TR/html4/interact/forms.html#edef-FIELDSET'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H71: Providing a description for groups of form controls using fieldset and legend elements', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H71'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H88: Using HTML according to spec', 
+                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H88'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA: Using @label@ element for Labeling Form Controls', 
+                url:   'http://html.cita.illinois.edu/nav/form/form-label-markup.php'
+              }                             
+            ]
+        },
+        CONTROL_9: {
+            ID:                    'Form Control 9',
+            DEFINITION:            '@title@ attribute may not be good a label for form control',
+            SUMMARY:               '@title@ may not be good label',
+            TARGET_RESOURCES_DESC: '@textarea@, @select@ and @input@ elements',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:       'Form control does not use @title@ attribute as label',
+              ALL_PASS_PLURAL:         'All %N_P form controls do not use @title@ attribute as label',
+              MANUAL_CHECK_SINGULAR:   'verify the @title@ attribute being used as a tooltip is also good label for the form control',
+              MANUAL_CHECK_PLURAL:     'verify each of the %N_MC form controls that use @title@ attribute as a tooltip is also good label for the form control',
+              NOT_APPLICABLE:          'No form controls on this page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:         '@title@ is not used as label',
+              MANUAL_CHECK_1: 'Verify @label@ element or ARIA technique to label %1 form control',
+              HIDDEN:         '%1 control is hidden from asssistive technologies.'
+            },  
+            PURPOSE: [
+              'When the @title@ attribute is used for tooltips it is often uses more words than needed to label a form control for users of assistive technologies',                   
+              'use @aria-label@ to provide a shorter label to users of assistive technologies if the @title@ attribute content is determined to not be an optimal label' 
+            ],
+            TECHNIQUES: [
+              'The preferered technique for labeling for controls is using the @label@ element and referencing the @id@ attribute value of the form control element',
+              'Use the @label@ element to encapsulate the form control element',
+              'In special cases, use @aria-labelledby@ attributes to reference the id(s) of the elements on the page that describe the purpose of the form control element',
+              'In special cases, use @aria-label@ attributes to provide a explicit text description of the purpose of the form control element',
+              'In special cases, use @title@ attribute to provide a optimal label and a tooltip for a form control'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: Adding structure to forms: the @fieldset@ and @legend@ elements', 
+                url:   'http://www.w3.org/TR/html4/interact/forms.html#edef-FIELDSET'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H88: Using HTML according to spec', 
+                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H88'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA: Using @label@ element for Labeling Form Controls', 
+                url:   'http://html.cita.illinois.edu/nav/form/form-label-markup.php'
+              }                             
+            ]
+        },
+        CONTROL_10: {
+            ID:                    'Form Control 10',
+            DEFINITION:            'Labels %s be unique for every textarea, select and input element of type text, password, radio, and checkbox on a page',
+            SUMMARY:               'Labels %s be unique',
+            TARGET_RESOURCES_DESC: '@textarea@, @select@ and @input@ elements of type @text@, @password@, @checkbox@, @radio@ and @file@',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_PLURAL:              '%N_P form controls have unique labels',
+              SOME_FAIL:                    '%N_F out of %N_T form controls do NOT have unique labels',
+              CORRECTIVE_ACTION_PLURAL:     'change the labeling of %N_F form controls to uniquely identify the purpose of each form control on the page',
+              ALL_FAIL_PLURAL:              'All %N_F form controls do NOT have a unique labels',
+              NOT_APPLICABLE:               'No form controls or only one form control on this page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                'Label is unique',
+              CORRECTIVE_ACTION_1:   'Add label to %1 control',
+              CORRECTIVE_ACTION_2:   'Change the @label@ element content, use @fieldset@/@legend@ elements or ARIA technique to make label text content unique on the page',
+              HIDDEN:                '%1 control is hidden from asssistive technologies.'
+            },  
+            PURPOSE: [
+              'Labels that are unique make it possible for people to understand the different purposes of form controls on the same page'                   
+            ],
+            TECHNIQUES: [
+              'The preferred technique for labeling for controls is using the @label@ element and referencing the @id@ attribute value of the form control element',
+              'Use the @label@ element to encapsulate the form control element',
+              'In special cases, use @aria-labelledby@ attribute to reference the id(s) of the elements on the page that describe the purpose of the form control element',
+              'In special cases, use @aria-label@ attribute to provide a explicit text description of the purpose of the form control element'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: The @label@ element', 
+                url:   'http://www.w3.org/TR/html4/interact/forms.html#edef-LABEL'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H44: Using label elements to associate text labels with form controls', 
+                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H44'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H65: Using the title attribute to identify form controls when the label element cannot be used', 
+                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H65'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H71: Providing a description for groups of form controls using fieldset and legend elements', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H71'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Labels for Form Controls Overview', 
+                url:   'http://html.cita.illinois.edu/nav/form/'
+              }                            
+            ]
+        },
+        CONTROL_11: {
+            ID:                    'Form Control 11',
+            DEFINITION:            'If there is more than one form on a page, @input@ element of type @submit@ and @reset@ %s have unique labels using the value attribute',
+            SUMMARY:               '@submit@ and @reset@ buttons %s be unique',
+            TARGET_RESOURCES_DESC: '@submit@ and @reset@ buttons',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_PLURAL:              '%N_P @submit@ or @reset@ buttons have unique labels',
+              SOME_FAIL:                    '%N_F out of %N_T @submit@ or @reset@ buttons do NOT have unique labels',
+              CORRECTIVE_ACTION_PLURAL:     'change the labeling of %N_F @submit@ or @reset@ buttons to uniquely identify the purpose of each @submit@ or @reset@ buttons on the page',
+              ALL_FAIL_PLURAL:              'All %N_F @submit@ or @reset@ buttons do NOT have a unique labels',
+              NOT_APPLICABLE:               'No forms or only one form on this page'                            
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                'Label is unique',
+              CORRECTIVE_ACTION_1:   'Add label to %1 control',
+              CORRECTIVE_ACTION_2:   'Change the @value@ attribute content, use @fieldset@/@legend@ elements or ARIA technique to make @submit@ and @reset@ labels unique on the page',
+              HIDDEN:                '%1 control is hidden from asssistive technologies.'
+            },  
+            PURPOSE: [
+              'Labels that are unique make it possible for people to understand the different purposes of form controls on the same page',                   
+              '@submit@ and @reset@ form controls have default labels and if there is more than one form on a page the user may not understand which form they are submitting'                   
+            ],
+            TECHNIQUES: [
+              'The preferred technique for changing the default label for @submit@ and @reset@ controls is the @value@ attribute',
+              'In special cases, use @aria-labelledby@ attribute to reference the id(s) of the elements on the page that describe the purpose of the form control element',
+              'In special cases, use @aria-label@ attribute to provide a explicit text description of the purpose of the form control element'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: The @label@ element', 
+                url:   'http://www.w3.org/TR/html4/interact/forms.html#edef-LABEL'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H44: Using label elements to associate text labels with form controls', 
+                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H44'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H65: Using the title attribute to identify form controls when the label element cannot be used', 
+                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H65'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H71: Providing a description for groups of form controls using fieldset and legend elements', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H71'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Labels for Form Controls Overview', 
+                url:   'http://html.cita.illinois.edu/nav/form/'
+              }                            
+            ]
+        },
+        CONTROL_12: {
+            ID:                    'Form Control 12',
+            DEFINITION:            'Labels %s be must describe the purpose of every button, textarea, select and input element of type text, password, radio, and checkbox on a page',
+            SUMMARY:               'Labels %s be descriptive',
+            TARGET_RESOURCES_DESC: '@textarea@, @select@ and @input@ elements of type @text@, @password@, @checkbox@, @radio@ and @file@',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       'form control requires a manual check to verify it describes the purpose of the form control',
+              MANUAL_CHECKS_PLURAL:         '%N_MC form controls require a manual check to verify they uniquely describe the purpose of each form control',
+              SOME_FAIL:                    '%N_F out of %N_T form controls do NOT have labels',
+              CORRECTIVE_ACTION_SINGULAR:   'add label to the form control that describes the from controls purpose',
+              CORRECTIVE_ACTION_PLURAL:     'add labels to the %N_F form controls that uniquely describe purpose of each from control',
+              ALL_FAIL_SINGULAR:            'form control does NOT have a label',
+              ALL_FAIL_PLURAL:              '%N_F form controls do NOT have labels',
+              NOT_APPLICABLE:               'No form controls on this page'                                          
+            },
+            NODE_RESULT_MESSAGES: {
+              MANUAL_CHECK_1:        'Verify the label describes the purpose and input required for @%1@ form control',
+              CORRECTIVE_ACTION_1:   'Add a @label@ element, use @fieldset@/@legend@ elements or ARIA lechnique to provide a label for @%1@ form control',
+              HIDDEN:                '%1 control is hidden from asssistive technologies.'
+            },  
+            PURPOSE: [
+              'Labels that are unique make it possible for people to understand the different purposes of form controls on the same page'                   
+            ],
+            TECHNIQUES: [
+              'The preferred technique for labeling for controls is using the @label@ element and referencing the @id@ attribute value of the form control element',
+              'Use the @label@ element to encapsulate the form control element',
+              'In special cases, use @aria-labelledby@ attribute to reference the id(s) of the elements on the page that describe the purpose of the form control element',
+              'In special cases, use @aria-label@ attribute to provide a explicit text description of the purpose of the form control element'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: The @label@ element', 
+                url:   'http://www.w3.org/TR/html4/interact/forms.html#edef-LABEL'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H44: Using label elements to associate text labels with form controls', 
+                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H44'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H65: Using the title attribute to identify form controls when the label element cannot be used', 
+                url:   'http://www.w3.org/TR/2010/NOTE-WCAG20-TECHS-20101014/H65'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H71: Providing a description for groups of form controls using fieldset and legend elements', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H71'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Labels for Form Controls Overview', 
+                url:   'http://html.cita.illinois.edu/nav/form/'
+              }                            
+            ]
+        },    
+        HEADING_1: {
+            ID:                    'Heading Rule 1',
+            DEFINITION:            'Each page %s contain at least one @h1@ element and each @h1@ element must have content',
+            SUMMARY:               'Page %s have @h1@ element',
+            TARGET_RESOURCES_DESC: '@h1@ and @body@ elements',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:     'Page contains a least one @h1@ element',
+              CORRECTIVE_ACTION_SINGULAR: 'Add a @h1@ element at the begining of the main content of the page',
+              ALL_FAIL_SINGULAR:     'Page does not contain an @h1@ element'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                'Page has @h1@ element',
+              CORRECTIVE_ACTION_1:   'Add a @h1@ element at the begining of the main content of the page',
+              CORRECTIVE_ACTION_2:   'Add content to the @h1@ element, the content should describe the content or the purpose of the page or main section',
+              HIDDEN:                '@h1@ element is not available to assistive technologies.'
+            },  
+            PURPOSE: [
+              'Headings provide a navigation point for users of asssitive technologies to the main content and help users understand the main content of the page'                   
+            ],
+            TECHNIQUES: [
+              'Include an @h1@ element at the begining of the main content',
+              'The text content of the @h1@ element should describe the main content of the page',
+              'The @h1@ element should be visible graphically and to assistive technologies, do not hide using CSS techniques'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: The @h1@ element', 
+                url:   'http://www.w3.org/TR/html4/struct/global.html#edef-H1'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G130: Providing descriptive headings', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G130'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G141: Organizing a page using headings', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G141'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Unique Title', 
+                url:   'http://html.cita.illinois.edu/nav/title/'
+              }                            
+            ]
+        },    
+        HEADING_2: {
+            ID:                    'Heading Rule 2',
+            DEFINITION:            'If the page contains both a @main@ landmark and an @h1@ element, the @h1@ element %s be a child of the main landmark.',
+            SUMMARY:               '@h1@ %s be in @main@ landmark',
+            TARGET_RESOURCES_DESC: '@h1@ elements and elements with ARIA attribute @role="main"@',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:          '@h1@ element is a child of a @main@ landmark',
+              ALL_PASS_PLURAL:            '%N_P @h1@ elements ara a child of a @main@ landmark',
+              SOME_FAIL:                  '%N_F of %N_T %ELEM_T are NOT child of a @main@ landmark',
+              CORRECTIVE_ACTION_SINGULAR: 'either move the @h1@ element to the begining of a @main@ landmark or change the @h1@ element to another heading level',
+              CORRECTIVE_ACTION_PLURAL:   'either move the %N_F @h1@ elements to the begining of a @main@ landmark or change the @h1@ element to another heading level',              
+              ALL_FAIL_SINGULAR:          '@h1@ element is NOT a child of a @main@ landmark',
+              ALL_FAIL_PLURAL:            'All %N_F @h1@ elements are NOT a child of a @main@ landmark',
+              NOT_APPLICABLE:             'No @main@ landmark and/or @h1@ elements in this page'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@h1@ is a child element of a @main@ landmark',
+              CORRECTIVE_ACTION_1:   'Position the @h1@ element as one of the first descendant elements of a @main@ landmark',
+              HIDDEN:                '@h1@ element is hidden from asssistive technologies.'
+            },  
+            PURPOSE: [
+              'Headings provide a navigation point for users of assistive technologies to the primary content and help users understand understand that content',
+              'Including both @main@ landmarks and @h1@ elements provides a redundent way for users of assistive technology to find the main topics of a web page'
+            ],
+            TECHNIQUES: [
+              'Include an @h1@ element at the beginning of each @main@ landmark',
+              'If there is more than one @main@ landmark, use @aria-labelledby@ on the @main@ landmark to reference the @h1@ element as a name for @main@ landmark'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: The @h1@ element', 
+                url:   'http://www.w3.org/TR/html4/struct/global.html#edef-H1'
+              },                            
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: @main@ role', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#main'
+              }                            
+            ]
+        },    
+        HEADING_3: {
+            ID:                    'Heading Rule 3',
+            DEFINITION:            'Sibling heading elements %s should be unique',
+            SUMMARY:               'Sibling headings %s be unique',
+            TARGET_RESOURCES_DESC: 'Heading elements',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_PLURAL:            'All %N_P sibling headings elements of the same level have unique text content',
+              SOME_FAIL:                  '%N_F of %N_T sibling heading elements of the same level do NOT have unique text content',
+              CORRECTIVE_ACTION_PLURAL:   'update the text content of the %N_F sibling heading elements of the same level to be unique',              
+              ALL_FAIL_PLURAL:            'All %N_F sibling heading elements do NOT have unique text content',
+              NOT_APPLICABLE:             'No sibling heading elements of the same level in this page'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '%1 heading content is unique among sibling headings',
+              CORRECTIVE_ACTION_1:   'Change %1 heading content to describe the differences sibling sections',
+              HIDDEN:                '%1 element is hidden from asssistive technologies.'
+            },  
+            PURPOSE: [
+              'If section headings that share the same parent heading are NOT unique users of assistive technology will not be able to descern the differences between sibling secitons of the web resource'
+            ],
+            TECHNIQUES: [
+              'Make sure the content of sibling headings that share the same parent heading help users understand the unique content of each section they describe'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: Headings: The H1, H2, H3, H4, H5, H6 elements', 
+                url:   'http://www.w3.org/TR/html4/struct/global.html#edef-H1'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G130: Providing descriptive headings', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G130'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G141: Organizing a page using headings', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G141'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Unique Title', 
+                url:   'http://html.cita.illinois.edu/nav/title/'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Sub Headings', 
+                url:   'http://html.cita.illinois.edu/nav/heading/'
+              }                            
+            ]
+        },    
+        HEADING_4: {
+            ID:                    'Heading Rule 4',
+            DEFINITION:            'Heading elements %s describe the sections they label',
+            SUMMARY:               'Headings %s be descriptive',
+            TARGET_RESOURCES_DESC: 'Heading elements',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR: 'Verify the heading element describes the content following the heading element',
+              MANUAL_CHECKS_PLURAL:   'Verify the %N_MC heading elements describes the content following each heading element',
+              ALL_FAIL_SINGULAR:      'Add text content to heading',
+              ALL_FAIL_PLURAL:        'Add text content to %N_F heading elements with no text content',
+              NOT_APPLICABLE:         'No heading elements on this page'
+            },
+            NODE_RESULT_MESSAGES: {
+              MANUAL_CHECK_1:        'Check %1 element to make sure it describes the section it labels',
+              CORRECTIVE_ACTION_1:   'Add text content to %1 element that describes the section it labels or remove it from the page if it is not needed',
+              HIDDEN:                '%1 element is hidden from asssistive technologies.'
+            },  
+            PURPOSE: [
+              'If headings are NOT descriptive or unique they will confuse users of assistive technology'
+            ],
+            TECHNIQUES: [
+              'Include headings elements at the proper level for each section of a web page',
+              'Use headings as labels for ARIA landmarks to provide redundent page navigation capabilities for users of assistive technologies',
+              'Check headings against other headings in the document to make sure the headings uniquely describe content of each section of the web page',
+              'If headings are too similar to each other users of assistive technology will not be able to use them to understand the differences between different sections of the web page'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: Headings: The H1, H2, H3, H4, H5, H6 elements', 
+                url:   'http://www.w3.org/TR/html4/struct/global.html#edef-H1'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G130: Providing descriptive headings', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G130'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G141: Organizing a page using headings', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G141'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Unique Title', 
+                url:   'http://html.cita.illinois.edu/nav/title/'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Sub Headings', 
+                url:   'http://html.cita.illinois.edu/nav/heading/'
+              }                            
+            ]
+        },    
+        HEADING_5: {
+            ID:                    'Heading Rule 5',
+            DEFINITION:            'Heading elements %s be properly nested',
+            SUMMARY:               'Headings %s be properly nested',
+            TARGET_RESOURCES_DESC: 'Heading elements',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_PLURAL:      'All %N_P heading elements are properly nested',
+              SOME_FAIL:            '%N_F out of %N_T heading elements are NOT properly nested',
+              ALL_FAIL_PLURAL:      'None of the %N_F heading elements are properly nested',
+              NOT_APPLICABLE:       'No or only one heading elements on this page, so nesting rule does not apply'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:              '%1 element is properly nested',
+              PASS_2:              'All heading elements are properly nested',
+              CORRECTIVE_ACTION_1: 'Change %1 element or other heading elements ',
+              CORRECTIVE_ACTION_2: 'Add text content to %1 element that describes the section it labels or remove it from the page if it is not needed',
+              CORRECTIVE_ACTION_3: 'One heading element is not prperly nested, check all heading elements to make sure they are properly nested, and describe the structure and the sections of the web pag',
+              CORRECTIVE_ACTION_4: '%1 heading elements are not properly nested, check all heading elements to make sure they are properly nested, and describe the structure and the sections of the web page',
+              HIDDEN:              '%1 element is hidden from asssistive technologies and is not included in nesting.'
+            },  
+            PURPOSE: [
+              'Head elements that are properly nested help users of assistive technology understand the structure of the information on the web page'
+            ],
+            TECHNIQUES: [
+              'Include headings elements at the proper level for each section of a web page',
+              'Use headings as labels for ARIA landmarks to provide redundent page navigation capabilities for users of assistive technologies',
+              'Check headings against other headings in the document to make sure the headings uniquely describe content of each section of the web page',
+              'If headings are too similar to each other users of assistive technology will not be able to use them to understand the differences between different sections of the web page'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: Headings: The H1, H2, H3, H4, H5, H6 elements', 
+                url:   'http://www.w3.org/TR/html4/struct/global.html#edef-H1'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G130: Providing descriptive headings', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G130'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G141: Organizing a page using headings', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G141'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Unique Title', 
+                url:   'http://html.cita.illinois.edu/nav/title/'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Sub Headings', 
+                url:   'http://html.cita.illinois.edu/nav/heading/'
+              }                            
+            ]
+        },    
+        IMAGE_1: {
+            ID:                    'Image Rule 1',
+            DEFINITION:            'Each image %s have an text alternative',
+            SUMMARY:               'Image %s has alternative',
+            TARGET_RESOURCES_DESC: '@img@, @area@ and [role="img"]',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:          'Image element has text alternative',
+              ALL_PASS_PLURAL:            'All %N_P image elements have text alternatives',
+              SOME_FAIL:                  '%N_F out of %N_T image elements do NOT have an text alternatives',
+              CORRECTIVE_ACTION_SINGULAR: 'add @alt@, @aria-labelledby@ or @ria-label@ attribute to image element that describes the purpose of the image',
+              CORRECTIVE_ACTION_PLURAL:   'add @alt@, @aria-labelledby@ or @ria-label@ attribute to each of the %N_F image elements that describes the purpose of each image',
+              ALL_FAIL_SINGULAR:          'image element does NOT have text alternative',
+              ALL_FAIL_PLURAL:            'All %N_F image elements do NOT have text alternatives',
+              NOT_APPLICABLE:             'No image elements found on this page'                                          
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@%1@ element has @alt@ attribute',
+              PASS_2:                '@%1@ element has @aria-labelledby@ attribute',
+              PASS_3:                '@%1@ element has @aria-label@ attribute',
+              PASS_4:                '@%1@ element has @title@ attribute',
+              CORRECTIVE_ACTION_1:   'Add a @alt@, @aria-labelledby@ or @aria-label@ attribute to the @%1@ element',
+              HIDDEN:                '@%1@ element is hidden from assistive technologies'
+            },  
+            PURPOSE: [
+              'Accessible name provides a description of an image for people who cannot see the image, usually the accessible name comes from an alt attribute',                   
+              'Accessible name that is an empty string is ignored by assistive technologies and indicates an image is being used for styling rather than meaningful content'                   
+            ],
+            TECHNIQUES: [
+              'Text alternatives should describe the purpose of images as succinctly as possible (e.g. usually less than ~100 characters)',
+              'The @alt@ attribute is the preferred and most commonly used way to provide a text alternative for @img@ and @area@ elements',
+              'The @aria-labelledby@ attribute can be used to provide a text alterniatve when images can be described using visible captions associated with the image', 
+              'The @aria-label@ attribute should only be used to provide a text alternative in special cases when an element has @role="img"@ attribute', 
+              'The @title@ attribute will be used to provide a text alternative if none of the other techniques is found', 
+              'If an image is purely stylistic or decorative set the text alternative must result in an empty string (i.e. @alt=""@) or use @role="presentation"@'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: 13.8 How to specify alternate text', 
+                url:   'http://www.w3.org/TR/html4/struct/objects.html#adef-alt'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G94: Providing short text alternative for non-text content that serves the same purpose and presents the same information as the non-text content', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G94'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G95: Providing short text alternatives that provide a brief description of the non-text content', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G95'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Text Equivalents for Images and other Non-Text Objects Best Practices', 
+                url:   'http://html.cita.illinois.edu/text/'
+              }                            
+            ]
+        },
+        IMAGE_2: {
+            ID:                    'Image Rule 2',
+            DEFINITION:            'The @longdesc@ attribute %s have a valid URI',
+            SUMMARY:               '@longdesc@ %s be valid',
+            TARGET_RESOURCES_DESC: '@img@',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:     'Manually verify @img@ element with @longdesc@ attribute is a valid URL',
+              MANUAL_CHECKS_PLURAL:       'Manually verify %N_MC @img@ elements with @longdesc@ attribute have a valid URL',
+              ALL_PASS_SINGULAR:          '@img@ element with @longdesc@ attribute has a valid URL',
+              ALL_PASS_PLURAL:            'All %N_P @img@ elements with @longdesc@ attribute have a valid URL',
+              SOME_FAIL:                  '%N_F out of %N_T @img@ elements with @longdesc@ attribute do NOT have a valid URL',
+              CORRECTIVE_ACTION_SINGULAR: 'update the @img@ element with @longdesc@ attribute to point to a valid URL that describes the image',
+              CORRECTIVE_ACTION_PLURAL:   'update the %N_F @img@ elements with a @longdesc@ attribute to point to a valid URL that describes the image',
+              ALL_FAIL_SINGULAR:          '@img@ element with @longdesc@ attribute does NOT have a valid URL',
+              ALL_FAIL_PLURAL:            'All %N_F @img@ elements with @longdesc@ attribute do NOT have a valid URL',
+              NOT_APPLICABLE:             'No @img@ elements with a @longdesc@ attribute on this page'                                          
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@longdesc@ attribute is a valid URI',
+              CORRECTIVE_ACTION_1:   'Change @longdesc@ attribute to a valid URI',
+              MANUAL_CHECK_1:        'Use a browser to test if the @longdesc@ attribute is a valid URL',
+              HIDDEN:                '@img@ element is hidden from asssistive technologies using CSS'
+            },  
+            PURPOSE: [
+              'Some images (i.e charts, bar graphs, organizational charts, complex pictures and images) need a longer text equivalent than can be provided with the alt text content'
+            ],
+            TECHNIQUES: [
+              '@longdesc@ can be used to provide an internal link or extenal link to information that provides a extended and more detailed text equivalent of the image'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: longdesc attribute', 
+                url:   'http://www.w3.org/TR/html4/struct/objects.html#adef-longdesc-IMG'
+              },
+              { type: OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE,
+                title: 'H45: Using longdesc',
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H45'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G92: Providing long description for non-text content that serves the same purpose and presents ', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G92'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G74: Providing a long description in text near the non-text content, with a reference to the location of the long description in the short description', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G74'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G73: Providing a long description in another location with a link to it that is immediately adjacent to the non-text content', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G73'
+              },
+              { type: OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE,
+                title: 'H45: Using longdesc',
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H45'
+              },  
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Text Equivalents for Images and other Non-Text Objects Best Practices', 
+                url:   'http://html.cita.illinois.edu/text/'
+              }                            
+            ]
+        },
+        IMAGE_3: {
+            ID:                    'Image Rule 3',
+            DEFINITION:            'The file name of the image %s not be part of the accessible name',
+            SUMMARY:               'Don\'t use filename',
+            TARGET_RESOURCES_DESC: '@img@, @area@ and @[role="img"]@',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:          'Image element does not include the image file name as part of text alternative',
+              ALL_PASS_PLURAL:            'All %N_P image elements do not include the image file name as part of text alternative',
+              SOME_FAIL:                  '%N_F out of %N_T image elements DO include the image file name as part of text alternative',
+              CORRECTIVE_ACTION_SINGULAR: 'update the text alternaitve (e.g. typically the alt attribute) of the image element to not use the image file name; the text alternative must succinctly describe the content and/or purpose of the image',
+              CORRECTIVE_ACTION_PLURAL:   'update the @alt@ attribute of the %N_F images to not use the image file name; the text alternative must succinctly describe the content and/or purpose of the image',
+              ALL_FAIL_SINGULAR:          'Image element DOES include the image file name as part of text alternative',
+              ALL_FAIL_PLURAL:            'All %N_F image elements DO include the image file name as part of text alternatives',
+              NOT_APPLICABLE:             'No @img@ elements with a @longdesc@ attribute on this page'                                          
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                'text alternative does not contain the filename',
+              CORRECTIVE_ACTION_1:   'Change text alternative to succinctly describe the purpose and/or content of the image',
+              HIDDEN:                '@%1@ control is hidden from asssistive technologies using CSS'
+            },  
+            PURPOSE: [
+              'Text alternatives provide a description of images for people who cannot see the image and the file name is not useful information',                   
+              'Empty text alternatives are ignored by assistive technologies and indicates an image is being used for styling rather than meaningful content'                   
+            ],
+            TECHNIQUES: [
+              'Text alternatives should describe the purpose of images as succinctly as possible (e.g. usually less than ~100 characters) and do not include the file name as part of the text alternative',
+              'The @alt@ attribute is the preferred and most commonly used way to provide a text alternative for @img@ and @area@ elements',
+              'The @aria-labelledby@ attribute can be used to provide a text alterniatve when images can be described using visible captions associated with the image', 
+              'The @aria-label@ attribute should only be used to provide a text alternative in special cases when an element has @role="img"@ attribute', 
+              'The @title@ attribute will be used to provide a text alternative if none of the other techniques is found', 
+              'If an image is purely stylistic or decorative set the text alternative must result in an empty string (i.e. @alt=""@) or use @role="presentation"@'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: 13.8 How to specify alternate text', 
+                url:   'http://www.w3.org/TR/html4/struct/objects.html#adef-alt'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G94: Providing short text alternative for non-text content that serves the same purpose and presents the same information as the non-text content', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G94'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G95: Providing short text alternatives that provide a brief description of the non-text content', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G95'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'F30: Failure of Success Criterion 1.1.1 and 1.2.1 due to using text alternatives that are not alternatives (e.g., filenames or placeholder text)', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/F30'
+              }                            
+            ]
+        },
+        IMAGE_4_EN: {
+            ID:                    'Image Rule 4 (English)',
+            DEFINITION:            'Text alternatives %s less than 100 characters',
+            SUMMARY:               'Text alternative length',
+            TARGET_RESOURCES_DESC: '@img@, @area@ and @[role="img"]@',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:          'Image element has text alternative less than 100 characters',
+              ALL_PASS_PLURAL:            'All %N_P image elements have text alternatives less than 100 characters',
+              SOME_FAIL:                  '%N_F out of %N_T image elements do have text equivalents GREATER than 100 characters',
+              CORRECTIVE_ACTION_SINGULAR: 'update the text alternatives of the image element to be less than 100 characters; succinctly describe the purpose and/or content of the image',
+              CORRECTIVE_ACTION_PLURAL:   'update the text alternatives of the %N_F images to be less than 100 characters; succinctly describe the purpose and/or content of the image',
+              ALL_FAIL_SINGULAR:          'image element text alternative is GREATER than 100 characters',
+              ALL_FAIL_PLURAL:            'All %N_F image elements have text alternatives GREATER than 100 characters',
+              NOT_APPLICABLE:             'No image elements on this page'                                          
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                'Text alternative is less than 100 characters',
+              CORRECTIVE_ACTION_1:   'Change text alternative to be less than 100 characters',
+              HIDDEN:                'Image element is hidden from asssistive technologies'
+            },  
+            PURPOSE: [
+              'Text alternatives provides a description of the image for people who cannot see the image',                   
+              'Long text alternatives can reduce usability by increasing the time it takes to read a web page and understand the purpose of an image in the web site',                   
+              'Alt text that is an empty string is ignored by assistive technologies and indicates an image is being used for styling rather than meaningful content'                   
+            ],
+            TECHNIQUES: [
+              'Text alternatives should describe the purpose of images as succinctly as possible (e.g. usually less than ~100 characters) and do not include the file name as part of the text alternative',
+              'The @alt@ attribute is the preferred and most commonly used way to provide a text alternative for @img@ and @area@ elements',
+              'The @aria-labelledby@ attribute can be used to provide a text alterniatve when images can be described using visible captions associated with the image', 
+              'The @aria-label@ attribute should only be used to provide a text alternative in special cases when an element has @role="img"@ attribute', 
+              'The @title@ attribute will be used to provide a text alternative if none of the other techniques is found', 
+              'If an image is purely stylistic or decorative set the text alternative must result in an empty string (i.e. @alt=""@) or use @role="presentation"@'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: 13.8 How to specify alternate text', 
+                url:   'http://www.w3.org/TR/html4/struct/objects.html#adef-alt'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G94: Providing short text alternative for non-text content that serves the same purpose and presents the same information as the non-text content', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G94'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G95: Providing short text alternatives that provide a brief description of the non-text content', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G95'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'F30: Failure of Success Criterion 1.1.1 and 1.2.1 due to using text alternatives that are not alternatives (e.g., filenames or placeholder text)', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/F30'
+              }                            
+            ]
+        },
+        IMAGE_5: {
+            ID:                    'Image Rule 5',
+            DEFINITION:            'If an image element has a height or width less than 6 pixels or its alt text set to empty, the image %s set its role attribute to "presentation" or the image %s be removed and CSS %s should be used for positioning.',
+            SUMMARY:               'Small/decorative images set to presentation',
+            TARGET_RESOURCES_DESC: '@img@',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:          'Small and decorative image elements (i.e. less than 6 pixels high or wide) have @role="presentation"@ or text alternative to an empty string (e.g. @alt=""@)',
+              ALL_PASS_PLURAL:            'All %N_P small and decorative image elements (i.e. less than 6 pixels high or wide) have @role="presentation"@ or text alternative to an empty string (e.g. @alt=""@)',
+              SOME_FAIL:                  '%N_F out of %N_T small and decorative image elements (i.e. less than 6 pixels high or wide) do NOT have a @role=presentation@ or text alternative to an empty string (e.g. @alt=""@)',
+              CORRECTIVE_ACTION_SINGULAR: 'add a @role=presentation@ or change text alterative to an empty string (e.g. @alt=""@)',
+              CORRECTIVE_ACTION_PLURAL:   'add a @role=presentation@ or change text alterative to an empty string (e.g. @alt=""@)',
+              ALL_FAIL_SINGULAR:          'Small or decorative image element (i.e. less than 6 pixels high or wide) does NOT have @role=presentation@ or text alterative to an empty string (e.g. @alt=""@)',
+              ALL_FAIL_PLURAL:            'All %N_F small or decorative image elements (i.e. less than 6 pixels high or wide)  do NOT have a @role=presentation@ or text alterative to an empty string (e.g. @alt=""@)',
+              NOT_APPLICABLE:             'No small or decorative images (i.e. less than 6 pixels high or wide) on this page'                                          
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                'Image element has @role="presentation"@',
+              PASS_2:                'Image element has @alt=""@',
+              CORRECTIVE_ACTION_1:   'Add @role="presentation"@ or change text alternative to empty string (i.e. @alt=""@)',
+              HIDDEN:                'Image element is hidden from asssistive technologies using CSS'
+            },  
+            PURPOSE: [
+              'Small and decorative images (i.e. less than 6 pixels high or wide) can be ignored by assistive technologies',
+              'Images with the @alt=""@ attribute should be set to the empty string'                   
+            ],
+            TECHNIQUES: [
+              'Small images are purely stylistic or decorative and the @alt@ text conent should be the empty string (i.e. @alt=""@)'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: 13.8 How to specify alternate text', 
+                url:   'http://www.w3.org/TR/html4/struct/objects.html#adef-alt'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'F30: Failure of Success Criterion 1.1.1 and 1.2.1 due to using text alternatives that are not alternatives (e.g., filenames or placeholder text)', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/F30'
+              }                            
+            ]
+        },
+        IMAGE_6: {
+            ID:                    'Image Rule 6',
+            DEFINITION:            'Verify image element is be used for styling or decoration',
+            SUMMARY:               'Verify decorative image',
+            TARGET_RESOURCES_DESC: '@img@',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:     'Verify @img@ element with @alt=""@ or @role="presentation"@ is purely decorative',
+              MANUAL_CHECKS_PLURAL:       'Verify %N_MC @img@ elements with @alt=""@ or @role="presentation"@ are purely decorative',
+              NOT_APPLICABLE:             'No image elements identified as deecorative (i.e. @alt=""@ or @role="presentation"@) on this page'                                          
+            },
+            NODE_RESULT_MESSAGES: {
+              MANUAL_CHECK_1:        'Verify the image is only used for styling or decoration',
+              HIDDEN:                'Image element is hidden from asssistive technologies using CSS'
+            },  
+            PURPOSE: [
+              'If an image is purely decoration or used for styling users of screen readers do not need to know the image exists',                   
+              'If an image does not have alt text content and contains information, users of assistive technology will not have access to the information'                   
+            ],
+            TECHNIQUES: [
+              'Use the attributes @alt=""@ or @role="presentation"@ to indicate an image is used purely for stylistic or decorative purposes'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: 13.8 How to specify alternate text', 
+                url:   'http://www.w3.org/TR/html4/struct/objects.html#adef-alt'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G94: Providing short text alternative for non-text content that serves the same purpose and presents the same information as the non-text content', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G94'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G95: Providing short text alternatives that provide a brief description of the non-text content', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G95'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'iCITA Best Practices: Text Equivalents for Images and other Non-Text Objects Best Practices', 
+                url:   'http://html.cita.illinois.edu/text/'
+              }                            
+            ]
+        },
+     KEYBOARD_1: {
+            ID:                    'Keyboard Rule 1',
+            DEFINITION:            'Widget elements %s have keyboard event handlers',
+            SUMMARY:               'Widgets %s support keyboard',
+            TARGET_RESOURCES_DESC: 'Widget elements',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       'Verify the widget element has keyboard event handlers through is parent elements, owner widget (i.e. aria-activedescendant) or required child widgets',
+              MANUAL_CHECKS_PLURAL:         'Verify the %N_MC widgets have keyboard event handlers through is parent elements, owner widget (i.e. aria-activedescendant) or required child widgets',
+              ALL_PASS_SINGULAR:            'The widget element has keyboard event handlers',
+              ALL_PASS_PLURAL:              'All %N_P widget elements have keyboard event handlers',
+              SOME_FAIL:                    '%N_F out of %N_T widget elements do NOT have keyboard event handlers',
+              CORRECTIVE_ACTION_SINGULAR:   'add event handler to the widget to support keyboard operation of the widget',
+              CORRECTIVE_ACTION_PLURAL:     'add event handler to the %N_F widgets to support keyboard operation of each widget',
+              ALL_FAIL_SINGULAR:            'The widget element does NOT have keyboard event handlers',
+              ALL_FAIL_PLURAL:              'All %N_F widget elements do NOT have keyboard event handlers',
+              NOT_APPLICABLE:               'No widgets on the page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:               '@%1@ widget has keyboard support through event handlers on the widget element',
+              MANUAL_CHECK_1:       'Verify the @%1@ widget has keyboard support through keyboard event handlers on a parent widget element',
+              MANUAL_CHECK_2:       'Verify the @%1@ widget has keyboard support through keyboard event handlers through @aria-activedescendant@ support on its @%2@ owner widget',
+              MANUAL_CHECK_3:       'Verify the @%1@ widget has keyboard support through keyboard event handlers on a required child widgets',
+              CORRECTIVE_ACTION_1:  'Add keyboard event handlers to the @%1@ widget to support keyboard interaction with the widget',
+              HIDDEN:               '@%1@ widget is hidden from assistive technologies'
+            },
+            PURPOSE: [
+              'Keyboard support is required by people who cannot use the mouse to interact with a widget'                   
+            ],
+            TECHNIQUES: [
+              'Use the @keyup@, @keydown@ and @keypress@ events to support keyboard interaction with widgets'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G108'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'OAA Web Accessibility ARIA Examples', 
+                url:   'http://oaa-accessibility.org/examples/'
+              }                            
+            ]
+        },
+     KEYBOARD_2: {
+            ID:                    'Keyboard Rule 2',
+            DEFINITION:            'Widget elements %s use tabindex to add keyboard focus support on non-interactive elements',
+            SUMMARY:               'Tabindex for focus',
+            TARGET_RESOURCES_DESC: 'Widget elements',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            'The widget element has tabindex value or is a child of a widget using aria-activedescendant',
+              ALL_PASS_PLURAL:              'All %N_P widget elements have tabindex value or is a child of a widget using aria-activedescendant',
+              SOME_FAIL:                    '%N_F out of %N_T widget elements do NOT have a @tabindex@ value or do NOT a child of a widget using aria-activedescendant',
+              CORRECTIVE_ACTION_SINGULAR:   'add @tabindex2 value to the widget or add @aria-activedescendant@ support to an ancestor widget to provide keyboard focus support to the widget',
+              CORRECTIVE_ACTION_PLURAL:     'add @tabindex@ value to the widget or add @aria-activedescendant@ support to an ancestor widget to provide keyboard focus support to the %N_F widgets',
+              ALL_FAIL_SINGULAR:            'The widget element does NOT have a @tabindex@ value or is a child of a widget using aria-activedescendant',
+              ALL_FAIL_PLURAL:              'All %N_F widget elements do NOT have a @tabindex@ value or are NOT a child of a widget using aria-activedescendant',
+              NOT_APPLICABLE:               'No widgets on the page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:               '@%1@ widget is on a @%2@ element that can receive keyboard focus',
+              PASS_2:               '@%1@ widget has a @tabindex@ value that supports receiving keyboard focus',
+              MANUAL_CHECK_1:       '@%1@ widget is the child of a widget that has an @aria-activedescendant@ attribute, verify the @aria-activedescendant@ supports references to the @id=%2@ of this widget',
+              MANUAL_CHECK_2:       'Verify the child widgets of the @%1@ element with an onClick event of accurately represent the interactive features of this section of the web page',
+              CORRECTIVE_ACTION_1:  'Add @tabindex@ value to the widget or add @aria-activedescendant@ support to an ancestor widget to provide keyboard focus support',
+              HIDDEN:               '@%1@ widget is hidden from assistive technologies'
+            },
+            PURPOSE: [
+              'Keyboard support is required by people who cannot use the mouse to interact with a widget'                   
+            ],
+            TECHNIQUES: [
+              'The @tabindex@ enables non-interactive elements (i.e. @div@, @li@, @span@ ...) to receive and process focus ',
+              'The @tabindex@ enables non-interactive elements (i.e. @div@, @li@, @span@ ...) to receive and process focus '
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G108'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'OAA Web Accessibility ARIA Examples', 
+                url:   'http://oaa-accessibility.org/examples/'
+              }                            
+            ]
+        },    
+        LANDMARK_1: {
+            ID:                    'Landmark Rule 1',
+            DEFINITION:            'Each page %s contain at least one @main@ landmark',
+            SUMMARY:               'Page %s have @main@ landmark',
+            TARGET_RESOURCES_DESC: '@main@ landmark',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:          'Page has @main@ landmark',
+              CORRECTIVE_ACTION_SINGULAR: 'add a @main@ landmark that identifies the main (i.e. primary) content of the page',
+              ALL_FAIL_SINGULAR:          'Page does NOT contain a @main@ landmark'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                'Page contains an %1 element with @role=main@',
+              CORRECTIVE_ACTION_1:   'Add a @main@ landmark to the page, the main landmark must contain the main content of the page',
+              HIDDEN:                '@main@ landmark is hidden from asssistive technologies.'
+            },  
+            PURPOSE: [
+              'Main landmarks provide a navigation point for users of asssitive technologies to the main content of the page'                   
+            ],
+            TECHNIQUES: [
+              'Include an @role="main"@ attribute on the element that contains the main content',
+              'Use the aria-labelledby or aria-label to describe the content of the main landmark'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: main role', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#main'
+              }                            
+            ]
+        },
+        LANDMARK_2: {
+            ID:                    'Landmark Rule 2',
+            DEFINITION:            'All rendered content %s be contained within a landmark',
+            SUMMARY:               'Content %s be within landmark',
+            TARGET_RESOURCES_DESC: 'all renderable content',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       'One element may contain renderable content; elements that include renderable content %RULE_TYPE be contained in a landmark',
+              MANUAL_CHECKS_PLURAL:         '%N_MC elements may contain renderable content; elements that include renderable content %RULE_TYPE be contained in a landmark',
+              ALL_PASS_SINGULAR:            'Renderable element is contained within a landamrk',
+              ALL_PASS_PLURAL:              'All %N_P renderable elements are contained wihin a landamrk',
+              SOME_FAIL:                    '%N_F out of %N_T renderable elements are NOT contained wihin a landamrk',
+              CORRECTIVE_ACTION_SINGULAR:   'update the landmark structure of the page and place the element currently outside of a landmark into its proper landmark container',
+              CORRECTIVE_ACTION_PLURAL:     'update the landmark structure of the page and place the %N_F elements currently outside of landmarks into their proper landmark container',
+              ALL_FAIL_SINGULAR:            'Renderable element is NOT contianed within a landmark',
+              ALL_FAIL_PLURAL:              '%N_F renderable elements are NOT contianed within a landmark',
+              NOT_APPLICABLE:               'No renderable elements on page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@%1@ element is in @%2@ landmark',
+              MANUAL_CHECK_1:        '@%1@ element may contain renderable content, if so move it into an appropriate landmark',
+              CORRECTIVE_ACTION_1:   'Move @%1@ element into an appropriate landmark',
+              HIDDEN:                '@%1@ element is hidden from asssistive technologies.'
+            },  
+            PURPOSE: [
+              'Landmarks provide a way to organize content of a page to users of assistive technology, similar to visual and interaction designers organize information for people using a graphical rendering of the content.'                   
+            ],
+            TECHNIQUES: [
+              'Use the appropriate landmarks to identify the different sections of a web page',
+              'The most important landmarks are the @main@ and @navigation@ landmarks since they will be the most used'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Landmark Roles', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#landmark_roles'
+              }                            
+            ]
+        },    
+        LANDMARK_2N: {
+            ID:                    'Landmark Rule 2: navigation',
+            DEFINITION:            'Each page %s contain at least one @navigation@ landmark',
+            SUMMARY:               'Page %s have @navigation@ landmark',
+            TARGET_RESOURCES_DESC: '@navigation@ landmark',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:          'Page has @navigation@ landmark',
+              CORRECTIVE_ACTION_SINGULAR: 'add a @navigation@ landmark that identifies the main (i.e. primary) content of the page',
+              ALL_FAIL_SINGULAR:          'Page does NOT contain a @navigation@ landmark'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                'Page contains an %1 element with @role=navigation@',
+              CORRECTIVE_ACTION_1:   'Add a @navigation@ landmark to the page, the navigation landmark must identify the sets navigation lists on the page',
+              HIDDEN:                '@navigation@ landmark is hidden from asssistive technologies.'
+            },  
+            PURPOSE: [
+              'Navigation landmarks provide a way to identify groups of links with in a web page'                   
+            ],
+            TECHNIQUES: [
+              'Include an @role="navigation"@ attribute on a element that contains @ol@ and @ul@ elements that contain li elements with links',
+              'Use the aria-labelledby or aria-label to describe the purpose of the links (i.e. table on contents of a page, site map...)'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: navigation role', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#navigation'
+              }                            
+            ]
+        },    
+        LANDMARK_2B: {
+            ID:                    'Landmark Rule 2: banner',
+            DEFINITION:            'Each page %s contain at least one @banner@ landmark',
+            SUMMARY:               'Page %s have @banner@ landmark',
+            TARGET_RESOURCES_DESC: '@banner@ landmark',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:          'Page has @banner@ landmark',
+              CORRECTIVE_ACTION_SINGULAR: 'add a @banner@ landmark that identifies the repetitive banner content at the top of the page',
+              ALL_FAIL_SINGULAR:          'Page does NOT contain a @banner@ landmark'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                'Page contains an %1 element with @role=banner@',
+              CORRECTIVE_ACTION_1:   'Add a @banner@ landmark to the page, the banner landmark is used to identify the repetitive banner content at the top of the page',
+              HIDDEN:                '%1 element with @banner@ landmark is hidden from asssistive technologies.'
+            },  
+            PURPOSE: [
+              'banner landmarks provide a way to identify branding content usually ar the top of a web page'                   
+            ],
+            TECHNIQUES: [
+              'Include an @role="banner"@ attribute on a element that contains the branding content at the top of a page',
+              'Pages typically one have one @banner@ landmark'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: banner role', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#banner'
+              }                            
+            ]
+        },    
+        LANDMARK_2CI: {
+            ID:                    'Landmark Rule 2: contentinfo or complementary',
+            DEFINITION:            'Each page %s contain at least one @contentinfo@ or @complementary@ landmark',
+            SUMMARY:               'Page %s have @contentinfo@ or @complementary@ landmark',
+            TARGET_RESOURCES_DESC: '@contentinfo@ landmark',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:          'Page has @contentinfo@ or @complementary@ landmark',
+              CORRECTIVE_ACTION_SINGULAR: 'add a @contentinfo@ or @complementary@ landmark that identifies the typically repetitive content (i.e. on each page in the website) on the bottom of a page',
+              ALL_FAIL_SINGULAR:          'Page does NOT contain a @contentinfo@ or @complementary@ landmark'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                'Page contains an %1 element with @role=%2@',
+              CORRECTIVE_ACTION_1:   'Add a @contentinfo@ or or @complementary@ landmark to the page, the contentinfo landmark must identify the sets contentinfo lists on the page',
+              HIDDEN:                '%1 element with @role=%2@ is hidden from asssistive technologies.'
+            },  
+            PURPOSE: [
+              'contentinfo landmarks provide a way to identify content found typically on the bottom of each page in a website',
+              'The contentinfo usually includes links like copyright information, privacy, and other general links support all pages in the website.'
+            ],
+            TECHNIQUES: [
+              'Include an @role="contentinfo"@ attribute on a element that contains @ol@ and @ul@ elements that contain li elements with links',
+              'Use the aria-labelledby or aria-label to describe the purpose of the links (i.e. table on contents of a page, site map...)'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: contentinfo role', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#contentinfo'
+              }                            
+            ]
+        },
+        LANDMARK_3: {
+            ID:             'LANDMARK 3',
+            DEFINITION:     'If there are two or more landmarks of the same type, they %s have unique labels',
+            SUMMARY:        '',
+            PURPOSE:        'When there are two or more landmarks of the same type labels make it possible for people using assistive technology to identify the differences between the landmarks.',            
+            MESSAGE_PASS_ONLY_ONE:  'There is only one %1 landmark in the page',
+            MESSAGE_PASS_UNIQUE:    'The \'%1\' label is unique for the %2 landmarks',
+            MESSAGE_FAIL_NO_LABEL:  'The %2 landmark does not have a label, when there are more than one of the same type of landmark on the page the landmark needs a label',
+            MESSAGE_FAIL_DUPLICATE: 'The \'%1\' label is NOT unique for the %2 landmarks',
+            MESSAGE_HIDDEN: 'The %1 landmark is hidden, if the landmark content became visible the label would NOT be unique.'
+        },
+        LANDMARK_4: {
+            ID:                'LANDMARK 4',
+            TITLE:             'Each landmark labels %s describe the content in the landark',
+            PURPOSE:           'Landmark labels make it easier for people using assistive technologies to understand the content of a landmark',
+            MESSAGE_HAS_LABEL: 'Make sure the \'%1\' label described the content of the %2 landmark',
+            MESSAGE_NO_LABEL:  'The %1 landmark does not have a label, make sure the landmark role is appropriate to the content in the landmark and consider adding a descriptive label to provide more detail on the contents of the landark.'
+        },
+        LAYOUT_1: {
+            ID:                    'Layout Rule 1',
+            DEFINITION:            'Web pages %s provide content in a meaningful sequence',
+            SUMMARY:               'Page %s have meaningful sequence',
+            TARGET_RESOURCES_DESC: '@table@ elements used for layout',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR: 'Verify document has a meaningful sequence of content when style sheets are disabled',
+              MANUAL_CHECKS_PLURAL:   'Verify document has a meaningful sequence of content when style sheets are disabled and layout table markup is disabled',
+              ALL_PASS_SINGULAR:      'Layout table is one column wide',
+              ALL_PASS_PLURAL:        'All %N_P layout tables are one column wide'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:          'Table is one column wide, and will have the same document sequence when table markup is disabled',
+              MANUAL_CHECK_1:  'Verify document has a meaningful sequence of content when style sheets are disabled and layout table markup is disabled',
+              MANUAL_CHECK_2:  'Verify the content in the %1x%2 layout table has a meaningful sequence of content when table markup is disabled , if the table is actually a data table add data table markup to give the table an effective caption and the data tables headings',
+              MANUAL_CHECK_3:  'Verify the nesting of tables for layout of content maintains a meaningful sequence of content when table markup is disabled',
+              HIDDEN:          'The @table@ is hidden from assistive technologies'
+            },  
+            PURPOSE: [
+              'The sequence of content (i.e. order) in the document code affects its meaning, especilly for users of assistive technology who cannot see the visual cues provided in a graphical that provide information about the relationships between content'                   
+            ],
+            TECHNIQUES: [
+              'Use CSS and web standards techniques for the coding of content, and the graphical styling and positioning of content',
+              'Avoid using table markup for graphical layout, if you do use tables for layout make sure the content still is meaningful when the table markup is disabled',
+              'Avoid using nested tables for layout, the deeper the level of nesting the more chance there of having a confusing sequence of content',
+              'Tables that are used for layout should use only @tr@ and @td@ elements, and the @table@, @tr@ and @td@ elements should have a @role="presentation"@ attribute to clearly indicate the table markup is being used for layout'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Cascading Style Sheets Level 2 Revision 1 (CSS 2.1) Specification: Visual formatting model', 
+                url:   'http://www.w3.org/TR/CSS21/visuren.html'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G57: Ordering the content in a meaningful sequence', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G57'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'C6: Positioning content based on structural markup', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/C6'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'C8: Using CSS letter-spacing to control spacing within a word', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/C8'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'C27: Making the DOM order match the visual order', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/C27'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'F1: Failure of Success Criterion 1.3.2 due to changing the meaning of content by positioning information with CSS', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/F1'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'F33: Failure of Success Criterion 1.3.1 and 1.3.2 due to using white space characters to create multiple columns in plain text content', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/F33'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'F34: Failure of Success Criterion 1.3.1 and 1.3.2 due to using white space characters to format tables in plain text content', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/F34'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'F49: Failure of Success Criterion 1.3.2 due to using an HTML layout table that does not make sense when linearized', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/F49'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.OTHER, 
+                title: 'Web Standards Group', 
+                url:   'http://webstandardsgroup.org/standards/'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.OTHER, 
+                title: 'W3C Standards', 
+                url:   'http://www.w3.org/standards/'
+              }
+            ]   
+        },
+        LAYOUT_2: {
+            ID:                    'Layout Rule 2',
+            DEFINITION:            'Tables %s not be nested for layout of content',
+            SUMMARY:               'Do not nest layout tables',
+            TARGET_RESOURCES_DESC: '@table@ elements used for layout',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:      'Table is not nested with another layout table',
+              ALL_PASS_PLURAL:        '%N_P tables are not nested with other layout tables',
+              SOME_FAIL:                '%N_F out of %N_T tables are nested with other layout tables',
+              CORRECTIVE_ACTION_PLURAL: 'Update the markup and CSS on this page to remove the nesting of layout tables',
+              ALL_FAIL_SINGULAR:        'Layout table is nested with other layout tables',
+              ALL_FAIL_PLURAL:          'All %N_F tables are nested with other layout tables',
+              NOT_APPLICABLE:           'No table elements used for layout'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:               'Table is not nested with another layout table',
+              PASS_2:               'Table is one column wide, and will have the same document sequence when table markup is disabled',
+              CORRECTIVE_ACTION_1:  'Update the markup and CSS on this page to remove the nesting of this layout table',
+              HIDDEN:               'The @table@ is hidden from assistive technologies'
+            },  
+            PURPOSE: [
+              'The sequence of content (i.e. order) in the document code affects its meaning, nesting layout tables often makes the sequence of content less understandable'                   
+            ],
+            TECHNIQUES: [
+              'Use CSS and web standards techniques for the coding of content, and the graphical styling and positioning of content',
+              'Avoid using table markup for graphical layout, if you do use tables for layout make sure the content still is meaningful when the table markup is disabled',
+              'Avoid using nested tables for layout, the deeper the level of nesting the more chance there of having a confusing sequence of content',
+              'Tables that are used for layout should use only @tr@ and @td@ elements, and the @table@, @tr@ and @td@ elements should have a @role="presentation"@ attribute to clearly indicate the table markup is being used for layout'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Cascading Style Sheets Level 2 Revision 1 (CSS 2.1) Specification: Visual formatting model', 
+                url:   'http://www.w3.org/TR/CSS21/visuren.html'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'F33: Failure of Success Criterion 1.3.1 and 1.3.2 due to using white space characters to create multiple columns in plain text content', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/F33'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'F49: Failure of Success Criterion 1.3.2 due to using an HTML layout table that does not make sense when linearized', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/F49'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.OTHER, 
+                title: 'Web Standards Group', 
+                url:   'http://webstandardsgroup.org/standards/'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.OTHER, 
+                title: 'W3C Standards', 
+                url:   'http://www.w3.org/standards/'
+              }
+            ]   
+        },
+        LAYOUT_3: {
+            ID:                    'Layout Rule 3',
+            DEFINITION:            'Layout tables %s use @role="presentation"@ on all table elements',
+            SUMMARY:               'Layout tables use @role="presentation"@',
+            TARGET_RESOURCES_DESC: '@table@ elements used for layout',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:      'Layout table element has @role="presentation"@',
+              ALL_PASS_PLURAL:        '%N_P layout table elements (i.e. @table@, @tr@, @td@ elements) have @role="presentation"@',
+              SOME_FAIL:                '%N_F out of %N_T layout table elements (i.e. @table@, @tr@, @td@ elements) do NOT have @role="presentation"@',
+              CORRECTIVE_ACTION_PLURAL: 'add @role="presentation"@ to all table elements (i.e. @table@, @tr@, @td@ elements) in a layout',
+              ALL_FAIL_PLURAL:          'All %N_F layout table elements (i.e. @table@, @tr@, @td@ elements) do NOT have @role="presentation"@',
+              NOT_APPLICABLE:           'No table elements used for layout'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:               '%1 element has @role="presentation"@',
+              CORRECTIVE_ACTION_1:  'Add @role="presentation"@ to the %1 element, if the table is actually a data table use apporpriate data table markup',
+              HIDDEN:               'The %1 element is hidden from assistive technologies'
+            },  
+            PURPOSE: [
+              'Using @role="presentation"@ communicates assistive technollogies that the table is being used for markup'                   
+            ],
+            TECHNIQUES: [
+              'Use @role="presentation"@ on all table elements in a layout table to help assitive technology understand the table is being used for layout, rather than tabular data'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0: Presentation Role', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#presentation'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.OTHER, 
+                title: 'WAI-ARIA 1.0 Authoring Practices: Presentation Role', 
+                url:   'http://www.w3.org/WAI/PF/aria-practices/#presentation_role'
+              }
+            ]   
+        },
+        LINK_1: {
+            ID:                    'Link Rule 1',
+            DEFINITION:            'Links with the same HREF %s have the same link text',
+            SUMMARY:               'Link text %s be consistent',
+            TARGET_RESOURCES_DESC: '@a@ and @area@ elements and elements with @role="link"@',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            'Only one @a@, @area@ or @[role=link]@ element on the page so no test to perform on consistent naming of links that share the same @href@ value',
+              ALL_PASS_PLURAL:              'All %N_P @a@, @area@ or @[role=link]@ elements have consistent accessible names for links that share the same @href@ value',
+              SOME_FAIL:                    '%N_F out of %N_T @a@, @area@ or @[role=link]@ elements do NOT have consistent accessible names for links that share the same @href@ value',
+              CORRECTIVE_ACTION_PLURAL:     'add @aria-describedby@ attribute to the %N_F @a@, @area@ or @[role=link]@ elements to provide additional text context to make the accessible names unique',
+              ALL_FAIL_PLURAL:              'All %N_F @a@, @area@ or @[role=link]@ elements do NOT have consistent accessible names for links that share the same @href@ value',
+              NOT_APPLICABLE:               'No @a@, @area@ or @[role=link]@ elements on page share the same accessible name'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@%1@ element has unique @href@ value on the page',
+              PASS_2:                '@%1@ element has the same accessible name as the %2 links it shares the same @href@ with',
+              MANUAL_CHECK_1:        'Verify the @%1@ element has the an accessible name that makes sense to users, since the link shares the same @href@ has a different accessible name',
+              CORRECTIVE_ACTION_1:   'Change the text content of the @%1@ element to make it the same as other %2 links that share the same @href@ value',
+              HIDDEN:                '@%1@ element is hidden from asssistive technologies.'
+            },  
+            PURPOSE: [
+              'Consistency of link text makes interaction with web pages more predictable'                   
+            ],
+            TECHNIQUES: [
+              'Use the same text for links that point to the same URL',
+              'Make sure the link text accurately describes the target of the link'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: 12.2 The A element', 
+                url:   'http://www.w3.org/TR/html4/struct/links.html#edef-A'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H30: Providing link text that describes the purpose of a link for anchor elements', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H30'
+              }  
+            ]   
+        },
+        LINK_2: {
+            ID:                    'Link Rule 2',
+            DEFINITION:            'Links with different HREFs %s have unique accessible names',
+            SUMMARY:               'Link text %s be unique',
+            TARGET_RESOURCES_DESC: '@a@ and @area@ elements and elements with @role="link"@',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            '@a@, @area@ or @[role=link]@ element has unique accessible name on the page ',
+              ALL_PASS_PLURAL:              'All %N_P @a@, @area@ or @[role=link]@ elements have unique accessible name or are unique through additional text context on the page',
+              SOME_FAIL:                    '%N_F out of %N_T @a@, @area@ or @[role=link]@ elements do NOT have unique accessible name or are NOT unique even with additional text context on the page ',
+              CORRECTIVE_ACTION_SINGULAR:   'add @aria-describedby@ attribute to the link to provide additional text to make the accessible name unique',
+              CORRECTIVE_ACTION_PLURAL:     'add @aria-describedby@ attribute to the %N_F@a@, @area@ or @[role=link]@ elements to provide additional text context to make the accessible names unique',
+              ALL_FAIL_PLURAL:              'All %N_F @a@, @area@ or @[role=link]@ elements do NOT have unique accessible names or are NOT unique through additional text context on the page',
+              NOT_APPLICABLE:               'No @a@, @area@ or @[role=link]@ elements on page share the same accessible name'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@%1@ element has unique link text on the page',
+              PASS_2:                '@%1@ element has the same @href@ value as the %2 links it shares a name with',
+              PASS_3:                '@%1@ element has unique link text throught the use of additional text context using @aria-describedby@ attribute',
+              CORRECTIVE_ACTION_1:   'Change the text content of the @%1@ element or provide additional context text to make the link text unique',
+              HIDDEN:                '@%1@ element is hidden from asssistive technologies.'
+            },  
+            PURPOSE: [
+              'Links that point to different URLs should have unique accessible names, when a link shares the same accessible name but have different URLs, users using speech will be confused unless programmatic text context is provided'                   
+            ],
+            TECHNIQUES: [
+              'The link text (i.e. accessible name) should uniquely describe the target of a link,',
+              'Use aria-laeblledby to provide context for links that share the same link text'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: 12.2 The A element', 
+                url:   'http://www.w3.org/TR/html4/struct/links.html#edef-A'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H30: Providing link text that describes the purpose of a link for anchor elements', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H30'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
+                title: 'OAA Example 44 - Using aria-describedby to satisfy WCAG 2.4.4 Link Purpose in Context', 
+                url:   'http://oaa-accessibility.org/example/44/'
+              }  
+            ]   
+        },
+        LINK_3: {
+            ID:                    'Link Rule 3',
+            DEFINITION:            'Link %s provide minimum target dimensions.',
+            SUMMARY:               'Link %s not be small',
+            TARGET_RESOURCES_DESC: '@a@ and @area@ elements and elements with @role="link"@',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       'Dimension of one @a@, @area@ or @[role=link]@ element could not be calculated, manual check of dimensions need to be done to insure size is greater than 12 pixels high or 12 pixels wide',
+              MANUAL_CHECKS_PLURAL:         'Dimension of %N_MC @a@, @area@ or @[role=link]@ elements could not be calculated, manual check of dimensions need to be done to insure size is greater than 12 pixels high or 12 pixels wide',
+              ALL_PASS_SINGULAR:            '@a@, @area@ or @[role=link]@ element is more than 12 pixels high and 12 pixels wide',
+              ALL_PASS_PLURAL:              'All %N_P @a@, @area@ or @[role=link]@ elements are more than 12 pixels high and 12 pixels wide',
+              SOME_FAIL:                    '%N_F out of %N_T @a@, @area@ or @[role=link]@ elements are NOT more than 12 pixels high and 12 pixels wide',
+              CORRECTIVE_ACTION_SINGULAR:   'increase the dimensions of the @a@, @area@ or @[role=link]@ element to be at least 12 pixels high and 12 pixels wide',
+              CORRECTIVE_ACTION_PLURAL:     'increase the dimensions of the %N_F @a@, @area@ or @[role=link]@ elements to be at least 12 pixels high and 12 pixels wide',
+              ALL_FAIL_SINGULAR:            '@a@, @area@ or @[role=link]@ element is NOT more than 12 pixels high and 12 pixels wide',
+              ALL_FAIL_PLURAL:              'All %N_T @a@, @area@ or @[role=link]@ elements are NOT more than 12 pixels high and 12 pixels wide',
+              NOT_APPLICABLE:               'No @a@, @area@ or @[role=link]@ elements on page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@%1@ element is more than 12 pixels high and 12 pixels wide',
+              MANUAL_CHECK_1:        'The rendered dimensions of the @%1@ element could not be determined, check to make sure the image is at least 12 pixels high and 12 pixels wide',
+              CORRECTIVE_ACTION_1:   'The rendered dimensions of the @%1@ element is %2 pixels by %3 pixels, change the dimensions of the image to be at least 12 pixels high and 12 pixels wide',
+              HIDDEN:                '@%1@ element is off screen.'
+            },  
+            PURPOSE: [
+              'Links must be large enough for people to see and select with the mouse'                   
+            ],
+            TECHNIQUES: [
+              'Increase the rendered dimensions of the link'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: 12.2 The A element', 
+                url:   'http://www.w3.org/TR/html4/struct/links.html#edef-A'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'IITAA Implementation Guidelines 1.0: 9.3 - Avoid using small links.', 
+                url:   'http://www.dhs.state.il.us/IITAA/IITAAWebImplementationGuidelines.html'
+              }                            
+            ]
+        },
+        LINK_4: {
+            ID:                    'Link Rule 4',
+            DEFINITION:            'Accessible names for a link %s describe the target of the link',
+            SUMMARY:               'Link text %s be descriptive',
+            TARGET_RESOURCES_DESC: '@a@ and @area@ elements and elements with @role="link"@',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECK_SINGULAR:        'Verify the @a@, @area@ or @[role=link]@ element accessible name describes the target of the link',
+              MANUAL_CHHECK_PLURAL:         'Verify all %N_P @a@, @area@ or @[role=link]@ elements accessible name describes the target of each link',
+              SOME_FAIL:                    '%N_F out of %N_T @a@, @area@ or @[role=link]@ elements do NOT have an accessible name',
+              CORRECTIVE_ACTION_SINGULAR:   'add text content to the link that describes the target of the link',
+              CORRECTIVE_ACTION_PLURAL:     'add text content to the %1 links that describes the target of each link',
+              ALL_FAIL_SINGULAR:            '@a@, @area@ or @[role=link]@ element does NOT have an accessible name',
+              ALL_FAIL_PLURAL:              'All %N_F @a@, @area@ or @[role=link]@ elements do NOT have accessible names',
+              NOT_APPLICABLE:               'No @a@, @area@ or @[role=link]@ elements on page share the same accessible name'              
+            },
+            NODE_RESULT_MESSAGES: {
+              MANUAL_CHECK_1:        '@%1@ element has the accessible name "%2", verify that the name accurately describes the target of the link, if not change the text content or text context of the link to create a more accessible name',
+              MANUAL_CHECK_2:        '@%1@ element has the accessible name "%2" with a text content of "%3", verify that the name and context text accurately describes the target of the link, if not change the text content or context of the link to create a more accessible name',
+              CORRECTIVE_ACTION_1:   'The @%1@ element does NOT have an accessible name, add text content to the link so the the accessible name describes the target of the link',
+              HIDDEN:                '@%1@ element is hidden from asssistive technologies.'
+            },  
+            PURPOSE: [
+              'Link text should describe the target of the link '                   
+            ],
+            TECHNIQUES: [
+              'The text content of the link (i.e. the default accessible name) should uniquely describe the target of each link,',
+              'Use aria-label or aria-labelledby to provide more descriptive accessible names when the text content of the link cannot be changed',
+              'Use aria-describedby to provide context for links that share the same link text but have some type of context to make the link text meaningful'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: 12.2 The A element', 
+                url:   'http://www.w3.org/TR/html4/struct/links.html#edef-A'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H30: Providing link text that describes the purpose of a link for anchor elements', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H30'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
+                title: 'OAA Example 44 - Using aria-describedby to satisfy WCAG 2.4.4 Link Purpose in Context', 
+                url:   'http://oaa-accessibility.org/example/44/'
+              }  
+            ]   
+        },
+        LIST_1: {
+            ID:                       'LIST 1',
+            TITLE:                    'A list of navigational links %s be contained within an element with role=navigation.',
+            PURPOSE:                  'Role navigation provides makes it easy for users of asssitive technology to find the navigation links on a web page.',
+            MESSAGE_HAS_ROLE_NAV:     'The parent element of this %1 has role=navigation.',
+            MESSAGE_MISSING_ROLE_NAV: 'The parent element of this %1 does not have role=navigation.',
+            MESSAGE_ROLE_NAV_ON_LIST: 'This %1 element should not have role=navigation; it should be placed on its parent element instead.'
+        },
+        MEDIA_1: {
+            ID:             'MEDIA 1',
+            TITLE:          'Pre-recorded audio %s have text based alternatives',
+            PURPOSE:        '',
+            MESSAGE_PASS_1: 'Text based alternative is available for pre-recorded audio',
+            MESSAGE_MAYBE:  'If %1 element is prerecorded audio, verify that a text based alternative to the audio is available',
+            MESSAGE_FAIL:   'Text based alternative is NOT available for pre-recorded audio',
+            MESSAGE_HIDDEN: '%1 element is hidden from the visual rendering'
+        },
+        MEDIA_2: {
+            ID:                 'MEDIA 2',
+            TITLE:              'Pre-recorded video %s have either text based alternative or audio description',
+            PURPOSE:            '',
+            MESSAGE_PASS_TEXT:  'Text based alternative is available for pre-recorded video',
+            MESSAGE_PASS_AUDIO: 'Audio description is available for pre-recorded video',
+            MESSAGE_PASS_BOTH:  'Both an audio description and text based description is available for pre-recorded video',
+            MESSAGE_MAYBE:      'If %1 element is prerecorded video, verify that a text based alternative or audio description is available for the video',
+            MESSAGE_FAIL:       'Text based alternative or audio description is NOT available for pre-recorded video',
+            MESSAGE_HIDDEN:     '%1 element is hidden from the visual rendering'
+        },
+        TABLE_1: {
+            ID:                    'Table Rule 1',
+            DEFINITION:            'Data cells %s have header cells',
+            SUMMARY:               'Data table %s have headers',
+            TARGET_RESOURCES_DESC: '@td@ elements',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            'The data cell with content has at least one header cells',
+              ALL_PASS_PLURAL:              'All %N_P data cells have header cells',
+              SOME_FAIL:                    '%N_F out of %N_T data cells do NOT have header cells ',
+              CORRECTIVE_ACTION_SINGULAR:   'add @th@ or @td[scope]@ elements to the first row or column of the data table or add a @headers@ attribute to define the headers for the data cell',
+              CORRECTIVE_ACTION_PLURAL:     'add @th@ or @td[scope]@ elements to the first row or column of the table or use the @headers@ attribute to define headers for the data cell',
+              ALL_FAIL_SINGULAR:            'The data cell with content does NOT have any header cells',
+              ALL_FAIL_PLURAL:              'All %N_F data cells with content do NOT have any header cells',
+              NOT_APPLICABLE:               'No data tables in the page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                'The @td@ element uses the @headers@ attribute with the following is: \'@1\' to define header cells',
+              PASS_2:                'The @td@ element has at least one header cell in the row and/or column that contains the cell',
+              CORRECTIVE_ACTION_1:   'add header cells using the @headers@ attribute, since this table is a complex table',
+              CORRECTIVE_ACTION_2:   'add header cells using row and/or column @th@ elements, or the @headers@ attribute on the @td@ element',
+              MANUAL_CHECK_1:        'The @td@ element does not have any text content and it does not have any header cells, verify that this cell is being used for formatting and does not need headers',
+              HIDDEN:                '@td@ element is hidden from asssistive technologies'
+            },  
+            PURPOSE: [
+              'Data cells need header cells for people using speech to understand the content of the table cell, since they cannot see the visual relationships with header cells'                   
+            ],
+            TECHNIQUES: [
+              'Use @th@ elements in the first row or column to identify row and column headers in a simple data tables',
+              'Use @headers@ attribute on each @td@ element to identify header information in complex data tables',
+              'Use @th@ element for cells used as header cells in the table',
+              'While not recommended, it is valid to use @td@ element with a @scope@ attribute as header cell'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: 11.2.6 Table cells: The TH and TD elements', 
+                url:   'http://www.w3.org/TR/html4/struct/tables.html#edef-TD'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: scope attribute', 
+                url:   'http://www.w3.org/TR/html4/struct/tables.html#adef-scope'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H51: Using table markup to present tabular information', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H51'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H63: Using the scope attribute to associate header cells and data cells in data tables', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H63'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
+                title: 'IBM Web checklist Checkpoint 1.3e: Tables', 
+                url:   'http://www-03.ibm.com/able/guidelines/web/webtableheaders.html'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
+                title: 'iCITA HTML Best Practices: Simple Data Table Example', 
+                url:   'http://html.cita.illinois.edu/nav/dtable/dtable-example-simple.php'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
+                title: 'iCITA HTML Best Practices: Complex Data Table Example', 
+                url:   'http://html.cita.illinois.edu/nav/dtable/dtable-example-complex.php'
+              }  
+            ]   
+        },
+        TABLE_2T: {
+            ID:                    'Table Rule 2T (Transitional)',
+            DEFINITION:            'Each data table %s have a effective caption with content',
+            SUMMARY:               'Data tables %s have caption',
+            TARGET_RESOURCES_DESC: '@caption@ and @table[summary]@ elements',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            'The data table has has an effective caption',
+              ALL_PASS_PLURAL:              'All %N_P data tables have an effective caption',
+              SOME_FAIL:                    '%N_F out of %N_T data tables do NOT have an effective caption',
+              CORRECTIVE_ACTION_SINGULAR:   'add @caption@ element or @summary@ attribute to provide an effective caption',
+              CORRECTIVE_ACTION_PLURAL:     'add @caption@ element or @summary@ attribute to each of the %N_F tables to provide an effective caption',
+              ALL_FAIL_SINGULAR:            'Data table does NOT have an effective caption',
+              ALL_FAIL_PLURAL:              'All %N_F data tables do NOT have an effective caption',
+              NOT_APPLICABLE:               'No data tables on the page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                'Data table has an effective caption using the @caption@ with content: \'%1\'',
+              PASS_2:                'Data table has an effective caption using the @summary@ attribute with content: \'%1\'',
+              CORRECTIVE_ACTION_1:   'add @caption@ element or @summary@ attribute to provide an effective caption for the table, or if the table is really being used for layout or positioning add @role="presentation"@ to the @table@ element',
+              HIDDEN:                'table is hidden from asssistive technologies'
+            },  
+            PURPOSE: [
+              'Effective caption of a table is important for people using speech, people with visual impairments and people with learning disabilities to help them understand the purpose of the table'                   
+            ],
+            TECHNIQUES: [
+              'Use @caption@ element to provide an effective label',
+              'Use @summary@ attribute to provide an effective label',
+              'If the table is not used for tabular data, but instead for layout of content, use the @role="presentation"@ on all the table elements'
+            ],
+            MANUAL_CHECKS: [
+              'Make sure the content of the effective lable accurately and succinctly describes the purpose of the data table'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: 11.2.2 Table Captions: The CAPTION element', 
+                url:   'http://www.w3.org/TR/html4/struct/tables.html#h-11.2.2'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: summary attribute', 
+                url:   'http://www.w3.org/TR/html4/struct/tables.html#adef-summary'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H39: Using caption elements to associate data table captions with data tables', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H39'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H73: Using the summary attribute of the table element to give an overview of data tables', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H73'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'F46: Failure of Success Criterion 1.3.1 due to using th elements, caption elements, or non-empty summary attributes in layout tables', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/F46'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
+                title: 'IBM Web checklist Checkpoint 1.3e: Tables', 
+                url:   'http://www-03.ibm.com/able/guidelines/web/webtableheaders.html'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
+                title: 'iCITA HTML Best Practices: Simple Data Table Example', 
+                url:   'http://html.cita.illinois.edu/nav/dtable/dtable-example-simple.php'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
+                title: 'iCITA HTML Best Practices: Complex Data Table Example', 
+                url:   'http://html.cita.illinois.edu/nav/dtable/dtable-example-complex.php'
+              }  
+            ]   
+        },
+        TABLE_2S: {
+            ID:                    'Table Rule 2S (Single Data Table)',
+            DEFINITION:            'If there is only one data table on a page, it %s have an effective caption with content',
+            SUMMARY:               'Data tables %s have caption',
+            TARGET_RESOURCES_DESC: '@th@ and @td[scope]@ elements',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            'The data table has has an effective caption',
+              CORRECTIVE_ACTION_SINGULAR:   'add @caption@ element or @summary@ attribute to provide an effective caption',
+              ALL_FAIL_SINGULAR:            'Data table does NOT have an effective caption',
+              NOT_APPLICABLE:               'More than one or no data tables on the page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                'Data table has an effective caption using the @caption@ with content: \'%1\'',
+              PASS_2:                'Data table has an effective caption using the @summary@ attribute with content: \'%1\'',
+              CORRECTIVE_ACTION_1:   'add @caption@ element or @summary@ attribute to provide an effective caption for the table, or if the table is really being used for layout or positioning add @role="presentation"@ to the @table@ element',
+              HIDDEN:                'table is hidden from asssistive technologies'
+            },  
+            PURPOSE: [
+              'Effective caption of a table is important for people using speech, people with visual impairments and people with learning disabilities to help them understand the purpose of the table'                   
+            ],
+            TECHNIQUES: [
+              'Use @caption@ element to provide an effective label',
+              'Use @summary@ attribute to provide an effective label',
+              'If the table is not used for tabular data, but instead for layout of content, use the @role="presentation"@ on all the table elements'
+            ],
+            MANUAL_CHECKS: [
+              'Make sure the content of the effective lable accurately and succinctly describes the purpose of the data table'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: 11.2.2 Table Captions: The CAPTION element', 
+                url:   'http://www.w3.org/TR/html4/struct/tables.html#h-11.2.2'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: summary attribute', 
+                url:   'http://www.w3.org/TR/html4/struct/tables.html#adef-summary'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H39: Using caption elements to associate data table captions with data tables', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H39'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H73: Using the summary attribute of the table element to give an overview of data tables', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H73'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'F46: Failure of Success Criterion 1.3.1 due to using th elements, caption elements, or non-empty summary attributes in layout tables', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/F46'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
+                title: 'IBM Web checklist Checkpoint 1.3e: Tables', 
+                url:   'http://www-03.ibm.com/able/guidelines/web/webtableheaders.html'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
+                title: 'iCITA HTML Best Practices: Simple Data Table Example', 
+                url:   'http://html.cita.illinois.edu/nav/dtable/dtable-example-simple.php'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
+                title: 'iCITA HTML Best Practices: Complex Data Table Example', 
+                url:   'http://html.cita.illinois.edu/nav/dtable/dtable-example-complex.php'
+              }  
+            ]   
+        },
+        TABLE_2M: {
+            ID:                    'Table Rule 2M (Multiple Data Tables)',
+            DEFINITION:            'If there is more than one data table on a page, each data table %s have a effective caption with content',
+            SUMMARY:               'Data tables %s have caption',
+            TARGET_RESOURCES_DESC: '@caption@ and @table[summary]@ elements',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            'The data table has has an effective caption',
+              ALL_PASS_PLURAL:              'All %N_P data tables have an effective caption',
+              SOME_FAIL:                    '%N_F out of %N_T data tables do NOT have an effective caption',
+              CORRECTIVE_ACTION_SINGULAR:   'add @caption@ element or @summary@ attribute to provide an effective caption',
+              CORRECTIVE_ACTION_PLURAL:     'add @caption@ element or @summary@ attribute to each of the %N_F tables to provide an effective caption',
+              ALL_FAIL_SINGULAR:            'Data table does NOT have an effective caption',
+              ALL_FAIL_PLURAL:              'All %N_F data tables do NOT have an effective caption',
+              NOT_APPLICABLE:               'Only one or no data tables on the page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                'Data table has an effective caption using the @caption@ with content: \'%1\'',
+              PASS_2:                'Data table has an effective caption using the @summary@ attribute with content: \'%1\'',
+              CORRECTIVE_ACTION_1:   'add @caption@ element or @summary@ attribute to provide an effective caption for the table, or if the table is really being used for layout or positioning add @role="presentation"@ to the @table@ element',
+              HIDDEN:                'table is hidden from asssistive technologies'
+            },  
+            PURPOSE: [
+              'Effective caption of a table is important for people using speech, people with visual impairments and people with learning disabilities to help them understand the purpose of the table'                   
+            ],
+            TECHNIQUES: [
+              'Use @caption@ element to provide an effective label',
+              'Use @summary@ attribute to provide an effective label',
+              'If the table is not used for tabular data, but instead for layout of content, use the @role="presentation"@ on all the table elements'
+            ],
+            MANUAL_CHECKS: [
+              'Make sure the content of the effective lable accurately and succinctly describes the purpose of the data table'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: 11.2.2 Table Captions: The CAPTION element', 
+                url:   'http://www.w3.org/TR/html4/struct/tables.html#h-11.2.2'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: summary attribute', 
+                url:   'http://www.w3.org/TR/html4/struct/tables.html#adef-summary'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H39: Using caption elements to associate data table captions with data tables', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H39'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H73: Using the summary attribute of the table element to give an overview of data tables', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H73'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'F46: Failure of Success Criterion 1.3.1 due to using th elements, caption elements, or non-empty summary attributes in layout tables', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/F46'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
+                title: 'IBM Web checklist Checkpoint 1.3e: Tables', 
+                url:   'http://www-03.ibm.com/able/guidelines/web/webtableheaders.html'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
+                title: 'iCITA HTML Best Practices: Simple Data Table Example', 
+                url:   'http://html.cita.illinois.edu/nav/dtable/dtable-example-simple.php'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
+                title: 'iCITA HTML Best Practices: Complex Data Table Example', 
+                url:   'http://html.cita.illinois.edu/nav/dtable/dtable-example-complex.php'
+              }  
+            ]   
+        },
+        TABLE_3: {
+            ID:                    'Table Rule 3',
+            DEFINITION:            'The effective caption content and effective summary content of each data table %s not be the same',
+            SUMMARY:               '@caption@ %s be different from @summary@',
+            TARGET_RESOURCES_DESC: '@caption@ element and @table[summary]@ attribute',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            'The data table has @caption@ element content that is different than @summary@ attribute content',
+              ALL_PASS_PLURAL:              'All %N_P data tables have @caption@ element content that is different than @summary@ attribute content',
+              SOME_FAIL:                    '%N_F out of %N_T data tables do NOT have @caption@ element content that is different than @summary@ attribute content',
+              CORRECTIVE_ACTION_SINGULAR:   'update @caption@ element content to give the table a descriptive title and update the @summary@ attribute to provide a summary of the content or conclusions that can be reached by viewing the data in the table',
+              CORRECTIVE_ACTION_PLURAL:     'update @caption@ element content to give the table a descriptive title and update the @summary@ attribute to provide a summary of the content or conclusions that can be reached by viewing the data in each of the %N_F table',
+              ALL_FAIL_SINGULAR:            'Data table does NOT have @caption@ element content that is different than @summary@ attribute content',
+              ALL_FAIL_PLURAL:              'All %N_F data tables do NOT have @caption@ element content that is different than @summary@ attribute content',
+              NOT_APPLICABLE:               'No data tables on the page with both a @caption@ element and @summary@ attribute'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                'The text content of the @caption@ element is different that the text content of the @summary@ content',
+              CORRECTIVE_ACTION_1:   'Update the text content of the @caption@ element and the @summary@ attribute so they are different, use the @caption@ element to provide a title for the table and the @summary@ element to describe the data or a summary of the data',
+              HIDDEN:                'table is hidden from asssistive technologies'
+            },  
+            PURPOSE: [
+              '@caption@ element should be used to provide a title for a table so users of asssitive technology can determine if they would like to explore the data',                   
+              '@summary@ attribute should be used to provide a provide information about the data or a summary of the data in a table so users of asssitive technology can get a summary of the table information'                   
+            ],
+            TECHNIQUES: [
+              'Use @caption@ element to provide a title for the table',
+              'Use the @summary@ attribute to provide a summary of the content or conclusions that can be understood by viewing the data in the table',
+              'If the table is not used for tabular data, but instead for layout of content, use the @role="presentation"@ on all the table elements'
+            ],
+            MANUAL_CHECKS: [
+              'Verify the content of the @caption@ element text content accurately and succinctly describes the purpose of the data table',
+              'Verify the content of the @summary@ attribute text content describes the data or a summary of the data in the table'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: 11.2.2 Table Captions: The CAPTION element', 
+                url:   'http://www.w3.org/TR/html4/struct/tables.html#h-11.2.2'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: summary attribute', 
+                url:   'http://www.w3.org/TR/html4/struct/tables.html#adef-summary'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H39: Using caption elements to associate data table captions with data tables', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H39'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H73: Using the summary attribute of the table element to give an overview of data tables', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H73'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'F46: Failure of Success Criterion 1.3.1 due to using th elements, caption elements, or non-empty summary attributes in layout tables', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/F46'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
+                title: 'IBM Web checklist Checkpoint 1.3e: Tables', 
+                url:   'http://www-03.ibm.com/able/guidelines/web/webtableheaders.html'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
+                title: 'iCITA HTML Best Practices: Simple Data Table Example', 
+                url:   'http://html.cita.illinois.edu/nav/dtable/dtable-example-simple.php'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
+                title: 'iCITA HTML Best Practices: Complex Data Table Example', 
+                url:   'http://html.cita.illinois.edu/nav/dtable/dtable-example-complex.php'
+              }  
+            ]   
+        },
+        TABLE_4: {
+            ID:                    'Table Rule 4',
+            DEFINITION:            'Each data table header cell %s use th elements rather than td element with a scope attribute',
+            SUMMARY:               '%s @th@ elements for head cells',
+            TARGET_RESOURCES_DESC: '@th@ and @td[scope]@ elements',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            'The header cell uses @th@ element',
+              ALL_PASS_PLURAL:              'All %N_P header cells use @th@ element',
+              SOME_FAIL:                    '%N_F out of %N_T header cells do NOT use @th@ element',
+              CORRECTIVE_ACTION_SINGULAR:   'change the @td[scope]@ element to a  @th@ element',
+              CORRECTIVE_ACTION_PLURAL:     'change the @td[scope]@ element to a  @th@ element for each of the %N_F header cells using @td[scope]@',
+              ALL_FAIL_SINGULAR:            'The header cell does NOT use @th@ element',
+              ALL_FAIL_PLURAL:              'All %N_F header cell do NOT use @th@ element',
+              NOT_APPLICABLE:               'No header cells identified on this page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                'The @th@ element is used for header cell',
+              CORRECTIVE_ACTION_1:   'Change the @td[scope]@ element to a  @th@ element',
+              HIDDEN:                'header cell is hidden from asssistive technologies'
+            },  
+            PURPOSE: [
+              '@th@ element is the web standards way to identify header cells in a table, makes the data table source code easier to read and debug for accessibility problems'                   
+            ],
+            TECHNIQUES: [
+              'Use @th@ elements in the first row or column to identify row and column headers in a simple data tables',
+              'Use @headers@ attribute on each @td@ element to identify header information in complex data tables',
+              'Use @th@ element for cells used as header cells in the table'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HTML 4.01 Specification: 11.2.6 Table cells: The TH and TD elements', 
+                url:   'http://www.w3.org/TR/html4/struct/tables.html#edef-TD'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H51: Using table markup to present tabular information', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H51'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H63: Using the scope attribute to associate header cells and data cells in data tables', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H63'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
+                title: 'IBM Web checklist Checkpoint 1.3e: Tables', 
+                url:   'http://www-03.ibm.com/able/guidelines/web/webtableheaders.html'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
+                title: 'iCITA HTML Best Practices: Simple Data Table Example', 
+                url:   'http://html.cita.illinois.edu/nav/dtable/dtable-example-simple.php'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_EXAMPLE, 
+                title: 'iCITA HTML Best Practices: Complex Data Table Example', 
+                url:   'http://html.cita.illinois.edu/nav/dtable/dtable-example-complex.php'
+              }  
+            ]   
+        },    
+        TABLE_5: {
+            ID:                      'Table Rule 5',
+            TITLE:                   'Each data tables %s have an effective summary',
+            PURPOSE:                 'It is important to provide a description of the content or point of the data table content so that people using speech do not have to read all the cells.',
+            MESSAGE_PASS_1:          'Table has an effective caption: \'%1\'',
+            MESSAGE_VIOLATION:       'The effective caption is missing or empty, the table must have a summary attribute or an aria-describedby attribute to create effective summary.',
+            MESSAGE_RECOMMENDATION:  'The effective caption is missing or empty, the table should have a summary attribute or an aria-describedby attribute to create effective summary.',
+            MESSAGE_MANUAL:          'The effective caption is missing or empty, the table may need a summary attribute or an aria-describedby attribute to create effective summary.',
+            MESSAGE_MORE_THAN_ONE:   'There is more than one visible data table, so the rule was not evaluated.',
+            MESSAGE_HIDDEN:          'The table is hidden from people using assistive technologies, so the rule was not evaluated.',
+            MESSAGE_NOT_DATA_TABLE:  'The table is not a data table, so the rule was not evaluated.'
+        },
+        TABLE_6: {
+            ID:                                'Table Rule 6',
+            TITLE:                             'Each complex data table %s have ids on all header cells.',
+            PURPOSE:                           'Complex data tables require much more specific definition of header cells for each data cell and using IDs on the header cells is required for identifying the header cells.',
+            MESSAGE_PASS_1:                    'Table header cell has unique ID',
+            MESSAGE_NO_CONTENT:                'Table header cell does not contain content, it is unsual for a header cell to not have content.',
+            MESSAGE_NOT_UNIQUE_VIOLATION:      'Table header cell has duplicate ID: \'%1\', header cells in complex tables must have unique ids.',
+            MESSAGE_NOT_UNIQUE_RECOMMENDATION: 'Table header cell has duplicate ID: \'%1\', header cells in complex tables should have unique ids.',
+            MESSAGE_NOT_UNIQUE_MANUAL:         'Table header cell has duplicate ID: \'%1\', header cells in complex tables may need unique ids.',
+            MESSAGE_NO_ID_VIOLATON:            'Table header cell is missing an @id@ attribute, header cells in complex tables must have an id.',
+            MESSAGE_NO_ID_RECOMMENDATION:      'Table header cell is missing an @id@ attribute, header cells in complex tables should have an id.',
+            MESSAGE_NO_ID_MANUAL:              'Table header cell is missing an @id@ attribute, header cells in complex tables may need an id.',
+            MESSAGE_HIDDEN:                    'Table header cell is hidden hidden from assistive technologies, rule was not evaluated.',
+            MESSAGE_TABLE_PASS_1:              'All %1 header cells have unique ids.',
+            MESSAGE_TABLE_MISSING_HEADERS:     '%1 header cells of %2 header cells in the table have missing or dulicate @id@ values.',
+            MESSAGE_TABLE_DATA_TABLE:          'Simple data table, rule only applies to complex data tables.',
+            MESSAGE_TABLE_LAYOUT_TABLE:        'Layout table, rule only applies to complex data tables.',
+            MESSAGE_TABLE_HIDDEN:              'The table is hidden from people using assistive technologies.'
+        },
+        TABLE_7: {
+            ID:                             'Table Rule 7',
+            TITLE:                          'Each td element in a complex data table with content, %s have a headers attribute with a list of valid ids',
+            PURPOSE:                        'Complex data tables require much more specific definition of header cells for each data cell and using the HEADERS attribute on each data cell is required for identifying the header cells.',
+            MESSAGE_HAS_HEADERS:            'Cell has headers attribute with values.',
+            MESSAGE_MISSING_VIOLATION:      'Headers attribute is missing or empty, data cells in complex data tables must have a headers attribute.',
+            MESSAGE_MISSING_RECOMMENDATION: 'Headers attribute is missing or empty, data cells in complex data tables should have a headers attribute.',
+            MESSAGE_MISSING_MANUAL:         'Headers attribute is missing or empty, data cells in complex data tables may need a headers attribute',
+            MESSAGE_DATA_CELL_IS_EMPTY:     'Table cell is empty, check to see if it needs headers, or if the empty cell could contain data',
+            MESSAGE_HEADER_CELL:            'Cell is a header cell, so rule was not evaluated',
+            MESSAGE_TABLE_PASS_1:           'All %1 data cells with content have headers.',
+            MESSAGE_TABLE_MISSING_HEADERS:  '%1 data cells with content out of %2 are missing headers.',
+            MESSAGE_TABLE_DATA_TABLE:       'Simple data table, rule only applies to complex data tables.',
+            MESSAGE_TABLE_LAYOUT_TABLE:     'Layout table, rule only applies to complex data tables.',
+            MESSAGE_TABLE_HIDDEN:           'The table is hidden from people using assistive technologies.'
+        },
+        TABLE_8: {
+            ID:                             'Table Rule 8',
+            TITLE:                          'Each complex data table %s have an effective summary.',
+            PURPOSE:                        'It is critical to provide a description of the content or point of the data in a complex data table content so that people using speech do not have to read all the cells.',
+            MESSAGE_PASS_1:                 'Complex data table has the effective summary \'%1\'',
+            MESSAGE_VIOLATION:              'Complex data tables must have a summary attribute or an aria-describedby attribute to create effective summary.',
+            MESSAGE_RECOMMENDATION:         'Complex data tables should have a summary attribute or an aria-describedby attribute to create effective summary.',
+            MESSAGE_MANUAL:                 'Complex data tables may need a summary attribute or an aria-describedby attribute to create effective summary.',
+            MESSAGE_HIDDEN:                 'The table is hidden from people using assistive technologies, so the rule was not evaluated.',
+            MESSAGE_NOT_COMPLEX_DATA_TABLE: 'The table is not complex data table, so the rule was not evaluated.',
+            MESSAGE_NOT_DATA_TABLE:         'The table is a layout table, so rule was not evaluated.'
+        },
+        TITLE_1: {
+            ID:                    'Title Rule 1',
+            DEFINITION:            'Page %s have a @title@ element with content.',
+            SUMMARY:               'Page %s have title',
+            TARGET_RESOURCES_DESC: '@title@',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:          'Page has @title@ element with content',
+              CORRECTIVE_ACTION_SINGULAR: 'add @title@ element to the @head@ element section with text content that describes the content or purpose of the page',
+              ALL_FAIL_SINGULAR:          'Page does not have @title@ element or the @title@ element is empty'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:              'Page has @title@ element with content',
+              CORRECTIVE_ACTION_1: 'Add content to @title@ element',
+              CORRECTIVE_ACTION_2: 'Add @title@ element to page'
+            },  
+            PURPOSE: [
+              'The TITLE element text content can be accessed by asssitive technologies to understand the purpose of the web page.'
+            ],
+            TECHNIQUES: [
+                'Use TITLE element text content to describe the content of a web page'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.REQUIREMENT, 
+                title: 'HTML TITLE Element Specification', 
+                url:   'http://www.w3.org/TR/html4/struct/global.html#edef-TITLE'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G88: Providing descriptive titles for Web pages', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G88'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H25: Providing a title using the title element', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H25'
+              }
+            ]
+        },
+        TITLE_2: {
+            ID:            'Title Rule 2',
+            DEFINITION:    '@title@ element text content %s describe the purpose or content of the page',
+            SUMMARY:       '@title@ %s describe page',
+            TARGET_RESOURCES_DESC: '@title@',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECK_SINGULAR:      'Verify the @title@ element text content describes the purpose or the content of the page',
+              CORRECTIVE_ACTION_SINGULAR: 'add @title@ element to the @head@ element section with text content that describes the content or purpose of the page',
+              ALL_FAIL_SINGULAR:          'Page does not have @title@ element or the @title@ element is empty'
+            },
+            NODE_RESULT_MESSAGES: {
+              MANUAL_CHECK_1:      'Verify the @title@ element text content describes the purpose or the content of the page',
+              CORRECTIVE_ACTION_1: 'Add content to @title@ element',
+              CORRECTIVE_ACTION_2: 'Add @title@ element to page'
+            },  
+            PURPOSE: [
+              'The TITLE element text content can be accessed by asssitive technologies to understand the purpose or content of the web page.'
+            ],
+            TECHNIQUES: [
+              'Use TITLE element text content to describe the content of a web page',
+              'Title should contain information about the website',
+              'Title should contain information about the page in the website',
+              'If the page is part of a sequence of web pages does the title indicate which step in the sequence'              
+            ],
+            MANUAL_CHECKS: [
+              'Read the title of the page and determine if it describes which website it is a part',
+              'Read the title of the page and determine if it describe which page you are in the website',
+              'If the web page is part of a sequence of web pages does it describe which step it is in the sequence'              
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.REQUIREMENT, 
+                title: 'HTML TITLE Element Specification', 
+                url:   'http://www.w3.org/TR/html4/struct/global.html#edef-TITLE'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G88: Providing descriptive titles for Web pages', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G88'
+              }, 
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'H25: Providing a title using the title element', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/H25'
+              }
+            ]
+        },    
+        VIDEO_1: {
+            ID:                    'Video Rule 1',
+            DEFINITION:            'Video only media (i.e. no audio content) %s have audio description or text description of the video content',
+            SUMMARY:               'Video only %s have alternative',
+            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       'Verify the element is video only (i.e. no audio content) and if it is only video make sure it has either an audio description track or text description of the content of the video',
+              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are video only media (i.e. no audio content), if there are any video only media make sure they have either an audio description track or text description of the video',
+              ALL_PASS_SINGULAR:            'Video has either a audio description track or a text description',
+              ALL_PASS_PLURAL:              'All %N_P videos have either an audio description track or text description',
+              SOME_FAIL:                    '%N_F out of %N_T videos do NOT have a audio description track or text description',
+              CORRECTIVE_ACTION_SINGULAR:   'add audio description track or text description to video',
+              CORRECTIVE_ACTION_PLURAL:     'add audio description track or text descriptions to each of the %N_F the video only media elements',
+              ALL_FAIL_SINGULAR:            'Video only element does not have a audio description track or text description',
+              ALL_FAIL_PLURAL:              'All %N_F video only elements do NOT have an audio description track or text description',
+              NOT_APPLICABLE:               'No visible @object@, @embed@ or @video@ elements found on this page that could be used for video only (i.e. no audio content'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@%1@ video only element has a audio description track',
+              PASS_2:                '@%1@ video only element has a text description',
+              CORRECTIVE_ACTION_1:   'Add audio description track or text description to @%1@ video only element',
+              MANUAL_CHECK_1:        'Verify the @%1@ video element has audio description track or text description',
+              MANUAL_CHECK_2:        'Verify the @%1@ element is being used for video only (i.e. no audio content), if it is video only verify that it has audio description track or text description ',
+              HIDDEN:                '@%1@ element is not visible on screen'
+            },  
+            PURPOSE: [
+              'Audio description track and text descriptions provide a means for people cannot see the video to understand the content or information the video provides'                   
+            ],
+            TECHNIQUES: [
+              'Various techniques to add based on the video formats and media players being supported, see your technology specific requirements for adding audio descriptions',
+              'The HTML5 video element is designed to make it easier to support audio description tracks through the use of the @track@ element of @type=description@',
+              'Use @aria-describedby@ attribute to point to a text description of the video only content'
+            ],
+            MANUAL_CHECKS: [
+              'Audio tracks can be heard when the video is being played, and they will be describing the content of the video',
+              'Text descriptions maybe part of the web page or accessed by a link'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HMTL 5: The track element', 
+                url:   'http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#the-track-element'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'W3C Accessible Rich Internet Applications (WAI-ARIA) 1.0: aria-describedby (property)', 
+                url:   'http://www.w3.org/TR/wai-aria.html#aria-describedby'
+              }                            
+            ]
+        },    
+        VIDEO_2: {
+            ID:                    'Video Rule 2',
+            DEFINITION:            'Prerecorded video (with audio content) %s have synchronized caption',
+            SUMMARY:               'Prerecorded video %s have caption',
+            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       'Verify the element is being used for prerecorded video (with audio content) and if it is prerecorded video make sure it has a caption track',
+              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are prerecorded videos (with audio content), if they any are a prerecorded video make sure they have synchornized caption track',
+              ALL_PASS_SINGULAR:            'Video has synchornized caption track',
+              ALL_PASS_PLURAL:              'All %N_P videos have synchronized caption tracks',
+              SOME_FAIL:                    '%N_F out of %N_T videos do NOT have synchronized caption tracks',
+              CORRECTIVE_ACTION_SINGULAR:   'add caption track to video',
+              CORRECTIVE_ACTION_PLURAL:     'add caption track to each of the %N_F videos',
+              ALL_FAIL_SINGULAR:            'Prerecorded video does not have a synchronized caption track',
+              ALL_FAIL_PLURAL:              'All %N_F prerecorded videos do NOT have synchronized caption tracks',
+              NOT_APPLICABLE:               'No visible @object@, @embed@ and @video@ elements found on the page that could be prerecorded video'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '%1 element has synchronized caption track',
+              CORRECTIVE_ACTION_1:   'Add synchronized caption track to @%1@ video element',
+              MANUAL_CHECK_1:        'Verify the @%1@ video element has synchronized caption track',
+              MANUAL_CHECK_2:        'Verify the @%1@ element is being used for video, if it is verify that it has a synchronized caption track',
+              HIDDEN:                '@%1@ element is not visible on screen'
+            },  
+            PURPOSE: [
+              'Captions provide a means for people who are deaf or hearing impaired to get the speech and sound content of a video'                   
+            ],
+            TECHNIQUES: [
+              'Various techniques based on the video formats and media players you are supporting, please see your technology specific requirements for captions',
+              'The HTML5 video element is designed to make it easier to support caption tracks through the use of the @track@ element',
+              'Make sure the video player is capable of rendering captions by default or through user options'
+            ],
+            MANUAL_CHECKS: [
+              'Captions should be visible when the video is playing and the text of the captions should be synchronized with the speech'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HMTL 5: The track element', 
+                url:   'http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#the-track-element'
+              }                            
+            ]
+        },    
+        VIDEO_3: {
+            ID:                    'Video Rule 3',
+            DEFINITION:            'Prerecorded video (with audio content) %s have audio description or text description',
+            SUMMARY:               'Prerecorded video %s have description',
+            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       'Verify the element is prerecorded video (with audio content) and if it is prerecorded video make sure it has an audio description track or text description of the content of the video',
+              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are prerecorded video (with audio content), if any are prerecorded video make sure they have either an audio description track or a text description of the video',
+              ALL_PASS_SINGULAR:            'Video has either an audio description track or a text description',
+              ALL_PASS_PLURAL:              'All %N_P videos have either a audio description track or a text description',
+              SOME_FAIL:                    '%N_F out of %N_T prerecorded videos do NOT have a audio description track or text description',
+              CORRECTIVE_ACTION_SINGULAR:   'add audio description track or text description to video',
+              CORRECTIVE_ACTION_PLURAL:     'add audio description tracks or text descriptions to each of the %N_F the videos',
+              ALL_FAIL_SINGULAR:            'Prerecoreded video does not have a audio description track or text description',
+              ALL_FAIL_PLURAL:              'All %N_F prerecorded videos do NOT have an audio description tracks or text descriptions',
+              NOT_APPLICABLE:               'No visible @object@, @embed@ and @video@ elements found on this page that could be prerecorded video'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@%1@ element has a audio description track',
+              PASS_2:                '@%1@ element has a text description',
+              CORRECTIVE_ACTION_1:   'Add audio description track or text description to @%1@ element',
+              MANUAL_CHECK_1:        'Verify the @%1@ video element has audio description or text description',
+              MANUAL_CHECK_2:        'Verify the @%1@ element is being used for prerecorded video, if it is verify that it has audio description track or text description ',
+              HIDDEN:                '@%1@ element is not visible on screen'
+            },  
+            PURPOSE: [
+              'Audio descriptions and text descriptions provide a means for people cannot see the video to understand the video content'                   
+            ],
+            TECHNIQUES: [
+              'Various techniques to add based on the video formats and media players being supported, please see your technology specific requirements for captions',
+              'The HTML5 video element is attempting to make it easier to support audio descriptions through the use of the @track@ element',
+              'Use @aria-describedby@ attribute to point to a text description of the video content'
+            ],
+            MANUAL_CHECKS: [
+              'Audio tracks can be heard when the video is being played, and they will be describing the content of the video',
+              'Text descriptions maybe part of the web page or accessed by a link'            
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HMTL 5: The track element', 
+                url:   'http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#the-track-element'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'W3C Accessible Rich Internet Applications (WAI-ARIA) 1.0: aria-describedby (property)', 
+                url:   'http://www.w3.org/TR/wai-aria.html#aria-describedby'
+              }                            
+            ]
+        },
+        VIDEO_4: {
+            ID:                    'Video Rule 4',
+            DEFINITION:            'Live video %s have synchronized caption',
+            SUMMARY:               'Live video %s have caption',
+            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       'Verify the element is being used for live video (with audio content) and if it is a live video make sure it has a synchronized caption track',
+              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are live videos, if they any are a live video (with audio content) make sure they have synchronized caption tracks',
+              ALL_PASS_SINGULAR:            'Live video has synchronized caption track',
+              ALL_PASS_PLURAL:              'All %N_P live videos have synchronized caption tracks',
+              SOME_FAIL:                    '%N_F out of %N_T live videos do NOT have synchronized caption tracks',
+              CORRECTIVE_ACTION_SINGULAR:   'add synchronized caption track to live video',
+              CORRECTIVE_ACTION_PLURAL:     'add synchronized caption tracks to each of the %N_F live videos',
+              ALL_FAIL_SINGULAR:            'Live video does not have a synchronized caption track',
+              ALL_FAIL_PLURAL:              'All %N_F live videos do NOT have synchronized caption tracks',
+              NOT_APPLICABLE:               'No visible @object@, @embed@ and @video@ elements found on this page that could be live video'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '%1 element has synchronized caption track',
+              CORRECTIVE_ACTION_1:   'Add synchronized caption to @%1@ live video element',
+              MANUAL_CHECK_1:        'Verify the @%1@ live video element has a synchronized caption track',
+              MANUAL_CHECK_2:        'Verify the @%1@ element is being used for live video, if it is verify that it has synchronized caption track',
+              HIDDEN:                '@%1@ element is not visible on screen'
+            },  
+            PURPOSE: [
+              'Captions provide a means for people who are deaf or hearing impaired to get the speech and sound content of a video'                   
+            ],
+            TECHNIQUES: [
+              'Various techniques based on the video formats and media players you are supporting, please see your technology specific requirements for captions',
+              'The HTML5 video element is designed to make it easier to support caption tracks through the use of the @track@ element',
+              'Make sure the video player is capable of rendering captions by default or through user options'
+            ],
+            MANUAL_CHECKS: [
+              'Captions should be visible when the live video is playing and the text of the captions should be synchronized with the speech'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HMTL 5: The track element', 
+                url:   'http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#the-track-element'
+              }                            
+            ]
+        },      
+        VIDEO_5: {
+            ID:                    'Video Rule 5',
+            DEFINITION:            'Video (with audio content) %s have audio description track',
+            SUMMARY:               'Video %s have audio description track',
+            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       'Verify the element is prerecorded video (with audio content) and if it is a video make sure it has an audio description track',
+              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are prerecorded video (with audio content), if any elements are a prerecorded video make sure each has an audio description track',
+              ALL_PASS_SINGULAR:            'Video has an audio description track',
+              ALL_PASS_PLURAL:              'All %N_P videos have an audio description track',
+              SOME_FAIL:                    '%N_F out of %N_T prerecorded videos do NOT have an audio description track',
+              CORRECTIVE_ACTION_SINGULAR:   'add audio description track to video element',
+              CORRECTIVE_ACTION_PLURAL:     'add audio description tracks to each of the %N_F the video elements',
+              ALL_FAIL_SINGULAR:            'Prerecorded video does not have a audio description or text description',
+              ALL_FAIL_PLURAL:              'All %N_F prerecorded videos do NOT have an audio description track',
+              NOT_APPLICABLE:               'No visible @object@, @embed@ and @video@ elements found on this page that could be prerecorded video'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@%1@ element has a audio description track',
+              CORRECTIVE_ACTION_1:   'Add audio description track to @%1@ prerecorded video element',
+              MANUAL_CHECK_1:        'Verify the @%1@ video element has audio description track',
+              MANUAL_CHECK_2:        'Verify the @%1@ element is being used for prerecorded video, if it is verify that it has audio description track',
+              HIDDEN:                '@%1@ element is not visible on screen'
+            },  
+            PURPOSE: [
+              'Audio descriptions and text descriptions provide a means for people cannot see the video to understand the video content'                   
+            ],
+            TECHNIQUES: [
+              'Various techniques to add based on the video formats and media players you are supporting, please see your technology specific requirements for audio descriptions',
+              'The HTML5 video element is attempting to make it easier to support audio descriptions through the use of the text track element',
+              'Use aria-describedby attribute to point to a text description of the video only content'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HMTL 5: The track element', 
+                url:   'http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#the-track-element'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'ARIA: aria-describedby', 
+                url:   ''
+              }                            
+            ]
+        },    
+        VIDEO_6: {
+            ID:                    'Video Rule 6',
+            DEFINITION:            'Prerecorded video (with audio content) %s have sign language interpretation',
+            SUMMARY:               'Prerecorded video %s have sign language',
+            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       'Verify the element is being used for prerecorded video (with audio content) and if it is prerecorded video make sure it includes synchronniized sign language interpretation',
+              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are prerecorded videos (with audio content), if they any are a prerecorded video make sure they have synchronniized sign language interpretation',
+              ALL_PASS_SINGULAR:            'Video has synchornized sign language interpretation',
+              ALL_PASS_PLURAL:              'All %N_P videos have synchornized sign language interpretation',
+              SOME_FAIL:                    '%N_F out of %N_T videos do NOT have sign language interpretation',
+              CORRECTIVE_ACTION_SINGULAR:   'add synchornized sign language interpretation to video',
+              CORRECTIVE_ACTION_PLURAL:     'add synchornized sign language interpretation to each of the %N_F videos',
+              ALL_FAIL_SINGULAR:            'Prerecorded video does not have a sign language interpretation',
+              ALL_FAIL_PLURAL:              'All %N_F prerecorded videos do NOT have sign language interpretation',
+              NOT_APPLICABLE:               'No visible @object@, @embed@ and @video@ elements found on the page that could be prerecorded video'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '%1 element has synchornized sign language interpretation',
+              CORRECTIVE_ACTION_1:   'Add synchornized sign language interpretation to @%1@ video element',
+              MANUAL_CHECK_1:        'Verify the @%1@ video element has synchornized sign language interpretation',
+              MANUAL_CHECK_2:        'Verify the @%1@ element is being used for prerecorded video, if it is verify that it has synchornized sign language interpretation',
+              HIDDEN:                '@%1@ element is not visible on screen'
+            },  
+            PURPOSE: [
+              'Sign language interpretation provide a means for people who are deaf or hearing impaired to get the speech and sound content of a video'                   
+            ],
+            TECHNIQUES: [
+              'Sign language interpretation can be included as part of the video as a picture inside of a picture',
+              'Sign language interpretation can be inlcuded using a synchconized video with the primary video, the technique will be dependent on the video format and media players you want to support'
+            ],
+            MANUAL_CHECKS: [
+              'Sign language interpretation must be visible when the video is playing and the text of the captions should be synchronized with the speech'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HMTL 5: The track element', 
+                url:   'http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#the-track-element'
+              }                            
+            ]
+        },
+        VIDEO_7: {
+            ID:                    'Video Rule 5',
+            DEFINITION:            'Video (with audio content) %s have extended audio description track',
+            SUMMARY:               'Video %s have extended audio description track',
+            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       'Verify the element is prerecorded video (with audio content) and if it is a video make sure it has an extended audio description track',
+              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are prerecorded video (with audio content), if any elements are a prerecorded video make sure each has an extended audio description track',
+              ALL_PASS_SINGULAR:            'Video has an extended audio description track',
+              ALL_PASS_PLURAL:              'All %N_P videos have an extended audio description track',
+              SOME_FAIL:                    '%N_F out of %N_T prerecorded videos do NOT have an extended audio description track',
+              CORRECTIVE_ACTION_SINGULAR:   'add extended audio description track to video element',
+              CORRECTIVE_ACTION_PLURAL:     'add extended audio description tracks to each of the %N_F the video elements',
+              ALL_FAIL_SINGULAR:            'Prerecorded video does not have a extended audio description or text description',
+              ALL_FAIL_PLURAL:              'All %N_F prerecorded videos do NOT have an extended audio description track',
+              NOT_APPLICABLE:               'No visible @object@, @embed@ and @video@ elements found on this page that could be prerecorded video'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@%1@ element has a extended audio description track',
+              CORRECTIVE_ACTION_1:   'Add extended audio description track to @%1@ prerecorded video element',
+              MANUAL_CHECK_1:        'Verify the @%1@ video element has extended audio description track',
+              MANUAL_CHECK_2:        'Verify the @%1@ element is being used for prerecorded video, if it is verify that it has an extended audio description track',
+              HIDDEN:                '@%1@ element is not visible on screen'
+            },  
+            PURPOSE: [
+              'Extended audio descriptions provide a means for people cannot see the video to understand the video content when the ausio track of the video does not provide enough time to provide the descriptions'                   
+            ],
+            TECHNIQUES: [
+              'Various techniques to add extended audio descriptions based on the video formats and media players you are supporting, please see your technology specific requirements for including extended audeo descriptions',
+              'The HTML5 video element is attempting to make it easier to support extended audio descriptions through the use of the text track element'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'HMTL 5: The track element', 
+                url:   'http://www.whatwg.org/specs/web-apps/current-work/multipage/the-video-element.html#the-track-element'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'ARIA: aria-describedby', 
+                url:   ''
+              }                            
+            ]
+        },    
+        VIDEO_8: {
+            ID:                    'Video Rule 1',
+            DEFINITION:            'Video only media (i.e. no audio content) %s have text description of the video content',
+            SUMMARY:               'Video only %s have text description',
+            TARGET_RESOURCES_DESC: '@object@, @embed@ and @video@ elements',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       'Verify the element is video only (i.e. no audio content) and if it is only video make sure it has a text description of the content of the video',
+              MANUAL_CHECKS_PLURAL:         'Verify if any of the %N_MC elements are video only media (i.e. no audio content), if there are any video only media make sure they have text description of the video',
+              ALL_PASS_SINGULAR:            'Video has either a text description',
+              ALL_PASS_PLURAL:              'All %N_P videos have either a text description',
+              SOME_FAIL:                    '%N_F out of %N_T videos do NOT have a text description',
+              CORRECTIVE_ACTION_SINGULAR:   'add text description to video',
+              CORRECTIVE_ACTION_PLURAL:     'add text descriptions to each of the %N_F the video only media elements',
+              ALL_FAIL_SINGULAR:            'Video only element does not have text description',
+              ALL_FAIL_PLURAL:              'All %N_F video only elements do NOT have text description',
+              NOT_APPLICABLE:               'No visible @object@, @embed@ or @video@ elements found on this page that could be used for video only (i.e. no audio content'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@%1@ video only element has a text description',
+              CORRECTIVE_ACTION_1:   'Add text description to @%1@ video only element',
+              MANUAL_CHECK_1:        'Verify the @%1@ video element has text description',
+              MANUAL_CHECK_2:        'Verify the @%1@ element is being used for video only (i.e. no audio content), if it is video only verify that it has a text description',
+              HIDDEN:                '@%1@ element is not visible on screen'
+            },  
+            PURPOSE: [
+              'Text descriptions provide a means for people cannot see the video to understand the content or information the video provides in a non-time dependent format that can also be converted to other formats including Braille'                   
+            ],
+            TECHNIQUES: [
+              'Use @aria-describedby@ attribute to point to a text description of the video only content'
+            ],
+            MANUAL_CHECKS: [
+              'Text descriptions maybe part of the web page or accessed by a link'
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'W3C Accessible Rich Internet Applications (WAI-ARIA) 1.0: aria-describedby (property)', 
+                url:   'http://www.w3.org/TR/wai-aria.html#aria-describedby'
+              }                            
+            ]
+        },    
+        WIDGET_1: {
+            ID:                    'Widget Rule 1',
+            DEFINITION:            'Widgets %s have an accessible name',
+            SUMMARY:               'Widget %s have name',
+            TARGET_RESOURCES_DESC: 'Elements with @role@ attribute values that are defined as widgets',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       '%N_MC widget may need an accessible name',
+              MANUAL_CHECKS_PLURAL:         '%N_MC widgets may need an accessible name',
+              ALL_PASS_SINGULAR:            'Widget has an accessible name',
+              ALL_PASS_PLURAL:              '%N_P widgets have an accessible name',
+              SOME_FAIL:                    '%N_F out of %N_T widgets do NOT have an accessible name',
+              CORRECTIVE_ACTION_SINGULAR:   'add accessible name to widget',
+              CORRECTIVE_ACTION_PLURAL:     'add accessible name to each of the %N_F widgets',
+              ALL_FAIL_SINGULAR:            'Widget does NOT has an accessible name',
+              ALL_FAIL_PLURAL:              'All %N_F widgets do NOT have an accessible name',
+              NOT_APPLICABLE:               'No form controls on this page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:              '%1 widget has accessible name',
+              MANUAL_CHECK_1:      '%1 widget may require an accessible name depending on context (i.e multiple widgets with the same role) in the page, adding an accessible name will improve accessibility',
+              CORRECTIVE_ACTION_1: 'Add accessible name to %1 widget',
+              HIDDEN:              '%1 widget is hidden from assistive technologies.'
+            },
+            PURPOSE: [
+              'A name associated with a widget insures that information about the widget is spoken by screen readers when it receives focus'                   
+            ],
+            TECHNIQUES: [
+              'In some cases the child text nodes and @alt@ from descendant image elements will be used as the name for a widget',
+              'Use @aria-labelledby@ attribute to reference the id(s) of the elements on the page that describe the purpose of the widget',
+              'Use @aria-label@ attribute to provide a explicit text description of the purpose of the widget',
+              'Elements that have container widget roles typically do not receive keyboard focus, but giving them an accessible name provides assistive technologies a more accurate description of the purpose of the widget'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Accessible Name Calculation', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#namecalculation'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: aria-labelledby', 
+                url:   'http://www.w3.org/TR/wai-aria/states_and_properties#aria-labelledby'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: aria-label', 
+                url:   'http://www.w3.org/TR/wai-aria/states_and_properties#aria-label'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G108'
+              },                             
+              { type:  OpenAjax.a11y.REFERENCES.TECHNIQUE, 
+                title: 'WAI-ARIA 1.0 Authoring Practices', 
+                url:   'http://www.w3.org/TR/wai-aria-practices/'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'OAA Web Accessibility ARIA Examples', 
+                url:   'http://oaa-accessibility.org/examples/'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'Accessible jQuery-ui Components Demonstration', 
+                url:   'http://access.aol.com/aegis/#goto_slider'
+              }                            
+            ]
+        },
+        WIDGET_2: {
+            ID:                    'Widget Rule 2',
+            DEFINITION:            'Elements with @onClick@ events %s be a link, button or have a widget role',
+            SUMMARY:               '@onClick@ %s have role',
+            TARGET_RESOURCES_DESC: 'Elements with @onClick@ attribute values that are defined as widgets',
+            RULE_RESULT_MESSAGES: {
+              MANUAL_CHECKS_SINGULAR:       '1 container element with an @onclick@ event requires verification that any child elements that can respond to the @onclick@ event are a link, form control or has a widget role, and can be accessd with the keyboard alone',
+              MANUAL_CHECKS_PLURAL:         '%N_MC container elements with an @onclick@ event require verification that any child elements that can respond to the @onclick@ event are a link, form control or has a widget role, and can be accessd with the keyboard alone',
+              ALL_PASS_SINGULAR:            'Element with a @onClick@ event is a link, form control or has a widget role',
+              ALL_PASS_PLURAL:              'All %N_P elements with an @onClick@ event are either a link, form control or have a widget role',
+              SOME_FAIL:                    '%N_F out of %N_T elements with an @onClick@ event are NOT a link, form control or have a widget role',
+              CORRECTIVE_ACTION_SINGULAR:   'add widget role name to element',
+              CORRECTIVE_ACTION_PLURAL:     'add widget roles to each of the %N_F elements',
+              ALL_FAIL_SINGULAR:            'Element with a @onClick@ event is NOT a link, form control or has a widget role',
+              ALL_FAIL_PLURAL:              'All %N_F elements with an @onClick@ event are NOT a link, form control or have a widget role',
+              NOT_APPLICABLE:               'No elements with @onClick@ events on this page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@%1@ element has a widget role',
+              PASS_2:                '@%1@ element is a form control',
+              PASS_3:                '@%1@ element is a link',
+              CORRECTIVE_ACTION_1:   'Add a @tabindex@ attribute with a numeric value to make with @%1@ element with @%2@ widget role keyboard accessible',
+              CORRECTIVE_ACTION_2:   'Add widget role to the @%1@ element',
+              CORRECTIVE_ACTION_3:   'Add widget role to the @%1@ element and a @tabindex@ attribute with a numeric value to make it keyboard accessible',
+              MANUAL_CHECK_1:        'The @%1@ element has an @onclick@ event, verify any child elements that can respond to the @onclick@ event are a link, form control or have a widget role, and can be accessd with the keyboard alone',
+              HIDDEN:                '%1 element with @onClick@ event is hidden from assistive technologies and not visible on screen'
+            },
+            PURPOSE: [
+              'Elements with @onClick@ event handlers must be a link, form control or have a widget role'                   
+            ],
+            TECHNIQUES: [
+              'Use ARIA widget role on non-form controls to describe their function on the page',
+              'Use @tabindex@ attribute of "0" if the role of the element is a button or link',
+              'Use @tabindex@ attribute of "-1" if the role of the element is NOT a buton or link, provide keyboard event handlers to control selection of elements in the widget'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'WAI-ARIA 1.0 Authoring Practices: Tabindex for managing focus', 
+                url:   'http://www.w3.org/TR/2010/WD-wai-aria-practices-20100916/#kbd_focus'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G108'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'OAA Web Accessibility ARIA Examples', 
+                url:   'http://oaa-accessibility.org/examples/'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'Accessible jQuery-ui Components Demonstration', 
+                url:   'http://access.aol.com/aegis/#goto_slider'
+              }                            
+            ]
+        },
+        WIDGET_3: {
+            ID:                    'Widget Rule 3',
+            DEFINITION:            '@role@ attribute value %s be a widget, section, landmark or live region role',
+            SUMMARY:               '@role@ %s be valid',
+            TARGET_RESOURCES_DESC: 'Elements with @role@ attribute values',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            'Element with a @role@ attribute is a widget, section, landmark or live region role',
+              ALL_PASS_PLURAL:              'All %N_P elements with @role@ attributes have a widget, section, landmark or live region role',
+              SOME_FAIL:                    '%N_F out of %N_T elements with @role@ attributes have a widget, section, landmark or live region role',
+              CORRECTIVE_ACTION_SINGULAR:   'add widget, section, landmark or live region role name to element',
+              CORRECTIVE_ACTION_PLURAL:     'add widget, section, landmark or live region roles to each of the %N_F elements',
+              ALL_FAIL_SINGULAR:            'Element with @role@ attribute does NOT have a widget, section, landmark or live region role',
+              ALL_FAIL_PLURAL:              'All %N_F elements with @role@ attribute does NOT have a widget, section, landmark or live region role',
+              NOT_APPLICABLE:               'No elements with @role@ attribute on this page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@%1@ is a widget role',
+              PASS_2:                '@%1@ is a landmark role',
+              PASS_3:                '@%1@ is a live region role',
+              PASS_4:                '@%1@ is a section role',
+              CORRECTIVE_ACTION_1:   '@%1@ is an abstract ARIA role, change the role attribute to a widget, landmark or live region role',
+              CORRECTIVE_ACTION_2:   'The @role@ attribute is an empty string, change the @role@ attribute value to an appropriate widget, landmark or live region role',
+              CORRECTIVE_ACTION_3:   '@%1@ is not a defined ARIA role, change the @role@ attribute value to an appropriate widget, landmark or live region role',
+              HIDDEN:                '%1 element with @role@ attribute with the value @%2@ is hidden from assistive technologies and not visible on screen'
+            },
+            PURPOSE: [
+              'Elements with @role@ attributes describe the section of a document (i.e landmarks) and the types of interactive elements (i.e. widgets) to users of assistive technologies, especially screen reader users'                   
+            ],
+            TECHNIQUES: [
+              'Use ARIA landmark roles to describe the sections of a web page',
+              'Use ARIA widget roles to describe interactive elements on a web page'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Landmark Roles', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#landmark_roles'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G108'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'OAA Web Accessibility ARIA Examples', 
+                url:   'http://oaa-accessibility.org/examples/'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'Accessible jQuery-ui Components Demonstration', 
+                url:   'http://access.aol.com/aegis/#goto_slider'
+              }                            
+            ]
+        },
+        WIDGET_4: {
+            ID:                    'Widget Rule 4',
+            DEFINITION:            'ARIA property and state values %s be valid types',
+            SUMMARY:               'ARIA values %s be valid',
+            TARGET_RESOURCES_DESC: 'Elements with aria attributes',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            'ARIA attribute has a value that is a valid type',
+              ALL_PASS_PLURAL:              'All %N_P ARIA attributes have values that are valid types',
+              SOME_FAIL:                    '%N_F out of %N_T with ARIA attributes have values that are valid types',
+              CORRECTIVE_ACTION_SINGULAR:   'change ARIA attribute to a vaild type',
+              CORRECTIVE_ACTION_PLURAL:     'change all %N_F ARIA attributes to a vaild types',
+              ALL_FAIL_SINGULAR:            'ARIA attribute does NOT have a value that is a valid type',
+              ALL_FAIL_PLURAL:              'All %N_F ARIA attribute do NOT have a value that is a valid type',
+              NOT_APPLICABLE:               'No ARIA attributes on this page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                'The @%1@ attribute with the value "@%2@" is a valid token',
+              PASS_2:                'The @%1@ attribute with the value "@%2@" is a valid "%3" type',
+              CORRECTIVE_ACTION_1:   'The @%1@ attribute with the value "@%2@" must change to one of the following values: %3',
+              CORRECTIVE_ACTION_2:   'The @%1@ attribute with the value "@%2@" must change to one or more of the following values: %3',
+              CORRECTIVE_ACTION_3:   'The @%1@ attribute with the value "@%2@" must change to a value with type of "%3"',
+              HIDDEN:                '%1 attribute with the value "@%2@" is hidden from assistive technologies and not visible on screen'
+            },
+            PURPOSE: [
+              'ARIA attributes must be a vaild type to accurately describe web content to users of assistive technologies, especially screen reader users'                   
+            ],
+            TECHNIQUES: [
+              'Use valid values for ARIA attributes',
+              'Check W3C WAI Accessible Rich Internet Applications specifications for allowed values for ARIA attributes'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Supported Property and States', 
+                url:   'http://www.w3.org/TR/wai-aria/states_and_properties'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G108'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'OAA Web Accessibility ARIA Examples', 
+                url:   'http://oaa-accessibility.org/examples/'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'Accessible jQuery-ui Components Demonstration', 
+                url:   'http://access.aol.com/aegis/#goto_slider'
+              }                            
+            ]
+      },
+      WIDGET_5: {
+            ID:                    'Widget Rule 5',
+            DEFINITION:            'ARIA property or state %s be defined',
+            SUMMARY:               'ARIA attribute %s be defined',
+            TARGET_RESOURCES_DESC: 'Elements with aria attributes',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            'ARIA attribute is defined property or state in the ARIA specification',
+              ALL_PASS_PLURAL:              'All %N_P ARIA attributes are defined defined properties or states in the ARIA specification',
+              SOME_FAIL:                    '%N_F out of %N_T with ARIA attributes are NOT defined defined properties or states in the ARIA specification',
+              CORRECTIVE_ACTION_SINGULAR:   'change ARIA attribute to a defined property or state',
+              CORRECTIVE_ACTION_PLURAL:     'change all %N_F ARIA attributes to a defined properties or states',
+              ALL_FAIL_SINGULAR:            'ARIA attribute is NOT a defined property or state in the ARIA specification',
+              ALL_FAIL_PLURAL:              'All %N_F ARIA attribute do NOT have a value that is a valid type in the ARIA specification',
+              NOT_APPLICABLE:               'No undefined ARIA attributes on this page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                'The @%1@ attribute is a defined ARIA property or state',
+              CORRECTIVE_ACTION_1:   'The @%1@ attribute must be changed to a defined ARIA property or state',
+              HIDDEN:                '%1 attribute with the value "@%2@" is hidden from assistive technologies and not visible on screen'
+            },
+            PURPOSE: [
+              'ARIA attributes must be defined properties or states to accurately describe web content to users of assistive technologies, especially screen reader users'                   
+            ],
+            TECHNIQUES: [
+              'Use defined ARIA properties and states in the ARIA specfication',
+              'Check W3C WAI Accessible Rich Internet Applications specifications for allowed values for ARIA attributes'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Supported Property and States', 
+                url:   'http://www.w3.org/TR/wai-aria/states_and_properties'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G108'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'OAA Web Accessibility ARIA Examples', 
+                url:   'http://oaa-accessibility.org/examples/'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'Accessible jQuery-ui Components Demonstration', 
+                url:   'http://access.aol.com/aegis/#goto_slider'
+              }                            
+            ]
+      },
+      WIDGET_6: {
+            ID:                    'Widget Rule 6',
+            DEFINITION:            'Widgets %s define required properties and states',
+            SUMMARY:               'Widgets %s have properties',
+            TARGET_RESOURCES_DESC: 'Widgets with required properties and states',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            'Widget has required properties and states',
+              ALL_PASS_PLURAL:              'All %N_P have required properties and states',
+              SOME_FAIL:                    '%N_F out of %N_T widgets do NOT have required properties and states',
+              CORRECTIVE_ACTION_SINGULAR:   'add required properties and states to widget',
+              CORRECTIVE_ACTION_PLURAL:     'add required properties and states to the %N_F widgets',
+              ALL_FAIL_SINGULAR:            'Widget does NOT have required properties and states',
+              ALL_FAIL_PLURAL:              'All %N_F widget do NOT have required properties and states',
+              NOT_APPLICABLE:               'No widgets with required properties and states on this page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@%1@ widget has the following required ARIA properties and states: %2',
+              CORRECTIVE_ACTION_1:   'Add one or more of the required ARIA properties and states (i.e. "%2") to the @%1@ widget',
+              HIDDEN:                '%1 widget is hidden from assistive technologies and not visible on screen'
+            },
+            PURPOSE: [
+              'ARIA roles, properties and states describes the features of interactive widgets to users of assistive technologies, especially screen reader users'                   
+            ],
+            TECHNIQUES: [
+              'Use required ARIA properties to describe the features and options of a widget'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G108'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'OAA Web Accessibility ARIA Examples', 
+                url:   'http://oaa-accessibility.org/examples/'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'Accessible jQuery-ui Components Demonstration', 
+                url:   'http://access.aol.com/aegis/#goto_slider'
+              }                            
+            ]
+        },
+      WIDGET_7: {
+            ID:                    'Widget Rule 7',
+            DEFINITION:            'Widgets %s have required child roles',
+            SUMMARY:               'Widgets %s have child roles',
+            TARGET_RESOURCES_DESC: 'Widgets with required owned elements',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            'Widget has required child roles',
+              ALL_PASS_PLURAL:              'All %N_P have required required child roles',
+              SOME_FAIL:                    '%N_F out of %N_T widgets do NOT have required child roles',
+              CORRECTIVE_ACTION_SINGULAR:   'add required child roles to child elements in the widget',
+              CORRECTIVE_ACTION_PLURAL:     'add required child roles to child elements in the %N_F widgets',
+              ALL_FAIL_SINGULAR:            'Widget does NOT have required child roles',
+              ALL_FAIL_PLURAL:              'All %N_F widgets do NOT have required child roles',
+              NOT_APPLICABLE:               'No widgets with required child ARIA elements on this page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                '@%1@ widget has at least one required owned elements: %2',
+              CORRECTIVE_ACTION_1:   '@%1@ widget is MISSING one or more of following required owned elements: %2',
+              HIDDEN:                '%1 widget is hidden from assistive technologies and not visible on screen'
+            },
+            PURPOSE: [
+              'ARIA roles, properties and states describes the features of interactive widgets to users of assistive technologies, especially screen reader users'                   
+            ],
+            TECHNIQUES: [
+              'Use required ARIA owned elements to describe the features and options of a widget'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G108'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'OAA Web Accessibility ARIA Examples', 
+                url:   'http://oaa-accessibility.org/examples/'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'Accessible jQuery-ui Components Demonstration', 
+                url:   'http://access.aol.com/aegis/#goto_slider'
+              }                            
+            ]
+        },
+     WIDGET_8: {
+            ID:                    'Widget Rule 8',
+            DEFINITION:            'Widgets %s have required parent role',
+            SUMMARY:               'Widgets %s have parent',
+            TARGET_RESOURCES_DESC: 'Widgets with required parent role',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            'Widget has required parent role',
+              ALL_PASS_PLURAL:              'All %N_P have required required parent role',
+              SOME_FAIL:                    '%N_F out of %N_T widgets do NOT have required role',
+              CORRECTIVE_ACTION_SINGULAR:   'add required parent role to the widget',
+              CORRECTIVE_ACTION_PLURAL:     'add required parent to the %N_F widgets',
+              ALL_FAIL_SINGULAR:            'Widget does NOT have required parent role',
+              ALL_FAIL_PLURAL:              'All %N_F widgets do NOT have required parent role',
+              NOT_APPLICABLE:               'No widgets with required parent role on this page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:               '@%1@ widget is a child of the a @%2@ role',
+              CORRECTIVE_ACTION_1:  'Create a parent widget with the role of @%1@ for this @%2@ widget',
+              CORRECTIVE_ACTION_2:   'Create a parent widget with the one of the required roles (i.e. @%1@) for this @%2@ widget',
+              HIDDEN:                '%1 widget is hidden from assistive technologies and not visible on screen'
+            },
+            PURPOSE: [
+              'ARIA roles, properties and states describes the features of interactive widgets to users of assistive technologies, especially screen reader users'                   
+            ],
+            TECHNIQUES: [
+              'Use required parent roles to describe the features and options of a widget'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G108'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'OAA Web Accessibility ARIA Examples', 
+                url:   'http://oaa-accessibility.org/examples/'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'Accessible jQuery-ui Components Demonstration', 
+                url:   'http://access.aol.com/aegis/#goto_slider'
+              }                            
+            ]
+        },
+     WIDGET_9: {
+            ID:                    'Widget Rule 9',
+            DEFINITION:            'Widgets %s be owned by only one parent widget',
+            SUMMARY:               'Only one owner',
+            TARGET_RESOURCES_DESC: 'Widgets with required parent roles',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            'Child widget is only referenced once by parent widget with aria-owns',
+              ALL_PASS_PLURAL:              'All %N_P child widget are only referenced once by parent widgets with aria-owns',
+              SOME_FAIL:                    '%N_F out of %N_T child widgets are referenced MORE than once by parent widgets with aria-owns',
+              CORRECTIVE_ACTION_SINGULAR:   'update parent widget with aria-owns to make sure it not references a child widget only once',
+              CORRECTIVE_ACTION_PLURAL:     'update %N_F parent widgets with aria-owns to make sure they reference a child widget only once',
+              ALL_FAIL_SINGULAR:            'Child widget is referenced MORE that once by parent widgets with aria-owns',
+              ALL_FAIL_PLURAL:              'All %N_F child widgets are referenced MORE that once by parent widgets with aria-owns',
+              NOT_APPLICABLE:               'No parent widgets using aria-owns on this page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:               '@%1@ child widget is referenced only by @%2@ parent widget with aria-owns',
+              CORRECTIVE_ACTION_1:  'Update references of @%1@ parent widgets with aria-owns to reference @%2@ child widget only once',
+              HIDDEN:               '%1 parent widget with aria-owns is hidden from assistive technologies and not visible on screen'
+            },
+            PURPOSE: [
+              'ARIA roles, properties and states describes the features of interactive widgets to users of assistive technologies, especially screen reader users'                   
+            ],
+            TECHNIQUES: [
+              'Parent widget roles with aira-owns must accurately decribe the parent relationships, a child widget can only have one parent widget'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G108'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'OAA Web Accessibility ARIA Examples', 
+                url:   'http://oaa-accessibility.org/examples/'
+              }                            
+            ]
+        },
+     WIDGET_10: {
+            ID:                    'Widget Rule 10',
+            DEFINITION:            'Range widget %s have value between minimum and maximum values',
+            SUMMARY:               'Value in range',
+            TARGET_RESOURCES_DESC: 'Range widgets ',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            'The value of the @aria-valuenow@ attribute is in the range defined by @aria-valuemin@ and @aria-valuemax@ attributes',
+              ALL_PASS_PLURAL:              'All %N_P values of the @aria-valuenow@ attributes are in their ranges defined by the widget\'s @aria-valuemin@ and @aria-valuemax@ attributes',
+              SOME_FAIL:                    '%N_F out of %N_T values of the @aria-valuenow@ attributes are NOT in their ranges defined by the widget\'s @aria-valuemin@ and @aria-valuemax@ attributes',
+              CORRECTIVE_ACTION_SINGULAR:   'update range attributes of the widget so the @aria-valuenow@ attribute is in the range defined by @aria-valuemin@ and @aria-valuemax@ attributes',
+              CORRECTIVE_ACTION_PLURAL:     'update range attributes of the %N_F widgets so the @aria-valuenow@ attribute of each widget is in the range defined by @aria-valuemin@ and @aria-valuemax@ attributes',
+              ALL_FAIL_SINGULAR:            'The value with the @aria-valuenow@ attribute is NOT in the range defined by @aria-valuemin@ and @aria-valuemax@ attributes',
+              ALL_FAIL_PLURAL:              'All %N_F values of range widgets with the @aria-valuenow@ attribute are NOT in the range defined by @aria-valuemin@ and @aria-valuemax@ attributes',
+              NOT_APPLICABLE:               'No range widgets on the page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:               '@%1@ widget is using @aria-valuetext@ attribute which overrides the @aria-valuenow@ attribute for describing the value of the range',
+              PASS_2:               '@%1@ widget value of %2 is in the range %3 and %4',
+              PASS_3:               '@%1@ widget has the range %3 and %4, and by not including the @aria-valuenow@ attribute the value of the progressbar is considered indeterminate',
+              CORRECTIVE_ACTION_1:  'Update the numeric values of @aria-valuenow@ (%1), @aria-valuemin@ (%2) and @aria-valuemax@ (%3) so the @aria-valuenow@ value is in range',
+              CORRECTIVE_ACTION_2:  'Update the numeric values of @aria-valuemin@ (%1) and @aria-valuemax@ (%2) so the @aria-valuemin@ value is less than the @aria-valuemax@ value',
+              CORRECTIVE_ACTION_3:  'For progresss bar update the numeric values or add @aria-valuemin@ (%2) and @aria-valuemax@ (%3) attributes and when state of progress is known use the @aria-valuenow@ attribute value to communicate the current state of progress',
+              CORRECTIVE_ACTION_4:  'Update or create @%1@ attribute to be a numeric value',
+              CORRECTIVE_ACTION_5:  'Update or create @%1@ attributes to be a numeric values',
+              HIDDEN:               '%1 range widget is hidden from assistive technologies'
+            },
+            PURPOSE: [
+              'ARIA roles, properties and states describes the features of interactive widgets to users of assistive technologies, especially screen reader users'                   
+            ],
+            TECHNIQUES: [
+              'Use the @aria-valuenow@, @aria-valuemin@ and @aria-valuemax@ are accurately defined'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G108'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'OAA Web Accessibility ARIA Examples', 
+                url:   'http://oaa-accessibility.org/examples/'
+              }                            
+            ]
+        },
+     WIDGET_11: {
+            ID:                    'Widget Rule 11',
+            DEFINITION:            'Elements with keyboard, mouse and/or drag events %s have widget roles or interactive elements (i.e. form controls or links)',
+            SUMMARY:               'Keyboard/Mouse/drag events %s have roles',
+            TARGET_RESOURCES_DESC: 'Elements with mouse events',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:            'Element with keyboard, mouse or drag event or its descendants has a role attribute or is an interactive element',
+              ALL_PASS_PLURAL:              'All %N_P elements with keyboard, mouse or drag events or their descendants have a widget role or are an interactive elements',
+              SOME_FAIL:                    '%N_F out of %N_T elements with keyboard, mouse or drag events or their descendants do NOT have a widget role or are an interactive elements',
+              CORRECTIVE_ACTION_SINGULAR:   'add ARIA widget role to the element or child elements that accurately describe the user options and actions available',
+              CORRECTIVE_ACTION_PLURAL:     'add ARIA widget roles to the %N_F elements or their child elements that accurately describe the user options and actions available',
+              ALL_FAIL_SINGULAR:            'Element with keyboard, mouse or drag event or its descendants does not have a widget role and/or an interactive element',
+              ALL_FAIL_PLURAL:              'All %N_F Element with keyboard, mouse or drag events or their descendants do not have a widget role and/or interactive elements',
+              NOT_APPLICABLE:               'No elements with keyboard, mouse or drag events found on this page'              
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:               '@%1@ widget has the following keyboard, mouse or drag event(s): %2',
+              PASS_2:               '@%1@ interactive element has the following keyboard, mouse or drag event(s): %2',
+              PASS_3:               '@%1@ element with the following keyboard, mouse or drag event(s): %2 ; has descendant elements with widget roles or interactive elements',
+              CORRECTIVE_ACTION_1:  'Add widget role(s) to the element and/or its descendants that accurately describe the user options and actions of the @%1@ element with the following keyboard, mouse or drag events: %2',
+              HIDDEN:               '%1 element is hidden from assistive technologies with following keyboard, mouse or drag events: %2'
+            },
+            PURPOSE: [
+              'ARIA roles, properties and states describes the features of interactive widgets to users of assistive technologies, especially screen reader users'                   
+            ],
+            TECHNIQUES: [
+              'Use the @role@ attrbute to describe the type of widget associated with the mouse events',
+              'Use ARIA properties and states attributes to describe features of each widget '
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: Widget Roles', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#widget_roles'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.WCAG_TECHNIQUE, 
+                title: 'G108: Using markup features to expose the name and role, allow user-settable properties to be directly set, and provide notification of changes', 
+                url:   'http://www.w3.org/TR/2012/NOTE-WCAG20-TECHS-20130103/G108'
+              },
+              { type:  OpenAjax.a11y.REFERENCES.EXAMPLE, 
+                title: 'OAA Web Accessibility ARIA Examples', 
+                url:   'http://oaa-accessibility.org/examples/'
+              }                            
+            ]
+        }
+   }     
+});
 /**
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33162,7 +33938,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     for (var i = 0; i < media_elements_len; i++ ) {
       var me = media_elements[i];
       var tag_name = me.dom_element.tag_name;
-      if (me.dom_element.computed_style.is_visible_onscreen === VISIBILITY.INVISIBLE) {
+      if (me.dom_element.computed_style.is_visible_onscreen === VISIBILITY.HIDDEN) {
         rule_result.addResult(TEST_RESULT.HIDDEN, me, 'HIDDEN', [tag_name]);                      
       }
       else {
@@ -33221,7 +33997,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     for (var i = 0; i < media_elements_len; i++ ) {
       var me = media_elements[i];
       var tag_name = me.dom_element.tag_name;
-      if (me.dom_element.computed_style.is_visible_onscreen === VISIBILITY.INVISIBLE) {
+      if (me.dom_element.computed_style.is_visible_onscreen === VISIBILITY.HIDDEN) {
         rule_result.addResult(TEST_RESULT.HIDDEN, me, 'HIDDEN', [tag_name]);                      
       }
       else {
@@ -34486,7 +35262,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         for (var i = 0; i < h1_elements_len; i++ ) {
           var he = h1_elements[i];
 
-          if (he.dom_element.computed_style.is_visible_to_at === VISIBILITY.INVISIBLE) {
+          if (he.dom_element.computed_style.is_visible_to_at === VISIBILITY.HIDDEN) {
             rule_result.addResult(TEST_RESULT.HIDDEN, he, 'HIDDEN', []);                      
           }
           else {
@@ -34545,7 +35321,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         var he = h1_elements[i];
         var de = he.dom_element;
         
-        if (de.computed_style.is_visible_to_at === VISIBILITY.INVISIBLE) {
+        if (de.computed_style.is_visible_to_at === VISIBILITY.HIDDEN) {
           rule_result.addResult(TEST_RESULT.HIDDEN, he, 'HIDDEN', []);                      
         }
         else {
@@ -34722,7 +35498,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     for (i = 0; i < heading_elements_len; i++ ) {
       he = heading_elements[i];
       de = he.dom_element;
-      if (de.computed_style.is_visible_to_at === VISIBILITY.INVISIBLE) {
+      if (de.computed_style.is_visible_to_at === VISIBILITY.HIDDEN) {
         rule_result.addResult(TEST_RESULT.HIDDEN, he, 'HIDDEN', [de.tag_name]);                      
       }
       else {
@@ -35077,7 +35853,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 
     for (var i = 0; i < main_elements_len; i++ ) {
       var me = main_elements[i];
-      if (me.dom_element.computed_style.is_visible_to_at === VISIBILITY.INVISIBLE) {
+      if (me.dom_element.computed_style.is_visible_to_at === VISIBILITY.HIDDEN) {
         rule_result.addResult(TEST_RESULT.HIDDEN, me, 'HIDDEN', []);                      
       }
       else {
@@ -35130,7 +35906,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 
 //      OpenAjax.a11y.logger.debug("  Content: " + de.toString()  +  " " + de.may_have_renderable_content);
       
-      if (de.computed_style.is_visible_to_at === VISIBILITY.INVISIBLE) {
+      if (de.computed_style.is_visible_to_at === VISIBILITY.HIDDEN) {
         rule_result.addResult(TEST_RESULT.HIDDEN, de, 'HIDDEN', [tag_name]);                      
       }
       else {
@@ -35183,7 +35959,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
       var tag_name = le.dom_element.tag_name;
       
       if (le.role === LANDMARK_ROLE) {
-        if (le.dom_element.computed_style.is_visible_to_at === VISIBILITY.INVISIBLE) {
+        if (le.dom_element.computed_style.is_visible_to_at === VISIBILITY.HIDDEN) {
           rule_result.addResult(TEST_RESULT.HIDDEN, le, 'HIDDEN', [tag_name]);                      
         }
         else {
@@ -35239,7 +36015,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
       var tag_name = le.dom_element.tag_name;
       
       if (le.role === LANDMARK_ROLE) {
-        if (le.dom_element.computed_style.is_visible_to_at === VISIBILITY.INVISIBLE) {
+        if (le.dom_element.computed_style.is_visible_to_at === VISIBILITY.HIDDEN) {
           rule_result.addResult(TEST_RESULT.HIDDEN, le, 'HIDDEN', [tag_name]);                      
         }
         else {
@@ -35295,7 +36071,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
       var le = landmark_elements[i];
       var tag_name = le.dom_element.tag_name;
       if (le.role === LANDMARK_ROLE_1 || le.role === LANDMARK_ROLE_2) {
-        if (le.dom_element.computed_style.is_visible_to_at === VISIBILITY.INVISIBLE) {
+        if (le.dom_element.computed_style.is_visible_to_at === VISIBILITY.HIDDEN) {
           rule_result.addResult(TEST_RESULT.HIDDEN, le, 'HIDDEN', [tag_name, le.role]);                      
         }
         else {
@@ -35322,7 +36098,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     
 
 /**
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35562,7 +36338,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
    } // end validation function
  }  
 ]); /**
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35971,7 +36747,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     
 
 /**
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36861,7 +37637,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     
 
 /**
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36911,7 +37687,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     for (var i = 0; i < media_elements_len; i++ ) {
       var me = media_elements[i];
       var tag_name = me.dom_element.tag_name;
-      if (me.dom_element.computed_style.is_visible_onscreen === VISIBILITY.INVISIBLE) {
+      if (me.dom_element.computed_style.is_visible_onscreen === VISIBILITY.HIDDEN) {
         rule_result.addResult(TEST_RESULT.HIDDEN, me, 'HIDDEN', [tag_name]);                      
       }
       else {
@@ -36972,7 +37748,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     for (var i = 0; i < media_elements_len; i++ ) {
       var me = media_elements[i];
       var tag_name = me.dom_element.tag_name;
-      if (me.dom_element.computed_style.is_visible_onscreen === VISIBILITY.INVISIBLE) {
+      if (me.dom_element.computed_style.is_visible_onscreen === VISIBILITY.HIDDEN) {
         rule_result.addResult(TEST_RESULT.HIDDEN, me, 'HIDDEN', [tag_name]);                      
       }
       else {
@@ -37035,7 +37811,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     for (var i = 0; i < media_elements_len; i++ ) {
       var me = media_elements[i];
       var tag_name = me.dom_element.tag_name;
-      if (me.dom_element.computed_style.is_visible_onscreen === VISIBILITY.INVISIBLE) {
+      if (me.dom_element.computed_style.is_visible_onscreen === VISIBILITY.HIDDEN) {
         rule_result.addResult(TEST_RESULT.HIDDEN, me, 'HIDDEN', [tag_name]);                      
       }
       else {
@@ -37098,7 +37874,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     for (var i = 0; i < media_elements_len; i++ ) {
       var me = media_elements[i];
       var tag_name = me.dom_element.tag_name;
-      if (me.dom_element.computed_style.is_visible_onscreen === VISIBILITY.INVISIBLE) {
+      if (me.dom_element.computed_style.is_visible_onscreen === VISIBILITY.HIDDEN) {
         rule_result.addResult(TEST_RESULT.HIDDEN, me, 'HIDDEN', [tag_name]);                      
       }
       else {
@@ -37161,7 +37937,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     for (var i = 0; i < media_elements_len; i++ ) {
       var me = media_elements[i];
       var tag_name = me.dom_element.tag_name;
-      if (me.dom_element.computed_style.is_visible_onscreen === VISIBILITY.INVISIBLE) {
+      if (me.dom_element.computed_style.is_visible_onscreen === VISIBILITY.HIDDEN) {
         rule_result.addResult(TEST_RESULT.HIDDEN, me, 'HIDDEN', [tag_name]);                      
       }
       else {
@@ -37224,7 +38000,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     for (var i = 0; i < media_elements_len; i++ ) {
       var me = media_elements[i];
       var tag_name = me.dom_element.tag_name;
-      if (me.dom_element.computed_style.is_visible_onscreen === VISIBILITY.INVISIBLE) {
+      if (me.dom_element.computed_style.is_visible_onscreen === VISIBILITY.HIDDEN) {
         rule_result.addResult(TEST_RESULT.HIDDEN, me, 'HIDDEN', [tag_name]);                      
       }
       else {
@@ -37287,7 +38063,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     for (var i = 0; i < media_elements_len; i++ ) {
       var me = media_elements[i];
       var tag_name = me.dom_element.tag_name;
-      if (me.dom_element.computed_style.is_visible_onscreen === VISIBILITY.INVISIBLE) {
+      if (me.dom_element.computed_style.is_visible_onscreen === VISIBILITY.HIDDEN) {
         rule_result.addResult(TEST_RESULT.HIDDEN, me, 'HIDDEN', [tag_name]);                      
       }
       else {
@@ -37349,7 +38125,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     for (var i = 0; i < media_elements_len; i++ ) {
       var me = media_elements[i];
       var tag_name = me.dom_element.tag_name;
-      if (me.dom_element.computed_style.is_visible_onscreen === VISIBILITY.INVISIBLE) {
+      if (me.dom_element.computed_style.is_visible_onscreen === VISIBILITY.HIDDEN) {
         rule_result.addResult(TEST_RESULT.HIDDEN, me, 'HIDDEN', [tag_name]);                      
       }
       else {
@@ -38328,7 +39104,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     
 
 /**
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38373,251 +39149,251 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
 
   rule_mappings : {
    AUDIO_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    AUDIO_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    COLOR_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    COLOR_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
        enabled  : true
      },
    CONTROL_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
        enabled  : true
      },
    CONTROL_3 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_4 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_5 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_6 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_7 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_8 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_10 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_11 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_12 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    HEADING_1 : {
-       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    HEADING_2 : {
-       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    HEADING_3 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    HEADING_4 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    HEADING_5 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    IMAGE_1 : {  
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
        enabled  : true
      },
    IMAGE_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    IMAGE_3 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    IMAGE_4_EN : {
-       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    IMAGE_5 : {
-       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    IMAGE_6 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    KEYBOARD_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    KEYBOARD_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    LANDMARK_1 : {
-       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED_BASIC,
        enabled  : true
      },
    LANDMARK_2 : {
-       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    LAYOUT_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    LAYOUT_2 : {
-       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    LAYOUT_3 : {
-       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    LINK_1 : {
-       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    LINK_2 : {
-       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    LINK_3 : {
-       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    LINK_4 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    TABLE_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    TABLE_2T : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    TABLE_3 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    TABLE_4 : {
-       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    TITLE_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    TITLE_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
        enabled  : true
      },
    VIDEO_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    VIDEO_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    VIDEO_3 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    VIDEO_4 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    VIDEO_5 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    VIDEO_6 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    VIDEO_7 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    VIDEO_8 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
        enabled  : true
      },
    WIDGET_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
        enabled  : true
      },
    WIDGET_3 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_4 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_5 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_6 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_7 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_8 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_9 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_10 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_11 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      }
   }  
@@ -38625,7 +39401,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
 
 
 /**
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38672,265 +39448,265 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
 
   rule_mappings : {
    AUDIO_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    AUDIO_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    COLOR_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    COLOR_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
        enabled  : true
      },
    CONTROL_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
        enabled  : true
      },
    CONTROL_3 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_4 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_5 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_6 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_7 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_8 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_9 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_10 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_11 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_12 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    HEADING_1 : {
-       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    HEADING_2 : {
-       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    HEADING_3 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    HEADING_4 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    HEADING_5 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    IMAGE_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
        enabled  : true
      },
    IMAGE_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    IMAGE_3 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    IMAGE_4_EN : {
-       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    IMAGE_5 : {
-       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    IMAGE_6 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    KEYBOARD_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    KEYBOARD_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    LANDMARK_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
        enabled  : true
      },
    LANDMARK_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
        enabled  : true
      },
    LAYOUT_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    LAYOUT_2 : {
-       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    LAYOUT_3 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    LINK_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    LINK_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    LINK_3 : {
-       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    LINK_4 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    TABLE_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    TABLE_2S : {
-       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    TABLE_2M : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    TABLE_3 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    TABLE_4 : {
-       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    TITLE_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    TITLE_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
        enabled  : true
      },
    VIDEO_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    VIDEO_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    VIDEO_3 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    VIDEO_4 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    VIDEO_5 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    VIDEO_6 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    VIDEO_7 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    VIDEO_8 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
        enabled  : true
      },
    WIDGET_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
        enabled  : true
      },
    WIDGET_3 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_4 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_5 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_6 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_7 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_8 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_9 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_10 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_11 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      }
   } 
 });
 /**
- * Copyright 2011-2012 OpenAjax Alliance
+ * Copyright 2011-2013 OpenAjax Alliance
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38975,267 +39751,267 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
 
   rule_mappings : {
    AUDIO_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    AUDIO_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    COLOR_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    COLOR_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
        enabled  : true
      },
    CONTROL_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
        enabled  : true
      },
    CONTROL_3 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_4 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_5 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_6 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_7 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_8 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_10 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_11 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_12 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    HEADING_1 : {
-       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    HEADING_2 : {
-       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    HEADING_3 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    HEADING_4 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    HEADING_5 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    IMAGE_1 : {  
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
        enabled  : true
      },
    IMAGE_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    IMAGE_3 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    IMAGE_4_EN : {
-       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    IMAGE_5 : {
-       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    IMAGE_6 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    KEYBOARD_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    KEYBOARD_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    LANDMARK_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
        enabled  : true
      },
    LANDMARK_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
        enabled  : true
      },
    LANDMARK_2N : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
        enabled  : true
      },
    LANDMARK_2B : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    LANDMARK_2CI : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    LAYOUT_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    LAYOUT_2 : {
-       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    LAYOUT_3 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    LINK_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    LINK_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    LINK_3 : {
-       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    LINK_4 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    TABLE_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    TABLE_2S : {
-       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    TABLE_2M : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    TABLE_3 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    TABLE_4 : {
-       type     : OpenAjax.a11y.RULE.RECOMMENDED,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    TITLE_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    TITLE_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
        enabled  : true
      },
    VIDEO_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    VIDEO_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    VIDEO_3 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    VIDEO_4 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    VIDEO_5 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    VIDEO_6 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    VIDEO_7 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    VIDEO_8 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_1 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
        enabled  : true
      },
    WIDGET_2 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
        enabled  : true
      },
    WIDGET_3 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_4 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_5 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_6 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_7 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_8 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_9 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_10 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_11 : {
-       type     : OpenAjax.a11y.RULE.REQUIRED,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      }
   } 
