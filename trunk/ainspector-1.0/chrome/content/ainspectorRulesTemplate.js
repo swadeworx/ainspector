@@ -177,10 +177,12 @@ define([
              FBTrace.sysout("filtered_rule_results: ", rule_results_list);
 
              panel.table = this.tag.replace({results: rule_results_list, view:view, category_rule_results: category_rule_results }, panel.panelNode);
+             FBTrace.sysout("after panel.table : ");
+
              AinspectorUtil.contextMenu.setTableMenuItems(panel.table);
-             
+             FBTrace.sysout("after setTableMenuItems: ");
              var side_panel = Firebug.chrome.getSelectedSidePanel();
-             
+             FBTrace.sysout("side_panel: ", side_panel);
              AinspectorUtil.selectRow(panel.table, false, id);
              
              if (side_panel) {
