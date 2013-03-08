@@ -82,24 +82,35 @@ Firebug.ElementsSidePanel.prototype = Obj.extend(Firebug.Panel, {
   setSelection : function(event){
     
     var rule_result_item = Firebug.getRepObject(event.target);
-    this.node_results_array = [];
-    if (FBTrace.DBG_AINSPECTOR)
-        FBTrace.sysout("AInspector; ElementsSidePanel.setSelection-rule_result_item", rule_result_item);
-    if (!rule_result_item) return;
     
-    this.updateSelection(rule_result_item);
+    this.node_results_array = [];
+    if (!rule_result_item) return;
+
+    if (FBTrace.DBG_AINSPECTOR)
+      FBTrace.sysout("AInspector; ElementsSidePanel.setSelection-rule_result_item", rule_result_item);
+
+    this.updateSelection(rule_result_item, this.panelNode);
     
   },
   
   updateSelection : function (rule_result_item, parentNode) {
     
     var rule_result_mesg = '';
-    rule_result_item = rule_result_item.filtered_rule_result;
-    if (rule_result_item && rule_result_item.rule_result) rule_result_mesg = rule_result_item.rule_result.getMessage();
-    else rule_result_mesg = rule_result_item.title;
-
-    if (rule_result_item.filtered_node_results) this.rebuild(rule_result_mesg, rule_result_item.filtered_node_results, parentNode);
-    else Firebug.RuleInfoSidePanel.prototype.rulestemplate.selectTag.replace({}, this.panelNode);
+    var filtered_rule_result = rule_result_item.filtered_rule_result;
+    
+    if (filtered_rule_result) {
+    	if ( filtered_rule_result.rule_result) rule_result_mesg = filtered_rule_result.rule_result.getMessage();
+      
+      if (FBTrace.DBG_AINSPECTOR)
+      	FBTrace.sysout("AINspector; filtered_rule_result: ", filtered_rule_result);
+      
+      if (filtered_rule_result.filtered_node_results && filtered_rule_result.filtered_node_results.length > 0) this.rebuild(rule_result_mesg, filtered_rule_result.filtered_node_results, parentNode);
+      else SidePanelUtil.commonTemplate.noResultsTag.replace({}, parentNode);	
+    } else {
+    	if (rule_result_item.filtered_rule_group_result) SidePanelUtil.commonTemplate.selectTag.replace({message: Locale.$STR("ainspector.sidepanel.wcag.selectRow")}, parentNode);
+    }
+    
+    
   },
   
   rebuild : function(rule_summary, filtered_node_results, parentNode) {
@@ -162,10 +173,6 @@ with (Domplate) {
               DIV({class: "gridContent resultAlign"}, 
                 BUTTON({onclick: "$gotoHTML", id: "html_panel_button"}, "HTML"))
             )
-            /*TD({class: "gridCol", role: "gridcell"},
-              DIV({class: "gridContent resultAlign"}, 
-                BUTTON({onclick: "$getElementInformation"}, "more info"))
-            )*/
         ),
         
       childrow :
@@ -268,7 +275,6 @@ with (Domplate) {
           
           if (severity_label == 'Violation') return this.strTagViolation;
 
-//        return object.getNLSSeverityLabel();
         },
         
         hasChildren : function(object){
@@ -347,14 +353,10 @@ with (Domplate) {
         var table = Dom.getAncestorByClass(event.target, "ai-sidepanel-table");
         var row = Dom.getAncestorByClass(event.target, "treeRow");
         
-        AinspectorUtil.highlightRow(event, table, row);
-//        AINSPECTOR_FB.flatListTemplateUtil.unHighlight(table);
-//        AINSPECTOR_FB.flatListTemplateUtil.highlight(row);
+        if (FBTrace.DBG_AINSPECTOR)
+        	FBTrace.sysout("AInspector; elementsSidePanel.highlightRow-row: ", row);
         
-//        if (AINSPECTOR_FB.element_info_dialog) {
-//          AINSPECTOR_FB.element_info_dialog.cache_item_properties.update(row.repObject.cache_item);
-//          AINSPECTOR_FB.element_info_dialog.focus();
-//        }
+        AinspectorUtil.highlightRow(event, table, row);
       },
        
       getElement : function(object) {

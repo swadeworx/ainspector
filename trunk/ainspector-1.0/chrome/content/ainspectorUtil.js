@@ -56,7 +56,10 @@ define([
       if (!row) row = Dom.getAncestorByClass(event.target, "treeRow");
       
       var object = Firebug.getRepObject(event.target);
-      object = object.cache_item_result.cache_item;
+      
+      if (object.cache_item_result) object = object.cache_item_result.cache_item;
+      else object = object.cache_item;
+      
       if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("Dom node to select in HTML panel: ", object);
     	  
       var cache_item = null;
@@ -195,13 +198,12 @@ define([
         var table = Dom.getChildByClass(panel, "domTable");
         if (!table) table = Dom.getChildByClass(panel, "ai-table-list-items");
         
-//        FBTrace.sysout("AInspector; AinspectorUtil.selectRow.table: ", table);
-//        FBTrace.sysout("AInspector; AinspectorUtil.selectRow: ", AinspectorUtil.selected_row);
+        if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; AinspectorUtil.selectRow: ", AinspectorUtil.selected_row);
+        
         
         rows = table.children[1].children;
-          
-        /*if (is_a_tree) rows = panel.children[3].children[1].children;
-        else rows = panel.children[1].children[1].children;*/
+        
+        if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; AinspectorUtil.selectRow-rows: ", rows);
         
         var row = null;
         var i = 0;
@@ -209,33 +211,45 @@ define([
         for (i; i < rows.length; i++) {
           row = rows[i];
           var flag = false;
-          if (is_a_tree == true) {
-            var children;
-            var obj = row.repObject;
-            
+          var obj = row.repObject;
+
+          if (obj.container) {
+          	
+          	if (obj.summary && obj.summary == selected_row.repObject.summary){
+          		this.highlight(row);
+          	} else {
+          		if (obj.cache_item_result && obj.cache_item_result.cache_item.toString() == selected_row.repObject.cache_item_result.cache_item.toString()
+          				&& obj.cache_item_result.cache_item.document_order == selected_row.repObject.cache_item_result.cache_item.document_order) {
+          			this.highlight(row);
+          		}
+          	}
+          	
+          	
+          	
+           /* var children;
+            FBTrace.sysout("obj: ", obj);  
             if (obj.children) {
               children = obj.children;
-              if (children) {
                 for (var j=0; j<children.length; j++) {
                   var child = children[j];
                   
-                  if (child.cache_item && child.cache_item.toString() == selected_row.repObject.cache_item.toString() &&
-                    child.cache_item.document_order == selected_row.repObject.cache_item.document_order) {
-                    
+                  if (child.cache_item_result && child.cache_item_result.cache_item.toString() == selected_row.repObject.cache_item_result.cache_item.toString() &&
+                  		child.cache_item_result.cache_item.document_order == selected_row.repObject.cache_item_result.cache_item.document_order) {
                     var new_table = Firebug.AinspectorModule.AinspectorTreeTemplate.openRow(row);
+                    FBTrace.sysout("new_table: ", new_table);
                     j = j+1;
                     var k = i+j;
                     this.highlight(new_table.children[3].children[1].children[i+j]);
-//                    return k;
+                  } else {
+                  	
                   }
                 }
-              }
             } else {
-              if (row.repObject.rule_result && row.repObject.rule_result.cache_id == selected_row.repObject.rule_result.cache_id){
+              if (row.repObject.filtered_rule_result.rule_result && row.repObject.filtered_rule_result.rule_result.cache_id == selected_row.repObject.filtered_rule_result.rule_result.cache_id){
                 this.highlight(row);
                 break;
               }
-            } 
+            }*/ 
             
           } else { //flat list
             var citem = null;
@@ -243,13 +257,9 @@ define([
 //            FBTrace.sysout("row: ", row);
 //            FBTrace.sysout("selected_row:", selected_row);
             
-            if (row.repObject.cache_item) citem = row.repObject.cache_item;
-            else if(row.repObject.rule_result) citem = row.repObject.cache_id;
-            else citem = row.repObject;
+            citem = row.repObject.cache_item_result ? row.repObject.cache_item_result.cache_item : row.repObject.filtered_rule_result.cache_id;
             
-            if (row.repObject.cache_item && selected_row.repObject.cache_item) sitem = selected_row.repObject.cache_item;
-            else if(row.repObject.rule_result && selected_row.repObject.rule_result) sitem = selected_row.repObject.cache_id;
-            else sitem = selected_row.repObject;
+            sitem = selected_row.repObject.cache_item_result ? selected_row.repObject.cache_item_result.cache_item : selected_row.repObject.filtered_rule_result.cache_id;
             
 //            FBTrace.sysout("citem: ", citem);
 //            FBTrace.sysout("sitem:", sitem);

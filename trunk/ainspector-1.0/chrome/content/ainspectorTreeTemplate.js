@@ -403,7 +403,6 @@ define([
                 
                 if (object.children) length += object.children.length;
                 
-//                if (object.filtered_rule_results_groups) length += object.filtered_rule_results_groups.length;
               }
             }
           },
