@@ -195,8 +195,6 @@ define([
                if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; filtered_results: ", filtered_results);
                var rule_results_tree = filtered_results.createListOfRuleResults();
                
-//               var filtered_rule_results_groups = filtered_results.filtered_rule_results_groups;
-               
                if (panel)
                  Dom.clearNode(panel.panelNode);
                
