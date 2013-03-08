@@ -223,34 +223,6 @@ define([
           			this.highlight(row);
           		}
           	}
-          	
-          	
-          	
-           /* var children;
-            FBTrace.sysout("obj: ", obj);  
-            if (obj.children) {
-              children = obj.children;
-                for (var j=0; j<children.length; j++) {
-                  var child = children[j];
-                  
-                  if (child.cache_item_result && child.cache_item_result.cache_item.toString() == selected_row.repObject.cache_item_result.cache_item.toString() &&
-                  		child.cache_item_result.cache_item.document_order == selected_row.repObject.cache_item_result.cache_item.document_order) {
-                    var new_table = Firebug.AinspectorModule.AinspectorTreeTemplate.openRow(row);
-                    FBTrace.sysout("new_table: ", new_table);
-                    j = j+1;
-                    var k = i+j;
-                    this.highlight(new_table.children[3].children[1].children[i+j]);
-                  } else {
-                  	
-                  }
-                }
-            } else {
-              if (row.repObject.filtered_rule_result.rule_result && row.repObject.filtered_rule_result.rule_result.cache_id == selected_row.repObject.filtered_rule_result.rule_result.cache_id){
-                this.highlight(row);
-                break;
-              }
-            }*/ 
-            
           } else { //flat list
             var citem = null;
             var sitem = null;
