@@ -481,6 +481,7 @@ define([
            type   : "radio",
            command: function() {
                var id = this.getAttribute("id");
+               FBTrace.sysout("this: ", this);
                Firebug.AinspectorPanel.prototype.showReport(id);
            }
              //Obj.bindFixed(this.getEMCFilter, this)
@@ -915,22 +916,23 @@ define([
         
         if (!rule_summary) return;
 
-        var dir = FileUtils.getDir('TmpD', [], true, true);
+       /* var dir = FileUtils.getDir('TmpD', [], true, true);
 
         var file = FileUtils.getFile('TmpD', ['ai_report_rule_summary.html']);
         
-        var fileStream = FileUtils.openSafeFileOutputStream(file, 0x02 | 0x08 | 0x20, 0644, 0);  
+        var fileStream = FileUtils.openSafeFileOutputStream(file, 0x02 | 0x08 | 0x20, 0644, 0);*/  
         
         var html = rule_summary.toHTML(name);
         
         FBTrace.sysout("html: ", html);
-        fileStream.write(html, html.length);
+        /*
+         fileStream.write(html, html.length);
         
         FileUtils.closeSafeFileOutputStream(fileStream);
             
         window.open("file:\\"+file.path,'mywindow','');
 
-        file = FileUtils.getFile('TmpD', ['report_rule_summary.csv']);
+        file = FileUtils.getFile('TmpD', ['ai_report_rule_summary.csv']);
         
         fileStream = FileUtils.openSafeFileOutputStream(file, 0x02 | 0x08 | 0x20, 0644, 0);  
         
@@ -938,7 +940,24 @@ define([
         
         fileStream.write(csv, csv.length);
         
-        FileUtils.closeSafeFileOutputStream(fileStream);
+        FileUtils.closeSafeFileOutputStream(fileStream);*/
+
+       /* var oReq = new XMLHttpRequest();
+        oReq.open("get", html, true);
+        oReq.send();
+        */
+        
+
+        FBTrace.sysout("window: ", window);
+        FBTrace.sysout("html: ", html);
+
+        var OpenWindow = window.open('','myconsole','width=335,height=330,resizable=1,toolbar=1,scrollbars=1,status=0');
+        OpenWindow.document.body.innerHTML = "<b>Hello, stackoverflow!</b>";
+
+        FBTrace.sysout("OpenWindow: ", OpenWindow);
+//      OpenWindow.document.open();
+//      OpenWindow.document.write(html);
+        OpenWindow.document.close();
       }
   });
   

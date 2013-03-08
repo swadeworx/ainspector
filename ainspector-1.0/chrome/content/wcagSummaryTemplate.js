@@ -195,7 +195,7 @@ define([
                if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; filtered_results: ", filtered_results);
                var rule_results_tree = filtered_results.createListOfRuleResults();
                
-               var filtered_rule_results_groups = filtered_results.filtered_rule_results_groups;
+//               var filtered_rule_results_groups = filtered_results.filtered_rule_results_groups;
                
                if (panel)
                  Dom.clearNode(panel.panelNode);
@@ -203,8 +203,6 @@ define([
                panel.panelNode.id = "ainspector-panel";
                if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; rule_results_tree: ", rule_results_tree);
 
-               if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; filtered_rule_results_groups: ", filtered_rule_results_groups);
-               
                panel.table = this.tag.replace({results: rule_results_tree, view:view, filtered_results: filtered_results}, panel.panelNode);
                
                this.expandAllRows(panel.table);

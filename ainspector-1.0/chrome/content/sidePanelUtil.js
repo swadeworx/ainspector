@@ -494,6 +494,11 @@ define([
               DIV({class: "element-select", style:"color:gray;"}, 
                  Locale.$STR("ainspector.sidepanel.noprops") + " '" + "$sidePanel" + "'"
              ),
+             
+            noResultsTag:
+               DIV({class: "element-select", style:"color:gray;"}, 
+             	   Locale.$STR("ainspector.sidepanel.noRuleprops")
+             ),  
             
             /**
              * @function setSelection
@@ -505,9 +510,10 @@ define([
             setSelection: function(event, parentNode, headers, type) {
           
               var object = Firebug.getRepObject(event.target);
-              
+              var cache_item;
 //              if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("cache_object in setSelection: ", object);
-              var results = this.getResults(object.cache_item_result.cache_item, type); 
+              if (object.cache_item_result) cache_item = object.cache_item_result.cache_item
+              var results = this.getResults(cache_item, type); 
               
               if (results.length > 0) this.rebuild(results, headers, parentNode, type);
               

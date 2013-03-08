@@ -98,7 +98,7 @@ Firebug.RuleInfoSidePanel.prototype = Obj.extend(Firebug.Panel, {
     if (FBTrace.DBG_AINSPECTOR)
         FBTrace.sysout("AInspector; RuleInfoSidePanel.setSelection-result_object", result_object);
     
-    if (result_object.filtered_rule_result.rule_result) {
+    if (result_object.filtered_rule_result && result_object.filtered_rule_result.rule_result) {
       this.updateSelection(result_object);
     } else {
       this.rulestemplate.selectTag.replace({}, this.panelNode);
@@ -232,6 +232,9 @@ with (Domplate) {
       
       selectTag :
         DIV({class: "element-select", style:"color:gray;"}, Locale.$STR("ainspector.sidepanel.wcag.selectRow")),
+        
+      noResultsTag:
+          DIV({class: "element-select", style:"color:gray;"}, "$message"),  
 
       onClickURL : function(event) {
         

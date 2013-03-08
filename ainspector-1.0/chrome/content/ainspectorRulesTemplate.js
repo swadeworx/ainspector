@@ -132,6 +132,7 @@ define([
           	 if (pass > 0 ) return "passMsgTxt";
           	 else return "grayStyle";
            },
+           
            getWarningsStyle : function(warn) {
           	 
           	 if (warn > 0 ) return "warnMsgTxt";
@@ -175,8 +176,6 @@ define([
 
              FBTrace.sysout("filtered_rule_results: ", rule_results_list);
 
-             var filtered_rule_results = category_rule_results.filtered_rule_results;
-             
              panel.table = this.tag.replace({results: rule_results_list, view:view, category_rule_results: category_rule_results }, panel.panelNode);
              AinspectorUtil.contextMenu.setTableMenuItems(panel.table);
              
@@ -184,7 +183,7 @@ define([
              
              AinspectorUtil.selectRow(panel.table, false, id);
              
-             if (side_panel){
+             if (side_panel) {
               
                if (AinspectorUtil.selected_row != null) side_panel.updateSelection(AinspectorUtil.selected_row.repObject, side_panel.panelNode);
                else side_panel.getPanelViewMesg(side_panel.panelNode, "");
@@ -209,8 +208,9 @@ define([
              var column = Dom.getAncestorByClass(event.target, "gridHeaderCell");
              
              if (FBTrace.DBG_AINSPECTOR)
-               FBTrace.sysout("AInspector; Firebug.AinspectorModule.AinspectorRulesTemplate.sortColumn", AinspectorUtil);  
-             AinspectorUtil.sortColumn(table, column);
+               
+            	 FBTrace.sysout("AInspector; Firebug.AinspectorModule.AinspectorRulesTemplate.sortColumn", AinspectorUtil);  
+           		 AinspectorUtil.sortColumn(table, column);
            }
            
       });
