@@ -18,6 +18,13 @@
   font-size: 14px;
   color: black;
 }
+
+.summaryGrid {
+	margin-left: 0.5em;
+  min-width: 100%;
+  padding: 1px;
+  color: black; 
+}
 .gridHeaderCell {
   cursor: pointer;
   -moz-user-select: none;
