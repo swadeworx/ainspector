@@ -21,6 +21,7 @@ define([
   "firebug/lib/dom",
   "ainspector/openajax_a11y/oaa_a11y_amd",
   "ainspector/headerResizer",
+  "ainspector/ainspectorListener",
   "ainspector/highlighting/highlight",
   "ainspector/ainspectorUtil",
   "ainspector/ainspectorWatcher",
@@ -31,7 +32,7 @@ define([
   "ainspector/ainspectorRulesTemplate",
   "ainspector/wcagSummaryTemplate"
   ],
-  function(Obj, FBL, FBTrace, Locale, Dom, OpenAjax, HeaderResizer, 
+  function(Obj, FBL, FBTrace, Locale, Dom, OpenAjax, HeaderResizer, AinspectorListener,
       OAA_WEB_ACCESSIBILITY, AinspectorUtil, AinspectorWatcher, AinspectorPreferences) {
   
     var panelName = "ainspector";
@@ -523,7 +524,7 @@ define([
         if (FBTrace.DBG_AINSPECTOR) 
           FBTrace.sysout("AInspector; AinspectorPanel.getAllRulesetsMenu-fbPanelToolbar: ", Firebug.chrome.$("fbPanelToolbar").children);
         this.setSelectedView("onClickRulesMenuItem");
-        
+        AinspectorListener.onGetPanelToolbarButtons(ruleset_object);
         OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight();
         
         Firebug.AinspectorModule.AinspectorRulesTemplate.viewTag(ruleset_object, 
@@ -535,6 +536,8 @@ define([
         
         this.setSelectedView("onClickCategoriesMenuItem");
        
+        AinspectorListener.onGetPanelToolbarButtons(ruleset_object);
+
         OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight();
 
         Firebug.AinspectorModule.WcagSummaryTemplate.viewTag(ruleset_object, 
@@ -542,8 +545,11 @@ define([
       },
       
       onClickWCAGMenuItem : function() {
+        
         this.setSelectedView("onClickWCAGMenuItem");
-       
+        
+        AinspectorListener.onGetPanelToolbarButtons(ruleset_object);
+
         OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight();
 
         Firebug.AinspectorModule.WcagSummaryTemplate.viewTag(ruleset_object, 
@@ -557,6 +563,11 @@ define([
        */
       onClickContentMenuItem : function() {
         this.setSelectedView("onClickContentMenuItem");
+        
+//        if (FBTrace.DBG_AINSPECTOR) 
+        FBTrace.sysout("AInspector; AinspectorPanel.onClickContentMenuItem-AinspectorListener(): ", AinspectorListener);
+        
+        AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Text Elements');
 
         OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight();
 
@@ -572,7 +583,9 @@ define([
        */
       onClickHeadersMenuItem : function() {
         this.setSelectedView("onClickHeadersMenuItem");
-      
+        
+        AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Heading and Landmark Elements');
+
         OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight();
 
         Firebug.AinspectorModule.AinspectorListTemplate.viewTag(ruleset_object, 
@@ -586,7 +599,11 @@ define([
        * @desc response to form controls menu item
        */
       onClickControlsMenuItem : function() {
+        
         this.setSelectedView("onClickControlsMenuItem");
+        
+        AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Form Control Elements');
+        
         OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight();
 
         Firebug.AinspectorModule.AinspectorTreeTemplate.viewTag(ruleset_object, 
@@ -600,7 +617,11 @@ define([
        * @desc response to Images menu item
        */
       onClickImagesMenuItem : function() {
+        
         this.setSelectedView("onClickImagesMenuItem");
+        
+        AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Image Elements');
+        
         OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight();
 
         Firebug.AinspectorModule.AinspectorListTemplate.viewTag(ruleset_object, 
@@ -613,7 +634,10 @@ define([
        * @desc response to Links menu item
        */
       onClickLinkMenuItem : function() {
+        
         this.setSelectedView("onClickLinkMenuItem");
+        AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Link Elements');
+        
         OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight();
 
         Firebug.AinspectorModule.AinspectorListTemplate.viewTag(ruleset_object, 
@@ -627,8 +651,11 @@ define([
        * @desc response to audio/video menu item
        */
       onClickAudioMenuItem : function() {
+        
         this.setSelectedView("onClickAudioMenuItem");
 
+        AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Audio/Video/Object Elements');
+        
         OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight();
 
         Firebug.AinspectorModule.AinspectorListTemplate.viewTag(ruleset_object, 
@@ -642,8 +669,11 @@ define([
        * @desc response to form controls menu item
        */
       onClickTablesMenuItem : function() {
+        
         this.setSelectedView("onClickTablesMenuItem");
 
+        AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Table Elements');
+        
         OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight();
 
         Firebug.AinspectorModule.AinspectorTreeTemplate.viewTag(ruleset_object, 
@@ -657,8 +687,11 @@ define([
        * @desc response to form controls menu item
        */
       onClickWidgetsMenuItem : function() {
+        
         this.setSelectedView("onClickWidgetsMenuItem");
 
+        AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Widget Elements');
+        
         OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight();
 
         Firebug.AinspectorModule.AinspectorTreeTemplate.viewTag(ruleset_object, 

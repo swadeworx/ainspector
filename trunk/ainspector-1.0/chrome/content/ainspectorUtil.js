@@ -115,7 +115,6 @@ define([
           for (var c=0; c< current_row.children.length; c++) {
             Css.setClass(current_row.children[c], "gridCellSelected");
           }
-          
           return;
         }
       }
@@ -171,11 +170,11 @@ define([
       for (var i=0; i< row.children.length; i++) {
         Css.setClass(row.children[i], "gridCellSelected");
       }
-      FBTrace.sysout("row in highlight: ", row);
-      if (row.repObject.filtered_node_results) {
-        OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightNodeResults(row.repObject.filtered_node_results);
+//      FBTrace.sysout("row in highlight: ", row);
+      if (row.repObject.filtered_rule_result && row.repObject.filtered_rule_result.filtered_node_results) {
+        OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightNodeResults(row.repObject.filtered_rule_result.filtered_node_results);
       } else {
-        OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems(row.repObject);
+        OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems(row.repObject.cache_item_result);
       }
     }
     
