@@ -530,11 +530,11 @@ define([
             getResults : function(cache_item, type) {
               var properties = null;
               
-              if (type == "attributes") properties = cache_item.getAttributes();
-              else if (type == "style") properties = cache_item.getStyle();
-              else if (type == "events") properties = cache_item.getEvents();
-              else properties = cache_item.getCacheProperties();
-              
+              if (type == 'attributes')     properties = cache_item.getAttributes();
+              else if (type == 'style')     properties = cache_item.getStyle();
+              else if (type == 'events')    properties = cache_item.getEvents();
+              else if (type == 'properties') properties = cache_item.getCacheProperties();
+              else properties = '';
               var rule_result_array = new Array();
               for(var i=0; i<properties.length; i++){
                 if (type == "events"){
