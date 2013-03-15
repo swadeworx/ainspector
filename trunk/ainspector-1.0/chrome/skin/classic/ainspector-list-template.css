@@ -20,10 +20,11 @@
 }
 
 .summaryGrid {
+	display: inline-block;
+	min-width: 50px;
 	margin-left: 0.5em;
-  min-width: 100%;
-  padding: 1px;
   color: black; 
+  text-align: center;
 }
 .gridHeaderCell {
   cursor: pointer;

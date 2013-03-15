@@ -39,18 +39,19 @@ define([
         tag:
            DIV({class:"main-panel"},
              SPAN({class: "summaryTitle", style: "margin-left: 0.5em;"}, "$view"), 
+             DIV({},
              SPAN({style: "margin-left: 3.0em; color: gray;"}, "%P"),
-             SPAN({style: "margin-left: 0.5em; color: black; background-color: #78AB46"}, "  " + "$filtered_results.percent_passed" + "  "),
+             SPAN({class: "summaryGrid", style: "background-color: #B0E57C"}, "$filtered_results.percent_passed"),
              SPAN({style: "margin-left: 1.5em; color: gray;"}, " V"),
-             SPAN({style: "margin-left: 0.5em; color: black; background-color: #b22222;"}, "  " + "$filtered_results.violations_count" + "  "),
+             SPAN({class: "summaryGrid", style: "background-color: #FFAEAE;"}, "$filtered_results.violations_count"),
              SPAN({style: "margin-left: 1.5em; color: gray;"}, " W"),
-             SPAN({style: "margin-left: 0.5em; color: black; background-color: #DAA520;"}, "  " + "$filtered_results.warnings_count" + "  "),
+             SPAN({class: "summaryGrid", style: "background-color: #FFEC94;"}, "$filtered_results.warnings_count"),
              SPAN({style: "margin-left: 1.5em; color: gray;"}, " MC"),
-             SPAN({style: "margin-left: 0.5em; color: black; background-color: #CD96CD;"}, "  " + "$filtered_results.manual_checks_count" + "   "),
+             SPAN({class: "summaryGrid", style: "background-color: #B4D8E7;"}, "$filtered_results.manual_checks_count"),
              
              BUTTON({onclick: "$expandAll", style: "float:right;", _repObject: "$results"}, "Expand All"),
-             BUTTON({onclick: "$collapseAllRows", style: "float:right;", _repObject: "$results"}, "Collapse All"),
-             
+             BUTTON({onclick: "$collapseAllRows", style: "float:right;", _repObject: "$results"}, "Collapse All")
+             ),
              TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, hiddenCols: "", onclick: "$toggleRows"},
                THEAD(
                  TR({class: "gridHeaderRow firstRow gridRow"},

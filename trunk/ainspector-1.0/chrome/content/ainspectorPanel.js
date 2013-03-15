@@ -21,7 +21,7 @@ define([
   "firebug/lib/dom",
   "ainspector/openajax_a11y/oaa_a11y_amd",
   "ainspector/headerResizer",
-  "ainspector/ainspectorListener",
+  "ainspector/ainspectorMenuUtil",
   "ainspector/highlighting/highlight",
   "ainspector/ainspectorUtil",
   "ainspector/ainspectorWatcher",
