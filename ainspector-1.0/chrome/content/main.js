@@ -22,7 +22,6 @@
 define([
   "firebug/lib/trace",
   "ainspector/ainspectorModule",
-  "ainspector/ainspectorListener",
   "ainspector/ainspectorPanel",
   "ainspector/sidepanels/elements",
   "ainspector/sidepanels/ruleInfo",
@@ -32,7 +31,7 @@ define([
   "ainspector/sidepanels/style",
   "ainspector/sidepanels/events"
   ],
-  function(FBTrace, AinspectorModule, AinspectorListener, AinspectorPanel,
+  function(FBTrace, AinspectorModule, AinspectorPanel,
       ElementsSidePanel, RuleInfoSidePanel, RuleResultsSidePanel,
       AttributesSidePanel, PropertiesSidePanel, StyleSidePanel, EventsSidePanel ) {
 
@@ -57,7 +56,7 @@ define([
             
         Firebug.unregisterPanel(Firebug.AinspectorPanel);        
         Firebug.unregisterActivableModule(Firebug.AinspectorModule); 
-        Firebug.unregisterUIListener(AinspectorListener);
+//        Firebug.unregisterUIListener(AinspectorListener);
         
         Firebug.unregisterPanel(Firebug.ElementsSidePanel);
         Firebug.unregisterPanel(Firebug.RuleInfoSidePanel);
