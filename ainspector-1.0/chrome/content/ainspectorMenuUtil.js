@@ -28,9 +28,9 @@ define(
   
   Menu.removeMenuItem = function (element, item) {
     
-   FBTrace.sysout("element: ", element);
-    var label = item.nol10n ? item.label : Locale.$STR(item.label);
-
+   FBTrace.sysout("item: ", item);
+//    var label = item.nol10n ? item.label : Locale.$STR(item.label);
+    var label = item.label ? item.label : item.attributes[0].nodeValue;
     element.removeAttribute("label", label);
 
     if (item.id)
@@ -69,7 +69,9 @@ define(
 
     if (item.tooltiptext)
     {
-        var tooltiptext = item.nol10n ? item.tooltiptext : Locale.$STR(item.tooltiptext);
+//        var tooltiptext = item.nol10n ? item.tooltiptext : Locale.$STR(item.tooltiptext);
+        var tooltiptext = item.tooltiptext ? irem.tooltiptext : '';
+
         element.removeAttribute("tooltiptext", tooltiptext);
     }
 
@@ -109,23 +111,26 @@ define(
         if (panel.name != "ainspector") return;
 
         var reports_menu = buttons.children[4].children[0];        
-        if (FBTrace.DBG_AINSPECTOR) 
-          FBTrace.sysout("AInspector; AinspectorListener.onGetPanelToolbarButtons-children: ", reports_menu);
-          FBTrace.sysout("Menu: ", Menu);
-
-          if (reports_menu.children[2]) Menu.removeMenuItem(reports_menu, reports_menu.children[2]);
-          if (menuItem != null) {
+        
+        if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("Menu: ", Menu);
+        
+        FBTrace.sysout("AInspector; AinspectorListener.onGetPanelToolbarButtons-reports_menu: ", reports_menu);
+        
+        if (reports_menu.children[2]) Menu.removeMenuItem(reports_menu, reports_menu.children[2]);
+        
+        if (menuItem != null) {
             
-            var menu_item = {
-              label  : menuItem,
-              nol10n : true,
-              command: function(){
-                AinspectorListener.showElementReport(ruleset_object, menuItem);
-              }
-            };
-            Menu.createMenuItem(reports_menu, menu_item);
-          }
-          FBTrace.sysout("AInspector; AinspectorListener.onGetPanelToolbarButtons-children: ", reports_menu);
+        	var menu_item = {
+            label  : menuItem,
+            nol10n : true,
+            command: function(){
+              AinspectorListener.showElementReport(ruleset_object, menuItem);
+            }
+          };
+          Menu.createMenuItem(reports_menu, menu_item);
+        }
+
+//      FBTrace.sysout("AInspector; AinspectorListener.onGetPanelToolbarButtons-children: ", reports_menu);
 
       },
       

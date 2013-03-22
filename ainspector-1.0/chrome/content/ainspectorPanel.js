@@ -319,8 +319,6 @@ define([
         var items = [];
         var ruleset = null;
 
-//        FBTrace.sysout("all_rulesets: ", all_rulesets);
-
         for (var i=0; i<all_rulesets.length; i++) {
           ruleset = all_rulesets[i];
           items.push({
@@ -334,7 +332,6 @@ define([
             	  Firebug.AinspectorPanel.prototype.setSelectedRuleset(this.getAttribute("id")); 
             	  Firebug.AinspectorPanel.prototype.setPreferences();
               }
-            	  //Obj.bindFixed(this.setPreferences0, this)
             }
           );
         }
@@ -348,7 +345,10 @@ define([
             label      : "ainspector.menuitem.recRules.enable",
             type       : "checkbox",
             checked    : "false",
-            command    : Obj.bindFixed(this.getRRules, this)
+            command    : function() {
+            							Firebug.AinspectorPanel.prototype.setSelectedRuleset(this.getAttribute('id')); 
+          								Firebug.AinspectorPanel.prototype.setPreferences();
+            }
           }
         );
         
@@ -365,7 +365,10 @@ define([
             tooltiptext: "ainspector.menuitem.scLevel.tooltip.AAA",
             type       : "radio",
             checked    : this.checkLevel(OpenAjax.a11y.WCAG20_LEVEL.AAA),
-            command    : Obj.bindFixed(this.getAAA, this)
+            command    : function(){
+            							Firebug.AinspectorPanel.prototype.setSelectedLevel(this.getAttribute('id')); 
+            							Firebug.AinspectorPanel.prototype.setPreferences();
+            }
           },
           {
             id         : OpenAjax.a11y.WCAG20_LEVEL.AA,
@@ -373,7 +376,10 @@ define([
             tooltiptext: "ainspector.menuitem.scLevel.tooltip.AA",
             type       : "radio",
             checked    : this.checkLevel(OpenAjax.a11y.WCAG20_LEVEL.AA),
-            command    : Obj.bindFixed(this.getAA, this)
+            command    : function(){
+            							Firebug.AinspectorPanel.prototype.setSelectedLevel(this.getAttribute('id')); 
+          								Firebug.AinspectorPanel.prototype.setPreferences();
+            }
           },
           {
             id         : OpenAjax.a11y.WCAG20_LEVEL.A,
@@ -381,7 +387,10 @@ define([
             tooltiptext: "ainspector.menuitem.scLevel.tooltip.A",
             type       : "radio",
             checked    : this.checkLevel(OpenAjax.a11y.WCAG20_LEVEL.A), 
-            command    : Obj.bindFixed(this.getA, this),
+            command    : function(){
+            							Firebug.AinspectorPanel.prototype.setSelectedLevel(this.getAttribute('id')); 
+            							Firebug.AinspectorPanel.prototype.setPreferences();
+            }
           }
         );
         return items;
@@ -411,7 +420,6 @@ define([
                 AinspectorUtil.is_emc = checked;
 
                 Firebug.AinspectorPanel.prototype.setPreferences();
-                
             }
           },
           {
@@ -427,41 +435,7 @@ define([
               this.setAttribute("checked", checked);
               AinspectorUtil.is_pmc = checked;
               Firebug.AinspectorPanel.prototype.setPreferences();
-          } 
-          },
-          {
-            id     : "pass",
-            label  : "ainspector.menuitem.filters.pass",
-            type   : "checkbox",
-            checked: this.checkFilterPass(),
-            command:function() {
-              var checked = false;
-              
-              if (this.hasAttribute("checked")) checked = this.getAttribute("checked");
-              if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; is_pass_filter_checked :         "+ checked);
-
-              this.setAttribute("checked", checked);
-              AinspectorUtil.is_pass = checked;
-             
-              Firebug.AinspectorPanel.prototype.setPreferences();
-            }  
-          },
-          {
-            id     : "hidden",
-            label  : "ainspector.menuitem.filters.hidden",
-            type   : "checkbox",
-            checked: this.checkFilterHideden(),
-            command:function() {
-              var checked = false;
-
-              if (this.hasAttribute("checked")) checked = this.getAttribute("checked");
-              if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; is_hidden_filter_checked :         "+ checked);
-
-              this.setAttribute("checked", checked);
-              AinspectorUtil.is_hidden = checked;
-              
-              Firebug.AinspectorPanel.prototype.setPreferences();
-            }  
+            } 
           }
         );
         
@@ -485,7 +459,6 @@ define([
                FBTrace.sysout("this: ", this);
                Firebug.AinspectorPanel.prototype.showReport(id);
            }
-             //Obj.bindFixed(this.getEMCFilter, this)
          },
          {
            id     : "category",
@@ -849,22 +822,10 @@ define([
 
       },
       
-      setPreferences0 : function (){this.setSelectedRuleset("ARIA_TRANS"); this.setPreferences();},
-      setPreferences1 : function() {this.setSelectedRuleset("ARIA_STRICT_GENERAL"); this.setPreferences();},
-      setPreferences2 : function (){this.setSelectedRuleset("ARIA_INFO_WEBSITES"); this.setPreferences();},
-      getA : function(){this.setSelectedLevel(OpenAjax.a11y.WCAG20_LEVEL.A); this.setPreferences();},
-      getAA : function(){this.setSelectedLevel(OpenAjax.a11y.WCAG20_LEVEL.AA); this.setPreferences();},
-      getAAA : function(){this.setSelectedLevel(OpenAjax.a11y.WCAG20_LEVEL.AAA); this.setPreferences();},
-      getRRules : function(){this.setSelectedRuleset("rrules"); this.setPreferences();},
-      getPassFilter: function(){this.setSelectedFilter("pass"); this.setPreferences();},
-      getEMCFilter: function(){this.setSelectedFilter("emc"); this.setPreferences();},
-      getPMCFilter: function(){this.setSelectedFilter("pmc"); this.setPreferences();},
-      getHiddenFilter: function(){this.setSelectedFilter("hidden"); this.setPreferences();},
-      
       checkRuleset : function(id) {
         
         var pref = AinspectorPreferences.getPreferences();
-//        console.logStringMessage("id: "+ id + ".... prefs" + pref.ruleset_id);
+//      console.logStringMessage("id: "+ id + ".... prefs" + pref.ruleset_id);
         
         if (id == pref.ruleset_id) return true; 
         else return false;
@@ -879,14 +840,6 @@ define([
         
       },
       
-      checkFilterPass : function() {
-        
-        var pref = AinspectorPreferences.getPreferences();
-        
-        if (pref.show_results_pass) return true; 
-        else return false;
-      },
-      
       checkFilterEmc : function() {
         
         var pref = AinspectorPreferences.getPreferences();
@@ -895,14 +848,6 @@ define([
         else return false;
       },
      
-      checkFilterHideden : function() {
-        
-        var pref = AinspectorPreferences.getPreferences();
-
-        if (pref.show_results_hidden == true) return true; 
-        else return false;
-      },
-      
       checkFilterPmc : function() {
         
         var pref = AinspectorPreferences.getPreferences();
