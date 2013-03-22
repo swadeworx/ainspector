@@ -431,20 +431,27 @@ define([
             var columnContent = column.getElementsByClassName("gridHeaderCellBox").item(0);
             var visible = (hiddenCols.indexOf(column.id) == -1);
     
-            items.push({
-              label: columnContent.textContent,
-              tooltiptext: columnContent.title,
-              type: "checkbox",
-              checked: visible,
-              nol10n: true,
-              command: FBL.bindFixed(this.onShowColumn, this, context, column.id)
-            });
-    
+            var column_name = columnContent.textContent;
+            	
+            FBTrace.sysout("column_name: " + column_name);
+            
+            if (column_name == 'Rules' || column_name == 'Rules' || column_name == 'Required' || column_name == 'Level' 
+            	|| column_name == 'V'  || column_name == 'Element' || column_name == 'goto') {
+            } else {
+              items.push({
+                label: columnContent.textContent,
+                tooltiptext: columnContent.title,
+                type: "checkbox",
+                checked: visible,
+                nol10n: true,
+                command: FBL.bindFixed(this.onShowColumn, this, context, column.id)
+              });
+            }
             if (visible) {
               lastVisibleIndex = i;
               visibleColCount++;
             }
-          }
+          } //end for loop
     
     //    If the last column is visible, disable its menu item.
           if (visibleColCount == 1)
