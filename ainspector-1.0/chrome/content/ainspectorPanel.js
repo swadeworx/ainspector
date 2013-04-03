@@ -514,7 +514,7 @@ define([
         OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight();
 
         Firebug.AinspectorModule.WcagSummaryTemplate.viewTag(ruleset_object, 
-          OpenAjax.a11y.RULE_SUMMARY.CATEGORIES, Locale.$STR("ainspector.views.categories"), "onClickCategoriesMenuItem", "summary");
+          OpenAjax.a11y.RULE_SUMMARY.CATEGORIES, Locale.$STR("ainspector.views.categories"), "onClickCategoriesMenuItem");
       },
       
       onClickWCAGMenuItem : function() {
@@ -526,7 +526,7 @@ define([
         OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight();
 
         Firebug.AinspectorModule.WcagSummaryTemplate.viewTag(ruleset_object, 
-          OpenAjax.a11y.RULE_SUMMARY.WCAG20, Locale.$STR("ainspector.views.wcag"), "onClickWCAGMenuItem", "WCAG 2.0");
+          OpenAjax.a11y.RULE_SUMMARY.WCAG20, Locale.$STR("ainspector.views.wcag"), "onClickWCAGMenuItem");
       },
       
       /**

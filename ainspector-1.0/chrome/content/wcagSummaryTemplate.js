@@ -184,15 +184,14 @@ define([
               * @param {Object}rule_results - rule results object
               * @param {String}rule_category- specific rule category selected in the menu  
               */
-             viewTag : function(rule_results, rule_category, view, id, name) {
+             viewTag : function(rule_results, rule_category, view, id) {
                
                SidePanelUtil.addAndRemoveSidePanels(false);
 
                var preferences = AinspectorPreferences.getPreferences();
                var panel = Firebug.currentContext.getPanel("ainspector", true);
             
-               var filtered_results = rule_results.getFilteredRuleResultsByRuleSummary(rule_category, 
-                    name, preferences.show_results_filter_value);
+               var filtered_results = rule_results.getFilteredRuleResultsByRuleSummary(rule_category, preferences.show_results_filter_value);
                if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; filtered_results: ", filtered_results);
 //               var rule_results_tree = filtered_results.createListOfRuleResults();
                var rule_results_tree = new OpenAjax.a11y.formatters.TreeViewOfFilteredRuleResultsGroups(filtered_results);
