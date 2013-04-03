@@ -176,9 +176,9 @@
 
            addTableDataCell(rule_result['wcag_primary_id'] + " (" + rule_result['wcag_level'] + ")", 'wcag20', '');
 
-           addTableDataCell(rule_result['implementation']['label'], rule_result['implementation']['style'], "");
+           addTableDataCell(rule_result['percent'].toString(), 'passed', "");
 
-           var mc = rule_result['manual_checks'];
+           var mc = rule_result['manual'];
            total_manual_checks += mc;
            if (mc > 0) addTableDataCell(mc.toString(), "manual_check", "");
            else addTableDataCell('0', "zero", "");
