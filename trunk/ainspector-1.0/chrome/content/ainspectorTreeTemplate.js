@@ -40,13 +40,13 @@ define([
             SPAN({class: "summaryTitle", style: "margin-left: 0.5em;"}, "$view"),
             DIV({},
           		SPAN({style: "margin-left: 3.0em; color: gray;"}, "P"),
-          		SPAN({class: "summaryGrid", style: "background-color: #78AB46"}, "  " + "$cache_results.passed_count" + "  "),
+          		SPAN({class: "summaryGrid", style: "background-color: #B0E57C"}, "  " + "$cache_results.passed_count" + "  "),
           		SPAN({style: "margin-left: 1.5em; color: gray;"}, " V"),
-          		SPAN({class: "summaryGrid", style: "background-color: #b22222;"}, "  " + "$cache_results.violations_count" + "  "),
+          		SPAN({class: "summaryGrid", style: "background-color: #FFAEAE;"}, "  " + "$cache_results.violations_count" + "  "),
           		SPAN({style: "margin-left: 1.5em; color: gray;"}, " W"),
-          		SPAN({class: "summaryGrid", style: "background-color: #DAA520;"}, "  " + "$cache_results.warnings_count" + "  "),
+          		SPAN({class: "summaryGrid", style: "background-color: #FFEC94;"}, "  " + "$cache_results.warnings_count" + "  "),
           		SPAN({style: "margin-left: 1.5em; color: gray;"}, " MC"),
-          		SPAN({class: "summaryGrid", style: "background-color: #CD96CD;"}, "  " + "$cache_results.manual_checks_count" + "   "),
+          		SPAN({class: "summaryGrid", style: "background-color: #B4D8E7;"}, "  " + "$cache_results.manual_checks_count" + "   "),
             
           		BUTTON({onclick: "$expandAll", style: "float:right;", _repObject: "$results"}, "Expand All"),
           		BUTTON({onclick: "$collapseAllRows", style: "float:right;", _repObject: "$results"}, "Collapse All")
@@ -202,12 +202,12 @@ define([
             
             panel.panelNode.id = "ainspector-panel";
             var cache_item_results = cache_results.cache_item_results;
-            var node_results = cache_results.createListOfCacheItemResults();
+            var node_results = new OpenAjax.a11y.formatters.TreeViewOfFilteredCacheItemResults(cache_results);;
             
             if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; AinspectorTreeTemplate.viewTag(cache_results): ", cache_results);
             if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; AinspectorTreeTemplate.viewTag(node_results): ", node_results);
-            if (node_results.length > 0) { 
-              panel.table = this.tag.replace({results: node_results, view:view, cache_results: cache_results}, panel.panelNode);
+            if (node_results.cache_item_list.length > 0) { 
+              panel.table = this.tag.replace({results: node_results.cache_item_list, view:view, cache_results: cache_results}, panel.panelNode);
               this.expandAllRows(panel.table);
             } else {
               panel.table = AinspectorUtil.noDataView.tag.replace({view:view}, panel.panelNode);

@@ -194,15 +194,15 @@ define([
                var filtered_results = rule_results.getFilteredRuleResultsByRuleSummary(rule_category, 
                     name, preferences.show_results_filter_value);
                if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; filtered_results: ", filtered_results);
-               var rule_results_tree = filtered_results.createListOfRuleResults();
-               
+//               var rule_results_tree = filtered_results.createListOfRuleResults();
+               var rule_results_tree = new OpenAjax.a11y.formatters.TreeViewOfFilteredRuleResultsGroups(filtered_results);
                if (panel)
                  Dom.clearNode(panel.panelNode);
                
                panel.panelNode.id = "ainspector-panel";
                if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; rule_results_tree: ", rule_results_tree);
 
-               panel.table = this.tag.replace({results: rule_results_tree, view:view, filtered_results: filtered_results}, panel.panelNode);
+               panel.table = this.tag.replace({results: rule_results_tree.rule_result_items, view:view, filtered_results: filtered_results}, panel.panelNode);
                
                this.expandAllRows(panel.table);
                AinspectorUtil.selectRow(panel.table, true, id);

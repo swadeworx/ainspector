@@ -186,11 +186,13 @@ define([
              if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("Ainspector; cache_results: ", cache_results);
              if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("Ainspector; cache_item_results: ", cache_item_results);
 
-             var node_results_list = cache_results.createListOfCacheItemResults();
+//             var node_results_list = cache_results.createListOfCacheItemResults();
+             var node_results_list = new OpenAjax.a11y.formatters.TreeViewOfFilteredCacheItemResults(cache_results);
+             
              if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("Ainspector; node_results_list: ", node_results_list);
 
-             if (cache_results.cache_item_results.length > 0)
-              panel.table = this.tag.replace({results: node_results_list, view:view, cache_results: cache_results}, panel.panelNode);
+             if (node_results_list.cache_item_list.length > 0)
+              panel.table = this.tag.replace({results: node_results_list.cache_item_list, view:view, cache_results: cache_results}, panel.panelNode);
              else
                panel.table = AinspectorUtil.noDataView.tag.replace({view:view}, panel.panelNode);
              
