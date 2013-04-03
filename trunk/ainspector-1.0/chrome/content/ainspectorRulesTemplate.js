@@ -171,8 +171,7 @@ define([
            panel.panelNode.id = "ainspector-panel"; 
 
            FBTrace.sysout("rule_Results: ", rule_results);
-           var category_rule_results = rule_results.getFilteredRuleResultsByRuleCategory(rule_category, 
-               "All Rules", preferences.show_results_filter_value);
+           var category_rule_results = rule_results.getFilteredRuleResultsByRuleCategory(rule_category, preferences.show_results_filter_value);
            FBTrace.sysout("AInspector; AinspectorUtil", AinspectorUtil);
 //             category_rule_results.sortRuleResultsByImplementationLevel();
            if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; category_rule_results", category_rule_results);
