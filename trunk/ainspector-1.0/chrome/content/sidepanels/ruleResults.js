@@ -18,9 +18,11 @@ define([
     "firebug/lib/trace",
     "firebug/lib/locale",
     "firebug/lib/domplate",
+    "firebug/lib/dom",
+    "firebug/lib/css",
     "ainspector/sidePanelUtil"
 ],
-function(Obj, FBTrace, Locale, Domplate, SidePanelUtil) {
+function(Obj, FBTrace, Locale, Domplate, Dom, Css, SidePanelUtil) {
 
 var panelName = "ruleResults";
 
@@ -39,7 +41,8 @@ Firebug.RuleResultsSidePanel.prototype = Obj.extend(Firebug.Panel, {
     if (FBTrace.DBG_AINSPECTOR)
       FBTrace.sysout("AInspector; RuleResultsSidePanel.initialize");
     
-    this.onCLick = Obj.bind(this.setSelection, this);
+    this.onClick = Obj.bind(this.setSelection, this);
+    this.onKeyPress = Obj.bind(this.onKeyPress, this);
     
     this.refresh();
   },
@@ -49,6 +52,9 @@ Firebug.RuleResultsSidePanel.prototype = Obj.extend(Firebug.Panel, {
     
     this.setSelection = Obj.bind(this.setSelection, this);
     this.mainPanel.panelNode.addEventListener("click", this.setSelection, false);
+    
+    this.onKeyPress = Obj.bind(this.onKeyPress, this);
+    this.mainPanel.panelNode.addEventListener("keypress", this.onKeyPress, true);
     
     Firebug.Panel.initializeNode.apply(this, arguments);
   },
@@ -87,6 +93,28 @@ Firebug.RuleResultsSidePanel.prototype = Obj.extend(Firebug.Panel, {
     
     if (object.node_results.length > 0) SidePanelUtil.ruleResultsTemplate.rebuild(results, parentNode, panelName);
     else SidePanelUtil.commonTemplate.emptyTag.replace({sidePanel: panelName}, parentNode);
+  },
+  
+  onKeyPress : function(event) {
+    
+    if (Firebug.chrome.getSelectedSidePanel().name != panelName) return;
+
+    FBTrace.sysout("AInspector; ruleResultsSidePanel.onKeyPress: ", event);
+    var all_rows = event.target.rows ? event.target.rows : event.target.offsetParent.rows;
+    
+    var key = event.keyCode;     
+    var forward = key == KeyEvent.DOM_VK_RIGHT || key == KeyEvent.DOM_VK_DOWN;  
+    var backward = key == KeyEvent.DOM_VK_LEFT || key == KeyEvent.DOM_VK_UP; 
+    
+    var object;
+    for (var i=0; i < all_rows.length; i++) {
+      if (Css.hasClass(all_rows[i], "gridRowSelected")) {
+        object = forward ? all_rows[i+1].repObject : all_rows[i-1].repObject; 
+        FBTrace.sysout("================object=============", object);
+        SidePanelUtil.ruleResultsTemplate.rebuild(object.node_results, this.panelNode, panelName);
+        break;
+      }
+    }
   },
   
   setSelection : function (event){

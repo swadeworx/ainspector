@@ -39,7 +39,9 @@ Firebug.ElementsSidePanel.prototype = Obj.extend(Firebug.Panel, {
   initialize: function() {
         
     Firebug.Panel.initialize.apply(this, arguments);
-    this.onCLick = Obj.bind(this.setSelection, this);
+    this.onClick = Obj.bind(this.setSelection, this);
+    this.onKeyPress = Obj.bind(this.onKeyPress, this);
+
     if (FBTrace.DBG_AINSPECTOR)
       FBTrace.sysout("AInspector; ElementsSidePanel.initialize");
 
@@ -50,8 +52,11 @@ Firebug.ElementsSidePanel.prototype = Obj.extend(Firebug.Panel, {
 
   initializeNode: function(oldPanelNode) {
     this.setSelection = Obj.bind(this.setSelection, this);
+    this.onKeyPress = Obj.bind(this.onKeyPress, this);
+
     this.mainPanel.panelNode.addEventListener("click", this.setSelection, false);
-    
+    this.mainPanel.panelNode.addEventListener("keypress", this.onKeyPress, true);
+
     Firebug.Panel.initializeNode.apply(this, arguments);
   },
 
@@ -77,6 +82,27 @@ Firebug.ElementsSidePanel.prototype = Obj.extend(Firebug.Panel, {
         FBTrace.sysout("AInspector; ElementsSidePanel.supportsObject", {object: object, type: type});
 
     return object instanceof window.Element;
+  },
+  
+  onKeyPress : function(event) {
+
+    if (Firebug.chrome.getSelectedSidePanel().name != panelName) return;
+
+    FBTrace.sysout("AInspector; ElementsSidePanel.onKeyPress: ", event);
+    var all_rows = event.target.rows ? event.target.rows : event.target.offsetParent.rows;
+    
+    var key = event.keyCode;     
+    var forward = key == KeyEvent.DOM_VK_RIGHT || key == KeyEvent.DOM_VK_DOWN;  
+    var backward = key == KeyEvent.DOM_VK_LEFT || key == KeyEvent.DOM_VK_UP; 
+    
+    var object;
+    for (var i=0; i < all_rows.length; i++) {
+      if (Css.hasClass(all_rows[i], "gridRowSelected")) {
+        object = forward ? all_rows[i+1].repObject : all_rows[i-1].repObject;   
+        this.updateSelection(object, this.panelNode);
+        break;
+      }
+    }
   },
 
   setSelection : function(event){

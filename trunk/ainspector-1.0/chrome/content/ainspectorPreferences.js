@@ -34,7 +34,7 @@ define(
        preferences : {
         // OAA Ruleset options
         ruleset_id   : 'ARIA_TRANS',                             
-        wcag20_level : 3, // OpenAjax.a11y.WCAG20_LEVEL.AAA constant   
+        wcag20_level : 7, // OpenAjax.a11y.WCAG20_LEVEL.AAA constant   
         wcag20_recommended_rules_enabled : true,
         
         // Extension options for showing evaluation results
@@ -103,7 +103,7 @@ define(
 
         // OAA Ruleset options
         p.ruleset_id    = 'ARIA_TRANS';
-        p.wcag20_level  = 3; // OpenAjax.a11y.WCAG20_LEVEL.AAA
+        p.wcag20_level  = 7; // OpenAjax.a11y.WCAG20_LEVEL.AAA
         p.wcag20_recommended_rules_enabled = true;
         
         // Extension options for showing evaluation results
