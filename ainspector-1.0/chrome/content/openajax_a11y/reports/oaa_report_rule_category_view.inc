@@ -28,7 +28,7 @@
                 <th class="description">Description</th>
                 <th class="required">Required</th>
                 <th class="wcag20_level"><abbr title="WCAG 2.0 Level">Level</abbr></th>
-                <th class="pepr"><abbr title="Percentage of Elements Passing Rule">PEPR</abbr></th>
+                <th class="pepr">Percentage Passed</th>
                 <th class="mc">Manual Checks</th>
                 <th class="v">Violations</th>
                 <th class="w">Warnings</th>

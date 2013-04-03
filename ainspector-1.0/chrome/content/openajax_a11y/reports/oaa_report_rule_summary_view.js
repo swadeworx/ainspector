@@ -191,9 +191,9 @@
            if (typeof result['wcag_level'] === 'string') addTableDataCell(result['wcag_level'], 'wcag20', '');
            else addTableDataCell('', '', '');
 
-           node = addTableDataCell(result['implementation']['label'], result['implementation']['style'] + " " + level, "");
+           node = addTableDataCell(result['percent'].toString(), "passed" + " " + level, "");
 
-           var mc = result['manual_checks'];
+           var mc = result['manual'];
            if (mc > 0) node = addTableDataCell(mc.toString(), "manual_check " + level, "");
            else node = addTableDataCell('0', "zero " + level, "");
            
