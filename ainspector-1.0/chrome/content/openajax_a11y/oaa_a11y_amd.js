@@ -67,7 +67,7 @@ OpenAjax.a11y.cache = OpenAjax.a11y.cache || {};
  * @default false
  * @desc Enables or disables messages to be sent to the Firefox Debug console
  */
-OpenAjax.a11y.CONSOLE_MESSAGES        = true;
+OpenAjax.a11y.CONSOLE_MESSAGES        = false;
 
 /**
  * @constant LOG_MESSAGES_TO_CONSOLE
@@ -362,7 +362,7 @@ OpenAjax.a11y.RULE_CATEGORIES = OpenAjax.a11y.RULE_CATEGORIES || {
  * OpenAjax.a11y.RULE_SUMMARY.CATEGORIES  
  * OpenAjax.a11y.RULE_SUMMARY.WCAG20  
  * OpenAjax.a11y.RULE_SUMMARY.GUIDELINE  
- * OpenAjax.a11y.RULE_SUMMARY.RULE_TYPE
+ * OpenAjax.a11y.RULE_SUMMARY.RULESET_TYPE
  */
 OpenAjax.a11y.RULE_SUMMARY = OpenAjax.a11y.RULE_SUMMARY || {
   UNDEFINED        : 0,
@@ -479,12 +479,29 @@ OpenAjax.a11y.PROGRESS = OpenAjax.a11y.PROGRESS || {
  * OpenAjax.a11y.WCAG20_LEVEL.AAA
  */ 
 OpenAjax.a11y.WCAG20_LEVEL = OpenAjax.a11y.WCAG20_LEVEL || {
-  A       : 1,
+  A       : 4,
   AA      : 2,
-  AAA     : 3,
-  UNKNOWN : -1
+  AAA     : 1,
+  UNKNOWN : 0
 };
 
+/**
+ * @constant EVALUATION_LEVELS
+ * @memberOf OpenAjax.a11y
+ * @type Number
+ * @desc Constants related to the level of rules that wil be evaluated  
+ *       These are a bit mask for WCAG20_LEVEL constants
+ * @example
+ * OpenAjax.a11y.EVALUATION_LEVELS.A
+ * OpenAjax.a11y.EVALUATION_LEVELS.A_AA
+ * OpenAjax.a11y.EVALUATION_LEVELS.A_AA_AAA
+ */ 
+
+OpenAjax.a11y.EVALUATION_LEVELS = OpenAjax.a11y.EVALUATION_LEVELS || {
+  A        : 4,
+  A_AA     : 6,
+  A_AA_AAA : 7
+};
 
 /**
  * @constant RULE_TYPE
@@ -494,19 +511,17 @@ OpenAjax.a11y.WCAG20_LEVEL = OpenAjax.a11y.WCAG20_LEVEL || {
  *
  * @example
  * OpenAjax.a11y.RULE_TYPE.UNKNOWN               
- * OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC               
- * OpenAjax.a11y.RULE_TYPE.REQUIRED               
- * OpenAjax.a11y.RULE_TYPE.RECOMMENDED_BASIC               
  * OpenAjax.a11y.RULE_TYPE.RECOMMENDED               
+ * OpenAjax.a11y.RULE_TYPE.REQUIRED               
+ * OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC               
  */
 OpenAjax.a11y.RULE_TYPE = OpenAjax.a11y.RULE_TYPE || {
   UNKNOWN                    : 0,
-  REQUIRED_BASIC             : 1,
+  RECOMMENDED                : 1,
   REQUIRED                   : 2,
-  RECOMMENDED_BASIC          : 4,
-  RECOMMENDED                : 8,
-  ALL                        : 15,
-  MAX_VALUE                  : 16
+  REQUIRED_BASIC             : 4,
+  ALL                        : 7,
+  MAX_VALUE                  : 8
 };
 
 /**
@@ -20182,7 +20197,6 @@ OpenAjax.a11y.Rule.prototype.getNLSSummary = function (rule_type) {
         message = nls_rules.message_severities.MUST;
         break;
 
-      case RULE_TYPE.RECOMMENDED_BASIC:
       case RULE_TYPE.RECOMMENDED:
         message = nls_rules.message_severities.SHOULD;
         break;
@@ -20434,24 +20448,6 @@ OpenAjax.a11y.Rule.prototype.getNLSRequirements = function () {
  */
 
 OpenAjax.a11y.Rule.prototype.getWCAG20Level = function () {
-
-  var sc = this.wcag20_nls.getNLSItemById(this.wcag_primary_id);
-
-  return sc.level;
-
-};
-
-/**
- * @method getWCAG20Level
- *
- * @memberOf OpenAjax.a11y.Rule
- *
- * @desc Returns the numeric constant based on the WCAG 2.0 Success Level of the rule based on the primary id of the rule
- *
- * @return  {Number}  Numeric constant representing the WCAG 2.0 success criterion level of the rule
- */
-
-OpenAjax.a11y.Rule.prototype.getNLSWCAG20Level = function () {
 
   var sc = this.wcag20_nls.getNLSItemById(this.wcag_primary_id);
 
@@ -20780,42 +20776,42 @@ OpenAjax.a11y.Rules.prototype.addRule = function (rule_item) {
   var errors = false;
 
   if (typeof rule_item.rule_id !== 'string') {
-    OpenAjax.a11y.logger.debug("  ** Rule ID is missing");
+    OpenAjax.a11y.logger.error("  ** Rule ID is missing");
     errors = true;
   }  
 
   if (this.getRuleByRuleId(rule_item.rule_id)) {
-    OpenAjax.a11y.logger.debug("  ** Duplicate Rule ID: " + rule_item.rule_id);
+    OpenAjax.a11y.logger.error("  ** Duplicate Rule ID: " + rule_item.rule_id);
     errors = true;
   }  
   
   if (typeof rule_item.wcag_primary_id !== 'string') {
-    OpenAjax.a11y.logger.debug("  ** Rule " + rule_item.rule_id + " primary wcag id is missing"); 
+    OpenAjax.a11y.logger.error("  ** Rule " + rule_item.rule_id + " primary wcag id is missing"); 
     errors = true;
   }  
   
   if (typeof rule_item.wcag_related_ids !== 'object') {
-    OpenAjax.a11y.logger.debug("  ** Rule " + rule_item.rule_id + " related wcag ids is missing"); 
+    OpenAjax.a11y.logger.error("  ** Rule " + rule_item.rule_id + " related wcag ids is missing"); 
     errors = true;
   }  
   
   if (!this.validCacheDependency(rule_item.cache_dependency)) {
-    OpenAjax.a11y.logger.debug("  ** Rule " + rule_item.rule_id + " has invalid or missing cache dependency property"); 
+    OpenAjax.a11y.logger.error("  ** Rule " + rule_item.rule_id + " has invalid or missing cache dependency property"); 
     errors = true;
   }  
 
   if (typeof rule_item.resource_properties !== 'object') {
-    OpenAjax.a11y.logger.debug("  ** Rule " + rule_item.rule_id + " resource properties is missing or not an array"); 
+    OpenAjax.a11y.logger.error("  ** Rule " + rule_item.rule_id + " resource properties is missing or not an array"); 
     errors = true;
   }  
   
   if (typeof rule_item.language_dependency !== 'string') {
-    OpenAjax.a11y.logger.debug("  ** Rule " + rule_item.rule_id + " language property is missing or not a string"); 
+    OpenAjax.a11y.logger.error("  ** Rule " + rule_item.rule_id + " language property is missing or not a string"); 
     errors = true;
   }  
   
   if (typeof rule_item.validate !== 'function') {
-    OpenAjax.a11y.logger.debug("  ** Rule " + rule_item.rule_id + " validate property is missing or not a function"); 
+    OpenAjax.a11y.logger.error("  ** Rule " + rule_item.rule_id + " validate property is missing or not a function"); 
     errors = true;
   }  
 
@@ -21765,7 +21761,7 @@ OpenAjax.a11y.RuleResult.prototype.isBasicRule = function () {
   var RULE_TYPE = OpenAjax.a11y.RULE_TYPE;
   var type = this.rule_mapping.type;
 
-  return (type === RULE_TYPE.REQUIRED_BASIC) || (type === RULE_TYPE.RECOMMENDED_BASIC);
+  return type === RULE_TYPE.REQUIRED_BASIC;
 
 };
 
@@ -22118,6 +22114,8 @@ OpenAjax.a11y.RuleResult.prototype.getRuleType = function () {
 
 };
 
+
+
 /**
  * @method getNLSRuleType
  *
@@ -22133,6 +22131,41 @@ OpenAjax.a11y.RuleResult.prototype.getNLSRuleType = function () {
   var cache_nls = OpenAjax.a11y.cache_nls;
   
   return cache_nls.getNLSRuleType(this.rule_mapping.type);  
+
+};
+
+/**
+ * @method getRuleCategory
+ *
+ * @memberOf OpenAjax.a11y.RuleResult
+ *
+ * @desc Returns a id of the rule category of the rule 
+ *
+ * @return {Number} Returns a NLS text string representation of the rule category
+ */
+
+OpenAjax.a11y.RuleResult.prototype.getRuleCategory = function () {
+  
+  return this.rule_mapping.rule.rule_category;  
+
+};
+
+
+/**
+ * @method getNLSRuleCategory
+ *
+ * @memberOf OpenAjax.a11y.RuleResult
+ *
+ * @desc Returns a NLS text string representation of the rule category
+ *
+ * @return {String} Returns a NLS text string representation of the rule category
+ */
+
+OpenAjax.a11y.RuleResult.prototype.getNLSRuleCategory = function () {
+
+  var cache_nls = OpenAjax.a11y.cache_nls;
+  
+  return cache_nls.getNLSRuleCategory(this.getRuleCategory());  
 
 };
 
@@ -22465,7 +22498,6 @@ OpenAjax.a11y.RuleResult.prototype.getMessage = function () {
       type = nls_rules.message_severities.MUST;
       break;
 
-    case RULE_TYPE.RECOMMENDED_BASIC:
     case RULE_TYPE.RECOMMENDED:
       type = nls_rules.message_severities.SHOULD;
       break;
@@ -23322,7 +23354,9 @@ OpenAjax.a11y.cache.CacheItemResult.prototype.toJSON = function(prefix) {
  *
  * @property  {Array}   filtered_node_results   - array of node results for the group
  *
- * @property  {String}  title     - title for the group of rules
+ * @property  {String}  title - title for the group of rules
+ * @property  {String}  url   - Optional property to provide a link to more information about a group
+ * @property  {String}  desc  - Optional property to provide a description of the group
  *
  * @property  {Number}  node_results_filtered_out    - number of node results filtered
  *
@@ -23354,7 +23388,7 @@ OpenAjax.a11y.cache.CacheItemResult.prototype.toJSON = function(prefix) {
  *                                             that are hidden
  */
 
- OpenAjax.a11y.cache.FilteredRuleResultsGroups = function(ruleset, group_id, title) {
+ OpenAjax.a11y.cache.FilteredRuleResultsGroups = function(ruleset, group_id, title, url, desc) {
 
   this.ruleset = ruleset;
   this.group_id = group_id;
@@ -23363,7 +23397,14 @@ OpenAjax.a11y.cache.CacheItemResult.prototype.toJSON = function(prefix) {
 
   this.filtered_node_results = [];
 
-  this.title = title;
+  this.title = "";
+  this.url = "";
+  this.desc = "";
+  
+  if (typeof title === 'string') this.title = title;
+  else this.title = "No title";
+  if (typeof url  === 'string') this.url = url;
+  if (typeof desc === 'string') this.desc = desc;
 
   this.has_rules = false;
   this.has_results = false;
@@ -23383,6 +23424,51 @@ OpenAjax.a11y.cache.CacheItemResult.prototype.toJSON = function(prefix) {
   this.hidden_count        = 0;
   
 }; 
+
+/**
+ * @method getTitle
+ *
+ * @memberOf OpenAjax.a11y.cache.FilteredRuleResultsGroups
+ *
+ * @desc Returns the title of the group
+ *
+ * @return  {String} String representing the title of the group
+ */
+
+OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.getTitle = function() {
+
+  return this.title;
+};
+
+/**
+ * @method getURL
+ *
+ * @memberOf OpenAjax.a11y.cache.FilteredRuleResultsGroups
+ *
+ * @desc Returns the url of the group, can be empty
+ *
+ * @return  {String} String of the url to more information about a group
+ */
+
+OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.getURL = function() {
+
+  return this.url;
+};
+
+/**
+ * @method getDescription
+ *
+ * @memberOf OpenAjax.a11y.cache.FilteredRuleResultsGroups
+ *
+ * @desc Returns the description of the group, can be empty
+ *
+ * @return  {String} String describing the group of rules
+ */
+
+OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.getDescription = function() {
+
+  return this.desc;
+};
 
 /**
  * @method addFilteredRuleResultsGroup
@@ -23467,8 +23553,7 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.addRuleResult = function
            (rule_type === RULE_TYPE.REQUIRED)) this.number_of_required_rules += 1;
        else this.number_of_recommended_rules += 1;
 
-       if ((rule_type === RULE_TYPE.REQUIRED_BASIC) ||
-           (rule_type === RULE_TYPE.RECOMMENDED_BASIC)) this.number_of_basic_rules += 1;
+       if (rule_type === RULE_TYPE.REQUIRED_BASIC) this.number_of_basic_rules += 1;
 
        this.node_results_filtered_out     += filtered_rule_result.node_results_filtered_out;
 
@@ -23728,8 +23813,9 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.toCSV = function(title, 
  *
  * @property  {Array}   filtered_node_results   - array of node results for the group
  *
- * @property  {String}  title     - title for the group of rules
- * @property  {String}  url       - url to more information about the group of rules
+ * @property  {String}  title  - title for the group of rules
+ * @property  {String}  url    - Optional property to provide a link to more information about a group
+ * @property  {String}  desc   - Optional property to provide a description of the group
  *
  * @property  {Number}  node_results_filtered_out    - number of node results filtered
  *
@@ -23762,7 +23848,7 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroups.prototype.toCSV = function(title, 
  */
 
 
-OpenAjax.a11y.cache.FilteredRuleResultsGroup = function(ruleset, group_id, title, url) {
+OpenAjax.a11y.cache.FilteredRuleResultsGroup = function(ruleset, group_id, title, url, desc) {
 
   this.ruleset = ruleset;
   this.group_id = group_id;
@@ -23771,10 +23857,15 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroup = function(ruleset, group_id, title
 
   this.filtered_node_results = [];
 
-  this.title = title;
-  this.url   = ""; 
-  if (typeof url === 'string') this.url = url;
-
+  this.title = "";
+  this.url = "";
+  this.desc = "";
+  
+  if (typeof title === 'string') this.title = title;
+  else this.title = "No title";
+  if (typeof url   === 'string') this.url   = url;
+  if (typeof desc  === 'string') this.desc  = desc;
+  
   this.has_rules = false;
   this.has_results = false;
   
@@ -23793,6 +23884,53 @@ OpenAjax.a11y.cache.FilteredRuleResultsGroup = function(ruleset, group_id, title
   this.hidden_count        = 0;
   
 };
+
+/**
+ * @method getTitle
+ *
+ * @memberOf OpenAjax.a11y.cache.FilteredRuleResultsGroup
+ *
+ * @desc Returns the title of the group
+ *
+ * @return  {String} String representing the title of the group
+ */
+
+OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.getTitle = function() {
+
+  return this.title;
+};
+
+/**
+ * @method getURL
+ *
+ * @memberOf OpenAjax.a11y.cache.FilteredRuleResultsGroup
+ *
+ * @desc Returns the url of the group, can be empty
+ *
+ * @return  {String} String of the url to more information about a group
+ */
+
+OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.getURL = function() {
+
+  return this.url;
+};
+
+/**
+ * @method getDescription
+ *
+ * @memberOf OpenAjax.a11y.cache.FilteredRuleResultsGroup
+ *
+ * @desc Returns the description of the group, can be empty
+ *
+ * @return  {String} String describing the group of rules
+ */
+
+OpenAjax.a11y.cache.FilteredRuleResultsGroup.prototype.getDescription = function() {
+
+  return this.desc;
+};
+
+
 
 /**
  * method addRuleResult
@@ -24592,8 +24730,6 @@ OpenAjax.a11y.formatters.TreeViewOfFilteredRuleResultsGroups.prototype.getOpenRu
 
 OpenAjax.a11y.formatters.TreeViewOfFilteredRuleResultsGroups.prototype.sortListOfRuleResults = function(sort_property, order) {
 
-  var IMPLEMENTATION_LEVEL = OpenAjax.a11y.IMPLEMENTATION_LEVEL;
-
   function sortProperty(a, b) {
   
 //    OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug(" Group IDs: a=" + a.group_id  + " b=" + b.group_id);
@@ -24711,8 +24847,7 @@ OpenAjax.a11y.formatters.TreeViewOfFilteredRuleResultsGroup = function(filtered_
     var wcag20_level_label   = frr.rule_result.getNLSWCAG20Level();
     var wcag20_level_prop    = wcag20_level_label.toLowerCase();
     
-    if ((rule_type === RULE_TYPE.REQUIRED_BASIC) ||
-        (rule_type === RULE_TYPE.RECOMMENDED_BASIC)) {
+    if (rule_type === RULE_TYPE.REQUIRED_BASIC) {
       required_prop = 'basic_rule';
       wcag20_level_prop = 'basic_rule';
     }
@@ -24826,8 +24961,6 @@ OpenAjax.a11y.formatters.TreeViewOfFilteredRuleResultsGroup.prototype.getOpenRul
 
 OpenAjax.a11y.formatters.TreeViewOfFilteredRuleResultsGroup.prototype.sortListOfRuleResults = function(sort_property, order) {
 
-  var IMPLEMENTATION_LEVEL = OpenAjax.a11y.IMPLEMENTATION_LEVEL;
-
   function sortProperty(a, b) {
   
 //     OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("  COMPARE RULES A:(" + a.summary + ") B:(" + b.summary + ")");  
@@ -24843,13 +24976,13 @@ OpenAjax.a11y.formatters.TreeViewOfFilteredRuleResultsGroup.prototype.sortListOf
     //tie breaker: name ascending is the second level sort
     
     if (sort_property != "wcag20_level") {
-      if (a.wcag20_level > b.wcag20_level) return 1;
-      if (a.wcag20_level < b.wcag20_level) return -1;
+      if (a.wcag20_level > b.wcag20_level) return -1;
+      if (a.wcag20_level < b.wcag20_level) return 1;
     }
     
     if (sort_property != "rule_type") {
-      if (a.rule_type > b.rule_type) return 1;
-      if (a.rule_type < b.rule_type) return -1;
+      if (a.rule_type > b.rule_type) return -1;
+      if (a.rule_type < b.rule_type) return 1;
     }
 
     if (sort_property != "violations_count") {
@@ -25114,8 +25247,6 @@ OpenAjax.a11y.formatters.TreeViewOfFilteredRuleResult.prototype.getOpenNodeResul
  */
 
 OpenAjax.a11y.formatters.TreeViewOfFilteredRuleResult.prototype.sortListOfNodeResults = function(sort_property, order) {
-
-  var IMPLEMENTATION_LEVEL = OpenAjax.a11y.IMPLEMENTATION_LEVEL;
 
   function sortProperty(a, b) {
   
@@ -25498,8 +25629,6 @@ OpenAjax.a11y.formatters.TreeViewOfCacheItemResult = function(cache_item_result)
         
   }
 
-  var IMPLEMENTATION_LEVEL = OpenAjax.a11y.IMPLEMENTATION_LEVEL;
-
   var cache_nls = OpenAjax.a11y.cache_nls.getCacheNLS();
 
   var boolean_values = cache_nls.boolean_values;
@@ -25653,8 +25782,6 @@ OpenAjax.a11y.formatters.TreeViewOfCacheItemResult.prototype.getOpenNodeResults 
 
 OpenAjax.a11y.formatters.TreeViewOfCacheItemResult.prototype.sortListOfNodeResults = function(sort_property, order) {
 
-  var IMPLEMENTATION_LEVEL = OpenAjax.a11y.IMPLEMENTATION_LEVEL;
-
   function sortProperty(a, b) {
   
     if (a[sort_property] > b[sort_property]) return  -1 * order;
@@ -25763,6 +25890,39 @@ OpenAjax.a11y.CacheNLS.prototype.getNLSSeverity = function(severity) {
   return this.nls[OpenAjax.a11y.locale].severities[severity];
 
 };
+
+/**
+ * @method getNLSRuleCategory
+ *
+ * @memberOf OpenAjax.a11y.CacheNLS
+ *
+ * @desc Returns the NLS object for a rule category
+ *
+ * @param  {Number}  id  -  The constant representing the rule category
+ *
+ * @return {Object} Returns the NLS object for a rule category, empty object if not found
+ *                  Properties of the object include: "title", "url" and "desc"
+ */
+ 
+OpenAjax.a11y.CacheNLS.prototype.getNLSRuleCategory = function(id) {
+
+  var rc = this.nls[OpenAjax.a11y.locale].rule_categories;
+  var rc_num = rc.length;
+  
+  for (var i = 0; i < rc_num; i++) {
+    if (rc[i].id === id) return rc[i];
+  }
+  
+  var ro = {
+    title : "Rule category with the the following ID not found: " + id,
+    url   : "",
+    desc  : ""
+  };
+  
+  return ro;
+
+};
+
 
 /**
  * @method getNLSImplementationLevel
@@ -26711,14 +26871,17 @@ OpenAjax.a11y.Rulesets.prototype.addRuleset = function(type, ruleset_data) {
   case 'WCAG20':
     var rs = new OpenAjax.a11y.Ruleset(ruleset_data);
     
-    if (rs)
+    if (rs) {
       this.rulesets.push(rs);
-    else
-      OpenAjax.a11y.logger.debug("  ** Error loading ruleset: " + ruleset_data[id]);
+      OpenAjax.a11y.logger.info("  Ruleset '" + rs.ruleset_title + "' is loaded");
+    }  
+    else {
+      OpenAjax.a11y.logger.error("  ** Error loading ruleset: " + ruleset_data[id]);
+    }  
     break;
     
   default:
-    OpenAjax.a11y.logger.debug("  ** Rule set type: '" + type + "' not supported");
+    OpenAjax.a11y.logger.error("  ** Rule set type: '" + type + "' not supported");
     break;
   }
 
@@ -26855,7 +27018,7 @@ OpenAjax.a11y.Rulesets.prototype.toJSON = function (prefix) {
  *
  * @property {Array}  rule_mappings - Array of WCAG20RuleMapping objects          
  *
- * @property {Number}   wcag20_level                      - Level of WCAG 2.0 Success Criteria to evaluate (i.e. A, AA, AAA)
+ * @property {Number}   evaluation_levels                      - Level of WCAG 2.0 Success Criteria to evaluate (i.e. A, AA, AAA)
  * @property {Boolean}  recommended_rules_enabled  - If true recommended rules are evaluated
  *
  * NOTE: The following properties are defined after each evaluation
@@ -26897,9 +27060,9 @@ OpenAjax.a11y.Ruleset = function (ruleset_data) {
   this.type = "WCAG20";
   this.ruleset_title = {};
   
-  this.ruleset_id      = ruleset_data['ruleset_id'];
-  this.ruleset_version = ruleset_data['version'];
-  this.wcag20_level    = OpenAjax.a11y.WCAG20_LEVEL.AA;
+  this.ruleset_id         = ruleset_data['ruleset_id'];
+  this.ruleset_version    = ruleset_data['version'];
+  this.evaluation_levels  = OpenAjax.a11y.EVALUATION_LEVELS.A_AA;
   
   this.recommended_rules_enabled = true;
 
@@ -26913,10 +27076,10 @@ OpenAjax.a11y.Ruleset = function (ruleset_data) {
 
   if (ruleset_data['ruleset_id']) {
     this.ruleset_id  = ruleset_data['ruleset_id'];
-    OpenAjax.a11y.logger.debug("Loading ruleset with the id: " + this.ruleset_id);
+    OpenAjax.a11y.logger.info("Loading ruleset with the id: " + this.ruleset_id);
   } 
   else {
-    OpenAjax.a11y.logger.debug("  ** Ruleset missing id");
+    OpenAjax.a11y.logger.error("  ** Ruleset missing id");
     return null;
   }
 
@@ -26926,7 +27089,7 @@ OpenAjax.a11y.Ruleset = function (ruleset_data) {
     this.ruleset_version  = ruleset_data['version'];
   } 
   else {
-    OpenAjax.a11y.logger.debug("  ** Ruleset missing version");
+    OpenAjax.a11y.logger.error("  ** Ruleset missing version");
     return null;
   }
 
@@ -26943,7 +27106,7 @@ OpenAjax.a11y.Ruleset = function (ruleset_data) {
     
   } 
   else {
-    OpenAjax.a11y.logger.debug("  ** Ruleset " + this.ruleset_id + " missing default title");
+    OpenAjax.a11y.logger.error("  ** Ruleset " + this.ruleset_id + " missing default title");
     return null;
   }
 
@@ -26953,7 +27116,7 @@ OpenAjax.a11y.Ruleset = function (ruleset_data) {
     this.ruleset_updated  = ruleset_data['last_updated'];
   } 
   else {
-    OpenAjax.a11y.logger.debug("  ** Ruleset missing last updated date, set to null");
+    OpenAjax.a11y.logger.warning("  ** Ruleset missing last updated date, set to null");
     this.ruleset_updated  = "0000-00-00";
   }
 
@@ -26970,7 +27133,7 @@ OpenAjax.a11y.Ruleset = function (ruleset_data) {
     
   } 
   else {
-    OpenAjax.a11y.logger.debug("  ** Ruleset " + this.ruleset_id + " missing default description");
+    OpenAjax.a11y.logger.error("  ** Ruleset " + this.ruleset_id + " missing default description");
     this.ruleset_description = "no description";
   }
 
@@ -26984,7 +27147,7 @@ OpenAjax.a11y.Ruleset = function (ruleset_data) {
 //    OpenAjax.a11y.logger.debug("  Ruleset URL: " + this.ruleset_author_url);
   } 
   else {
-    OpenAjax.a11y.logger.debug("  ** Ruleset " + this.ruleset_id + " missing author information");
+    OpenAjax.a11y.logger.error("  ** Ruleset " + this.ruleset_id + " missing author information");
     this.ruleset_author_name = "no author";
     this.ruleset_author_url  = "";
   }
@@ -26995,7 +27158,7 @@ OpenAjax.a11y.Ruleset = function (ruleset_data) {
     this.ruleset_updated  = ruleset_data['last_updated'];
   } 
   else {
-    OpenAjax.a11y.logger.debug("  ** Ruleset missing last updated date, set to null");
+    OpenAjax.a11y.logger.error("  ** Ruleset missing last updated date, set to null");
     this.ruleset_updated  = "0000-00-00";
   }
 
@@ -27026,8 +27189,7 @@ OpenAjax.a11y.Ruleset = function (ruleset_data) {
       
           this.number_of_rules++;
 
-          if ((rule_mapping.type === OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC) ||
-              (rule_mapping.type === OpenAjax.a11y.RULE_TYPE.RECOMMENDED_BASIC)) {
+          if (rule_mapping.type === OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC) {
              this.basic_count++;   
           }    
 
@@ -27036,20 +27198,19 @@ OpenAjax.a11y.Ruleset = function (ruleset_data) {
              this.required_count++;   
           }    
 
-          if ((rule_mapping.type === OpenAjax.a11y.RULE_TYPE.RECOMMENDED) ||
-              (rule_mapping.type === OpenAjax.a11y.RULE_TYPE.RECOMMENDED_BASIC)) {
+          if (rule_mapping.type === OpenAjax.a11y.RULE_TYPE.RECOMMENDED) {
              this.recommended_count++;   
           }    
 
         }
       } 
       else {
-        OpenAjax.a11y.logger.debug("        ** Ruleset rule " + rule_id + " is missing 'type' property");              
+        OpenAjax.a11y.logger.error("        ** Ruleset rule " + rule_id + " is missing 'type' property");              
       }    
     } // end loop
   }
   else {
-    OpenAjax.a11y.logger.debug("  ** Ruleset " + this.ruleset_id + " does not have any rules");
+    OpenAjax.a11y.logger.info("  ** Ruleset " + this.ruleset_id + " does not have any rules");
   }
   
   // local references to current NLS information, based on current locale setting
@@ -27184,7 +27345,7 @@ OpenAjax.a11y.Ruleset.prototype.getNumberOfBasicRules = function () {
  */
  
 OpenAjax.a11y.Ruleset.prototype.getNumberOfRequiredRules = function () {
-  return this.required_count;
+  return this.required_count - this.basic_count;
 };
 
 /**
@@ -27227,7 +27388,7 @@ OpenAjax.a11y.Ruleset.prototype.getTotalNumberOfRules = function () {
  
 OpenAjax.a11y.Ruleset.prototype.setEvaluationLevel = function (level) {
 
-  this.wcag20_level = level;
+  this.evaluation_levels = level;
   
 };
 
@@ -27307,8 +27468,6 @@ OpenAjax.a11y.Ruleset.prototype.evaluate = function (url, title, doc, progessCal
   this.eval_url   = url;
   this.eval_date = OpenAjax.a11y.util.getFormattedDate();
   
-  OpenAjax.a11y.logger.debug("DATE: " + this.eval_date);
-  
   // OpenAjax.a11y.logger.debug("Starting evaluation: " + this.ruleset_id + " " + this.default_name + " " + this.number_of_rules + " rules" );
   
   this.log = new OpenAjax.a11y.Log(this.ruleset_id, this.default_name, this.number_of_rules, progessCallBackFunction);
@@ -27328,7 +27487,10 @@ OpenAjax.a11y.Ruleset.prototype.evaluate = function (url, title, doc, progessCal
   var rule_mappings = this.rule_mappings;
   var rule_mappings_len = rule_mappings.length;
 
-//  OpenAjax.a11y.logger.debug("Number of rules: " + rule_mappings_len);
+  OpenAjax.a11y.logger.info("Starting evaluation....");
+  OpenAjax.a11y.logger.info("    URL: " + url);  
+  OpenAjax.a11y.logger.info("   DATE: " + this.eval_date);  
+  OpenAjax.a11y.logger.info("RULESET: " + this.ruleset_id);  
 
   for (var i = 0; i < rule_mappings_len; i++) {
     
@@ -27340,15 +27502,16 @@ OpenAjax.a11y.Ruleset.prototype.evaluate = function (url, title, doc, progessCal
 
       rule_result = new OpenAjax.a11y.RuleResult(rule_mapping); 
 
-//      OpenAjax.a11y.logger.debug("Rule: " + rule.rule_id + "  Enabled: " + rule_mapping.enabled  + "  Mapping: " + rule_mapping.type + "  Recommended Rules Evaluated: " + this.recommended_rules_enabled);
-
       var rule_type = rule_mapping.type;
 
-      if (rule_mapping.enabled && 
+      OpenAjax.a11y.logger.debug("Rule: " + rule.rule_id + "  Enabled: " + rule_mapping.enabled  + "  Type: " + ((rule_type === RULE_TYPE.REQUIRED_BASIC) || (rule_type === RULE_TYPE.REQUIRED) || this.recommended_rules_enabled) + "  WCAG 2.0 Level: " + rule_mapping.wcag20_level + " Ruleset level: " + this.evaluation_levels + " test: " + (rule_mapping.wcag20_level & this.evaluation_levels));
+
+      if (rule &&
+          rule_mapping.enabled && 
           ((rule_type === RULE_TYPE.REQUIRED_BASIC) ||
            (rule_type === RULE_TYPE.REQUIRED) ||
            this.recommended_rules_enabled) &&
-          (rule && rule_mapping.wcag20_level <= this.wcag20_level)) {      
+          (rule_mapping.wcag20_level & this.evaluation_levels)) {      
 
         this.log.update(PROGRESS.REQUIREMENT, rule_mapping.rule_id, rule.rule_id);   
 
@@ -27382,15 +27545,16 @@ OpenAjax.a11y.Ruleset.prototype.evaluate = function (url, title, doc, progessCal
         }   
 
         this.log.update(PROGRESS.RULE, rule_definition, rule.rule_id);
-                     
+   
+        this.rule_results.push(rule_result);
+        
       }
-      else {
-        rule_result.setEvaluationLevelToDisabled();
-        if (rule) this.log.update(PROGRESS.RULE, " ** Rule with id=" + rule.rule_id + " is disabled");       
-        else this.log.update(PROGRESS.RULE, " ** Rule for success criteria " + rsc.ruleset_id + " is undefined");                            
-      }
+//      else {
+//        rule_result.setEvaluationLevelToDisabled();
+//        if (rule) this.log.update(PROGRESS.RULE, " ** Rule with id=" + rule.rule_id + " is disabled");       
+//        else this.log.update(PROGRESS.RULE, " ** Rule for success criteria " + rsc.ruleset_id + " is undefined");                            
+//      }
       
-      this.rule_results.push(rule_result);
       
       // OpenAjax.a11y.logger.debug("Aggregating rule Results: " + rule_result);
 
@@ -27458,13 +27622,12 @@ OpenAjax.a11y.Ruleset.prototype.getCacheItemsByRuleCategory = function (rule_cat
  *
  * @desc Returns an object containing a set of rules organized in a tree structure by WCAG 2.0 Principles, Guidelines and Success Criteria
  *
- * @param {String}  title         -  Title of the rule category 
  * @param {Number}  filter        -  Filter for node results (bit mapped mask)
  * 
  * @return {FilteredRuleResultsGroups}  The object containing the filtered rule results organized by wcag 2.0 requirements
  */
 
-OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByWCAG20 = function (title, filter) {
+OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByWCAG20 = function (filter) {
 
   var RULE_CATEGORIES = OpenAjax.a11y.RULE_CATEGORIES;
 
@@ -27474,134 +27637,163 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByWCAG20 = function (title
   var principle;
   var guideline;
   var success_criterion;
+  var nls_item;
   
-  var wcag20_level = this.wcag20_level;
+  var evaluation_levels = this.evaluation_levels;
 
-  principles = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, RULE_CATEGORIES.ALL_CATEGORIES, title);
 
-  principle         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '1', nls_wcag20.getNLSItemById('1').title);
+  principles = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, RULE_CATEGORIES.ALL_CATEGORIES, "WCAG 2.0 Summary");
+
+  nls_item = nls_wcag20.getNLSItemById('1');
+  principle = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '1', nls_item.title, nls_item.url_spec, nls_item.description);
   
-  guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '1.1', nls_wcag20.getNLSItemById('1.1').title);
+  nls_item = nls_wcag20.getNLSItemById('1.1');
+  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '1.1', nls_item.title, nls_item.url_spec, nls_item.description);
   
-  if (nls_wcag20.getNLSItemById('1.1.1').level <= wcag20_level) {
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.1.1', nls_wcag20.getNLSItemById('1.1.1').title);
+  if (nls_wcag20.getNLSItemById('1.1.1').level & evaluation_levels) {
+    nls_item = nls_wcag20.getNLSItemById('1.1.1');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.1.1', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }  
   
   principle.addFilteredRuleResultsGroup(guideline);
 
-  guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '1.2', nls_wcag20.getNLSItemById('1.2').title);
+  nls_item = nls_wcag20.getNLSItemById('1.2');
+  guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '1.2', nls_item.title, nls_item.url_spec, nls_item.description);
   
-  if (nls_wcag20.getNLSItemById('1.2.1').level <= wcag20_level) {
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.1', nls_wcag20.getNLSItemById('1.2.1').title);
+  if (nls_wcag20.getNLSItemById('1.2.1').level & evaluation_levels) {
+    nls_item = nls_wcag20.getNLSItemById('1.2.1');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.1', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.2.2').level <= wcag20_level) {
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.2', nls_wcag20.getNLSItemById('1.2.2').title);
+  if (nls_wcag20.getNLSItemById('1.2.2').level & evaluation_levels) {
+    nls_item = nls_wcag20.getNLSItemById('1.2.2');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.2', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.2.3').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.3', nls_wcag20.getNLSItemById('1.2.3').title);
+  if (nls_wcag20.getNLSItemById('1.2.3').level & evaluation_levels) {  
+    nls_item = nls_wcag20.getNLSItemById('1.2.3');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.3', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.2.4').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.4', nls_wcag20.getNLSItemById('1.2.4').title);
+  if (nls_wcag20.getNLSItemById('1.2.4').level & evaluation_levels) {  
+    nls_item = nls_wcag20.getNLSItemById('1.2.4');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.4', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.2.5').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.5', nls_wcag20.getNLSItemById('1.2.5').title);
+  if (nls_wcag20.getNLSItemById('1.2.5').level & evaluation_levels) {  
+    nls_item = nls_wcag20.getNLSItemById('1.2.5');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.5', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.2.6').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.6', nls_wcag20.getNLSItemById('1.2.6').title);
+  if (nls_wcag20.getNLSItemById('1.2.6').level & evaluation_levels) {  
+    nls_item = nls_wcag20.getNLSItemById('1.2.6');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.6', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.2.7').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.7', nls_wcag20.getNLSItemById('1.2.7').title);
+  if (nls_wcag20.getNLSItemById('1.2.7').level & evaluation_levels) {  
+    nls_item = nls_wcag20.getNLSItemById('1.2.7');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.7', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.2.8').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.8', nls_wcag20.getNLSItemById('1.2.8').title);
+  if (nls_wcag20.getNLSItemById('1.2.8').level & evaluation_levels) {  
+    nls_item = nls_wcag20.getNLSItemById('1.2.8');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.8', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.2.9').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.9', nls_wcag20.getNLSItemById('1.2.9').title);
+  if (nls_wcag20.getNLSItemById('1.2.9').level & evaluation_levels) {  
+    nls_item = nls_wcag20.getNLSItemById('1.2.9');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.9', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }  
   
   principle.addFilteredRuleResultsGroup(guideline);
 
-  guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '1.3', nls_wcag20.getNLSItemById('1.3').title);
+  nls_item  = nls_wcag20.getNLSItemById('1.3');
+  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '1.3', nls_item.title, nls_item.url_spec, nls_item.description);
   
-  if (nls_wcag20.getNLSItemById('1.3.1').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.3.1', nls_wcag20.getNLSItemById('1.3.1').title);
+  if (nls_wcag20.getNLSItemById('1.3.1').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('1.3.1');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.3.1', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.3.2').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.3.2', nls_wcag20.getNLSItemById('1.3.2').title);
+  if (nls_wcag20.getNLSItemById('1.3.2').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('1.3.2');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.3.2', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.3.3').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.3.3', nls_wcag20.getNLSItemById('1.3.3').title);
+  if (nls_wcag20.getNLSItemById('1.3.3').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('1.3.3');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.3.3', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
   principle.addFilteredRuleResultsGroup(guideline);
 
-  guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '1.4', nls_wcag20.getNLSItemById('1.4').title);
+  nls_item  = nls_wcag20.getNLSItemById('1.4');
+  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '1.4', nls_item.title, nls_item.url_spec, nls_item.description);
   
-  if (nls_wcag20.getNLSItemById('1.4.1').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.1', nls_wcag20.getNLSItemById('1.4.1').title);
+  if (nls_wcag20.getNLSItemById('1.4.1').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('1.4.1');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.1', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.4.2').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.2', nls_wcag20.getNLSItemById('1.4.2').title);
+  if (nls_wcag20.getNLSItemById('1.4.2').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('1.4.2');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.2', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.4.3').level <= wcag20_level) {    
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.3', nls_wcag20.getNLSItemById('1.4.3').title);
+  if (nls_wcag20.getNLSItemById('1.4.3').level & evaluation_levels) {    
+    nls_item  = nls_wcag20.getNLSItemById('1.4.3');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.3', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.4.4').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.4', nls_wcag20.getNLSItemById('1.4.4').title);
+  if (nls_wcag20.getNLSItemById('1.4.4').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('1.4.4');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.4', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.4.5').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.5', nls_wcag20.getNLSItemById('1.4.5').title);
+  if (nls_wcag20.getNLSItemById('1.4.5').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('1.4.5');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.5', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.4.6').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.6', nls_wcag20.getNLSItemById('1.4.6').title);
+  if (nls_wcag20.getNLSItemById('1.4.6').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('1.4.6');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.6', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.4.7').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.7', nls_wcag20.getNLSItemById('1.4.7').title);
+  if (nls_wcag20.getNLSItemById('1.4.7').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('1.4.7');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.7', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.4.8').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.8', nls_wcag20.getNLSItemById('1.4.8').title);
+  if (nls_wcag20.getNLSItemById('1.4.8').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('1.4.8');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.8', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.4.9').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.9', nls_wcag20.getNLSItemById('1.4.9').title);
+  if (nls_wcag20.getNLSItemById('1.4.9').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('1.4.9');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.9', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }  
   
@@ -27609,119 +27801,144 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByWCAG20 = function (title
 
   principles.addFilteredRuleResultsGroup(principle);
 
-  principle         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '2', nls_wcag20.getNLSItemById('2').title);
+  nls_item  = nls_wcag20.getNLSItemById('2');
+  principle = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '2', nls_item.title, nls_item.url_spec, nls_item.description);
   
-  guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '2.1', nls_wcag20.getNLSItemById('2.1').title);
+  nls_item  = nls_wcag20.getNLSItemById('2.1');
+  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '2.1', nls_item.title, nls_item.url_spec, nls_item.description);
   
-  if (nls_wcag20.getNLSItemById('2.1.1').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.1.1', nls_wcag20.getNLSItemById('2.1.1').title);
+  if (nls_wcag20.getNLSItemById('2.1.1').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('2.1.1');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.1.1', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }  
   
-  if (nls_wcag20.getNLSItemById('2.1.2').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.1.2', nls_wcag20.getNLSItemById('2.1.2').title);
+  if (nls_wcag20.getNLSItemById('2.1.2').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('2.1.2');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.1.2', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }  
   
-  if (nls_wcag20.getNLSItemById('2.1.3').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.1.3', nls_wcag20.getNLSItemById('2.1.3').title);
+  if (nls_wcag20.getNLSItemById('2.1.3').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('2.1.3');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.1.3', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
   principle.addFilteredRuleResultsGroup(guideline);
 
-  guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '2.2', nls_wcag20.getNLSItemById('2.2').title);
+  nls_item  = nls_wcag20.getNLSItemById('2.2');
+  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '2.2', nls_item.title, nls_item.url_spec, nls_item.description);
   
-  if (nls_wcag20.getNLSItemById('2.2.1').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.1', nls_wcag20.getNLSItemById('2.2.1').title);
+  if (nls_wcag20.getNLSItemById('2.2.1').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('2.2.1');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.1', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('2.2.2').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.2', nls_wcag20.getNLSItemById('2.2.2').title);
+  if (nls_wcag20.getNLSItemById('2.2.2').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('2.2.2');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.2', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('2.2.3').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.3', nls_wcag20.getNLSItemById('2.2.3').title);
+  if (nls_wcag20.getNLSItemById('2.2.3').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('2.2.3');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.3', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('2.2.4').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.4', nls_wcag20.getNLSItemById('2.2.4').title);
+  if (nls_wcag20.getNLSItemById('2.2.4').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('2.2.4');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.4', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);    
   }
   
-  if (nls_wcag20.getNLSItemById('2.2.5').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.5', nls_wcag20.getNLSItemById('2.2.5').title);
+  if (nls_wcag20.getNLSItemById('2.2.5').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('2.2.5');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.5', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
   principle.addFilteredRuleResultsGroup(guideline);
 
-  guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '2.3', nls_wcag20.getNLSItemById('2.3').title);
+  nls_item  = nls_wcag20.getNLSItemById('2.3');
+  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '2.3', nls_item.title, nls_item.url_spec, nls_item.description);
   
-  if (nls_wcag20.getNLSItemById('2.3.1').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.3.1', nls_wcag20.getNLSItemById('2.3.1').title);
+  if (nls_wcag20.getNLSItemById('2.3.1').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('2.3.1');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.3.1', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('2.3.2').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.3.2', nls_wcag20.getNLSItemById('2.3.2').title);
+  if (nls_wcag20.getNLSItemById('2.3.2').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('2.3.2');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.3.2', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
   principle.addFilteredRuleResultsGroup(guideline);
 
-  guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '2.4', nls_wcag20.getNLSItemById('2.4').title);
+  nls_item  = nls_wcag20.getNLSItemById('2.4');
+  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '2.4', nls_item.title, nls_item.url_spec, nls_item.description);
   
-  if (nls_wcag20.getNLSItemById('2.4.1').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.1', nls_wcag20.getNLSItemById('2.4.1').title);
+  if (nls_wcag20.getNLSItemById('2.4.1').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('2.4.1');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.1', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }  
   
-  if (nls_wcag20.getNLSItemById('2.4.2').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.2', nls_wcag20.getNLSItemById('2.4.2').title);
+  if (nls_wcag20.getNLSItemById('2.4.2').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('2.4.2');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.2', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('2.4.3').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.3', nls_wcag20.getNLSItemById('2.4.3').title);
+  if (nls_wcag20.getNLSItemById('2.4.3').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('2.4.3');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.3', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }  
   
-  if (nls_wcag20.getNLSItemById('2.4.4').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.4', nls_wcag20.getNLSItemById('2.4.4').title);
+  if (nls_wcag20.getNLSItemById('2.4.4').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('2.4.4');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.4', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }  
   
-  if (nls_wcag20.getNLSItemById('2.4.5').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.5', nls_wcag20.getNLSItemById('2.4.5').title);
+  if (nls_wcag20.getNLSItemById('2.4.5').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('2.4.5');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.5', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }  
   
-  if (nls_wcag20.getNLSItemById('2.4.6').level <= wcag20_level) {    
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.6', nls_wcag20.getNLSItemById('2.4.6').title);
+  if (nls_wcag20.getNLSItemById('2.4.6').level & evaluation_levels) {    
+    nls_item  = nls_wcag20.getNLSItemById('2.4.6');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.6', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }  
   
-  if (nls_wcag20.getNLSItemById('2.4.7').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.7', nls_wcag20.getNLSItemById('2.4.7').title);
+  if (nls_wcag20.getNLSItemById('2.4.7').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('2.4.7');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.7', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }  
   
-  if (nls_wcag20.getNLSItemById('2.4.8').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.8', nls_wcag20.getNLSItemById('2.4.8').title);
+  if (nls_wcag20.getNLSItemById('2.4.8').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('2.4.8');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.8', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }  
   
-  if (nls_wcag20.getNLSItemById('2.4.9').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.9', nls_wcag20.getNLSItemById('2.4.9').title);
+  if (nls_wcag20.getNLSItemById('2.4.9').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('2.4.9');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.9', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }  
   
-  if (nls_wcag20.getNLSItemById('2.4.10').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.10', nls_wcag20.getNLSItemById('2.4.10').title);
+  if (nls_wcag20.getNLSItemById('2.4.10').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('2.4.10');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.10', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
@@ -27729,100 +27946,121 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByWCAG20 = function (title
 
   principles.addFilteredRuleResultsGroup(principle);
 
-  principle         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '3', nls_wcag20.getNLSItemById('3').title);
+  nls_item  = nls_wcag20.getNLSItemById('3');
+  principle = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '3', nls_item.title, nls_item.url_spec, nls_item.description);
   
-  guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '3.1', nls_wcag20.getNLSItemById('3.1').title);
+  nls_item  = nls_wcag20.getNLSItemById('3.1');
+  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '3.1', nls_item.title, nls_item.url_spec, nls_item.description);
   
-  if (nls_wcag20.getNLSItemById('3.1.1').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.1', nls_wcag20.getNLSItemById('3.1.1').title);
+  if (nls_wcag20.getNLSItemById('3.1.1').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('3.1.1');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.1', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }  
   
-  if (nls_wcag20.getNLSItemById('3.1.2').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.2', nls_wcag20.getNLSItemById('3.1.2').title);
+  if (nls_wcag20.getNLSItemById('3.1.2').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('3.1.2');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.2', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('3.1.3').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.3', nls_wcag20.getNLSItemById('3.1.3').title);
+  if (nls_wcag20.getNLSItemById('3.1.3').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('3.1.3');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.3', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }  
   
-  if (nls_wcag20.getNLSItemById('3.1.4').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.4', nls_wcag20.getNLSItemById('3.1.4').title);
+  if (nls_wcag20.getNLSItemById('3.1.4').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('3.1.4');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.4', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }  
   
-  if (nls_wcag20.getNLSItemById('3.1.5').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.5', nls_wcag20.getNLSItemById('3.1.5').title);
+  if (nls_wcag20.getNLSItemById('3.1.5').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('3.1.5');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.5', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);    
   }  
   
-  if (nls_wcag20.getNLSItemById('3.1.6').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.6', nls_wcag20.getNLSItemById('3.1.6').title);
+  if (nls_wcag20.getNLSItemById('3.1.6').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('3.1.6');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.6', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }  
   
   principle.addFilteredRuleResultsGroup(guideline);
 
-  guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '3.2', nls_wcag20.getNLSItemById('3.2').title);
+  nls_item  = nls_wcag20.getNLSItemById('3.2');
+  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '3.2', nls_item.title, nls_item.url_spec, nls_item.description);
   
-  if (nls_wcag20.getNLSItemById('3.2.1').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.1', nls_wcag20.getNLSItemById('3.2.1').title);
+  if (nls_wcag20.getNLSItemById('3.2.1').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('3.2.1');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.1', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('3.2.2').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.2', nls_wcag20.getNLSItemById('3.2.2').title);
+  if (nls_wcag20.getNLSItemById('3.2.2').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('3.2.2');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.2', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('3.2.3').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.3', nls_wcag20.getNLSItemById('3.2.3').title);
+  if (nls_wcag20.getNLSItemById('3.2.3').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('3.2.3');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.3', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('3.2.4').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.4', nls_wcag20.getNLSItemById('3.2.4').title);
+  if (nls_wcag20.getNLSItemById('3.2.4').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('3.2.4');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.4', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('3.2.5').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.5', nls_wcag20.getNLSItemById('3.2.5').title);
+  if (nls_wcag20.getNLSItemById('3.2.5').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('3.2.5');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.5', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
   principle.addFilteredRuleResultsGroup(guideline);
 
-  guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '3.3', nls_wcag20.getNLSItemById('3.3').title);
+  nls_item  = nls_wcag20.getNLSItemById('3.3');
+  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '3.3', nls_item.title, nls_item.url_spec, nls_item.description);
   
-  if (nls_wcag20.getNLSItemById('3.3.1').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.1', nls_wcag20.getNLSItemById('3.3.1').title);
+  if (nls_wcag20.getNLSItemById('3.3.1').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('3.3.1');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.1', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('3.3.2').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.2', nls_wcag20.getNLSItemById('3.3.2').title);
+  if (nls_wcag20.getNLSItemById('3.3.2').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('3.3.2');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.2', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('3.3.3').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.3', nls_wcag20.getNLSItemById('3.3.3').title);
+  if (nls_wcag20.getNLSItemById('3.3.3').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('3.3.3');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.3', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('3.3.4').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.4', nls_wcag20.getNLSItemById('3.3.4').title);
+  if (nls_wcag20.getNLSItemById('3.3.4').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('3.3.4');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.4', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('3.3.5').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.5', nls_wcag20.getNLSItemById('3.3.5').title);
+  if (nls_wcag20.getNLSItemById('3.3.5').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('3.3.5');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.5', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('3.3.6').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.6', nls_wcag20.getNLSItemById('3.3.6').title);
+  if (nls_wcag20.getNLSItemById('3.3.6').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('3.3.6');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.6', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
@@ -27830,17 +28068,21 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByWCAG20 = function (title
 
   principles.addFilteredRuleResultsGroup(principle);
 
-  principle         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '4', nls_wcag20.getNLSItemById('4').title);
+  nls_item  = nls_wcag20.getNLSItemById('4');
+  principle = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '4', nls_item.title, nls_item.url_spec, nls_item.description);
   
-  guideline         = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '4.1', nls_wcag20.getNLSItemById('4.1').title);
+  nls_item  = nls_wcag20.getNLSItemById('4.1');
+  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, '4.1', nls_item.title, nls_item.url_spec, nls_item.description);
   
-  if (nls_wcag20.getNLSItemById('4.1.1').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '4.1.1', nls_wcag20.getNLSItemById('4.1.1').title);
+  if (nls_wcag20.getNLSItemById('4.1.1').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('4.1.1');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '4.1.1', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
-  if (nls_wcag20.getNLSItemById('4.1.2').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '4.1.2', nls_wcag20.getNLSItemById('4.1.2').title);
+  if (nls_wcag20.getNLSItemById('4.1.2').level & evaluation_levels) {  
+    nls_item  = nls_wcag20.getNLSItemById('4.1.2');
+    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '4.1.2', nls_item.title, nls_item.url_spec, nls_item.description);
     guideline.addFilteredRuleResultsGroup(success_criterion);  
   }
   
@@ -27879,9 +28121,9 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByPrinciple = function (pr
 
   var nls_wcag20 = OpenAjax.a11y.all_wcag20_nls.getNLS();
 
-  var title = nls_wcag20.getNLSItemById(principle_id).title;
+  var nls_pr = nls_wcag20.getNLSItemById(principle_id);
 
-  var principle = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, principle_id, title);
+  var principle = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, principle_id, nls_pr.title, nls_pr.url_spec, nls_pr.description);
     
   for (var i = 0; i < this.rule_results.length; i++) {
   
@@ -27920,20 +28162,24 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByPrinciples = function (f
   var principles;
   var principle;
   
-  var wcag20_level = this.wcag20_level;
+  var evaluation_levels = this.evaluation_levels;
 
   principles = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, "wcag20_principles_summary", "WCAG 2.0 Principles");
  
-  principle = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_PRINCIPLE.P_1, nls_wcag20.getNLSItemById(WCAG20_PRINCIPLE.P_1).title);
+  nls_pr = nls_wcag20.getNLSItemById('1');
+  principle = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_PRINCIPLE.P_1, nls_pr.title, nls_pr.url_spec, nls_pr.description);
   principles.addFilteredRuleResultsGroup(principle);
 
-  principle = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_PRINCIPLE.P_2, nls_wcag20.getNLSItemById(WCAG20_PRINCIPLE.P_2).title);
+  nls_pr = nls_wcag20.getNLSItemById('2');
+  principle = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_PRINCIPLE.P_2, nls_pr.title, nls_pr.url_spec, nls_pr.description);
   principles.addFilteredRuleResultsGroup(principle);  
   
-  principle = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_PRINCIPLE.P_3, nls_wcag20.getNLSItemById(WCAG20_PRINCIPLE.P_3).title);
+  nls_pr = nls_wcag20.getNLSItemById('3');
+  principle = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_PRINCIPLE.P_3, nls_pr.title, nls_pr.url_spec, nls_pr.description);
   principles.addFilteredRuleResultsGroup(principle);
   
-  principle = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_PRINCIPLE.P_4, nls_wcag20.getNLSItemById(WCAG20_PRINCIPLE.P_4).title);  
+  nls_pr = nls_wcag20.getNLSItemById('4');
+  principle = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_PRINCIPLE.P_4, nls_pr.title, nls_pr.url_spec, nls_pr.description);  
   principles.addFilteredRuleResultsGroup(principle);
   
   for (var i = 0; i < this.rule_results.length; i++) {
@@ -27968,9 +28214,8 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByGuideline = function (gu
 
   var nls_wcag20 = OpenAjax.a11y.all_wcag20_nls.getNLS();
 
-  var title = nls_wcag20.getNLSItemById(guideline_id).title;
-
-  var guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, guideline_id, title);
+  var nls_gl = nls_wcag20.getNLSItemById(guideline_id);
+  var guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, guideline_id, nls_gl.title, nls_gl.url_spec, nls_gl.description);
     
   for (var i = 0; i < this.rule_results.length; i++) {
   
@@ -28008,44 +28253,56 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByGuidelines = function (f
   var guidelines;
   var guideline;
   
-  var wcag20_level = this.wcag20_level;
+  var evaluation_levels = this.evaluation_levels;
 
   guidelines = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, "wcag20_guidelines_summary", "WCAG 2.0 Guidelines");
- 
-  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_GUIDELINE.G_1_1, nls_wcag20.getNLSItemById(WCAG20_GUIDELINE.G_1_1).title);
+
+  nls_gl = nls_wcag20.getNLSItemById('1.1');
+  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_GUIDELINE.G_1_1, nls_gl.title, nls_gl.url_spec, nls_gl.description);
   guidelines.addFilteredRuleResultsGroup(guideline);
 
-  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_GUIDELINE.G_1_2, nls_wcag20.getNLSItemById(WCAG20_GUIDELINE.G_1_2).title);
+  nls_gl = nls_wcag20.getNLSItemById('1.2');
+  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_GUIDELINE.G_1_2, nls_gl.title, nls_gl.url_spec, nls_gl.description);
   guidelines.addFilteredRuleResultsGroup(guideline);  
   
-  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_GUIDELINE.G_1_3, nls_wcag20.getNLSItemById(WCAG20_GUIDELINE.G_1_3).title);
+  nls_gl = nls_wcag20.getNLSItemById('1.3');
+  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_GUIDELINE.G_1_3, nls_gl.title, nls_gl.url_spec, nls_gl.description);
   guidelines.addFilteredRuleResultsGroup(guideline);
   
-  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_GUIDELINE.G_1_4, nls_wcag20.getNLSItemById(WCAG20_GUIDELINE.G_1_4).title);  
+  nls_gl = nls_wcag20.getNLSItemById('1.4');
+  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_GUIDELINE.G_1_4, nls_gl.title, nls_gl.url_spec, nls_gl.description);  
   guidelines.addFilteredRuleResultsGroup(guideline);
   
-  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_GUIDELINE.G_2_1, nls_wcag20.getNLSItemById(WCAG20_GUIDELINE.G_2_1).title);
+  nls_gl = nls_wcag20.getNLSItemById('2.1');
+  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_GUIDELINE.G_2_1, nls_gl.title, nls_gl.url_spec, nls_gl.description);
   guidelines.addFilteredRuleResultsGroup(guideline);
   
-  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_GUIDELINE.G_2_2, nls_wcag20.getNLSItemById(WCAG20_GUIDELINE.G_2_2).title);
+  nls_gl = nls_wcag20.getNLSItemById('2.2');
+  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_GUIDELINE.G_2_2, nls_gl.title, nls_gl.url_spec, nls_gl.description);
   guidelines.addFilteredRuleResultsGroup(guideline);
   
-  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_GUIDELINE.G_2_3, nls_wcag20.getNLSItemById(WCAG20_GUIDELINE.G_2_3).title);  
+  nls_gl = nls_wcag20.getNLSItemById('2.3');
+  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_GUIDELINE.G_2_3, nls_gl.title, nls_gl.url_spec, nls_gl.description);  
   guidelines.addFilteredRuleResultsGroup(guideline);
   
-  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_GUIDELINE.G_2_4, nls_wcag20.getNLSItemById(WCAG20_GUIDELINE.G_2_4).title);  
+  nls_gl = nls_wcag20.getNLSItemById('2.4');
+  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_GUIDELINE.G_2_4, nls_gl.title, nls_gl.url_spec, nls_gl.description);  
   guidelines.addFilteredRuleResultsGroup(guideline);
 
-  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_GUIDELINE.G_3_1, nls_wcag20.getNLSItemById(WCAG20_GUIDELINE.G_3_1).title);
+  nls_gl = nls_wcag20.getNLSItemById('3.1');
+  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_GUIDELINE.G_3_1, nls_gl.title, nls_gl.url_spec, nls_gl.description);
   guidelines.addFilteredRuleResultsGroup(guideline);
   
-  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_GUIDELINE.G_3_2, nls_wcag20.getNLSItemById(WCAG20_GUIDELINE.G_3_2).title);
+  nls_gl = nls_wcag20.getNLSItemById('3.2');
+  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_GUIDELINE.G_3_2, nls_gl.title, nls_gl.url_spec, nls_gl.description);
   guidelines.addFilteredRuleResultsGroup(guideline);
   
-  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_GUIDELINE.G_3_3, nls_wcag20.getNLSItemById(WCAG20_GUIDELINE.G_3_3).title);
+  nls_gl = nls_wcag20.getNLSItemById('3.3');
+  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_GUIDELINE.G_3_3, nls_gl.title, nls_gl.url_spec, nls_gl.description);
   guidelines.addFilteredRuleResultsGroup(guideline);
     
-  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_GUIDELINE.G_4_1, nls_wcag20.getNLSItemById(WCAG20_GUIDELINE.G_4_1).title);
+  nls_gl = nls_wcag20.getNLSItemById('4.1');
+  guideline = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, WCAG20_GUIDELINE.G_4_1, nls_gl.title, nls_gl.url_spec, nls_gl.description);
   guidelines.addFilteredRuleResultsGroup(guideline);
 
   for (var i = 0; i < this.rule_results.length; i++) {
@@ -28079,9 +28336,8 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsBySuccessCriterion = funct
 
   var nls_wcag20 = OpenAjax.a11y.all_wcag20_nls.getNLS();
 
-  var title = nls_wcag20.getNLSItemById(success_criterion_id).title;
-
-  var success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, success_criterion_id.toString(), title);
+  var nls_sc = nls_wcag20.getNLSItemById(success_criterion_id);
+  var success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, success_criterion_id.toString(), nls_sc.title, nls_sc.url_spec, nls_sc.description);
     
   for (var i = 0; i < this.rule_results.length; i++) {
   
@@ -28119,316 +28375,378 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsBySuccessCriteria = functi
   var nls_wcag20 = OpenAjax.a11y.all_wcag20_nls.getNLS();
  
   var success_criteria;
-  var success_criterion;
+  var sc;
+  var nls_sc;
   
-  var wcag20_level = this.wcag20_level;
+  var evaluation_levels = this.evaluation_levels;
 
   success_criteria = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, "wcag20_success_criteria_summary", "WCAG 2.0 Success Criteria");
 
-  if (nls_wcag20.getNLSItemById('1.1.1').level <= wcag20_level) {
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.1.1', nls_wcag20.getNLSItemById('1.1.1').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.1.1').level & evaluation_levels) {
+    nls_sc = nls_wcag20.getNLSItemById('1.1.1');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.1.1', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }  
     
-  if (nls_wcag20.getNLSItemById('1.2.1').level <= wcag20_level) {
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.1', nls_wcag20.getNLSItemById('1.2.1').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.2.1').level & evaluation_levels) {
+    nls_sc = nls_wcag20.getNLSItemById('1.2.1');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.1', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.2.2').level <= wcag20_level) {
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.2', nls_wcag20.getNLSItemById('1.2.2').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.2.2').level & evaluation_levels) {
+    nls_sc = nls_wcag20.getNLSItemById('1.2.2');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.2', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.2.3').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.3', nls_wcag20.getNLSItemById('1.2.3').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.2.3').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('1.2.3');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.3', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.2.4').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.4', nls_wcag20.getNLSItemById('1.2.4').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.2.4').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('1.2.4');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.4', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.2.5').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.5', nls_wcag20.getNLSItemById('1.2.5').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.2.5').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('1.2.5');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.5', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.2.6').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.6', nls_wcag20.getNLSItemById('1.2.6').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.2.6').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('1.2.6');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.6', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.2.7').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.7', nls_wcag20.getNLSItemById('1.2.7').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.2.7').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('1.2.7');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.7', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.2.8').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.8', nls_wcag20.getNLSItemById('1.2.8').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.2.8').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('1.2.8');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.8', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.2.9').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.9', nls_wcag20.getNLSItemById('1.2.9').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.2.9').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('1.2.9');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.2.9', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }  
     
-  if (nls_wcag20.getNLSItemById('1.3.1').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.3.1', nls_wcag20.getNLSItemById('1.3.1').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.3.1').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('1.3.1');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.3.1', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.3.2').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.3.2', nls_wcag20.getNLSItemById('1.3.2').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.3.2').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('1.3.2');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.3.2', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.3.3').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.3.3', nls_wcag20.getNLSItemById('1.3.3').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.3.3').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('1.3.3');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.3.3', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.4.1').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.1', nls_wcag20.getNLSItemById('1.4.1').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.4.1').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('1.4.1');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.1', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.4.2').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.2', nls_wcag20.getNLSItemById('1.4.2').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.4.2').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('1.4.2');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.2', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.4.3').level <= wcag20_level) {    
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.3', nls_wcag20.getNLSItemById('1.4.3').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.4.3').level & evaluation_levels) {    
+    nls_sc = nls_wcag20.getNLSItemById('1.4.3');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.3', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.4.4').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.4', nls_wcag20.getNLSItemById('1.4.4').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.4.4').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('1.4.4');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.4', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.4.5').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.5', nls_wcag20.getNLSItemById('1.4.5').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.4.5').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('1.4.5');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.5', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.4.6').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.6', nls_wcag20.getNLSItemById('1.4.6').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.4.6').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('1.4.6');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.6', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.4.7').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.7', nls_wcag20.getNLSItemById('1.4.7').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.4.7').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('1.4.7');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.7', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.4.8').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.8', nls_wcag20.getNLSItemById('1.4.8').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.4.8').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('1.4.8');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.8', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('1.4.9').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.9', nls_wcag20.getNLSItemById('1.4.9').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('1.4.9').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('1.4.9');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '1.4.9', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }  
   
-  if (nls_wcag20.getNLSItemById('2.1.1').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.1.1', nls_wcag20.getNLSItemById('2.1.1').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.1.1').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('2.1.1');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.1.1', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }  
   
-  if (nls_wcag20.getNLSItemById('2.1.2').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.1.2', nls_wcag20.getNLSItemById('2.1.2').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.1.2').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('2.1.2');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.1.2', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }  
   
-  if (nls_wcag20.getNLSItemById('2.1.3').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.1.3', nls_wcag20.getNLSItemById('2.1.3').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.1.3').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('2.1.3');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.1.3', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('2.2.1').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.1', nls_wcag20.getNLSItemById('2.2.1').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.2.1').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('2.2.1');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.1', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('2.2.2').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.2', nls_wcag20.getNLSItemById('2.2.2').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.2.2').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('2.2.2');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.2', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('2.2.3').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.3', nls_wcag20.getNLSItemById('2.2.3').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.2.3').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('2.2.3');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.3', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('2.2.4').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.4', nls_wcag20.getNLSItemById('2.2.4').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);    
+  if (nls_wcag20.getNLSItemById('2.2.4').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('2.2.4');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.4', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);    
   }
   
-  if (nls_wcag20.getNLSItemById('2.2.5').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.5', nls_wcag20.getNLSItemById('2.2.5').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.2.5').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('2.5.5');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.2.5', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('2.3.1').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.3.1', nls_wcag20.getNLSItemById('2.3.1').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.3.1').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('2.3.1');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.3.1', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('2.3.2').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.3.2', nls_wcag20.getNLSItemById('2.3.2').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.3.2').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('2.3.2');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.3.2', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
     
-  if (nls_wcag20.getNLSItemById('2.4.1').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.1', nls_wcag20.getNLSItemById('2.4.1').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.4.1').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('2.4.1');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.1', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }  
   
-  if (nls_wcag20.getNLSItemById('2.4.2').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.2', nls_wcag20.getNLSItemById('2.4.2').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.4.2').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('2.4.2');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.2', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('2.4.3').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.3', nls_wcag20.getNLSItemById('2.4.3').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.4.3').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('2.4.3');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.3', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }  
   
-  if (nls_wcag20.getNLSItemById('2.4.4').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.4', nls_wcag20.getNLSItemById('2.4.4').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.4.4').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('2.4.4');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.4', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }  
   
-  if (nls_wcag20.getNLSItemById('2.4.5').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.5', nls_wcag20.getNLSItemById('2.4.5').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.4.5').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('2.4.5');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.5', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }  
   
-  if (nls_wcag20.getNLSItemById('2.4.6').level <= wcag20_level) {    
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.6', nls_wcag20.getNLSItemById('2.4.6').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.4.6').level & evaluation_levels) {    
+    nls_sc = nls_wcag20.getNLSItemById('2.4.6');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.6', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }  
   
-  if (nls_wcag20.getNLSItemById('2.4.7').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.7', nls_wcag20.getNLSItemById('2.4.7').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.4.7').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('2.4.7');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.7', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }  
   
-  if (nls_wcag20.getNLSItemById('2.4.8').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.8', nls_wcag20.getNLSItemById('2.4.8').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.4.8').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('2.4.8');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.8', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }  
   
-  if (nls_wcag20.getNLSItemById('2.4.9').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.9', nls_wcag20.getNLSItemById('2.4.9').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.4.9').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('2.4.9');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.9', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }  
   
-  if (nls_wcag20.getNLSItemById('2.4.10').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.10', nls_wcag20.getNLSItemById('2.4.10').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('2.4.10').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('2.4.10');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '2.4.10', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
     
-  if (nls_wcag20.getNLSItemById('3.1.1').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.1', nls_wcag20.getNLSItemById('3.1.1').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.1.1').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('3.1.1');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.1', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }  
   
-  if (nls_wcag20.getNLSItemById('3.1.2').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.2', nls_wcag20.getNLSItemById('3.1.2').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.1.2').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('3.1.2');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.2', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('3.1.3').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.3', nls_wcag20.getNLSItemById('3.1.3').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.1.3').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('3.1.3');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.3', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }  
   
-  if (nls_wcag20.getNLSItemById('3.1.4').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.4', nls_wcag20.getNLSItemById('3.1.4').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.1.4').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('3.1.4');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.4', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }  
   
-  if (nls_wcag20.getNLSItemById('3.1.5').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.5', nls_wcag20.getNLSItemById('3.1.5').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);    
+  if (nls_wcag20.getNLSItemById('3.1.5').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('3.1.5');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.5', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);    
   }  
   
-  if (nls_wcag20.getNLSItemById('3.1.6').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.6', nls_wcag20.getNLSItemById('3.1.6').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.1.6').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('3.1.6');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.1.6', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }  
   
   
-  if (nls_wcag20.getNLSItemById('3.2.1').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.1', nls_wcag20.getNLSItemById('3.2.1').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.2.1').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('3.2.1');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.1', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('3.2.2').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.2', nls_wcag20.getNLSItemById('3.2.2').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.2.2').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('3.2.2');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.2', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('3.2.3').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.3', nls_wcag20.getNLSItemById('3.2.3').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.2.3').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('3.2.3');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.3', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('3.2.4').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.4', nls_wcag20.getNLSItemById('3.2.4').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.2.4').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('3.2.4');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.4', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('3.2.5').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.5', nls_wcag20.getNLSItemById('3.2.5').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.2.5').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('3.2.5');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.2.5', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
     
-  if (nls_wcag20.getNLSItemById('3.3.1').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.1', nls_wcag20.getNLSItemById('3.3.1').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.3.1').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('3.3.1');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.1', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('3.3.2').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.2', nls_wcag20.getNLSItemById('3.3.2').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.3.2').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('3.3.2');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.2', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('3.3.3').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.3', nls_wcag20.getNLSItemById('3.3.3').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.3.3').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('3.3.3');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.3', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('3.3.4').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.4', nls_wcag20.getNLSItemById('3.3.4').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.3.4').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('3.3.4');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.4', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('3.3.5').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.5', nls_wcag20.getNLSItemById('3.3.5').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.3.5').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('3.3.5');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.5', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('3.3.6').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.6', nls_wcag20.getNLSItemById('3.3.6').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('3.3.6').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('3.3.6');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '3.3.6', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
     
-  if (nls_wcag20.getNLSItemById('4.1.1').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '4.1.1', nls_wcag20.getNLSItemById('4.1.1').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('4.1.1').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('4.1.1');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '4.1.1', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
   
-  if (nls_wcag20.getNLSItemById('4.1.2').level <= wcag20_level) {  
-    success_criterion = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '4.1.2', nls_wcag20.getNLSItemById('4.1.2').title);
-    success_criteria.addFilteredRuleResultsGroup(success_criterion);  
+  if (nls_wcag20.getNLSItemById('4.1.2').level & evaluation_levels) {  
+    nls_sc = nls_wcag20.getNLSItemById('4.1.2');
+    sc = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, '4.1.2', nls_sc.title, nls_sc.url_spec, nls_sc.description);
+    success_criteria.addFilteredRuleResultsGroup(sc);  
   }
 
   for (var i = 0; i < this.rule_results.length; i++) {
@@ -28453,27 +28771,20 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsBySuccessCriteria = functi
  *
  * @desc Returns an object containing a set of rules organized in a tree structure by rule type, defined in a ruleset
  *
- * @param {String}  title         -  Title of the rule category 
  * @param {Number}  filter        -  Filter for node results (bit mapped mask)
  *
  * @return {FilteredRuleResultsGroups}  The object containing the filtered rule results that include tirage rules
  */
 
-OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByRuleType = function (title, filter) {
+OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByRuleType = function (filter) {
 
   var RULE_TYPE       = OpenAjax.a11y.RULE_TYPE;
   
-  var groups = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, RULE_TYPE.ALL, title);
+  var groups = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, RULE_TYPE.ALL, "Rules by Rule Type");
   
-  var group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_TYPE.REQUIRED_BASIC, 'Required Basic Rules');
-  groups.addFilteredRuleResultsGroup(group);
-
   group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_TYPE.REQUIRED, 'Required Rules');
   groups.addFilteredRuleResultsGroup(group);
   
-  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_TYPE.RECOMMENDED_BASIC, 'Recommended Basic Rules');
-  groups.addFilteredRuleResultsGroup(group);
-
   group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_TYPE.RECOMMENDED, 'Recommended Rules');
   groups.addFilteredRuleResultsGroup(group);
   
@@ -28500,73 +28811,95 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByRuleType = function (tit
  *
  * @desc Returns an object containing a set of rules organized in a tree structure by rule category
  *
- * @param {String}  title         -  Title of the rule category 
  * @param {Number}  filter        -  Filter for node results (bit mapped mask)
  *
  * @return {FilteredRuleResultsGroups}  The object containing the filtered rule results organized by rule categories
  */
 
-OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByRuleCategories = function (title, filter) {
+OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByRuleCategories = function (filter) {
 
   var RULE_CATEGORIES = OpenAjax.a11y.RULE_CATEGORIES;
 
-  var groups = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, RULE_CATEGORIES.ALL_CATEGORIES, title);
+  var groups = new OpenAjax.a11y.cache.FilteredRuleResultsGroups(this, RULE_CATEGORIES.ALL_CATEGORIES, "Rule Categories");
   var group;
 
-  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.ABBREVIATIONS, 'Abbrevitations');
+  var nls_cache = OpenAjax.a11y.cache_nls;
+  
+  nls_item = nls_cache.getNLSRuleCategory(RULE_CATEGORIES.ABBREVIATIONS);
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.ABBREVIATIONS, nls_item.title, nls_item.url, nls_item.desc);
   groups.addFilteredRuleResultsGroup(group);
 
-  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.AUDIO, 'Audio');
+  nls_item = nls_cache.getNLSRuleCategory(RULE_CATEGORIES.AUDIO);
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.AUDIO, nls_item.title, nls_item.url, nls_item.desc);
   groups.addFilteredRuleResultsGroup(group);
 
-  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.COLOR, 'Color');
+  nls_item = nls_cache.getNLSRuleCategory(RULE_CATEGORIES.COLOR);
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.COLOR, nls_item.title, nls_item.url, nls_item.desc);
   groups.addFilteredRuleResultsGroup(group);
 
-  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.CONTROLS, 'Form Controls');
+  nls_item = nls_cache.getNLSRuleCategory(RULE_CATEGORIES.CONTROLS);
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.CONTROLS, nls_item.title, nls_item.url, nls_item.desc);
   groups.addFilteredRuleResultsGroup(group);
 
-  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.EMBEDED, 'Embeded Applications');
+  nls_item = nls_cache.getNLSRuleCategory(RULE_CATEGORIES.EMBEDDED);
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.EMBEDDED, nls_item.title, nls_item.url, nls_item.desc);
   groups.addFilteredRuleResultsGroup(group);
 
-  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.HEADINGS, 'Headings');
+  nls_item = nls_cache.getNLSRuleCategory(RULE_CATEGORIES.HEADINGS);
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.HEADINGS, nls_item.title, nls_item.url, nls_item.desc);
   groups.addFilteredRuleResultsGroup(group);
 
-  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.IMAGES, 'Images');
+  nls_item = nls_cache.getNLSRuleCategory(RULE_CATEGORIES.IMAGES);
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.IMAGES, nls_item.title, nls_item.url, nls_item.desc);
   groups.addFilteredRuleResultsGroup(group);
 
-  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.LANDMARKS, 'Landmarks');
+  nls_item = nls_cache.getNLSRuleCategory(RULE_CATEGORIES.LANDMARKS);
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.LANDMARKS, nls_item.title, nls_item.url, nls_item.desc);
   groups.addFilteredRuleResultsGroup(group);
 
-  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.LAYOUT, 'Layout');
+  nls_item = nls_cache.getNLSRuleCategory(RULE_CATEGORIES.LANGUAGE);
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.LANGUAGE, nls_item.title, nls_item.url, nls_item.desc);
   groups.addFilteredRuleResultsGroup(group);
 
-  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.LINKS, 'Links');
+  nls_item = nls_cache.getNLSRuleCategory(RULE_CATEGORIES.LAYOUT);
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.LAYOUT, nls_item.title, nls_item.url, nls_item.desc);
   groups.addFilteredRuleResultsGroup(group);
 
-  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.LISTS, 'Lists');
+  nls_item = nls_cache.getNLSRuleCategory(RULE_CATEGORIES.LINKS);
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.LINKS, nls_item.title, nls_item.url, nls_item.desc);
   groups.addFilteredRuleResultsGroup(group);
 
-  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.NAVIGATION, 'Navigation');
+  nls_item = nls_cache.getNLSRuleCategory(RULE_CATEGORIES.LISTS);
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.LISTS, nls_item.title, nls_item.url, nls_item.desc);
   groups.addFilteredRuleResultsGroup(group);
 
-  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.SCRIPTING, 'Scripting');
+  nls_item = nls_cache.getNLSRuleCategory(RULE_CATEGORIES.NAVIGATION);
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.NAVIGATION, nls_item.title, nls_item.url, nls_item.desc);
   groups.addFilteredRuleResultsGroup(group);
 
-  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.TABLES, 'Tables');
+  nls_item = nls_cache.getNLSRuleCategory(RULE_CATEGORIES.SCRIPTING);
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.SCRIPTING, nls_item.title, nls_item.url, nls_item.desc);
   groups.addFilteredRuleResultsGroup(group);
 
-  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.TITLE, 'Title');
+  nls_item = nls_cache.getNLSRuleCategory(RULE_CATEGORIES.TABLES);
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.TABLES, nls_item.title, nls_item.url, nls_item.desc);
   groups.addFilteredRuleResultsGroup(group);
 
-  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.TIMING, 'Timing');
+  nls_item = nls_cache.getNLSRuleCategory(RULE_CATEGORIES.TITLE);
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.TITLE, nls_item.title, nls_item.url, nls_item.desc);
   groups.addFilteredRuleResultsGroup(group);
 
-  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.VIDEO, 'Video');
+  nls_item = nls_cache.getNLSRuleCategory(RULE_CATEGORIES.TIMING);
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.TIMING, nls_item.title, nls_item.url, nls_item.desc);
   groups.addFilteredRuleResultsGroup(group);
 
-  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.WIDGETS, 'Widgets');
+  nls_item = nls_cache.getNLSRuleCategory(RULE_CATEGORIES.VIDEO);
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.VIDEO, nls_item.title, nls_item.url, nls_item.desc);
   groups.addFilteredRuleResultsGroup(group);
 
+  nls_item = nls_cache.getNLSRuleCategory(RULE_CATEGORIES.WIDGETS);
+  group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, RULE_CATEGORIES.WIDGETS, nls_item.title, nls_item.url, nls_item.desc);
+  groups.addFilteredRuleResultsGroup(group);
 
   for (var i = 0; i < this.rule_results.length; i++) {
   
@@ -28588,15 +28921,15 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByRuleCategories = functio
  * @desc Returns an object containing a set of all rule results for a set of rule categories
  *
  * @param {Number}  category      -  Number of bit mask for which rule groups to include in the group 
- * @param {String}  title         -  Title of the rule category 
  * @param {Number}  filter        -  Filter for node results (bit mapped mask)
  *
  * @return {FilteredRuleResultsGroup}  The object containing the filtered rule results
  */
 
-OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByRuleCategory = function (category, title, filter) {
+OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByRuleCategory = function (category, filter) {
 
-  var group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, category, title);
+  var nls_item = OpenAjax.a11y.cache_nls.getNLSRuleCategory(category);
+  var group = new OpenAjax.a11y.cache.FilteredRuleResultsGroup(this, category, nls_item.title, nls_item.url, nls_item.desc);
   
   for (var i = 0; i < this.rule_results.length; i++) {
   
@@ -28627,24 +28960,23 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByRuleCategory = function 
  * @desc Returns an object containing a set of all rule results for a set of rule categories
  *
  * @param {Number}  option        -  Number representing the type of summary 
- * @param {String}  title         -  Title of the rule category 
  * @param {Number}  filter        -  Filter for node results (bit mapped mask)
  *
  * @return {FilteredRuleResultsGroups}  The object containing the filtered rule results
  */
 
-OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByRuleSummary = function (option, title, filter) {
+OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByRuleSummary = function (option, filter) {
 
   var RULE_SUMMARY = OpenAjax.a11y.RULE_SUMMARY;
 
   switch (option) {
   
   case RULE_SUMMARY.CATEGORIES:
-    return this.getFilteredRuleResultsByRuleCategories(title, filter);
+    return this.getFilteredRuleResultsByRuleCategories(filter);
     break;
   
   case RULE_SUMMARY.WCAG20:
-    return this.getFilteredRuleResultsByWCAG20(title, filter);
+    return this.getFilteredRuleResultsByWCAG20(filter);
     break;
 
   case RULE_SUMMARY.PRINCIPLES:
@@ -28653,7 +28985,6 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByRuleSummary = function (
 
   case RULE_SUMMARY.GUIDELINES:
     return this.getFilteredRuleResultsByGuidelines(filter);
-    return this.getFilteredRuleResultsByGuideline(OpenAjax.a11y.WCAG20_GUIDELINE.G_4_1, filter);
     break;
 
   case RULE_SUMMARY.SUCCESS_CRITERIA:
@@ -28661,7 +28992,7 @@ OpenAjax.a11y.Ruleset.prototype.getFilteredRuleResultsByRuleSummary = function (
     break;
 
   case RULE_SUMMARY.RULESET_TYPE:
-    return this.getFilteredRuleResultsByRuleType(title, filter);
+    return this.getFilteredRuleResultsByRuleType(filter);
     break;
   
 
@@ -28863,10 +29194,10 @@ OpenAjax.a11y.Ruleset.prototype.exportEvaluationResultsToPython = function () {
     python_code += ", \"" + OpenAjax.a11y.util.escapeForJSON(this.eval_url)   + "\"";
     python_code += ", \"" + OpenAjax.a11y.util.escapeForJSON(this.eval_title) + "\"";
 
-    python_code += ", " + formatWidth("\"" + OpenAjax.a11y.all_rules.nls[OpenAjax.a11y.locale].rule_categories[rule_result.getRuleCategory()] + "\"", 12) ;
+    python_code += ", " + formatWidth("\"" + rule_result.getNLSRuleCategory() + "\"", 12) ;
     python_code += ", " + formatWidth("\"" + rule_result.getRuleId() + "\"", 14);
     
-    python_code += ", " + formatNumber(rule_result.implementation_percentage, 4);
+    python_code += ", " + formatNumber(rule_result.percent_passed, 4);
     python_code += ", " + formatNumber(rule_result.violations_count, 4);
     python_code += ", " + formatNumber(rule_result.warnings_count, 4);
     python_code += ", " + formatNumber(rule_result.passed_count, 4);
@@ -28901,10 +29232,7 @@ OpenAjax.a11y.Ruleset.prototype.exportEvaluationResultsToPython = function () {
  * @property  {Number}   type      - Severity of the rule (NOTE: must be REQUIRED or RECOMMENDED)
  * @property  {Boolean}  enabled   - Initial value for the enabled property
  * 
- * @property {Number}  wcag20_level                    - The WCAG 2.0 level of the success citeria
- * @property {Number}  wcag20_principle_index          - The index of the principle result object for aggregating rule results
- * @property {Number}  wcag20_guideline_index          - The index of the guideline result object for aggregating rule results
- * @property {Number}  wcag20_success_criterion_index  - The index of the success criteria result object for aggregating rule results
+ * @property {Number}  wcag20_level  - The WCAG 2.0 level of the success citeria
  */
  
 
@@ -28918,13 +29246,10 @@ OpenAjax.a11y.WCAG20RuleMapping = function (rule_id, type, enabled) {
    var r = OpenAjax.a11y.all_rules.getRuleByRuleId(rule_id);
    if (r) {
      this.rule = r;
-     this.wcag20_level                   = r.getWCAG20Level();
-     this.wcag20_principle_index         = r.getWCAG20PrincipleIndex(); 
-     this.wcag20_guideline_index         = r.getWCAG20GuidelineIndex();
-     this.wcag20_success_criterion_index = r.getWCAG20SuccessCriteriaIndex();
+     this.wcag20_level = r.getWCAG20Level();
    }
    else {
-     OpenAjax.a11y.logger.debug("  ** Rule with rule id='" + rule_id + "' does not exist!");   
+     OpenAjax.a11y.logger.error("  ** Rule with rule id='" + rule_id + "' does not exist!");   
    }
    
 };
@@ -29251,12 +29576,12 @@ OpenAjax.a11y.Log.prototype.consoleStatusLog = function ( message, time ) {
  
   if (!OpenAjax.a11y.LOG_MESSAGES_TO_CONSOLE) return;
   
-    if (typeof time == 'number') {
-      OpenAjax.a11y.logger.debug( message + ": " + this.timeInMillisecondToString(time) + " (" + this.rule_count + " of " + this.rules_max +")");
-    }
-    else {
-      OpenAjax.a11y.logger.debug( message );    
-    }
+  if (typeof time == 'number') {
+    OpenAjax.a11y.logger.debug( message + ": " + this.timeInMillisecondToString(time) + " (" + this.rule_count + " of " + this.rules_max +")");
+  }
+  else {
+    OpenAjax.a11y.logger.debug( message );    
+  }
 }; 
 
 /**
@@ -29397,19 +29722,16 @@ OpenAjax.a11y.Log.prototype.timeInMillisecondToString = function (time) {
  */
 
 /* ---------------------------------------------------------------- */
-/*                   OpenAjax High Level APIs                       */ 
+/*                      Logger APIs                                 */ 
 /* ---------------------------------------------------------------- */
+
 
 OpenAjax.a11y.logger = {};
 
-OpenAjax.a11y.version = "0.9.2";
-
 /**
- * @function console
+ * @function OpenAjax.a11y.logger.debug
  *
- * @memberOf OpenAjax.a11y
- *
- * @desc  Outputs message to the javascript console of Firefox
+ * @desc  Outputs message to the logger at the debug level
  * 
  * @param {String} message - Message to send to the console 
  */
@@ -29421,12 +29743,68 @@ OpenAjax.a11y.logger.debug = function (message) {
     OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug(message);
   }   
 };  
-   
+
+
+/**
+ * @function OpenAjax.a11y.logger.error
+ *
+ * @desc  Outputs message to the logger at the error level
+ * 
+ * @param {String} message - Message to send to the console 
+ */
+OpenAjax.a11y.logger.error = function (message) {
+  if (OpenAjax.a11y.CONSOLE_MESSAGES && 
+      (typeof OAA_WEB_ACCESSIBILITY_LOGGING === 'object') && 
+      OAA_WEB_ACCESSIBILITY_LOGGING.logger && 
+      OAA_WEB_ACCESSIBILITY_LOGGING.logger.log) {
+    OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.error(message);
+  }   
+};  
+
+/**
+ * @function OpenAjax.a11y.logger.warn
+ *
+ * @desc  Outputs message to the logger at the warn level
+ * 
+ * @param {String} message - Message to send to the console 
+ */
+OpenAjax.a11y.logger.warn = function (message) {
+  if (OpenAjax.a11y.CONSOLE_MESSAGES && 
+      (typeof OAA_WEB_ACCESSIBILITY_LOGGING === 'object') && 
+      OAA_WEB_ACCESSIBILITY_LOGGING.logger && 
+      OAA_WEB_ACCESSIBILITY_LOGGING.logger.log) {
+    OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.warn(message);
+  }   
+};  
+
+/**
+ * @function OpenAjax.a11y.logger.info
+ *
+ * @desc  Outputs message to the logger at the info level
+ * 
+ * @param {String} message - Message to send to the console 
+ */
+OpenAjax.a11y.logger.info = function (message) {
+  if (OpenAjax.a11y.CONSOLE_MESSAGES && 
+      (typeof OAA_WEB_ACCESSIBILITY_LOGGING === 'object') && 
+      OAA_WEB_ACCESSIBILITY_LOGGING.logger && 
+      OAA_WEB_ACCESSIBILITY_LOGGING.logger.log) {
+    OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.info(message);
+  }   
+};  
+
+
+
+/* ---------------------------------------------------------------- */
+/*                   OpenAjax High Level APIs                       */ 
+/* ---------------------------------------------------------------- */
+
 // basic info about version of ruleset and rules
 OpenAjax.a11y.name = "OpenAjax Alliance Accessibility Tools Task Force";
 OpenAjax.a11y.version = "2.0.0";
 OpenAjax.a11y.baseUri = "http://www.openajax.org/member/wiki/Accessibility";
     
+
 /*
  * OpenAjax registration information 
  */
@@ -29583,7 +29961,171 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
     /*
      * The types of ways a rule can be included in a ruleset
      */
-    rule_types: ['Undefined', 'Required', 'Recommendation'],
+    rule_categories: [
+    {
+      id    : OpenAjax.a11y.RULE_CATEGORIES.ABBREVIATIONS,
+      title : 'Abbreviation Rules',
+      url   : '',
+      desc  : 'The abbreviation rules include consistency rules for the use of abbr and acronym elements'
+    },
+    {
+      id    : OpenAjax.a11y.RULE_CATEGORIES.AUDIO,
+      title : 'Audio Rules',
+      url   : '',
+      desc  : 'The audio rules evaluate the object and audio elements on a page for text transcripts for audio content on a web page.'
+    },
+    {
+      id    : OpenAjax.a11y.RULE_CATEGORIES.COLOR,
+      title : 'Color Styling Rules',
+      url   : '',
+      desc  : 'The color styling rules include color contrast of text and the use of color to display information on a web page.'
+    },
+    {
+      id    : OpenAjax.a11y.RULE_CATEGORIES.CONTROLS,
+      title : 'Form Control Rules',
+      url   : '',
+      desc  : 'The form control rules include the labeling of form controls and error feedback.'
+    },
+    {
+      id    : OpenAjax.a11y.RULE_CATEGORIES.EMBEDDED,
+      title : 'Embedded Application Rules',
+      url   : '',
+      desc  : 'The embedded application rules include accessibility of object, embed and applet elements which can provide non-HTML interactive interfaces in a web page.'
+    },
+    {
+      id    : OpenAjax.a11y.RULE_CATEGORIES.HEADINGS,
+      title : 'Heading Rules',
+      url   : '',
+      desc  : 'The headings rules include the use of h1-h6 elements for creating useful structure in a web page in conjunction with ARIA landmarks.'
+    },
+    {
+      id    : OpenAjax.a11y.RULE_CATEGORIES.IMAGES,
+      title : 'Image Rules',
+      url   : '',
+      desc  : 'The image rules include the use and describing of img and area elements in a web page.'
+    },
+    {
+      id    : OpenAjax.a11y.RULE_CATEGORIES.LANDMARKS,
+      title : 'Landmark Rules',
+      url   : '',
+      desc  : 'The landmark rules include the use ARIA lanendmark roles to describe the sections of a web page inccombination with heading elements.'
+    },
+    {
+      id    : OpenAjax.a11y.RULE_CATEGORIES.LANGUAGE,
+      title : 'Language Rules',
+      url   : '',
+      desc  : 'The language rules include the lang and xml:lang attribute to markup the default and changes in language on a web page.'
+    },
+    {
+      id    : OpenAjax.a11y.RULE_CATEGORIES.LAYOUT,
+      title : 'Layout Rules',
+      url   : '',
+      desc  : 'The layout rules include the use of table elements and CSS to position content graphically on a web page to ensure the reading order makes sense.'
+    },
+    {
+      id    : OpenAjax.a11y.RULE_CATEGORIES.LINKS,
+      title : 'Link Rules',
+      url   : '',
+      desc  : 'The link rules include the use of the a and area elements for accessible links on a web page.'
+    },
+    {
+      id    : OpenAjax.a11y.RULE_CATEGORIES.LISTS,
+      title : 'List Rules',
+      url   : '',
+      desc  : 'The list rules include the use of ul, ol, li, dl, dt and dd elements to create lists on a web page'
+    },
+    {
+      id    : OpenAjax.a11y.RULE_CATEGORIES.NAVIGATION,
+      title : 'Navigation Rules',
+      url   : '',
+      desc  : 'The navigation rules include the accessibility of navigation links and menus on a page.'
+    },
+    {
+      id    : OpenAjax.a11y.RULE_CATEGORIES.SCRIPTING,
+      title : 'Scripting Rules',
+      url   : '',
+      desc  : 'The scripting rules include the accessibility of dynamically generated content.'
+    },
+    {
+      id    : OpenAjax.a11y.RULE_CATEGORIES.TABLES,
+      title : 'Data Table Rules',
+      url   : '',
+      desc  : 'The data table rules include table, thead, tbody, tr, th and td elements ann their attirbutes to make simple and complex data tables accessible.'
+    },
+    {
+      id    : OpenAjax.a11y.RULE_CATEGORIES.TITLE,
+      title : 'Titling Rules',
+      url   : '',
+      desc  : 'The title rules include the title and h1 elements, and the ARIA main landmark for titling a web page.'
+    },
+    {
+      id    : OpenAjax.a11y.RULE_CATEGORIES.TIMING,
+      title : 'Timing Rules',
+      url   : '',
+      desc  : 'The timing rules include scripting or markup realted to time outs of authentication forms or pages changing without an action form the user.'
+    },
+    {
+      id    : OpenAjax.a11y.RULE_CATEGORIES.VIDEO,
+      title : 'Video Rules',
+      url   : '',
+      desc  : 'The video rules evaluate object and video elements for the inclusion of captions and audio descriptions for video content on a web page.'
+    },
+    {
+      id    : OpenAjax.a11y.RULE_CATEGORIES.WIDGETS,
+      title : 'Widget Rules',
+      url   : '',
+      desc  : 'The widget rules evaluate the use of event handlers on elements other than form controls for the creation of interactive elements.  Interactive elements created this way need to support the keyboard and have ARIA markup to describe the widgets and their proeprties and states.'
+    },
+    // Composite rule categories
+    {
+      id    : OpenAjax.a11y.RULE_CATEGORIES.ALL,
+      title : 'All Rules',
+      url   : '',
+      desc  : 'The all rule category includes all the rules in the ruleset and provides a way to sort and compare the results of all the rules.'
+    },
+    {
+      id    : OpenAjax.a11y.RULE_CATEGORIES.AUDIO_VIDEO,
+      title : 'Audio and Video Rules',
+      url   : '',
+      desc  : 'The audio and video rules evaluate object, audio and video elements for the inclusion of captions, audio descriptions and text captions for audio and video content on a web page.'
+    },
+    {
+      id    : OpenAjax.a11y.RULE_CATEGORIES.STRUCTURE,
+      title : 'Structure Rules',
+      url   : '',
+      desc  : 'The strcuture rules category includes ARIA landmarks (i.e. main, navigation, banner, contentinfo...), headings (i.e. h1-h6 elements) and list markup (i.e. ol, ul, li, dl, dt and dd elements)) to idenfity the sections and the realthsips between sections and elements on a web page. '
+    },
+    {
+      id    : OpenAjax.a11y.RULE_CATEGORIES.STYLE,
+      title : 'Styling Rules',
+      url   : '',
+      desc  : 'Styling rules relate to the use of color on a web page.'
+    },
+    {
+      id    : OpenAjax.a11y.RULE_CATEGORIES.BASIC,
+      title : 'Basic Rules',
+      url   : '',
+      desc  : 'Basic rules is a subset of rules in a ruleset that developers should understand and implement first and are often considered blocker rules for accessibility testing.  When blocker rule requirements have NOT been met there is no need to do further accessibility testing.'
+    }
+    ],
+
+    /*
+     * The types of ways a rule can be included in a ruleset
+     */
+    rule_types: [
+    {
+      id    : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
+      label : 'Required (Basic)' 
+    },
+    {
+      id    : OpenAjax.a11y.RULE_TYPE.REQUIRED,
+      label : 'Required' 
+    },
+    {
+      id    : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
+      label : 'Recommended' 
+    }
+    ],
 
     /*
      * Relative implementation priorities of complying to rule requirements
@@ -29687,67 +30229,6 @@ OpenAjax.a11y.cache_nls.addCacheNLSFromJSON('en-us', {
                   }
                   ],  
                   
-    /**
-     * Implementation level of a rule on a web page
-     */
-  implementation_levels : [
-    { 'abbrev'      : 'na',
-      'label'       : 'na',
-      'description' : 'Accessibility technique evaluated by this rule does not apply to the elements or content found on this page',
-      'style'       : 'not_applicable'
-    },
-    { 'abbrev'      : 'C',
-      'label'       : 'Complete',
-      'description' : 'All automated accessibility checks have been met',
-      'style'       : 'complete'
-    },
-    { 'abbrev'      : 'AC',
-      'label'       : 'Almost Complete',
-      'description' : '95% or more of the accessibility checks have passed',
-      'style'       : 'almost_complete'
-    },
-    { 'abbrev'      : 'PI',
-      'label'       : 'Partial Implementation',
-      'description' : 'More than 50% of the automated accessibility checks have passed',
-      'style'       : 'partial_implementation'
-    },
-    { 'abbrev'      : 'NI',
-      'label'       : 'Not Implemented',
-      'description' : 'Less than 50% of the automated accessibility checks have passed',
-      'style'       : 'not_implemented'
-    },
-    { 'abbrev'      : 'MC',
-      'label'       : 'Manual Check',
-      'description' : 'Human inspection and judgement is required to verify compliance',
-      'style'       : 'manual_check'
-    },
-    { 'abbrev'      : 'C+MC',
-      'label'       : 'Complete with Manual Checks',
-      'description' : 'All automated accessibility checks have passed, but human inspection and judgement is still required to verify compliance',
-      'style'       : 'manual_check'
-    },  
-    { 'abbrev'      : 'AC+MC',
-      'label'       : 'Almost Complete with Manual Checks',
-      'description' : '95% or more of the automated accessibility checks have passed and human inspection and judgement is also required to verify compliance',
-      'style'       : 'almost_complete'
-    },
-    { 'abbrev'      : 'PI+MC',
-      'description' : '50% or more of the automated accessibility checks have passed and human inspection and judgement is also required to verify compliance',
-      'label'       : 'Partial Implementation with Manual Checks',
-      'style'       : 'partial_implementation'
-    },
-    { 'abbrev'      : 'NI+MC',
-      'label'       : 'Not Implemented with Manual Checks',
-      'description' : 'Less than 50% of the automated accessibility checks have passed and human inspection and judgement is also required to verify compliance',
-      'style'       : 'not_implemented'
-    },
-    { 'abbrev'      : 'disabled',
-      'label'       : 'disabled',
-      'description' : 'Rule was not evaluated due to configuration settings',
-      'style'       : 'not_applicable'
-    }
-  ],
-
     /*
      * Status of a rule for evaluating a requirement
      */
@@ -30237,7 +30718,7 @@ OpenAjax.a11y.all_wcag20_nls.addNLS('en-us', {
 
   level : "Level ",
 
-  levels : ['Undefined', 'A','AA','AAA'],
+  levels : ['Undefined', 'AAA','AA','', 'A'],
 
   principles : {
     //
@@ -40093,11 +40574,11 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        enabled  : true
      },
    CONTROL_1 : {
-       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_2 : {
-       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_3 : {
@@ -40161,7 +40642,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        enabled  : true
      },
    IMAGE_1 : {  
-       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    IMAGE_2 : {
@@ -40193,7 +40674,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        enabled  : true
      },
    LANDMARK_1 : {
-       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    LANDMARK_2 : {
@@ -40249,7 +40730,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        enabled  : true
      },
    TITLE_2 : {
-       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    VIDEO_1 : {
@@ -40285,11 +40766,11 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        enabled  : true
      },
    WIDGET_1 : {
-       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    WIDGET_2 : {
-       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    WIDGET_3 : {
@@ -40394,11 +40875,11 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        enabled  : true
      },
    CONTROL_1 : {
-       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_2 : {
-       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_3 : {
@@ -40458,7 +40939,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        enabled  : true
      },
    IMAGE_1 : {  
-       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    IMAGE_2 : {
@@ -40490,7 +40971,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        enabled  : true
      },
    LANDMARK_1 : {
-       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.RECOMMENDED,
        enabled  : true
      },
    LANDMARK_2 : {
@@ -40546,7 +41027,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        enabled  : true
      },
    TITLE_2 : {
-       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    VIDEO_1 : {
@@ -40582,11 +41063,11 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        enabled  : true
      },
    WIDGET_1 : {
-       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_2 : {
-       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_3 : {
@@ -40693,11 +41174,11 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        enabled  : true
      },
    CONTROL_1 : {
-       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_2 : {
-       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_3 : {
@@ -40761,7 +41242,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        enabled  : true
      },
    IMAGE_1 : {
-       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    IMAGE_2 : {
@@ -40793,11 +41274,11 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        enabled  : true
      },
    LANDMARK_1 : {
-       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    LANDMARK_2 : {
-       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    LAYOUT_1 : {
@@ -40853,7 +41334,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        enabled  : true
      },
    TITLE_2 : {
-       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    VIDEO_1 : {
@@ -40889,11 +41370,11 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        enabled  : true
      },
    WIDGET_1 : {
-       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_2 : {
-       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_3 : {
@@ -40996,11 +41477,11 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        enabled  : true
      },
    CONTROL_1 : {
-       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_2 : {
-       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    CONTROL_3 : {
@@ -41060,7 +41541,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        enabled  : true
      },
    IMAGE_1 : {  
-       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    IMAGE_2 : {
@@ -41092,15 +41573,15 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        enabled  : true
      },
    LANDMARK_1 : {
-       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    LANDMARK_2 : {
-       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    LANDMARK_2N : {
-       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    LANDMARK_2B : {
@@ -41164,7 +41645,7 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        enabled  : true
      },
    TITLE_2 : {
-       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    VIDEO_1 : {
@@ -41200,11 +41681,11 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        enabled  : true
      },
    WIDGET_1 : {
-       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_2 : {
-       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED_BASIC,
+       type     : OpenAjax.a11y.RULE_TYPE.REQUIRED,
        enabled  : true
      },
    WIDGET_3 : {
