@@ -604,6 +604,8 @@ define([
             )
       });
     }
-    return AinspectorUtil;
+    
+    
+		return AinspectorUtil;
   } //end function
 );
