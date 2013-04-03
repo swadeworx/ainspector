@@ -520,6 +520,35 @@ define([
               else this.emptyTag.replace({sidePanel: type}, parentNode);
             },
             
+            onKeyPress : function(event, parentNode, headers, type) {
+              
+              FBTrace.sysout("AInspector; AttributesSidePanel.onKeyPress: ", event);
+              var all_rows = event.target.rows ? event.target.rows : event.target.offsetParent.rows;
+              
+              var key = event.keyCode;     
+              var forward = key == KeyEvent.DOM_VK_RIGHT || key == KeyEvent.DOM_VK_DOWN;  
+              var backward = key == KeyEvent.DOM_VK_LEFT || key == KeyEvent.DOM_VK_UP; 
+              
+              var object;
+              for (var i=0; i < all_rows.length; i++) {
+                if (Css.hasClass(all_rows[i], "gridRowSelected")) {
+                  object = forward ? all_rows[i+1].repObject : all_rows[i-1].repObject; 
+                  FBTrace.sysout("================object=============", object);
+                  SidePanelUtil.ruleResultsTemplate.rebuild(object.node_results, this.panelNode, panelName);
+                  break;
+                }
+              }
+              
+              var cache_item;
+//            if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("cache_object in setSelection: ", object);
+              if (object.cache_item_result) cache_item = object.cache_item_result.cache_item
+              var results = this.getResults(cache_item, type); 
+            
+              if (results.length > 0) this.rebuild(results, headers, parentNode, type);
+            
+              else this.emptyTag.replace({sidePanel: type}, parentNode);
+            },
+            
             /**
              * @function getResults
              * 

@@ -18,10 +18,12 @@ define([
     "firebug/lib/trace",
     "firebug/lib/locale",
     "firebug/lib/domplate",
+    "firebug/lib/dom",
+    "firebug/lib/css",
     "ainspector/ainspectorUtil",
     "ainspector/sidePanelUtil"
 ],
-function(Obj, FBTrace, Locale, Domplate, AinspectorUtil, SidePanelUtil) {
+function(Obj, FBTrace, Locale, Domplate, Dom, Css, AinspectorUtil, SidePanelUtil) {
 
 var panelName = "ruleInfo";
 
@@ -40,8 +42,9 @@ Firebug.RuleInfoSidePanel.prototype = Obj.extend(Firebug.Panel, {
     if (FBTrace.DBG_AINSPECTOR)
       FBTrace.sysout("AInspector; RuleInfoSidePanel.initialize");
 
-    this.onCLick = Obj.bind(this.setSelection, this);
-    
+    this.onClick = Obj.bind(this.setSelection, this);
+    this.onKeyPress = Obj.bind(this.onKeyPress, this);
+
   },
 
 
@@ -51,6 +54,9 @@ Firebug.RuleInfoSidePanel.prototype = Obj.extend(Firebug.Panel, {
     
     this.setSelection = Obj.bind(this.setSelection, this);
     this.mainPanel.panelNode.addEventListener("click", this.setSelection, false);
+    
+    this.onKeyPress = Obj.bind(this.onKeyPress, this);
+    this.mainPanel.panelNode.addEventListener("keypress", this.onKeyPress, true);
   },
 
   destroyNode: function() {
@@ -80,6 +86,33 @@ Firebug.RuleInfoSidePanel.prototype = Obj.extend(Firebug.Panel, {
         FBTrace.sysout("AInspector; RuleInfoSidePanel.supportsObject", {object: object, type: type});
 
     return object instanceof window.Element;
+  },
+  
+  onKeyPress : function(event) {
+    
+    if (Firebug.chrome.getSelectedSidePanel().name != panelName) return;
+    
+    FBTrace.sysout("AInspector; ruleInfoSidePanel.onKeyPress: ", event);
+    
+    var all_rows = event.target.rows ? event.target.rows : event.target.offsetParent.rows;
+    
+    var key = event.keyCode;     
+    var forward = key == KeyEvent.DOM_VK_RIGHT || key == KeyEvent.DOM_VK_DOWN;  
+    var backward = key == KeyEvent.DOM_VK_LEFT || key == KeyEvent.DOM_VK_UP; 
+    
+    var object;
+    for (var i=0; i < all_rows.length; i++) {
+      if (Css.hasClass(all_rows[i], "gridRowSelected")) {
+        object = forward ? all_rows[i+1].repObject : all_rows[i-1].repObject;   
+        
+        if (object.filtered_rule_result && object.filtered_rule_result.rule_result) {
+          this.updateSelection(object);
+        } else {
+          this.rulestemplate.selectTag.replace({}, this.panelNode);
+        }
+        break;
+      }
+    }
   },
 
   /**

@@ -360,33 +360,33 @@ define([
         var items = [];
         items.push(
           {
-            id         : OpenAjax.a11y.WCAG20_LEVEL.AAA,
+            id         : OpenAjax.a11y.EVALUATION_LEVELS.A_AA_AAA,
             label      : "ainspector.menuitem.scLevel.AAA",
             tooltiptext: "ainspector.menuitem.scLevel.tooltip.AAA",
             type       : "radio",
-            checked    : this.checkLevel(OpenAjax.a11y.WCAG20_LEVEL.AAA),
+            checked    : this.checkLevel(OpenAjax.a11y.EVALUATION_LEVELS.A_AA_AAA),
             command    : function(){
             							Firebug.AinspectorPanel.prototype.setSelectedLevel(this.getAttribute('id')); 
             							Firebug.AinspectorPanel.prototype.setPreferences();
             }
           },
           {
-            id         : OpenAjax.a11y.WCAG20_LEVEL.AA,
+            id         : OpenAjax.a11y.EVALUATION_LEVELS.A_AA,
             label      : "ainspector.menuitem.scLevel.AA",
             tooltiptext: "ainspector.menuitem.scLevel.tooltip.AA",
             type       : "radio",
-            checked    : this.checkLevel(OpenAjax.a11y.WCAG20_LEVEL.AA),
+            checked    : this.checkLevel(OpenAjax.a11y.EVALUATION_LEVELS.A_AA),
             command    : function(){
             							Firebug.AinspectorPanel.prototype.setSelectedLevel(this.getAttribute('id')); 
           								Firebug.AinspectorPanel.prototype.setPreferences();
             }
           },
           {
-            id         : OpenAjax.a11y.WCAG20_LEVEL.A,
+            id         : OpenAjax.a11y.EVALUATION_LEVELS.A,
             label      : "ainspector.menuitem.scLevel.A",
             tooltiptext: "ainspector.menuitem.scLevel.tooltip.A",
             type       : "radio",
-            checked    : this.checkLevel(OpenAjax.a11y.WCAG20_LEVEL.A), 
+            checked    : this.checkLevel(OpenAjax.a11y.EVALUATION_LEVELS.A), 
             command    : function(){
             							Firebug.AinspectorPanel.prototype.setSelectedLevel(this.getAttribute('id')); 
             							Firebug.AinspectorPanel.prototype.setPreferences();

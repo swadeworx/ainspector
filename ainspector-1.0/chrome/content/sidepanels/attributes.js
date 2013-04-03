@@ -41,13 +41,18 @@ Firebug.AttributesSidePanel.prototype = Obj.extend(Firebug.Panel, {
       FBTrace.sysout("AInspector; AttributesSidePanel.initialize");
 
     // TODO: Panel initialization (there is one panel instance per browser tab)
-    this.onCLick = Obj.bind(this.setSelection, this);
+    this.onClick = Obj.bind(this.setSelection, this);
+    this.onKeyPress = Obj.bind(this.onKeyPress, this);
   },
 
 
   initializeNode: function(oldPanelNode) {
+    
     this.setSelection = Obj.bind(this.setSelection, this);
     this.mainPanel.panelNode.addEventListener("click", this.setSelection, false);
+    
+    this.onKeyPress = Obj.bind(this.onKeyPress, this);
+    this.mainPanel.panelNode.addEventListener("keypress", this.onKeyPress, true);
     
     Firebug.Panel.initializeNode.apply(this, arguments);
   },
@@ -91,6 +96,13 @@ Firebug.AttributesSidePanel.prototype = Obj.extend(Firebug.Panel, {
     if (results.length > 0)
       SidePanelUtil.commonTemplate.rebuild(results, ["Attribute", "Value"], parentNode, "attributes");
     else SidePanelUtil.commonTemplate.emptyTag.replace({sidePanel: panelName}, parentNode);
+  },
+  
+  onKeyPress : function(event) {
+    
+    if (Firebug.chrome.getSelectedSidePanel().name != panelName) return;
+    
+    SidePanelUtil.commonTemplate.onKeyPress(event, this.panelNode, ["Attribute", "Value"], "attributes");    
   },
   
   setSelection : function (event){

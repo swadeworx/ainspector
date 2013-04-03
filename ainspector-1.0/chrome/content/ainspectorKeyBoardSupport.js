@@ -35,7 +35,6 @@ define(
   		 */ 
     	getTabIndex : function(obj) {
     		
-//    		if (obj == 'temp') return 0;  
     		FBTrace.sysout("AInspector; keyBoardSupport.getTabIndex(): obj- ", obj);
     		return obj.selected ? "0" : "-1"; 
     	},
@@ -94,19 +93,8 @@ define(
   			switch(event.keyCode) {                
   			
   			  case KeyEvent.DOM_VK_LEFT: //             
-  			  	
   			  case KeyEvent.DOM_VK_UP: //up         
-  			  	
-  			  	var row = Dom.findPrevious(event.target, Dom.hasClass("gridRow"));              
-  			  	
-  			  	if (row) {           
-  			  		row.focus(); 
-  			  		AinspectorUtil.highlightRow(event, table, row);         
-  			  	} 
-  			  	break;
-  			  	
   			  case KeyEvent.DOM_VK_RIGHT: //right      
-  			  	
   			  case KeyEvent.DOM_VK_DOWN: //down  
   			  	FBTrace.sysout("AInspector; ------------KeyboardSupport: ------------- ");
 
@@ -115,10 +103,6 @@ define(
   			  	if (table.tabIndex == '0') { 
   			  		table.setAttribute('tabindex', '-1');      
   			  		table.rows[0].setAttribute('tabindex', '0');
-//  			  		table.rows[1].setAttribute('tabindex', '0');
-//  			  		Css.setClass(table.rows[1], "headerRowSelected");
-//  			  		table.rows[0].focus(); 
-  			  		
 //  			  		var side_panel = Firebug.chrome.getSelectedSidePanel();
   			  		
 //  			  		if (AinspectorUtil.selected_row != null) side_panel.updateSelection(AinspectorUtil.selected_row.repObject, side_panel.panelNode);
@@ -129,49 +113,34 @@ define(
   			  	FBTrace.sysout("AInspector; KeyboardSupport: all_rows - ", all_rows);
   			  	FBTrace.sysout("AInspector; KeyboardSupport: event.target - ", event.target);
 
-  			  	var current_index = Array.indexOf(all_rows, event.target);          
-  			  	var index = Array.indexOf(all_rows, event.target);    
   			  	var key = event.keyCode;     
   			  	var forward = key == KeyEvent.DOM_VK_RIGHT || key == KeyEvent.DOM_VK_DOWN;  
-  			  	FBTrace.sysout("AInspector; KeyboardSupport: current_index - "+ current_index);
-  			  	FBTrace.sysout("AInspector; KeyboardSupport: index - "+ index);
+  			  	var backward = key == KeyEvent.DOM_VK_LEFT || key == KeyEvent.DOM_VK_UP; 
   			  	FBTrace.sysout("AInspector; KeyboardSupport: forward or right key- "+ forward);
-
-  			  	if (current_index != -1) {           
-  			  		var new_index = forward ? ++current_index : --current_index;  
-  			  		//get the focus back to the first tab on the tool bar from the last tab of the toolbar    
-  			  		new_index = new_index < 0 ? all_rows.length -1 : (new_index >= all_rows.length ? 0 : new_index);   
-    			  	FBTrace.sysout("AInspector; KeyboardSupport: new_index- "+ new_index);
-
-  			  		if (all_rows[new_index]) {              
-  			  			var next_row = all_rows[new_index];  
-  			  			// unhighlighting from rows in panel             
-  			  			var current_row = all_rows[index];             
-  			  			var header_row = all_rows[index];              
-  			  			if (current_index != 0) {                              
-  			  				Css.removeClass(current_row, "gridRowSelected"); 
-  			  				
-  			  				for (var c=0; c< current_row.cells.length; c++) Css.removeClass(current_row.cells[c], "gridCellSelected");             
-			  			  }  
-  			  			// highlight rows from panel 
-//  			  			current_row.blur();
-  			  			all_rows[new_index].focus();        
-  			  			Css.setClass(next_row, "gridRowSelected");               
-  			  			for (var i=0; i< next_row.cells.length; i++) Css.setClass(next_row.cells[i], "gridCellSelected");         
-  			  			FBTrace.sysout("AInspector; KeyboardSupport: all_rows- ", all_rows);
-//    			  	if (next_row.repObject.filtered_node_results) OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightNodeResults(next_row.repObject.filtered_node_results);           
-//    			  	else OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems(next_row.repObject);          
-  			  		}
-  			  	} else {
-  			  		var new_index = 1;
-  			  		all_rows[new_index].focus();        
-			  			Css.setClass(all_rows[new_index], "gridRowSelected");               
-			  			for (var i=0; i< all_rows[new_index].cells.length; i++) Css.setClass(all_rows[new_index].cells[i], "gridCellSelected");
-  			  	}
-//  			  	event.stopPropagation();         
-//  			  	event.preventDefault();                   
-  			  	break; 
+            var ind = 0;
+  			  	 
+			  	  for (var i=0; i < all_rows.length; i++) {
+			  	    if (Css.hasClass(all_rows[i], "gridRowSelected")) {
+			  	      Css.removeClass(all_rows[i], "gridRowSelected");
+			  	      
+			  	      if (forward) ind = (i == all_rows.length-1) ? 1 : i + 1;
+			  	      else ind = i > 1 ? i - 1 : 1;
+			  	      
+			  	      for(var j=0; j < all_rows[i].cells.length; j++) Css.removeClass(all_rows[i].cells[j], "gridCellSelected");
+			  	      
+			  	      break;
+			  	    } else {
+			  	      if (i == all_rows.length-1) ind = 1;
+			  	    }
+			  	  }
   			  	
+  			  	if (ind != 0) {
+  			  	  Css.setClass(all_rows[ind], "gridRowSelected");               
+              for (var i=0; i< all_rows[ind].cells.length; i++) Css.setClass(all_rows[ind].cells[i], "gridCellSelected"); 
+//              all_rows[ind].focus();
+  			  	}
+  			  	
+            break;  			  	
   			    /*case KeyEvent.DOM_VK_TAB:        
   			     *   //var panel = Firebug.chrome.getSelectedPanel();        
   			     *    var sidePanel = Firebug.chrome.getSelectedSidePanel();       

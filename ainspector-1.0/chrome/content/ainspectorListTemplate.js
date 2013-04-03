@@ -49,9 +49,10 @@ define([
              SPAN({class: "summaryGrid", style: "background-color: #B4D8E7;"}, "  " + "$cache_results.manual_checks_count" + "   ")
            ),
            TABLE({class: "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "", role: "grid", 
-             "aria-selected" : "true", tabindex: "0"},
+             "aria-selected" : "true", tabindex: "0", onkeypress: "$onKeyPressGrid"},
              THEAD({},
-               TR({class: "gridHeaderRow firstRow gridRow", id: "tableHeader", onclick:"$sortColumn"},
+               TR({class: "gridHeaderRow firstRow gridRow", id: "tableHeader", onclick:"$sortColumn",
+                role: "row", "aria-selected" : "false", tabindex: "0"},
                  TH({class: "gridHeaderCell", id: "gridOrderCol", role: "columnheader"}, 
                    DIV({class: "gridHeaderCellBox"}, 
                    Locale.$STR("ainspector.header.order"))
@@ -89,7 +90,7 @@ define([
              TBODY(
                FOR("object", "$results",  
                  TR({class: "tableRow gridRow", _repObject:"$object", onclick:"$highlightRow",
-                   ondblclick:"$toHTMLPanel"},
+                   ondblclick:"$toHTMLPanel", "aria-selected" : "$object|getSelectedState"},
                    TD({class:"gridCol", id: "gridOrderCol"}, 
         				     DIV({class: "gridContent", style: "margin-left:1.0em;"}, "$object.position")),
                    TD({class:"gridCol", id: "gridElementCol"}, 
@@ -242,6 +243,18 @@ define([
              if (FBTrace.DBG_AINSPECTOR)
                FBTrace.sysout("AInspector; Firebug.AinspectorModule.AinspectorListTemplate.sortColumn", AinspectorUtil);  
              AinspectorUtil.sortColumn(table, column);
+           },
+           
+           onKeyPressGrid : function(event){
+             AinspectorUtil.keyBoardSupport.onKeyPressGrid(event);
+           },
+           
+           getTabIndex : function(obj) {
+             AinspectorUtil.keyBoardSupport.getTabIndex(obj);
+           }, 
+           
+           getSelectedState : function(obj) {
+             AinspectorUtil.keyBoardSupport.getSelectedState(obj);
            }
         });
     }  

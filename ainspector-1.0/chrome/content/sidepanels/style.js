@@ -41,14 +41,18 @@ Firebug.StyleSidePanel.prototype = Obj.extend(Firebug.Panel, {
       FBTrace.sysout("AInspector; StyleSidePanel.initialize");
 
     // TODO: Panel initialization (there is one panel instance per browser tab)
-    this.onCLick = Obj.bind(this.setSelection, this);
+    this.onClick = Obj.bind(this.setSelection, this);
 
+    this.onKeyPress = Obj.bind(this.onKeyPress, this);
   },
 
 
   initializeNode: function(oldPanelNode) {
     this.setSelection = Obj.bind(this.setSelection, this);
     this.mainPanel.panelNode.addEventListener("click", this.setSelection, false);
+    
+    this.onKeyPress = Obj.bind(this.onKeyPress, this);
+    this.mainPanel.panelNode.addEventListener("click", this.onKeyPress, true);
     
     Firebug.Panel.initializeNode.apply(this, arguments);
   },
@@ -95,6 +99,13 @@ Firebug.StyleSidePanel.prototype = Obj.extend(Firebug.Panel, {
   setSelection : function (event){
     
     SidePanelUtil.commonTemplate.setSelection(event, this.panelNode, ["Style and Position", "Value"], "style");
+  },
+  
+  onKeyPress : function(event) {
+    
+    if (Firebug.chrome.getSelectedSidePanel().name != panelName) return;
+    
+    SidePanelUtil.commonTemplate.onKeyPress(event, this.panelNode, ["Style and Position", "Value"], "style");    
   },
   
   getPanelViewMesg : function(panelNode, mesg) {
