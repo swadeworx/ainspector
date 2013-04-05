@@ -51,9 +51,10 @@ define([
           		BUTTON({onclick: "$expandAll", style: "float:right;", _repObject: "$results"}, "Expand All"),
           		BUTTON({onclick: "$collapseAllRows", style: "float:right;", _repObject: "$results"}, "Collapse All")
           	),
-            TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, hiddenCols: "", onclick:"$toggleRows"},
+            TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, hiddenCols: "", onclick:"$toggleRows",
+              "aria-selected" : "true", tabindex: "0", onkeypress: "$onKeyPressGrid"},
               THEAD(
-                TR({class: "gridHeaderRow firstRow gridRow", "aria-selected" : "false", tabindex: "-1"},
+                TR({class: "gridHeaderRow firstRow gridRow", "aria-selected" : "false", tabindex: "0", role: "row"},
                   TH({class: "gridHeaderCell", id: "headEleCol"}, 
                     DIV({class: "gridHeaderCellBox"}, 
                       Locale.$STR("ainspector.header.element"))
@@ -421,6 +422,10 @@ define([
               var row = rows[i];
               if (Css.hasClass(row, "opened")) this.closeRow(row);
             }
+          },
+          
+          onKeyPressGrid : function(event){
+            AinspectorUtil.keyBoardSupport.onKeyPressGrid(event);
           }
       });
     }
