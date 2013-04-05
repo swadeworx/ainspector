@@ -52,9 +52,10 @@ define([
              BUTTON({onclick: "$expandAll", style: "float:right;", _repObject: "$results"}, "Expand All"),
              BUTTON({onclick: "$collapseAllRows", style: "float:right;", _repObject: "$results"}, "Collapse All")
              ),
-             TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, hiddenCols: "", onclick: "$toggleRows"},
+             TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, hiddenCols: "", onclick: "$toggleRows",
+               "aria-selected" : "true", tabindex: "0", onkeypress: "$onKeyPressGrid"},
                THEAD(
-                 TR({class: "gridHeaderRow firstRow gridRow"},
+                 TR({class: "gridHeaderRow firstRow gridRow", "aria-selected" : "false", tabindex: "0", role: "row"},
                      TH({class: "gridHeaderCell", id: "gridRulesCol", role: "columnheader"}, 
                        DIV({class: "gridHeaderCellBox"}, Locale.$STR("ainspector.header.summary.Rule"))
                      ),
@@ -91,8 +92,8 @@ define([
          ), //end DIV
            
            row:
-             TR({class: "treeRow gridRow", $hasChildren: "$member|checkChildren", _newObject: "$member", _repObject: "$member", level: "$member.level", 
-               onclick: "$highlightTreeRow"},
+             TR({class: "treeRow gridRow", $hasChildren: "$member|checkChildren", level: "$member.level", 
+               onclick: "$highlightTreeRow", _newObject: "$member", _repObject: "$member"},
                TD({class: "memberLabelCell", style: "padding-left: $member.level|getIndented", id: "gridRulesCol"},
                  DIV({class: "$member.container|getClassName", title : "$member.summary", style: "font-weight: normal;margin-left:0.5em;"}, "$member.summary")
                ),
@@ -345,6 +346,10 @@ define([
                 var row = rows[i];
                 if (Css.hasClass(row, "opened")) this.closeRow(row);
               }
+            },
+            
+            onKeyPressGrid : function(event){
+              AinspectorUtil.keyBoardSupport.onKeyPressGrid(event);
             }
             
       });

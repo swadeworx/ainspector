@@ -89,7 +89,7 @@ define(
   			
   			var main_panel = Dom.getAncestorByClass(event.target, "main-panel");     
   			var table = Dom.getChildByClass(main_panel, "ai-table-list-items");  
-  			
+  			if (!table) table = Dom.getChildByClass(main_panel, "domTable");
   			switch(event.keyCode) {                
   			
   			  case KeyEvent.DOM_VK_LEFT: //             
