@@ -39,20 +39,20 @@ define([
          DIV({class:"main-panel"},
            SPAN({class: "summaryTitle", style: "margin-left: 0.5em;"}, "$view"),
            DIV({},
-        	 	 SPAN({style: "margin-left: 3.0em; color: gray;"}, "P"),
-        		 SPAN({class: "summaryGrid", style: "background-color: #B0E57C;"}, "  " + "$cache_results.passed_count" + "  "),
-        		 SPAN({style: "margin-left: 1.5em; color: gray;"}, " V"),
-        		 SPAN({class: "summaryGrid", style: "background-color: #FFAEAE;"}, "  " + "$cache_results.violations_count" + "  "),
-         		 SPAN({style: "margin-left: 1.5em; color: gray;"}, " W"),
+			 SPAN({style: "margin-left: 3.0em; color: gray;"}, "P"),
+			 SPAN({class: "summaryGrid", style: "background-color: #B0E57C;"}, "  " + "$cache_results.passed_count" + "  "),
+			 SPAN({style: "margin-left: 1.5em; color: gray;"}, " V"),
+			 SPAN({class: "summaryGrid", style: "background-color: #FFAEAE;"}, "  " + "$cache_results.violations_count" + "  "),
+			 SPAN({style: "margin-left: 1.5em; color: gray;"}, " W"),
              SPAN({class: "summaryGrid", style: "background-color: #FFEC94;"}, "  " + "$cache_results.warnings_count" + "  "),
              SPAN({style: "margin-left: 1.5em; color: gray;"}, " MC"),
              SPAN({class: "summaryGrid", style: "background-color: #B4D8E7;"}, "  " + "$cache_results.manual_checks_count" + "   ")
            ),
-           TABLE({class: "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "", role: "grid", 
+           TABLE({class: "ai-table-list-items", id: "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "", role: "grid", 
              "aria-selected" : "true", tabindex: "0", onkeypress: "$onKeyPressGrid"},
              THEAD({},
                TR({class: "gridHeaderRow firstRow gridRow", id: "tableHeader", onclick:"$sortColumn",
-                role: "row", "aria-selected" : "false", tabindex: "0"},
+                role: "row", "aria-selected" : "false", tabindex: "-1", onfocus:"$onFocus"},
                  TH({class: "gridHeaderCell", id: "gridOrderCol", role: "columnheader"}, 
                    DIV({class: "gridHeaderCellBox"}, 
                    Locale.$STR("ainspector.header.order"))
@@ -89,8 +89,9 @@ define([
              ), //THEAD
              TBODY(
                FOR("object", "$results",  
-                 TR({class: "tableRow gridRow", _repObject:"$object", onclick:"$highlightRow",
-                   ondblclick:"$toHTMLPanel", "aria-selected" : "$object|getSelectedState"},
+                 TR({class: "$object|getRowClass tableRow gridRow", _repObject:"$object", onclick:"$highlightRow",
+                   ondblclick:"$toHTMLPanel", "aria-selected" : "$object|getSelectedState", onfocus: "$onFocus",
+                   tabindex: "-1"},
                    TD({class:"gridCol", id: "gridOrderCol"}, 
         				     DIV({class: "gridContent", style: "margin-left:1.0em;"}, "$object.position")),
                    TD({class:"gridCol", id: "gridElementCol"}, 
@@ -255,7 +256,16 @@ define([
            
            getSelectedState : function(obj) {
              AinspectorUtil.keyBoardSupport.getSelectedState(obj);
-           }
+           },
+           
+           onFocus : function (event) {
+             
+             AinspectorUtil.keyBoardSupport.onFocus(event);
+           },
+		   
+		   getRowClass : function(obj) {
+             AinspectorUtil.keyBoardSupport.getRowClass(obj);
+		   }
         });
     }  
   Firebug.registerStylesheet("chrome://ainspector/skin/ainspector-list-template.css");
