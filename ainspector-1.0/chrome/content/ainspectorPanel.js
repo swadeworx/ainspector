@@ -120,8 +120,7 @@ define([
        */
       destroyNode: function(state) {
   
-        if (FBTrace.DBG_AINSPECTOR)
-          FBTrace.sysout("AInspector; AinspectorPanel.destroy");
+        if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; AinspectorPanel.destroy");
   
         this.panelNode.removeEventListener("click", this.onMouseClick, true);
         this.panelNode.removeEventListener("mousedown", this.onMouseDown, true);
@@ -138,8 +137,7 @@ define([
 
         this.showToolbarButtons("fbPanelToolbar", true);
 
-        if (FBTrace.DBG_AINSPECTOR)
-            FBTrace.sysout("AInspector; AinspectorPanel.show;");
+        if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; AinspectorPanel.show;");
       },
 
       hide: function() {
@@ -536,9 +534,6 @@ define([
        */
       onClickContentMenuItem : function() {
         this.setSelectedView("onClickContentMenuItem");
-        
-//        if (FBTrace.DBG_AINSPECTOR) 
-        FBTrace.sysout("AInspector; AinspectorPanel.onClickContentMenuItem-AinspectorListener(): ", AinspectorListener);
         
         AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Text Elements');
 

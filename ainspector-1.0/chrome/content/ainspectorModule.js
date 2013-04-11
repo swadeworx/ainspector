@@ -53,20 +53,20 @@ define([
       onSuspendFirebug: function(context){
         
         if (FBTrace.DBG_AINSPECTOR)
-              FBTrace.sysout("AInspector; ainspectorModule.onSuspendFirebug;");
+          FBTrace.sysout("AInspector; ainspectorModule.onSuspendFirebug;");
       },
 
       // Called before any suspend actions. Firest caller to return true aborts suspend.
       onSuspendingFirebug: function() {
 
         if (FBTrace.DBG_AINSPECTOR)
-              FBTrace.sysout("AInspector; ainspectorModule.onSuspendingFirebug;");
+          FBTrace.sysout("AInspector; ainspectorModule.onSuspendingFirebug;");
       },
 
       onResumeFirebug: function(context) {
           
         if (FBTrace.DBG_AINSPECTOR)
-              FBTrace.sysout("AInspector; ainspectorModule.onResumeFirebug;");
+          FBTrace.sysout("AInspector; ainspectorModule.onResumeFirebug;");
       },
       
       /**
@@ -79,7 +79,7 @@ define([
           // TODO: Module initialization (there is one module instance per browser window)
   
           if (FBTrace.DBG_AINSPECTOR)
-              FBTrace.sysout("AInspector; ainspectorModule.initialize");
+            FBTrace.sysout("AInspector; ainspectorModule.initialize");
       },
       
       /**
@@ -89,6 +89,7 @@ define([
   
         Firebug.ActivableModule.shutdown.apply(this, arguments);
         OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight();
+        
         if (FBTrace.DBG_AINSPECTOR)
           FBTrace.sysout("AInspector; ainspectorModule.shutdown");
       },
@@ -108,7 +109,6 @@ define([
           FBTrace.sysout("AInspector; ainspectorModule.showPanel", Firebug.currentContext.getPanel("ainspector"));
         var is_my_extension = panel && panel.name =="ainspector";
         var my_extension_toolbar_buttons = Firebug.chrome.$("fbPanelToolbar");
-        FBTrace.sysout("Firebug: ", Firebug);
         
         if (is_my_extension && Firebug.version != '1.12')
           alert("Please get Firebug 1.12.0a2.xpi from https://getfirebug.com/releases/firebug/1.12/ before running A11y Extension");

@@ -171,23 +171,13 @@ define([
            
            panel.panelNode.id = "ainspector-panel"; 
 
-           FBTrace.sysout("rule_Results: ", rule_results);
            var category_rule_results = rule_results.getFilteredRuleResultsByRuleCategory(rule_category, preferences.show_results_filter_value);
-           FBTrace.sysout("AInspector; AinspectorUtil", AinspectorUtil);
-//             category_rule_results.sortRuleResultsByImplementationLevel();
-           if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; category_rule_results", category_rule_results);
-//             var rule_results_list = category_rule_results.createListOfRuleResults();
-//             rule_results_list.sortListOfRuleResults('wcag20_level', 1); 
            var rule_results_list = new OpenAjax.a11y.formatters.TreeViewOfFilteredRuleResultsGroup(category_rule_results);
-           FBTrace.sysout("filtered_rule_results: ", rule_results_list);
-
+           
            panel.table = this.tag.replace({results: rule_results_list.rule_result_items, view:view, category_rule_results: category_rule_results }, panel.panelNode);
-           FBTrace.sysout("after panel.table : ");
 
            AinspectorUtil.contextMenu.setTableMenuItems(panel.table);
-           FBTrace.sysout("after setTableMenuItems: ");
            var side_panel = Firebug.chrome.getSelectedSidePanel();
-           FBTrace.sysout("side_panel: ", side_panel);
            AinspectorUtil.selectRow(panel.table, false, id);
            
            if (side_panel) {
