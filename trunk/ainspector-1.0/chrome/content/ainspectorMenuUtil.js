@@ -112,9 +112,8 @@ define(
 
         var reports_menu = buttons.children[4].children[0];        
         
-        if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("Menu: ", Menu);
-        
-        FBTrace.sysout("AInspector; AinspectorListener.onGetPanelToolbarButtons-reports_menu: ", reports_menu);
+        if (FBTrace.DBG_AINSPECTOR)       
+          FBTrace.sysout("AInspector; AinspectorListener.onGetPanelToolbarButtons-reports_menu: ", reports_menu);
         
         if (reports_menu.children[2]) Menu.removeMenuItem(reports_menu, reports_menu.children[2]);
         

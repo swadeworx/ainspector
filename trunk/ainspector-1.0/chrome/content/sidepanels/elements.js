@@ -84,25 +84,134 @@ Firebug.ElementsSidePanel.prototype = Obj.extend(Firebug.Panel, {
     return object instanceof window.Element;
   },
   
-  onKeyPress : function(event) {
+  onKeyPressOld : function(event) {
 
     if (Firebug.chrome.getSelectedSidePanel().name != panelName) return;
 
     FBTrace.sysout("AInspector; ElementsSidePanel.onKeyPress: ", event);
-    var all_rows = event.target.rows ? event.target.rows : event.target.offsetParent.rows;
     
-    var key = event.keyCode;     
-    var forward = key == KeyEvent.DOM_VK_RIGHT || key == KeyEvent.DOM_VK_DOWN;  
-    var backward = key == KeyEvent.DOM_VK_LEFT || key == KeyEvent.DOM_VK_UP; 
+    switch(event.keyCode) {                
     
-    var object;
-    for (var i=0; i < all_rows.length; i++) {
-      if (Css.hasClass(all_rows[i], "gridRowSelected")) {
-        object = forward ? all_rows[i+1].repObject : all_rows[i-1].repObject;   
-        this.updateSelection(object, this.panelNode);
-        break;
+    case KeyEvent.DOM_VK_LEFT: //             
+    case KeyEvent.DOM_VK_UP: //up         
+    case KeyEvent.DOM_VK_RIGHT: //right      
+    case KeyEvent.DOM_VK_DOWN: //down 
+      var all_rows = event.target.rows ? event.target.rows : event.target.offsetParent.rows;
+      
+      var key = event.keyCode;     
+      var forward = key == KeyEvent.DOM_VK_RIGHT || key == KeyEvent.DOM_VK_DOWN;  
+      var backward = key == KeyEvent.DOM_VK_LEFT || key == KeyEvent.DOM_VK_UP; 
+      
+      var object;
+      var flag = false;
+      for (var i=0; i < all_rows.length; i++) {
+       
+        if (Css.hasClass(all_rows[i], "gridRowSelected")) {
+          
+          FBTrace.sysout("all_rows[i]: ", all_rows[i]);
+          object = forward ? all_rows[i+1].repObject : all_rows[i-1].repObject;   
+          this.updateSelection(object, this.panelNode);
+          break;
+        } else { // if enters first time in to the grid
+          if (i == all_rows.length-1 && flag == false) {
+            FBTrace.sysout("AInspector; no grid row is selected: ", all_rows[i]);
+            this.updateSelection(all_rows[i].repObject, this.panelNode);
+            break;
+          }
+        }
       }
+      
+    case KeyEvent.DOM_VK_TAB:
+      break;
     }
+  },
+  
+  /**
+   * @function onKeyPress
+   * 
+   * @desc
+   * 
+   * @param event
+   */
+  onKeyPress: function(event) {
+  
+    var current_row;
+    var next_row;
+    var previous_row;
+    var prev_cell;
+    var next_cell;
+    
+    var table_rows = event.target.offsetParent.rows;
+
+    if (!table_rows) return;
+    
+    var no_of_rows = table_rows.length;
+    var flag = false;
+    var is_header_row = false;
+    
+    for (var row=0; row < no_of_rows; row++) {
+    
+      var class_list = table_rows[row].classList;
+      var class_name_it = 0;
+     
+      for (class_name_it; class_name_it < class_list.length; class_name_it++) {
+      
+        if (class_list[class_name_it] == "gridRowSelected") {
+          flag = true;
+          break;
+        }   
+      }
+      
+      if (flag == true){
+        current_row = table_rows[row];
+
+        if (row < no_of_rows) {
+         
+          previous_row = table_rows[row-1];
+         
+          next_row = table_rows[row+1];
+        
+        } else { //if we reach end of the table row then go back to first row
+          next_row = table_rows[1]; //table_rows[0] is the header row
+          previous_row = table_rows[row-1];
+        }
+        
+        break;
+      } else {
+        continue;
+      }
+    } //end for
+    
+    var rule_result_objet = null;
+    var rule = null;
+    
+    if (event.keyCode == KeyEvent.DOM_VK_UP) {
+    
+      result = previous_row.repObject;
+      this.updateSelection(result, this.panelNode); 
+      
+    } else if (event.keyCode == KeyEvent.DOM_VK_DOWN) {
+      
+      result = next_row.repObject;
+      
+      this.updateSelection(result, this.panelNode);
+     
+    } else if (event.keyCode == KeyEvent.DOM_VK_LEFT) {
+      this.setSelection(event);
+   
+    } else if (event.keyCode == KeyEvent.DOM_VK_RIGHT) {
+      this.setSelection(event);
+   
+    } else if (event.keyCode == KeyEvent.DOM_VK_BACK_SPACE){
+   
+      this.deleteNode("node", "up");
+
+    } else if (event.keyCode == KeyEvent.DOM_VK_DELETE) {
+      this.deleteNode("node", "down");
+     
+    } else {
+      return;
+    }     
   },
 
   setSelection : function(event){
