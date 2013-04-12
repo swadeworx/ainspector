@@ -271,15 +271,16 @@ define(
   		          
   		        break;
   		          
-  		      /*case KeyEvent.DOM_VK_TAB:
+  		      case KeyEvent.DOM_VK_TAB:
   		         //var panel = Firebug.chrome.getSelectedPanel();
   		        var sidePanel = Firebug.chrome.getSelectedSidePanel();
-  		      if (sidePanel) {
-  		        sidePanel.panelNode.setAttribute("tabindex", "0");
-  		        sidePanel.panelNode.focus();
-  		        setClass(sidePanel.panelNode, "focusRow");
-  		      }
-  		        break;*/
+  		        
+  		        if (sidePanel) {
+  		          sidePanel.panelNode.setAttribute("tabindex", "0");
+  		          sidePanel.panelNode.focus();
+  		          setClass(sidePanel.panelNode, "focusRow");
+  		        }
+  		        break;
   		    }
   		  }
   		    
