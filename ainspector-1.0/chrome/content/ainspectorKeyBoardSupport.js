@@ -197,6 +197,8 @@ define(
 //  		    var table_div = getChildByClass(main_panel, "table-scrollable");
   		    var table = Dom.getChildByClass(main_panel, "ai-table-list-items");
   		    
+  		    if (!table) table = Dom.getChildByClass(main_panel, "domTable");
+  		    
   		    switch(event.keyCode) {
   		        
   		      case KeyEvent.DOM_VK_LEFT: //  

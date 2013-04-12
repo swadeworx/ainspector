@@ -55,7 +55,8 @@ define([
              TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, hiddenCols: "", onclick: "$toggleRows",
                "aria-selected" : "true", tabindex: "0", onkeypress: "$onKeyPressGrid"},
                THEAD(
-                 TR({class: "gridHeaderRow firstRow gridRow", "aria-selected" : "false", tabindex: "0", role: "row"},
+                 TR({class: "gridHeaderRow firstRow gridRow", id: "tableHeader", "aria-selected" : "false", 
+                   tabindex: "-1", role: "row", onclick: "$sortColumn", onfocus: "$onFocus"},
                      TH({class: "gridHeaderCell", id: "gridRulesCol", role: "columnheader"}, 
                        DIV({class: "gridHeaderCellBox"}, Locale.$STR("ainspector.header.summary.Rule"))
                      ),
@@ -92,8 +93,9 @@ define([
          ), //end DIV
            
            row:
-             TR({class: "treeRow gridRow", $hasChildren: "$member|checkChildren", level: "$member.level", 
-               onclick: "$highlightTreeRow", _newObject: "$member", _repObject: "$member"},
+             TR({class: "$member|getRowClass treeRow gridRow", $hasChildren: "$member|checkChildren", level: "$member.level", 
+               onclick: "$highlightTreeRow", _newObject: "$member", _repObject: "$member", 
+               role: "row", "aria-selected" : "$member|getSelectedState", onfocus: "$onFocus", tabindex: "-1"},
                TD({class: "memberLabelCell", style: "padding-left: $member.level|getIndented", id: "gridRulesCol"},
                  DIV({class: "$member.container|getClassName", title : "$member.summary", style: "font-weight: normal;margin-left:0.5em;"}, "$member.summary")
                ),
@@ -350,6 +352,45 @@ define([
             
             onKeyPressGrid : function(event){
               AinspectorUtil.keyBoardSupport.onKeyPressGrid(event);
+            },
+            
+            sortColumn : function(event) {
+              
+              var table  = Dom.getAncestorByClass(event.target, "ai-table-list-items");
+              var column = Dom.getAncestorByClass(event.target, "gridHeaderCell");
+              
+              if (FBTrace.DBG_AINSPECTOR)
+                
+                FBTrace.sysout("AInspector; Firebug.AinspectorModule.AinspectorRulesTemplate.sortColumn", AinspectorUtil);  
+                AinspectorUtil.sortColumn(table, column);
+            },
+            
+            sortColumn : function(event) {
+              
+              var table  = Dom.getAncestorByClass(event.target, "ai-table-list-items");
+              var column = Dom.getAncestorByClass(event.target, "gridHeaderCell");
+              
+              if (FBTrace.DBG_AINSPECTOR)
+                
+                FBTrace.sysout("AInspector; Firebug.AinspectorModule.AinspectorRulesTemplate.sortColumn", AinspectorUtil);  
+                AinspectorUtil.sortColumn(table, column);
+            },
+            
+            onFocus : function (event) {
+              
+              AinspectorUtil.keyBoardSupport.onFocus(event);
+            },
+            
+            getTabIndex : function(obj) {
+              AinspectorUtil.keyBoardSupport.getTabIndex(obj);
+            }, 
+            
+            getSelectedState : function(obj) {
+              AinspectorUtil.keyBoardSupport.getSelectedState(obj);
+            },
+            
+            getRowClass : function(obj) {
+              AinspectorUtil.keyBoardSupport.getRowClass(obj);
             }
             
       });
