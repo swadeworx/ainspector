@@ -30,3 +30,54 @@
   padding:25px 50px; 
   background-color: #121212;
 }
+
+/* Column visibility */
+
+/*
+ * Every row is for one column, the first selector hides column in the header
+ * (e.g. id=colName) and the second selector in all rows (e.g. class=cookieNameCol)
+ * 
+ * If a column is hidden, it's presented in a 'hiddenCols' attribute of the .cookieTable
+ * element. Value of the attribute is a whitespace separated list of columns IDs.
+ */
+.domTable[hiddenCols~=gridRulesCol] TH[id="gridRulesCol"],
+.domTable[hiddenCols~=gridRulesCol] TH.gridRulesCol,
+.domTable[hiddenCols~=gridRequiredCol] TH[id="gridRequiredCol"],
+.domTable[hiddenCols~=gridRequiredCol] TH.gridRequiredCol,
+.domTable[hiddenCols~=gridLevelCol] TH[id="gridLevelCol"],
+.domTable[hiddenCols~=gridLevelCol] TH.gridLevelCol,
+.domTable[hiddenCols~=gridPEPRCol] TH[id="gridPEPRCol"],
+.domTable[hiddenCols~=gridPEPRCol] TH.gridPEPRCol,
+.domTable[hiddenCols~=gridPassCol] TH[id="gridPassCol"],
+.domTable[hiddenCols~=gridPassCol] TH.gridPassCol,
+.domTable[hiddenCols~=gridWarningCol] TH[id="gridWarningCol"],
+.domTable[hiddenCols~=gridWarningCol] TH.gridWarningCol, 
+.domTable[hiddenCols~=gridManualCheckCol] TH[id="gridManualCheckCol"],
+.domTable[hiddenCols~=gridManualCheckCol] TH.gridManualCheckCol,
+.domTable[hiddenCols~=gridViolationCol] TH[id="gridViolationCol"],
+.domTable[hiddenCols~=gridViolationCol] TH.gridViolationCol,
+.domTable[hiddenCols~=gridHiddenCol] TH[id="gridHiddenCol"],
+.domTable[hiddenCols~=gridHiddenCol] TH.gridHiddenCol {
+    display: none;
+}
+
+.domTable[hiddenCols~=gridRulesCol] TD[id="gridRulesCol"],
+.domTable[hiddenCols~=gridRulesCol] TD.gridRulesCol,
+.domTable[hiddenCols~=gridRequiredCol] TD[id="gridRequiredCol"],
+.domTable[hiddenCols~=gridRequiredCol] TD.gridRequiredCol,
+.domTable[hiddenCols~=gridLevelCol] TD[id="gridLevelCol"],
+.domTable[hiddenCols~=gridLevelCol] TD.gridLevelCol,
+.domTable[hiddenCols~=gridPEPRCol] TD[id="gridPEPRCol"],
+.domTable[hiddenCols~=gridPEPRCol] TD.gridPEPRCol,
+.domTable[hiddenCols~=gridPassCol] TD[id="gridPassCol"],
+.domTable[hiddenCols~=gridPassCol] TD.gridPassCol,
+.domTable[hiddenCols~=gridWarningCol] TD[id="gridWarningCol"],
+.domTable[hiddenCols~=gridWarningCol] TD.gridWarningCol, 
+.domTable[hiddenCols~=gridManualCheckCol] TD[id="gridManualCheckCol"],
+.domTable[hiddenCols~=gridManualCheckCol] TD.gridManualCheckCol,
+.domTable[hiddenCols~=gridViolationCol] TD[id="gridViolationCol"],
+.domTable[hiddenCols~=gridViolationCol] TD.gridViolationCol,
+.domTable[hiddenCols~=gridHiddenCol] TD[id="gridHiddenCol"],
+.domTable[hiddenCols~=gridHiddenCol] TD.gridHiddenCol {
+    display: none;
+}

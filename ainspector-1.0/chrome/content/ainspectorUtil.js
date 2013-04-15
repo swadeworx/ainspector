@@ -537,7 +537,7 @@ define([
 
         if (preferences.show_results_violations == false) hiddenCols = hiddenCols  + " " + "gridViolationCol";
 
-        if (preferences.show_results_element_manual_checks == false) hiddenCols = hiddenCols  + " " + "gridManualCheckCol";
+//        if (preferences.show_results_element_manual_checks == false) hiddenCols = hiddenCols  + " " + "gridManualCheckCol";
 
         if (preferences.show_results_warnings == false) hiddenCols = hiddenCols  + " " + "gridWarningCol";
 

@@ -358,7 +358,7 @@ define([
               var level = parseInt(row.getAttribute("level"));
               Css.setClass(row, "opened");
               var repObject = row.repObject;
-              FBTrace.sysout("row: ", row);
+//              FBTrace.sysout("row: ", row);
               if (repObject && repObject.children) {
                             
 				var members;
