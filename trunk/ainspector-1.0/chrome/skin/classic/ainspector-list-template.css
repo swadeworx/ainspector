@@ -152,17 +152,10 @@
 .ai-table-list-items[hiddenCols~=gridLevelCol] TH[id="gridLevelCol"],
 .ai-table-list-items[hiddenCols~=gridLevelCol] TH.gridLevelCol,
 .ai-table-list-items[hiddenCols~=gridPEPRCol] TH[id="gridPEPRCol"],
-.ai-table-list-items[hiddenCols~=gridPEPRCol] TH.gridPEPRCol,
-.domTable[hiddenCols~=gridRulesCol] TH[id="gridRulesCol"],
-.domTable[hiddenCols~=gridRulesCol] TH.gridRulesCol,
-.domTable[hiddenCols~=gridRequiredCol] TH[id="gridRequiredCol"],
-.domTable[hiddenCols~=gridRequiredCol] TH.gridRequiredCol,
-.domTable[hiddenCols~=gridLevelCol] TH[id="gridLevelCol"],
-.domTable[hiddenCols~=gridLevelCol] TH.gridLevelCol,
-.domTable[hiddenCols~=gridPEPRCol] TH[id="gridPEPRCol"],
-.domTable[hiddenCols~=gridPEPRCol] TH.gridPEPRCol {
+.ai-table-list-items[hiddenCols~=gridPEPRCol] TH.gridPEPRCol {
     display: none;
 }
+
 .ai-table-list-items[hiddenCols~=gridElementCol] TD[id="gridElementCol"],
 .ai-table-list-items[hiddenCols~=gridElementCol] TD.gridElementCol,
 .ai-table-list-items[hiddenCols~=gridHiddenCol] TD[id="gridHiddenCol"],
@@ -173,10 +166,10 @@
 .ai-table-list-items[hiddenCols~=gridWarningCol] TD.gridWarningCol, 
 .ai-table-list-items[hiddenCols~=gridManualCheckCol] TD[id="gridManualCheckCol"],
 .ai-table-list-items[hiddenCols~=gridManualCheckCol] TD.gridManualCheckCol,
-.ai-table-list-items[hiddenCols~=gridHTMLCol] TD[id="gridHTMLCol"],
-.ai-table-list-items[hiddenCols~=gridHTMLCol] TD.gridHTMLCol,
 .ai-table-list-items[hiddenCols~=gridViolationCol] TD[id="gridViolationCol"],
 .ai-table-list-items[hiddenCols~=gridViolationCol] TD.gridViolationCol,
+.ai-table-list-items[hiddenCols~=gridHTMLCol] TD[id="gridHTMLCol"],
+.ai-table-list-items[hiddenCols~=gridHTMLCol] TD.gridHTMLCol,
 .ai-table-list-items[hiddenCols~=gridRulesCol] TD[id="gridRulesCol"],
 .ai-table-list-items[hiddenCols~=gridRulesCol] TD.gridRulesCol,
 .ai-table-list-items[hiddenCols~=gridRequiredCol] TD[id="gridRequiredCol"],
@@ -184,14 +177,6 @@
 .ai-table-list-items[hiddenCols~=gridLevelCol] TD[id="gridLevelCol"],
 .ai-table-list-items[hiddenCols~=gridLevelCol] TD.gridLevelCol,
 .ai-table-list-items[hiddenCols~=gridPEPRCol] TD[id="gridPEPRCol"],
-.ai-table-list-items[hiddenCols~=gridPEPRCol] TD.gridPEPRCol,
-.domTable[hiddenCols~=gridRulesCol] TD[id="gridRulesCol"],
-.domTable[hiddenCols~=gridRulesCol] TD.gridRulesCol,
-.domTable[hiddenCols~=gridRequiredCol] TD[id="gridRequiredCol"],
-.domTable[hiddenCols~=gridRequiredCol] TD.gridRequiredCol,
-.domTable[hiddenCols~=gridLevelCol] TD[id="gridLevelCol"],
-.domTable[hiddenCols~=gridLevelCol] TD.gridLevelCol,
-.domTable[hiddenCols~=gridPEPRCol] TD[id="gridPEPRCol"],
-.domTable[hiddenCols~=gridPEPRCol] TD.gridPEPRCol {
+.ai-table-list-items[hiddenCols~=gridPEPRCol] TD.gridPEPRCol {
     display: none;
 }

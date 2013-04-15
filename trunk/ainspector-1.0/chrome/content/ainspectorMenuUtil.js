@@ -28,7 +28,7 @@ define(
   
   Menu.removeMenuItem = function (element, item) {
     
-   FBTrace.sysout("item: ", item);
+//   FBTrace.sysout("item: ", item);
 //    var label = item.nol10n ? item.label : Locale.$STR(item.label);
     var label = item.label ? item.label : item.attributes[0].nodeValue;
     element.removeAttribute("label", label);

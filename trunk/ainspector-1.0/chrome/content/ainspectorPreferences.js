@@ -158,7 +158,7 @@ define(
         setBooleanPreference('show_results_not_applicable');    
 
         // Call back function
-//        if (typeof AinspectorPreferences.preferences_call_back == 'function') AinspectorPreferences.preferences_call_back();
+//        if (typeof this.preferences_call_back == 'function') this.preferences_call_back();
       },
       
       getPreferences : function() {
@@ -203,7 +203,9 @@ define(
       preferences_call_back : function() {
 
         if (FBTrace.DBG_AINSPECTOR)
-          FBTrace.sysout("AInspector; AinspectorPreferences.callBack:", obj);
+          FBTrace.sysout("AInspector; AinspectorPreferences.callBack:", Firebug);
+        
+        Firebug.AinspectorModule.updateSelection();
       }
     }
     return AinspectorPreferences;

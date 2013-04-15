@@ -110,9 +110,16 @@ define([
         var is_my_extension = panel && panel.name =="ainspector";
         var my_extension_toolbar_buttons = Firebug.chrome.$("fbPanelToolbar");
         
-        if (is_my_extension && Firebug.version != '1.12')
-          alert("Please get Firebug 1.12.0a2.xpi from https://getfirebug.com/releases/firebug/1.12/ before running A11y Extension");
-
+        if (FBTrace.DBG_AINSPECTOR)
+          FBTrace.sysout("AInspector; ainspectorModule.showPanel.Firebug", Firebug);
+        
+        if (is_my_extension) {
+          if (Firebug.version == '1.12' || Firebug.currentVersion == '1.11.3b1'){
+            
+          } else {
+            alert(" Please get Firebug 1.11.3 beta from https://blog.getfirebug.com/2013/04/12/firebug-1-11-3-beta-1/ or Firebug 1.12 from https://getfirebug.com/releases/firebug/1.12/ before running A11y Extension to support menus");
+          }
+        }
         if (is_my_extension) this.updateSelection();
         
         else OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight();

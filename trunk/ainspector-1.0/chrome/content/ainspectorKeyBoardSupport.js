@@ -60,8 +60,6 @@ define(
     	  
     	  if (obj == 'temp') return 'true'; 
     		
-    	  FBTrace.sysout("AInspector; keyBoardSupport.getTabIndex(): obj- ", obj);
-    		
     	  return obj.selected ? "0" : "-1"; 
     	},
       	
@@ -74,8 +72,6 @@ define(
   		 onFocus : function(event) {      
   		 	
   		 	var event_target = event.target;    
-//  		 	var repObject = Firebug.getRepObject(event_target);           
-  		 	FBTrace.sysout("AInspector; onFocus-event: ", event);
   		 	if (!event_target) return;            
   		 	
   		 	var category = Css.getClassValue(event_target, "tableRowView");     
@@ -192,11 +188,9 @@ define(
   		  onKeyPressGrid: function(event){
   		    
   		    event.stopPropagation();
-  		    
+
   		    var main_panel = Dom.getAncestorByClass(event.target, "main-panel");
-//  		    var table_div = getChildByClass(main_panel, "table-scrollable");
   		    var table = Dom.getChildByClass(main_panel, "ai-table-list-items");
-  		    
   		    if (!table) table = Dom.getChildByClass(main_panel, "domTable");
   		    
   		    switch(event.keyCode) {
@@ -226,13 +220,16 @@ define(
   		        }  
   		        var all_rows = table.getElementsByClassName("gridRow");
   		        var current_index = Array.indexOf(all_rows, event.target);
-  		        FBTrace.sysout("current_index: "+ current_index);
+  		        
+  		        if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; keyboardSupport.onKeyPressGrid.current_index: "+ current_index);
+  		        
   		        var index = Array.indexOf(all_rows, event.target);
   		        var key = event.keyCode;
   		        var forward = key == KeyEvent.DOM_VK_RIGHT || key == KeyEvent.DOM_VK_DOWN;
   		          
   		        if (current_index != -1) {
-  		           var new_index = forward ? ++current_index : --current_index;
+  		          var new_index = forward ? ++current_index : --current_index;
+  		          
   		          //get the focus back to the first tab on the tool bar from the last tab of the toolbar
   		          new_index = new_index < 0 ? all_rows.length -1 : (new_index >= all_rows.length ? 0 : new_index);
   		             
@@ -256,9 +253,6 @@ define(
   		                
   		            for (var i=0; i< next_row.cells.length; i++) Css.setClass(next_row.cells[i], "gridCellSelected");
   		            
-//  		            if (next_row.repObject.filtered_node_results) OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightNodeResults(next_row.repObject.filtered_node_results);
-//  		            else OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems(next_row.repObject);
-  		            
   		            if (next_row.repObject.filtered_rule_result && next_row.repObject.filtered_rule_result.filtered_node_results) {
   		              OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightNodeResults(next_row.repObject.filtered_rule_result.filtered_node_results);
   		            } else {
@@ -272,7 +266,6 @@ define(
   		        break;
   		          
   		      case KeyEvent.DOM_VK_TAB:
-  		         //var panel = Firebug.chrome.getSelectedPanel();
   		        var sidePanel = Firebug.chrome.getSelectedSidePanel();
   		        
   		        if (sidePanel) {
@@ -283,8 +276,7 @@ define(
   		        break;
   		    }
   		  }
-  		    
-      	}
+     	}
   		return AinspectorUtil;
   	}
 	)
