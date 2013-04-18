@@ -777,12 +777,17 @@ define([
         var flag = false;
 
         for (var i=0; i<views.length; i++) {
+          
           if (views[i].id != view && views[i].selected) {
 
             views[i].removeAttribute("selected", false);
             flag = true;
           }
-
+          if (FBTrace.DBG_AINSPECTOR) {
+            FBTrace.sysout("AInspector; AinspectorPanel.setSelected.view " + i, views[i]);
+            FBTrace.sysout("AInspector; AinspectorPanel.setSelected.selected view: ", view);
+          }
+          
           if (views[i].id == view) {
             views[i].setAttribute("selected", true);
             if (flag == true) break;
@@ -852,7 +857,7 @@ define([
        * 
        *  @param {String}id - type of report
        */
-      showReport : function(id) {
+      showReportOld : function(id) {
         
         Components.utils.import("resource://gre/modules/FileUtils.jsm");
         var rule_category;
@@ -886,7 +891,7 @@ define([
         
         FBTrace.sysout("html: ", html);
         
-         fileStream.write(html, html.length);
+        fileStream.write(html, html.length);
         
         FileUtils.closeSafeFileOutputStream(fileStream);
             
@@ -902,23 +907,78 @@ define([
         
         FileUtils.closeSafeFileOutputStream(fileStream);
 
-       /* var oReq = new XMLHttpRequest();
-        oReq.open("get", html, true);
-        oReq.send();
-        */
+      },
+      
+      /**
+       * @function showReport
+       * 
+       * @desc writes HTML and CSV report to a file and saves it locally on the disk
+       * 
+       *  @param {String}id - type of report
+       */
+      showReport : function(id) {
         
+        var rule_category;
+        var name;
+        var preferences = AinspectorPreferences.getPreferences();
+        
+        if (id == "wcag") {
+          rule_category = OpenAjax.a11y.RULE_SUMMARY.WCAG20;
+          name = "WCAG 2.0"; 
+        } else {
+          rule_category = OpenAjax.a11y.RULE_SUMMARY.CATEGORIES;
+          name = "All Rules"; 
+        }
+        
+        var rule_summary = ruleset_object.getFilteredRuleResultsByRuleSummary(rule_category, name, 
+                          preferences.wcag20_level, preferences.show_results_filter_value);
+        
+        OpenAjax.a11y.report_css   = OpenAjax.a11y.util.initStringUsingURL("chrome://ainspector/content/openajax_a11y/reports/oaa_report.css");
+        OpenAjax.a11y.report_rule_summary_view_js   = OpenAjax.a11y.util.initStringUsingURL("chrome://ainspector/content/openajax_a11y/reports/oaa_report_rule_summary_view.js");
+        OpenAjax.a11y.report_rule_summary_view_body = OpenAjax.a11y.util.initStringUsingURL("chrome://ainspector/content/openajax_a11y/reports/oaa_report_rule_summary_view.inc");
+        
+        if (!rule_summary) return;
 
-//        FBTrace.sysout("window: ", window);
-//        FBTrace.sysout("html: ", html);
+        var html = rule_summary.toHTML(name);
+        
+        FBTrace.sysout("html: ", html);
+        
+        try {
+            
+          var foStream = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(Ci.nsIFileOutputStream);
+          foStream.init(file, 0x02 | 0x08 | 0x20, 0666, 0); // write, create, truncate
 
-//        var OpenWindow = window.open('','myconsole','width=335,height=330,resizable=1,toolbar=1,scrollbars=1,status=0');
-//        OpenWindow.document.body.innerHTML = "<b>Hello, stackoverflow!</b>";
+          var doc = context.window.document;
+          var convertor = Cc["@mozilla.org/intl/converter-output-stream;1"].createInstance(Ci.nsIConverterOutputStream);
 
-//        FBTrace.sysout("OpenWindow: ", OpenWindow);
-//      OpenWindow.document.open();
-//      OpenWindow.document.write(html);
-//        OpenWindow.document.close();
+          convertor.init(foStream, "UTF-8", 0, 0);
+
+          var chunkLength = 1024*1204;
+          
+          for (var i=0; i<=html.length; i++) {
+                
+            var data = html.substr(i, chunkLength+1);
+          
+            if (data) convertor.writeString(data);
+            
+            i = i + chunkLength;
+          }
+
+          // this closes foStream
+          convertor.close();
+        } catch (err) {
+            
+          if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; Failed " + err, err);
+
+          return false;
+        }
+        
+        var originalFilePath = file.path;
+        var originalFileName = file.leafName;
+
+      
       }
+
   });
   
   Firebug.registerStringBundle("chrome://ainspector/locale/ainspector.properties");

@@ -86,7 +86,7 @@ define([
             TBODY({class: ""},
               FOR("object", "$results",
                  
-                TR({class: "$object|getRowClass tableRow gridRow", _repObject:"$object", onclick: "$highlightRule",
+                TR({class: "tableRow gridRow", _repObject:"$object", onclick: "$highlightRule",
                  role: "row", "aria-selected" : "$object|getSelectedState", onfocus: "$onFocus",
                  tabindex: "-1"},//gridRow           
                   TD({class: "gridCol gridOrderCol", id: "gridOrderCol", role: "gridcell"},
