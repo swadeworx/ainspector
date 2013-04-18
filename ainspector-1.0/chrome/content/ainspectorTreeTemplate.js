@@ -115,7 +115,7 @@ define([
             		DIV({class: "gridContent gridAlign"}, TAG("$strTagViolation", {node_result: "$member"}))
               ),
               TD({class: "memberLabelCell gridAlign"},
-                BUTTON({onclick: "$toHTMLPanel", id: "html_panel_button"}, "HTML")
+                BUTTON({onclick: "$toHTMLPanel", id: "html_panel_button", tabindex: "-1"}, "HTML")
               )
            ),
            
