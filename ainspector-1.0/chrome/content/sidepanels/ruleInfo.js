@@ -162,30 +162,33 @@ Firebug.RuleInfoSidePanel.prototype = Obj.extend(Firebug.Panel, {
       
       rule_summary =  rule_result.getRuleSummary();
       rule_definition = rule_result.getRuleDefinition();
+//      FBTrace.sysout("rule: ", rule);
+      var purpose = rule.getPurpose();
       
-      var purpose = rule.getNLSPurpose();
-      
-      var wcag_nls_req = rule.getNLSRequirements();
-      var techniques   = rule.getNLSTechniques();
-      var info_links   =  rule.getNLSInformationalLinks('text'); 
+      var primary_sc = rule.getPrimarySuccessCriterion();
+      var techniques   = rule.getTechniques();
+      var info_links   =  rule.getInformationalLinks('text'); 
       var requirements = [];
-      
-      requirements.push(wcag_nls_req.primary);
 
-      for (var j = 0; j < wcag_nls_req.related.length; j++) {
-        requirements.push(wcag_nls_req.related[j]);
+      requirements.push(primary_sc);
+
+      var secondary_sc = rule.getRelatedSuccessCriteria();
+      FBTrace.sysout("primary_sc: ", primary_sc);
+
+      for (var j = 0; j < secondary_sc.length; j++) {
+        requirements.push(secondary_sc.related[j]);
       }
       var target_res = rule.getTargetResources();
 
       var rule_result_object = {
-        rule_id         : rule_result.getNLSRuleId(),
+        rule_id         : rule_result.getRuleId(),
         rule_summary    : rule_summary,
         rule_definition : rule_definition,
         purpose         : purpose,
         requirements    : requirements,
         techniques      : techniques,
         info_links      : info_links,
-        target_res_desc : rule.getNLSTargetResourcesDescription(),
+        target_res_desc : rule.getTargetResourcesDescription(),
         target_res      : target_res 
       }
       

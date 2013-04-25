@@ -56,8 +56,10 @@ define([
       if (!row) row = Dom.getAncestorByClass(event.target, "treeRow");
       
       var object = Firebug.getRepObject(event.target);
+      FBTrace.sysout("Dom node to select in HTML panel: ", object);
       
       if (object.cache_item_result) object = object.cache_item_result.cache_item;
+      else if (object.node_result) object = object.node_result.cache_item; 
       else object = object.cache_item;
       
       if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("Dom node to select in HTML panel: ", object);
@@ -65,7 +67,7 @@ define([
       var cache_item = null;
       var node = null;
       
-      if (object.cache_item) {
+      if (object && object.cache_item) {
         cache_item = object.cache_item;
       } else {
         if (object.dom_text_nodes) return;

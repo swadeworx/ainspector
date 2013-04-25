@@ -234,12 +234,14 @@ Firebug.ElementsSidePanel.prototype = Obj.extend(Firebug.Panel, {
     var filtered_rule_result = rule_result_item.filtered_rule_result;
     
     if (filtered_rule_result) {
-    	if ( filtered_rule_result.rule_result) rule_result_mesg = filtered_rule_result.rule_result.getMessage();
       
-      if (FBTrace.DBG_AINSPECTOR)
-      	FBTrace.sysout("AINspector; filtered_rule_result: ", filtered_rule_result);
+//      if (FBTrace.DBG_AINSPECTOR)
+        FBTrace.sysout("AInspector; filtered_rule_result: ", filtered_rule_result);
+      
+    	rule_result_mesg = filtered_rule_result.message;
       
       if (filtered_rule_result.filtered_node_results && filtered_rule_result.filtered_node_results.length > 0) this.rebuild(rule_result_mesg, filtered_rule_result.filtered_node_results, parentNode);
+
       else SidePanelUtil.commonTemplate.noResultsTag.replace({}, parentNode);	
     } else {
     	if (rule_result_item.filtered_rule_group_result) SidePanelUtil.commonTemplate.selectTag.replace({message: Locale.$STR("ainspector.sidepanel.wcag.selectRow")}, parentNode);
@@ -386,9 +388,9 @@ with (Domplate) {
             return {
               tag_name: 'element ' + ct + ': '+ this.getElement(object),
               severity_label_style : this.getSeverityLabel(object),
-              severityLabel : object.getNLSSeverityLabel(),
+              severityLabel : object.getResultValue(),
               hasChildren: this.hasChildren(object),
-              children: object.getRuleProperties(),
+              children: object.getResultProperties(),  //object.getRuleProperties()
               value: object,
               level: level,
               indent: level * 16
@@ -398,13 +400,14 @@ with (Domplate) {
         
         getSeverityLabel : function(object){
           
-          var severity_label = object.getNLSSeverityLabel();
+          var severity_label = object.getResultValue();
         
+          FBTrace.sysout("severity_label: "+ severity_label );
           if (severity_label == 'Warning') return this.strTagWarn;
           
           if (severity_label == 'Manual Check') return this.strTagManual;
           
-          if (severity_label == 'Pass') return this.strTagPass;
+          if (severity_label == 'Passed') return this.strTagPass;
           
           if (severity_label == 'Hidden') return this.strTagHidden;
           
@@ -414,7 +417,7 @@ with (Domplate) {
         
         hasChildren : function(object){
           
-          var properties = object.getRuleProperties();
+          var properties = object.getResultProperties();  // object.getRuleProperties();
           
           var length = properties.length;
           
@@ -496,7 +499,7 @@ with (Domplate) {
        
       getElement : function(object) {
           
-        return AinspectorUtil.truncateText(object.cache_item.toString(), 60);
+        return AinspectorUtil.truncateText(object.node_result.cache_item.toString(), 60);
       },
         
       getElementInformation : function(event) {
