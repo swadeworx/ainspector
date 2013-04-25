@@ -360,7 +360,7 @@
              
              OAA_REPORT.addElement(node_tr, 'td', '', node_result['result_style'], node_result['result_label']);
 
-             if (node_result['rule_type'] === 1) OAA_REPORT.addElement(node_tr, 'td', '', 'required yes', 'Yes');
+             if (node_result['required']) OAA_REPORT.addElement(node_tr, 'td', '', 'required yes', 'Yes');
              else  OAA_REPORT.addElement(node_tr, 'td', '', 'required no', 'no');
 
              OAA_REPORT.addElement(node_tr, 'td', '', 'wcag20', node_result['wcag_primary_id'] + " (" + node_result['wcag_level'] + ")");

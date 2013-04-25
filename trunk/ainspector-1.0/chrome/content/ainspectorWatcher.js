@@ -64,7 +64,7 @@ define(
       var ruleset = OpenAjax.a11y.all_rulesets.getRuleset(preferences.ruleset_id);
 
       if (ruleset) {
-        ruleset.setEvaluationLevel(preferences.wcag20_level);
+        ruleset.setEvaluationLevels(preferences.wcag20_level);
         ruleset.setRecommendedRulesEnabled(preferences.wcag20_recommended_rules_enabled);
         ruleset.setBrokenLinkTesting(preferences.broken_links);
         ruleset_object = ruleset.evaluate(url, doc.title, doc, null, true);

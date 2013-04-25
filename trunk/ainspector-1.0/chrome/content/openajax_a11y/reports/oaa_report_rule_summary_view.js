@@ -180,8 +180,8 @@
            else node = addTableHeaderCell(result['definition'], "definition " + level, "");
  
            
-           if (typeof result['rule_type'] === 'number') {
-             if (result['rule_type'] === 1) addTableDataCell('Yes', 'required yes', '');
+           if (typeof result['required'] === 'boolean') {
+             if (result['required']) addTableDataCell('Yes', 'required yes', '');
              else addTableDataCell('no', 'required no', '');
            }
            else {

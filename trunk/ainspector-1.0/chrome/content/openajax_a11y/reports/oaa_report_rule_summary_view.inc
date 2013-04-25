@@ -3,7 +3,7 @@
       <div role="main" aria-labelledby="ID_H1_TITLE">
         <h1 id="ID_H1_TITLE">Summary Evaluation Results: <span class="title"></span></h1>
 
-        <p class="csv"><a href="report_rule_summary.csv">CSV Export of Evaluation Results for <span class="title"></span></a></p>
+        <p class="csv"><a href="report_rule_category.csv">CSV Export of Evaluation Results for <span class="title"></span></a></p>
         
         <div role="region" aria-labelledby="ID_H2_EVAL_INFO">
           <h2 id="ID_H2_EVAL_INFO">Evaluation Information</h2>

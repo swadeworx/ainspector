@@ -264,11 +264,11 @@ define([
 
              }
              return {
-               label: value.getNLSSeverityLabel(),  
-               action: value.getMessage(),
+               label: value.getResultValue(),  
+               action: value.getResultMessage(),
                  
                hasChildren: this.hasChildren(value),
-               children: value.getRuleProperties(),
+               children: value.getResultProperties(),
                value: (value != null) ? value : "",
                level: level,
                indent: level * 16,
@@ -278,7 +278,7 @@ define([
            
            hasChildren : function(object){
             
-             var properties = object.getRuleProperties();
+             var properties = object.getResultProperties();
              
              var length = properties.length;
              
@@ -304,7 +304,7 @@ define([
             */
            getAccessibility : function(object){
            
-             var severity =  object.getNLSSeverityLabel();
+             var severity =  object.getResultValue();
              
              if (severity == "Pass")  return this.strTagPass;
            
@@ -386,7 +386,8 @@ define([
          
           var cache_item = Firebug.getRepObject(event.target);
           
-          if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("cache_item: ", cache_item);
+//          if (FBTrace.DBG_AINSPECTOR)
+            FBTrace.sysout("cache_item: ", cache_item);
           
           if (!cache_item) return;
           
