@@ -141,6 +141,9 @@ define(
         if (!table) table = Dom.getChildByClass(main_panel, "domTable");
         
         FBTrace.sysout("event.keycode:" + event.keyCode);
+        FBTrace.sysout("event:", event);
+        FBTrace.sysout(" KeyEvent.DOM_VK_ENTER"+ KeyEvent.DOM_VK_ENTER);
+
         switch(event.keyCode) {
             
           case KeyEvent.DOM_VK_LEFT: //  
@@ -258,6 +261,13 @@ define(
               sidePanel.panelNode.focus();
               Css.setClass(sidePanel.panelNode, "focusRow");
             }
+            break;
+            
+          case KeyEvent.DOM_VK_RETURN:
+            FBTrace.sysout(" KeyEvent.DOM_VK_RETURN"+ KeyEvent.DOM_VK_RETURN);
+            var lastChild = event.target.lastElementChild;
+            if ( lastChild && lastChild.id == 'gridHTMLCol') AinspectorUtil.toHTMLPanel(event);
+              
             break;
         } //end switch
       },
