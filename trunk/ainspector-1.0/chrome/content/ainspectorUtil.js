@@ -50,7 +50,7 @@ define([
     AinspectorUtil.toHTMLPanel = function(event) {
       
       event.stopPropagation();
-  
+      FBTrace.sysout(" AinspectorUtil.toHTMLPane");
       var row = Dom.getAncestorByClass(event.target, "tableRow");
       
       if (!row) row = Dom.getAncestorByClass(event.target, "treeRow");
@@ -62,7 +62,8 @@ define([
       else if (object.node_result) object = object.node_result.cache_item; 
       else object = object.cache_item;
       
-      if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("Dom node to select in HTML panel: ", object);
+//      if (FBTrace.DBG_AINSPECTOR) 
+        FBTrace.sysout("Dom node to select in HTML panel: ", object);
     	  
       var cache_item = null;
       var node = null;

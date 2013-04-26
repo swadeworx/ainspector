@@ -99,22 +99,22 @@ define([
               TD({class: "memberLabelCell", style: "padding-left: $member.level|getIndented", _repObject: "$member.value"},
                 DIV({class: "$member.container|getClassName", title : "$member.element", style: "font-weight: normal;margin-left:0.5em;"}, "$member.element")
               ),
-              TD({class: "memberLabelCell"}, 
+              TD({class: "memberLabelCell", id: "gridPassCol"}, 
             		DIV({class: "gridContent gridAlign"}, TAG("$strTagHidden", {node_result: "$member"}))
               ),
               TD({class: "memberLabelCell"},
             		DIV({class: "gridContent gridAlign"}, TAG("$strTagPass", {node_result: "$member"}))
               ),
-              TD({class: "memberLabelCell"},
+              TD({class: "memberLabelCell", id: "gridWarningCol"},
             		DIV({class: "gridContent gridAlign"}, TAG("$strTagWarn", {node_result: "$member"}))
               ),
-              TD({class: "memberLabelCell"},
+              TD({class: "memberLabelCell", id: "gridManualCheckCol"},
             		DIV({class: "gridContent gridAlign"}, TAG("$strTagManual", {node_result: "$member"}))
               ),
-              TD({class: "memberLabelCell"},
+              TD({class: "memberLabelCell", id: "gridViolationCol"},
             		DIV({class: "gridContent gridAlign"}, TAG("$strTagViolation", {node_result: "$member"}))
               ),
-              TD({class: "memberLabelCell gridAlign"},
+              TD({class: "memberLabelCell gridAlign", id: "gridHTMLCol",},
                 BUTTON({onclick: "$toHTMLPanel", id: "html_panel_button", tabindex: "-1"}, "HTML")
               )
            ),

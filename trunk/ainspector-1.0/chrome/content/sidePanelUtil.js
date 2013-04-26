@@ -306,7 +306,7 @@ define([
            
              var severity =  object.getResultValue();
              
-             if (severity == "Pass")  return this.strTagPass;
+             if (severity == "Passed")  return this.strTagPass;
            
              if (severity == "Violation") return this.strTagViolation;
            
