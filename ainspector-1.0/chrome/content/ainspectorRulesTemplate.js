@@ -39,7 +39,7 @@ define([
         tag:
          DIV({class:"main-panel"},
           SPAN({class: "summaryTitle", style: "margin-left: 0.5em;"}, "$view"),
-          DIV({},
+          DIV({class: "sGrid"},
             SPAN({style: "margin-left: 3.0em; color: gray;"}, "%P"),
             SPAN({class: "summaryGrid", style: "background-color: #B0E57C;"}, "$category_rule_results.percent_passed"),
             SPAN({style: "margin-left: 1.5em; color: gray;"}, " V"),
@@ -47,7 +47,13 @@ define([
             SPAN({style: "margin-left: 1.5em; color: gray;"}, " W"),
             SPAN({class: "summaryGrid", style: "background-color: #FFEC94;"}, "$category_rule_results.warnings_count"),
             SPAN({style: "margin-left: 1.5em; color: gray;"}, " MC"),
-            SPAN({class: "summaryGrid", style: "background-color: #B4D8E7;"}, "$category_rule_results.manual_checks_count")
+            SPAN({class: "summaryGrid", style: "background-color: #B4D8E7;"}, "$category_rule_results.manual_checks_count"),
+            SELECT({class: "highlight-option", style: "float:right;", id : "hihglight-options", name : "Highlight", onchange : "$onChangeOption"},
+              OPTION({id: "all"}, "All Elements"),
+              OPTION({id: "some"}, "V/W only"),
+              OPTION({id: "none"}, "None")
+            ),
+            SPAN({style: "float:right; margin-right: 0.8em; color: black; font-weight: normal;"}, " Highlight: ")
           ),
           TABLE({class: "ai-table-list-items", id: "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "",
            role: "grid", "aria-selected" : "true", tabindex: "0", onkeypress: "$onKeyPressGrid"},
@@ -177,6 +183,8 @@ define([
            panel.table = this.tag.replace({results: rule_results_list.rule_result_items, view:view, category_rule_results: category_rule_results }, panel.panelNode);
 
            AinspectorUtil.contextMenu.setTableMenuItems(panel.table);
+           AinspectorUtil.contextMenu.setHighlightOption(panel.table);
+           
            var side_panel = Firebug.chrome.getSelectedSidePanel();
            AinspectorUtil.selectRow(panel.table, false, id);
            
@@ -230,6 +238,22 @@ define([
          
          getRowClass : function(obj) {
            AinspectorUtil.keyBoardSupport.getRowClass(obj);
+         },
+         
+         onChangeOption : function(event) {
+           FBTrace.sysout("event in onChangeOption: ", event);
+           
+           var target = event.target;
+           var option_selected = target.options[target.selectedIndex];
+           AinspectorUtil.highlight_rules = option_selected;
+         },
+         
+         getSelectedOption : function(id){
+           FBTrace.sysout("getSelectedOption: ", id);
+
+           if (AinspectorUtil.highlight_rules != null) {
+             if (AinspectorUtil.highlight_rules.id == id) return 'selected';
+           }
          }
       });
     }  
