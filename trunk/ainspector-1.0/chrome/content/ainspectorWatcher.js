@@ -56,8 +56,7 @@ define(
 
       }
       
-      OAA_WEB_ACCESSIBILITY.util.highlightModule.initHighlight(window.content.document, 
-          preferences.show_results_element_manual_checks,
+      OAA_WEB_ACCESSIBILITY.util.highlightModule.initHighlight(preferences.show_results_element_manual_checks,
           preferences.show_results_page_manual_checks, 
           preferences.show_results_pass,
           preferences.show_results_hidden);

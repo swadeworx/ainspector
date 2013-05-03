@@ -25,6 +25,8 @@ define([
     "firebug/lib/lib",
     "firebug/lib/trace",
     "firebug/lib/locale",
+    "firebug/lib/dom",
+    "firebug/lib/css",
     "ainspector/ainspectorWatcher",
     "ainspector/openajax_a11y/oaa_a11y_amd",
     "ainspector/ainspectorUtil",
@@ -32,7 +34,7 @@ define([
     "ainspector/highlighting/highlight"
   ],
   
-  function(FBL, FBTrace, Locale, AinspectorWatcher, OpenAjax, AinspectorUtil, AinspectorPreferences, OAA_WEB_ACCESSIBILITY) {
+  function(FBL, FBTrace, Locale, Dom, Css, AinspectorWatcher, OpenAjax, AinspectorUtil, AinspectorPreferences, OAA_WEB_ACCESSIBILITY) {
   
     var panelName = "ainspector";
   
@@ -56,7 +58,7 @@ define([
           FBTrace.sysout("AInspector; ainspectorModule.onSuspendFirebug;");
       },
 
-      // Called before any suspend actions. Firest caller to return true aborts suspend.
+      // Called before any suspend actions. First caller to return true aborts suspend.
       onSuspendingFirebug: function() {
 
         if (FBTrace.DBG_AINSPECTOR)
@@ -88,7 +90,7 @@ define([
       shutdown: function() {
   
         Firebug.ActivableModule.shutdown.apply(this, arguments);
-        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight();
+        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
         
         if (FBTrace.DBG_AINSPECTOR)
           FBTrace.sysout("AInspector; ainspectorModule.shutdown");
@@ -122,7 +124,7 @@ define([
         }
         if (is_my_extension) this.updateSelection();
         
-        else OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight();
+        else OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
           
         /* call FBL namespace function to hide the toolbar buttons if the selected panel is not my extensions panel*/
         Dom.collapse(my_extension_toolbar_buttons, !is_my_extension);
@@ -201,7 +203,7 @@ define([
         if (fbcontext !== Firebug.currentContext) {
           return;
         }
-//        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight();
+//        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
 
         AinspectorWatcher.onUnload();
       },
@@ -217,8 +219,42 @@ define([
         }
         if (already_selected_view != null) {
           for (var i=0; i<menu_items.length; i++) {
-            if (menu_items[i].id == already_selected_view) Firebug.AinspectorPanel.prototype[already_selected_view]();
+            
+            if (menu_items[i].id == already_selected_view) {
+            
+              Firebug.AinspectorPanel.prototype[already_selected_view]();
+              
+              FBTrace.sysout("AInspector; ainspectorModule.Firebug.AinspectorPanel:", Firebug.chrome.getSelectedPanel());
+              
+              if (AinspectorUtil.selected_row != null) {
+                FBTrace.sysout("AInspector; ainspectorModule.Firebug.AinspectorPanel.selected_row:", AinspectorUtil.selected_row );
+
+                var selected_panel_content =  Firebug.chrome.getSelectedPanel();
+                
+                
+                var table = Dom.getChildByClass(selected_panel_content.table, 'ai-table-list-items');
+                FBTrace.sysout("AInspector; ainspectorModule.Firebug.AinspectorPanel.table:", table);
+                
+                if (!table) table = Dom.getChildByClass(selected_panel_content, 'domTable');
+                
+                table.focus();
+                table.setAttribute("tabindex", "10");
+               /* var rows = table.rows;
+                
+                for (var j=0; j < rows.length; j++) {
+                  
+                  if (Css.hasClass(rows[j], 'gridRowSelected')) {
+                    FBTrace.sysout("row " + j, rows[j]);
+                    rows[j].setAttribute("tabindex", "3");
+                    rows[j].focus();
+                  }
+                }*/
+                
+                
+              }
+            }
           }
+          
         } else {
           var rule_obj = AinspectorWatcher.getRuleResultsObject();
           Firebug.AinspectorModule.AinspectorRulesTemplate.viewTag(rule_obj, 

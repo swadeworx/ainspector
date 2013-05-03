@@ -27,16 +27,20 @@ define([
   ],
   
   function(FBL, FBTrace, Locale, Dom, Domplate, Css, Arr, HeaderResizer, AinspectorPreferences, OAA_WEB_ACCESSIBILITY){
+    
     var preferences = AinspectorPreferences.getPreferences();
 
     var AinspectorUtil = {
-      selectedView : "onClickRulesMenuItem",
-      selected_row : null,
-      is_pass      : preferences.show_results_pass,
-      is_hidden    : preferences.show_results_hidden,
-      is_emc       : preferences.show_results_element_manual_checks,
-      is_pmc       : preferences.show_results_page_manual_checks
+      selectedView       : "onClickRulesMenuItem",
+      selected_row       : null,
+      is_pass            : preferences.show_results_pass,
+      is_hidden          : preferences.show_results_hidden,
+      is_emc             : preferences.show_results_element_manual_checks,
+      is_pmc             : preferences.show_results_page_manual_checks,
+      highlight_rules    : '', 
+      highlight_elements : ''
     };
+    
     /**
      * @function toHTMLPanel
      * 
@@ -173,11 +177,11 @@ define([
       for (var i=0; i< row.children.length; i++) {
         Css.setClass(row.children[i], "gridCellSelected");
       }
-//      FBTrace.sysout("row in highlight: ", row);
+      FBTrace.sysout("row in highlight: ", row);
       if (row.repObject.filtered_rule_result && row.repObject.filtered_rule_result.filtered_node_results) {
-        OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightNodeResults(row.repObject.filtered_rule_result.filtered_node_results);
+        OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightNodeResults(window.content.document, row.repObject.filtered_rule_result.filtered_node_results);
       } else {
-        OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems(row.repObject.cache_item_result);
+        OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems(window.content.document, row.repObject.cache_item_result.getCacheItem());
       }
     }
     
@@ -551,6 +555,30 @@ define([
 //      Store current state into the preferences.
         HeaderResizer.Preference.setPref("hiddenCols", ai_table.getAttribute("hiddenCols"));
        
+      },
+      
+      setHighlightOption : function(panel) {
+        
+        var summary_grid_div = Dom.getChildByClass(panel, "sGrid");
+        var highlight_options = Dom.getChildByClass(summary_grid_div, "highlight-option"); 
+        
+        FBTrace.sysout("highlight_options: ", highlight_options);
+        
+        for (var i=0; i < highlight_options.options.length; i++) {
+          
+          var id = highlight_options.options[i].id; 
+          
+          if (AinspectorUtil.highlight_rules != null) {
+            if (AinspectorUtil.highlight_rules.id == id) {
+              highlight_options.options[i].selected = true;
+              break;
+            } else {
+              highlight_options.options[i].selected = false;
+            }
+          }
+        }
+        
+        
       }
     };
     AinspectorUtil.isEmpty = function(object){
