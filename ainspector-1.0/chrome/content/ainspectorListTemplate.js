@@ -40,13 +40,13 @@ define([
            SPAN({class: "summaryTitle", style: "margin-left: 0.5em;"}, "$view"),
            DIV({class: "sGrid"},
       			 SPAN({style: "margin-left: 3.0em; color: gray;"}, "P"),
-      			 SPAN({class: "summaryGrid", style: "background-color: #B0E57C;"}, "  " + "$cache_results.passed_count" + "  "),
+      			 SPAN({class: "summaryGrid", style: "background-color: #B0E57C;"}, "  " + "$resultSummary.passed" + "  "),
       			 SPAN({style: "margin-left: 1.5em; color: gray;"}, " V"),
-      			 SPAN({class: "summaryGrid", style: "background-color: #FFAEAE;"}, "  " + "$cache_results.violations_count" + "  "),
+      			 SPAN({class: "summaryGrid", style: "background-color: #FFAEAE;"}, "  " + "$resultSummary.violations" + "  "),
       			 SPAN({style: "margin-left: 1.5em; color: gray;"}, " W"),
-             SPAN({class: "summaryGrid", style: "background-color: #FFEC94;"}, "  " + "$cache_results.warnings_count" + "  "),
+             SPAN({class: "summaryGrid", style: "background-color: #FFEC94;"}, "  " + "$resultSummary.warnings" + "  "),
              SPAN({style: "margin-left: 1.5em; color: gray;"}, " MC"),
-             SPAN({class: "summaryGrid", style: "background-color: #B4D8E7;"}, "  " + "$cache_results.manual_checks_count" + "   "),
+             SPAN({class: "summaryGrid", style: "background-color: #B4D8E7;"}, "  " + "$resultSummary.manual_checks" + "   "),
              
              SELECT({class: "highlight-option", style: "float:right;", id : "hihglight-options", name : "Highlight", onchange : "$onChangeOption"},
                OPTION({id: "all"}, "Selected Elements"),
@@ -95,7 +95,7 @@ define([
                ) //end TR
              ), //THEAD
              TBODY(
-               FOR("object", "$results",  
+               FOR("object", "$cache_item_list",  
                  TR({class: "$object|getRowClass tableRow gridRow", _repObject:"$object", onclick:"$highlightRow",
                    ondblclick:"$toHTMLPanel", "aria-selected" : "$object|getSelectedState", onfocus: "$onFocus",
                    tabindex: "-1"},
@@ -201,7 +201,7 @@ define([
              if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("Ainspector; node_results_list: ", node_results_list);
 
              if (node_results_list.cache_item_list.length > 0)
-              panel.table = this.tag.replace({results: node_results_list.cache_item_list, view:view, cache_results: cache_results}, panel.panelNode);
+              panel.table = this.tag.replace({cache_item_list: node_results_list.cache_item_list, view:view, resultSummary: cache_results.getResultSummary()}, panel.panelNode);
              else
                panel.table = AinspectorUtil.noDataView.tag.replace({view:view}, panel.panelNode);
              

@@ -40,16 +40,16 @@ define([
             SPAN({class: "summaryTitle", style: "margin-left: 0.5em;"}, "$view"),
             DIV({class: "sGrid"},
           		SPAN({style: "margin-left: 3.0em; color: gray;"}, "P"),
-          		SPAN({class: "summaryGrid", style: "background-color: #B0E57C"}, "  " + "$cache_results.passed_count" + "  "),
+          		SPAN({class: "summaryGrid", style: "background-color: #B0E57C"}, "  " + "$resultSummary.passed" + "  "),
           		SPAN({style: "margin-left: 1.5em; color: gray;"}, " V"),
-          		SPAN({class: "summaryGrid", style: "background-color: #FFAEAE;"}, "  " + "$cache_results.violations_count" + "  "),
+          		SPAN({class: "summaryGrid", style: "background-color: #FFAEAE;"}, "  " + "$resultSummary.violations" + "  "),
           		SPAN({style: "margin-left: 1.5em; color: gray;"}, " W"),
-          		SPAN({class: "summaryGrid", style: "background-color: #FFEC94;"}, "  " + "$cache_results.warnings_count" + "  "),
+          		SPAN({class: "summaryGrid", style: "background-color: #FFEC94;"}, "  " + "$resultSummary.warnings" + "  "),
           		SPAN({style: "margin-left: 1.5em; color: gray;"}, " MC"),
-          		SPAN({class: "summaryGrid", style: "background-color: #B4D8E7;"}, "  " + "$cache_results.manual_checks_count" + "   "),
+          		SPAN({class: "summaryGrid", style: "background-color: #B4D8E7;"}, "  " + "$resultSummary.manual_checks" + "   "),
               
-          		BUTTON({onclick: "$expandAll", style: "float:right;", _repObject: "$results"}, "Expand All"),
-          		BUTTON({onclick: "$collapseAllRows", style: "float:right;", _repObject: "$results"}, "Collapse All"),
+          		BUTTON({onclick: "$expandAll", style: "float:right;", _repObject: "$cache_item_list"}, "Expand All"),
+          		BUTTON({onclick: "$collapseAllRows", style: "float:right;", _repObject: "$cache_item_list"}, "Collapse All"),
           		SELECT({class: "highlight-option", style: "float:right;", id : "hihglight-options", name : "Highlight", onchange : "$onChangeOption"},
                 OPTION({id: "all"}, "Selected Elements"),
                 OPTION({id: "some"}, "V/W only"),
@@ -93,7 +93,7 @@ define([
                 ) //end TR
               ), //end THEAD
             TBODY(
-              FOR("member", "$results", TAG("$row", {member: "$member"}))
+              FOR("member", "$cache_item_list", TAG("$row", {member: "$member"}))
             )
            ) //end TABLE
           ),
@@ -213,10 +213,10 @@ define([
             var cache_item_results = cache_results.cache_item_results;
             var node_results = new OpenAjax.a11y.formatters.TreeViewOfFilteredCacheItemResults(cache_results);;
             
-            if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; AinspectorTreeTemplate.viewTag(cache_results): ", cache_results);
+            if (FBTrace.DBG_AINSPECTOR) {}FBTrace.sysout("AInspector; AinspectorTreeTemplate.viewTag(cache_results): ", cache_results);
             if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; AinspectorTreeTemplate.viewTag(node_results): ", node_results);
             if (node_results.cache_item_list.length > 0) { 
-              panel.table = this.tag.replace({results: node_results.cache_item_list, view:view, cache_results: cache_results}, panel.panelNode);
+              panel.table = this.tag.replace({cache_item_list: node_results.cache_item_list, view:view, resultSummary: cache_results.getResultSummary()}, panel.panelNode);
               this.expandAllRows(panel.table);
             } else {
               panel.table = AinspectorUtil.noDataView.tag.replace({view:view}, panel.panelNode);

@@ -41,13 +41,13 @@ define([
              SPAN({class: "summaryTitle", style: "margin-left: 0.5em;"}, "$view"), 
              DIV({},
              SPAN({style: "margin-left: 3.0em; color: gray;"}, "%P"),
-             SPAN({class: "summaryGrid", style: "background-color: #B0E57C"}, "$filtered_results.percent_passed"),
+             SPAN({class: "summaryGrid", style: "background-color: #B0E57C"}, "$resultSummary.percent_passed"),
              SPAN({style: "margin-left: 1.5em; color: gray;"}, " V"),
-             SPAN({class: "summaryGrid", style: "background-color: #FFAEAE;"}, "$filtered_results.violations_count"),
+             SPAN({class: "summaryGrid", style: "background-color: #FFAEAE;"}, "$resultSummary.violations"),
              SPAN({style: "margin-left: 1.5em; color: gray;"}, " W"),
-             SPAN({class: "summaryGrid", style: "background-color: #FFEC94;"}, "$filtered_results.warnings_count"),
+             SPAN({class: "summaryGrid", style: "background-color: #FFEC94;"}, "$resultSummary.warnings"),
              SPAN({style: "margin-left: 1.5em; color: gray;"}, " MC"),
-             SPAN({class: "summaryGrid", style: "background-color: #B4D8E7;"}, "$filtered_results.manual_checks_count"),
+             SPAN({class: "summaryGrid", style: "background-color: #B4D8E7;"}, "$resultSummary.manual_checks"),
              
              BUTTON({onclick: "$expandAll", style: "float:right;", _repObject: "$results"}, "Expand All"),
              BUTTON({onclick: "$collapseAllRows", style: "float:right;", _repObject: "$results"}, "Collapse All")
@@ -196,7 +196,6 @@ define([
             
                var filtered_results = rule_results.getFilteredRuleResultsByRuleSummary(rule_category, preferences.show_results_filter_value);
                if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; filtered_results: ", filtered_results);
-//               var rule_results_tree = filtered_results.createListOfRuleResults();
                var rule_results_tree = new OpenAjax.a11y.formatters.TreeViewOfFilteredRuleResultsGroups(filtered_results);
                if (panel)
                  Dom.clearNode(panel.panelNode);
@@ -204,7 +203,7 @@ define([
                panel.panelNode.id = "ainspector-panel";
                if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; rule_results_tree: ", rule_results_tree);
 
-               panel.table = this.tag.replace({results: rule_results_tree.rule_result_items, view:view, filtered_results: filtered_results}, panel.panelNode);
+               panel.table = this.tag.replace({results: rule_results_tree.rule_result_items, view:view, resultSummary: filtered_results.getResultSummary()}, panel.panelNode);
                
                this.expandAllRows(panel.table);
                AinspectorUtil.selectRow(panel.table, true, id);
