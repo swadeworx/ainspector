@@ -41,13 +41,13 @@ define([
           SPAN({class: "summaryTitle", style: "margin-left: 0.5em;"}, "$view"),
           DIV({class: "sGrid"},
             SPAN({style: "margin-left: 3.0em; color: gray;"}, "%P"),
-            SPAN({class: "summaryGrid", style: "background-color: #B0E57C;"}, "$category_rule_results.percent_passed"),
+            SPAN({class: "summaryGrid", style: "background-color: #B0E57C;"}, "$resultSummary.percent_passed"),
             SPAN({style: "margin-left: 1.5em; color: gray;"}, " V"),
-            SPAN({class: "summaryGrid", style: "background-color: #FFAEAE;"}, "$category_rule_results.violations_count"),
+            SPAN({class: "summaryGrid", style: "background-color: #FFAEAE;"}, "$resultSummary.violations"),
             SPAN({style: "margin-left: 1.5em; color: gray;"}, " W"),
-            SPAN({class: "summaryGrid", style: "background-color: #FFEC94;"}, "$category_rule_results.warnings_count"),
+            SPAN({class: "summaryGrid", style: "background-color: #FFEC94;"}, "$resultSummary.warnings"),
             SPAN({style: "margin-left: 1.5em; color: gray;"}, " MC"),
-            SPAN({class: "summaryGrid", style: "background-color: #B4D8E7;"}, "$category_rule_results.manual_checks_count"),
+            SPAN({class: "summaryGrid", style: "background-color: #B4D8E7;"}, "$resultSummary.manual_checks"),
             SELECT({class: "highlight-option", style: "float:right;", id : "hihglight-options", name : "Highlight", onchange : "$onChangeOption"},
               OPTION({id: "all"}, "All Elements"),
               OPTION({id: "some"}, "V/W only"),
@@ -90,7 +90,7 @@ define([
               )
             ), //end THEAD
             TBODY({class: ""},
-              FOR("object", "$results",
+              FOR("object", "$rule_result_items",
                  
                 TR({class: "tableRow gridRow", _repObject:"$object", onclick: "$highlightRule",
                  role: "row", "aria-selected" : "$object|getSelectedState", onfocus: "$onFocus",
@@ -177,10 +177,11 @@ define([
            
            panel.panelNode.id = "ainspector-panel"; 
 
-           var category_rule_results = rule_results.getFilteredRuleResultsByRuleCategory(rule_category, preferences.show_results_filter_value);
-           var rule_results_list = new OpenAjax.a11y.formatters.TreeViewOfFilteredRuleResultsGroup(category_rule_results);
+           var filteredRuleResults = rule_results.getFilteredRuleResultsByRuleCategory(rule_category, preferences.show_results_filter_value);
+           var ruleResultsList = new OpenAjax.a11y.formatters.TreeViewOfFilteredRuleResultsGroup(filteredRuleResults);
            
-           panel.table = this.tag.replace({results: rule_results_list.rule_result_items, view:view, category_rule_results: category_rule_results }, panel.panelNode);
+           FBTrace.sysout('filteredRuleResults: ', filteredRuleResults.getResultSummary());
+           panel.table = this.tag.replace({rule_result_items: ruleResultsList.rule_result_items, view:view, resultSummary: filteredRuleResults.getResultSummary() }, panel.panelNode);
 
            AinspectorUtil.contextMenu.setTableMenuItems(panel.table);
            AinspectorUtil.contextMenu.setHighlightOption(panel.table);
