@@ -217,7 +217,9 @@ define([
           FBTrace.sysout("AInspector; ainspectorModule.already_selected_view:"+ already_selected_view);
           FBTrace.sysout("AInspector; ainspectorModule.Firebug.AinspectorPanel.prototype:", Firebug.AinspectorPanel.prototype);
         }
+        
         if (already_selected_view != null) {
+        
           for (var i=0; i<menu_items.length; i++) {
             
             if (menu_items[i].id == already_selected_view) {

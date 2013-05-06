@@ -49,11 +49,11 @@ define([
             SPAN({style: "margin-left: 1.5em; color: gray;"}, " MC"),
             SPAN({class: "summaryGrid", style: "background-color: #B4D8E7;"}, "$resultSummary.manual_checks"),
             SELECT({class: "highlight-option", style: "float:right;", id : "hihglight-options", name : "Highlight", onchange : "$onChangeOption"},
-              OPTION({id: "all"}, "All Elements"),
-              OPTION({id: "some"}, "V/W only"),
-              OPTION({id: "none"}, "None")
+              OPTION({id: "all"}, Locale.$STR("ainspector.mainpanel.highlight.options.all")),
+              OPTION({id: "some"}, Locale.$STR("ainspector.mainpanel.highlight.options.vw")),
+              OPTION({id: "none"}, Locale.$STR("ainspector.mainpanel.highlight.options.none"))
             ),
-            SPAN({style: "float:right; margin-right: 0.8em; color: black; font-weight: normal;"}, " Highlight: ")
+            SPAN({title: Locale.$STR("ainspector.mainpanel.highlight"), style: "float:right; margin-right: 0.8em; color: black; font-weight: normal;"}, " Highlight: ")
           ),
           TABLE({class: "ai-table-list-items", id: "ai-table-list-items", cellpadding: 0, cellspacing: 0, hiddenCols: "",
            role: "grid", "aria-selected" : "true", tabindex: "0", onkeypress: "$onKeyPressGrid"},
