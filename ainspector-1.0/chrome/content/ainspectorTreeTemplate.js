@@ -50,13 +50,13 @@ define([
               
           		BUTTON({onclick: "$expandAll", style: "float:right;", _repObject: "$cache_item_list"}, "Expand All"),
           		BUTTON({onclick: "$collapseAllRows", style: "float:right;", _repObject: "$cache_item_list"}, "Collapse All"),
-          		SELECT({class: "highlight-option", style: "float:right;", id : "hihglight-options", name : "Highlight", onchange : "$onChangeOption"},
-                OPTION({id: "all"}, "Selected Elements"),
-                OPTION({id: "some"}, "V/W only"),
-                OPTION({id: "none"}, "None")
+        		  SELECT({class: "highlight-option", style: "float:right;", id : "hihglight-options", name : "Highlight", onchange : "$onChangeOption"},
+                OPTION({id: "all"}, Locale.$STR("ainspector.mainpanel.highlight.options.selected")),
+                OPTION({id: "some"}, Locale.$STR("ainspector.mainpanel.highlight.options.vw")),
+                OPTION({id: "none"}, Locale.$STR("ainspector.mainpanel.highlight.options.none"))
               ),
-              SPAN({style: "float:right; margin-right: 0.8em; color: black; font-weight: normal;"}, " Highlight: ")
-          	),
+              SPAN({title: Locale.$STR("ainspector.mainpanel.highlight"), style: "float:right; margin-right: 0.8em; color: black; font-weight: normal;"}, " Highlight: ")
+            ),
             TABLE({class: "domTable", cellpadding: 0, cellspacing: 0, hiddenCols: "", onclick:"$toggleRows",
               "aria-selected" : "true", tabindex: "0", onkeypress: "$onKeyPressGrid"},
               THEAD(

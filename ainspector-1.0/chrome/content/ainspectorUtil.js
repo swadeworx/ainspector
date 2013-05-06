@@ -178,10 +178,33 @@ define([
         Css.setClass(row.children[i], "gridCellSelected");
       }
       FBTrace.sysout("row in highlight: ", row);
-      if (row.repObject.filtered_rule_result && row.repObject.filtered_rule_result.filtered_node_results) {
-        OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightNodeResults(window.content.document, row.repObject.filtered_rule_result.filtered_node_results);
+
+//    Check which highlight option is selected in the panel and call initHighlight of highlight module.
+      var panel =  Firebug.chrome.getSelectedPanel();
+      var summary_grid = Dom.getChildByClass(panel.table, 'sGrid');
+      var highlight_options = Dom.getChildByClass(summary_grid, 'highlight-option');
+      
+//    Call initHighlight() only if V/W only option is selected to avoid the emc, pmc, pass and hidden elements by highlighting 
+      if (highlight_options.selectedIndex == 1)  
+        OAA_WEB_ACCESSIBILITY.util.highlightModule.initHighlight(false, false, false, false);
+      else OAA_WEB_ACCESSIBILITY.util.highlightModule.initHighlight(preferences.show_results_element_manual_checks,
+          preferences.show_results_page_manual_checks, 
+          preferences.show_results_pass,
+          preferences.show_results_hidden);
+              
+      FBTrace.sysout("highlight_options: ", highlight_options);
+
+      if (highlight_options.selectedIndex == 2) {
+        
+        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
+        
       } else {
-        OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems(window.content.document, row.repObject.cache_item_result.getCacheItem());
+        
+        if (row.repObject.filtered_rule_result && row.repObject.filtered_rule_result.filtered_node_results) {
+          OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightNodeResults(window.content.document, row.repObject.filtered_rule_result.filtered_node_results);
+        } else {
+          OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems(window.content.document, row.repObject.cache_item_result.getCacheItem());
+        }
       }
     }
     
