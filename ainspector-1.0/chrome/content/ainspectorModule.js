@@ -226,20 +226,21 @@ define([
             
               Firebug.AinspectorPanel.prototype[already_selected_view]();
               
-              FBTrace.sysout("AInspector; ainspectorModule.Firebug.AinspectorPanel:", Firebug.chrome.getSelectedPanel());
+              FBTrace.sysout("AInspector; ainspectorModule.Firebug.currentContext:", Firebug.currentContext);
               
               if (AinspectorUtil.selected_row != null) {
                 FBTrace.sysout("AInspector; ainspectorModule.Firebug.AinspectorPanel.selected_row:", AinspectorUtil.selected_row );
 
                 var selected_panel_content =  Firebug.chrome.getSelectedPanel();
-                
+                FBTrace.sysout("AInspector; ainspectorModule.Firebug.AinspectorPanel.selected_panel focus:"+ Firebug.chrome.hasFocus());
+
                 
                 var table = Dom.getChildByClass(selected_panel_content.table, 'ai-table-list-items');
                 FBTrace.sysout("AInspector; ainspectorModule.Firebug.AinspectorPanel.table:", table);
                 
                 if (!table) table = Dom.getChildByClass(selected_panel_content, 'domTable');
                 
-                table.focus();
+//                table.focus();
                 table.setAttribute("tabindex", "10");
                /* var rows = table.rows;
                 
