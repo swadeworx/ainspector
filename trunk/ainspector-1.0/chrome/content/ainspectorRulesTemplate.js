@@ -247,13 +247,18 @@ define([
            var target = event.target;
            var option_selected = target.options[target.selectedIndex];
            AinspectorUtil.highlight_rules = option_selected;
+           AinspectorUtil.updateHighlightingonBrowser(target.selectedIndex);
+           
          },
          
          getSelectedOption : function(id){
            FBTrace.sysout("getSelectedOption: ", id);
 
            if (AinspectorUtil.highlight_rules != null) {
-             if (AinspectorUtil.highlight_rules.id == id) return 'selected';
+             if (AinspectorUtil.highlight_rules.id == id) {
+               
+               return 'selected';
+             }
            }
          }
       });

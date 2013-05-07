@@ -49,9 +49,9 @@ define([
              SPAN({style: "margin-left: 1.5em; color: gray;"}, " MC"),
              SPAN({class: "summaryGrid", style: "background-color: #B4D8E7;"}, "$resultSummary.manual_checks"),
              
-             BUTTON({onclick: "$expandAll", style: "float:right;", _repObject: "$results"}, "Expand All"),
-             BUTTON({onclick: "$collapseAllRows", style: "float:right;", _repObject: "$results"}, "Collapse All"),
-             SELECT({class: "highlight-option", style: "float:right;", id : "hihglight-options", name : "Highlight", onchange : "$onChangeOption"},
+               BUTTON({onclick: "$expandAll", style: "float:right;", _repObject: "$results"}, "Expand All"),
+               BUTTON({onclick: "$collapseAllRows", style: "float:right;", _repObject: "$results"}, "Collapse All"),
+               SELECT({class: "highlight-option", style: "float:right;", id : "hihglight-options", name : "Highlight", onchange : "$onChangeOption"},
                  OPTION({id: "all"}, "Selected Elements"),
                  OPTION({id: "some"}, "V/W only"),
                  OPTION({id: "none"}, "None")
@@ -404,6 +404,7 @@ define([
               var target = event.target;
               var option_selected = target.options[target.selectedIndex];
               AinspectorUtil.highlight_rules = option_selected;
+              AinspectorUtil.updateHighlightingonBrowser(target.selectedIndex);
             }
             
       });
