@@ -256,88 +256,82 @@ define([
       if  (AinspectorUtil.selected_row != null &&
           AinspectorUtil.selectedView == view) {
         
-        var selected_row = AinspectorUtil.selected_row;
-        var rows = null;
+      var selected_row = AinspectorUtil.selected_row;
+      var rows = null;
+      var table = Dom.getChildByClass(panel, "domTable");
 
-        var table = Dom.getChildByClass(panel, "domTable");
-        if (!table) table = Dom.getChildByClass(panel, "ai-table-list-items");
+      if (!table) table = Dom.getChildByClass(panel, "ai-table-list-items");
+      rows = table.children[1].children;
+      var row = null;
+      var i = 0;
         
-//        if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; AinspectorUtil.selectRow-table: ", table);
-        
-        rows = table.children[1].children;
-        
-//        if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; AinspectorUtil.selectRow-rows: ", rows);
-        
-        var row = null;
-        var i = 0;
-        
-        for (i; i < rows.length; i++) {
-          row = rows[i];
-          var flag = false;
-          var obj = row.repObject;
+      for (i; i < rows.length; i++) {
+        row = rows[i];
+        var flag = false;
+        var obj = row.repObject;
 
-          if (is_a_tree == true) {
-          	var srow = selected_row.repObject;
-          	
-        	  if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; AinspectorUtil.selectRow-obj: ", obj);
-        	  if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; AinspectorUtil.selectRow-srow: ", srow);
-          	
-        	  if (obj.summary && srow.summary && obj.summary == srow.summary) {
-        	    this.highlight(row);
-              flag = true;
-        	  } else if (srow.cache_id && obj.filtered_rule_result && srow.cache_id == obj.filtered_rule_result.cache_id) {
-        	    this.highlight(row);
-              flag = true;
-            } else if (obj.cache_item_result && srow.cache_item_result && 
-          	    obj.cache_item_result.cache_item.toString() == srow.cache_item_result.cache_item.toString()
-          				&& obj.cache_item_result.cache_item.document_order == srow.cache_item_result.cache_item.document_order) {
-          			this.highlight(row);
-          			flag = true;
-        		} else {
-        		  if (obj.rule_result && srow.rule_result && 
-        		       obj.rule_result.cache_id == srow.rule_result.cache_id) {
-        		    this.highlight(row);
-        		    flag = true;
-        		  } 
-        		}
-          } else { //flat list
-            var citem = null;
-            var sitem = null;
+        if (is_a_tree == true) {
+        	var srow = selected_row.repObject;
+        	
+      	  if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; AinspectorUtil.selectRow-obj: ", obj);
+      	  if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; AinspectorUtil.selectRow-srow: ", srow);
+        	
+      	  if (obj.summary && srow.summary && obj.summary == srow.summary) {
+      	    this.highlight(row);
+            flag = true;
+      	  } else if (srow.cache_id && obj.filtered_rule_result && srow.cache_id == obj.filtered_rule_result.cache_id) {
+      	    this.highlight(row);
+            flag = true;
+          } else if (obj.cache_item_result && srow.cache_item_result && 
+        	    obj.cache_item_result.cache_item.toString() == srow.cache_item_result.cache_item.toString()
+        				&& obj.cache_item_result.cache_item.document_order == srow.cache_item_result.cache_item.document_order) {
+        			this.highlight(row);
+        			flag = true;
+      		} else {
+      		  if (obj.rule_result && srow.rule_result && 
+      		       obj.rule_result.cache_id == srow.rule_result.cache_id) {
+      		    this.highlight(row);
+      		    flag = true;
+      		  } 
+      		}
+        } else { //flat list
+          var citem = null;
+          var sitem = null;
 //            FBTrace.sysout("row: ", row);
 //            FBTrace.sysout("selected_row:", selected_row);
-            
+          
 //            citem = row.repObject.cache_item_result ? row.repObject.cache_item_result.cache_item : row.repObject.filtered_rule_result.cache_id;
+          
+          
+          if (row.repObject.cache_item_result) citem = row.repObject.cache_item_result.cache_item;
+          else if (row.repObject.filtered_rule_result) citem = row.repObject.filtered_rule_result.cache_id;
+          else citem = row.repObject.rule_result.cache_id;
             
-            
-            if (row.repObject.cache_item_result) citem = row.repObject.cache_item_result.cache_item;
-            else if (row.repObject.filtered_rule_result) citem = row.repObject.filtered_rule_result.cache_id;
-            else citem = row.repObject.rule_result.cache_id;
-              
 //            sitem = selected_row.repObject.cache_item_result ? selected_row.repObject.cache_item_result.cache_item : selected_row.repObject.filtered_rule_result.cache_id;
-            
-            if (selected_row.repObject.cache_item_result) sitem = selected_row.repObject.cache_item_result.cache_item;
-            else if (selected_row.repObject.filtered_rule_result) sitem = selected_row.repObject.filtered_rule_result.cache_id;
-            else sitem = selected_row.repObject.rule_result.cache_id;
-            
+          
+          if (selected_row.repObject.cache_item_result) sitem = selected_row.repObject.cache_item_result.cache_item;
+          else if (selected_row.repObject.filtered_rule_result) sitem = selected_row.repObject.filtered_rule_result.cache_id;
+          else sitem = selected_row.repObject.rule_result.cache_id;
+          
 //            FBTrace.sysout("citem: ", citem);
 //            FBTrace.sysout("sitem:", sitem);
-            
-            if (typeof citem === 'object' && typeof sitem === 'object') {
-              if (row.children[0].textContent == selected_row.children[0].textContent &&
-                  (citem.document_order && citem.document_order == sitem.document_order)) {
-               this.highlight(table.children[1].children[i]);
-               flag = true;
-               break; }
-            } else {
-              if(typeof citem === 'string' && typeof sitem === 'string' && citem == sitem) {
-                  this.highlight(table.children[1].children[i]);
-                  flag = true;
-                  break; 
-              }
-            }
-          } //end if-else for flat list
           
-          if (flag) break;
+          if (typeof citem === 'object' && typeof sitem === 'object') {
+            if (row.children[0].textContent == selected_row.children[0].textContent &&
+                (citem.document_order && citem.document_order == sitem.document_order)) {
+             this.highlight(table.children[1].children[i]);
+             flag = true;
+             break; }
+          } else {
+            if(typeof citem === 'string' && typeof sitem === 'string' && citem == sitem) {
+                this.highlight(table.children[1].children[i]);
+                flag = true;
+                break; 
+            }
+          }
+        } //end if-else for flat list
+        
+        if (flag) break;
         } //end FOR
         
       } else {
