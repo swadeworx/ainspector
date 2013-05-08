@@ -49,8 +49,8 @@ define([
              SPAN({style: "margin-left: 1.5em; color: gray;"}, " MC"),
              SPAN({class: "summaryGrid", style: "background-color: #B4D8E7;"}, "$resultSummary.manual_checks"),
              
-               BUTTON({onclick: "$expandAll", style: "float:right;", _repObject: "$results"}, "Expand All"),
-               BUTTON({onclick: "$collapseAllRows", style: "float:right;", _repObject: "$results"}, "Collapse All"),
+               BUTTON({onclick: "$expandAll", style: "float:right;", _repObject: "$rule_result_items"}, "Expand All"),
+               BUTTON({onclick: "$collapseAllRows", style: "float:right;", _repObject: "$rule_result_items"}, "Collapse All"),
                SELECT({class: "highlight-option", style: "float:right;", id : "hihglight-options", name : "Highlight", onchange : "$onChangeOption"},
                  OPTION({id: "all"}, "Selected Elements"),
                  OPTION({id: "some"}, "V/W only"),
@@ -93,7 +93,7 @@ define([
                    ) //end TR
              ), //end THEAD
              TBODY(
-               FOR("member", "$results", TAG("$row", {member: "$member"}))
+               FOR("member", "$rule_result_items", TAG("$row", {member: "$member"}))
              )
            )//end TABLE
          ), //end DIV
@@ -106,7 +106,7 @@ define([
                  DIV({class: "$member.container|getClassName", title : "$member.summary", style: "font-weight: normal;margin-left:0.5em;"}, "$member.summary")
                ),
                TD({class: "memberLabelCell", id: "gridRequiredCol"}, 
-            		 DIV({class: "gridContent gridAlign $member.required|getStyleOnRequired"}, "$member.required|getText")
+            		 DIV({class: "gridContent gridAlign $member|getStyleOnRequired"}, "$member|getRuleRequired")
                ),
                TD({class: "memberLabelCell", id: "gridLevelCol"},
                  DIV({style:"font-weight:normal; text-align: center;" }, "$member.wcag20_level_label")
@@ -155,9 +155,11 @@ define([
             	 else return "grayStyle";
              },
              
-             getStyleOnRequired : function(required) {
-            	 
-            	 if (required == 'na') return "grayStyle";
+             getStyleOnRequired : function(member) {
+               
+//               var required = (typeof(member.isRuleRequired()) == 'function') ? memeber.isRuleRequired() : 'na';
+               
+            	 if (member == 'na') return "grayStyle";
              },
              
              loop:
@@ -170,10 +172,11 @@ define([
             	 return level+'px';
              },  
              
-             getText :function(text){
-            	
-            	 if (typeof text === 'string') return text;
-            	 else return " ";
+             getRuleRequired : function(m) {
+               
+               if (m.required) return m.required;
+               else return '';
+                 
              },
              
              /**
@@ -207,9 +210,9 @@ define([
                  Dom.clearNode(panel.panelNode);
                
                panel.panelNode.id = "ainspector-panel";
-               if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; rule_results_tree: ", rule_results_tree);
+               if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; rule_results_tree: ", rule_results_tree.rule_result_items);
 
-               panel.table = this.tag.replace({results: rule_results_tree.rule_result_items, view:view, resultSummary: filtered_results.getResultSummary()}, panel.panelNode);
+               panel.table = this.tag.replace({rule_result_items: rule_results_tree.rule_result_items, view:view, resultSummary: filtered_results.getResultSummary()}, panel.panelNode);
                
                this.expandAllRows(panel.table);
                AinspectorUtil.selectRow(panel.table, true, id);
