@@ -611,7 +611,7 @@ define([
             } else {
               highlight_options.options[i].selected = false;
             }
-          }
+          } 
         }
         
         
