@@ -155,8 +155,6 @@ define(
           
           if (location_href == AinspectorWatcher.top_location_href) {
             FBTrace.sysout('onStateChange () location_href: ' + location_href + "..." + AinspectorWatcher.top_location_href);
-            FBTrace.sysout("Firebug: ", Firebug);
-            
             var result_obj = AinspectorWatcher.getRuleResultsObject();
             return result_obj;
           }

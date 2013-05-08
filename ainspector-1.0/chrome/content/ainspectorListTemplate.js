@@ -276,8 +276,6 @@ define([
     		   },
     		   
     		   onChangeOption : function(event) {
-             FBTrace.sysout("event in onChangeOption: ", event);
-             
              var target = event.target;
              var option_selected = target.options[target.selectedIndex];
              AinspectorUtil.highlight_rules = option_selected;

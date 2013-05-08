@@ -77,7 +77,6 @@ define(
   		 	
     	  var event_target = event.target;    
   		 	if (!event_target) return;            
-  		 	FBTrace.sysout("event.target: ",event.target);
   		 	 var table = Dom.getAncestorByClass(event_target, "ai-table-list-items");
   		 	 if (!table) table = Dom.getAncestorByClass(event_target, "domTable");
   		 	 var rows = table.rows;
@@ -94,7 +93,6 @@ define(
          event_target.setAttribute("tabindex", "0");   
          Css.setClass(event_target, "selected");
          
-         FBTrace.sysout("After setclass: ", event_target);
  		  },
  		  
       /**
@@ -110,9 +108,6 @@ define(
         var table = Dom.getChildByClass(main_panel, "ai-table-list-items");
         if (!table) table = Dom.getChildByClass(main_panel, "domTable");
         
-        FBTrace.sysout("event.keycode:" + event.keyCode);
-        FBTrace.sysout("event:", event);
-
         switch(event.keyCode) {
             
           case KeyEvent.DOM_VK_LEFT: //  
@@ -228,7 +223,6 @@ define(
             break;
             
           case KeyEvent.DOM_VK_RETURN:
-            FBTrace.sysout(" KeyEvent.DOM_VK_RETURN"+ KeyEvent.DOM_VK_RETURN);
             var lastChild = event.target.lastElementChild;
             if ( lastChild && lastChild.id == 'gridHTMLCol') AinspectorUtil.toHTMLPanel(event);
             event.stopPropagation();
@@ -250,10 +244,6 @@ define(
           var table = Dom.getChildByClass(main_panel, "ai-table-list-items");
           if (!table) table = Dom.getChildByClass(main_panel, "domTable");
           
-          FBTrace.sysout("event.keycode:" + event.keyCode);
-          FBTrace.sysout("event:", event);
-          FBTrace.sysout(" KeyEvent.DOM_VK_ENTER"+ KeyEvent.DOM_VK_ENTER);
-
           switch(event.keyCode) {
               
             case KeyEvent.DOM_VK_LEFT: //  
@@ -281,12 +271,9 @@ define(
               var key = event.keyCode;
               var forward = key == KeyEvent.DOM_VK_RIGHT || key == KeyEvent.DOM_VK_DOWN;            
               var all_rows = table.getElementsByClassName("gridRow");
-              FBTrace.sysout("-------------all_rows--------------- ", all_rows);
 
               var current_index = Array.indexOf(all_rows, event.target);
               var index = Array.indexOf(all_rows, event.target);
-
-              FBTrace.sysout("AInspector; keyboardSupport.onKeyPressGrid.current_index: "+ current_index);
 
               var new_index;
               var flag = false;
@@ -300,23 +287,18 @@ define(
                   
                   new_index = forward ? ++i : --i;  
                   new_index = new_index < 0 ? all_rows.length -1 : (new_index >= all_rows.length ? 0 : new_index);
-                  FBTrace.sysout("-----------new_index----------------- "+ new_index);
                   flag = true;
                   break;
                 }
               }
               
-              FBTrace.sysout("AInspector; table: "+ table.tabIndex);
               if (table.tabIndex == 0) {
                 table.setAttribute('tabindex', '-1');
                 
-                
                 if (flag) {
                   table.rows[0].setAttribute('tabindex', '-1');
-                
                 } else {
                   Css.setClass(table.rows[0], "headerRowSelected");
-                  
                   table.rows[0].setAttribute('tabindex', '0');
                   table.rows[0].focus();
                   var side_panel = Firebug.chrome.getSelectedSidePanel();
@@ -324,11 +306,7 @@ define(
                   break;
                 }
                 
-                
               }  
-              
-//              if (FBTrace.DBG_AINSPECTOR) {}
-              
               if (current_index != -1) {
                  
                 if (!flag) {
@@ -383,7 +361,6 @@ define(
               break;
               
             case KeyEvent.DOM_VK_RETURN:
-              FBTrace.sysout(" KeyEvent.DOM_VK_RETURN"+ KeyEvent.DOM_VK_RETURN);
               var lastChild = event.target.lastElementChild;
               if ( lastChild && lastChild.id == 'gridHTMLCol') AinspectorUtil.toHTMLPanel(event);
                 

@@ -177,9 +177,8 @@ define([
       for (var i=0; i< row.children.length; i++) {
         Css.setClass(row.children[i], "gridCellSelected");
       }
-      FBTrace.sysout("row in highlight: ", row);
 
-//    Check which highlight option is selected in the panel and call initHighlight of highlight module.
+      //    Check which highlight option is selected in the panel and call initHighlight of highlight module.
       var panel =  Firebug.chrome.getSelectedPanel();
       var summary_grid = Dom.getChildByClass(panel.table, 'sGrid');
       var highlight_options = Dom.getChildByClass(summary_grid, 'highlight-option');
@@ -192,18 +191,19 @@ define([
           preferences.show_results_pass,
           preferences.show_results_hidden);
               
-      FBTrace.sysout("highlight_options: ", highlight_options);
-
+      var doc = window.content.document;
       if (highlight_options.selectedIndex == 2) {
         
-        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
+        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(doc);
         
       } else {
         
         if (row.repObject.filtered_rule_result && row.repObject.filtered_rule_result.filtered_node_results) {
-          OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightNodeResults(window.content.document, row.repObject.filtered_rule_result.filtered_node_results);
+          OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightNodeResults(doc, row.repObject.filtered_rule_result.filtered_node_results);
+        } else if (row.repObject.filtered_rule_results_group){
+          OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightNodeResults(doc, row.repObject.filtered_rule_results_group.filtered_node_results);
         } else {
-          OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems(window.content.document, row.repObject.cache_item_result.getCacheItem());
+          OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems(doc, row.repObject.cache_item_result.getCacheItem());
         }
       }
     }
@@ -297,24 +297,14 @@ define([
         } else { //flat list
           var citem = null;
           var sitem = null;
-//            FBTrace.sysout("row: ", row);
-//            FBTrace.sysout("selected_row:", selected_row);
-          
-//            citem = row.repObject.cache_item_result ? row.repObject.cache_item_result.cache_item : row.repObject.filtered_rule_result.cache_id;
-          
           
           if (row.repObject.cache_item_result) citem = row.repObject.cache_item_result.cache_item;
           else if (row.repObject.filtered_rule_result) citem = row.repObject.filtered_rule_result.cache_id;
           else citem = row.repObject.rule_result.cache_id;
             
-//            sitem = selected_row.repObject.cache_item_result ? selected_row.repObject.cache_item_result.cache_item : selected_row.repObject.filtered_rule_result.cache_id;
-          
           if (selected_row.repObject.cache_item_result) sitem = selected_row.repObject.cache_item_result.cache_item;
           else if (selected_row.repObject.filtered_rule_result) sitem = selected_row.repObject.filtered_rule_result.cache_id;
           else sitem = selected_row.repObject.rule_result.cache_id;
-          
-//            FBTrace.sysout("citem: ", citem);
-//            FBTrace.sysout("sitem:", sitem);
           
           if (typeof citem === 'object' && typeof sitem === 'object') {
             if (row.children[0].textContent == selected_row.children[0].textContent &&
@@ -381,8 +371,8 @@ define([
       var headerRow = thead.firstChild;
       var tbody = table.lastChild;
       
-      if(FBTrace.DBG_AINSPECTOR)
-        FBTrace.sysout("Ainspector; AinspectorUtil.sort");
+      if(FBTrace.DBG_AINSPECTOR) FBTrace.sysout("Ainspector; AinspectorUtil.sort");
+      
       // Remove class from the currently sorted column
       var headerSorted = Dom.getChildByClass(headerRow, "gridHeaderSorted");
       Css.removeClass(headerSorted, "gridHeaderSorted");
@@ -490,8 +480,6 @@ define([
     
             var column_name = columnContent.textContent;
             	
-            FBTrace.sysout("column_name: " + column_name);
-            
             if (column_name == 'Rules' || column_name == 'Rules' || column_name == 'Required' || column_name == 'Level' 
             	|| column_name == 'V'  || column_name == 'Element' || column_name == 'goto') {
             } else {
@@ -611,8 +599,6 @@ define([
         
         var summary_grid_div = Dom.getChildByClass(panel, "sGrid");
         var highlight_options = Dom.getChildByClass(summary_grid_div, "highlight-option"); 
-        
-        FBTrace.sysout("highlight_options: ", highlight_options);
         
         for (var i=0; i < highlight_options.options.length; i++) {
           

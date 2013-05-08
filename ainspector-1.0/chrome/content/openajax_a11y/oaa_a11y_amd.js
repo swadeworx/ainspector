@@ -48,7 +48,17 @@ var OpenAjax = OpenAjax || {};
  */
 
 OpenAjax.a11y = OpenAjax.a11y || {};
-OpenAjax.a11y.VERSION = "2.0.2a";
+OpenAjax.a11y.VERSION = "2.0.3a";
+
+/**
+ * @method getVersion
+ *
+ * @memberOf OpenAjax.a11y
+ *
+ * @desc Get the current version of the evaluation library, rules and rulesets
+ *
+ * @return  {String}  Returns the version number of the evaluation library
+ */
 
 OpenAjax.a11y.getVersion = function () {
   return OpenAjax.a11y.VERSION;
@@ -947,13 +957,13 @@ OpenAjax.a11y.FILTERED_RULE_RESULT_RETURN_VALUE = OpenAjax.a11y.FILTERED_RULE_RE
 
 
 if (typeof OpenAjax.a11y.aria == "undefined") {
-	OpenAjax.a11y.aria = {
-			
-		/*
-		 * array of WAI-ARIA global states and properties
-		 * @see http://www.w3.org/TR/wai-aria/#global_states
-		 */
-		globalProperties : [
+  OpenAjax.a11y.aria = {
+      
+    /*
+     * array of WAI-ARIA global states and properties
+     * @see http://www.w3.org/TR/wai-aria/#global_states
+     */
+    globalProperties : [
             "aria-atomic", 
             "aria-busy", 
             "aria-controls", 
@@ -971,129 +981,129 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
             "aria-owns", 
             "aria-relevant"
         ],
-	
+  
         /*
          * XSD data types for all WAI-ARIA properties
          * along with valid values when the data type is NMTOKEN
          */
         propertyDataTypes : {
-         	"aria-activedescendant" : {
-         		type : "idref"
-         	},
-         	"aria-atomic" : {
-         		type : "boolean"
-         	},
-         	"aria-autocomplete" : {
-         		type : "nmtoken",
-         		values : ["inline", "list", "both", "none"]
-         	},
-         	"aria-busy" : {
-         		type : "boolean"
-         	},
-         	"aria-checked" : {
-         		type : "nmtoken",
-         		values : ["true", "false", "mixed", "undefined"]
-         	},
-         	"aria-controls" : {
-         		type : "idrefs"
-         	},
-         	"aria-describedby" : {
-         		type : "idrefs"
-         	},
-         	"aria-disabled" : {
-         		type : "boolean"
-         	},
-         	"aria-dropeffect" : {
-         		type : "nmtokens",
-         		values : ["copy", "move", "link", "execute", "popup", "none"]
-         	},
-         	"aria-expanded" : {
-         		type : "nmtoken",
-         		values : ["true", "false", "undefined"]
-         	},
-         	"aria-flowto" : {
-         		type : "idrefs"
-         	},
-         	"aria-grabbed" : {
-         		type : "nmtoken",
-         		values : ["true", "false", "undefined"]
-         	},
-         	"aria-haspopup" : {
-         		type : "boolean"
-         	},
-         	"aria-hidden" : {
-         		type : "boolean"
-         	},
-         	"aria-invalid" : {
-         		type : "nmtoken",
-         		values : ["true", "false", "spelling", "grammar"]
-         	},
-         	"aria-label" : {
-         		type : "string"
-         	},
-         	"aria-labelledby" : {
-         		type : "idrefs"
-         	},
-         	"aria-level" : {
-         		type : "integer"
-         	},
-         	"aria-live" : {
-         		type : "nmtoken",
-         		values : ["off", "polite", "assertive"]
-         	},
-         	"aria-multiline" : {
-         		type : "boolean"
-         	},
-         	"aria-multiselectable" : {
-         		type : "boolean"
-         	},
-         	"aria-orientation" : {
-         		type : "nmtoken",
-         		values : ["vertical", "horizontal"]
-         	},
-         	"aria-owns" : {
-         		type : "idrefs"
-         	},
-         	"aria-posinset" : {
-         		type : "integer"
-         	},
-         	"aria-pressed" : {
-         		type : "nmtoken",
-         		values : ["true", "false", "mixed", "undefined"]
-         	},
-         	"aria-readonly" : {
-         		type : "boolean"
-         	},
-         	"aria-relevant" : {
-         		type : "nmtokens",
-         		values : ["additions", "removals", "text", "all"]
-         	},
-         	"aria-required" : {
-         		type : "boolean"
-         	},
-         	"aria-selected" : {
-         		type : "nmtoken",
-         		values : ["true", "false", "undefined"]
-         	},
-         	"aria-setsize" : {
-         		type : "integer"
-         	},
-         	"aria-sort" : {
-         		type : "nmtoken",
-         		values : ["ascending", "descending", "other", "none"]
-         	},
-         	"aria-valuemax" : {
-         		type : "decimal"
-         	},
-         	"aria-valuemin" : {
-         		type : "decimal"
-         	},
-         	"aria-valuenow" : {
-         		type : "decimal"
-         	},
-         	"aria-valuetext" : {
-         		type : "string"
-         	}
+          "aria-activedescendant" : {
+            type : "idref"
+          },
+          "aria-atomic" : {
+            type : "boolean"
+          },
+          "aria-autocomplete" : {
+            type : "nmtoken",
+            values : ["inline", "list", "both", "none"]
+          },
+          "aria-busy" : {
+            type : "boolean"
+          },
+          "aria-checked" : {
+            type : "nmtoken",
+            values : ["true", "false", "mixed", "undefined"]
+          },
+          "aria-controls" : {
+            type : "idrefs"
+          },
+          "aria-describedby" : {
+            type : "idrefs"
+          },
+          "aria-disabled" : {
+            type : "boolean"
+          },
+          "aria-dropeffect" : {
+            type : "nmtokens",
+            values : ["copy", "move", "link", "execute", "popup", "none"]
+          },
+          "aria-expanded" : {
+            type : "nmtoken",
+            values : ["true", "false", "undefined"]
+          },
+          "aria-flowto" : {
+            type : "idrefs"
+          },
+          "aria-grabbed" : {
+            type : "nmtoken",
+            values : ["true", "false", "undefined"]
+          },
+          "aria-haspopup" : {
+            type : "boolean"
+          },
+          "aria-hidden" : {
+            type : "boolean"
+          },
+          "aria-invalid" : {
+            type : "nmtoken",
+            values : ["true", "false", "spelling", "grammar"]
+          },
+          "aria-label" : {
+            type : "string"
+          },
+          "aria-labelledby" : {
+            type : "idrefs"
+          },
+          "aria-level" : {
+            type : "integer"
+          },
+          "aria-live" : {
+            type : "nmtoken",
+            values : ["off", "polite", "assertive"]
+          },
+          "aria-multiline" : {
+            type : "boolean"
+          },
+          "aria-multiselectable" : {
+            type : "boolean"
+          },
+          "aria-orientation" : {
+            type : "nmtoken",
+            values : ["vertical", "horizontal"]
+          },
+          "aria-owns" : {
+            type : "idrefs"
+          },
+          "aria-posinset" : {
+            type : "integer"
+          },
+          "aria-pressed" : {
+            type : "nmtoken",
+            values : ["true", "false", "mixed", "undefined"]
+          },
+          "aria-readonly" : {
+            type : "boolean"
+          },
+          "aria-relevant" : {
+            type : "nmtokens",
+            values : ["additions", "removals", "text", "all"]
+          },
+          "aria-required" : {
+            type : "boolean"
+          },
+          "aria-selected" : {
+            type : "nmtoken",
+            values : ["true", "false", "undefined"]
+          },
+          "aria-setsize" : {
+            type : "integer"
+          },
+          "aria-sort" : {
+            type : "nmtoken",
+            values : ["ascending", "descending", "other", "none"]
+          },
+          "aria-valuemax" : {
+            type : "decimal"
+          },
+          "aria-valuemin" : {
+            type : "decimal"
+          },
+          "aria-valuenow" : {
+            type : "decimal"
+          },
+          "aria-valuetext" : {
+            type : "string"
+          }
         },
         
         /*
@@ -1128,698 +1138,698 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
            * - roleType: one of widget, landmark, or null 
            */
         designPatterns : {
-         		
-         	"alert" : {
-         		reqName : false,
-         		container : null,
-         		props : ["aria-expanded"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		roleType : "live"     		
-         	},
-         	                
-         	"alertdialog" : {
-         		reqName : true,
-         		container : null,
-         		props : ["aria-expanded"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		supportOnClick: true,
-         		roleType : "widget"
-         	},
-         	
-         	"application" : {
-         		reqName : true,
-         		container : null,
-         		props : ["aria-expanded"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		roleType : "landmark"
-         	},
-         	
-         	"article" : {
-         		reqName : false,
-         		container : null,
-         		props : ["aria-expanded"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null,
-          		nameFromContent: false,
-         		roleType : "section"
-        	},
-         	
-         	"banner" : {
-         		reqName : false,
-         		container : null,
-         		props : ["aria-expanded"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		roleType : "landmark"
-         	},
-         	
-         	"button" : {
-         		reqName : true,
-         		container : null,
-         		props : ["aria-expanded", "aria-pressed"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : "input[@type='button']",
-         		nameFromContent: true,
-         		supportOnClick: true,
-         		roleType : "widget"
-         	},
-         	
-         	"checkbox" : {
-         		reqName : true,
-         		container : null,
-         		props : null,
-         		reqProps : ["aria-checked"],
-         		reqChildren : null,
-         		htmlEquiv : "input[@type='checkbox']",
-         		nameFromContent: true,
-         		supportOnClick: true,
-         		roleType : "widget"
-         	},
-         	
+            
+          "alert" : {
+            reqName : false,
+            container : null,
+            props : ["aria-expanded"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: false,
+            roleType : "live"         
+          },
+                          
+          "alertdialog" : {
+            reqName : true,
+            container : null,
+            props : ["aria-expanded"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: false,
+            supportOnClick: true,
+            roleType : "widget"
+          },
+          
+          "application" : {
+            reqName : true,
+            container : null,
+            props : ["aria-expanded"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: false,
+            roleType : "landmark"
+          },
+          
+          "article" : {
+            reqName : false,
+            container : null,
+            props : ["aria-expanded"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : null,
+              nameFromContent: false,
+            roleType : "section"
+          },
+          
+          "banner" : {
+            reqName : false,
+            container : null,
+            props : ["aria-expanded"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: false,
+            roleType : "landmark"
+          },
+          
+          "button" : {
+            reqName : true,
+            container : null,
+            props : ["aria-expanded", "aria-pressed"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : "input[@type='button']",
+            nameFromContent: true,
+            supportOnClick: true,
+            roleType : "widget"
+          },
+          
+          "checkbox" : {
+            reqName : true,
+            container : null,
+            props : null,
+            reqProps : ["aria-checked"],
+            reqChildren : null,
+            htmlEquiv : "input[@type='checkbox']",
+            nameFromContent: true,
+            supportOnClick: true,
+            roleType : "widget"
+          },
+          
              "columnheader" : {
-         		reqName : true,
-         		container : ["row"],
-         		props : ["aria-expanded", "aria-sort", "aria-readonly", "aria-selected", "aria-required"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : "th",
-         		nameFromContent: true,
-         		roleType : "section"
-         	},
-         	
-         	"combobox" : {
-         		reqName : true,
-         		container : null,
-         		props : ["aria-autocomplete", "aria-required", "aria-activedescendant"],
-         		reqProps : ["aria-expanded"],
-         		reqChildren : ["listbox", "textbox"],
-         		htmlEquiv : "select",
-         		nameFromContent: false,
-         		roleType : "widget"
-         	},
-         	
-         	"complementary" : {
-         		reqName : false,
-         		container : null,
-         		props : ["aria-expanded"],
-         		reqProps : ["aria-labelledby"],
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		roleType : "landmark"
-         	},
-         	
-         	"contentinfo" : {
-         		reqName : false,
-         		container : null,
-         		props : ["aria-expanded"],
-         		reqProps : ["aria-labelledby"],
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		roleType : "landmark"
-         	},
-         	
-         	"definition" : {
-         		reqName : false,
-         		container : null,
-         		props : ["aria-expanded"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		roleType : "section"
-         	},
-         	
-         	"dialog" : {
-         		reqName : true,
-         		container : null,
-         		props : ["aria-expanded"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		roleType : "widget"
-         	},
-         	
-         	"directory" : {
-         		reqName : false,
-         		container : null,
-         		props : ["aria-expanded"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: true,
-         		roleType : "section"
-         	},
-         	
-         	"document" : {
-         		reqName : true,
-         		container : null,
-         		props : ["aria-expanded"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null,
-          		nameFromContent: false,
-         		roleType : "section"
-        	},
-         	
-         	"form" : {
-         		reqName : false,
-         		container : null,
-         		props : ["aria-expanded"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : "form",
-         		nameFromContent: false,
-         		roleType : "landmark"
-         	},	
-         	
-         	"grid" : {
-         		reqName : true,
-         		container : null,
-         		props : ["aria-level", "aria-multiselectable", "aria-readonly", "aria-activedescendant", "aria-expanded"],
-         		reqProps : null,
-         		reqChildren : ["row", "rowgroup"],
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		roleType : "widget"
-         	},
-         	
-         	"gridcell" : {
-         		reqName : true,
-         		container : ["row"],
-         		props : ["aria-readonly", "aria-selected", "aria-expanded", "aria-required"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: true,
-         		roleType : "widget"         		
-         	},
-         	
-         	"group" : {
-         		reqName : false,
-         		container : null,
-         		props : ["aria-activedescendant", "aria-expanded"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : "fieldset",
-         		nameFromContent: false,
-         		roleType : "section"         		
-         	},
-         	
-         	"heading" : {
-         		reqName : true,
-         		container : null,
-         		props : ["aria-level", "aria-expanded"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : "h1 | h2 | h3 | h4 | h5 |h6",
-         		nameFromContent: true,
-         		roleType : "section"         		
-         	},
-         	
-         	"img" : {
-         		reqName : true,
-         		container : null,
-         		props : ["aria-expanded"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : "img",
-         		nameFromContent: false,
-         		roleType : "section"         		
-         	},
-         	
-         	"link" : {
-         		reqName : true,
-         		container : null,
-         		props : null,
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : "a",
-         		nameFromContent: true,
-         		supportOnClick: true,
-         		roleType : "widget"
-         	},
-         	
-         	"list" : {
-         		reqName : false,
-         		container : null,
-         		props : ["aria-expanded"],
-         		reqProps : null,
-         		reqChildren : ["group", "listitem"],
-         		htmlEquiv : "ul | ol",
-         		nameFromContent: false,
-         		roleType : "section"
-         	},
-         	
-         	"listbox" : {
-         		reqName : true,
-         		container : null,
-         		props : ["aria-expanded", "aria-activedescendant", "aria-multiselectable", "aria-required"],
-         		reqProps : null,
-         		reqChildren : ["option"],
-         		htmlEquiv : "select",
-         		nameFromContent: false,
-         		supportOnClick: true,
-         		roleType : "widget"
-         	},
-         	
-         	"listitem" : {
-         		reqName : true,
-         		container : ["list"],
-         		props : ["aria-expanded", "aria-level", "aria-posinset", "aria-setsize"],
-         		reqProps : null,
-         		reqChildren : null,
-         		nameFromContent: true,
-         		htmlEquiv : "section",
-         		supportOnClick: true,
-         		roleType : "widget"
-         	},
-         	
-         	"log" : {
-         		reqName : false,
-         		container : null,
-         		props : ["aria-expanded"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		roleType : "live"
-         	},
-         	
-         	"main" : {
-         		reqName : false,
-         		container : null,
-         		props : ["aria-expanded"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		roleType : "landmark"
-         	},
-         	
-         	"marquee" : {
-         		reqName : true,
-         		container : null,
-         		props : ["aria-expanded"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		roleType : "section"
-         	},
-         	
-         	"math" : {
-         		reqName : false,
-         		container : null,
-         		props : ["aria-expanded"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		roleType : "widget"
-         	},
-         	
-         	"menu" : {
-         		reqName : true,
-         		container : null,
-         		props : ["aria-expanded", "aria-activedescendant"],
-         		reqProps : null,
-         		reqChildren : ["menuitem", "menuitemcheckbox", "menuitemradio"],
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		supportOnClick: true,
-         		roleType : "widget"
-         	},
-         	
-         	"menubar" : {
-         		reqName : false,
-         		container : null,
-         		props : ["aria-activedescendant", "aria-expanded"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		supportOnClick: true,
-         		roleType : "widget"
-         	},
-         	
-         	"menuitem" : {
-         		reqName : true,
-         		container : ["menu", "menubar"],
-         		props : null,
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: true,
-         		supportOnClick: true,
-         		roleType : "widget"
-         	},
-         	
-         	"menuitemcheckbox" : {
-         		reqName : true,
-         		container : ["menu", "menubar"],
-         		props : null,
-         		reqProps : ["aria-checked"],
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: true,
-         		supportOnClick: true,
-         		roleType : "widget"
-         	},
-         	
-         	"menuitemradio" : {
-         		reqName : true,
-         		container : ["menu", "menubar"],
-         		props : ["aria-selected", "aria-posinset", "aria-setsize"],
-         		reqProps : ["aria-checked"],
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: true,
-         		supportOnClick: true,
-         		roleType : "widget"
-         	},
-         	
-         	"navigation" : {
-         		reqName : false,
-         		container : null,
-         		props : ["aria-expanded"],
-         		reqProps : ["aria-labelledby"],
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		roleType : "landmark"
-         	},
-         	
-         	"note" : {
-         		reqName : false,
-         		container : null,
-         		props : ["aria-expanded"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		roleType : "section"
-         	},
-         	
-         	"option" : {
-         		reqName : true,
-         		container : ["listbox"],
-         		props : ["aria-expanded", "aria-checked", "aria-selected", "aria-posinset", "aria-setsize"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: true,
-         		supportOnClick: true,
-         		roleType : "widget"
-         	},
-         	
-         	"presentation" : {
-         		reqName : false,
-         		container : null,
-         		props : null,
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		roleType : "section"
-         	},
-         	
-         	"progressbar" : {
-         		reqName : true,
-         		container : null,
-         		props : ["aria-valuetext", "aria-valuenow", "aria-valuemax", "aria-valuemin"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		roleType : "widget",
-         		hasRange: true
-         	},
-         	
-         	"radio" : {
-         		reqName : true,
-         		container : null,
-         		props : ["aria-selected", "aria-posinset", "aria-setsize"],
-         		reqProps : ["aria-checked"],
-         		reqChildren : null,
-         		htmlEquiv : "input[@type='radio']",
-         		nameFromContent: true,
-         		supportOnClick: true,
-         		roleType : "widget"
-         	},
-         	
-         	"radiogroup" : {
-         		reqName : true,
-         		container : null,
-         		props : ["aria-activedescendant", "aria-expanded", "aria-required"],
-         		reqProps : ["aria-labelledby"],
-         		reqChildren : ["radio"],
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		supportOnClick: true,
-         		roleType : "widget"
-         	},
-         	
-         	"region" : {
-         		reqName : false,
-         		container : null,
-         		props : ["aria-expanded"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : "frame",
-         		nameFromContent: false,
-         		roleType : "landmark"
-         	},
-         	
-         	"row" : {
-         		reqName : false,
-         		container : ["grid", "treegrid", "rowgroup"],
-         		props : ["aria-level", "aria-selected", "aria-activedescendant", "aria-expanded"],
-         		reqProps : null,
-         		reqChildren : ["gridcell", "rowheader", "columnheader"],
-         		htmlEquiv : null,
-         		nameFromContent: true,
-         		roleType : "section"
-         	},
-         	
-         	"rowgroup" : {
-         		reqName : false,
-         		container : ["grid"],
-         		props : ["aria-expanded", "aria-activedescendant"],
-         		reqProps : null,
-         		reqChildren : ["row"],
-         		htmlEquiv : null,
-         		nameFromContent: true,
-         		roleType : "section"
-         	},
-         	
-         	"rowheader" : {
-         		reqName : true,
-         		container : ["row"],
-         		props : ["aria-expanded", "aria-sort", "aria-required", "aria-readonly", "aria-selected"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : "th",
-         		nameFromContent: true,
-         		roleType : "section"
-         	},
-         	
-         	"scrollbar" : {
-         		reqName : true,
-         		container : null,
-         		props : ["aria-valuetext"],
-         		reqProps : ["aria-controls", "aria-orientation", "aria-valuenow", "aria-valuemax", "aria-valuemin"],
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		roleType : "widget",
-         		hasRange: true
-         	},
-         	
-         	"search" : {
-         		reqName : false,
-         		container : null,
-         		props : ["aria-expanded"],
-         		reqProps : ["aria-labelledby"],
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		roleType : "landmark"
-         	},
-         	
-         	"separator" : {
-         		reqName : false,
-         		container : null,
-         		props : ["aria-expanded", "aria-orientation"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		roleType : "section"
-         	},
-         	
-         	"slider" : {
-         		reqName : true,
-         		container : null,
-         		props : ["aria-orientation", "aria-valuetext"],
-         		reqProps : ["aria-valuemax", "aria-valuenow", "aria-valuemin"],
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		roleType : "widget",
-         		hasRange: true
-         	},
-         	
-         	"spinbutton" : {
-         		reqName : true,
-         		container : null,
-         		props : ["aria-required", "aria-valuetext"],
-         		reqProps : ["aria-valuemax", "aria-valuenow", "aria-valuemin"],
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		roleType : "widget",
-         		hasRange: true
-         	},
-         	
-         	"status" : {
-         		reqName : false,
-         		container : null,
-         		props : ["aria-expanded"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		roleType : "live"
-         	},
-         	
-         	"tab" : {
-         		reqName : true, // bug in authoring spec??
-         		container : ["tablist"],
-         		props : ["aria-selected", "aria-expanded"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: true,
-         		roleType : "widget"
-         	},
-         	
-         	"tablist" : {
-         		reqName : false,
-         		container : null,
-         		props : ["aria-activedescendant", "aria-expanded", "aria-level"],
-         		reqProps : null,
-         		reqChildren : ["tab"],
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		roleType : "widget"
-         	},
-         	
-         	"tabpanel" : {
-         		reqName : true,
-         		container : null,
-         		props : ["aria-expanded"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		roleType : "widget"
-         	},
-         	
-         	"textbox" : {
-         		reqName : true,
-         		container : null,
-         		props : ["aria-activedescendant", "aria-autocomplete", "aria-multiline", "aria-readonly", "aria-required"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : "input[@type='text'] | textarea",
-         		nameFromContent: false,
-         		roleType : "widget"
-         	},
-         	
-         	"timer" : {
-         		reqName : true,
-         		container : null,
-         		props : ["aria-expanded"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		roleType : "live"
-         	},
-         	
-         	"toolbar" : {
-         		reqName : false,
-         		container : null,
-         		props : ["aria-activedescendant", "aria-expanded"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		supportOnClick: true,
-         		roleType : "widget"
-         	},
-         	
-         	"tooltip" : {
-         		reqName : true,
-         		container : null,
-         		props : ["aria-expanded"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		roleType : "widget"
-         	},
-         	
-         	"tree" : {
-         		reqName : true,
-         		container : null,
-         		props : ["aria-multiselectable", "aria-activedescendant", "aria-expanded", "aria-required"],
-         		reqProps : null,
-         		reqChildren : ["group", "treeitem"],
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		roleType : "widget"
-         	},
-         	
-         	"treegrid" : {
-         		reqName : true,
-         		container : null,
-         		props : ["aria-activedescendant", "aria-expanded", "aria-level", "aria-multiselectable", "aria-readonly", "aria-required"],
-         		reqProps : null,
-         		reqChildren : ["row"],
-         		htmlEquiv : null,
-         		nameFromContent: false,
-         		roleType : "section"
-         	},
-         	
-         	"treeitem" : {
-         		reqName : true,
-         		container : ["group", "tree"],
-         		props : ["aria-checked", "aria-selected", "aria-expanded", "aria-level", "aria-posinset", "aria-setsize"],
-         		reqProps : null,
-         		reqChildren : null,
-         		htmlEquiv : null,
-         		nameFromContent: true,
-         		supportOnClick: true,
-         		roleType : "widget"
+            reqName : true,
+            container : ["row"],
+            props : ["aria-expanded", "aria-sort", "aria-readonly", "aria-selected", "aria-required"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : "th",
+            nameFromContent: true,
+            roleType : "section"
+          },
+          
+          "combobox" : {
+            reqName : true,
+            container : null,
+            props : ["aria-autocomplete", "aria-required", "aria-activedescendant"],
+            reqProps : ["aria-expanded"],
+            reqChildren : ["listbox", "textbox"],
+            htmlEquiv : "select",
+            nameFromContent: false,
+            roleType : "widget"
+          },
+          
+          "complementary" : {
+            reqName : false,
+            container : null,
+            props : ["aria-expanded"],
+            reqProps : ["aria-labelledby"],
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: false,
+            roleType : "landmark"
+          },
+          
+          "contentinfo" : {
+            reqName : false,
+            container : null,
+            props : ["aria-expanded"],
+            reqProps : ["aria-labelledby"],
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: false,
+            roleType : "landmark"
+          },
+          
+          "definition" : {
+            reqName : false,
+            container : null,
+            props : ["aria-expanded"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: false,
+            roleType : "section"
+          },
+          
+          "dialog" : {
+            reqName : true,
+            container : null,
+            props : ["aria-expanded"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: false,
+            roleType : "widget"
+          },
+          
+          "directory" : {
+            reqName : false,
+            container : null,
+            props : ["aria-expanded"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: true,
+            roleType : "section"
+          },
+          
+          "document" : {
+            reqName : true,
+            container : null,
+            props : ["aria-expanded"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : null,
+              nameFromContent: false,
+            roleType : "section"
+          },
+          
+          "form" : {
+            reqName : false,
+            container : null,
+            props : ["aria-expanded"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : "form",
+            nameFromContent: false,
+            roleType : "landmark"
+          },  
+          
+          "grid" : {
+            reqName : true,
+            container : null,
+            props : ["aria-level", "aria-multiselectable", "aria-readonly", "aria-activedescendant", "aria-expanded"],
+            reqProps : null,
+            reqChildren : ["row", "rowgroup"],
+            htmlEquiv : null,
+            nameFromContent: false,
+            roleType : "widget"
+          },
+          
+          "gridcell" : {
+            reqName : true,
+            container : ["row"],
+            props : ["aria-readonly", "aria-selected", "aria-expanded", "aria-required"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: true,
+            roleType : "widget"             
+          },
+          
+          "group" : {
+            reqName : false,
+            container : null,
+            props : ["aria-activedescendant", "aria-expanded"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : "fieldset",
+            nameFromContent: false,
+            roleType : "section"            
+          },
+          
+          "heading" : {
+            reqName : true,
+            container : null,
+            props : ["aria-level", "aria-expanded"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : "h1 | h2 | h3 | h4 | h5 |h6",
+            nameFromContent: true,
+            roleType : "section"            
+          },
+          
+          "img" : {
+            reqName : true,
+            container : null,
+            props : ["aria-expanded"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : "img",
+            nameFromContent: false,
+            roleType : "section"            
+          },
+          
+          "link" : {
+            reqName : true,
+            container : null,
+            props : null,
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : "a",
+            nameFromContent: true,
+            supportOnClick: true,
+            roleType : "widget"
+          },
+          
+          "list" : {
+            reqName : false,
+            container : null,
+            props : ["aria-expanded"],
+            reqProps : null,
+            reqChildren : ["group", "listitem"],
+            htmlEquiv : "ul | ol",
+            nameFromContent: false,
+            roleType : "section"
+          },
+          
+          "listbox" : {
+            reqName : true,
+            container : null,
+            props : ["aria-expanded", "aria-activedescendant", "aria-multiselectable", "aria-required"],
+            reqProps : null,
+            reqChildren : ["option"],
+            htmlEquiv : "select",
+            nameFromContent: false,
+            supportOnClick: true,
+            roleType : "widget"
+          },
+          
+          "listitem" : {
+            reqName : true,
+            container : ["list"],
+            props : ["aria-expanded", "aria-level", "aria-posinset", "aria-setsize"],
+            reqProps : null,
+            reqChildren : null,
+            nameFromContent: true,
+            htmlEquiv : "section",
+            supportOnClick: true,
+            roleType : "widget"
+          },
+          
+          "log" : {
+            reqName : false,
+            container : null,
+            props : ["aria-expanded"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: false,
+            roleType : "live"
+          },
+          
+          "main" : {
+            reqName : false,
+            container : null,
+            props : ["aria-expanded"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: false,
+            roleType : "landmark"
+          },
+          
+          "marquee" : {
+            reqName : true,
+            container : null,
+            props : ["aria-expanded"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: false,
+            roleType : "section"
+          },
+          
+          "math" : {
+            reqName : false,
+            container : null,
+            props : ["aria-expanded"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: false,
+            roleType : "widget"
+          },
+          
+          "menu" : {
+            reqName : true,
+            container : null,
+            props : ["aria-expanded", "aria-activedescendant"],
+            reqProps : null,
+            reqChildren : ["menuitem", "menuitemcheckbox", "menuitemradio"],
+            htmlEquiv : null,
+            nameFromContent: false,
+            supportOnClick: true,
+            roleType : "widget"
+          },
+          
+          "menubar" : {
+            reqName : false,
+            container : null,
+            props : ["aria-activedescendant", "aria-expanded"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: false,
+            supportOnClick: true,
+            roleType : "widget"
+          },
+          
+          "menuitem" : {
+            reqName : true,
+            container : ["menu", "menubar"],
+            props : null,
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: true,
+            supportOnClick: true,
+            roleType : "widget"
+          },
+          
+          "menuitemcheckbox" : {
+            reqName : true,
+            container : ["menu", "menubar"],
+            props : null,
+            reqProps : ["aria-checked"],
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: true,
+            supportOnClick: true,
+            roleType : "widget"
+          },
+          
+          "menuitemradio" : {
+            reqName : true,
+            container : ["menu", "menubar"],
+            props : ["aria-selected", "aria-posinset", "aria-setsize"],
+            reqProps : ["aria-checked"],
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: true,
+            supportOnClick: true,
+            roleType : "widget"
+          },
+          
+          "navigation" : {
+            reqName : false,
+            container : null,
+            props : ["aria-expanded"],
+            reqProps : ["aria-labelledby"],
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: false,
+            roleType : "landmark"
+          },
+          
+          "note" : {
+            reqName : false,
+            container : null,
+            props : ["aria-expanded"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: false,
+            roleType : "section"
+          },
+          
+          "option" : {
+            reqName : true,
+            container : ["listbox"],
+            props : ["aria-expanded", "aria-checked", "aria-selected", "aria-posinset", "aria-setsize"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: true,
+            supportOnClick: true,
+            roleType : "widget"
+          },
+          
+          "presentation" : {
+            reqName : false,
+            container : null,
+            props : null,
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: false,
+            roleType : "section"
+          },
+          
+          "progressbar" : {
+            reqName : true,
+            container : null,
+            props : ["aria-valuetext", "aria-valuenow", "aria-valuemax", "aria-valuemin"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: false,
+            roleType : "widget",
+            hasRange: true
+          },
+          
+          "radio" : {
+            reqName : true,
+            container : null,
+            props : ["aria-selected", "aria-posinset", "aria-setsize"],
+            reqProps : ["aria-checked"],
+            reqChildren : null,
+            htmlEquiv : "input[@type='radio']",
+            nameFromContent: true,
+            supportOnClick: true,
+            roleType : "widget"
+          },
+          
+          "radiogroup" : {
+            reqName : true,
+            container : null,
+            props : ["aria-activedescendant", "aria-expanded", "aria-required"],
+            reqProps : ["aria-labelledby"],
+            reqChildren : ["radio"],
+            htmlEquiv : null,
+            nameFromContent: false,
+            supportOnClick: true,
+            roleType : "widget"
+          },
+          
+          "region" : {
+            reqName : false,
+            container : null,
+            props : ["aria-expanded"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : "frame",
+            nameFromContent: false,
+            roleType : "landmark"
+          },
+          
+          "row" : {
+            reqName : false,
+            container : ["grid", "treegrid", "rowgroup"],
+            props : ["aria-level", "aria-selected", "aria-activedescendant", "aria-expanded"],
+            reqProps : null,
+            reqChildren : ["gridcell", "rowheader", "columnheader"],
+            htmlEquiv : null,
+            nameFromContent: true,
+            roleType : "section"
+          },
+          
+          "rowgroup" : {
+            reqName : false,
+            container : ["grid"],
+            props : ["aria-expanded", "aria-activedescendant"],
+            reqProps : null,
+            reqChildren : ["row"],
+            htmlEquiv : null,
+            nameFromContent: true,
+            roleType : "section"
+          },
+          
+          "rowheader" : {
+            reqName : true,
+            container : ["row"],
+            props : ["aria-expanded", "aria-sort", "aria-required", "aria-readonly", "aria-selected"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : "th",
+            nameFromContent: true,
+            roleType : "section"
+          },
+          
+          "scrollbar" : {
+            reqName : true,
+            container : null,
+            props : ["aria-valuetext"],
+            reqProps : ["aria-controls", "aria-orientation", "aria-valuenow", "aria-valuemax", "aria-valuemin"],
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: false,
+            roleType : "widget",
+            hasRange: true
+          },
+          
+          "search" : {
+            reqName : false,
+            container : null,
+            props : ["aria-expanded"],
+            reqProps : ["aria-labelledby"],
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: false,
+            roleType : "landmark"
+          },
+          
+          "separator" : {
+            reqName : false,
+            container : null,
+            props : ["aria-expanded", "aria-orientation"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: false,
+            roleType : "section"
+          },
+          
+          "slider" : {
+            reqName : true,
+            container : null,
+            props : ["aria-orientation", "aria-valuetext"],
+            reqProps : ["aria-valuemax", "aria-valuenow", "aria-valuemin"],
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: false,
+            roleType : "widget",
+            hasRange: true
+          },
+          
+          "spinbutton" : {
+            reqName : true,
+            container : null,
+            props : ["aria-required", "aria-valuetext"],
+            reqProps : ["aria-valuemax", "aria-valuenow", "aria-valuemin"],
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: false,
+            roleType : "widget",
+            hasRange: true
+          },
+          
+          "status" : {
+            reqName : false,
+            container : null,
+            props : ["aria-expanded"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: false,
+            roleType : "live"
+          },
+          
+          "tab" : {
+            reqName : true, // bug in authoring spec??
+            container : ["tablist"],
+            props : ["aria-selected", "aria-expanded"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: true,
+            roleType : "widget"
+          },
+          
+          "tablist" : {
+            reqName : false,
+            container : null,
+            props : ["aria-activedescendant", "aria-expanded", "aria-level"],
+            reqProps : null,
+            reqChildren : ["tab"],
+            htmlEquiv : null,
+            nameFromContent: false,
+            roleType : "widget"
+          },
+          
+          "tabpanel" : {
+            reqName : true,
+            container : null,
+            props : ["aria-expanded"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: false,
+            roleType : "widget"
+          },
+          
+          "textbox" : {
+            reqName : true,
+            container : null,
+            props : ["aria-activedescendant", "aria-autocomplete", "aria-multiline", "aria-readonly", "aria-required"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : "input[@type='text'] | textarea",
+            nameFromContent: false,
+            roleType : "widget"
+          },
+          
+          "timer" : {
+            reqName : true,
+            container : null,
+            props : ["aria-expanded"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: false,
+            roleType : "live"
+          },
+          
+          "toolbar" : {
+            reqName : false,
+            container : null,
+            props : ["aria-activedescendant", "aria-expanded"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: false,
+            supportOnClick: true,
+            roleType : "widget"
+          },
+          
+          "tooltip" : {
+            reqName : true,
+            container : null,
+            props : ["aria-expanded"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: false,
+            roleType : "widget"
+          },
+          
+          "tree" : {
+            reqName : true,
+            container : null,
+            props : ["aria-multiselectable", "aria-activedescendant", "aria-expanded", "aria-required"],
+            reqProps : null,
+            reqChildren : ["group", "treeitem"],
+            htmlEquiv : null,
+            nameFromContent: false,
+            roleType : "widget"
+          },
+          
+          "treegrid" : {
+            reqName : true,
+            container : null,
+            props : ["aria-activedescendant", "aria-expanded", "aria-level", "aria-multiselectable", "aria-readonly", "aria-required"],
+            reqProps : null,
+            reqChildren : ["row"],
+            htmlEquiv : null,
+            nameFromContent: false,
+            roleType : "section"
+          },
+          
+          "treeitem" : {
+            reqName : true,
+            container : ["group", "tree"],
+            props : ["aria-checked", "aria-selected", "aria-expanded", "aria-level", "aria-posinset", "aria-setsize"],
+            reqProps : null,
+            reqChildren : null,
+            htmlEquiv : null,
+            nameFromContent: true,
+            supportOnClick: true,
+            roleType : "widget"
             }
-         	
+          
         }, // end designPatterns
         
         getRoleObject : function(role) {
@@ -1844,7 +1854,7 @@ if (typeof OpenAjax.a11y.aria == "undefined") {
           return null;
         }
         
-    };	    
+    };      
     
 }
 /**
@@ -2142,7 +2152,7 @@ OpenAjax.a11y.util.RGBToHEX = function( rgb_color ) {
  */
 
 // string utilities
-	
+  
 /**
  * @function normalizeSpace
  * @memberOf String
@@ -11210,6 +11220,7 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.updateCacheItems = function
 
         this.dom_cache.getNameFromARIALabel(me);
 
+        this.addLandmarkElement(me);
         this.addMainElement(me);  
 
         if (landmark_info.landmark_element) {
@@ -11314,7 +11325,7 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.updateCacheItems = function
     
     
     
-    // elements that do contain rendered content without having child dom text nodes
+    // elements that contain rendered content without having child dom text nodes
     if ((tag_name == 'area')     ||
         (tag_name == 'canvas')   ||
         (tag_name == 'input')    ||
@@ -11323,6 +11334,9 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.updateCacheItems = function
         (tag_name == 'select')) {
         
       this.elements_with_content.push(dom_element);
+      
+      if (dom_element.parent_landmark) dom_element.parent_landmark.addToElementCount(1); 
+      
       return li;
     }  
 
@@ -11332,6 +11346,11 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.updateCacheItems = function
         (tag_name == 'object')) {
       dom_element.may_have_renderable_content = true;  
       this.elements_with_content.push(dom_element);
+      
+//      OpenAjax.a11y.logger.debug("Parent Element: " +  dom_element.parent_landmark + " (" + dom_element + ")");
+
+      if (dom_element.parent_landmark) dom_element.parent_landmark.addToElementCount(1); 
+      
       return li;
     }  
 
@@ -11345,6 +11364,11 @@ OpenAjax.a11y.cache.HeadingsLandmarksCache.prototype.updateCacheItems = function
         tag_name != 'style'  &&
         dom_element.text_length) {
       this.elements_with_content.push(dom_element);
+
+//      OpenAjax.a11y.logger.debug("Parent Element: " +  dom_element.parent_landmark + " (" + dom_element + ")");
+
+      if (dom_element.parent_landmark) dom_element.parent_landmark.addToElementCount(1); 
+
     }  
   }
   
@@ -11574,6 +11598,8 @@ OpenAjax.a11y.cache.LandmarkElement = function (dom_element, parent_landmark) {
   this.computed_label_source          = OpenAjax.a11y.SOURCE.NONE;
   this.computed_label_for_comparison  = "";
   this.accessible_name                = "";
+  
+  this.elements_with_content_count = 0;
 
 };
 
@@ -11609,6 +11635,82 @@ OpenAjax.a11y.cache.LandmarkElement.prototype.addChildElement = function (child_
 OpenAjax.a11y.cache.LandmarkElement.prototype.getNodeResults = function () {
   return this.dom_element.getNodeResults();
 };
+
+/**
+ * @method addToElementCount
+ *
+ * @memberOf OpenAjax.a11y.cache.LandmarkElement
+ *
+ * @desc Adds N elements to the count of elements with content
+ *
+ * @param {Number}  n  - Number of elements to add to count
+ */
+
+OpenAjax.a11y.cache.LandmarkElement.prototype.addToElementCount = function (n) {
+
+  if (n > 0) this.elements_with_content_count += n;
+
+};
+
+
+ /**
+ * @method getElementsWithContentCount
+ *
+ * @memberOf OpenAjax.a11y.cache.LandmarkElement
+ *
+ * @desc Get the number of child elements with content, inlcuding the elements with 
+ *       content of child landmark elements 
+ *
+ * @return {Number}  Number of elements with content 
+ */
+
+OpenAjax.a11y.cache.LandmarkElement.prototype.getElementsWithContentCount = function () {
+    
+  var count = this.elements_with_content_count;
+    
+  var child_elements     = this.child_cache_elements;
+  var child_elements_len = child_elements.length;
+      
+  for (var i = 0; i < child_elements_len; i++) {
+      
+    var cle = child_elements[i];
+      
+    if (typeof cle.getElementsWithContentCount === 'object') {
+      count += cle.getElementsWithContentCount();
+    }  
+  }
+    
+  return count;
+};
+
+ /**
+ * @method getHeadings
+ *
+ * @memberOf OpenAjax.a11y.cache.LandmarkElement
+ *
+ * @desc Get all the heading elements in a landmark
+ *
+ * @return {Array}  Array of heading elements 
+ */
+
+OpenAjax.a11y.cache.LandmarkElement.prototype.getHeadings = function () {
+    
+  var headings = [];
+    
+  var child_elements     = this.child_cache_elements;
+  var child_elements_len = child_elements.length;
+      
+  for (var i = 0; i < child_elements_len; i++) {
+      
+    var cle = child_elements[i];
+      
+    if (typeof cle.level === 'number') headings.push(cle);
+    else if (typeof cle.getHeadings === 'object') headings = headings.concat(cle.getHeadings());
+  }
+    
+  return headings;
+};
+
 
 /**
  * @method getStyle
@@ -11673,6 +11775,7 @@ OpenAjax.a11y.cache.LandmarkElement.prototype.getCacheProperties = function (uns
   cache_nls.addPropertyIfDefined(properties, this, 'computed_label_for_comparison');
   cache_nls.addPropertyIfDefined(properties, this, 'accessible_name');
   cache_nls.addPropertyIfDefined(properties, this, 'parent_landmark');
+  cache_nls.addPropertyIfDefined(properties, this, 'elements_with_content_count');
 
   if (!unsorted) this.dom_element.sortItems(properties);
 
@@ -12013,6 +12116,8 @@ OpenAjax.a11y.cache.MainElement = function (dom_element, parent_landmark) {
   this.computed_label_source          = OpenAjax.a11y.SOURCE.NONE;
   this.computed_label_for_comparison  = "";
   this.accessible_name                = "";
+  
+  this.elements_with_content_count = 0;
 
 }; 
 
@@ -12054,6 +12159,79 @@ OpenAjax.a11y.cache.MainElement.prototype.addH1Element = function (h1_element) {
 }; 
 
 
+/**
+ * @method addToElementCount
+ *
+ * @memberOf OpenAjax.a11y.cache.MainElement
+ *
+ * @desc Adds N elements to the count of elements with content
+ *
+ * @param {Number}  n  - Number of elements to add to count
+ */
+
+OpenAjax.a11y.cache.MainElement.prototype.addToElementCount = function (n) {
+
+  if (n > 0) this.elements_with_content_count += n;
+
+};
+
+ /**
+ * @method getElementsWithContentCount
+ *
+ * @memberOf OpenAjax.a11y.cache.MainElement
+ *
+ * @desc Get the number of child elements with content, inlcuding the elements with 
+ *       content of child landmark elements 
+ *
+ * @return {Number}  Number of elements with content 
+ */
+
+OpenAjax.a11y.cache.MainElement.prototype.getElementsWithContentCount = function () {
+    
+  var count = this.elements_with_content_count;
+    
+  var child_elements     = this.child_cache_elements;
+  var child_elements_len = child_elements.length;
+      
+  for (var i = 0; i < child_elements_len; i++) {
+      
+    var cle = child_elements[i];
+      
+    if (typeof cle.getElementsWithContentCount === 'object') {
+      count += cle.getElementsWithContentCount();
+    }  
+  }
+    
+  return count;
+};
+
+ /**
+ * @method getHeadings
+ *
+ * @memberOf OpenAjax.a11y.cache.MainElement
+ *
+ * @desc Get all the heading elements in a landmark
+ *
+ * @return {Array}  Array of heading elements 
+ */
+
+OpenAjax.a11y.cache.MainElement.prototype.getHeadings = function () {
+    
+  var headings = [];
+    
+  var child_elements     = this.child_cache_elements;
+  var child_elements_len = child_elements.length;
+      
+  for (var i = 0; i < child_elements_len; i++) {
+      
+    var cle = child_elements[i];
+      
+    if (typeof cle.level === 'number') headings.push(cle);
+    else if (typeof cle.getHeadings === 'object') headings = headings.concat(cle.getHeadings());
+  }
+    
+  return headings;
+};
 
 /**
  * @method getNodeResults
@@ -12132,7 +12310,8 @@ OpenAjax.a11y.cache.MainElement.prototype.getCacheProperties = function (unsorte
   cache_nls.addPropertyIfDefined(properties, this, 'computed_label_for_comparison');
   cache_nls.addPropertyIfDefined(properties, this, 'accessible_name');
   cache_nls.addPropertyIfDefined(properties, this, 'parent_landmark');
-
+  cache_nls.addPropertyIfDefined(properties, this, 'elements_with_content_count');
+  
   if (!unsorted) this.dom_element.sortItems(properties);
 
   return properties;
@@ -16916,9 +17095,9 @@ OpenAjax.a11y.cache.DOMElementComputedStyle.prototype.getLuminance = function (c
  var R = (RsRGB <= 0.03928) ? RsRGB/12.92 : Math.pow(((RsRGB + 0.055)/1.055), 2.4);
  var G = (GsRGB <= 0.03928) ? GsRGB/12.92 : Math.pow(((GsRGB + 0.055)/1.055), 2.4);
  var B = (BsRGB <= 0.03928) ? BsRGB/12.92 : Math.pow(((BsRGB + 0.055)/1.055), 2.4);
-			
+      
  return (0.2126 * R + 0.7152 * G + 0.0722 * B);
-			
+      
 };
 
 /**
@@ -17750,11 +17929,11 @@ OpenAjax.a11y.cache.TableElement.prototype.addChild = function (table_element) {
    }
    
    if (!this.is_complex_data_table && this.max_column > 2 ) {
-	 this.multipleTHInRow(this.max_row-1); 	   
+   this.multipleTHInRow(this.max_row-1);     
    } 
    
    if (!this.is_complex_data_table && this.max_row > 2) {
-	 this.multipleTHInColumn(); 	   
+   this.multipleTHInColumn();      
    }
  };
  
@@ -17779,15 +17958,15 @@ OpenAjax.a11y.cache.TableElement.prototype.addChild = function (table_element) {
    var cell;
    
    for (i=0; i<row_len; i++) {
-	 cell = this.cells[row][i];
-	
-	 if (cell && 
-	     cell.table_type == OpenAjax.a11y.TABLE.TH_ELEMENT) {
-	   th_count++;
-	 }
-	 else {
-	   td_count++;
-	 }
+   cell = this.cells[row][i];
+  
+   if (cell && 
+       cell.table_type == OpenAjax.a11y.TABLE.TH_ELEMENT) {
+     th_count++;
+   }
+   else {
+     td_count++;
+   }
    }   
    
    if (th_count > 1 && td_count > 0) {
@@ -17821,17 +18000,17 @@ OpenAjax.a11y.cache.TableElement.prototype.addChild = function (table_element) {
      td_count = 0;
      
      for (r=0; r<row_max; r++) {
-	   cell = this.cells[r][c];
-	
-  	   if (cell && 
-  	       cell.table_type == OpenAjax.a11y.TABLE.TH_ELEMENT) {
-	     th_count++;
-	   }
-	   else {
-	     td_count++;
-	   }
-	 }
-	 
+     cell = this.cells[r][c];
+  
+       if (cell && 
+           cell.table_type == OpenAjax.a11y.TABLE.TH_ELEMENT) {
+       th_count++;
+     }
+     else {
+       td_count++;
+     }
+   }
+   
      if (th_count > 1 && td_count > 0) {
        this.is_complex_data_table = true;
        return;
@@ -19766,59 +19945,253 @@ OpenAjax.a11y.cache.TextCache.prototype.updateCache = function () {
  * limitations under the License.
  */
 
+/** 
+ * @namespace OpenAjax.a11y.information
+ */
+
+OpenAjax.a11y.information = OpenAjax.a11y.information || {};
+
 /* ---------------------------------------------------------------- */
-/*                             ReferenceItem                        */
+/*                             RuleInformationItem                  */
 /* ---------------------------------------------------------------- */
  
  /** 
- * @constructor ReferenceItem
+ * @constructor RuleInformationItem
  *
- * @memberOf OpenAjax.a11y
+ * @memberOf OpenAjax.a11y.information
  *
  * @desc Constructor for an object that contains a title, url and description
  *       of some item of information associated with a rule or rule set
  *
  * @param  {Number}  c  - Constant indicating the type of information
- * @param  {String}  t  - A title that can be used as the text of a link 
+ * @param  {String}  l  - Text that can be used as the text of a link 
  * @param  {String}  u  - A url to more information on the item   
  * @param  {String}  d  - A longer desctiption of the item
  *
- * @property  {Number}  type_const   - Constant indicating the type of information
- * @property  {String}  title        - A title that can be used as the text of a link 
+ * @property  {String}  style        - A string that identifies the type of information<br/>
+ *                                     The following are the possible values for style:<br/>
+ *                                       authoring_tool<br/>
+ *                                       example<br/>
+ *                                       library_product<br/>
+ *                                       manual_check<br/>
+ *                                       other<br/>
+ *                                       purpose<br/>
+ *                                       rule_category<br/>
+ *                                       specfication<br/>
+ *                                       technique<br/>
+ *                                       wcag_technique<br/>
+ *        
+ * @property  {String}  label        - A label describing the reference, the label 
+ *                                     can be used as the text of a link 
+ * @property  {String}  url          - A url to more information on the item, if no 
+ *                                     this property will be an empty string
+ */
+
+OpenAjax.a11y.information.RuleInformationItem = function (c, l, u) {
+
+  var REFS = OpenAjax.a11y.REFERENCES;
+
+  var tc    =  0;
+  var style = "";
+  var label = "";
+  var url   = "";
+  
+  if (typeof c === 'number') {
+    tc = c;
+    
+    switch (c) {
+    
+    case REFS.AUTHORING_TOOL:
+      style = "authoring_tool";
+      break;
+      
+    case REFS.EXAMPLE:
+      style = "example";
+      break;
+      
+    case REFS.LIBRARY_PRODUCT:
+      style = "library_product";
+      break;
+      
+    case REFS.MANUAL_CHECK:
+      style = "manual_check";
+      break;
+      
+    case REFS.OTHER:
+      style = "other";
+      break;
+      
+    case REFS.PURPOSE:
+      style = "purpose";
+      break;
+      
+    case REFS.REFERENCE:
+      style = "reference";
+      break;
+      
+    case REFS.RULE_CATEGORY:
+      style = "rule_category";
+      break;
+      
+    case REFS.SPECIFICATION:
+      style = "specfication";
+      break;
+      
+    case REFS.TECHNIQUE:
+      style = "technique";
+      break;
+      
+    case REFS.WCAG_TECHNIQUE:
+      style = "wcag_technique";
+      break;
+      
+    default:
+      break;
+    }
+  }
+  
+  if (typeof l === 'string') label = OpenAjax.a11y.util.transformElementMarkup(l);
+  if (typeof u === 'string') url = u;
+  
+  return {
+     get style           () { return style; },
+     get label           () { return label; },
+     get url             () { return url;   },
+     toString : function () { return label; }
+  };
+  
+};
+
+
+/* ---------------------------------------------------------------- */
+/*                             GroupInformation                     */
+/* ---------------------------------------------------------------- */
+ 
+ /** 
+ * @constructor GroupInformation
+ *
+ * @memberOf OpenAjax.a11y.information
+ *
+ * @desc Constructor for an object that contains a title, url and description
+ *       for a group of rule results
+ *
+ * @param  {String}  t    - A title that can be used as the text of a link 
+ * @param  {String}  u    - A url to more information on the item   
+ * @param  {String}  d    - A longer description of the item
+ * @param  {Number}  req  - Number of required rules
+ * @param  {Number}  rec  - Number of recommended rules
+ *
+ * @property  {String}  title        - A short description that can be used as 
+ *                                     a title or the text of a link 
  * @property  {String}  url          - A url to more information on the item   
  * @property  {String}  description  - A longer desctiption of the item
  */
- 
-OpenAjax.a11y.ReferenceItem = function (c, t, u, d) {
 
-  var tc  =  0;
-  var ti  = "";
-  var url = "";
-  var dsc = "";
+OpenAjax.a11y.information.GroupInformation = function (t, u, d, req, rec) {
+
+  var title  = "";
+  var url    = "";
+  var desc   = "";
+  var r1     = 0;
+  var r2     = 0;
   
-  if (typeof c === 'number') tc  = c;
-  if (typeof t === 'string') ti  = OpenAjax.a11y.util.transformElementMarkup(t);
-  if (typeof u === 'string') url = u;
-  if (typeof d === 'string') dsc = OpenAjax.a11y.util.transformElementMarkup(d);
+  if (typeof t === 'string') title = OpenAjax.a11y.util.transformElementMarkup(t);
+  if (typeof u === 'string') url   = u;
+  if (typeof d === 'string') desc  = OpenAjax.a11y.util.transformElementMarkup(d);
+  
+  if (typeof req === 'number') desc  = d;
+  
   
   return {
-     get type_const ()  { return tc;  },
-     get title ()       { return ti;  },
-     get url ()         { return url; },
-     get description () { return dsc; },
-     toString : function () { return title; }
+     get title             () { return title;   },
+     get url               () { return url;     },
+     get description       () { return desc;    },
+     get required_rules    () { return r1;      },
+     get recommended_rules () { return r2;      },
+     get total_rules       () { return r1 + r2; },
+     toString : function   () { return title;   }
   };
   
 };
 
 /* ---------------------------------------------------------------- */
-/*                             WCAG20ReferenceItem                  */
+/*                             RulesetInformation                   */
 /* ---------------------------------------------------------------- */
  
  /** 
- * @constructor WCAG20ReferenceItem
+ * @constructor RulesetInformation
  *
- * @memberOf OpenAjax.a11y
+ * @memberOf OpenAjax.a11y.information
+ *
+ * @desc Constructor for an object that contains a title, url and description
+ *       for a group of rule results
+ *
+ * @param  {String}  t    - A title that can be used as the text of a link 
+ * @param  {String}  u    - A url to more information on the item   
+ * @param  {String}  d    - A longer description of the item
+ * @param  {Number}  r1   - Number of required rules
+ * @param  {Number}  r2   - Number of recommended rules
+ * @param  {String}  a1   - Author of ruleset
+ * @param  {String}  a2   - Link to more information about the ruleset
+ * @param  {String}  l    - Date last updated
+ * @param  {String}  v    - Version of ruleset
+ *
+ * @property  {String}  title        - A short description that can be used as 
+ *                                     a title or the text of a link 
+ * @property  {String}  url          - A url to more information on the item   
+ * @property  {String}  description  - A longer desctiption of the item
+ */
+
+OpenAjax.a11y.information.RulesetInformation = function (t, u, d, r1, r2, a1, a2, l, v) {
+
+  var title    = "";
+  var url      = "";
+  var desc     = "";
+  var req      = 0;
+  var rec      = 0;
+  var auth     = "";
+  var auth_url = "";
+  var date     = "";
+  var ver      = "";
+  
+  if (typeof t  === 'string') title = OpenAjax.a11y.util.transformElementMarkup(t);
+  if (typeof u  === 'string') url   = u;
+  if (typeof d  === 'string') desc  = OpenAjax.a11y.util.transformElementMarkup(d);
+  
+  if (typeof r1 === 'number') req  = r1;
+  if (typeof r2 === 'number') rec  = r2;
+  
+  if (typeof a1 === 'string') auth     = a1;
+  if (typeof a2 === 'string') auth_url = a2;
+
+  if (typeof d  === 'string') date  = d;
+  if (typeof v  === 'string') ver   = v;
+
+  return {
+     get title             () { return title;    },
+     get url               () { return url;      },
+     get description       () { return desc;     },
+     get required_rules    () { return r1;       },
+     get recommended_rules () { return r2;       },
+     get total_rules       () { return r1 + r2;  },
+     get author            () { return auth;     },
+     get author_url        () { return auth_url; },
+     get date              () { return date;     },
+     get version           () { return ver;      },
+     toString : function   () { return title;    }
+  };
+  
+};
+
+
+/* ---------------------------------------------------------------- */
+/*                    SuccessCriterionInformation                */
+/* ---------------------------------------------------------------- */
+ 
+ /** 
+ * @constructor SuccessCriterionInformation
+ *
+ * @memberOf OpenAjax.a11y.information
  *
  * @desc Constructor for an object that contains information about a WCAG20
  *       Principle, Guideline or Success Criterion
@@ -19827,58 +20200,78 @@ OpenAjax.a11y.ReferenceItem = function (c, t, u, d) {
  *
  * @property  {String}  id           - String id of the principle, guideline or success 
  *                                     criteria (i.e. P.G.SC format)
- * @property  {String}  title        - A title that can be used as the text of a link 
+ * @property  {String}  label        - A title that can be used as the text of a link 
  * @property  {String}  url          - A url to more information on the item   
  * @property  {String}  description  - A longer desctiption of the item
  * @property  {String}  level        - A longer desctiption of the item 
  *                                     (level is only defined for SC, oterwise emtpy)
  */
  
-OpenAjax.a11y.WCAG20ReferenceItem = function (id) {
+OpenAjax.a11y.information.SuccessCriterionInformation = function (id) {
 
-  var wid = "";
-  var ti  = "";
-  var url = "";
-  var dsc = "";
-  var l   = "";
+  var wid   = "";
+  var title = "";
+  var url   = "";
+  var desc  = "";
+  var level = "";
   
   var wcag20_nls = OpenAjax.a11y.all_wcag20_nls.getNLS();
   
   var sc = wcag20_nls.getNLSItemById(id);
   
-  if (sc) {
-
-    if (typeof sc.principle_id === 'string') {
-      wid = sc.principle_id;
-      ti  = sc.title;
-    }
-    
-    if (typeof sc.guideline_id === 'string') { 
-      wid = sc.guideline_id;
-      ti  = sc.title;
-    }
-    
-    if (typeof sc.sc_id === 'string') { 
-      wid = sc.sc_id;
-      l   = wcag20_nls.levels[sc.level];
-      ti  = sc.title + " (" + l + ")";
-    }  
-    
-    url = sc.url_spec;
-    dsc = sc.description;
-  }
+  if (sc && (typeof sc.sc_id === 'string')) {
+    wid   = sc.sc_id;
+    level = wcag20_nls.levels[sc.level];
+    title = sc.title + " (" + level + ")";
+    url   = sc.url_spec;
+    desc  = sc.description;
+  }  
   
   return {
-     get id ()          { return wid; },
-     get title ()       { return  ti; },
-     get url ()         { return url; },
-     get description () { return dsc; },  
-     get level () { return l; }, // empty string for principles and guidelines
-     toString : function() { return ti + (l.length > 0 ? " (" +  l + ")" : ""); }
+     get id          () { return wid;   },
+     get title       () { return title; },
+     get url         () { return url;   },
+     get description () { return desc;  },  
+     get level       () { return level; }, 
+     
+     toString : function() { return title; }
   };
   
 };
 
+
+/* ---------------------------------------------------------------- */
+/*                             WebPageInformation                   */
+/* ---------------------------------------------------------------- */
+ 
+ /** 
+ * @constructor WebPageInformation
+ *
+ * @memberOf OpenAjax.a11y.information
+ *
+ * @desc Constructor for an object that contains a title, url and description
+ *       for a group of rule results
+ *
+ * @param  {Object}  dom    - Document object model of the web page 
+ *
+ * @property  {String}  title        - A short description that can be used as 
+ *                                     a title or the text of a link 
+ * @property  {String}  url          - A url to more information on the item   
+ */
+
+OpenAjax.a11y.information.WebPageInformation = function (dom) {
+
+  var title    = "";
+  var url      = "";
+  
+
+  return {
+     get title             () { return title;    },
+     get url               () { return url;      },
+     toString : function   () { return title;    }
+  };
+  
+};
 
 
 
@@ -20044,7 +20437,7 @@ OpenAjax.a11y.Rule.prototype.getRuleCategoryConstant = function () {
  *
  * @desc Get a localized title, url and description of the rule category
  * 
- * @return {ReferenceItem}  Returns at ReferenceItem object
+ * @return {RuleInformationItem}  Returns a RuleInformationItem object
  */
 
 OpenAjax.a11y.Rule.prototype.getRuleCategory = function () {
@@ -20053,7 +20446,7 @@ OpenAjax.a11y.Rule.prototype.getRuleCategory = function () {
 
   var item = cache_nls.getRuleCategory(this.rule_category);
   
-  return (new OpenAjax.a11y.ReferenceItem(OpenAjax.a11y.REFERENCES, item.title, item.url, item.desc));
+  return (new OpenAjax.a11y.information.RuleInformationItem(OpenAjax.a11y.RULE_CATEGORY, item.title, item.url));
   
 };
 
@@ -20072,8 +20465,8 @@ OpenAjax.a11y.Rule.prototype.getRuleScope = function () {
 
   if (this.rule_scope) return this.rules_nls.rule_scope[this.rule_scope];
   
-    return this.rules_nls.rule_scope[OpenAjax.a11y.RULE_SCOPE.UNKOWN];
-  
+  return this.rules_nls.rule_scope[OpenAjax.a11y.RULE_SCOPE.UNKOWN];
+    
 };
 
 /**
@@ -20298,7 +20691,7 @@ OpenAjax.a11y.Rule.prototype.getTargetResourceProperties = function () {
  *
  * @desc Get the techniques to implement the requirements of the rule 
  *
- * @return  {Array of ReferenceItem objects}  Array of ReferenceItem objects
+ * @return  {Array}  Array of RuleInformationItem objects
  */
 OpenAjax.a11y.Rule.prototype.getTechniques = function () {
 
@@ -20314,8 +20707,8 @@ OpenAjax.a11y.Rule.prototype.getTechniques = function () {
     
       var ref;
     
-      if (typeof item === 'string') ref = new OpenAjax.a11y.ReferenceItem(OpenAjax.a11y.REFERENCES.TECHNIQUE, item, "","");
-      else ref = new OpenAjax.a11y.ReferenceItem(OpenAjax.a11y.REFERENCES.TECHNIQUE, item.title, item.url, "");
+      if (typeof item === 'string') ref = new OpenAjax.a11y.information.RuleInformationItem(OpenAjax.a11y.REFERENCES.TECHNIQUE, item, "");
+      else ref = new OpenAjax.a11y.information.RuleInformationItem(OpenAjax.a11y.REFERENCES.TECHNIQUE, item.title, item.url);
 
       new_list.push(ref);
     
@@ -20336,7 +20729,7 @@ OpenAjax.a11y.Rule.prototype.getTechniques = function () {
  * @desc Gets manual checking proceedures for evaluating the rule
  *       requirements
  *
- * @return  {Array of ReferenceItem objects}  Array of ReferenceItem objects
+ * @return  {Array}  Array of RuleInformationItem objects
  */
  
 OpenAjax.a11y.Rule.prototype.getManualCheckProcedures = function () {
@@ -20353,8 +20746,8 @@ OpenAjax.a11y.Rule.prototype.getManualCheckProcedures = function () {
     
       var ref;
     
-      if (typeof item === 'string') ref = new OpenAjax.a11y.ReferenceItem(OpenAjax.a11y.REFERENCES.MANUAL_CHECK, item, "","");
-      else ref = new OpenAjax.a11y.ReferenceItem(OpenAjax.a11y.REFERENCES.MANUAL_CHECK, item.title, item.url, "");
+      if (typeof item === 'string') ref = new OpenAjax.a11y.information.RuleInformationItem(OpenAjax.a11y.REFERENCES.MANUAL_CHECK, item, "");
+      else ref = new OpenAjax.a11y.information.RuleInformationItem(OpenAjax.a11y.REFERENCES.MANUAL_CHECK, item.title, item.url);
 
       new_list.push(ref);
     
@@ -20376,7 +20769,7 @@ OpenAjax.a11y.Rule.prototype.getManualCheckProcedures = function () {
  *
  * @desc Get information links related to understanding or implementation of the rule
  *
- * @return  {Array of ReferenceItem objects}  Returns an array of ReferenceItem objects
+ * @return  {Array}  Returns an array of RuleInformationItem objects
  *
  * @example
  *
@@ -20407,8 +20800,8 @@ OpenAjax.a11y.Rule.prototype.getInformationalLinks = function () {
     for (var i = 0; i < list.length; i++) {
 
       var link = list[i];
-
-      var ref = new OpenAjax.a11y.ReferenceItem(link.type, link.title, link.url,"");
+      
+      var ref = new OpenAjax.a11y.information.RuleInformationItem(link.type, link.title, link.url);
 
       new_list.push(ref);
     
@@ -20430,7 +20823,7 @@ OpenAjax.a11y.Rule.prototype.getInformationalLinks = function () {
  *
  * @desc Get information about primary WCAG 2.0 Success Criteria for the rule
  *
- * @return  {WCAG20ReferenceItem}  Object representing information about the SC
+ * @return  {SuccessCriterionInformation}  Object representing information about the SC
  *
  * @example
  *
@@ -20440,13 +20833,13 @@ OpenAjax.a11y.Rule.prototype.getInformationalLinks = function () {
  * var node = document.createElement('a');
  * node.appendChild(document.createTextNode(sc_info.title));
  * node.setAttribute('href',  sc_info.url);
- * node.setAttribute('title', sc_info.description);
+ * node.setAttribute('class', sc_info.style);
  * } 
  */
 
 OpenAjax.a11y.Rule.prototype.getPrimarySuccessCriterion = function () {
 
-  var ref = new OpenAjax.a11y.WCAG20ReferenceItem(this.wcag_primary_id);
+  var ref = new OpenAjax.a11y.information.SuccessCriterionInformation(this.wcag_primary_id);
 
   return ref;
 
@@ -20459,7 +20852,7 @@ OpenAjax.a11y.Rule.prototype.getPrimarySuccessCriterion = function () {
  *
  * @desc Get information about the related WCAG 2.0 Success Criteria for the rule
  *
- * @return  {Array}  Array of WCAG20ReferenceItem objects 
+ * @return  {Array}  Array of SuccessCriterionInformation objects 
  */
 
 OpenAjax.a11y.Rule.prototype.getRelatedSuccessCriteria = function () {
@@ -20473,7 +20866,7 @@ OpenAjax.a11y.Rule.prototype.getRelatedSuccessCriteria = function () {
   
     var id = ids[i];
   
-    var ref = new OpenAjax.a11y.WCAG20ReferenceItem(id);
+    var ref = new OpenAjax.a11y.information.SuccessCriterionInformation(id);
 
     list.push(ref);
   }
@@ -20964,22 +21357,23 @@ OpenAjax.a11y.Rules.prototype.toJSON = function (prefix) {
  *       objects
  *                                      check 
  * @property  {Number}  percent_passed   - Percentage of node results that pass 
- *                                      the rule   
+ *                                      the rule (0 <= value <= 100)   
  * @property  {Number}  passed        - Number of node results that passed the 
- *                                      rule 
+ *                                      rule (value >= 0)
  * @property  {Number}  violations    - Number of node results that failed the 
- *                                      rule as a violation 
+ *                                      rule as a violation (value >= 0) 
  * @property  {Number}  warnings      - Number of node results that failed the 
- *                                      rule as a warning  
+ *                                      rule as a warning (value >= 0) 
  * @property  {Number}  failures      - Number of node results that failed the 
- *                                      rule as a warning or violation  
+ *                                      rule as a warning or violation (value >= 0)  
  * @property  {Number}  manual_checks - Number of node results that require a 
- *                                      manual check   
+ *                                      manual check (value >= 0)  
  * @property  {Number}  hidden        - Number of node results that are hidden
- *
+ *                                      (value >= 0)
  * @property  {Number}  total         - Total number of node results that 
- *                                      passed and failed (note: count does 
- *                                      not include manual checks)
+ *                                      passed and failed (value >= 0)
+ *                                      (note: total count does not include manual 
+ *                                             checks)
  */
  
 OpenAjax.a11y.ResultSummary = function () {
@@ -21028,7 +21422,7 @@ OpenAjax.a11y.ResultSummary = function () {
      *
      * @desc Adds passed node results to the summary calculation 
      *
-     * @param  {Number}  Number of node results that passed
+     * @param  {Number}  n  - Number of node results that passed
      */
 
      addPassed : function(n) {
@@ -21050,7 +21444,7 @@ OpenAjax.a11y.ResultSummary = function () {
      *
      * @desc Adds violation node results to the summary calculation 
      *
-     * @param  {Number}  Number of node results that passed
+     * @param  {Number}  n  - Number of node results that passed
      */
 
     addViolations : function(n) {
@@ -21072,7 +21466,7 @@ OpenAjax.a11y.ResultSummary = function () {
      *
      * @desc Adds warning node results to the summary calculation 
      *
-     * @param  {Number}  Number of node results that passed
+     * @param  {Number}  n  - Number of node results that passed
      */
 
     addWarnings : function(n) {
@@ -21081,7 +21475,7 @@ OpenAjax.a11y.ResultSummary = function () {
         has_results = true;
         w += n;
         f += n;
-        t    += n;
+        t += n;
         calcSummary();
       }  
     },
@@ -21095,7 +21489,7 @@ OpenAjax.a11y.ResultSummary = function () {
      *
      * @desc Adds manual check node results to the summary calculation 
      *
-     * @param  {Number}  Number of node results that passed
+     * @param  {Number}  n  - Number of node results that passed
      */
 
     addManualChecks : function(n) {
@@ -21114,13 +21508,41 @@ OpenAjax.a11y.ResultSummary = function () {
      *
      * @desc Adds hidden node results to the summary calculation 
      *
-     * @param  {Number}  Number of node results that passed
+     * @param  {Number}  n  -  Number of node results that passed
      */
 
     addHidden : function(n) {
       if (n > 0) h += n;
     },
 
+    /**
+     * @method addResultSummary
+     * @private
+     *
+     * @memberOf OpenAjax.a11y.ResultSummary
+     *
+     * @desc Adds a result summary to the summary calculation 
+     *
+     * @param  {ResultSummary}  rs Number of node results that passed
+     */
+
+    addResultSummary : function(rs) {
+    
+       p  += rs.passed;
+       t  += rs.passed;
+       v  += rs.violations;
+       t  += rs.violations;
+       f  += rs.violations;
+       w  += rs.warnings;
+       t  += rs.warnings;
+       f  += rs.warnings;
+       mc += rs.manual_checks;
+       h  += rs.hidden;
+
+       if (t) calcSummary();
+       if (t || mc) has_results = true;
+       
+    },
 
     /**
      * @method hasResults
@@ -21242,6 +21664,9 @@ OpenAjax.a11y.EvaluationResult = function (ruleset, title, url, doc, log, dom_ca
   this.dom_cache = dom_cache;        
   
   this.rule_results = [];
+  
+  this.result_summary = new OpenAjax.a11y.ResultSummary();
+  
 };
 
 /**
@@ -21431,6 +21856,21 @@ OpenAjax.a11y.EvaluationResult.prototype.getNumberOfRules = function () {
 };
 
 
+ /**
+ * @method getResultSummary
+ *
+ * @memberOf OpenAjax.a11y.EvaluationResult
+ *
+ * @desc Gets numerical summary information about the rule results 
+ *
+ * @return {ResultSummary} Returns the ResultSummary object 
+ */
+OpenAjax.a11y.EvaluationResult.prototype.getResultSummary = function () {
+
+  return this.result_summary;
+
+};
+
 /**
  * @method getCacheItemsByElementType
  *
@@ -21506,7 +21946,7 @@ OpenAjax.a11y.EvaluationResult.prototype.getFilteredRuleResultsByWCAG20 = functi
   
   var evaluation_levels = this.evaluation_levels;
 
-  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("IN WCAG 2.0 SUMMARY");
+//  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("IN WCAG 2.0 SUMMARY");
 
   principles = new OpenAjax.a11y.FilteredRuleResultsGroups(this, RULE_CATEGORIES.ALL, "WCAG 2.0 Summary");
 
@@ -23227,34 +23667,16 @@ OpenAjax.a11y.RuleResult.prototype.getResultSummary = function () {
  *
  * @param {SummaryResult} result_summary  - Optional summary result object to over
  *                                          ride the current result settings
- *
+ * 
  * @return {String} String with node result message
  */
 OpenAjax.a11y.RuleResult.prototype.getResultMessage = function (result_summary) {
 
   function pageMessageFromNLS(rule_id, id) {
 
-    var m = "";
-
-    if (id !== 'SOME_FAIL' && id !== 'NOT_APPLICABLE') {
+    m = nls_rules.rules[rule_id]['RULE_RESULT_MESSAGES'][id];
     
-      var id_singular = id + '_SINGULAR';
-      var id_plural   = id + '_PLURAL';
-
-      m = nls_rules.rules[rule_id]['RULE_RESULT_MESSAGES'][id_singular];
-
-      if (typeof m !== 'string' || (m.length === 0)) m = nls_rules.rules[rule_id]['RULE_RESULT_MESSAGES'][id_plural];
-
-      if (typeof me !== 'string' || (me.length === 0)) m = nls_rules['DEFAULT_RULE_RESULT_MESSAGES'][id_singular];
-      
-    }
-    else {
-    
-      m = nls_rules.rules[rule_id]['RULE_RESULT_MESSAGES'][id];
-
-      if (typeof m !== 'string' || (m.length === 0)) m = nls_rules['DEFAULT_RULE_RESULT_MESSAGES'][id];
-
-    }
+    if (typeof m !== 'string' || (m.length === 0)) m = nls_rules['DEFAULT_RULE_RESULT_MESSAGES'][id];
 
     return m;
   }
@@ -23358,24 +23780,26 @@ OpenAjax.a11y.RuleResult.prototype.getResultMessage = function (result_summary) 
   }
   else {
     // Page Rule Messaging
-    
+
     if ((rs.failures === 0) && (rs.manual_checks  >  0)) { 
-      message = pageMessageFromNLS(rule_id, 'MANUAL_CHECKS');
+      message = pageMessageFromNLS(rule_id, 'PAGE_MANUAL_CHECK');
     }
     
     if ((rs.passed  >  0) && (rs.failures === 0) && (rs.manual_checks === 0)) {
-      message = pageMessageFromNLS(rule_id, 'ALL_PASS');
+      message = pageMessageFromNLS(rule_id, 'PAGE_PASS');
     }
     
-    if ((rs.passed ===  0) && (rs.failures > 0) && (rs.manual_checks === 0)) {
-      message = pageMessageFromNLS(rule_id, 'ALL_FAIL');
+    if ((rs.passed === 0) && (rs.failures > 0) && (rs.manual_checks === 0)) {
+      message = pageMessageFromNLS(rule_id, 'PAGE_FAIL');
       message += getSoNLS();
-      message += elementMessageFromNLS(rule_id, rs.failures, 'CORRECTIVE_ACTION');
+      message += pageMessageFromNLS(rule_id, rs.failures, 'CORRECTIVE_ACTION');
     }
 
     if ((rs.total === 0) && (rs.manual_checks === 0)) {
-      message = pageMessageFromNLS(rule_id, rs.total, 'NOT_APPLICABLE');
+      message = pageMessageFromNLS(rule_id, rs.total, 'PAGE_NOT_APPLICABLE');
     }
+
+    OpenAjax.a11y.logger.debug("PAGE RULE: " + rule_id + " Passed: " + rs.passed + " Violations: " + rs.violations  + " Warnings: " + rs.warnings + " Failed: " + rs.failures  + " Manual Checks: " + rs.manual_checks + " Message: " + message);
 
   }
   
@@ -23550,7 +23974,7 @@ OpenAjax.a11y.RuleResult.prototype.addResult = function (test_result, cache_item
   default:
     break; 
   } // end switch 
-  
+    
 };
 
 /**
@@ -25027,9 +25451,9 @@ OpenAjax.a11y.NodeResult.prototype.toJSON = function (prefix) {
   this.filter       = OpenAjax.a11y.RESULT_FILTER.ALL;
   
   this.has_elements = false;
-    
-  this.result_summary = new OpenAjax.a11y.ResultSummary();
   
+  this.result_summary = new OpenAjax.a11y.ResultSummary();
+      
   this.cache_item_results = [];
   
 };
@@ -25157,12 +25581,7 @@ OpenAjax.a11y.FilteredCacheItemResults.prototype.hasElements = function () {
  
 OpenAjax.a11y.FilteredCacheItemResults.prototype.updateSummary = function(cache_item_result) {
 
-
-  this.result_summary.addPassed(cache_item_result.passed_count);
-  this.result_summary.addViolations(cache_item_result.violations_count);
-  this.result_summary.addWarnings(cache_item_result.warnings_count);
-  this.result_summary.addManualChecks(cache_item_result.manual_checks_count);
-  this.result_summary.addHidden(cache_item_result.hidden_count);
+  this.result_summary.addResultSummary(cache_item_result.getResultSummary());
 
 };
 
@@ -25687,7 +26106,7 @@ OpenAjax.a11y.FilteredCacheItemResults.prototype.toCSV = function(title) {
 
   this.is_tree = false;
 
-  this.ordinal_position    = pos;
+  this.ordinal_position = pos;
   
   var rs = new OpenAjax.a11y.ResultSummary();
   
@@ -25715,7 +26134,7 @@ OpenAjax.a11y.FilteredCacheItemResults.prototype.toCSV = function(title) {
 
   this.result_summary = rs;
       
-  
+
 };
 
 /**
@@ -25816,7 +26235,7 @@ OpenAjax.a11y.CacheItemResult.prototype.hasResults = function() {
 OpenAjax.a11y.CacheItemResult.prototype.getHighestResultValueConstant = function () {
 
   var RESULT_VALUE =  OpenAjax.a11y.RESULT_VALUE;
-
+  
   var rs = this.getResultSummary();
   
   if (rs.violations)    return RESULT_VALUE.VIOLATION;
@@ -26024,13 +26443,13 @@ OpenAjax.a11y.CacheItemResult.prototype.toJSON = function(prefix) {
   if (typeof desc === 'string') this.desc = desc;
 
   this.has_rules = false;
-  
-  this.node_results_filtered_out = 0;
-  this.number_of_required_rules = 0;
+
+  this.node_results_filtered_out   = 0;
+  this.number_of_required_rules    = 0;
   this.number_of_recommended_rules = 0;
 
   this.result_summary = new OpenAjax.a11y.ResultSummary();  
-  
+    
 }; 
 
 /**
@@ -27070,7 +27489,7 @@ OpenAjax.a11y.FilteredRuleResultsGroup.prototype.toCSV = function(title, header_
   this.filtered_node_results = [];
 
   this.node_results_filtered_out = 0;
-  
+ 
   this.result_summary = new OpenAjax.a11y.ResultSummary();  
   
 };
@@ -27214,7 +27633,7 @@ OpenAjax.a11y.FilteredRuleResult.prototype.getResultMessage = function () {
 
   if ((typeof this.message !== 'string') || 
       (this.message.length === 0)) {
-
+    
     this.message = this.rule_result.getResultMessage(this.result_summary);
   }  
   
@@ -27738,7 +28157,7 @@ OpenAjax.a11y.FilteredRuleResult.prototype.toJSON = function(prefix, flag) {
   json += prefix + "  \"definition\"      : \"" + escapeForJSON(this.rule_result.getRuleDefinition()) + "\",";
   json += prefix + "  \"summary\"         : \"" + escapeForJSON(this.rule_result.getRuleSummary())    + "\",";
   json += prefix + "  \"nls_rule_id\"     : \"" + this.rule_result.getRuleIdNLS()         + "\",";
-  json += prefix + "  \"required\"        : " + this.rule_result.isRuleRequired() + ",";
+  json += prefix + "  \"required\"        : "   + this.rule_result.isRuleRequired() + ",";
   json += prefix + "  \"wcag_level\"      : \"" + this.rule_result.getWCAG20Level()       + "\",";
   json += prefix + "  \"wcag_primary_id\" : \"" + escapeForJSON(this.rule_result.getPrimarySuccessCriterion()) + "\",";
 
@@ -28796,7 +29215,7 @@ OpenAjax.a11y.formatters.TreeViewOfFilteredRuleResultsGroup = function(filtered_
   for (var i = 0; i < filtered_rule_results_len; i++) {
   
     var frr =  filtered_rule_results[i];
-    var rs          = frr.getResultSummary();
+    var rs  = frr.getResultSummary();
     var has_results = rs.hasResults();
 
     var failures_prop = "zero";
@@ -29738,19 +30157,19 @@ OpenAjax.a11y.formatters.TreeViewOfCacheItemResult.prototype.sortListOfNodeResul
 
   function sortProperty(a, b) {
   
-    if (a[sort_property] > b[sort_property]) return  1 * order;
-    if (a[sort_property] < b[sort_property]) return -1 * order;
+    if (a[sort_property] > b[sort_property]) return  -1 * order;
+    if (a[sort_property] < b[sort_property]) return 1 * order;
     
     //tie breaker: name ascending is the second level sort
     
     if (sort_property != "result") {
-      if (a.result > b.result) return 1;
-      if (a.result < b.result) return -1;
+      if (a.result > b.result) return -1;
+      if (a.result < b.result) return 1;
     }
 
     if (sort_property != "level_const") {
-      if (a.level_const > b.level_const) return 1;
-      if (a.level_const < b.level_const) return -1;
+      if (a.level_const > b.level_const) return -1;
+      if (a.level_const < b.level_const) return 1;
     }
 
     
@@ -30716,7 +31135,7 @@ OpenAjax.a11y.nls.WCAG20NLSSuccessCriterion = function(principle, guideline, sc_
   this.guideline  = guideline;    
   
   this.sc_id        = sc_id;      // String   
-  this.id           = info.id;         // Number
+  this.id           = info.id;    // Number
   
   this.level          = info.level;   
   this.title          = info.title;    
@@ -31545,6 +31964,15 @@ OpenAjax.a11y.Ruleset.prototype.evaluate = function (url, title, doc, progessCal
         log.update(PROGRESS.RULE, rule_definition, rule.rule_id);
    
         evaluation_result.rule_results.push(rule_result);
+        
+        var rs = rule_result.getResultSummary();
+        
+        evaluation_result.result_summary.addPassed(rs.passed);
+        evaluation_result.result_summary.addViolations(rs.violations);
+        evaluation_result.result_summary.addWarnings(rs.warnings);
+        evaluation_result.result_summary.addManualChecks(rs.manual_checks);
+        evaluation_result.result_summary.addHidden(rs.hidden);
+        
         
       }
 //      else {
@@ -34841,9 +35269,9 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               'Page %s have @h1@ element',
             TARGET_RESOURCES_DESC: '@h1@ and @body@ elements',
             RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:     'Page contains a least one @h1@ element',
-              CORRECTIVE_ACTION_SINGULAR: 'Add a @h1@ element at the beginning of the main content of the page',
-              ALL_FAIL_SINGULAR:     'Page does not contain an @h1@ element'
+              PAGE_PASS:              'Page contains a least one @h1@ element',
+              PAGE_CORRECTIVE_ACTION: 'Add a @h1@ element at the beginning of the main content of the page',
+              PAGE_FAIL:              'Page does not contain an @h1@ element'
             },
             NODE_RESULT_MESSAGES: {
               PASS_1:                'Page has @h1@ element',
@@ -35026,22 +35454,22 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               'Headings %s be properly nested',
             TARGET_RESOURCES_DESC: 'Heading elements',
             RULE_RESULT_MESSAGES: {
-              ALL_PASS_PLURAL:      'All %N_P heading elements are properly nested',
-              SOME_FAIL:            '%N_F out of %N_T heading elements are NOT properly nested',
-              ALL_FAIL_PLURAL:      'None of the %N_F heading elements are properly nested',
-              NOT_APPLICABLE:       'No or only one heading elements on this page, so nesting rule does not apply'
+              ALL_PASS_PLURAL:   'All %N_P heading elements are properly nested',
+              SOME_FAIL:         '%N_F out of %N_T heading elements are NOT properly nested',
+              ALL_FAIL_PLURAL:   'None of the %N_F heading elements are properly nested',
+              NOT_APPLICABLE:    'No or only one heading elements on this page, so nesting rule does not apply; or all headings are within landmarks, and then this rule does not apply.'
             },
             NODE_RESULT_MESSAGES: {
               PASS_1:              '%1 element is properly nested',
               PASS_2:              'All heading elements are properly nested',
-              CORRECTIVE_ACTION_1: 'Change %1 element or other heading elements ',
+              CORRECTIVE_ACTION_1: 'Adjust the the level of the %1 element or other heading elements to make the headings properly nested',
               CORRECTIVE_ACTION_2: 'Add text content to %1 element that describes the section it labels or remove it from the page if it is not needed',
               CORRECTIVE_ACTION_3: 'One heading element is not properly nested, check all heading elements to make sure they are properly nested, and describe the structure and the sections of the web page',
               CORRECTIVE_ACTION_4: '%1 heading elements are not properly nested, check all heading elements to make sure they are properly nested, and describe the structure and the sections of the web page',
               HIDDEN:              '%1 element is hidden from assistive technologies and is not included in nesting.'
             },  
             PURPOSE: [
-              'Head elements that are properly nested help users of assistive technology understand the structure of the information on the web page'
+              'Heading elements that are properly nested help users of assistive technology understand the structure of the information on the web page'
             ],
             TECHNIQUES: [
               'Include headings elements at the proper level for each section of a web page',
@@ -35518,9 +35946,9 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               'Page %s have @main@ landmark',
             TARGET_RESOURCES_DESC: '@main@ landmark',
             RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:          'Page has @main@ landmark',
-              CORRECTIVE_ACTION_SINGULAR: 'add a @main@ landmark that identifies the main (i.e. primary) content of the page',
-              ALL_FAIL_SINGULAR:          'Page does NOT contain a @main@ landmark'
+              PAGE_PASS:              'Page has @main@ landmark',
+              PAGE_CORRECTIVE_ACTION: 'add a @main@ landmark that identifies the main (i.e. primary) content of the page',
+              PAGE_FAIL:              'Page does NOT contain a @main@ landmark'
             },
             NODE_RESULT_MESSAGES: {
               PASS_1:                'Page contains an %1 element with @role=main@',
@@ -35551,20 +35979,21 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             RULE_RESULT_MESSAGES: {
               MANUAL_CHECKS_SINGULAR:       'One element may contain renderable content; elements that include renderable content %RULE_TYPE be contained in a landmark',
               MANUAL_CHECKS_PLURAL:         '%N_MC elements may contain renderable content; elements that include renderable content %RULE_TYPE be contained in a landmark',
-              ALL_PASS_SINGULAR:            'Renderable element is contained within a landmark',
-              ALL_PASS_PLURAL:              'All %N_P renderable elements are contained within a landmark',
-              SOME_FAIL:                    '%N_F out of %N_T renderable elements are NOT contained within a landmark',
+              ALL_PASS_SINGULAR:            'All renderable content is within the landmark',
+              ALL_PASS_PLURAL:              'All renderable content is within %N_T landmarks',
+              SOME_FAIL:                    '%N_F renderable elements are NOT contained within a landmark',
               CORRECTIVE_ACTION_SINGULAR:   'update the landmark structure of the page and place the element currently outside of a landmark into its proper landmark container',
               CORRECTIVE_ACTION_PLURAL:     'update the landmark structure of the page and place the %N_F elements currently outside of landmarks into their proper landmark container',
-              ALL_FAIL_SINGULAR:            'Renderable element is NOT contained within a landmark',
+              ALL_FAIL_SINGULAR:            'Rendera element is NOT contained within a landmark',
               ALL_FAIL_PLURAL:              '%N_F renderable elements are NOT contained within a landmark',
-              NOT_APPLICABLE:               'No renderable elements on page'              
+              NOT_APPLICABLE:               'This rule is not evaluated when landmarks are not present in the web page.  Consider adding landmarks to the page to improve navigation and orientation.'              
             },
             NODE_RESULT_MESSAGES: {
-              PASS_1:                '@%1@ element is in @%2@ landmark',
-              MANUAL_CHECK_1:        '@%1@ element may contain renderable content, if so move it into an appropriate landmark',
-              CORRECTIVE_ACTION_1:   'Move @%1@ element into an appropriate landmark',
-              HIDDEN:                '@%1@ element is hidden from assistive technologies.'
+              PASS_1:              '@%1@ landmark contains %2 elements with content',
+              MANUAL_CHECK_1:      '@%1@ element may contain renderable content, if so move it into an appropriate landmark',
+              MANUAL_CHECK_2:      '@%1@ landmark does not contain content, check the landmark structure of the page to make sure this landmark provides useful structural information, if not remove the landmark',
+              CORRECTIVE_ACTION_1: 'Move @%1@ element into an appropriate landmark',
+              HIDDEN:              '@%1@ element is hidden from assistive technologies.'
             },  
             PURPOSE: [
               'Landmarks provide a way to organize content of a page to users of assistive technology, similar to visual and interaction designers organize information for people using a graphical rendering of the content.'                   
@@ -35582,15 +36011,15 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
               }                            
             ]
         },    
-        LANDMARK_2N: {
-            ID:                    'Landmark Rule 2: navigation',
+        LANDMARK_3: {
+            ID:                    'Landmark Rule 3',
             DEFINITION:            'Each page %s contain at least one @navigation@ landmark',
             SUMMARY:               'Page %s have @navigation@ landmark',
             TARGET_RESOURCES_DESC: '@navigation@ landmark',
             RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:          'Page has @navigation@ landmark',
-              CORRECTIVE_ACTION_SINGULAR: 'add a @navigation@ landmark that identifies the main (i.e. primary) content of the page',
-              ALL_FAIL_SINGULAR:          'Page does NOT contain a @navigation@ landmark'
+              PAGE_PASS:              'Page has @navigation@ landmark',
+              PAGE_CORRECTIVE_ACTION: 'add a @navigation@ landmark that identifies the main (i.e. primary) content of the page',
+              PAGE_FAIL:              'Page does NOT contain a @navigation@ landmark'
             },
             NODE_RESULT_MESSAGES: {
               PASS_1:                'Page contains an %1 element with @role=navigation@',
@@ -35613,15 +36042,15 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
               }                            
             ]
         },    
-        LANDMARK_2B: {
-            ID:                    'Landmark Rule 2: banner',
+        LANDMARK_4: {
+            ID:                    'Landmark Rule 4',
             DEFINITION:            'Each page %s contain at least one @banner@ landmark',
             SUMMARY:               'Page %s have @banner@ landmark',
             TARGET_RESOURCES_DESC: '@banner@ landmark',
             RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:          'Page has @banner@ landmark',
-              CORRECTIVE_ACTION_SINGULAR: 'add a @banner@ landmark that identifies the repetitive banner content at the top of the page',
-              ALL_FAIL_SINGULAR:          'Page does NOT contain a @banner@ landmark'
+              PAGE_PASS:              'Page has @banner@ landmark',
+              PAGE_CORRECTIVE_ACTION: 'add a @banner@ landmark that identifies the repetitive banner content at the top of the page',
+              PAGE_FAIL:              'Page does NOT contain a @banner@ landmark'
             },
             NODE_RESULT_MESSAGES: {
               PASS_1:                'Page contains an %1 element with @role=banner@',
@@ -35644,20 +36073,59 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
               }                            
             ]
         },    
-        LANDMARK_2CI: {
-            ID:                    'Landmark Rule 2: contentinfo or complementary',
+        LANDMARK_5: {
+            ID:                    'Landmark Rule 5',
             DEFINITION:            'Each page %s contain at least one @contentinfo@ or @complementary@ landmark',
             SUMMARY:               'Page %s have @contentinfo@ or @complementary@ landmark',
             TARGET_RESOURCES_DESC: '@contentinfo@ landmark',
             RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:          'Page has @contentinfo@ or @complementary@ landmark',
-              CORRECTIVE_ACTION_SINGULAR: 'add a @contentinfo@ or @complementary@ landmark that identifies the typically repetitive content (i.e. on each page in the website) on the bottom of a page',
-              ALL_FAIL_SINGULAR:          'Page does NOT contain a @contentinfo@ or @complementary@ landmark'
+              PAGE_PASS:              'Page has @contentinfo@ or @complementary@ landmark',
+              PAGE_CORRECTIVE_ACTION: 'add a @contentinfo@ or @complementary@ landmark that identifies the typically repetitive content (i.e. on each page in the website) on the bottom of a page',
+              PAGE_FAIL:              'Page does NOT contain a @contentinfo@ or @complementary@ landmark'
             },
             NODE_RESULT_MESSAGES: {
               PASS_1:                'Page contains an %1 element with @role=%2@',
               CORRECTIVE_ACTION_1:   'Add a @contentinfo@ or @complementary@ landmark to the page, the contentinfo landmark must identify the sets contentinfo lists on the page',
               HIDDEN:                '%1 element with @role=%2@ is hidden from assistive technologies.'
+            },  
+            PURPOSE: [
+              'contentinfo landmarks provide a way to identify content found typically on the bottom of each page in a website',
+              'The contentinfo usually includes links like copyright information, privacy, and other general links support all pages in the website.'
+            ],
+            TECHNIQUES: [
+              'Include an @role="contentinfo"@ attribute on a element that contains @ol@ and @ul@ elements that contain li elements with links',
+              'Use the aria-labelledby or aria-label to describe the purpose of the links (i.e. table on contents of a page, site map...)'
+            ],
+            MANUAL_CHECKS: [
+            ],
+            INFORMATIONAL_LINKS: [
+              { type:  OpenAjax.a11y.REFERENCES.SPECIFICATION, 
+                title: 'Accessible Rich Internet Applications (WAI-ARIA) 1.0 Specification: contentinfo role', 
+                url:   'http://www.w3.org/TR/wai-aria/roles#contentinfo'
+              }                            
+            ]
+        },    
+        LANDMARK_6: {
+            ID:                    'Landmark Rule 6',
+            DEFINITION:            'Headings %s be properly nested within a landmark',
+            SUMMARY:               'Headings nested in landmarks',
+            TARGET_RESOURCES_DESC: 'Landmark elements',
+            RULE_RESULT_MESSAGES: {
+              ALL_PASS_SINGULAR:          'Headings properly nested within the landmark with more than one headings',
+              ALL_PASS_PLURAL:            'Headings properly nested within the %N_T landmarks with more than one headings',
+              SOME_FAIL:                  '%N_F landmarks of the %N_T landmarks with more than one headings, do not have properly nested headings',
+              CORRECTIVE_ACTION_SINGULAR: 'Review the heading structure of the landmark and adjust the headings to be properly nested',
+              CORRECTIVE_ACTION_PLURAL:   'Review the heading structure of each landmarks with more than one heading, and adjust the headings in each landmark to be properly nested',
+              ALL_FAIL_SINGULAR:          'Headings are not properly nested within the landmark with more than one heading',
+              ALL_FAIL_PLURAL:            'Headings are not properly nested within the %N_F landmarks with more than one heading',
+              NOT_APPLICABLE:             'No headings or only one heading in each landmark; or no landmarks on the page'
+            },
+            NODE_RESULT_MESSAGES: {
+              PASS_1:                'The %1 headings within the @%2@ landmark are properly nested',
+              CORRECTIVE_ACTION_1:   '%1 of the %2 headings in the @%3@ landmark are not properly nested, adjust the headings to make sure they are properly nested',
+              CORRECTIVE_ACTION_2:   '@%1@ heading is not properly nested in the @%2@ landmark, adjust the headings to make sure they are properly nested',
+              CORRECTIVE_ACTION_3:   '@%1@ heading in the @%2@ landmark does not have content, add content or remove the heading',
+              HIDDEN:                '@%1@ landmark is hidden from assistive technologies'
             },  
             PURPOSE: [
               'contentinfo landmarks provide a way to identify content found typically on the bottom of each page in a website',
@@ -36496,9 +36964,9 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:               'Page %s have title',
             TARGET_RESOURCES_DESC: '@title@',
             RULE_RESULT_MESSAGES: {
-              ALL_PASS_SINGULAR:          'Page has @title@ element with content',
-              CORRECTIVE_ACTION_SINGULAR: 'add @title@ element to the @head@ element section with text content that describes the content or purpose of the page',
-              ALL_FAIL_SINGULAR:          'Page does not have @title@ element or the @title@ element is empty'
+              PAGE_PASS:              'Page has @title@ element with content',
+              PAGE_CORRECTIVE_ACTION: 'add @title@ element to the @head@ element section with text content that describes the content or purpose of the page',
+              PAGE_FAIL:              'Page does not have @title@ element or the @title@ element is empty'
             },
             NODE_RESULT_MESSAGES: {
               PASS_1:              'Page has @title@ element with content',
@@ -36534,9 +37002,9 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:       '@title@ %s describe page',
             TARGET_RESOURCES_DESC: '@title@',
             RULE_RESULT_MESSAGES: {
-              MANUAL_CHECK_SINGULAR:      'Verify the @title@ element text content describes the purpose or the content of the page',
-              CORRECTIVE_ACTION_SINGULAR: 'add @title@ element to the @head@ element section with text content that describes the content or purpose of the page',
-              ALL_FAIL_SINGULAR:          'Page does not have @title@ element or the @title@ element is empty'
+              PAGE_MANUAL_CHECK:      'Verify the @title@ element text content describes the purpose or the content of the page',
+              PAGE_CORRECTIVE_ACTION: 'add @title@ element to the @head@ element section with text content that describes the content or purpose of the page',
+              PAGE_FAIL:              'Page does not have @title@ element or the @title@ element is empty'
             },
             NODE_RESULT_MESSAGES: {
               MANUAL_CHECK_1:      'Verify the @title@ element text content describes the purpose or the content of the page',
@@ -36578,9 +37046,9 @@ OpenAjax.a11y.all_rules.addRulesNLSFromJSON('en-us', {
             SUMMARY:       '@h1@ %s match @title@ content',
             TARGET_RESOURCES_DESC: '@title@ and @h1@',
             RULE_RESULT_MESSAGES: {
-              MANUAL_CHECK_SINGULAR:      'Verify the @title@ element text content describes the purpose or the content of the page',
-              CORRECTIVE_ACTION_SINGULAR: 'add @title@ element to the @head@ element section with text content that describes the content or purpose of the page',
-              ALL_FAIL_SINGULAR:          'Page does not have @title@ element or the @title@ element is empty'
+              PAGE_MANUAL_CHECK:      'Verify the @title@ element text content describes the purpose or the content of the page',
+              PAGE_CORRECTIVE_ACTION: 'add @title@ element to the @head@ element section with text content that describes the content or purpose of the page',
+              PAGE_FAIL:              'Page does not have @title@ element or the @title@ element is empty'
             },
             NODE_RESULT_MESSAGES: {
               MANUAL_CHECK_1:      'Verify the @title@ element text content describes the purpose or the content of the page',
@@ -37752,7 +38220,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  // 
  // Last update: 2011-03-31
  // ------------------------
-	     
+       
  { rule_id           : 'COLOR_2', 
   last_updated        : '2012-06-12', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
@@ -37842,7 +38310,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  *       accessible label
  * 
  */
-	     
+       
 {  rule_id             : 'CONTROL_1',
    last_updated        : '2011-09-16', 
    rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
@@ -37902,7 +38370,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * 
  * @desc Every input type image must have an alt or title attribute with content
  */
-	     
+       
 {  rule_id             : 'CONTROL_2', 
    last_updated        : '2011-09-16', 
    rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
@@ -38857,7 +39325,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  *
  * @desc Page contains at least one H1 element and each H1 element has content
  *       If there are main landmarks the H1 elements are children of the main landmarks
- */	     	     	     
+ */                  
 { rule_id             : 'HEADING_1', 
   last_updated        : '2012-06-31', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.PAGE,
@@ -38913,7 +39381,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  *
  * @desc If there are main landmarks and H1 elements, H1 elements should be children of main landmarks 
  *
- */	     	     	     
+ */                  
 { rule_id             : 'HEADING_2', 
   last_updated        : '2012-06-31', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
@@ -38963,7 +39431,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  *       This rule applies only when there are no main landmarks on the page and at least one 
  *       sibling heading
  *
- */	     	     	     
+ */                  
 { rule_id             : 'HEADING_3', 
   last_updated        : '2012-06-31', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
@@ -39103,7 +39571,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  *
  * @desc Headings should describe the content of the section they label
  *
- */	     	     	     
+ */                  
 { rule_id             : 'HEADING_4', 
   wcag_primary_id     : '2.4.6',
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
@@ -39142,10 +39610,10 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  *
  * @desc Headings must be properly nested
  *
- */	     	     	     
+ */                  
 { rule_id             : 'HEADING_5', 
   last_updated        : '2012-11-01', 
-  rule_scope          : OpenAjax.a11y.RULE_SCOPE.PAGE,
+  rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
   rule_category       : OpenAjax.a11y.RULE_CATEGORIES.HEADINGS,
   wcag_primary_id     : '2.4.6',
   wcag_related_ids    : ['1.3.1', '2.4.10'],
@@ -39163,14 +39631,14 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
        
          var he = heading_elements[heading_index];
          var de = he.dom_element;
-         var is_visible_to_at = de.computed_style.is_visible_to_at;
+         var vf = de.computed_style.is_visible_to_at;
          
-         if ((is_visible_to_at === VISIBILITY.VISIBLE) && 
+         if ((vf === VISIBILITY.VISIBLE) && 
              (he.name.length > 0)) {
            return he;
          }
          
-         if (is_visible_to_at === VISIBILITY.HIDDEN) {
+         if (vf === VISIBILITY.HIDDEN) {
            rule_result.addResult(TEST_RESULT.HIDDEN, he, 'HIDDEN', [de.tag_name]); 
          }
          else {
@@ -39193,6 +39661,26 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     var heading_index = 0;
     var heading_fail = 0;
 
+    // Check to see if any landmarks are not in a landmark
+    
+    var flag = true;
+    
+    for (var i = 0; (i < heading_elements_len) && flag; i++) {
+      
+      var he = heading_elements[i];
+      var cs = he.dom_element.computed_style;
+      
+      if ((cs.is_visible_to_at === VISIBILITY.VISIBLE) &&
+          (typeof he.parent_landmark !== 'object')) {      
+        flag = false;      
+      }
+    }
+
+//    OpenAjax.a11y.logger.debug("Heading 5 Rule - Total: " + heading_elements_len + " Index: " + i + " Flag: " + flag);
+
+    // If all headings are in a landmark do not evaluate this rule
+    if (flag) return;
+
     var page_element = dom_cache.headings_landmarks_cache.page_element;
 
     var he_last = getNextVisibleHeadingWithContent(false);
@@ -39203,7 +39691,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
       
       rule_result.addResult(TEST_RESULT.PASS, he_last, 'PASS_1', [de.tag_name]);
 
-      var he = getNextVisibleHeadingWithContent();
+      he = getNextVisibleHeadingWithContent();
       
       while (he) {
       
@@ -39233,7 +39721,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  *
  * @desc Headings should not consist only of image content
  *
- */	     	     	     
+ */                  
 { rule_id             : 'HEADING_6', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
   rule_category       : OpenAjax.a11y.RULE_CATEGORIES.HEADINGS,
@@ -39283,7 +39771,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * @desc Widget elements on non-interactive elements or that override the default role of an interactive element 
  *       need keyboard event handlers on the widget element or a parent element of the widget
  */
-	     
+       
 { rule_id             : 'KEYBOARD_1', 
   last_updated        : '2012-12-04', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
@@ -39417,7 +39905,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * @desc Elements with widget roles have tabindex defined or are a child of an element
  *       with aria-activedescendant
  */
-	     
+       
 { rule_id             : 'KEYBOARD_2', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
   rule_category       : OpenAjax.a11y.RULE_CATEGORIES.WIDGETS,
@@ -39494,7 +39982,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  *
  * @desc Each page should have at least one main landmark
  *
- */	     	     	     
+ */                  
 { rule_id             : 'LANDMARK_1', 
   last_updated        : '2012-07-14', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.PAGE,
@@ -39543,7 +40031,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * @object LANDMARK_2
  *
  * @desc All rendered content should be contained in a landmark
- */	     	     	     
+ */                  
 { rule_id             : 'LANDMARK_2', 
   last_updated        : '2012-07-14', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
@@ -39556,6 +40044,9 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
   resource_properties    : ['tag_name', 'parent_landmark'],
   language_dependency : "",
   validate            : function (dom_cache, rule_result) {
+  
+    // If no main landmark on the page do not apply this rule
+    if (dom_cache.headings_landmarks_cache.main_elements.length === 0) return;
 
     var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
     var VISIBILITY  = OpenAjax.a11y.VISIBILITY;
@@ -39578,25 +40069,40 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
         rule_result.addResult(TEST_RESULT.HIDDEN, de, 'HIDDEN', [tag_name]);                      
       }
       else {
-        if (de.parent_landmark) {
-          rule_result.addResult(TEST_RESULT.PASS, de, 'PASS_1', [tag_name, de.parent_landmark.role]);
-        }
-        else {
+        if (!de.parent_landmark) {
+//          de.parent_landmark.addToElementCount(1);
+//          rule_result.addResult(TEST_RESULT.PASS, de, 'PASS_1', [tag_name, de.parent_landmark.role]);
+//        }
+//        else {
           if (de.may_have_renderable_content) rule_result.addResult(TEST_RESULT.MANUAL_CHECK, de, 'MANUAL_CHECK_1', [tag_name]);
           else rule_result.addResult(TEST_RESULT.FAIL, de, 'CORRECTIVE_ACTION_1', [tag_name]);
         }  
       }  
     }    
+    
+    var landmark_elements     = dom_cache.headings_landmarks_cache.landmark_elements;
+    var landmark_elements_len = landmark_elements.length;
+    
+    for (i = 0; i < landmark_elements_len; i++ ) {
+      
+      var le    = landmark_elements[i];
+      var role  = le.role;
+      var count = le.getElementsWithContentCount();
+      
+      if (count) rule_result.addResult(TEST_RESULT.PASS, le, 'PASS_1', [role, count]);
+      else rule_result.addResult(TEST_RESULT.MANUAL_CHECK, le, 'MANUAL_CHECK_2', [role]);
+    }
+    
   } // end validate function
 },
 
 /**
- * @object LANDMARK_2N
+ * @object LANDMARK_3
  *
  * @desc Each page should have at least one navigation landmark
  *
- */	     	     	     
-{ rule_id             : 'LANDMARK_2N', 
+ */                  
+{ rule_id             : 'LANDMARK_3', 
   last_updated        : '2012-07-14', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.PAGE,
   rule_category       : OpenAjax.a11y.RULE_CATEGORIES.LANDMARKS,
@@ -39627,10 +40133,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
       var tag_name = le.dom_element.tag_name;
       
       if (le.role === LANDMARK_ROLE) {
-        if (le.dom_element.computed_style.is_visible_to_at === VISIBILITY.HIDDEN) {
-          rule_result.addResult(TEST_RESULT.HIDDEN, le, 'HIDDEN', [tag_name]);                      
-        }
-        else {
+        if (le.dom_element.computed_style.is_visible_to_at === VISIBILITY.VISIBLE) {
           landmark_count++;
           rule_result.addResult(TEST_RESULT.PASS, le, 'PASS_1', [tag_name]);
         }  
@@ -39647,12 +40150,12 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 },
 
 /**
- * @object LANDMARK_2B
+ * @object LANDMARK_4
  *
  * @desc Each page should have at least one banner landmark
  *
- */	     	     	     
-{ rule_id             : 'LANDMARK_2B', 
+ */                  
+{ rule_id             : 'LANDMARK_4', 
   last_updated        : '2012-07-14', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.PAGE,
   rule_category       : OpenAjax.a11y.RULE_CATEGORIES.LANDMARKS,
@@ -39703,12 +40206,12 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
 },
 
 /**
- * @object LANDMARK_2CI
+ * @object LANDMARK_5
  *
  * @desc Each page should have at least one content information or complementary landmark
  *
- */	     	     	     
-{ rule_id             : 'LANDMARK_2CI', 
+ */                  
+{ rule_id             : 'LANDMARK_5', 
   last_updated        : '2012-07-14', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.PAGE,
   rule_category       : OpenAjax.a11y.RULE_CATEGORIES.LANDMARKS,
@@ -39756,8 +40259,112 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
     } 
     
   } // end validate function
-}
+},
 
+/**
+ * @object LANDMARK_6
+ *
+ * @desc Headings should be properly nested in a landmark
+ */                  
+{ rule_id             : 'LANDMARK_6', 
+  last_updated        : '2012-07-14', 
+  rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
+  rule_category       : OpenAjax.a11y.RULE_CATEGORIES.LANDMARKS,
+  wcag_primary_id     : '1.3.1',
+  wcag_related_ids    : ['2.4.1', '2.4.6', '2.4.10'],
+  target_resources    : ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+  cache_dependency    : 'headings_landmarks_cache',
+  resource_properties : ['tag_name', 'name', 'parent_landmark'],
+  language_dependency : "",
+  validate            : function (dom_cache, rule_result) {
+
+     function getNextVisibleHeadingWithContent(flag) {
+     
+       if (typeof flag !== 'boolean' || flag) heading_index++;
+     
+       while (heading_index < heading_elements_len) {
+       
+         var he = heading_elements[heading_index];
+         var de = he.dom_element;
+         var vf = de.computed_style.is_visible_to_at;
+         
+         if ((vf === VISIBILITY.VISIBLE) && 
+             (he.name.length > 0)) {
+           return he;
+         }
+         
+         if ((vf === VISIBILITY.VISIBLE) && 
+             (he.name.length === 0)) {
+           rule_result.addResult(TEST_RESULT.FAIL, he, 'CORRECTIVE_ACTION_3', [de.tag_name, le]);          
+         }
+         
+         heading_index++;          
+         
+       }
+       
+       return null;
+     }
+
+    var TEST_RESULT = OpenAjax.a11y.TEST_RESULT;
+    var VISIBILITY  = OpenAjax.a11y.VISIBILITY;
+    var SOURCE      = OpenAjax.a11y.SOURCE;
+  
+    var landmark_elements     = dom_cache.headings_landmarks_cache.landmark_elements;
+    var landmark_elements_len = landmark_elements.length;
+    
+    var tag_name = "";
+
+    for (var i = 0; i < landmark_elements_len; i++ ) {
+      var le = landmark_elements[i];
+      var cs = le.dom_element.computed_style;
+
+      if (cs.is_visible_to_at) {
+
+        var heading_elements     = le.getHeadings();
+        var heading_elements_len = heading_elements.length;
+        var heading_index = 0;
+        var heading_fail  = 0;
+                
+//        OpenAjax.a11y.logger.debug("  Landmark: " + le  +  " Number of Headings: " + heading_elements_len);
+
+        var page_element  = dom_cache.headings_landmarks_cache.page_element;
+
+        var he_last = getNextVisibleHeadingWithContent(false);
+
+        var fail_count = 0;
+    
+        if (he_last && page_element) {
+
+          var de = he_last.dom_element;
+      
+          var he = getNextVisibleHeadingWithContent();
+      
+          while (he) {
+      
+            de = he.dom_element;
+        
+            if (he.level > (he_last.level + 1) ) {
+              rule_result.addResult(TEST_RESULT.FAIL, he, 'CORRECTIVE_ACTION_2', [de.tag_name, le.role]); 
+              fail_count++;
+            }
+        
+            he_last = he;
+            he = getNextVisibleHeadingWithContent();
+          }
+        }  
+        
+        if (fail_count > 0) rule_result.addResult(TEST_RESULT.FAIL, le, 'CORRECTIVE_ACTION_1', [fail_count, heading_elements_len, le.role]);
+        else if (heading_elements_len > 1) rule_result.addResult(TEST_RESULT.PASS, le, 'PASS_1', [heading_elements_len, le.role]);
+        
+      }
+      else {
+        rule_result.addResult(TEST_RESULT.HIDDEN, le, 'HIDDEN', [le.role, fail_count, heading_elements_len]);      
+      }
+      
+    }
+    
+  } // end validate function
+}
 
 
 ]); 
@@ -40032,7 +40639,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  *
  * @desc Links with the same HREF should have the same link text.
  */
-	     
+       
 { rule_id             : 'LINK_1', 
   last_updated        : '2012-09-22', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
@@ -40155,7 +40762,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  *
  * @desc Links with the different HREFs should have the unique link text.
  */ 
-	     
+       
 { rule_id             : 'LINK_2', 
   last_updated        : '2012-09-22', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
@@ -41222,7 +41829,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * @object TITLE_1
  *
  * @desc The page must contain exactly one title element and it must contain content.
- */	     	     	     
+ */                  
  
 { rule_id             : 'TITLE_1', 
   last_updated        : '2012-09-11', 
@@ -41262,7 +41869,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * @object TITLE_2
  *
  * @desc The page must contain exactly one title element and it must contain content.
- */	     	     	     
+ */                  
  
 { rule_id             : 'TITLE_2', 
   last_updated        : '2012-09-11', 
@@ -41301,7 +41908,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  *
  * @desc The words in the @h1@ content must be part of the title element text content.
  *
- */	     	     	     
+ */                  
  
 { rule_id             : 'TITLE_3', 
   last_updated        : '2012-09-11', 
@@ -41872,7 +42479,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * 
  * @desc ARIA Widgets must have accessible names
  */
-	     
+       
 { rule_id             : 'WIDGET_1', 
   last_updated        : '2012-12-12', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
@@ -41925,7 +42532,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * 
  * @desc Elements with onClick event handlers event handlers need role 
  */
-	     
+       
 { rule_id             : 'WIDGET_2', 
   last_updated        : '2012-12-12', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
@@ -42019,7 +42626,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * 
  * @desc Elements with role values must have valid widget or landmark roles 
  */
-	     
+       
 { rule_id             : 'WIDGET_3', 
   last_updated        : '2012-12-12', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
@@ -42068,7 +42675,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * 
  * @desc Elements with ARIA attributes have valid values
  */
-	     
+       
 { rule_id             : 'WIDGET_4', 
   last_updated        : '2012-12-12', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
@@ -42169,7 +42776,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * 
  * @desc Elements with ARIA attributes have valid values
  */
-	     
+       
 { rule_id             : 'WIDGET_5', 
   last_updated        : '2012-12-12', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
@@ -42267,7 +42874,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * 
  * @desc Widgets must have required properties
  */
-	     
+       
 { rule_id             : 'WIDGET_6', 
   last_updated        : '2012-12-12', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
@@ -42380,7 +42987,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * 
  * @desc Widgets must have required owned elements
  */
-	     
+       
 { rule_id             : 'WIDGET_7', 
   last_updated        : '2012-12-12', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
@@ -42457,7 +43064,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * 
  * @desc Widgets must have required parent roles
  */
-	     
+       
 { rule_id             : 'WIDGET_8', 
   last_updated        : '2012-04-12', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
@@ -42533,7 +43140,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * 
  * @desc Widgets cannot be owned by more than one widget
  */
-	     
+       
 { rule_id             : 'WIDGET_9', 
   last_updated        : '2012-12-04', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
@@ -42597,7 +43204,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * 
  * @desc Range widgets with ariavaluenow mut be in range of aria-valuemin and aria-valuemax
  */
-	     
+       
 { rule_id             : 'WIDGET_10', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
   rule_category       : OpenAjax.a11y.RULE_CATEGORIES.WIDGETS,
@@ -42717,7 +43324,7 @@ OpenAjax.a11y.all_rules.addRulesFromJSON([
  * 
  * @desc Elements with mouse down, mouse move and mouse up events must have roles
  */
-	     
+       
 { rule_id             : 'WIDGET_11', 
   rule_scope          : OpenAjax.a11y.RULE_SCOPE.ELEMENT,
   rule_category       : OpenAjax.a11y.RULE_CATEGORIES.WIDGETS,
@@ -43272,6 +43879,10 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        required : false,
        enabled  : true
      },
+   LANDMARK_6 : {
+       required : false,
+       enabled  : true
+     },
    LAYOUT_1 : {
        required : true,
        enabled  : true
@@ -43575,6 +44186,10 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        required : true,
        enabled  : true
      },
+   LANDMARK_6 : {
+       required : true,
+       enabled  : true
+     },
    LAYOUT_1 : {
        required : true,
        enabled  : true
@@ -43874,15 +44489,19 @@ OpenAjax.a11y.all_rulesets.addRuleset('WCAG20', {
        required : true,
        enabled  : true
      },
-   LANDMARK_2N : {
+   LANDMARK_3 : {
        required : true,
        enabled  : true
      },
-   LANDMARK_2B : {
+   LANDMARK_4 : {
        required : true,
        enabled  : true
      },
-   LANDMARK_2CI : {
+   LANDMARK_5 : {
+       required : true,
+       enabled  : true
+     },
+   LANDMARK_6 : {
        required : true,
        enabled  : true
      },

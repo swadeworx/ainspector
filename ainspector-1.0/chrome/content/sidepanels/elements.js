@@ -235,7 +235,7 @@ Firebug.ElementsSidePanel.prototype = Obj.extend(Firebug.Panel, {
     
     if (filtered_rule_result) {
       
-//      if (FBTrace.DBG_AINSPECTOR)
+      if (FBTrace.DBG_AINSPECTOR)
         FBTrace.sysout("AInspector; filtered_rule_result: ", filtered_rule_result);
       
     	rule_result_mesg = filtered_rule_result.message;

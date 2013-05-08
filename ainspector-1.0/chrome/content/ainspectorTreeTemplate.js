@@ -460,13 +460,12 @@ define([
             var column = Dom.getAncestorByClass(event.target, "gridHeaderCell");
             
             if (FBTrace.DBG_AINSPECTOR)
-              
               FBTrace.sysout("AInspector; Firebug.AinspectorModule.AinspectorRulesTemplate.sortColumn", AinspectorUtil);  
-              AinspectorUtil.sortColumn(table, column);
+
+            AinspectorUtil.sortColumn(table, column);
           },
           
           onChangeOption : function(event) {
-            FBTrace.sysout("event in onChangeOption: ", event);
             
             var target = event.target;
             var option_selected = target.options[target.selectedIndex];

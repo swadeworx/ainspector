@@ -180,7 +180,6 @@ define([
            var filteredRuleResults = rule_results.getFilteredRuleResultsByRuleCategory(rule_category, preferences.show_results_filter_value);
            var ruleResultsList = new OpenAjax.a11y.formatters.TreeViewOfFilteredRuleResultsGroup(filteredRuleResults);
            
-           FBTrace.sysout('filteredRuleResults: ', filteredRuleResults.getResultSummary());
            panel.table = this.tag.replace({rule_result_items: ruleResultsList.rule_result_items, view:view, resultSummary: filteredRuleResults.getResultSummary() }, panel.panelNode);
 
            AinspectorUtil.contextMenu.setTableMenuItems(panel.table);
@@ -242,7 +241,6 @@ define([
          },
          
          onChangeOption : function(event) {
-           FBTrace.sysout("event in onChangeOption: ", event);
            
            var target = event.target;
            var option_selected = target.options[target.selectedIndex];
@@ -252,7 +250,6 @@ define([
          },
          
          getSelectedOption : function(id){
-           FBTrace.sysout("getSelectedOption: ", id);
 
            if (AinspectorUtil.highlight_rules != null) {
              if (AinspectorUtil.highlight_rules.id == id) {
