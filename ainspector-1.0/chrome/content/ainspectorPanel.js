@@ -103,11 +103,8 @@ define([
         this.panelNode.addEventListener("mousemove", this.onMouseMove, true);
         this.panelNode.addEventListener("mouseup", this.onMouseUp, true);
         this.panelNode.addEventListener("mouseout", this.onMouseOut, true);
-        
 //        this.resizeEventTarget = Firebug.chrome.$('fbContentBox');
-
 //        this.panelNode.addEventListener("resize", this.onResizer, true);
-        
         Firebug.ActivablePanel.initializeNode.apply(this, arguments);
         
       },
@@ -677,11 +674,11 @@ define([
         /* set the selected ruleset in preferences*/
         for (var i=0; i< rulesets.length; i++) {
 //         console.logStringMessage("rulesets[i].selected: "+ i + "--"+ rulesets[i].selected); 
-         if (rulesets[i].selected == true) {
+          if (i <=3 && rulesets[i].selected == true) {
             p.ruleset_id = rulesets[i].id;
           
           } else {
-            if (rulesets[i].selected == true) {
+            if (i==4 && rulesets[i].selected == true) {
               p.wcag20_recommended_rules_enabled = true;
             }
           }
@@ -702,8 +699,6 @@ define([
           
           var filter = filters[j];
           var pref_filter;
-          
-//          FBTrace.sysout("AinspectorUtil: ", AinspectorUtil);
           
           if (filter.id == "emc") {
             pref_filter =  AinspectorUtil.is_emc;
@@ -738,6 +733,8 @@ define([
         p.layout_tables = false;
         AinspectorPreferences.setPreferences(p);
         
+        this.refresh();
+        
         var views = toolbar.children[0].children[0].children;
         
         for (var k=0; k<views.length; k++) {
@@ -748,7 +745,7 @@ define([
           } 
         }
 //        Firebug.AinspectorModule.updateSelection();
-        this.refresh();
+        
       },
       
       setSelectedView : function(category) {
