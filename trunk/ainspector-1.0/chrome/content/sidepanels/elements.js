@@ -402,7 +402,6 @@ with (Domplate) {
           
           var severity_label = object.getResultValue();
         
-          FBTrace.sysout("severity_label: "+ severity_label );
           if (severity_label == 'Warning') return this.strTagWarn;
           
           if (severity_label == 'Manual Check') return this.strTagManual;
