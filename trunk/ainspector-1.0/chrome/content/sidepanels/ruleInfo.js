@@ -162,7 +162,7 @@ Firebug.RuleInfoSidePanel.prototype = Obj.extend(Firebug.Panel, {
       
       rule_summary =  rule_result.getRuleSummary();
       rule_definition = rule_result.getRuleDefinition();
-//      FBTrace.sysout("rule: ", rule);
+      
       var purpose = rule.getPurpose();
       
       var primary_sc = rule.getPrimarySuccessCriterion();
@@ -173,10 +173,9 @@ Firebug.RuleInfoSidePanel.prototype = Obj.extend(Firebug.Panel, {
       requirements.push(primary_sc);
 
       var secondary_sc = rule.getRelatedSuccessCriteria();
-      FBTrace.sysout("primary_sc: ", primary_sc);
 
       for (var j = 0; j < secondary_sc.length; j++) {
-        requirements.push(secondary_sc.related[j]);
+        requirements.push(secondary_sc[j]);
       }
       var target_res = rule.getTargetResources();
 
@@ -236,20 +235,19 @@ with (Domplate) {
       DIV({class: "side-panel"},
         DIV({class: "eval-results", style: "color: black; font-weight: bold;"}, "Rule: "),
         DIV({class: "element-select", style: "margin-left: 0.8em;"}, "$resultObject.rule_summary"),  
-        DIV({class: "eval-results", style: "color: black; font-weight: bold;"}, "ID: "),
-        DIV({class: "element-select", style: "margin-left: 0.8em;"}, "$resultObject.rule_id"),
+                
         DIV({class: "eval-results", style: "color: black; font-weight: bold;"}, "Definition"),
         DIV({class: "element-select", style: "margin-left: 0.8em;"}, "$resultObject.rule_definition"),
-        
-        UL({class: "eval-results", style: "color: black; font-weight: bold;"}, "WCAG 2.0 Requirements"),
-        FOR("rule", "$resultObject.requirements", 
-          LI({class: "element-select", style: "margin-left: 1.7em;"}, 
-            A({onclick: "$onClickURL", _repObject: "$rule.url_spec"}, "$rule.title"))),
         
         UL({class: "eval-results", style: "color: black; font-weight: bold;"}, "Purpose"),
         FOR("rule_purpose", "$resultObject.purpose", 
           LI({class: "element-select", style: "margin-left: 1.7em;"}, "$rule_purpose")),
           
+        UL({class: "eval-results", style: "color: black; font-weight: bold;"}, "WCAG 2.0 Requirements"),
+        FOR("rule", "$resultObject.requirements", 
+          LI({class: "element-select", style: "margin-left: 1.7em;"}, 
+            A({onclick: "$onClickURL", _repObject: "$rule.url_spec"}, "$rule.title"))),
+        
         UL({class: "eval-results", style: "color: black; font-weight: bold;"}, "Techniques"),
         FOR("technique", "$resultObject.techniques", 
           LI({class: "element-select", style: "margin-left: 1.7em;"}, "$technique")),
@@ -257,7 +255,7 @@ with (Domplate) {
         UL({class: "eval-results", style: "color: black; font-weight: bold;"}, "Informational Links"),
         FOR("info_link", "$resultObject.info_links", 
           LI({class: "element-select", style: "margin-left: 1.7em;"}, 
-            A({onclick: "$onClickURL", _repObject: "$info_link.url"}, "$info_link.title"))
+            A({onclick: "$onClickURL", _repObject: "$info_link.url"}, "$info_link.label"))
         ),
         DIV({class: "eval-results", style: "color: black; font-weight: bold;"}, "Target Resources Description"),
         DIV({class: "element-select", style: "margin-left: 0.8em;"}, "$resultObject.target_res_desc"),

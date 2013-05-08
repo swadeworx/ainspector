@@ -214,7 +214,6 @@ define([
       onResizing: function(event) {
           
         if (!this.resizing) return;
-        FBTrace.sysout("event: ", event);
         var newWidth = this.startWidth + (event.clientX - this.startX);
         this.currColumn.style.width = newWidth + "px";
           

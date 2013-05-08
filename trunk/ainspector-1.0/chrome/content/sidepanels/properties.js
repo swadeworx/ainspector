@@ -89,6 +89,8 @@ Firebug.PropertiesSidePanel.prototype = Obj.extend(Firebug.Panel, {
 
   updateSelection: function(object, parentNode, type) {
     
+    if (Firebug.chrome.getSelectedSidePanel().name != panelName) return;
+    
     var results = SidePanelUtil.commonTemplate.getResults(object.cache_item_result.cache_item, type);
     
     if (results.length > 0)

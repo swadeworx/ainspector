@@ -375,10 +375,10 @@ define([
               var table  = Dom.getAncestorByClass(event.target, "ai-table-list-items");
               var column = Dom.getAncestorByClass(event.target, "gridHeaderCell");
               
-              if (FBTrace.DBG_AINSPECTOR)
-                
+              if (FBTrace.DBG_AINSPECTOR)                
                 FBTrace.sysout("AInspector; Firebug.AinspectorModule.AinspectorRulesTemplate.sortColumn", AinspectorUtil);  
-                AinspectorUtil.sortColumn(table, column);
+                
+              AinspectorUtil.sortColumn(table, column);
             },
             
             onFocus : function (event) {
@@ -399,7 +399,6 @@ define([
             },
             
             onChangeOption : function(event) {
-              FBTrace.sysout("event in onChangeOption: ", event);
               
               var target = event.target;
               var option_selected = target.options[target.selectedIndex];

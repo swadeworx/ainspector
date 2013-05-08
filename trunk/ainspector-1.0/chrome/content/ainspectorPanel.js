@@ -439,7 +439,6 @@ define([
            type   : "radio",
            command: function() {
                var id = this.getAttribute("id");
-               FBTrace.sysout("this: ", this);
                Firebug.AinspectorPanel.prototype.showReport(id);
            }
          },
@@ -857,7 +856,7 @@ define([
        * 
        *  @param {String}id - type of report
        */
-      showReportOld : function(id) {
+      showReport : function(id) {
         
         Components.utils.import("resource://gre/modules/FileUtils.jsm");
         var rule_category;
@@ -889,8 +888,6 @@ define([
         
         var html = rule_summary.toHTML(name);
         
-        FBTrace.sysout("html: ", html);
-        
         fileStream.write(html, html.length);
         
         FileUtils.closeSafeFileOutputStream(fileStream);
@@ -916,7 +913,7 @@ define([
        * 
        *  @param {String}id - type of report
        */
-      showReport : function(id) {
+      showReportold : function(id) {
         
         var rule_category;
         var name;
