@@ -16,7 +16,9 @@
 /**
  * @file main.js
  * 
- * Automatically loaded by the registration process of the extension.
+ * Automatically loaded by the registration process of the extension i.e., 
+ * when the extension is loaded Firebug looks for the main module (main.js)
+ * to load. 
  */
 
 define([
@@ -36,12 +38,21 @@ define([
       AttributesSidePanel, PropertiesSidePanel, StyleSidePanel, EventsSidePanel ) {
 
     var theApp = {
-  
+    	
+    	/**
+    	 * @function initialize
+    	 * 
+    	 * @desc A11y Extension initialization will be done in initialize() such as registering the A11y panel,
+    	 *       registering string bundles 
+    	 */	
       initialize: function() {
-        if (FBTrace.DBG_AINSPECTOR)
+        
+      	if (FBTrace.DBG_AINSPECTOR)
             FBTrace.sysout("AInspector; ainspector extension initialize:");
+     
+//      Registration of the A11y panel
+        Firebug.registerPanel(Firebug.AinspectorPanel);
         Firebug.registerStringBundle("chrome://ainspector/locale/ainspector.properties");
-            // TODO: Extension initialization
       },
     
       /**
@@ -56,7 +67,7 @@ define([
             
         Firebug.unregisterPanel(Firebug.AinspectorPanel);        
         Firebug.unregisterActivableModule(Firebug.AinspectorModule); 
-//        Firebug.unregisterUIListener(AinspectorListener);
+//      Firebug.unregisterUIListener(AinspectorListener);
         
         Firebug.unregisterPanel(Firebug.ElementsSidePanel);
         Firebug.unregisterPanel(Firebug.RuleInfoSidePanel);
@@ -66,10 +77,6 @@ define([
         Firebug.unregisterPanel(Firebug.StyleSidePanel);
         Firebug.unregisterPanel(Firebug.EventsSidePanel);
 
-
-        Firebug.unregisterStylesheet("chrome://fireaccess/skin/fireaccess.css");
-        Firebug.unregisterStringBundle("chrome://fireaccess/locale/fireaccess.properties");
-        
         Firebug.unregisterStylesheet("chrome://ainspector/skin/ainspector.css"); 
         Firebug.unregisterStylesheet("chrome://ainspector/skin/ainspector-list-template.css");
         Firebug.unregisterStringBundle("chrome://ainspector/locale/ainspector.properties");
