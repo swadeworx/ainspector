@@ -208,7 +208,7 @@ Firebug.RuleInfoSidePanel.prototype = Obj.extend(Firebug.Panel, {
   
     this.panelNode.id = "ainspector-side-panel";
     
-     this.rulestemplate.tag.replace({resultObject: resultObject}, this.panelNode);
+    this.rulestemplate.tag.replace({resultObject: resultObject}, this.panelNode);
     
   },
   
@@ -255,7 +255,7 @@ with (Domplate) {
         UL({class: "eval-results", style: "color: black; font-weight: bold;"}, "Informational Links"),
         FOR("info_link", "$resultObject.info_links", 
           LI({class: "element-select", style: "margin-left: 1.7em;"}, 
-            A({onclick: "$onClickURL", _repObject: "$info_link.url"}, "$info_link.label"))
+            A({onclick: "$onClickURL", _repObject: "$info_link.url"}, "$info_link.title"))
         ),
         DIV({class: "eval-results", style: "color: black; font-weight: bold;"}, "Target Resources Description"),
         DIV({class: "element-select", style: "margin-left: 0.8em;"}, "$resultObject.target_res_desc"),

@@ -184,7 +184,7 @@ define([
       var highlight_options = Dom.getChildByClass(summary_grid, 'highlight-option');
       
 //    Call initHighlight() only if V/W only option is selected to avoid the emc, pmc, pass and hidden elements by highlighting 
-      if (highlight_options.selectedIndex == 1)  
+      if (highlight_options.selectedIndex == 2)  
         OAA_WEB_ACCESSIBILITY.util.highlightModule.initHighlight(false, false, false, false);
       else OAA_WEB_ACCESSIBILITY.util.highlightModule.initHighlight(preferences.show_results_element_manual_checks,
           preferences.show_results_page_manual_checks, 
@@ -192,7 +192,7 @@ define([
           preferences.show_results_hidden);
               
       var doc = window.content.document;
-      if (highlight_options.selectedIndex == 2) {
+      if (highlight_options.selectedIndex == 0) {
         
         OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(doc);
         
@@ -212,31 +212,35 @@ define([
       
       if (AinspectorUtil.selected_row != null) {
         var row = AinspectorUtil.selected_row;
+        
         switch (index) {
-        case 0:
-          OAA_WEB_ACCESSIBILITY.util.highlightModule.initHighlight(preferences.show_results_element_manual_checks,
+          
+          case 0:
+            OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
+            break;
+          
+          case 1:
+            OAA_WEB_ACCESSIBILITY.util.highlightModule.initHighlight(preferences.show_results_element_manual_checks,
               preferences.show_results_page_manual_checks, 
               preferences.show_results_pass,
               preferences.show_results_hidden);
           
-          if (row.repObject.filtered_rule_result && row.repObject.filtered_rule_result.filtered_node_results) {
-            OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightNodeResults(window.content.document, row.repObject.filtered_rule_result.filtered_node_results);
-          } else {
-            OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems(window.content.document, row.repObject.cache_item_result.getCacheItem());
-          }
-          break;
-        case 1:
-          OAA_WEB_ACCESSIBILITY.util.highlightModule.initHighlight(false, false, false, false);
+            if (row.repObject.filtered_rule_result && row.repObject.filtered_rule_result.filtered_node_results) {
+              OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightNodeResults(window.content.document, row.repObject.filtered_rule_result.filtered_node_results);
+            } else {
+              OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems(window.content.document, row.repObject.cache_item_result.getCacheItem());
+            }
+            break;
           
-          if (row.repObject.filtered_rule_result && row.repObject.filtered_rule_result.filtered_node_results) {
-            OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightNodeResults(window.content.document, row.repObject.filtered_rule_result.filtered_node_results);
-          } else {
-            OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems(window.content.document, row.repObject.cache_item_result.getCacheItem());
-          }
-          break;
-        case 2:
-          OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
-          break;
+          case 2:
+            OAA_WEB_ACCESSIBILITY.util.highlightModule.initHighlight(false, false, false, false);
+          
+            if (row.repObject.filtered_rule_result && row.repObject.filtered_rule_result.filtered_node_results) {
+              OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightNodeResults(window.content.document, row.repObject.filtered_rule_result.filtered_node_results);
+            } else {
+              OAA_WEB_ACCESSIBILITY.util.highlightModule.highlightCacheItems(window.content.document, row.repObject.cache_item_result.getCacheItem());
+            }
+            break;
         }
       }
     }
@@ -519,11 +523,10 @@ define([
       onShowColumn : function(context, colId) {
         var panel = Firebug.currentContext.getPanel("ainspector", true);
         var content = panel.table;
-//        var table_div = getChildByClass(content, "table-scrollable");
-
         var table = Dom.getChildByClass(content, "ai-table-list-items");
          
         if (!table) table = Dom.getChildByClass(content, "domTable");
+      
         var hiddenCols = table.getAttribute("hiddenCols");
 //      If the column is already present in the list of hidden columns,
 //      remove it, otherwise append it.
@@ -613,8 +616,6 @@ define([
             }
           } 
         }
-        
-        
       }
     };
     AinspectorUtil.isEmpty = function(object){

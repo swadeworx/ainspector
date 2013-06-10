@@ -52,9 +52,9 @@ define([
                BUTTON({onclick: "$expandAll", style: "float:right;", _repObject: "$rule_result_items"}, "Expand All"),
                BUTTON({onclick: "$collapseAllRows", style: "float:right;", _repObject: "$rule_result_items"}, "Collapse All"),
                SELECT({class: "highlight-option", style: "float:right;", id : "hihglight-options", name : "Highlight", onchange : "$onChangeOption"},
-                 OPTION({id: "all"}, "Selected Elements"),
-                 OPTION({id: "some"}, "V/W only"),
-                 OPTION({id: "none"}, "None")
+              	 OPTION({id: "none"}, Locale.$STR("ainspector.mainpanel.highlight.options.none")),
+                 OPTION({id: "all"}, Locale.$STR("ainspector.mainpanel.highlight.options.all")),
+                 OPTION({id: "some"}, Locale.$STR("ainspector.mainpanel.highlight.options.vw"))
                ),
                SPAN({style: "float:right; margin-right: 0.8em; color: black; font-weight: normal;"}, " Highlight: ")
              ),
