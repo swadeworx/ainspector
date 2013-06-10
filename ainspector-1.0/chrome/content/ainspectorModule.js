@@ -166,6 +166,7 @@ define([
         var win = event.currentTarget;
         var firebug_context;
         
+        //TODO: lookup TabWatcher
         if (win != Firebug.currentContext.window) {
           firebug_context = TabWatcher.getContextByWindow(win);
         } else {

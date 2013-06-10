@@ -32,7 +32,6 @@ define([
     
     with (Domplate){
     
-    var panelName = "ainspector";
     Firebug.registerStringBundle("chrome://ainspector/locale/ainspector.properties");
     Firebug.AinspectorModule.AinspectorListTemplate = domplate(Firebug.Rep, new Firebug.Listener(), {
        tag:

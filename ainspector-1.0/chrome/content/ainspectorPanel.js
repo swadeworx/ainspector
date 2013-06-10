@@ -453,141 +453,139 @@ define([
        return items;
      },
       
-      refresh : function() {
-        ruleset_object = AinspectorWatcher.getRuleResultsObject();
-      },
+     refresh : function() {
+       ruleset_object = AinspectorWatcher.getRuleResultsObject();
+     },
       
-      /**
-       * @function getPreferences
-       * 
-       * @desc makes a call to the preferences module
-       */
-      getPreferences: function(){
+     /**
+      * @function getPreferences
+      * 
+      * @desc makes a call to the preferences module
+      */
+     getPreferences: function(){
         
-        window.openDialog("chrome://ainspector/content/preferences/preferences-dialog.xul", "", "chrome,centerscreen,resizable=yes", "");
-      },
+       window.openDialog("chrome://ainspector/content/preferences/preferences-dialog.xul", "", "chrome,centerscreen,resizable=yes", "");
+     },
   
-      /**
-       * @function onClickRulesMenuItem
-       * 
-       * @desc response to Headers menu item
-       */
-      onClickRulesMenuItem : function(){
-        if (FBTrace.DBG_AINSPECTOR) 
-          FBTrace.sysout("AInspector; AinspectorPanel.getAllRulesetsMenu-fbPanelToolbar: ", Firebug.chrome.$("fbPanelToolbar").children);
-        this.setSelectedView("onClickRulesMenuItem");
-        AinspectorListener.onGetPanelToolbarButtons(ruleset_object);
-        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
+     /**
+      * @function onClickRulesMenuItem
+      * 
+      * @desc response to Headers menu item
+      */
+     onClickRulesMenuItem : function(){
+     
+    	 if (FBTrace.DBG_AINSPECTOR) 
+         FBTrace.sysout("AInspector; AinspectorPanel.getAllRulesetsMenu-fbPanelToolbar: ", Firebug.chrome.$("fbPanelToolbar").children);
         
-        Firebug.AinspectorModule.AinspectorRulesTemplate.viewTag(ruleset_object, 
-            OpenAjax.a11y.RULE_CATEGORIES.ALL, Locale.$STR("ainspector.views.rules"), "onClickRulesMenuItem");
+    	 this.setSelectedView("onClickRulesMenuItem");
+       AinspectorListener.onGetPanelToolbarButtons(ruleset_object);
+       OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
         
-      },
+       Firebug.AinspectorModule.AinspectorRulesTemplate.viewTag(ruleset_object, 
+          OpenAjax.a11y.RULE_CATEGORIES.ALL, Locale.$STR("ainspector.views.rules"), "onClickRulesMenuItem");
+        
+     },
       
-      onClickCategoriesMenuItem : function () {
+     onClickCategoriesMenuItem : function () {
         
-        this.setSelectedView("onClickCategoriesMenuItem");
-       
-        AinspectorListener.onGetPanelToolbarButtons(ruleset_object);
+       this.setSelectedView("onClickCategoriesMenuItem");
+       AinspectorListener.onGetPanelToolbarButtons(ruleset_object);
 
-        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
+       OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
 
-        Firebug.AinspectorModule.WcagSummaryTemplate.viewTag(ruleset_object, 
-          OpenAjax.a11y.RULE_SUMMARY.CATEGORIES, Locale.$STR("ainspector.views.categories"), "onClickCategoriesMenuItem");
-      },
+       Firebug.AinspectorModule.WcagSummaryTemplate.viewTag(ruleset_object, 
+         OpenAjax.a11y.RULE_SUMMARY.CATEGORIES, Locale.$STR("ainspector.views.categories"), "onClickCategoriesMenuItem");
+     },
       
-      onClickWCAGMenuItem : function() {
+     onClickWCAGMenuItem : function() {
         
-        this.setSelectedView("onClickWCAGMenuItem");
-        
-        AinspectorListener.onGetPanelToolbarButtons(ruleset_object);
+       this.setSelectedView("onClickWCAGMenuItem");
+       AinspectorListener.onGetPanelToolbarButtons(ruleset_object);
 
-        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
+       OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
 
-        Firebug.AinspectorModule.WcagSummaryTemplate.viewTag(ruleset_object, 
+       Firebug.AinspectorModule.WcagSummaryTemplate.viewTag(ruleset_object, 
           OpenAjax.a11y.RULE_SUMMARY.WCAG20, Locale.$STR("ainspector.views.wcag"), "onClickWCAGMenuItem");
-      },
+     },
       
-      /**
-       * @function onClickContentMenuItem
-       * 
-       * @desc response to Text menu item
-       */
-      onClickContentMenuItem : function() {
-        this.setSelectedView("onClickContentMenuItem");
-        
-        AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Text Elements');
+     /**
+      * @function onClickContentMenuItem
+      * 
+      * @desc response to Text menu item
+      */
+     onClickContentMenuItem : function() {
+     
+    	 this.setSelectedView("onClickContentMenuItem");
+       AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Text Elements');
 
-        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
+       OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
 
-        Firebug.AinspectorModule.AinspectorListTemplate.viewTag(ruleset_object, 
-            OpenAjax.a11y.ELEMENT_TYPE.TEXT, Locale.$STR("ainspector.views.text"), "onClickContentMenuItem");
+       Firebug.AinspectorModule.AinspectorListTemplate.viewTag(ruleset_object, 
+          OpenAjax.a11y.ELEMENT_TYPE.TEXT, Locale.$STR("ainspector.views.text"), "onClickContentMenuItem");
   
-      },
+     },
       
-      /**
-       * @function onClickHeadersMenu
-       * 
-       * @desc response to Headers menu item
-       */
-      onClickHeadersMenuItem : function() {
-        this.setSelectedView("onClickHeadersMenuItem");
-        
-        AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Heading and Landmark Elements');
+     /**
+      * @function onClickHeadersMenu
+      * 
+      * @desc response to Headers menu item
+      */
+     onClickHeadersMenuItem : function() {
+     
+    	 this.setSelectedView("onClickHeadersMenuItem");
+       AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Heading and Landmark Elements');
 
-        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
+       OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
 
-        Firebug.AinspectorModule.AinspectorListTemplate.viewTag(ruleset_object, 
-            OpenAjax.a11y.ELEMENT_TYPE.HEADINGS_LANDMARKS, Locale.$STR("ainspector.views.headers"), "onClickHeadersMenuItem");
+       Firebug.AinspectorModule.AinspectorListTemplate.viewTag(ruleset_object, 
+          OpenAjax.a11y.ELEMENT_TYPE.HEADINGS_LANDMARKS, Locale.$STR("ainspector.views.headers"), "onClickHeadersMenuItem");
         
-      },
+     },
       
-      /**
-       * @function onClickControlsMenu
-       * 
-       * @desc response to form controls menu item
-       */
-      onClickControlsMenuItem : function() {
+     /**
+      * @function onClickControlsMenu
+      * 
+      * @desc response to form controls menu item
+      */
+     onClickControlsMenuItem : function() {
         
-        this.setSelectedView("onClickControlsMenuItem");
+       this.setSelectedView("onClickControlsMenuItem");
+       AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Form Control Elements');
         
-        AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Form Control Elements');
-        
-        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
+       OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
 
-        Firebug.AinspectorModule.AinspectorTreeTemplate.viewTag(ruleset_object, 
-            OpenAjax.a11y.ELEMENT_TYPE.FORM_CONTROLS, Locale.$STR("ainspector.views.controls"), "onClickControlsMenuItem");
+       Firebug.AinspectorModule.AinspectorTreeTemplate.viewTag(ruleset_object, 
+          OpenAjax.a11y.ELEMENT_TYPE.FORM_CONTROLS, Locale.$STR("ainspector.views.controls"), "onClickControlsMenuItem");
         
-      },
+     },
       
-      /**
-       * @function onClickImagesMenuItem
-       * 
-       * @desc response to Images menu item
-       */
-      onClickImagesMenuItem : function() {
+     /**
+      * @function onClickImagesMenuItem
+      * 
+      * @desc response to Images menu item
+      */
+     onClickImagesMenuItem : function() {
         
-        this.setSelectedView("onClickImagesMenuItem");
+       this.setSelectedView("onClickImagesMenuItem");
+       AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Image Elements');
         
-        AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Image Elements');
-        
-        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
+       OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
 
-        Firebug.AinspectorModule.AinspectorListTemplate.viewTag(ruleset_object, 
-            OpenAjax.a11y.ELEMENT_TYPE.IMAGES, Locale.$STR("ainspector.views.images"), "onClickImagesMenuItem");
-      },
+       Firebug.AinspectorModule.AinspectorListTemplate.viewTag(ruleset_object, 
+         OpenAjax.a11y.ELEMENT_TYPE.IMAGES, Locale.$STR("ainspector.views.images"), "onClickImagesMenuItem");
+     },
       
-      /**
-       * @function onClickLinksMenuItem
-       * 
-       * @desc response to Links menu item
-       */
-      onClickLinkMenuItem : function() {
+     /**
+      * @function onClickLinksMenuItem
+      * 
+      * @desc response to Links menu item
+      */
+     onClickLinkMenuItem : function() {
         
-        this.setSelectedView("onClickLinkMenuItem");
-        AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Link Elements');
+       this.setSelectedView("onClickLinkMenuItem");
+       AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Link Elements');
         
-        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
+       OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
 
         Firebug.AinspectorModule.AinspectorListTemplate.viewTag(ruleset_object, 
             OpenAjax.a11y.ELEMENT_TYPE.LINKS, Locale.$STR("ainspector.views.links"), "onClickLinkMenuItem");
@@ -978,7 +976,7 @@ define([
   Firebug.registerStringBundle("chrome://ainspector/locale/ainspector.properties");
   
   // Registration of the A11y panel
-  Firebug.registerPanel(Firebug.AinspectorPanel);
+//  Firebug.registerPanel(Firebug.AinspectorPanel);
   Firebug.registerStylesheet("chrome://ainspector/skin/ainspector.css");
   
   return Firebug.AinspectorPanel;
