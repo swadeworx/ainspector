@@ -116,11 +116,11 @@ define([
           FBTrace.sysout("AInspector; ainspectorModule.showPanel.Firebug", Firebug);
         
         if (is_my_extension) {
-          if (Firebug.version == '1.12' || Firebug.currentVersion == '1.11.3b1'){
+          /*if (Firebug.version == '1.12' || Firebug.currentVersion == '1.11.3b1'){
             
           } else {
             alert(" Please get Firebug 1.11.3 beta from https://blog.getfirebug.com/2013/04/12/firebug-1-11-3-beta-1/ or Firebug 1.12 from https://getfirebug.com/releases/firebug/1.12/ before running A11y Extension to support menus");
-          }
+          }*/
         }
         if (is_my_extension) this.updateSelection();
         
