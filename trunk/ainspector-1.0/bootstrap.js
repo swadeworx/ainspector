@@ -92,7 +92,7 @@ function startup(data, reason){
  * shutdown() is called:
  *  1. When the extension is uninstalled
  *  2. When the extension becomes disabled
- *  3. When the user quits the application, if the extension is enabled
+ *  3. When the user quits the application i.e., firefox browser, if the extension is enabled
  * 
  * @param {Object} data - bootstrap data structure with the properties:
  *        1. {String}  id           - ID of add-on being bootstrapped
@@ -101,8 +101,6 @@ function startup(data, reason){
  *        4. {nsIURI}  resourceURI  - A URI pointing at the root of the add-ons files 
  * @param reason - reason constants indicating when the extension being shut down(example., APP_SHUTDOWN,
  *                 ADDON_DISABLE, ADDON_UNINSTALL, ADDON_UPGRADE, or ADDON_DOWNGRADE)
- *        
- * @returns
  */
 function shutdown(data, reason) {
   
