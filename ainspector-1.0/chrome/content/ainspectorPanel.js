@@ -242,7 +242,8 @@ define([
             label  : "ainspector.menuitem.content",
             type   : "radio",
             checked: this.isSelected("onClickContentMenuItem"),
-            command: Obj.bindFixed(this.onClickContentMenuItem, this)
+            command: function() {Firebug.AinspectorPanel.prototype.getRuleCategoryView(OpenAjax.a11y.ELEMENT_TYPE.TEXT, 
+            		       Locale.$STR("ainspector.views.text"), this.getAttribute('id'));}
           },
           {
             id     : "onClickHeadersMenuItem",
@@ -323,10 +324,7 @@ define([
               type   : "radio",
               tooltiptext: ruleset.ruleset_id,
               checked: this.checkRuleset(ruleset.ruleset_id),
-              command: function(){
-            	  Firebug.AinspectorPanel.prototype.setSelectedRuleset(this.getAttribute("id")); 
-            	  Firebug.AinspectorPanel.prototype.setPreferences();
-              }
+              command: Obj.bindFixed(this.setPreferences, this)
             }
           );
         }
@@ -341,7 +339,7 @@ define([
             type       : "checkbox",
             checked    : "false",
             command    : function() {
-            							Firebug.AinspectorPanel.prototype.setSelectedRuleset(this.getAttribute('id')); 
+//            							Firebug.AinspectorPanel.prototype.setSelectedRuleset(this.getAttribute('id')); 
           								Firebug.AinspectorPanel.prototype.setPreferences();
             }
           }
@@ -360,10 +358,7 @@ define([
             tooltiptext: "ainspector.menuitem.scLevel.tooltip.AAA",
             type       : "radio",
             checked    : this.checkLevel(OpenAjax.a11y.EVALUATION_LEVELS.A_AA_AAA),
-            command    : function(){
-            							Firebug.AinspectorPanel.prototype.setSelectedLevel(this.getAttribute('id')); 
-            							Firebug.AinspectorPanel.prototype.setPreferences();
-            }
+            command    :  Obj.bindFixed(this.setPreferences, this)
           },
           {
             id         : OpenAjax.a11y.EVALUATION_LEVELS.A_AA,
@@ -371,10 +366,7 @@ define([
             tooltiptext: "ainspector.menuitem.scLevel.tooltip.AA",
             type       : "radio",
             checked    : this.checkLevel(OpenAjax.a11y.EVALUATION_LEVELS.A_AA),
-            command    : function(){
-            							Firebug.AinspectorPanel.prototype.setSelectedLevel(this.getAttribute('id')); 
-          								Firebug.AinspectorPanel.prototype.setPreferences();
-            }
+            command    :  Obj.bindFixed(this.setPreferences, this)
           },
           {
             id         : OpenAjax.a11y.EVALUATION_LEVELS.A,
@@ -382,10 +374,7 @@ define([
             tooltiptext: "ainspector.menuitem.scLevel.tooltip.A",
             type       : "radio",
             checked    : this.checkLevel(OpenAjax.a11y.EVALUATION_LEVELS.A), 
-            command    : function(){
-            							Firebug.AinspectorPanel.prototype.setSelectedLevel(this.getAttribute('id')); 
-            							Firebug.AinspectorPanel.prototype.setPreferences();
-            }
+            command    : Obj.bindFixed(this.setPreferences, this)
           }
         );
         return items;
@@ -466,7 +455,7 @@ define([
         
        window.openDialog("chrome://ainspector/content/preferences/preferences-dialog.xul", "", "chrome,centerscreen,resizable=yes", "");
      },
-  
+     
      /**
       * @function onClickRulesMenuItem
       * 
@@ -474,10 +463,6 @@ define([
       */
      onClickRulesMenuItem : function(){
      
-    	 if (FBTrace.DBG_AINSPECTOR) 
-         FBTrace.sysout("AInspector; AinspectorPanel.getAllRulesetsMenu-fbPanelToolbar: ", Firebug.chrome.$("fbPanelToolbar").children);
-        
-    	 this.setSelectedView("onClickRulesMenuItem");
        AinspectorListener.onGetPanelToolbarButtons(ruleset_object);
        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
         
@@ -488,9 +473,7 @@ define([
       
      onClickCategoriesMenuItem : function () {
         
-       this.setSelectedView("onClickCategoriesMenuItem");
        AinspectorListener.onGetPanelToolbarButtons(ruleset_object);
-
        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
 
        Firebug.AinspectorModule.WcagSummaryTemplate.viewTag(ruleset_object, 
@@ -499,13 +482,21 @@ define([
       
      onClickWCAGMenuItem : function() {
         
-       this.setSelectedView("onClickWCAGMenuItem");
        AinspectorListener.onGetPanelToolbarButtons(ruleset_object);
-
        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
 
        Firebug.AinspectorModule.WcagSummaryTemplate.viewTag(ruleset_object, 
           OpenAjax.a11y.RULE_SUMMARY.WCAG20, Locale.$STR("ainspector.views.wcag"), "onClickWCAGMenuItem");
+     },
+     
+     getRuleCategoryView : function(view_id, type, locale, rule_category) {
+    	 
+    	 AinspectorListener.onGetPanelToolbarButtons(ruleset_object, rule_category);
+       OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
+        
+       Firebug.AinspectorModule.AinspectorRulesTemplate.viewTag(ruleset_object, 
+      		 type, locale, view_id);
+     
      },
       
      /**
@@ -515,14 +506,11 @@ define([
       */
      onClickContentMenuItem : function() {
      
-    	 this.setSelectedView("onClickContentMenuItem");
        AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Text Elements');
-
        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
 
        Firebug.AinspectorModule.AinspectorListTemplate.viewTag(ruleset_object, 
           OpenAjax.a11y.ELEMENT_TYPE.TEXT, Locale.$STR("ainspector.views.text"), "onClickContentMenuItem");
-  
      },
       
      /**
@@ -532,14 +520,11 @@ define([
       */
      onClickHeadersMenuItem : function() {
      
-    	 this.setSelectedView("onClickHeadersMenuItem");
        AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Heading and Landmark Elements');
-
        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
 
        Firebug.AinspectorModule.AinspectorListTemplate.viewTag(ruleset_object, 
           OpenAjax.a11y.ELEMENT_TYPE.HEADINGS_LANDMARKS, Locale.$STR("ainspector.views.headers"), "onClickHeadersMenuItem");
-        
      },
       
      /**
@@ -549,14 +534,11 @@ define([
       */
      onClickControlsMenuItem : function() {
         
-       this.setSelectedView("onClickControlsMenuItem");
        AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Form Control Elements');
-        
        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
 
        Firebug.AinspectorModule.AinspectorTreeTemplate.viewTag(ruleset_object, 
           OpenAjax.a11y.ELEMENT_TYPE.FORM_CONTROLS, Locale.$STR("ainspector.views.controls"), "onClickControlsMenuItem");
-        
      },
       
      /**
@@ -566,9 +548,7 @@ define([
       */
      onClickImagesMenuItem : function() {
         
-       this.setSelectedView("onClickImagesMenuItem");
        AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Image Elements');
-        
        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
 
        Firebug.AinspectorModule.AinspectorListTemplate.viewTag(ruleset_object, 
@@ -582,14 +562,11 @@ define([
       */
      onClickLinkMenuItem : function() {
         
-       this.setSelectedView("onClickLinkMenuItem");
        AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Link Elements');
-        
        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
 
         Firebug.AinspectorModule.AinspectorListTemplate.viewTag(ruleset_object, 
             OpenAjax.a11y.ELEMENT_TYPE.LINKS, Locale.$STR("ainspector.views.links"), "onClickLinkMenuItem");
-  
       },
       
       /**
@@ -599,15 +576,11 @@ define([
        */
       onClickAudioMenuItem : function() {
         
-        this.setSelectedView("onClickAudioMenuItem");
-
         AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Audio/Video/Object Elements');
-        
         OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
 
         Firebug.AinspectorModule.AinspectorListTemplate.viewTag(ruleset_object, 
             OpenAjax.a11y.ELEMENT_TYPE.AUDIO_VIDEO, Locale.$STR("ainspector.views.audio"), "onClickAudioMenuItem");
-  
       },
       
       /**
@@ -617,15 +590,11 @@ define([
        */
       onClickTablesMenuItem : function() {
         
-        this.setSelectedView("onClickTablesMenuItem");
-
         AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Table Elements');
-        
         OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
 
         Firebug.AinspectorModule.AinspectorTreeTemplate.viewTag(ruleset_object, 
             OpenAjax.a11y.ELEMENT_TYPE.TABLES, Locale.$STR("ainspector.views.tables"), "onClickTablesMenuItem");
-        
       },
       
       /**
@@ -635,27 +604,11 @@ define([
        */
       onClickWidgetsMenuItem : function() {
         
-        this.setSelectedView("onClickWidgetsMenuItem");
-
         AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Widget Elements');
-        
         OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
 
         Firebug.AinspectorModule.AinspectorTreeTemplate.viewTag(ruleset_object, 
             OpenAjax.a11y.ELEMENT_TYPE.WIDGETS, Locale.$STR("ainspector.views.widgets"), "onClickWidgetsMenuItem");
-        
-      },
-      
-      /**
-       * @function getSelectedMenuItem
-       * 
-       * Firebug.chrome.$("fbPanelToolbar") gets the tool bar buttons in A11y Panel
-       */
-      getSelectedMenuItem : function() {
-        var menu_popup = Firebug.chrome.$("fbPanelToolbar").children[1];
-        var menu_items = menu_popup.children[0].children;
-        
-        for (var i=0; i<menu_items.length; i++) FBTrace.sysout("menu_item " + i + ": "+ menu_items[i].selected);
       },
       
       /**
@@ -671,12 +624,11 @@ define([
         
         /* set the selected ruleset in preferences*/
         for (var i=0; i< rulesets.length; i++) {
-//         console.logStringMessage("rulesets[i].selected: "+ i + "--"+ rulesets[i].selected); 
-          if (i <=3 && rulesets[i].selected == true) {
+          if (i <=3 && rulesets[i].hasAttribute('checked')) {
             p.ruleset_id = rulesets[i].id;
           
           } else {
-            if (i==4 && rulesets[i].selected == true) {
+            if (i==4 && rulesets[i].hasAttribute('checked')) {
               p.wcag20_recommended_rules_enabled = true;
             }
           }
@@ -686,7 +638,7 @@ define([
         var level = toolbar.children[2].children[0].children;
         
         for (var m = 0; m < level.length; m++) {
-          if (level[m].selected == true) {
+          if (level[m].hasAttribute('checked')) {
             p.wcag20_level = parseInt(level[m].id);
           } 
         }
@@ -731,63 +683,26 @@ define([
         p.layout_tables = false;
         AinspectorPreferences.setPreferences(p);
         
+        FBTrace.sysout("preferences:", p);
         this.refresh();
         
         var views = toolbar.children[0].children[0].children;
+      	FBTrace.sysout("views - " , views);
         
         for (var k=0; k<views.length; k++) {
-          if (views[k].selected) {
+          if (views[k].hasAttribute('checked')) {
+          	FBTrace.sysout("view - " +k+ ':', views[k]);
             var v = views[k].id; 
             this[v]();
             break;
           } 
         }
-//        Firebug.AinspectorModule.updateSelection();
-        
-      },
-      
-      setSelectedView : function(category) {
-        var views = Firebug.chrome.$("fbPanelToolbar").children[0].children[0].children;
-        this.setSelected(views, category);
-      },
-      
-      setSelectedRuleset : function(ruleset) {
-        var all_rulesets = Firebug.chrome.$("fbPanelToolbar").children[1].children[0].children;
-        this.setSelected(all_rulesets, ruleset);
-      },
-      
-      setSelectedLevel : function(level) {
-        var all_levels = Firebug.chrome.$("fbPanelToolbar").children[2].children[0].children;
-        this.setSelected(all_levels, level);
       },
       
       setSelectedFilter : function(filter) {
         var all_filters = Firebug.chrome.$("fbPanelToolbar").children[3].children[0].children;
 
         this.setSelectedFilters(all_filters, filter);
-      },
-      
-      setSelected : function(views, view){
-        var flag = false;
-
-        for (var i=0; i<views.length; i++) {
-          
-          if (views[i].id != view && views[i].selected) {
-
-            views[i].removeAttribute("selected", false);
-            flag = true;
-          }
-          if (FBTrace.DBG_AINSPECTOR) {
-            FBTrace.sysout("AInspector; AinspectorPanel.setSelected.view " + i, views[i]);
-            FBTrace.sysout("AInspector; AinspectorPanel.setSelected.selected view: ", view);
-          }
-          
-          if (views[i].id == view) {
-            views[i].setAttribute("selected", true);
-            if (flag == true) break;
-          }
-          
-        }
       },
       
       setSelectedFilters : function(filters, filter){
@@ -828,16 +743,9 @@ define([
         if (pref.show_results_element_manual_checks == true) return true; 
         else return false;
       },
-     
-      checkFilterPmc : function() {
-        
-        var pref = AinspectorPreferences.getPreferences();
-
-        if (pref.show_results_page_manual_checks) return true;
-        else return false;
-      },
       
       isSelected : function(view) {
+      	
         var already_selected_view = AinspectorUtil.selectedView; 
         
         if (view == already_selected_view) return true;
@@ -898,85 +806,10 @@ define([
         fileStream.write(csv, csv.length);
         
         FileUtils.closeSafeFileOutputStream(fileStream);
-
-      },
-      
-      /**
-       * @function showReport
-       * 
-       * @desc writes HTML and CSV report to a file and saves it locally on the disk
-       * 
-       *  @param {String}id - type of report
-       */
-      showReportold : function(id) {
-        
-        var rule_category;
-        var name;
-        var preferences = AinspectorPreferences.getPreferences();
-        
-        if (id == "wcag") {
-          rule_category = OpenAjax.a11y.RULE_SUMMARY.WCAG20;
-          name = "WCAG 2.0"; 
-        } else {
-          rule_category = OpenAjax.a11y.RULE_SUMMARY.CATEGORIES;
-          name = "All Rules"; 
-        }
-        
-        var rule_summary = ruleset_object.getFilteredRuleResultsByRuleSummary(rule_category, name, 
-                          preferences.wcag20_level, preferences.show_results_filter_value);
-        
-        OpenAjax.a11y.report_css   = OpenAjax.a11y.util.initStringUsingURL("chrome://ainspector/content/openajax_a11y/reports/oaa_report.css");
-        OpenAjax.a11y.report_rule_summary_view_js   = OpenAjax.a11y.util.initStringUsingURL("chrome://ainspector/content/openajax_a11y/reports/oaa_report_rule_summary_view.js");
-        OpenAjax.a11y.report_rule_summary_view_body = OpenAjax.a11y.util.initStringUsingURL("chrome://ainspector/content/openajax_a11y/reports/oaa_report_rule_summary_view.inc");
-        
-        if (!rule_summary) return;
-
-        var html = rule_summary.toHTML(name);
-        
-        FBTrace.sysout("html: ", html);
-        
-        try {
-            
-          var foStream = Cc["@mozilla.org/network/file-output-stream;1"].createInstance(Ci.nsIFileOutputStream);
-          foStream.init(file, 0x02 | 0x08 | 0x20, 0666, 0); // write, create, truncate
-
-          var doc = context.window.document;
-          var convertor = Cc["@mozilla.org/intl/converter-output-stream;1"].createInstance(Ci.nsIConverterOutputStream);
-
-          convertor.init(foStream, "UTF-8", 0, 0);
-
-          var chunkLength = 1024*1204;
-          
-          for (var i=0; i<=html.length; i++) {
-                
-            var data = html.substr(i, chunkLength+1);
-          
-            if (data) convertor.writeString(data);
-            
-            i = i + chunkLength;
-          }
-
-          // this closes foStream
-          convertor.close();
-        } catch (err) {
-            
-          if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; Failed " + err, err);
-
-          return false;
-        }
-        
-        var originalFilePath = file.path;
-        var originalFileName = file.leafName;
-
-      
       }
-
-  });
+    });
   
   Firebug.registerStringBundle("chrome://ainspector/locale/ainspector.properties");
-  
-  // Registration of the A11y panel
-//  Firebug.registerPanel(Firebug.AinspectorPanel);
   Firebug.registerStylesheet("chrome://ainspector/skin/ainspector.css");
   
   return Firebug.AinspectorPanel;
