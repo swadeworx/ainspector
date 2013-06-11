@@ -21997,7 +21997,7 @@ OpenAjax.a11y.EvaluationResult.prototype.getFilteredRuleResultsByWCAG20 = functi
   
   var evaluation_levels = this.evaluation_levels;
 
-  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("IN WCAG 2.0 SUMMARY");
+//  OAA_WEB_ACCESSIBILITY_LOGGING.logger.log.debug("IN WCAG 2.0 SUMMARY");
 
   principles = new OpenAjax.a11y.FilteredRuleResultsGroups(this, RULE_CATEGORIES.ALL, "WCAG 2.0 Summary");
 

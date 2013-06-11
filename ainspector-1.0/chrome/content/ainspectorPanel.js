@@ -339,7 +339,7 @@ define([
             type       : "checkbox",
             checked    : "false",
             command    : function() {
-//            							Firebug.AinspectorPanel.prototype.setSelectedRuleset(this.getAttribute('id')); 
+//            						Firebug.AinspectorPanel.prototype.setSelectedRuleset(this.getAttribute('id')); 
           								Firebug.AinspectorPanel.prototype.setPreferences();
             }
           }
