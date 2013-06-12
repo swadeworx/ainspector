@@ -1,5 +1,8 @@
 /* See license.txt for terms of usage */
-
+/**
+ * @file ainspectorKeyBoardSupport.js
+ * 
+ */
 define(
   [
     "firebug/lib/lib",

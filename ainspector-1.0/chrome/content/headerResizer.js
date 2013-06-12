@@ -1,5 +1,9 @@
 /* See license.txt for terms of usage */
-
+/**
+ * @file headerResizer.js
+ * 
+ * implementation for the column resizing in grids for the A11y Panel
+ */
 define([
     "firebug/lib/trace",
     "firebug/lib/locale",
