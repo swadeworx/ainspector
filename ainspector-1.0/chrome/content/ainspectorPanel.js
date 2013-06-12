@@ -1,18 +1,5 @@
-/**
- * Copyright 2013 University Of Illinois
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/* See license.txt for terms of usage */
+
 define([
   "firebug/lib/object",
   "firebug/lib/lib",
@@ -214,85 +201,85 @@ define([
         var items = [];
         items.push(
           {
-            id     : "onClickRulesMenuItem",
+            id     : "rulesView",
             label  : "ainspector.menuitem.allRules",
             type   : "radio",
-            checked: this.isSelected("onClickRulesMenuItem"),
-            command: Obj.bindFixed(this.onClickRulesMenuItem, this)
+            checked: this.isSelected("rulesView"),
+            command: Obj.bindFixed(this.rulesView, this)
           },
           {
-            id     : "onClickCategoriesMenuItem",
+            id     : "categoriesView",
             label  : "ainspector.menuitem.categories",
             type   : "radio",
-            checked: this.isSelected("onClickCategoriesMenuItem"),
-            command: Obj.bindFixed(this.onClickCategoriesMenuItem, this)
+            checked: this.isSelected("categoriesView"),
+            command: Obj.bindFixed(this.categoriesView, this)
           },
           {
-            id     : "onClickWCAGMenuItem",
+            id     : "wcagView",
             label  : "ainspector.menuitem.wcag",
             type   : "radio",
-            checked: this.isSelected("onClickWCAGMenuItem"),
-            command: Obj.bindFixed(this.onClickWCAGMenuItem, this)
+            checked: this.isSelected("wcagView"),
+            command: Obj.bindFixed(this.wcagView, this)
           },
           {
             label  :   "-",
           },
           {
-            id     : "onClickContentMenuItem",
+            id     : "contentView",
             label  : "ainspector.menuitem.content",
             type   : "radio",
-            checked: this.isSelected("onClickContentMenuItem"),
-            command: function() {Firebug.AinspectorPanel.prototype.getRuleCategoryView(OpenAjax.a11y.ELEMENT_TYPE.TEXT, 
-            		       Locale.$STR("ainspector.views.text"), this.getAttribute('id'));}
+            checked: this.isSelected("contentView"),
+            command: Obj.bindFixed(this.contentView, this)
           },
+          
           {
-            id     : "onClickHeadersMenuItem",
+            id     : "headersView",
             label  : "ainspector.menuitem.headers",
             type   : "radio",
-            checked: this.isSelected("onClickHeadersMenuItem"),
-            command: Obj.bindFixed(this.onClickHeadersMenuItem, this)
+            checked: this.isSelected("headersView"),
+            command: Obj.bindFixed(this.headersView, this)
           },
           {
-            id     : "onClickImagesMenuItem",
+            id     : "imagesView",
             label  : "ainspector.menuitem.images",
             type   : "radio",
-            checked: this.isSelected("onClickImagesMenuItem"),
-            command: Obj.bindFixed(this.onClickImagesMenuItem, this)
+            checked: this.isSelected("imagesView"),
+            command: Obj.bindFixed(this.imagesView, this)
           },
           {
-            id     : "onClickControlsMenuItem",
+            id     : "controlsView",
             label  : "ainspector.menuitem.controls",
             type   : "radio",
-            checked: this.isSelected("onClickControlsMenuItem"),
-            command: Obj.bindFixed(this.onClickControlsMenuItem, this)
+            checked: this.isSelected("controlsView"),
+            command: Obj.bindFixed(this.controlsView, this)
           },
           {
-            id     : "onClickLinkMenuItem",
+            id     : "linksView",
             label  : "ainspector.menuitem.links",
             type   : "radio",
-            checked: this.isSelected("onClickLinkMenuItem"),
-            command: Obj.bindFixed(this.onClickLinkMenuItem, this)
+            checked: this.isSelected("links"),
+            command: Obj.bindFixed(this.linksView, this)
           },
           {
-            id     : "onClickAudioMenuItem",
+            id     : "audioView",
             label  : "ainspector.menuitem.audio",
             type   : "radio",
-            checked: this.isSelected("onClickAudioMenuItem"),
-            command: Obj.bindFixed(this.onClickAudioMenuItem, this)
+            checked: this.isSelected("audioView"),
+            command: Obj.bindFixed(this.audioView, this)
           },
           {
-            id     : "onClickTablesMenuItem",
+            id     : "tablesView",
             label  : "ainspector.menuitem.tables",
             type   : "radio",
-            checked: this.isSelected("onClickTablesMenuItem"),
-            command: Obj.bindFixed(this.onClickTablesMenuItem, this)
+            checked: this.isSelected("tablesView"),
+            command: Obj.bindFixed(this.tablesView, this)
           },
           {
-            id     : "onClickWidgetsMenuItem",
+            id     : "widgetsView",
             label  : "ainspector.menuitem.widgets",
             type   : "radio",
-            checked: this.isSelected("onClickWidgetsMenuItem"),
-            command: Obj.bindFixed(this.onClickWidgetsMenuItem, this)
+            checked: this.isSelected("widgetsView"),
+            command: Obj.bindFixed(this.widgetsView, this)
           }
         );
   
@@ -337,11 +324,8 @@ define([
             id         : "rrules",
             label      : "ainspector.menuitem.recRules.enable",
             type       : "checkbox",
-            checked    : "false",
-            command    : function() {
-//            						Firebug.AinspectorPanel.prototype.setSelectedRuleset(this.getAttribute('id')); 
-          								Firebug.AinspectorPanel.prototype.setPreferences();
-            }
+            checked    : AinspectorPreferences.getPreferences().wcag20_recommended_rules_enabled,
+            command    : Obj.bindFixed(this.setPreferences, this)
           }
         );
         
@@ -392,7 +376,7 @@ define([
             id     : "emc",
             label  : "ainspector.menuitem.filters.elemc",
             type   : "checkbox",
-            checked: this.checkFilterEmc(),
+            checked: AinspectorPreferences.getPreferences().show_results_element_manual_checks,
             command: function() {
                 var checked = false;
                 
@@ -457,161 +441,148 @@ define([
      },
      
      /**
-      * @function onClickRulesMenuItem
+      * @function rulesView
       * 
       * @desc response to Headers menu item
       */
-     onClickRulesMenuItem : function(){
+     rulesView : function(){
      
        AinspectorListener.onGetPanelToolbarButtons(ruleset_object);
        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
-        
        Firebug.AinspectorModule.AinspectorRulesTemplate.viewTag(ruleset_object, 
-          OpenAjax.a11y.RULE_CATEGORIES.ALL, Locale.$STR("ainspector.views.rules"), "onClickRulesMenuItem");
+          OpenAjax.a11y.RULE_CATEGORIES.ALL, Locale.$STR("ainspector.views.rules"), "rulesView");
         
      },
       
-     onClickCategoriesMenuItem : function () {
+     categoriesView : function () {
         
        AinspectorListener.onGetPanelToolbarButtons(ruleset_object);
        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
-
        Firebug.AinspectorModule.WcagSummaryTemplate.viewTag(ruleset_object, 
-         OpenAjax.a11y.RULE_SUMMARY.CATEGORIES, Locale.$STR("ainspector.views.categories"), "onClickCategoriesMenuItem");
+         OpenAjax.a11y.RULE_SUMMARY.CATEGORIES, Locale.$STR("ainspector.views.categories"), "categoriesView");
      },
       
-     onClickWCAGMenuItem : function() {
+     wcagView : function() {
         
        AinspectorListener.onGetPanelToolbarButtons(ruleset_object);
        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
-
        Firebug.AinspectorModule.WcagSummaryTemplate.viewTag(ruleset_object, 
-          OpenAjax.a11y.RULE_SUMMARY.WCAG20, Locale.$STR("ainspector.views.wcag"), "onClickWCAGMenuItem");
+          OpenAjax.a11y.RULE_SUMMARY.WCAG20, Locale.$STR("ainspector.views.wcag"), "wcagView");
      },
      
-     getRuleCategoryView : function(view_id, type, locale, rule_category) {
-    	 
-    	 AinspectorListener.onGetPanelToolbarButtons(ruleset_object, rule_category);
-       OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
-        
-       Firebug.AinspectorModule.AinspectorRulesTemplate.viewTag(ruleset_object, 
-      		 type, locale, view_id);
-     
-     },
-      
      /**
-      * @function onClickContentMenuItem
-      * 
+      * @function contentView
       * @desc response to Text menu item
       */
-     onClickContentMenuItem : function() {
-     
+     contentView : function() {
+       
        AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Text Elements');
        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
-
        Firebug.AinspectorModule.AinspectorListTemplate.viewTag(ruleset_object, 
-          OpenAjax.a11y.ELEMENT_TYPE.TEXT, Locale.$STR("ainspector.views.text"), "onClickContentMenuItem");
+           OpenAjax.a11y.ELEMENT_TYPE.TEXT, Locale.$STR("ainspector.views.text"), "contentView");
+ 
      },
-      
+     
      /**
-      * @function onClickHeadersMenu
+      * @function headersView
       * 
       * @desc response to Headers menu item
       */
-     onClickHeadersMenuItem : function() {
-     
+     headersView : function() {
+       
        AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Heading and Landmark Elements');
        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
-
        Firebug.AinspectorModule.AinspectorListTemplate.viewTag(ruleset_object, 
-          OpenAjax.a11y.ELEMENT_TYPE.HEADINGS_LANDMARKS, Locale.$STR("ainspector.views.headers"), "onClickHeadersMenuItem");
+           OpenAjax.a11y.ELEMENT_TYPE.HEADINGS_LANDMARKS, Locale.$STR("ainspector.views.headers"), "headersView");
+       
      },
-      
+     
      /**
-      * @function onClickControlsMenu
+      * @function controlsView
       * 
       * @desc response to form controls menu item
       */
-     onClickControlsMenuItem : function() {
-        
+     controlsView : function() {
+       
        AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Form Control Elements');
        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
-
        Firebug.AinspectorModule.AinspectorTreeTemplate.viewTag(ruleset_object, 
-          OpenAjax.a11y.ELEMENT_TYPE.FORM_CONTROLS, Locale.$STR("ainspector.views.controls"), "onClickControlsMenuItem");
+           OpenAjax.a11y.ELEMENT_TYPE.FORM_CONTROLS, Locale.$STR("ainspector.views.controls"), "controlsView");
+       
      },
-      
+     
      /**
-      * @function onClickImagesMenuItem
+      * @function imagesView
       * 
       * @desc response to Images menu item
       */
-     onClickImagesMenuItem : function() {
-        
+     imagesView : function() {
+       
        AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Image Elements');
        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
-
        Firebug.AinspectorModule.AinspectorListTemplate.viewTag(ruleset_object, 
-         OpenAjax.a11y.ELEMENT_TYPE.IMAGES, Locale.$STR("ainspector.views.images"), "onClickImagesMenuItem");
+           OpenAjax.a11y.ELEMENT_TYPE.IMAGES, Locale.$STR("ainspector.views.images"), "imagesView");
      },
-      
+     
      /**
-      * @function onClickLinksMenuItem
+      * @function linksView
       * 
       * @desc response to Links menu item
       */
-     onClickLinkMenuItem : function() {
-        
+     linksView : function() {
+       
        AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Link Elements');
        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
+       Firebug.AinspectorModule.AinspectorListTemplate.viewTag(ruleset_object, 
+           OpenAjax.a11y.ELEMENT_TYPE.LINKS, Locale.$STR("ainspector.views.links"), "linksView");
+ 
+     },
+     
+     /**
+      * @function audioView
+      * 
+      * @desc response to audio/video menu item
+      */
+     audioView : function() {
+       
+       AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Audio/Video/Object Elements');
+       OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
+       Firebug.AinspectorModule.AinspectorListTemplate.viewTag(ruleset_object, 
+           OpenAjax.a11y.ELEMENT_TYPE.AUDIO_VIDEO, Locale.$STR("ainspector.views.audio"), "audioView");
+ 
+     },
+     
+     /**
+      * @function tablesView
+      * 
+      * @desc response to form controls menu item
+      */
+     tablesView : function() {
+       
+       AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Table Elements');
+       OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
 
-        Firebug.AinspectorModule.AinspectorListTemplate.viewTag(ruleset_object, 
-            OpenAjax.a11y.ELEMENT_TYPE.LINKS, Locale.$STR("ainspector.views.links"), "onClickLinkMenuItem");
-      },
-      
-      /**
-       * @function onClickAudioMenu
-       * 
-       * @desc response to audio/video menu item
-       */
-      onClickAudioMenuItem : function() {
-        
-        AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Audio/Video/Object Elements');
-        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
+       Firebug.AinspectorModule.AinspectorTreeTemplate.viewTag(ruleset_object, 
+           OpenAjax.a11y.ELEMENT_TYPE.TABLES, Locale.$STR("ainspector.views.tables"), "tablesView");
+       
+     },
+     
+     /**
+      * @function widgetsView
+      * 
+      * @desc response to form controls menu item
+      */
+     widgetsView : function() {
+       
+       AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Widget Elements');
+       OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
 
-        Firebug.AinspectorModule.AinspectorListTemplate.viewTag(ruleset_object, 
-            OpenAjax.a11y.ELEMENT_TYPE.AUDIO_VIDEO, Locale.$STR("ainspector.views.audio"), "onClickAudioMenuItem");
-      },
-      
-      /**
-       * @function onClickTablesMenu
-       * 
-       * @desc response to form controls menu item
-       */
-      onClickTablesMenuItem : function() {
-        
-        AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Table Elements');
-        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
-
-        Firebug.AinspectorModule.AinspectorTreeTemplate.viewTag(ruleset_object, 
-            OpenAjax.a11y.ELEMENT_TYPE.TABLES, Locale.$STR("ainspector.views.tables"), "onClickTablesMenuItem");
-      },
-      
-      /**
-       * @function onClickWidgetsMenu
-       * 
-       * @desc response to form controls menu item
-       */
-      onClickWidgetsMenuItem : function() {
-        
-        AinspectorListener.onGetPanelToolbarButtons(ruleset_object, 'Widget Elements');
-        OAA_WEB_ACCESSIBILITY.util.highlightModule.removeHighlight(window.content.document);
-
-        Firebug.AinspectorModule.AinspectorTreeTemplate.viewTag(ruleset_object, 
-            OpenAjax.a11y.ELEMENT_TYPE.WIDGETS, Locale.$STR("ainspector.views.widgets"), "onClickWidgetsMenuItem");
-      },
-      
-      /**
+       Firebug.AinspectorModule.AinspectorTreeTemplate.viewTag(ruleset_object, 
+           OpenAjax.a11y.ELEMENT_TYPE.WIDGETS, Locale.$STR("ainspector.views.widgets"), "widgetsView");
+       
+     },
+     
+     /**
        * @function setPreferences
        */
       setPreferences: function() {
@@ -630,6 +601,8 @@ define([
           } else {
             if (i==4 && rulesets[i].hasAttribute('checked')) {
               p.wcag20_recommended_rules_enabled = true;
+            } else {
+            	p.wcag20_recommended_rules_enabled = false;
             }
           }
         }
@@ -684,16 +657,18 @@ define([
         AinspectorPreferences.setPreferences(p);
         
         FBTrace.sysout("preferences:", p);
+        
         this.refresh();
         
         var views = toolbar.children[0].children[0].children;
-      	FBTrace.sysout("views - " , views);
         
-        for (var k=0; k<views.length; k++) {
-          if (views[k].hasAttribute('checked')) {
-          	FBTrace.sysout("view - " +k+ ':', views[k]);
-            var v = views[k].id; 
+        for (var k=0; k < views.length; k++) {
+          
+        	if (views[k].hasAttribute('checked')) {
+            var v = views[k].id;
+            
             this[v]();
+            
             break;
           } 
         }

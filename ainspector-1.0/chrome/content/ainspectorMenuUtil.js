@@ -1,18 +1,5 @@
-/**
- * Copyright 2013 University Of Illinois
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/* See license.txt for terms of usage */
+
 define(
 [
  "firebug/lib/lib",
@@ -99,10 +86,17 @@ define(
       /**
        * @function onGetPanelToolbarButtons
        * 
-       * @desc
+       * @desc Adds/deletes a menu item to the Reports menu on A11y Panel dynamically
+       *       menu item could be any of eight rule categories given on the A11y Panel
+       *       for e.g., if the Images menu item is selected in the Views menu on A11y panel, then 
+       *       onGetPanelToolbarButtons() dynamically adds a menu item 'Image Elements' to the 'Reports' menu on the A11y Panel
+       *       if the Widgets menu item is selected in the Views menu, then onGetPanelToolbarButtons() removes the 'Image Elements'
+       *       menu item from 'Reports' menu and adds 'Widget Elements' menu item to 'Reports'
+       *       If other than a rule category is selected in the 'Views' menu (i.e., summary related views), onGetPanelToolbarButtons()
+       *       deletes the previously added rule categories menu item from 'Reports' menu 
        * 
-       * @param panel
-       * @param buttons
+       * @param ruleset_object
+       * @param menuItem
        */
       onGetPanelToolbarButtons : function(ruleset_object, menuItem) {
       
