@@ -1,5 +1,17 @@
 /* See license.txt for terms of usage */
 
+/**
+ * @file ainspectorPanel.js
+ * 
+ * Applies user interface to the application, programmatically inserts themselves 
+ * into the application.
+ * 
+ * define the AInspectorPanel by 
+ *   1. extending internal Firebug.ActivablePanel object methods
+ *   2. initializing mouse event listeners for column resizing to the A11y Panel
+ *   3. appends menu's like views, rule sets, WCAG levels and filters to the A11y panel
+ *   4. sets the above menu items into preferences (can be viewed at about:config with the prefix 'extensions.ainspector-firebug-preferences.xxx')
+ */
 define([
   "firebug/lib/object",
   "firebug/lib/lib",

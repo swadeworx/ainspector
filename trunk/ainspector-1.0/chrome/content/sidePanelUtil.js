@@ -1,5 +1,10 @@
 /* See license.txt for terms of usage */
-
+/**
+ * @file sidePanelUtil.js
+ *
+ * Utility for the side panels. domplate templates for all side panels are written in here
+ * 
+ */
 define([
     "firebug/lib/trace",
     "firebug/lib/locale",

@@ -1,5 +1,12 @@
 /* See license.txt for terms of usage */
-
+/**
+ * @file ainspectorWatcher.js
+ *
+ *  1. Code for the Progress listeners to notify A11y Panel of events associated with the documents 
+ *     loading in the browser and with tab switching events
+ *  2. Call to the OAA evaluation library 
+ *  
+ */
 define(
   [
     "firebug/lib/trace",

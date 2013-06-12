@@ -1,5 +1,9 @@
 /* See license.txt for terms of usage */
-
+/**
+ * @file wcagSummaryTemplate.js
+ *
+ * template for the summary panels like All Rule Categories and WCAG 2.0 summary views
+ */
 define([
   "firebug/lib/trace",
   "firebug/lib/locale",

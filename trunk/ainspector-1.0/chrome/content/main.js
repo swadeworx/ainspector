@@ -6,6 +6,9 @@
  * Automatically loaded by the registration process of the extension i.e., 
  * when the extension is loaded Firebug looks for the main module (main.js)
  * to load. 
+ * 
+ * registers A11y Panel 
+ * unregisters A11y Panel and all the side panels in it
  */
 
 define([
