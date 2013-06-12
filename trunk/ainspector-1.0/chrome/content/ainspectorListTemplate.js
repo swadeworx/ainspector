@@ -1,18 +1,5 @@
-/**
- * Copyright 2013 University Of Illinois
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/* See license.txt for terms of usage */
+
 define([
   "firebug/lib/object",
   "firebug/lib/trace",
@@ -187,14 +174,14 @@ define([
              
              panel.panelNode.id = "ainspector-panel";
              
-             if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("Ainspector; preferencess: ", preferences);
-            
              var cache_results = rule_results.getCacheItemsByElementType(rule_category, preferences.show_results_filter_value);
              var cache_item_results = cache_results.cache_item_results;
-             if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("Ainspector; cache_results: ", cache_results);
-             if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("Ainspector; cache_item_results: ", cache_item_results);
+             
+             if (FBTrace.DBG_AINSPECTOR) {
+            	 FBTrace.sysout("Ainspector; cache_results: ", cache_results);
+               FBTrace.sysout("Ainspector; cache_item_results: ", cache_item_results);
+             }
 
-//             var node_results_list = cache_results.createListOfCacheItemResults();
              var node_results_list = new OpenAjax.a11y.formatters.TreeViewOfFilteredCacheItemResults(cache_results);
              
              if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("Ainspector; node_results_list: ", node_results_list);
@@ -210,6 +197,7 @@ define([
              var side_panel = Firebug.chrome.getSelectedSidePanel();
              
              AinspectorUtil.selectRow(panel.table, false, id);
+             
              if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("side_panel: ", side_panel);
              if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("alselectedView: " + AinspectorUtil.selectedView);
              if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("View: " + id);
