@@ -2,6 +2,34 @@
 
 = Version History =
 
+== Version alpha (V0.9.16 - Release) ==
+
+  * OAA Evaluation library release (V2.0.5 - Release): API changes like getResultMessages() function returns a common message if everything has passed
+  * performance: Highlight options 'None' as the default
+  * document A11y extension 
+  * keyboard support is stable in all the grids
+  * Code reviews
+  
+  * Note : works with Firebug 1.11.3 and Firebug 1.11.4 and beta versions of Firebug 1.12.x
+  
+==  Version alpha (V0.9.15 - Release) ==
+
+  * keyboard support is been implemented in all the grids of A11y panel
+  * Highlights elements with specific colors denotes the result of an element on the web page as passed/failed the rule
+    or warning or a manual check.
+  * Highlight options are None, All elements, selected elements and V/W only. 'All elements' being default.
+  * OAA Evaluation library release (V2.0.4 - Release)
+  
+== Version alpha (V0.9.14 - Release)  ==
+ 
+  * Updates on Evaluation Library
+  * Note: Install the latest Firebug 1.12.0aX.xpi beta for the menu bar in this extension 
+    to work properly: https://getfirebug.com/releases/firebug/1.12/
+    
+== Version alpha (V0.9.13 - Release)  ==
+
+  * Updates on Evaluation Library
+
 == Version alpha 0.9.12 ==
 
  * Stable version
