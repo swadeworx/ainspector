@@ -185,14 +185,15 @@ define([
              var node_results_list = new OpenAjax.a11y.formatters.TreeViewOfFilteredCacheItemResults(cache_results);
              
              if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("Ainspector; node_results_list: ", node_results_list);
-
-             if (node_results_list.cache_item_list.length > 0)
+             var has_results = node_results_list.cache_item_list.length;
+            	 
+             if (has_results > 0)
                panel.table = this.tag.replace({cache_item_list: node_results_list.cache_item_list, view:view, resultSummary: cache_results.getResultSummary()}, panel.panelNode);
              else
                panel.table = AinspectorUtil.noDataView.tag.replace({view:view}, panel.panelNode);
              
              AinspectorUtil.contextMenu.setTableMenuItems(panel.table);
-             AinspectorUtil.contextMenu.setHighlightOption(panel.table);
+             if (has_results > 0) AinspectorUtil.contextMenu.setHighlightOption(panel.table);
 
              var side_panel = Firebug.chrome.getSelectedSidePanel();
              

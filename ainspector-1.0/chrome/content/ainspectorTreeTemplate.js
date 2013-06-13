@@ -183,33 +183,38 @@ define([
            * 
            * @desc gets cache item results for a rule category
            * 
-           * @param {Object}rule_results - rule results object
-           * @param {String}rule_category- specific rule category selected in the menu  
+           * @param {Object} rule_results - rule results object
+           * @param {String} rule_category- specific rule category selected in the menu
+           * @param {String} view
+           * @param {String} id  
            */
           viewTag : function(rule_results, rule_category, view, id) {
             
+//          add and remove side panels when a view is selected  
             SidePanelUtil.addAndRemoveSidePanels(true);
 
-            var preferences = AinspectorPreferences.getPreferences();
-            var panel = Firebug.currentContext.getPanel("ainspector", true);
+            var panel         = Firebug.currentContext.getPanel("ainspector", true);
+            var preferences   = AinspectorPreferences.getPreferences();
             var cache_results = rule_results.getCacheItemsByElementType(rule_category, preferences.show_results_filter_value);
-            if (panel)
-              Dom.clearNode(panel.panelNode);
+            
+            if (panel) Dom.clearNode(panel.panelNode);
             
             panel.panelNode.id = "ainspector-panel";
             var cache_item_results = cache_results.cache_item_results;
             var node_results = new OpenAjax.a11y.formatters.TreeViewOfFilteredCacheItemResults(cache_results);;
-            
-            if (FBTrace.DBG_AINSPECTOR) {}FBTrace.sysout("AInspector; AinspectorTreeTemplate.viewTag(cache_results): ", cache_results);
+            var has_results = node_results.cache_item_list.length;
+            	
             if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; AinspectorTreeTemplate.viewTag(node_results): ", node_results);
-            if (node_results.cache_item_list.length > 0) { 
+
+            if (has_results > 0) { 
               panel.table = this.tag.replace({cache_item_list: node_results.cache_item_list, view:view, resultSummary: cache_results.getResultSummary()}, panel.panelNode);
               this.expandAllRows(panel.table);
             } else {
               panel.table = AinspectorUtil.noDataView.tag.replace({view:view}, panel.panelNode);
             }  
             AinspectorUtil.contextMenu.setTableMenuItems(panel.table);
-            AinspectorUtil.contextMenu.setHighlightOption(panel.table);
+            
+            if (has_results > 0) AinspectorUtil.contextMenu.setHighlightOption(panel.table);
 
             var side_panel = Firebug.chrome.getSelectedSidePanel();
             
@@ -355,7 +360,7 @@ define([
 //              FBTrace.sysout("row: ", row);
               if (repObject && repObject.children) {
                             
-				var members;
+            		var members;
                 this.loop.insertRows({members: repObject.children}, row);
               }
   //            return panel.table;
@@ -419,10 +424,95 @@ define([
               if (Css.hasClass(row, "opened")) this.closeRow(row);
             }
           },
-          
-          onKeyPressGrid : function(event){
-            AinspectorUtil.keyBoardSupport.onKeyPressGrid(event);
-          },
+          	
+        	/**
+           * @function onKeyPressGrid
+           * 
+           * @desc focus on a row with the keyboard events
+           * 
+           * @param event event triggered when any keyboard's right, left, up and down arrows are pressed
+           */
+          onKeyPressGrid: function(event){
+//            AinspectorUtil.keyBoardSupport.onKeyPressGrid(event);              
+            var main_panel = Dom.getAncestorByClass(event.target, "main-panel");
+            var table = Dom.getChildByClass(main_panel, "ai-table-list-items");
+            if (!table) table = Dom.getChildByClass(main_panel, "domTable");
+            
+            switch(event.keyCode) {
+                
+              case KeyEvent.DOM_VK_LEFT: //
+                     
+              	var row = Dom.getAncestorByClass(event.target, "treeRow");
+                
+                if (Css.hasClass(row, "opened")) { // if open
+                  this.closeRow(row); // close
+                } else {
+                  var table = Dom.getAncestorByClass(event.target, "domTable");
+                  table.focus(); // focus parent;
+                }
+                
+                break;
+              case KeyEvent.DOM_VK_UP: //up
+                
+              	var row = Dom.findPrevious(event.target, AinspectorUtil.keyBoardSupport.isGridRow);
+              	
+//                if the focus is on the first row key up button should stay at the first row
+              	if (Css.hasClass(row, 'gridHeaderRow')) break;
+              		
+              	FBTrace.sysout("row: ", row);
+                if (row) {
+                  row.focus();
+                  AinspectorUtil.highlightRow(event, table, row);
+                }
+                event.stopPropagation();
+                event.preventDefault();
+                
+                break;
+            
+              case KeyEvent.DOM_VK_RIGHT: //right
+              	
+              	var current_row = Dom.getAncestorByClass(event.target, 'treeRow');
+              	FBTrace.sysout("current_row: ", current_row);
+              	
+              	if (Css.hasClass(current_row, 'hasChildren')) this.openRow(current_row);
+              	break;
+              		
+              case KeyEvent.DOM_VK_DOWN: //down
+                
+                var row = Dom.findNext(event.target, AinspectorUtil.keyBoardSupport.isGridRow);
+                
+                if (row) {
+                  row.focus();
+                  AinspectorUtil.highlightRow(event, table, row);
+                }
+                event.stopPropagation();
+                event.preventDefault();
+                
+                break;
+                
+              case KeyEvent.DOM_VK_TAB:
+                var sidePanel = Firebug.chrome.getSelectedSidePanel();
+                
+                if (sidePanel) {
+                  sidePanel.panelNode.setAttribute("tabindex", "0");
+                  sidePanel.panelNode.focus();
+                  Css.setClass(sidePanel.panelNode, "focusRow");
+                }
+                event.stopPropagation();
+                event.preventDefault();
+                
+                break;
+                
+              case KeyEvent.DOM_VK_RETURN:
+                var lastChild = event.target.lastElementChild;
+                if ( lastChild && lastChild.id == 'gridHTMLCol') AinspectorUtil.toHTMLPanel(event);
+                event.stopPropagation();
+                event.preventDefault();  
+                
+                break;
+            } //end switch
+
+        },
           
           onFocus : function (event) {
             

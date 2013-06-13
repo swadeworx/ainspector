@@ -350,7 +350,85 @@ define([
             },
             
             onKeyPressGrid : function(event){
-              AinspectorUtil.keyBoardSupport.onKeyPressGrid(event);
+
+//            AinspectorUtil.keyBoardSupport.onKeyPressGrid(event);
+              var main_panel = Dom.getAncestorByClass(event.target, "main-panel");
+              var table = Dom.getChildByClass(main_panel, "ai-table-list-items");
+              if (!table) table = Dom.getChildByClass(main_panel, "domTable");
+              
+              switch(event.keyCode) {
+                  
+                case KeyEvent.DOM_VK_LEFT: //
+                       
+                	var row = Dom.getAncestorByClass(event.target, "treeRow");
+                  
+                  if (Css.hasClass(row, "opened")) { // if open
+                    this.closeRow(row); // close
+                  } else {
+                    var table = Dom.getAncestorByClass(event.target, "domTable");
+                    table.focus(); // focus parent;
+                  }
+                  
+                  break;
+                case KeyEvent.DOM_VK_UP: //up
+                  
+                	var row = Dom.findPrevious(event.target, AinspectorUtil.keyBoardSupport.isGridRow);
+                	
+//                  if the focus is on the first row key up button should stay at the first row
+                	if (Css.hasClass(row, 'gridHeaderRow')) break;
+                		
+                	FBTrace.sysout("row: ", row);
+                  if (row) {
+                    row.focus();
+                    AinspectorUtil.highlightRow(event, table, row);
+                  }
+                  event.stopPropagation();
+                  event.preventDefault();
+                  
+                  break;
+              
+                case KeyEvent.DOM_VK_RIGHT: //right
+                	
+                	var current_row = Dom.getAncestorByClass(event.target, 'treeRow');
+                	FBTrace.sysout("current_row: ", current_row);
+                	
+                	if (Css.hasClass(current_row, 'hasChildren')) this.openRow(current_row);
+                	break;
+                		
+                case KeyEvent.DOM_VK_DOWN: //down
+                  
+                  var row = Dom.findNext(event.target, AinspectorUtil.keyBoardSupport.isGridRow);
+                  
+                  if (row) {
+                    row.focus();
+                    AinspectorUtil.highlightRow(event, table, row);
+                  }
+                  event.stopPropagation();
+                  event.preventDefault();
+                  
+                  break;
+                  
+                case KeyEvent.DOM_VK_TAB:
+                  var sidePanel = Firebug.chrome.getSelectedSidePanel();
+                  
+                  if (sidePanel) {
+                    sidePanel.panelNode.setAttribute("tabindex", "0");
+                    sidePanel.panelNode.focus();
+                    Css.setClass(sidePanel.panelNode, "focusRow");
+                  }
+                  event.stopPropagation();
+                  event.preventDefault();
+                  
+                  break;
+                  
+                case KeyEvent.DOM_VK_RETURN:
+                  var lastChild = event.target.lastElementChild;
+                  if ( lastChild && lastChild.id == 'gridHTMLCol') AinspectorUtil.toHTMLPanel(event);
+                  event.stopPropagation();
+                  event.preventDefault();  
+                  
+                  break;
+              } //end switch
             },
             
             sortColumn : function(event) {
