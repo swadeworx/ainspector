@@ -86,7 +86,6 @@ Firebug.RuleResultsSidePanel.prototype = Obj.extend(Firebug.Panel, {
     
     if (Firebug.chrome.getSelectedSidePanel().name != panelName) return;
 
-    FBTrace.sysout("AInspector; ruleResultsSidePanel.onKeyPress: ", event);
     var all_rows = event.target.rows ? event.target.rows : event.target.offsetParent.rows;
     
     var key = event.keyCode;     
@@ -94,11 +93,13 @@ Firebug.RuleResultsSidePanel.prototype = Obj.extend(Firebug.Panel, {
     var backward = key == KeyEvent.DOM_VK_LEFT || key == KeyEvent.DOM_VK_UP; 
     
     var object;
+    
     for (var i=0; i < all_rows.length; i++) {
-      if (Css.hasClass(all_rows[i], "gridRowSelected")) {
+    
+    	if (Css.hasClass(all_rows[i], "gridRowSelected")) {
         object = forward ? all_rows[i+1].repObject : all_rows[i-1].repObject; 
-        FBTrace.sysout("================object=============", object);
         SidePanelUtil.ruleResultsTemplate.rebuild(object.node_results, this.panelNode, panelName);
+
         break;
       }
     }

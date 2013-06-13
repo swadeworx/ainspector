@@ -70,48 +70,6 @@ Firebug.ElementsSidePanel.prototype = Obj.extend(Firebug.Panel, {
     return object instanceof window.Element;
   },
   
-  onKeyPressOld : function(event) {
-
-    if (Firebug.chrome.getSelectedSidePanel().name != panelName) return;
-
-    FBTrace.sysout("AInspector; ElementsSidePanel.onKeyPress: ", event);
-    
-    switch(event.keyCode) {                
-    
-    case KeyEvent.DOM_VK_LEFT: //             
-    case KeyEvent.DOM_VK_UP: //up         
-    case KeyEvent.DOM_VK_RIGHT: //right      
-    case KeyEvent.DOM_VK_DOWN: //down 
-      var all_rows = event.target.rows ? event.target.rows : event.target.offsetParent.rows;
-      
-      var key = event.keyCode;     
-      var forward = key == KeyEvent.DOM_VK_RIGHT || key == KeyEvent.DOM_VK_DOWN;  
-      var backward = key == KeyEvent.DOM_VK_LEFT || key == KeyEvent.DOM_VK_UP; 
-      
-      var object;
-      var flag = false;
-      for (var i=0; i < all_rows.length; i++) {
-       
-        if (Css.hasClass(all_rows[i], "gridRowSelected")) {
-          
-          FBTrace.sysout("all_rows[i]: ", all_rows[i]);
-          object = forward ? all_rows[i+1].repObject : all_rows[i-1].repObject;   
-          this.updateSelection(object, this.panelNode);
-          break;
-        } else { // if enters first time in to the grid
-          if (i == all_rows.length-1 && flag == false) {
-            FBTrace.sysout("AInspector; no grid row is selected: ", all_rows[i]);
-            this.updateSelection(all_rows[i].repObject, this.panelNode);
-            break;
-          }
-        }
-      }
-      
-    case KeyEvent.DOM_VK_TAB:
-      break;
-    }
-  },
-  
   /**
    * @function onKeyPress
    * 
@@ -221,8 +179,7 @@ Firebug.ElementsSidePanel.prototype = Obj.extend(Firebug.Panel, {
     
     if (filtered_rule_result) {
       
-//      if (FBTrace.DBG_AINSPECTOR)
-        FBTrace.sysout("AInspector; filtered_rule_result: ", filtered_rule_result);
+      if (FBTrace.DBG_AINSPECTOR) FBTrace.sysout("AInspector; filtered_rule_result: ", filtered_rule_result);
       
     	rule_result_mesg = filtered_rule_result.getResultMessages();
       
