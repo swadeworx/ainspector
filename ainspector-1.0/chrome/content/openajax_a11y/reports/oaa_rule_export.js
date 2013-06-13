@@ -159,13 +159,13 @@
           }
        }  
       /**
-       * @function OAA_RULE_EXPORT.getRulesetInformation
+       * @function OAA_RULE_EXPORT.getRulesetInfo
        *
        * @desc Generate wiki table markup for ruleset types for a rule_id
        *
        */
 
-       OAA_RULE_EXPORT.getRulesetInformation = function(node, rule_id) {
+       OAA_RULE_EXPORT.getRulesetInfo = function(node, rule_id) {
 
          for (var i = 0; i < rulesets.length; i++) {
           
@@ -345,7 +345,7 @@
                  var div_node = OAA_RULE_EXPORT.addElement(section_node, "div", "", "", "| ");              
                  OAA_RULE_EXPORT.translateMessageCodes(div_node, rule['definition']);
                
-                 OAA_RULE_EXPORT.getRulesetInformation(section_node, rule['rule_id']);
+                 OAA_RULE_EXPORT.getRulesetInfo(section_node, rule['rule_id']);
                
                  OAA_RULE_EXPORT.addElement(section_node, "div", "", "", "|-");              
 
@@ -495,7 +495,7 @@
                var div_node = OAA_RULE_EXPORT.addElement(section_node, "div", "", "", "| ");              
                OAA_RULE_EXPORT.translateMessageCodes(div_node, rule['definition']);
                
-               OAA_RULE_EXPORT.getRulesetInformation(section_node, rule['rule_id']);
+               OAA_RULE_EXPORT.getRulesetInfo(section_node, rule['rule_id']);
                
                OAA_RULE_EXPORT.addElement(section_node, "div", "", "", "|-");              
               
