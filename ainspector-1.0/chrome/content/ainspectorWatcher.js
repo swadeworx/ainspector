@@ -54,13 +54,19 @@ define(
           preferences.show_results_page_manual_checks, 
           preferences.show_results_pass,
           preferences.show_results_hidden);
+      
+      
       var ruleset = OpenAjax.a11y.all_rulesets.getRuleset(preferences.ruleset_id);
+      OpenAjax.a11y.logger.enable = true;
+//      OpenAjax.a11y.logger.output = FBTrace.sysout;
 
       if (ruleset) {
         ruleset.setEvaluationLevels(preferences.wcag20_level);
         ruleset.setRecommendedRulesEnabled(preferences.wcag20_recommended_rules_enabled);
         ruleset.setBrokenLinkTesting(preferences.broken_links);
+        
         ruleset_object = ruleset.evaluate(url, doc.title, doc, null, true);
+
       } 
       
       if (FBTrace.DBG_AINSPECTOR)
