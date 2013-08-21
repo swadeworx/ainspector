@@ -61,6 +61,7 @@ define(
 //      OpenAjax.a11y.logger.output = FBTrace.sysout;
 
       if (ruleset) {
+        ruleset.setEventHandlerProcessor('firefox');
         ruleset.setEvaluationLevels(preferences.wcag20_level);
         ruleset.setRecommendedRulesEnabled(preferences.wcag20_recommended_rules_enabled);
         ruleset.setBrokenLinkTesting(preferences.broken_links);
